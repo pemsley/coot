@@ -21,6 +21,8 @@
 
 #include <iomanip>
 #include <algorithm>
+
+#include "multi-peptide.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -28,7 +30,6 @@
 #include "ligand.hh"
 #include "analysis/stats.hh"
 #include "analysis/kolmogorov.hh" // for testing
-#include "multi-peptide.hh"
 #include "mini-mol/mini-mol-utils.hh"
 
 // First we will flood the map, then look for atom pair that are 2.8

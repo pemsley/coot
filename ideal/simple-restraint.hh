@@ -95,22 +95,20 @@ namespace coot {
       bool fixed_2;
       bool fixed_3;
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
-		    const std::string &link_type_in) {
+		    const std::string &link_type_in) : link_type(link_type_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
-	 link_type = link_type_in;
 	 fixed_1 = 0;
 	 fixed_2 = 0;
 	 fixed_3 = 0;
       }
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
 		    const std::string &link_type_in,
-		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) {
+		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) : link_type(link_type_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
-	 link_type = link_type_in;
 	 fixed_1 = fixed_1_in;
 	 fixed_2 = fixed_2_in;
 	 fixed_3 = fixed_3_in;
@@ -291,7 +289,9 @@ namespace coot {
       int resno_third;
       std::vector<bool> is_fixed;
       ramachandran_restraint_flanking_residues_helper_t() {
-	 is_fixed.resize(3,0);
+	 is_fixed.resize(3, false);
+         resno_first = -1;
+         resno_third = -1;
       }
    };
 
@@ -1140,6 +1140,10 @@ namespace coot {
 	 from_residue_vector = 0;
 	 rama_type = RAMA_TYPE_LOGRAMA;
 	 rama_plot_weight = 40.0;
+         do_hydrogen_atom_refinement = false;
+         do_neutron_refinement = false;
+
+         refinement_results_add_details = true;
 
 #ifndef __NVCC__
 	 restraints_lock = false; // not locked
@@ -1804,6 +1808,7 @@ namespace coot {
 				 bool do_trans_peptide_restraints,
 				 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
 				 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
+      bool N_and_C_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
 
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
 								       std::pair<bool, mmdb::Residue *> res_1,
@@ -1971,6 +1976,14 @@ namespace coot {
       std::vector<clipper::Coord_orth> oxt_reference_atom_pos;
       // short int is_nucleotide(mmdb::Residue *res_p);
       bool do_numerical_gradients_flag;
+
+      bool do_hydrogen_atom_refinement;
+      bool do_neutron_refinement;
+      void set_do_hydrogen_atom_refinement(bool state) { do_hydrogen_atom_refinement = state; }
+      void set_do_neutron_refinement(bool state) {
+         do_neutron_refinement = state;
+         if (state) set_z_occ_weights(); // needs neutron weights now
+      }
 
       // validation:
       geometry_distortion_info_container_t
@@ -2304,6 +2317,8 @@ namespace coot {
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
+      void get_restraints_lock();
+      void release_restraints_lock();
 #endif
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
@@ -2331,6 +2346,10 @@ namespace coot {
 				    int nsteps_max, short int print_initial_chi_sq_flag,
 				    const protein_geometry &geom);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+
+      bool refinement_results_add_details;
+      void add_details_to_refinement_results(refinement_results_t *rr) const;
+
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
       refinement_lights_info_t::the_worst_t
@@ -2403,7 +2422,7 @@ namespace coot {
       mmdb::Atom *add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos);
       void clear_atom_pull_restraint(const atom_spec_t &spec); // clear any previous restraint for this atom.
       void clear_all_atom_pull_restraints();
-      unsigned int n_atom_pull_restraints() const;
+      unsigned int n_atom_pull_restraints() const; // counts closed pull restraints also.
 
       void add_extra_restraints(int imol,
                                 const std::string &description,
@@ -2444,6 +2463,10 @@ namespace coot {
       //
       std::vector<bool> use_map_gradient_for_atom;
       std::vector<double> atom_z_occ_weight;  // weight e.d. fit by atomic number and occ
+      std::map<std::string, double> neutron_occupancy_map;
+      void set_z_occ_weights();
+      void init_neutron_occupancies();
+      double neutron_occupancy(const std::string &element, int formal_charge) const;
 
       // Make a MMDBManager from the selection and return this new
       // mmdb::PManager.  It is the users responsibility to delete it.
@@ -2517,6 +2540,14 @@ namespace coot {
       // Never include that atom that the user is dragging.
       //
       std::vector<atom_spec_t> turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom);
+
+      void pull_restraint_displace_neighbours(mmdb::Atom *at,
+                                              const clipper::Coord_orth &new_pull_atom_target_position,
+                                              float radius_of_effect);
+      bool use_proportional_editing;
+      float pull_restraint_neighbour_displacement_max_radius;
+      void set_use_proportional_editing(bool state);
+
 
       bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
 

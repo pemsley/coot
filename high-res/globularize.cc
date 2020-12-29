@@ -49,7 +49,7 @@ public:
 void 
 glob_command_line_options::parse_command_line_options(int argc, char **argv) {
 
-#ifdef _GETOPT_H
+#ifdef _GETOPT_H // remove this?
 
    const char *optstr = "c:"; 
    static struct option long_options[] = {
@@ -78,27 +78,27 @@ glob_command_line_options::parse_command_line_options(int argc, char **argv) {
 	 // a long option
 	 
       case 0:
-	 if (optarg) {
+	 if (coot_optarg) {
 	    
 	    std::string arg_str = long_options[option_index].name;
 
 	    if (arg_str == "centre-x") {
-	       x = atof(optarg);
+	       x = atof(coot_optarg);
 	       have_x_flag = 1;
 	    }
 	    if (arg_str == "centre-y") {
-	       y = atof(optarg);
+	       y = atof(coot_optarg);
 	       have_y_flag = 1;
 	    }
 	    if (arg_str == "centre-z") {
-	       z = atof(optarg);
+	       z = atof(coot_optarg);
 	       have_z_flag = 1;
 	    }
 	    if (arg_str == "pdb-in") {
-	       input_pdb_file = optarg;
+	       input_pdb_file = coot_optarg;
 	    }
 	    if (arg_str == "pdb-out") {
-	       output_pdb_file = optarg;
+	       output_pdb_file = coot_optarg;
 	    }
 	 }
       }

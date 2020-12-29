@@ -118,7 +118,7 @@ def clear_backup_gui():
                     "   Delete Them?"
         label = gtk.Label(label_str)
         ok_button.connect("clicked", lambda w: list(map(eval, ["delete_coot_backup_files('delete')", "coot_real_exit(0)"])))
-        cancel_button.connect("clicked", lambda w: coot_real_exit(0))
+        cancel_button.connect("clicked", lambda w: coot.coot_real_exit(0))
 
         ok_text = " Consider yourself patted on the back! "
         cancel_text = "A less pejorative label here might be \"Keep\" or \"Cancel\" " + \
@@ -155,8 +155,8 @@ def clear_backup_gui():
 #
 # Note that clear-backup-gui returns either true or False too.
 #
-# If this function returns False, then coot_real_exit() just exits with
-# coot_real_exit().  Otherwise we wait for the GUI.
+# If this function returns False, then coot.coot_real_exit() just exits with
+# coot.coot_real_exit().  Otherwise we wait for the GUI.
 #
 def clear_backups_maybe():
 

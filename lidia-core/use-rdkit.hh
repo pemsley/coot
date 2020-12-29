@@ -34,4 +34,14 @@
 #include <GraphMol/MolOps.h>
 #include <GraphMol/PeriodicTable.h>
 
+// Fix RDKIT_VERSION if not exist
+#ifndef RDKIT_VERSION
+/* Version check macro
+   Can be used like #if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1)) */
+#define RDKIT_VERSION_CHECK(year, month, rev) ((year*1000)+(month*10)+(rev))
+
+/* RDKIT_VERSION is (year*1000) + (month*10) + (rev) */
+#define RDKIT_VERSION RDKIT_VERSION_CHECK(2017, 9, 3)  // a guess
+#endif
+
 #endif // USE_RDKIT_HH

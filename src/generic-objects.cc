@@ -25,6 +25,9 @@
 #include "python-3-interface.hh"
 #endif
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #include "compat/coot-sysdep.h"
 
 #include <iostream>
@@ -38,7 +41,8 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh" // needed? - remove it later
+#include "meshed-generic-display-object.hh"
 #include "c-interface-widgets.hh" // for generic_objects_dialog_table_add_object_internal()
 
 #include "graphics-info.h"
@@ -65,25 +69,67 @@ void to_generic_object_add_line(int object_number,
    std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
 
    std::string c(colour_name);
-   coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
-   if (object_number >= 0) { 
+   coot::colour_holder colour = colour_values_from_colour_name(c);
+   if (object_number >= 0) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       unsigned int object_number_u(object_number);
-      if (object_number_u < g.generic_objects_p->size()) { 
-	 (*g.generic_objects_p)[object_number].add_line(colour,
-							c,
-							line_width,
-							coords);
-	 
+      if (object_number_u < g.generic_display_objects.size()) {
+         std::pair<glm::vec3, glm::vec3> p(coord_orth_to_glm(x1), coord_orth_to_glm(x2));
+         meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+         float radius = 0.3;
+         unsigned int n_slices = 12;
+         coot::colour_holder col = colour_values_from_colour_name(colour_name);
+         obj.add_cylinder(p, col, radius, n_slices, true, true,
+                          meshed_generic_display_object::FLAT_CAP,
+                          meshed_generic_display_object::FLAT_CAP);
+
+         Material material;
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
       } else {
-	 std::cout << "BAD object_number in to_generic_object_add_line"
-		   << " out of range high" << object_number << std::endl;
+         std::cout << "BAD object_number in to_generic_object_add_line"
+                   << " out of range high" << object_number << std::endl;
       }
    } else {
       std::cout << "BAD object_number (out of range low) in to_generic_object_add_line"
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 }
+
+bool is_valid_generic_display_object_number(int obj) {
+   if (obj < 0) return false;
+   int s = graphics_info_t::generic_display_objects.size();
+   if (obj >= s) return false;
+   return true;
+}
+
+
+void to_generic_object_add_cylinder(int object_number,
+                                    const char *colour,
+                                    float line_radius,
+                                    int n_slices, // 4, 8, 16
+                                    float from_x,
+                                    float from_y,
+                                    float from_z,
+                                    float to_x,
+                                    float to_y,
+                                    float to_z,
+                                    bool cap_start,
+                                    bool cap_end) {
+
+   glm::vec3 x1(from_x, from_y, from_z);
+   glm::vec3 x2(to_x, to_y, to_z);
+   std::pair<glm::vec3, glm::vec3> p(x1, x2);
+   std::string colour_name(colour);
+   coot::colour_holder col = colour_values_from_colour_name(colour_name);
+   graphics_info_t g;
+   if (is_valid_generic_display_object_number(object_number)) {
+      meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+      obj.add_cylinder(p, col, line_radius, n_slices, cap_start, cap_end,
+                       meshed_generic_display_object::FLAT_CAP,
+                       meshed_generic_display_object::FLAT_CAP);
+   }
+}
+
 
 /*! \brief add line to generic object object_number */
 void to_generic_object_add_dashed_line(int object_number, 
@@ -121,73 +167,66 @@ void to_generic_object_add_dashed_line(int object_number,
 
 
 
-void to_generic_object_add_point(int object_number, 
-				 const char *colour_name,
-				 int point_width,
-				 float from_x1, 
-				 float from_y1, 
-				 float from_z1) {
+void to_generic_object_add_point(int object_number,
+                                 const char *colour_name,
+                                 int point_width,
+                                 float from_x1,
+                                 float from_y1,
+                                 float from_z1) {
 
    graphics_info_t g;
-   clipper::Coord_orth x1(from_x1, from_y1, from_z1);
+   clipper::Coord_orth pt(from_x1, from_y1, from_z1);
    std::string c(colour_name);
-   coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+   coot::colour_holder colour = coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
-//    std::cout << "debug:: colour input " << c << " gave colour "
-// 	     << colour << std::endl;
+   to_generic_object_add_point_internal(object_number, colour_name, colour, point_width, pt);
 
-   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
-
-      (*g.generic_objects_p)[object_number].add_point(colour,
-						      c,
-						      point_width,
-						      x1);
-   } else {
-      std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
-   } 
 }
 
-void to_generic_object_add_point_internal(int object_number, 
-					  const std::string &colour_name,
-					  const coot::colour_holder &colour,
-					  int point_width,
-					  const clipper::Coord_orth &pt) {
-
+void to_generic_object_add_point_internal(int object_number,
+                                          const std::string &colour_name,
+                                          const coot::colour_holder &colour,
+                                          int point_width,
+                                          const clipper::Coord_orth &pt) {
    graphics_info_t g;
 
-   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
-
-      (*g.generic_objects_p)[object_number].add_point(colour, colour_name, point_width, pt);
-
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      unsigned int object_number_u(object_number);
+      if (object_number_u < g.generic_display_objects.size()) {
+         meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+         Material material;
+         g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+      }
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 }
 
 
 void to_generic_object_add_dodecahedron(int object_number,
-					const char *colour_name,
-					float radius,
-					float x,
-					float y,
-					float z) {
+                                        const char *colour_name,
+                                        float radius,
+                                        float x,
+                                        float y,
+                                        float z) {
 
    graphics_info_t g;
    clipper::Coord_orth x1(x, y, z);
    std::string c(colour_name);
    coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
-   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
 
-      (*g.generic_objects_p)[object_number].add_dodecahedron(colour, c, radius, x1);
+      g.generic_display_objects.at(object_number).add_dodecahedron(colour, c, radius, x1);
+
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
 		<< object_number << std::endl;
-   } 
+   }
 }
 
 void to_generic_object_add_pentakis_dodecahedron(int object_number,
@@ -202,97 +241,209 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
    clipper::Coord_orth x1(x, y, z);
    std::string c(colour_name);
    coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
-   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
 
-      (*g.generic_objects_p)[object_number].add_pentakis_dodecahedron(colour, c, stellation_factor, radius, x1);
+      g.generic_display_objects[object_number].add_pentakis_dodecahedron(colour, c, stellation_factor, radius, x1);
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
-   } 
+                << object_number << std::endl;
+   }
+}
+
+void to_generic_object_add_torus_internal(int object_number,
+                                          const std::string &colour_name,
+                                          const clipper::Coord_orth &position,
+                                          const clipper::Coord_orth &normal,
+                                          float radius_1,
+                                          float radius_2) {
+
+   graphics_info_t g;
+   if (is_valid_generic_display_object_number(object_number)) {
+      meshed_generic_display_object::torus_t torus(position, normal, radius_1, radius_2);
+      coot::colour_holder colour =
+         coot::old_generic_display_object_t::colour_values_from_colour_name(colour_name);
+      torus.col = colour;
+      g.generic_display_objects[object_number].add_torus(torus);
+      meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+      Material material;
+      obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+   }
+}
+
+void to_generic_object_add_torus(int object_number,
+                               const char *colour_name,
+                               float radius,
+                               float radius_inner,
+                               float centre_point_x,
+                               float centre_point_y,
+                               float centre_point_z,
+                               float normal_x,
+                               float normal_y,
+                               float normal_z) {
+
+   clipper::Coord_orth position(centre_point_x, centre_point_y, centre_point_z);
+   clipper::Coord_orth normal(normal_x, normal_y, normal_z);
+   to_generic_object_add_torus_internal(object_number, std::string(colour_name),
+                                        position, normal, radius, radius_inner);
+
 }
 
 
 
 /*! \brief add point to generic object object_number */
-void to_generic_object_add_arc(int object_number, 
-			       const char *colour_name,
-			       float radius,
-			       float radius_inner,
-			       float from_angle,
-			       float to_angle,
-			       float start_point_x,
-			       float start_point_y,
-			       float start_point_z,
-			       float start_dir_x,
-			       float start_dir_y,
-			       float start_dir_z,
-			       float normal_x, 
-			       float normal_y, 
-			       float normal_z) {
+void to_generic_object_add_arc(int object_number,
+                               const char *colour_name,
+                               float radius,
+                               float radius_inner,
+                               float angle_delta,
+                               float start_point_x,
+                               float start_point_y,
+                               float start_point_z,
+                               float start_dir_x,
+                               float start_dir_y,
+                               float start_dir_z,
+                               float normal_x,
+                               float normal_y,
+                               float normal_z) {
    graphics_info_t g;
-   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) {
-      coot::generic_display_object_t::arc_t arc(from_angle, to_angle,
-						clipper::Coord_orth(start_point_x,
-								    start_point_y,
-								    start_point_z),
-						clipper::Coord_orth(start_dir_x,
-								    start_dir_y,
-								    start_dir_z),
-						clipper::Coord_orth(normal_x,
-								    normal_y,
-								    normal_z),
-						radius, radius_inner);
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      meshed_generic_display_object::arc_t arc(angle_delta,
+                                               clipper::Coord_orth(start_point_x,
+                                                                   start_point_y,
+                                                                   start_point_z),
+                                               clipper::Coord_orth(start_dir_x,
+                                                                   start_dir_y,
+                                                                   start_dir_z),
+                                               clipper::Coord_orth(normal_x,
+                                                                   normal_y,
+                                                                   normal_z),
+                                               radius, radius_inner);
       coot::colour_holder colour =
-	 coot::generic_display_object_t::colour_values_from_colour_name(std::string(colour_name));
+         coot::old_generic_display_object_t::colour_values_from_colour_name(std::string(colour_name));
       // bleugh!  Make your colour holders consistent!  - use the utils version throughout!
-      arc.col.col[0] = colour.red;
-      arc.col.col[1] = colour.green;
-      arc.col.col[2] = colour.blue;
-      (*g.generic_objects_p)[object_number].arcs.push_back(arc);
+      arc.col.red   = colour.red;
+      arc.col.green = colour.green;
+      arc.col.blue  = colour.blue;
+
+      g.generic_display_objects[object_number].add_arc(arc);
+
    } else {
       std::cout << "BAD object_number in to_generic_object_add_arc: "
-		<< object_number << std::endl;
-   } 
+                << object_number << std::endl;
+   }
+}
+
+void
+to_generic_object_add_arrow(int object_number,
+                            const char *colour_name,
+                            float stem_radius,
+                            float from_x1,
+                            float from_y1,
+                            float from_z1,
+                            float to_x2,
+                            float to_y2,
+                            float to_z2) {
+
+   // pass this?
+   float arrow_head_length = 4 * stem_radius;
+
+   float radius = stem_radius;
+
+   clipper::Coord_orth x1(from_x1, from_y1, from_z1);
+   clipper::Coord_orth x2(to_x2, to_y2, to_z2);
+
+   graphics_info_t g;
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
+
+   std::string c(colour_name);
+   coot::colour_holder colour = colour_values_from_colour_name(c);
+   if (object_number >= 0) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      unsigned int object_number_u(object_number);
+      if (object_number_u < g.generic_display_objects.size()) {
+         std::pair<glm::vec3, glm::vec3> p(coord_orth_to_glm(x1), coord_orth_to_glm(x2));
+         const glm::vec3 &pt_start_g = p.first;
+         const glm::vec3 &pt_end_g   = p.second;
+         meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+         unsigned int n_slices = 24;
+         coot::colour_holder col = colour_values_from_colour_name(colour_name);
+
+         // we have to think about the positioning of the head and the stick
+         glm::vec3 b = p.second - p.first;
+         float bl_input = glm::distance(b, glm::vec3(0,0,0));
+         float bl = bl_input - arrow_head_length;
+         if (arrow_head_length > bl_input)
+            arrow_head_length = bl_input;
+         glm::vec3 b_uv = glm::normalize(b);
+         float bl_stick = bl;
+         if (bl_stick < 0.0) bl_stick = 0.0;
+
+         glm::vec3 meeting_point = pt_start_g + b_uv * bl_stick;
+         std::pair<glm::vec3, glm::vec3> pp_stick(pt_start_g, meeting_point);
+         std::pair<glm::vec3, glm::vec3> pp_cone(pt_end_g, meeting_point);
+
+         obj.add_cylinder(pp_stick, col, radius, n_slices, true, false,
+                          meshed_generic_display_object::FLAT_CAP,
+                          meshed_generic_display_object::FLAT_CAP);
+
+         float base_radius = radius * 2.0f;
+         float top_radius = 0.0f;
+         obj.add_cone(pp_cone, col, base_radius, top_radius, n_slices, false, true,
+                      meshed_generic_display_object::FLAT_CAP,
+                      meshed_generic_display_object::FLAT_CAP);
+
+         Material material;
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+      } else {
+         std::cout << "BAD object_number in to_generic_object_add_line"
+                   << " out of range high" << object_number << std::endl;
+      }
+   } else {
+      std::cout << "BAD object_number (out of range low) in to_generic_object_add_line"
+                << object_number << std::endl;
+   }
 }
 
 
-void to_generic_object_add_display_list_handle(int object_number, int display_list_id) { 
+void to_generic_object_add_display_list_handle(int object_number, int display_list_id) {
 
+   // we can't do this now
+#if 0
    graphics_info_t g;
-   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
-      (*g.generic_objects_p)[object_number].GL_display_list_handles.push_back(display_list_id);
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      g.generic_display_objects[object_number].GL_display_list_handles.push_back(display_list_id);
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
-   } 
+                << object_number << std::endl;
+   }
+#endif
 }
 
 
 void set_display_generic_object_simple(int object_number, short int istate) {
 
    graphics_info_t g;
-   if (object_number >=0  && object_number < int(g.generic_objects_p->size())) {
-      (*g.generic_objects_p)[object_number].is_displayed_flag = istate;
+   if (object_number >=0  && object_number < int(g.generic_display_objects.size())) {
+      g.generic_display_objects[object_number].mesh.draw_this_mesh = istate;
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 
    if (g.generic_objects_dialog) {
       // get the togglebutton and set its state
       std::string toggle_button_name = "generic_object_" +
-	 coot::util::int_to_string(object_number) +
-	 "_toggle_button";
+         coot::util::int_to_string(object_number) + "_toggle_button";
       GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
-					       toggle_button_name.c_str());
+                                               toggle_button_name.c_str());
 
       if (toggle_button) {
-	 if (istate)
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
-	 else
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+         if (istate)
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+         else
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
       }
    }
 }
@@ -307,7 +458,7 @@ void set_display_generic_object(int object_number, short int istate) {
 void set_display_all_generic_objects(int state) {
 
    graphics_info_t g;
-   unsigned int n_objs = g.generic_objects_p->size();
+   unsigned int n_objs = g.generic_display_objects.size();
    for (unsigned int i=0; i<n_objs; i++) {
       set_display_generic_object_simple(i, state);
    }
@@ -322,8 +473,8 @@ int generic_object_is_displayed_p(int object_number) {
 
    int is_displayed = 0;
    graphics_info_t g;
-   if (object_number >=0  && object_number < int(g.generic_objects_p->size())) {
-      is_displayed = (*g.generic_objects_p)[object_number].is_displayed_flag;
+   if (object_number >=0  && object_number < int(g.generic_display_objects.size())) {
+      is_displayed = g.generic_display_objects[object_number].mesh.draw_this_mesh;
    }
    return is_displayed;
 }
@@ -335,14 +486,14 @@ int new_generic_object_number(const std::string &name_string) {
    int n_new = g.new_generic_object_number(name_string);
 
    if (g.generic_objects_dialog) {
-      GtkWidget *table = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
-				       "generic_objects_dialog_table");
-      if (table) { 
-	 const coot::generic_display_object_t &gdo = (*g.generic_objects_p)[n_new];
-	 generic_objects_dialog_table_add_object_internal(gdo,
-							  g.generic_objects_dialog,
-							  table,
-							  n_new);
+      GtkWidget *grid = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
+                                      "generic_objects_dialog_grid");
+      if (grid) {
+         const meshed_generic_display_object &gdo = g.generic_display_objects[n_new];
+         generic_objects_dialog_grid_add_object_internal(gdo,
+                                                         g.generic_objects_dialog,
+                                                         grid,
+                                                         n_new);
       }
    }
    return n_new;
@@ -354,7 +505,7 @@ int new_generic_object_number_for_molecule(const std::string &name, int imol) {
 
    int idx = new_generic_object_number(name);
    graphics_info_t g;
-   g.generic_objects_p->at(idx).imol = imol;
+   g.generic_display_objects.at(idx).imol = imol;
 
    return idx;
 }
@@ -394,12 +545,12 @@ int generic_object_index(const std::string &name) {
 #ifdef USE_GUILE
 SCM generic_object_name_scm(int obj_number) {
    graphics_info_t g;
-   int n_objs = g.generic_objects_p->size();
+   int n_objs = g.generic_display_objects.size();
    SCM r = SCM_BOOL_F;
    for (int i=(n_objs-1); i>=0; i--) {
       if (i == obj_number) {
-	 if (!(*g.generic_objects_p)[i].is_closed_flag) { 
-	    r = scm_makfrom0str((*g.generic_objects_p)[i].name.c_str());
+	 if (!g.generic_display_objects[i].mesh.this_mesh_is_closed) { 
+	    r = scm_makfrom0str(g.generic_display_objects[i].mesh.name.c_str());
 	 }
       }
    }
@@ -411,13 +562,12 @@ SCM generic_object_name_scm(int obj_number) {
 PyObject *generic_object_name_py(unsigned int obj_number_in) {
    graphics_info_t g;
    int obj_number = obj_number_in;
-   int n_objs = g.generic_objects_p->size();
-   PyObject *r;
-   r = Py_False;
+   int n_objs = g.generic_display_objects.size();
+   PyObject *r = Py_False;
    for (int i=(n_objs-1); i>=0; i--) {
       if (i == obj_number) {
-	 if (!(*g.generic_objects_p)[i].is_closed_flag) { 
-	    r = myPyString_FromString((*g.generic_objects_p)[i].name.c_str());
+	 if (!g.generic_display_objects[i].mesh.this_mesh_is_closed) { 
+	    r = myPyString_FromString(g.generic_display_objects[i].mesh.name.c_str());
 	    break;
 	 }
       }
@@ -436,8 +586,8 @@ void generic_object_clear(int object_number) {
 
    graphics_info_t g;
    if (object_number >= 0) {
-      if (object_number < int(g.generic_objects_p->size())) {
-	 (*g.generic_objects_p)[object_number].clear();
+      if (object_number < int(g.generic_display_objects.size())) {
+	 g.generic_display_objects[object_number].clear();
       }
    }
 }
@@ -451,8 +601,8 @@ void close_generic_object(int object_number) {
 
    graphics_info_t g;
    if (object_number >=0) {
-      if (object_number < int(g.generic_objects_p->size())) {
-	 (*g.generic_objects_p)[object_number].close_yourself();
+      if (object_number < int(g.generic_display_objects.size())) {
+	 g.generic_display_objects[object_number].close_yourself();
       }
    }
 
@@ -481,8 +631,8 @@ short int is_closed_generic_object_p(int object_number) {
    short int state = 0;
    graphics_info_t g;
    if (object_number >=0) { 
-      if (object_number < int(g.generic_objects_p->size())) {
-	 state = (*g.generic_objects_p)[object_number].is_closed_flag;
+      if (object_number < int(g.generic_display_objects.size())) {
+	 state = g.generic_display_objects[object_number].mesh.this_mesh_is_closed;
       }
    }
    return state;
@@ -492,10 +642,11 @@ short int is_closed_generic_object_p(int object_number) {
 void close_all_generic_objects() {
 
    graphics_info_t g;
-   int n_objs = g.generic_objects_p->size();
+   int n_objs = g.generic_display_objects.size();
    for (int i=0; i<n_objs; i++) {
-      if (! is_closed_generic_object_p(i))
-	 close_generic_object(i);
+      meshed_generic_display_object &obj = g.generic_display_objects[i];
+      if (! obj.mesh.this_mesh_is_closed) // Hmm.
+	 obj.close_yourself();
    }
    graphics_draw();
 }
@@ -517,9 +668,9 @@ void attach_generic_object_to_molecule(int object_number, int imol) {
 
    graphics_info_t g;
    if (object_number >=0) { 
-      if (object_number < int(g.generic_objects_p->size())) {
+      if (object_number < int(g.generic_display_objects.size())) {
 	 if (is_valid_model_molecule(imol)) {
-	    (*g.generic_objects_p)[object_number].attach_to_molecule(imol);
+	    g.generic_display_objects[object_number].attach_to_molecule(imol);
 	 }
       }
    }
@@ -527,28 +678,22 @@ void attach_generic_object_to_molecule(int object_number, int imol) {
 
 
 
-
-void set_display_generic_objects_as_solid(int state) {
-   graphics_info_t::display_generic_objects_as_solid_flag = state;
-} 
-
-
 /*! \brief print to the console the name and display status of the
   generic display objects */
 void generic_object_info() {
 
    graphics_info_t g;
-   unsigned int n_obs = g.generic_objects_p->size();
+   unsigned int n_obs = g.generic_display_objects.size();
    std::cout << "There are " << n_obs << " generic objects\n";
-   if (n_obs) {
+   if (n_obs > 0) {
       for (unsigned int i=0; i<n_obs; i++) {
 	 std::string display_str(":Displayed:");
-	 if ((*g.generic_objects_p)[i].is_displayed_flag == 0)
+	 if (! g.generic_display_objects[i].mesh.draw_this_mesh)
 	    display_str = ":Not Displayed:";
 	 std::string closed_str(":Closed:");
-	 if ((*g.generic_objects_p)[i].is_closed_flag == 0)
+	 if (! g.generic_display_objects[i].mesh.this_mesh_is_closed) // Hmm.
 	    closed_str = ":Not Closed:";
-	 std::cout << " # " << i << " \"" << (*g.generic_objects_p)[i].name << "\" "
+	 std::cout << " # " << i << " \"" << g.generic_display_objects[i].mesh.name << "\" "
 		   << display_str << " " << closed_str << std::endl;
       }
    } else {
@@ -563,24 +708,20 @@ short int generic_object_has_objects_p(int object_number) {
 
    short int r = 0;
    graphics_info_t g;
-   if ((object_number >=0) && (object_number < int(g.generic_objects_p->size()))) {
-      if ((*g.generic_objects_p)[object_number].lines_set.size() > 0)
-	 r = 1;
-      if ((*g.generic_objects_p)[object_number].points_set.size() > 0)
+   if ((object_number >=0) && (object_number < int(g.generic_display_objects.size()))) {
+      if (true) // some test here?
 	 r = 1;
    } else {
-      std::cout << "WARNING:: object_number in generic_objects_p "
+      std::cout << "WARNING:: object_number in generic_display_objects "
 		<< object_number << std::endl;
    } 
-
    return r;
-
 } 
 
 
 
 
-/*! \brief pass a filename that contains molprobity's probe output in XtalView 
+/*! \brief pass a filename that contains molprobity's probe output in XtalView
 format */
 void handle_read_draw_probe_dots(const char *dots_file) {
 
@@ -588,7 +729,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
    if (dots_file) {
 
       FILE* dots = fopen(dots_file, "r" );
-      if ( dots == NULL ) { 
+      if ( dots == NULL ) {
 	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
 		   << dots_file << std::endl;
 	 // fclose(dots);
@@ -601,21 +742,20 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	 deletable_names.push_back("small overlap");
 	 deletable_names.push_back("bad overlap");
 	 deletable_names.push_back("H-bonds");
-	 unsigned int nobjs = graphics_info_t::generic_objects_p->size();
+	 unsigned int nobjs = graphics_info_t::generic_display_objects.size();
 	 for (unsigned int i=0; i< nobjs; i++) {
-	    for (unsigned int d=0; d<deletable_names.size(); d++) { 
-	       if ((*graphics_info_t::generic_objects_p)[i].name == deletable_names[d]) {
-		  close_generic_object(i); // empty it, really
+	    for (unsigned int d=0; d<deletable_names.size(); d++) {
+	       if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
+		  // close_generic_object(i); // empty it, really
+                  graphics_info_t::generic_display_objects.clear();
 	       }
 	    }
 	 }
-	 
 	 int n_lines = 0;
 	 int n_points = 0;
 	 std::string current_colour = "blue"; // should be reset.
 	 std::string current_name   = "Unassigned";
 	 int obj_no = number_of_generic_objects();
-	 
 	 char line[240];
 	 char s[240];
 	 char s1[240];
@@ -643,16 +783,16 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 		     int maybe_old_object = generic_object_index(p.second.c_str());
 		     if (maybe_old_object > -1) {
 			obj_no = maybe_old_object;
-		     } else { 
+		     } else {
 			obj_no = new_generic_object_number(p.second.c_str());
 		     }
 		     // non-member function usage, so that we don't do the redraw.
-		     (*graphics_info_t::generic_objects_p)[obj_no].is_displayed_flag = 1;
-		     (*graphics_info_t::generic_objects_p)[obj_no].is_closed_flag = 0;
+		     graphics_info_t::generic_display_objects[obj_no].mesh.draw_this_mesh = true;
+		     graphics_info_t::generic_display_objects[obj_no].mesh.this_mesh_is_closed = false;
 		     current_name = p.second;
 		  }
 	       }
-	       
+
 	    } else {
 	       if (sscanf(line, "%f %f %f %f %f %f %s", &x1, &x2, &x3, &x4, &x5, &x6, s)) {
 		  current_colour = s;
@@ -667,7 +807,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 						 x1, x2, x3);
 		  }
 	       } else {
-		  if (strlen(line) > 0) 
+		  if (strlen(line) > 0)
 		     std::cout << ":" << line << ": failed to scan" << std::endl;
 	       }
 	    }
@@ -691,7 +831,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
    if (dots_file) {
 
       FILE* dots = fopen(dots_file, "r" );
-      if ( dots == NULL ) { 
+      if ( dots == NULL ) {
 	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
 		   << dots_file << std::endl;
 	 // fclose(dots);
@@ -704,16 +844,17 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	 deletable_names.push_back("small overlap");
 	 deletable_names.push_back("bad overlap");
 	 deletable_names.push_back("H-bonds");
-	 int nobjs = graphics_info_t::generic_objects_p->size();
+	 int nobjs = graphics_info_t::generic_display_objects.size();
 	 for (int i=0; i< nobjs; i++) {
-	    for (unsigned int d=0; d<deletable_names.size(); d++) { 
-	       if ((*graphics_info_t::generic_objects_p)[i].name == deletable_names[d]) {
-		  close_generic_object(i); // empty it, really
+	    for (unsigned int d=0; d<deletable_names.size(); d++) {
+	       if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
+		  // close_generic_object(i); // empty it, really
+                  graphics_info_t::generic_display_objects[i].clear();
 	       }
 	    }
 	 }
 
-	 int n_input_lines = 0; 
+	 int n_input_lines = 0;
 	 int n_lines = 0;
 	 int n_points = 0;
 	 std::string current_colour = "blue"; // should be reset.
@@ -822,8 +963,8 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			      // std::cout << "changing type to " << contact_type << std::endl;
 			   }
 			   // non-member function usage, so that we don't do the redraw.
-			   (*graphics_info_t::generic_objects_p)[obj_no].is_displayed_flag = 1;
-			   (*graphics_info_t::generic_objects_p)[obj_no].is_closed_flag = 0;
+			   graphics_info_t::generic_display_objects[obj_no].mesh.draw_this_mesh = true;
+			   graphics_info_t::generic_display_objects[obj_no].mesh.this_mesh_is_closed = false;
 			}
 
 			float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);

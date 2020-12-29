@@ -30,6 +30,7 @@
 #include <stdexcept> // for string_to_int.
 #include <sstream>   // ditto.
 #include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo
+#include <iomanip>
 
 #include <math.h>  // for fabs
 
@@ -407,13 +408,21 @@ coot::util::long_int_to_string(long int i) {
 
 std::string
 coot::util::float_to_string(float f) {
+
+#if 0
    char s[100];
    snprintf(s,99,"%5.2f",f);
    return std::string(s);
+#endif
+
+   return float_to_string_using_dec_pl(f, 2);
+
 }
 
 std::string
 coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
+
+#if 0 // previous
    char s[100];
    std::string prec="%7.";
    prec += coot::util::int_to_string(n_dec_pl);
@@ -421,16 +430,23 @@ coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    // snprintf(s,99,"%7.4f",f); // haha, FIXME. (use n_dec_pl, not 4)
    snprintf(s, 99, prec.c_str() ,f);
    return std::string(s);
+#endif
+
+   // a valgrind error here means that the f that you passed to this function was not
+   // initialized.
+
+   std::stringstream s;
+   s << std::right << std::fixed;
+   s << std::setprecision(n_dec_pl);
+   s << f;
+   std::string ss = s.str();
+   return ss;
+
 }
 
 std::string
 coot::util::float_to_unspaced_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
-   char s[100];
-   std::string prec="%.";
-   prec += coot::util::int_to_string(n_dec_pl);
-   prec += "f";
-   snprintf(s, 99, prec.c_str() ,f);
-   return std::string(s);
+   return float_to_string_using_dec_pl(f, n_dec_pl);
 }
 
 // throw an exception on unable to convert

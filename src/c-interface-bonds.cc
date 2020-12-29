@@ -165,3 +165,66 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
    return r;
 }
 #endif
+
+
+#include "coot-utils/coot-h-bonds.hh"
+#include "glarea_tick_function.hh"
+
+
+void set_draw_hydrogen_bonds(int state) {
+
+   graphics_info_t::mesh_for_hydrogen_bonds.draw_this_mesh = state;
+
+}
+
+
+void calculate_hydrogen_bonds(int imol) {
+
+   auto mmdb_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   if (is_valid_model_molecule(imol)) {
+      coot::h_bonds hb;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int sel_1 = graphics_info_t::molecules[imol].atom_sel.SelectionHandle;
+      int sel_2 = graphics_info_t::molecules[imol].atom_sel.SelectionHandle;
+      const coot::protein_geometry &geom(*graphics_info_t::Geom_p());
+      std::vector<coot::h_bond> h_bonds = hb.get(sel_1, sel_2, mol, geom);
+
+      std::cout << "Found " << h_bonds.size() << " hydrogen bonds " << std::endl;
+
+      for (unsigned int i=0; i<h_bonds.size(); i++) {
+         const coot::h_bond hb = h_bonds[i];
+         if (hb.has_hydrogen()) {
+            mmdb::Atom *at_1 = hb.hb_hydrogen;
+            mmdb::Atom *at_2 = hb.acceptor;
+            if (at_1 && at_2) {
+               glm::vec3 p_1 = mmdb_to_glm(at_1);
+               glm::vec3 p_2 = mmdb_to_glm(at_2);
+               graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p_2, p_1));
+            }
+            
+         } else {
+            mmdb::Atom *at_1 = hb.donor;
+            mmdb::Atom *at_2 = hb.acceptor;
+            if (at_1 && at_2) {
+               glm::vec3 p_1 = mmdb_to_glm(at_1);
+               glm::vec3 p_2 = mmdb_to_glm(at_2);
+               graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p_2, p_1));
+            }
+         }
+      }
+
+      Material material;
+      material.shininess = 10.0;
+      material.specular_strength = 0.02;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      std::string label = "Hydrogen Bonds for Molecule  " + std::to_string(imol);
+      Mesh mesh(label);
+      graphics_info_t::mesh_for_hydrogen_bonds = mesh;
+      Shader &shader = graphics_info_t::shader_for_instanced_objects;
+      graphics_info_t::mesh_for_hydrogen_bonds.setup_hydrogen_bond_cyclinders(&shader, material);
+      graphics_info_t::do_tick_hydrogen_bonds_mesh = true;
+      int new_tick_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
+      
+   }
+}

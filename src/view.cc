@@ -25,7 +25,12 @@
 #endif // USE_PYTHON
 #include "view.hh"
 #include "graphics-info.h"
+#include <glm/gtc/quaternion.hpp> // needed?
+#include <glm/gtx/string_cast.hpp>
 
+// It now doesn't seem right that this is merely a member function of view_info_t
+// because it touches graphics_info_t so much. Needs reworking to be a function
+// of graphics_info_t that takes 2 views.
 coot::view_info_t
 coot::view_info_t::interpolate(const coot::view_info_t &view1,
 			       const coot::view_info_t &view2_in,
@@ -34,18 +39,19 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
    graphics_info_t g;
    view_info_t view2(view2_in);
 
-//    std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
-// 	     << " and centres: "
-// 	     << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
-
-//     std::cout << "quaternion interpolation using " << n_steps << " steps"
-// 	      << std::endl;
+   if (false) {
+      std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
+                << " and centres: "
+                << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
+      std::cout << "quaternion interpolation using " << n_steps << " steps"
+                << std::endl;
+   }
 
    float total_zoom_by = view2.zoom/view1.zoom;
    int smooth_scroll_state = graphics_info_t::smooth_scroll;
    graphics_info_t::smooth_scroll = 0;
 
-   if (true) {
+   {
       double dp = dot_product(view1, view2);
       if (dot_product(view1, view2) < 0.0) {
 	 view2.negate_quaternion();
@@ -56,37 +62,96 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
       if (ff > 1.0) ff = 1.0; // stabilize
       double omega = acos(ff);
 
+      graphics_info_t::reorienting_residue_start_view = view1;
+      graphics_info_t::reorienting_residue_end_view   = view2;
+
       // std::cout << "here with dd " << dd << " ff " << ff << " omega: " << omega << std::endl;
 
-      if (omega != 0.0) { 
+      // do we want omega == 0 to stop animation?
+
+      if (omega != 0.0) {
 	 // slerping
 	 //
 	 if (n_steps < 1)
 	    n_steps = 1;
 	 // double frac = double(1.0)/double(n_steps);
 	 // for (double f=0; f<=1.0; f+=frac) {
-         for (int istep=0; istep<=n_steps; istep++) {
-            double f = static_cast<double>(istep) / static_cast<double>(n_steps);
-	    double one_over_sin_omega = 1/sin(omega);
-	    double frac1 = sin((1-f)*omega) * one_over_sin_omega;
-	    double frac2 = sin(f*omega) * one_over_sin_omega;
-	    for (int iq=0; iq<4; iq++)
-	       g.quat[iq] = frac1*view1.quat[iq] + frac2*view2.quat[iq];
-	    coot::Cartesian rct =
-	       view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(f);
 
-	    // I don't want to setRotationCentre() because that sets the old rotation centre
-	    // (and we need the original version of that to go "back")
-	    // g.setRotationCentre(rct);
-	    g.setRotationCentreSimple(rct);
-	    
-	    g.zoom = view1.zoom + pow(f,0.5)*(view2.zoom-view1.zoom);
-	    // std::cout << "f " << f << " sqrt(t) " << sqrt(f)
-	    // << " zoom " << g.zoom << "   " << rct << std::endl;
 
-	    graphics_info_t::graphics_draw();
-	 }
-	 
+         // replace the direct "updating of the positions and orientation, and redraw"
+         // with a callback animation function
+
+         // Do this with sinusoidal acceleration (rotation and translation) for more yum-factor
+
+         // return a gboolean
+         auto animation_func = [] (GtkWidget *widget,
+                                   GdkFrameClock *frame_clock,
+                                   gpointer data) {
+
+                                  coot::view_info_t &view1 = graphics_info_t::reorienting_residue_start_view;
+                                  coot::view_info_t &view2 = graphics_info_t::reorienting_residue_end_view;
+
+                                  double dp = dot_product(view1, view2);
+                                  if (dot_product(view1, view2) < 0.0) {
+                                     view2.negate_quaternion();
+                                     dp = dot_product(view1, view2); // dp needs updating, else wierdness
+                                  }
+                                  double dd = (view1.quat_length()*view2.quat_length());
+                                  double ff = dp/dd;
+                                  if (ff > 1.0) ff = 1.0; // stabilize
+                                  double omega = acos(ff);
+
+                                  gboolean do_continue = G_SOURCE_REMOVE;
+                                  float frac = 1.0;
+                                  int n_steps = graphics_info_t::smooth_scroll_steps;
+                                  n_steps = 50;
+                                  int i_current_step = graphics_info_t::smooth_scroll_current_step;
+                                  graphics_info_t g; // for rotation centre debugging.
+                                  if (n_steps > 0)
+                                     frac = 1.0/static_cast<float>(n_steps);
+                                  coot::Cartesian this_step_delta = graphics_info_t::smooth_scroll_delta * frac;
+                                  graphics_info_t::smooth_scroll_current_step += 1; // update now
+                                  if (i_current_step < n_steps) {
+
+                                     graphics_info_t::add_vector_to_rotation_centre(this_step_delta);
+
+                                     // now the orientation
+                                     float f = static_cast<float>(i_current_step) / static_cast<float>(n_steps);
+                                     glm::quat quat_start (view1.quaternion);
+                                     glm::quat quat_target(view2.quaternion);
+                                     glm::quat mixed = glm::mix(quat_start, quat_target, f);
+                                     // now update glm_quat
+                                     graphics_info_t::glm_quat = glm::normalize(mixed);
+
+                                     if (false) {
+                                        std::cout << "lambda animation_func: this_step "
+                                                  << graphics_info_t::smooth_scroll_current_step
+                                                  << " this_step_delta: " << this_step_delta
+                                                  << " for ff " << ff
+                                                  << " Rotation centre now "
+                                                  << g.RotationCentre() << std::endl;
+                                     }
+
+                                     graphics_info_t::smooth_scroll_on_going = true;
+                                     graphics_info_t::graphics_draw(); // adds to the queue
+                                     do_continue = G_SOURCE_CONTINUE;
+                                  } else {
+                                     graphics_info_t::smooth_scroll_on_going = false;
+                                     do_continue = G_SOURCE_REMOVE;
+                                  }
+                                  return do_continue;
+                               };
+         gpointer user_data = 0;
+
+         graphics_info_t::smooth_scroll_current_step = 0; // reset
+         if (graphics_info_t::smooth_scroll_on_going) {
+            // std::cout << "smooth scroll on-going " << std::endl;
+            // Don't start a new one, just reset to the start the one that's running.
+         } else {
+            graphics_info_t::smooth_scroll_delta = view2.rotation_centre - view1.rotation_centre;
+            gtk_widget_add_tick_callback(graphics_info_t::glareas[0], animation_func, user_data, NULL);
+         }
+
       } else {
 	 // non slerping
 
@@ -99,8 +164,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	       double frac = double(i)/double(n_steps);
 	       coot::Cartesian rct =
 		  view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
-	       for (int iq=0; iq<4; iq++)
-		  g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
+               g.glm_quat = view1.quaternion;
 	       g.setRotationCentre(rct);
 	       g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
 	       graphics_info_t::graphics_draw();
@@ -115,12 +179,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 
 float
 coot::view_info_t::quat_length() const {
-
-   float d = 0.0;
-   for (int i=0; i<4; i++) {
-      d += quat[i]*quat[i];
-   }
-   return sqrt(d);
+   return glm::sqrt(glm::dot(quaternion, quaternion));
 }
 
 
@@ -129,11 +188,7 @@ float
 coot::view_info_t::dot_product(const coot::view_info_t &view1,
 			       const coot::view_info_t &view2) {
 
-   float d = 0.0;
-   for (int i=0; i<4; i++) {
-      d += view1.quat[i]*view2.quat[i];
-   }
-   return d;
+   return glm::dot(view1.quaternion, view2.quaternion);
 }
 
 std::ostream&
@@ -196,15 +251,9 @@ coot::operator<<(std::ostream &f, const coot::view_info_t &view) {
       f << view.rotation_centre.z();
       f << "],\n";
 
-      f << "   [";
-      f << view.quat[0]; 
-      f << ", ";
-      f << view.quat[1]; 
-      f << ", ";
-      f << view.quat[2]; 
-      f << ", ";
-      f << view.quat[3];
-      f << "],\n";
+      f << "   ";
+      f << glm::to_string(view.quaternion);
+      f << ",\n";
       
       f << "   ";
       f << view.zoom; 
@@ -241,10 +290,6 @@ coot::view_info_t::matches_view (const coot::view_info_t &view) const {
    if (rotation_centre.x() < 0) xfrac = -xfrac;
    if (rotation_centre.y() < 0) yfrac = -yfrac;
    if (rotation_centre.z() < 0) zfrac = -zfrac;
-   if (quat[0] < 0) q0frac = -q0frac;
-   if (quat[1] < 0) q1frac = -q1frac;
-   if (quat[2] < 0) q2frac = -q2frac;
-   if (quat[3] < 0) q3frac = -q3frac;
 
    if (zoom < view.zoom*(1+frac)) {
       if (zoom > view.zoom*(1-frac)) {
@@ -254,24 +299,9 @@ coot::view_info_t::matches_view (const coot::view_info_t &view) const {
 		  if (rotation_centre.y() > view.rotation_centre.y()*(1-yfrac)) { 
 		     if (rotation_centre.z() < view.rotation_centre.z()*(1+zfrac)) { 
 			if (rotation_centre.z() > view.rotation_centre.z()*(1-zfrac)) {
-			   if (quat[0] < view.quat[0]*(1+q0frac)) {
-			      if (quat[0] > view.quat[0]*(1-q0frac) ){ 
-				 if (quat[1] < view.quat[1]*(1+q1frac)) { 
-				    if (quat[1] > view.quat[1]*(1-q1frac) ){ 
-				       if (quat[2] < view.quat[2]*(1+q2frac)) { 
-					  if (quat[2] > view.quat[2]*(1-q2frac) ){ 
-					     if (quat[3] < view.quat[3]*(1+q3frac)) { 
-						if (quat[3] > view.quat[3]*(1-q3frac) ){
-						   matches = true;
-						}
-					     }
-					  }
-				       }
-				    }
-				 }
-			      }
-			   }
-			}
+                           // test similar quaternions here (deleted float-based code)
+                           matches = true;
+                        }
 		     }
 		  }
 	       }

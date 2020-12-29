@@ -1,18 +1,18 @@
 /* src/molecule-class-info-bonds.cc
- * 
+ *
  * Copyright 2016 by Medical Research Council
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -30,7 +30,7 @@ molecule_class_info_t::set_user_defined_colour_indices_by_residues(const std::ve
       // std::cout << "got udd_handle: " << udd_handle << " " << cis.size() << " specs " << std::endl;
       if (udd_handle == 0)
 	 udd_handle = atom_sel.mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
-      
+
       for (unsigned int i=0; i<cis.size(); i++) {
 	 const coot::residue_spec_t &spec = cis[i].first;
 	 mmdb::Residue *residue_p = get_residue(spec);
@@ -76,7 +76,8 @@ molecule_class_info_t::set_user_defined_colour_indices(const std::vector<std::pa
 
 void
 molecule_class_info_t::user_defined_colours_representation(coot::protein_geometry *geom_p,
-							   bool all_atoms_mode) { 
+							   bool all_atoms_mode,
+                                                           bool draw_missing_loops_flag) {
 
    bonds_box.clear_up();
    if (all_atoms_mode) {
@@ -85,11 +86,13 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
       bool add_residue_indices = true;
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
-      
+
    } else {
 
       Bond_lines_container bonds(geom_p);
-      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
+                                     draw_missing_loops_flag,
+                                     coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
       bool add_residue_indices = true;
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;

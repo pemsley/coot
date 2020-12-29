@@ -50,15 +50,24 @@ void orient_view(int imol,
 	 try { 
 	    clipper::Coord_orth vec = g.molecules[imol].get_vector(central_residue_spec,
 								   neighbour_residue_spec);
-	    coot::Cartesian b = unproject(1);
-	    coot::Cartesian f = unproject(0);
+
+            // Use coot::ScreenVectors here (remove duplication)
+
+            glm::vec4 glm_back  = g.unproject(1.0);
+            glm::vec4 glm_front = g.unproject(0.0);
+	    coot::Cartesian b(glm_back.x, glm_back.y, glm_back.z);
+	    coot::Cartesian f(glm_front.x, glm_front.y, glm_front.z);
 	    coot::Cartesian vec_cart(vec);
 	    coot::Cartesian b_to_f_cart = f - b;
 
-	    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-	    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-	    coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-	    coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+	    glm::vec4 glm_centre = g.unproject(0, 0, 0.5);
+	    glm::vec4 glm_right  = g.unproject(1, 0, 0.5);
+	    glm::vec4 glm_top    = g.unproject(0, 1, 0.5);
+
+	    coot::Cartesian centre(glm_centre.x, glm_centre.y, glm_centre.z);
+	    coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+	    coot::Cartesian right(glm_right.x, glm_right.y, glm_right.z);
+	    coot::Cartesian top(glm_top.x, glm_top.y, glm_top.z);
 
 	    coot::Cartesian screen_x = (right - centre);
 	    coot::Cartesian screen_y = (top   - centre);
@@ -87,6 +96,195 @@ void orient_view(int imol,
       }
    }
 }
+
+#include "screendump-tga.hh"
+
+/*  ----------------------------------------------------------------------- */
+/*                  Mew Screendump                                          */
+/*  ----------------------------------------------------------------------- */
+void screendump_tga(const std::string &file_name) {
+
+   graphics_info_t g;
+   bool do_screendump = true;
+   g.render(do_screendump, file_name);
+
+}
+
+
+/*  ----------------------------------------------------------------------- */
+/*                         perspective,blur,AO on/off */
+/*  ----------------------------------------------------------------------- */
+
+               // maybe these functions need their own file?
+
+void set_use_perspective_projection(short int state) {
+
+   graphics_info_t::perspective_projection_flag = state;
+   graphics_draw();
+}
+
+int use_perspective_projection_state() {
+   return graphics_info_t::perspective_projection_flag;
+}
+
+//! \brief set use ambient occlusion
+void set_use_ambient_occlusion(short int state) {
+   // user interface is set_use_xxx
+   graphics_info_t g;
+   g.set_do_ambient_occlusion(state);
+   graphics_draw();
+}
+
+//! \brief query use ambient occlusion
+int use_ambient_occlusion_state() {
+   return graphics_info_t::shader_do_ambient_occlusion_flag;
+}
+
+//! \brief set use depth blur
+void set_use_depth_blur(short int state) {
+   graphics_info_t::shader_do_depth_blur_flag = state;
+   graphics_draw();
+}
+//! \brief query use depth blur
+int use_depth_blur_state() {
+   return graphics_info_t::shader_do_depth_blur_flag;
+}
+
+
+//! \brief set use fog
+void set_use_fog(short int state) {
+   graphics_info_t::shader_do_depth_fog_flag = state;
+   graphics_draw();
+}
+
+//! \brief query use fog
+int use_fog_state() {
+   return graphics_info_t::shader_do_depth_fog_flag;
+}
+
+void set_use_outline(short int state) {
+   graphics_info_t g;
+   g.shader_do_outline_flag = state;
+   graphics_draw();
+}
+
+int use_outline_state() {
+   graphics_info_t g;
+   return g.shader_do_outline_flag;
+}
+
+void set_map_shininess(int imol, float shininess) {
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].shader_shininess = shininess;
+      graphics_draw();
+   }
+}
+
+void set_map_specular_strength(int imol, float specular_strength) {
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].shader_specular_strength = specular_strength;
+      graphics_draw();
+   }
+}
+
+void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.fresnel_settings.update_settings(state, bias, scale, power);
+      graphics_draw();
+   }
+
+}
+
+void set_draw_normals(short int state) {
+
+   graphics_info_t::draw_normals_flag = state;
+   graphics_draw();
+
+}
+
+int  draw_normals_state() {
+   return graphics_info_t::draw_normals_flag;
+}
+
+
+void set_draw_mesh(int imol, int mesh_index, short int state) {
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      int size = graphics_info_t::molecules[imol].meshes.size();
+      if (mesh_index >= 0 && mesh_index < size) {
+         graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh = state;
+      }
+   }
+}
+
+int draw_mesh_state(int imol, int mesh_index) {
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      int size = graphics_info_t::molecules[imol].meshes.size();
+      if (mesh_index >= 0 && mesh_index < size) {
+         return graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh;
+      }
+   }
+   return -1;
+}
+
+void set_map_material_specular(int imol, float specular_strength, float shininess) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.material_for_maps.specular_strength = specular_strength;
+      m.material_for_maps.shininess         = shininess;
+      graphics_draw();
+   }
+
+}
+
+void set_model_material_specular(int imol, float specular_strength, float shininess) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.material_for_models.specular_strength = specular_strength;
+      m.material_for_models.shininess         = shininess;
+      graphics_draw();
+   }
+}
+
+
+void reload_map_shader() {
+
+   graphics_info_t g;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));
+   std::cout << "reload map shader" << std::endl;
+   g.shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   graphics_draw();
+}
+
+void reload_model_shader() {
+
+   graphics_info_t g;
+   g.shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
+   graphics_draw();
+}
+
+void set_atom_radius_scale_factor(int imol, float scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_atom_radius_scale_factor(scale_factor);
+   }
+   graphics_draw();
+}
+
+void set_fresnel_colour(int imol, float red, float green, float blue, float opacity) {
+
+   if (is_valid_map_molecule(imol)) {
+      glm::vec4 col(red, green, blue, opacity);
+      graphics_info_t::molecules[imol].set_fresnel_colour(col);
+      graphics_draw();
+   }
+}
+
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */

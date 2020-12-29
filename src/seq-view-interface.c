@@ -58,7 +58,6 @@ create_sequence_view_dialog (void)
   GtkWidget *dialog_action_area1;
   GtkWidget *hbox1;
   GtkWidget *sequence_view_close_button;
-  GtkWidget *aa;
 
   sequence_view_dialog = gtk_dialog_new ();
   g_object_set_data (G_OBJECT (sequence_view_dialog), "sequence_view_dialog", sequence_view_dialog);
@@ -83,13 +82,14 @@ create_sequence_view_dialog (void)
 
   // dialog_action_area1 = GTK_DIALOG (sequence_view_dialog)->action_area;
   // use gtk_dialog_add_button (), no need to extract the action area first
-  dialog_action_area1 = gtk_dialog_get_action_area(GTK_DIALOG(sequence_view_dialog));
 
-  g_object_set_data(G_OBJECT(sequence_view_dialog), "dialog_action_area1", dialog_action_area1);
-  gtk_widget_show (dialog_action_area1);
-  gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area1), 10);
+  printf("create_sequence_view_dialog(): dialog action area code removed\n");
+  // dialog_action_area1 = gtk_dialog_get_action_area(GTK_DIALOG(sequence_view_dialog));
+  // g_object_set_data(G_OBJECT(sequence_view_dialog), "dialog_action_area1", dialog_action_area1);
+  // gtk_widget_show (dialog_action_area1);
+  // gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area1), 10);
 
-  hbox1 = gtk_hbox_new (FALSE, 0);
+  hbox1 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   g_object_ref (hbox1);
   g_object_set_data_full (G_OBJECT (sequence_view_dialog), "hbox1", hbox1, NULL);
   gtk_widget_show (hbox1);

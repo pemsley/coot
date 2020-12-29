@@ -56,19 +56,21 @@
 
 void
 on_map_color_changed(GtkWidget *w,
-		     gpointer mcd) {
+		     gpointer tmd) {
 
-   struct map_colour_data_type* t = static_cast<struct map_colour_data_type*> (mcd);
+   struct map_colour_data_type* t = static_cast<struct map_colour_data_type*> (tmd);
    GdkColor color;
    gtk_color_selection_get_current_color(t->color_selection, &color);
    GdkRGBA map_color;
-   map_color.red   = color.red;
-   map_color.green = color.green;
-   map_color.blue  = color.blue;
+   map_color.red   = color.red    /65535.0;;
+   map_color.green = color.green  /65535.0;;
+   map_color.blue  = color.blue   /65535.0;;
    handle_map_colour_change(t->imol, map_color);
 
 }
 
+
+/* 		 GtkColorSelection *cs); */
 /*  The colour selection dialog has had its OK button pressed */
 void
 on_map_col_sel_ok_button_clicked        (GtkButton       *button,
@@ -268,19 +270,21 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 /* We should come here and be given imol.  New molecules should insert
    themselves into the Ramachandran Plot menu(item). */
 
-#if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
   rama_widget = dynarama_is_displayed_state(imol);
   if (rama_widget == NULL) {
     do_ramachandran_plot(imol);
   } else {
-    if (!GTK_WIDGET_MAPPED(rama_widget))
-      gtk_widget_show(rama_widget);
-    else
-      gdk_window_raise(rama_widget->window);
+     // if (!GTK_WIDGET_MAPPED(rama_widget))
+     if (true) {
+        gtk_widget_show(rama_widget);
+     } else {
+        gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
+     }
   }
 #else
-  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+  printf("not compiled with GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -321,10 +325,11 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 					  gpointer         user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
+  std::cout << "calling do_sequence_view() " << imol  << std::endl;
    do_sequence_view(imol);
 #else
-  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+  printf("not compiled with GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -472,7 +477,7 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    // No waters: 5
    // B-factor backbone: 1... wrong
    // occ: 11
-   // 
+   //
    if (bbt ==  8) index =  1;
    if (bbt ==  3) index =  2;
    if (bbt == 21) index =  3;
@@ -539,7 +544,8 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   std::string four_char_imol(nn, '0');
   // widget_name += four_char_imol + coot::util::int_to_string(imol);
   widget_name += coot::util::int_to_string(imol);
-  std::cout << "debug:: widget_name " << widget_name << std::endl;
+
+  std::cout << "debug:: frame widget_name " << widget_name << std::endl;
 
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			  widget_name.c_str(),
@@ -565,7 +571,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   widget_name = "display_mol_number_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
 
-  mol_number_label = gtk_label_new (widget_name.c_str());;
+  mol_number_label = gtk_label_new (coot::util::int_to_string(imol).c_str());;
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			  widget_name.c_str(), mol_number_label, NULL);
   gtk_widget_show (mol_number_label);
@@ -599,7 +605,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_widget_show (hbox32);
   gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
 
-  widget_name = "display_mol_entry_";
+  widget_name = "display_mol_button_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
 
   displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
@@ -614,7 +620,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
 
-  widget_name = "active_button_";
+  widget_name = "active_mol_button_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
 
   active_button_1 = gtk_check_button_new_with_label (_("Active"));
@@ -625,9 +631,6 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_widget_show (active_button_1);
   gtk_box_pack_start (GTK_BOX (hbox32), active_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (active_button_1), 2);
-
-  widget_name = "active_button_";
-  widget_name += four_char_imol + coot::util::int_to_string(imol);
 
   GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(imol);
   gtk_box_pack_start(GTK_BOX(hbox32), sel_and_col_combobox, FALSE, FALSE, 0);
@@ -1265,32 +1268,40 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
 
 
 void
-on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,
-						   gpointer         user_data)
+on_display_control_mol_displayed_button_toggled(GtkToggleButton *button,
+                                                gpointer         user_data)
 {
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
    int idisplay;
    GtkWidget *active_toggle_button;
-   char *widget_name = (char *) malloc(100);
-   char *tmp_name;
+
+   // char *widget_name = (char *) malloc(100);
+   // char *tmp_name;
 
 /*   printf("DEBUG::  display toggle of molecule: %d\n", imol); */
 
-   strcpy(widget_name, "active_button_");
-   tmp_name = widget_name + strlen(widget_name);
-   snprintf(tmp_name, 4, "%-d", imol);
+   // strcpy(widget_name, "active_button_");
+   // tmp_name = widget_name + strlen(widget_name);
+   // snprintf(tmp_name, 4, "%-d", imol);
+   
+   int nn = 3;
+   if (imol > 9) nn = 2;
+   if (imol > 99) nn = 1;
+   std::string four_char_imol(nn, '0');
+   four_char_imol += coot::util::int_to_string(imol);
+   std::string widget_name = "active_mol_button_" + four_char_imol;
 
 /*   printf("mol display button clicked %d, active: %d\n", *imol, button->active); */
 
   if (imol >= 0 && imol < graphics_n_molecules()) {
      if (gtk_toggle_button_get_active(button))
-      set_mol_displayed(imol, 1);
-    else
-      set_mol_displayed(imol, 0);
+        set_mol_displayed(imol, 1);
+     else
+        set_mol_displayed(imol, 0);
 
-/*     printf("looking up widget name %s\n", widget_name); */
-    active_toggle_button = lookup_widget(GTK_WIDGET(button), widget_name);
-    if (active_toggle_button) {
+     /*     printf("looking up widget name %s\n", widget_name); */
+     active_toggle_button = lookup_widget(GTK_WIDGET(button), widget_name.c_str());
+     if (active_toggle_button) {
       /*  printf("INFO:: Got active_toggle_button from name: %s\n", widget_name); */
 
       if (mol_is_displayed(imol)) {
@@ -1302,14 +1313,14 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
       }
 
 
-
-    } else {
-      printf("ERROR:: Failed to find active_toggle_button from name: %s\n", widget_name);
-    }
+     } else {
+        std::cout << "ERROR:: Failed to find active_toggle_button from name:"
+                  << widget_name << std::endl;
+     }
   } else {
-    printf("ERROR:: (ignoring) display toggle of bogus molecule: %d\n", imol);
+     printf("ERROR:: (ignoring) display toggle of bogus molecule: %d\n", imol);
   }
-  free(widget_name);
+
 }
 
 
@@ -1633,7 +1644,7 @@ display_control_add_reps_frame(GtkWidget *display_control_window_glade,
       if (t)
 	 w = t;
       else
-	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
+	 std::cout << "ERROR:: in display_control_add_reps_frame failed to lookup "
 		   << name << " widget" << std::endl;
    }
    return w;
@@ -1650,7 +1661,7 @@ display_control_add_reps_all_on_check_button(GtkWidget *display_control_window_g
       if (t)
 	 w = t;
       else
-	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
+	 std::cout << "ERROR:: in display_control_add_reps_all_on_check_button failed to lookup "
 		   << name << " widget" << std::endl;
    }
    return w;

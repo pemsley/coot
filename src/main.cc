@@ -216,8 +216,6 @@ void do_main_window(const command_line_data &cld) {
       GtkWidget *glarea = my_gtkglarea(graphics_hbox);
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
-      std::cout << "debug:: in main glarea.size() is " << graphics_info_t::glareas.size()
-                << std::endl;
       
       if (true) {
 	 // application icon:
@@ -292,6 +290,10 @@ void do_main_window(const command_line_data &cld) {
 							 "gln_and_asn_b_factor_outliers_submenu");
 	 create_initial_validation_graph_submenu_generic(window1 , "ncs_differences1", "ncs_diffs_submenu");
 
+         // OK, now we can import the python coot_gui and extensions
+         import_python_module("coot_gui",   0);
+         import_python_module("populate_python_menus", 0);
+
       } else {
 	 std::cout << "CATASTROPHIC ERROR:: failed to create Gtk GL widget"
 		   << "  (Check that your X11 server is working and has (at least)"
@@ -350,7 +352,7 @@ main (int argc, char *argv[]) {
 #endif
 
 #ifdef WITH_SOUND
-   test_sound(argc, argv);
+   // test_sound(argc, argv);
 #endif // WITH_SOUND
 
    if (cld.run_internal_tests_and_exit)
@@ -367,7 +369,10 @@ main (int argc, char *argv[]) {
       // seems to be neccessary to make sure the type is realized
       // and we use newer g_object_set instead of deprecated (gtk3)
       // gtk_settings_set_long_property
-      g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
+
+      // not sure what this does, but it's deprecated now
+      // g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
+
       g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
       g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 
@@ -465,8 +470,10 @@ void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w;
 #ifndef USE_GUILE
-      w = lookup_widget(window1, "scripting_scheme1");
-      gtk_widget_set_sensitive(w, FALSE);
+      // This lookup fails - I don't know why. Get rid of it for now - to remove startup message
+      // w = lookup_widget(window1, "scripting_scheme1");
+      // std::cout << "debug:: in desensitive_scripting_menu_item_maybe() w " << w << std::endl;
+      // gtk_widget_set_sensitive(w, FALSE);
 #endif
 #ifndef USE_PYTHON
       w = lookup_widget(window1, "scripting_python1");
@@ -478,6 +485,7 @@ void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
 
 void load_gtk_resources() {
 
+#if 0
    std::string gtkrcfile = PKGDATADIR;
    gtkrcfile += "/cootrc";
 
@@ -487,9 +495,9 @@ void load_gtk_resources() {
       gtkrcfile = s;
    }
 
-    std::cout << "Acquiring application resources from " << gtkrcfile << std::endl;
-   gtk_rc_add_default_file(gtkrcfile.c_str());
-
+   std::cout << "Acquiring application resources from " << gtkrcfile << std::endl;
+   gtk_rc_add_default_file(gtkrcfile.c_str()); // Deprecated - use GtkStyleContext
+#endif
 }
 
 
@@ -520,177 +528,7 @@ setup_splash_screen() {
 
 }
 
-// this returns the effective screen height if possible otherwise an estimate
-int
-get_max_effective_screen_height() {
 
-    // using properties
-    gboolean ok;
-    guchar* raw_data = NULL;
-    gint data_len = 0;
-    gint width;
-    gint height;
-    int max_height;
-    max_height = -1;
-
-// no gdk_property get on windows (at the moment)
-#if !defined WINDOWS_MINGW && !defined _MSC_VER
-    ok = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
-                          gdk_atom_intern("_NET_WORKAREA", FALSE),  // property
-                          gdk_atom_intern("CARDINAL", FALSE),  // property type
-                          0,  // byte offset into property
-                          0xff,  // property length to retrieve
-                          false,  // delete property after retrieval?
-                          NULL,  // returned property type
-                          NULL,  // returned data format
-                          &data_len,  // returned data len
-                          &raw_data);  // returned data
-
-    if (ok) {
-
-        // We expect to get four longs back: x, y, width, height.
-        if (data_len >= static_cast<gint>(4 * sizeof(glong))) {
-            glong* data = reinterpret_cast<glong*>(raw_data);
-            gint x = data[0];
-            gint y = data[1];
-            width = data[2];
-            height = data[3];
-            max_height = height;
-        }
-        g_free(raw_data);
-    }
-#endif // MINGW
-    if (max_height < 0) {
-        GdkScreen *screen;
-        screen = gdk_screen_get_default();
-        if (screen) {
-            width = gdk_screen_get_width(screen);
-            height = gdk_screen_get_height(screen);
-
-#ifdef WINDOWS_MINGW
-            max_height = int(height * 0.95);
-#else
-            max_height = int(height * 0.9);
-#endif // MINGW
-        } else {
-            g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
-        }
-    }
-    return max_height;
-}
-
-int
-setup_screen_size_settings() {
-
-   int ret = 0;
-   int max_height;
-   max_height = get_max_effective_screen_height();
-
-   // adjust the icons size of the refinement toolbar icons
-   if (max_height <= 620) {
-       // std::cout << "BL INFO:: screen has " << max_height << " height, will make small icons and small font" << std::endl;
-       max_height = 620;
-       gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
-       gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
-       ret = 1;
-   } else if (max_height <= 720) {
-       int icon_size = 12 + (max_height - 620) / 25;
-       // std::cout << "BL INFO:: screen has " << max_height << " height, will make "
-       //           << "icons to " <<  icon_size <<std::endl;
-       std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += ",";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += ":gtk-button=";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += ",";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += "\"";
-       gtk_rc_parse_string (toolbar_txt.c_str());
-   }
-   return ret;
-}
-
-
-void setup_application_icon(GtkWindow *window) {
-
-   std::string splash_screen_pixmap_dir = PKGDATADIR;
-   splash_screen_pixmap_dir += "/";
-   splash_screen_pixmap_dir += "pixmaps";
-
-   // over-ridden by user?
-   char *s = getenv("COOT_PIXMAPS_DIR");
-   if (s) {
-      splash_screen_pixmap_dir = s;
-   }
-
-   // now add the application icon
-   std::string app_icon_path =
-      coot::util::append_dir_file(splash_screen_pixmap_dir,
-				  "coot-icon.png");
-
-   struct stat buf;
-   int status = stat(app_icon_path.c_str(), &buf);
-   if (status == 0) { // icon file was found
-
-      GdkPixbuf *icon_pixbuf =
-	 gdk_pixbuf_new_from_file (app_icon_path.c_str(), NULL);
-      if (icon_pixbuf) {
-	 gtk_window_set_icon (GTK_WINDOW (window), icon_pixbuf);
-	 g_object_unref(icon_pixbuf); // - what does this do?  I mean,
-	 // why do I want to unref this pixbuf now? What does
-	 // gtk_window_set_icon() do to the refcount? How do I know
-	 // the refcount on a widget?
-      }
-   }
-
-   // load svg/png files to antialias icons
-   // maybe should go somewhere else?!
-   GtkIconSet* iconset;
-   GtkIconFactory *iconfactory = gtk_icon_factory_new();
-   GSList* stock_ids = gtk_stock_list_ids();
-   GError *error = NULL;
-   const char *stock_id;
-   GdkPixbuf* pixbuf;
-
-   glob_t myglob;
-   int flags = 0;
-   std::string glob_dir = splash_screen_pixmap_dir;
-   std::string glob_file = glob_dir;
-   glob_file += "/*.svg";
-   glob(glob_file.c_str(), flags, 0, &myglob);
-   glob_file = glob_dir;
-   glob_file += "/*.png";
-   glob(glob_file.c_str(), GLOB_APPEND, 0, &myglob);
-   size_t count;
-   char **p;
-   for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
-      char *filename(*p);
-      pixbuf = gdk_pixbuf_new_from_file(filename, &error);
-      if (error) {
-	 g_print ("Error loading icon: %s\n", error->message);
-	 g_error_free (error);
-	 error = NULL;
-      } else {
-	 if (pixbuf) {
-            // std::cout << "Repalce gtk_icon_set_new_from_pixbuf()\n";
-	    iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
-	    g_object_unref(pixbuf);
-	    // may have to be adjusted for Windows!!
-	    //stock_id = (coot::util::file_name_non_directory(filename)).c_str();
-	    std::string tmp = coot::util::file_name_non_directory(filename);
-	    stock_id = tmp.c_str();
-	    if (strcmp(stock_id, "") !=0) { // if they don't match..
-	       gtk_icon_factory_add(iconfactory, stock_id, iconset);
-	       gtk_icon_factory_add_default(iconfactory);
-               // std::cout << "Replace these deprecated icon factory functions\n";
-	    }
-	 }
-      }
-   }
-   globfree(&myglob);
-
-}
 
 void add_ligand_builder_menu_item_maybe() {
 

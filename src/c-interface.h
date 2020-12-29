@@ -1111,6 +1111,16 @@ void set_unpathed_backup_file_names(int state);
 /*! \brief return the state for adding paths to backup file names*/
 int  unpathed_backup_file_names_state();
 
+/*! \brief set the state for adding paths to backup file names
+
+  by default directories names are added into the filename for backup
+  (with / to _ mapping).  call this with state=1 to turn off directory
+  names  */
+void set_decoloned_backup_file_names(int state);
+/*! \brief return the state for adding paths to backup file names*/
+int  decoloned_backup_file_names_state();
+
+
 /*! \brief return the state for compression of backup files*/
 int  backup_compress_files_state();
 
@@ -1735,9 +1745,8 @@ void info_dialog_and_text(const char *txt);
 
 /*! \brief as above, create a dialog with information
 
-This dialog is left-justified and can use markup such as <tt> or <i>
-
- */
+This dialog is left-justified and can use markup such as angled bracketted tt or i
+*/
 void info_dialog_with_markup(const char *txt);
 
 
@@ -2130,6 +2139,13 @@ int  vt_surface_status();
 void set_clipping_back( float v);
 /*! \brief set clipping plane front */
 void set_clipping_front(float v);
+
+/*! \brief get clipping plane front */
+float get_clipping_plane_front();
+
+/*! \brief get clipping plane back */
+float get_clipping_plane_back();
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -3829,6 +3845,11 @@ void set_show_environment_distances_as_solid(int state);
 /*! \brief Label the atom on Environment Distances start/change */
 void set_environment_distances_label_atom(int state);
 
+/*! \brief Label the atoms in the residues around the central residue */
+void label_neighbours();
+
+
+
 /*! \brief Add a geometry distance between points in a given molecule
 
 @return the distance between the points
@@ -4673,6 +4694,9 @@ void set_use_variable_bond_thickness(short int state);
 /*! \brief set bond colour for molecule */
 void set_bond_colour_rotation_for_molecule(int imol, float f);
 
+/*! \brief set default for the drawing of atoms in stick mode (default is on (1)) */
+void set_draw_stick_mode_atoms_default(short int state);
+
 
 /*! \brief get the bond colour for molecule.
 
@@ -4716,8 +4740,16 @@ turn off with state = 0
 turn on with state = 1 */
 void set_draw_stick_mode_atoms(int imol, short int state);
 
+/*! \brief set the state for drawing missing resiude loops
+
+For taking screenshots, we often don't want to see them.
+*/
+void set_draw_missing_residues_loops(short int state);
+
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);
+/*! \brief draw molecule number imol coloured by chain */
+void graphics_to_colour_by_chain(int imol);
 /*! \brief draw molecule number imol as CA + ligands */
 void graphics_to_ca_plus_ligands_representation   (int imol);
 /*! \brief draw molecule number imol as CA + ligands + sidechains*/
@@ -4847,6 +4879,9 @@ void set_flev_idle_ligand_interactions(int state);
 /* Toggle for animated ligand interaction display above */
 void toggle_flev_idle_ligand_interactions();
 
+void calculate_hydrogen_bonds(int imol);
+
+void set_draw_hydrogen_bonds(int state);
 
 /* \} */
 
@@ -4900,6 +4935,15 @@ void pepflip(int imol, const char *chain_id, int resno, const char *inscode,
 	     const char *altconf);
 int pepflip_intermediate_atoms();
 int pepflip_intermediate_atoms_other_peptide();
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM pepflip_using_difference_map_scm(int imol_coords, int imol_difference_map, float n_sigma);
+#endif
+#ifdef USE_PYTHON
+PyObject *pepflip_using_difference_map_py(int imol_coords, int imol_difference_map, float n_sigma);
+#endif
+#endif
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5000,7 +5044,13 @@ residue type can be "auto" and immediate_add is recommended to be 1.
 
 @return 0 on failure, 1 on success */
 int add_terminal_residue(int imol, const char *chain_id, int residue_number,
-			 const char *residue_type, int immediate_add);
+                          const char *residue_type, int immediate_add);
+
+/*! \brief Add a terminal nucleotide
+
+No fitting is done
+*/
+int add_nucleotide(int imol, const char *chain_id, int res_no);
 
 
 /*! \brief Add a terminal residue using given phi and psi angles
@@ -5368,6 +5418,10 @@ void setup_mutate_auto_fit(short int state);
 
 void do_mutation(const char *type, short int is_stub_flag);
 
+/*! \brief display a dialog that allows the choice of residue type to which to mutate
+ */
+void mutate_active_residue();
+
 /* auto-mutate stuff */
 short int progressive_residues_in_chain_check(const char *chain_id, int imol);
 
@@ -5439,6 +5493,9 @@ void do_base_mutation(const char *type);
 /*! \brief set a flag saying that the residue chosen by mutate or
   auto-fit mutate should only be added as a stub (mainchain + CB) */
 void set_residue_type_chooser_stub_state(short int istat);
+
+void handle_residue_type_chooser_entry_chose_type(const char *entry_text, short int stub_mode);
+
 
 /* \} */
 
@@ -6288,6 +6345,14 @@ void setup_base_pairing(int state);
 
 /*! \brief Print the sequence to the console of the given molecule */
 void print_sequence_chain(int imol, const char *chain_id);
+
+/*! \brief optionally write the sequence to the file for the given molecule,
+    optionally in PIR format */
+void print_sequence_chain_general(int imol, const char *chain_id,
+                                  short int pir_format,
+                                  short int file_output,
+                                  const char *file_name);
+
 /*! \brief Assign a FASTA sequence to a given chain in the  molecule */
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
 /*! \brief Assign a PIR sequence to a given chain in the molecule.  If
@@ -6866,7 +6931,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  *
  * Use a map that is blurred by the give factor for fitting.
  * @return < -100 if not possible, else return the new best fit for this chain.  */
-float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+// float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);  temporary comment                                   
 
 /* \} */
 
@@ -7069,13 +7134,22 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
+
+/*!  \brief display the sequence view for molecule number imol */
 void nsv(int imol);
+/*!  \brief control where the sequence view is displayed
+
+in the main application or a new dialog */
+void set_sequence_view_is_docked(short int state);
+
+/*!  \brief set the pixel limit for sequence view windows */
 void set_nsv_canvas_pixel_limit(int cpl);
 
 void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
 
+/*!  \brief display the ligand builder dialog */
 void start_ligand_builder_gui();
 
 #ifdef __cplusplus
@@ -7127,12 +7201,6 @@ void wii_status();
 #endif
 
 void full_screen(int mode);
-
-
-// temporarily remove this - linking problems?
-void set_use_perspective_projection(int state);
-
-void add_molecular_representation_test();
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

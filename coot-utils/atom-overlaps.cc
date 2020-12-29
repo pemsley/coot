@@ -180,7 +180,8 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
 		  std::pair<bool, dictionary_residue_restraints_t> d =
 		     geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
 		  if (! d.first) {
-		     std::cout << "Failed to get dictionary for " << residue_name << std::endl;
+		     std::cout << "WARNING::Failed to get dictionary for " << residue_name << std::endl;
+                     std::cout << "WARNING:: turning off have_dictionary" << std::endl;
 		     have_dictionary = false;
 		  } else {
 		     dictionary_map[residue_name] = d.second;
@@ -376,7 +377,7 @@ void
 coot::atom_overlaps_container_t::make_overlaps() {
 
    if (! have_dictionary) {
-      std::cout << "No dictionary" << std::endl;
+      std::cout << "WARNING:: make_overlaps(): No dictionary!" << std::endl;
       return;
    }
 
@@ -463,6 +464,45 @@ coot::atom_overlaps_container_t::make_overlaps() {
    }
 }
 
+bool
+coot::atom_overlaps_container_t::kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_2) const {
+
+   // C2 (NAG) and NE2 (ASN) are angle related - but we don't know that unless we
+   // generate full restraints - which we don't do.
+
+   bool reject = false;
+   if (at_1->residue->chain == at_2->residue->chain) {
+      std::string res_name_1(at_1->residue->GetResName());
+      if (res_name_1 == "ASN") {
+         std::string res_name_2(at_2->residue->GetResName());
+         if (res_name_2 == "NAG") {
+            std::string atom_name_1(at_1->name);
+            if (atom_name_1 == " NE2") {
+               std::string atom_name_2(at_2->name);
+               if (atom_name_2 == " C2 ") {
+                  reject = true;
+               }
+            }
+         }
+      }
+      if (res_name_1 == "NAG") {
+         std::string res_name_2(at_2->residue->GetResName());
+         if (res_name_2 == "ASN") {
+            std::string atom_name_1(at_1->name);
+            if (atom_name_1 == " C2 ") {
+               std::string atom_name_2(at_2->name);
+               if (atom_name_2 == " NE2") {
+                  reject = true;
+               }
+            }
+         }
+      }
+   }
+
+   return reject;
+
+}
+
 
 // modifies overlaps
 void
@@ -532,6 +572,9 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 						     &ring_list_map        // updatedby fn.
 						     );
 		     if (ait == CLASHABLE) {
+                        if (false)
+                           std::cout << "debug:: clashable: " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                                     << std::endl;
 			double r_1 = get_vdw_radius_neighb_atom(ii);
 			double r_2 = get_vdw_radius_neighb_atom(jj);
 			clipper::Coord_orth co_at_1 = co(at_1);
@@ -539,9 +582,11 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 			double ds = (co_at_1 - co_at_2).lengthsq();
 			double d = std::sqrt(ds);
 			if (d < (r_1 + r_2)) {
-			   double ovl = get_overlap_volume(d, r_2, r_1);
-			   atom_overlap_t ao(pscontact[i].id2, at_1, at_2, r_1 ,r_2, ovl);
-			   overlaps.push_back(ao);
+                           if (! kludge_filter(at_1, at_2)) {
+                              double ovl = get_overlap_volume(d, r_2, r_1);
+                              atom_overlap_t ao(pscontact[i].id2, at_1, at_2, r_1 ,r_2, ovl);
+                              overlaps.push_back(ao);
+                           }
 			}
 		     }
 		  }
@@ -810,6 +855,7 @@ coot::atom_overlaps_container_t::get_h_bond_type(mmdb::Atom *at) {
 } 
 
 
+#include "fib-sphere.hh"
 
 // probably not the function that you're looking for.
 // Maybe delete this?
@@ -819,15 +865,8 @@ coot::atom_overlaps_container_t::contact_dots_for_overlaps() const {
    double spike_length = 0.5;
    double clash_dist = 0.4;
 
-   double dot_density = 0.35;
-   dot_density = 1.0;
-
-   double   phi_step = 5.0 * (M_PI/180.0);
-   double theta_step = 5.0 * (M_PI/180.0);
-   if (dot_density > 0.0) {
-      phi_step   /= dot_density;
-      theta_step /= dot_density;
-   }
+   std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(450); // dot density
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(270); // less than above
 
    for (unsigned int i=0; i<overlaps.size(); i++) {
 
@@ -848,82 +887,75 @@ coot::atom_overlaps_container_t::contact_dots_for_overlaps() const {
       //
       bool done_atom_name = false;
 
-      bool even = true;
-      for (double theta=0; theta<M_PI; theta+=theta_step) {
-	 double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-	 for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-	    if (even) {
-	       clipper::Coord_orth pt(r_1*cos(phi)*sin(theta),
-				      r_1*sin(phi)*sin(theta),
-				      r_1*cos(theta));
-	       clipper::Coord_orth pt_at_surface = pt + pt_at_1;
-	       double d_sqrd = (pt_at_2 - pt_at_surface).lengthsq();
+      for (unsigned int j=0; j<sphere_points.size(); j++) {
 
-	       // std::cout << "comparing " << sqrt(d_sqrd) << " vs " << sqrt(r_2_plus_prb_squard)
-	       // << " with r_2 " << r_2 << std::endl;
+         const clipper::Coord_orth &pt(sphere_points[j]);
+         clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
+         double d_sqrd = (pt_at_2 - pt_at_surface).lengthsq();
 
-	       if (d_sqrd > r_2_plus_prb_squard) {
+         // std::cout << "comparing " << sqrt(d_sqrd) << " vs " << sqrt(r_2_plus_prb_squard)
+         // << " with r_2 " << r_2 << std::endl;
 
-		  bool draw_it = ! is_inside_another_ligand_atom(idx, pt_at_surface);
+         if (d_sqrd > r_2_plus_prb_squard) {
 
-		  if (false) // debugging
-		     if (std::string(overlaps[i].atom_1->name) != " HO3")
-			draw_it = false;
+            bool draw_it = ! is_inside_another_ligand_atom(idx, pt_at_surface);
 
-		  if (draw_it) {
+            if (false) // debugging
+               if (std::string(overlaps[i].atom_1->name) != " HO3")
+                  draw_it = false;
 
-		     std::string type = "wide-contact";
-		     bool only_pt = true; // not a spike
+            if (draw_it) {
 
-		     if (d_sqrd < r_2_sqrd)
-			type = "close-contact";
+               std::string type = "wide-contact";
+               bool only_pt = true; // not a spike
 
-		     if (d_sqrd < (r_2_sqrd - 2 * r_2 * clash_dist + clash_dist * clash_dist)) {
-			type = "clash";
-			only_pt = false;
-		     }
+               if (d_sqrd < r_2_sqrd)
+                  type = "close-contact";
 
-		     if (overlaps[i].is_h_bond) {
-			type = "H-bond";
-		     }
+               if (d_sqrd < (r_2_sqrd - 2 * r_2 * clash_dist + clash_dist * clash_dist)) {
+                  type = "clash";
+                  only_pt = false;
+               }
 
-		     if (false) // debugging
-			if (! done_atom_name) {
-			   std::cout << "   spike for atom " << coot::atom_spec_t(overlaps[i].atom_1)
-				     << std::endl;
-			   done_atom_name = true;
-			}
+               if (overlaps[i].is_h_bond) {
+                  type = "H-bond";
+               }
 
-		     clipper::Coord_orth pt_spike_inner = pt_at_surface;
-		     if (! only_pt) {
-			std::cout << "considering overlap idx: " << i << " "
-				  << atom_spec_t(overlaps[i].atom_1) << " to "
-				  << atom_spec_t(overlaps[i].atom_2) << std::endl;
+               if (false) // debugging
+                  if (! done_atom_name) {
+                     std::cout << "   spike for atom " << coot::atom_spec_t(overlaps[i].atom_1)
+                               << std::endl;
+                     done_atom_name = true;
+                  }
 
-			clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-			clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+               clipper::Coord_orth pt_spike_inner = pt_at_surface;
+               if (! only_pt) {
+                  std::cout << "considering overlap idx: " << i << " "
+                            << atom_spec_t(overlaps[i].atom_1) << " to "
+                            << atom_spec_t(overlaps[i].atom_2) << std::endl;
 
-			// these days, spikes project away from the atom, not inwards
-			//
-			// clipper::Coord_orth pt_spike_inner = pt_at_surface + spike_length * vect_to_pt_1_unit;
-			pt_spike_inner = pt_at_surface - spike_length * vect_to_pt_1_unit;
-		     }
+                  clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+                  clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
 
-		     // on the surface of atom_1 inside the sphere of atom_2
-		     std::cout << "spike "
-			       << type << " "
-			       << pt_at_surface.x() << " "
-			       << pt_at_surface.y() << " "
-			       << pt_at_surface.z() << " to "
-			       << pt_spike_inner.x() << " "
-			       << pt_spike_inner.y() << " "
-			       << pt_spike_inner.z()
-			       << " theta " << theta << " phi " << phi
-			       << std::endl;
-		  }
-	       }
-	    }
-	 }
+                  // these days, spikes project away from the atom, not inwards
+                  //
+                  // clipper::Coord_orth pt_spike_inner = pt_at_surface + spike_length * vect_to_pt_1_unit;
+                  pt_spike_inner = pt_at_surface - spike_length * vect_to_pt_1_unit;
+               }
+
+               // on the surface of atom_1 inside the sphere of atom_2
+               if (false)
+                  std::cout << "spike "
+                            << type << " "
+                            << pt_at_surface.x() << " "
+                            << pt_at_surface.y() << " "
+                            << pt_at_surface.z() << " to "
+                            << pt_spike_inner.x() << " "
+                            << pt_spike_inner.y() << " "
+                            << pt_spike_inner.z()
+                            << std::endl;
+            }
+         }
       }
    }
 }
@@ -988,9 +1020,10 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 
 
 coot::atom_overlaps_dots_container_t
-coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
+coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
 
-   double dot_density_in = 1.05;
+   bool add_vdw_dots = false; // pass this
+
    atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
 
@@ -999,7 +1032,6 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
    if (mol) {
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
-      float min_dist = 0.01;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
@@ -1034,6 +1066,11 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 
       if (n_contacts > 0) {
 	 if (pscontact) {
+
+            int   atom_n_sphere_dots = static_cast<int>(450 * dot_density_in);
+            int H_atom_n_sphere_dots = static_cast<int>(200 * dot_density_in);  // less than above
+            std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(atom_n_sphere_dots);
+            std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(H_atom_n_sphere_dots);
 
 	    // which atoms are close to which other atoms?
 	    std::map<int, std::vector<int> > contact_map; // these atoms can have nbc interactions
@@ -1070,155 +1107,149 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 	       mmdb::Atom *cr_at = ligand_residue_atoms[iat];
 	       clipper::Coord_orth pt_at_1 = co(cr_at);
 
-	       double dot_density = dot_density_in;
-	       if (std::string(cr_at->element) == " H")
-		  dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
-
-	       double   phi_step = 5.0 * (M_PI/180.0);
-	       double theta_step = 5.0 * (M_PI/180.0);
-	       if (dot_density > 0.0) {
-		  phi_step   /= dot_density;
-		  theta_step /= dot_density;
-	       }
 	       double r_1 = get_vdw_radius_ligand_atom(cr_at);
-	       bool even = true;
-	       for (double theta=0; theta<M_PI; theta+=theta_step) {
-		  double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-		  for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-		     if (even) {
-			clipper::Coord_orth pt(r_1*cos(phi)*sin(theta),
-					       r_1*sin(phi)*sin(theta),
-					       r_1*cos(theta));
-			clipper::Coord_orth pt_at_surface = pt + pt_at_1;
-			bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
 
-			bool draw_it_2 = ! is_inside_an_env_atom_to_which_its_bonded(iat,
-										     bonded_map[iat],
-										     env_residue_atoms,
-										     pt_at_surface);
+               std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
+               if (std::string(cr_at->element) == " H")
+                  sphere_points_for_atom = H_sphere_points;
 
-			if (draw_it && draw_it_2) {
+               for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
+                  
+                  const clipper::Coord_orth &pt(sphere_points[j]);
+                  clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
+                  bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
 
-			   // is the point on the surface of cr_at inside the sphere
-			   // of an environment atom?
-			   // If so, we want to know which one to which it was closest
+                  bool draw_it_2 = ! is_inside_an_env_atom_to_which_its_bonded(iat,
+                                                                               bonded_map[iat],
+                                                                               env_residue_atoms,
+                                                                               pt_at_surface);
 
-			   double biggest_overlap = -1; // should be positive if we get a hit
-			   mmdb::Atom *atom_with_biggest_overlap = 0;
-			   double r_2_for_biggest_overlap = 0;
+                  if (draw_it && draw_it_2) {
 
-			   // now check which atom this is clashing with (if any) and pick the
-			   // one with the biggest overlap
-			   //
-			   const std::vector<int> &v = contact_map[iat];
-			   for (unsigned int jj=0; jj<v.size(); jj++) {
+                     // is the point on the surface of cr_at inside the sphere
+                     // of an environment atom?
+                     // If so, we want to know which one to which it was closest
 
-			      mmdb::Atom *neighb_atom = env_residue_atoms[v[jj]];
+                     double biggest_overlap = -1; // should be positive if we get a hit
+                     mmdb::Atom *atom_with_biggest_overlap = 0;
+                     double r_2_for_biggest_overlap = 0;
 
-			      // turn off main-chain to main-chain interactions (to match the dots from probe)
-			      if (is_main_chain_p(cr_at)) // this might be true for amino-acid residues
-				 if (is_main_chain_p(neighb_atom))
-				    continue;
+                     // now check which atom this is clashing with (if any) and pick the
+                     // one with the biggest overlap
+                     //
+                     const std::vector<int> &v = contact_map[iat];
+                     for (unsigned int jj=0; jj<v.size(); jj++) {
 
-			      double r_2 = get_vdw_radius_neighb_atom(v[jj]);
-			      double r_2_sqrd = r_2 * r_2;
+                        mmdb::Atom *neighb_atom = env_residue_atoms[v[jj]];
 
-			      // note that we want to check against the outside of the probe
-			      // sphere - not the middle of the probe sphere - and
-			      // thus we will pick up more wide contacts (like molprobity probe)
+                        // turn off main-chain to main-chain interactions (to match the dots from probe)
+                        if (is_main_chain_p(cr_at)) // this might be true for amino-acid residues
+                           if (is_main_chain_p(neighb_atom))
+                              continue;
 
-			      double rmp = 1.6;  // radius multiplier
-			      double r_2_plus_prb_squard =
-				 r_2_sqrd + 2 * r_2 * rmp * probe_radius + rmp * rmp * probe_radius * probe_radius;
+                        double r_2 = get_vdw_radius_neighb_atom(v[jj]);
+                        double r_2_sqrd = r_2 * r_2;
 
-			      clipper::Coord_orth pt_na = co(neighb_atom);
-			      double d_sqrd = (pt_na - pt_at_surface).lengthsq();
+                        // note that we want to check against the outside of the probe
+                        // sphere - not the middle of the probe sphere - and
+                        // thus we will pick up more wide contacts (like molprobity probe)
 
-			      if (false)
-				 std::cout << " for atom "
-					   << atom_spec_t(env_residue_atoms[v[jj]])
-					   << " comparing " << d_sqrd << " vs "
-					   << r_2_plus_prb_squard << " with r_2 " << r_2
-					   << " probe_radius " << probe_radius << std::endl;
+                        double rmp = 1.6;  // radius multiplier
+                        double r_2_plus_prb_squard =
+                           r_2_sqrd + 2 * r_2 * rmp * probe_radius + rmp * rmp * probe_radius * probe_radius;
 
-			      if (d_sqrd < r_2_plus_prb_squard) {
+                        clipper::Coord_orth pt_na = co(neighb_atom);
+                        double d_sqrd = (pt_na - pt_at_surface).lengthsq();
 
-				 // OK it was close to something.
-				 double delta_d_sqrd = r_2_plus_prb_squard - d_sqrd;
-				 if (delta_d_sqrd > biggest_overlap) {
-				    biggest_overlap = delta_d_sqrd;
-				    atom_with_biggest_overlap = neighb_atom;
-				    r_2_for_biggest_overlap = r_2;
-				 }
-			      }
-			   }
+                        if (false)
+                           std::cout << " for atom "
+                                     << atom_spec_t(env_residue_atoms[v[jj]])
+                                     << " comparing " << d_sqrd << " vs "
+                                     << r_2_plus_prb_squard << " with r_2 " << r_2
+                                     << " probe_radius " << probe_radius << std::endl;
 
-			   if (atom_with_biggest_overlap) {
-			      double d_surface_pt_to_atom_sqrd =
-				 (co(atom_with_biggest_overlap)-pt_at_surface).lengthsq();
-			      double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
-			      double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
+                        if (d_sqrd < r_2_plus_prb_squard) {
 
-			      // first is yes/no, second is H-is-on-ligand?
-			      // std::pair<bool, bool> might_be_h_bond_flag =
-			      // is_h_bond_H_and_acceptor(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-			      h_bond_info_t hbi(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-			      bool is_h_bond = false;
-			      if (hbi.is_h_bond_H_and_acceptor)
-				 is_h_bond = true;
-			      std::pair<std::string, std::string> c_type_col =
-				 overlap_delta_to_contact_type(overlap_delta, is_h_bond);
-			      const std::string &c_type = c_type_col.first;
-			      const std::string &col    = c_type_col.second;
+                           // OK it was close to something.
+                           double delta_d_sqrd = r_2_plus_prb_squard - d_sqrd;
+                           if (delta_d_sqrd > biggest_overlap) {
+                              biggest_overlap = delta_d_sqrd;
+                              atom_with_biggest_overlap = neighb_atom;
+                              r_2_for_biggest_overlap = r_2;
+                           }
+                        }
+                     }
 
-			      if (false)
-				 std::cout << "spike "
-					   << c_type << " "
-					   << pt_at_surface.x() << " "
-					   << pt_at_surface.y() << " "
-					   << pt_at_surface.z() << " to "
-					   << pt_at_surface.x() << " "
-					   << pt_at_surface.y() << " "
-					   << pt_at_surface.z()
-					   << " theta " << theta << " phi " << phi
-					   << std::endl;
+                     if (atom_with_biggest_overlap) {
+                        double d_surface_pt_to_atom_sqrd =
+                           (co(atom_with_biggest_overlap)-pt_at_surface).lengthsq();
+                        double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
+                        double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
 
-			      if (c_type != "clash") {
-				 atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
-				 ao.dots[c_type].push_back(dot);
-			      } else {
-				 clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-				 clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-				 // these days, spikes project away from the atom, not inwards
-				 // clipper::Coord_orth pt_spike_inner =
-				 // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
-				 clipper::Coord_orth pt_spike_inner =
-				    pt_at_surface -
-				    0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
-				 std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
-										       pt_spike_inner);
-				 ao.clashes.positions.push_back(p);
-			      }
+                        // first is yes/no, second is H-is-on-ligand?
+                        // std::pair<bool, bool> might_be_h_bond_flag =
+                        // is_h_bond_H_and_acceptor(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+                        h_bond_info_t hbi(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+                        bool is_h_bond = false;
+                        if (hbi.is_h_bond_H_and_acceptor)
+                           is_h_bond = true;
 
-			   } else {
+                        std::pair<std::string, std::string> c_type_col =
+                           overlap_delta_to_contact_type(overlap_delta, is_h_bond);
+                        const std::string &c_type = c_type_col.first;
+                        const std::string &col    = c_type_col.second;
 
-			      // no environment atom was close to this ligand atom, so just add
-			      // a surface point
+                        if (false)
+                           std::cout << "............ here with is_h_bond " << is_h_bond
+                                     << " " <<  c_type << " " << col << std::endl;
 
-			      if (false)
-				 std::cout << "spike-surface "
-					   << pt_at_surface.x() << " "
-					   << pt_at_surface.y() << " "
-					   << pt_at_surface.z() << std::endl;
+                        if (false)
+                           std::cout << "spike check "
+                                     << c_type << " "
+                                     << pt_at_surface.x() << " "
+                                     << pt_at_surface.y() << " "
+                                     << pt_at_surface.z() << " to "
+                                     << pt_at_surface.x() << " "
+                                     << pt_at_surface.y() << " "
+                                     << pt_at_surface.z()
+                                     << std::endl;
 
-			      atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
-			      ao.dots["vdw-surface"].push_back(dot);
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
+                        if (c_type != "clash") {
+                           atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
+                           ao.dots[c_type].push_back(dot);
+                        } else {
+                           clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+                           clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+                           // these days, spikes project away from the atom, not inwards
+                           // clipper::Coord_orth pt_spike_inner =
+                           // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
+                           clipper::Coord_orth pt_spike_inner =
+                              pt_at_surface -
+                              0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
+                           std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
+                                                                                 pt_spike_inner);
+                           ao.clashes.positions.push_back(p);
+                        }
+
+                     } else {
+
+                        // no environment atom was close to this ligand atom, so just add
+                        // a surface point
+
+                        if (false)
+                           std::cout << "spike-surface "
+                                     << pt_at_surface.x() << " "
+                                     << pt_at_surface.y() << " "
+                                     << pt_at_surface.z() << std::endl;
+
+                        if (add_vdw_dots) {
+                           atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
+                           ao.dots["vdw-surface"].push_back(dot);
+                        }
+                     }
+                  }
+               }
+            }
 	 }
       }
    }
@@ -1313,6 +1344,12 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
       std::cout << "found " << n_selected_atoms << " selected atoms" << std::endl;
       std::cout << "found " << n_contacts << " all-atom contacts" << std::endl;
    }
+
+   int n_sphere_points        = static_cast<int>(dot_density_in * 900);
+   int n_sphere_points_for_H  = static_cast<int>(dot_density_in * 440);
+   std::vector<clipper::Coord_orth>   sphere_points = fibonacci_sphere(n_sphere_points);
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(n_sphere_points_for_H);
+
    if (n_contacts > 0) {
       if (pscontact) {
 	 // which atoms are close to which other atoms?
@@ -1371,126 +1408,126 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
 
 	    clipper::Coord_orth pt_at_1 = co(at);
 	    double dot_density = dot_density_in;
-	    if (std::string(at->element) == " H")
-	       dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
-	    double   phi_step = 5.0 * (M_PI/180.0);
-	    double theta_step = 5.0 * (M_PI/180.0);
-	    if (dot_density > 0.0) {
-	       phi_step   /= dot_density;
-	       theta_step /= dot_density;
-	    }
 	    double r_1 = get_vdw_radius_neighb_atom(iat);
-	    bool even = true;
-	    for (double theta=0; theta<M_PI; theta+=theta_step) {
-	       double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-	       for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-		  if (even) {
-		     clipper::Coord_orth pt(r_1*cos(phi)*sin(theta),
-					    r_1*sin(phi)*sin(theta),
-					    r_1*cos(theta));
-		     clipper::Coord_orth pt_at_surface = pt + pt_at_1;
-		     bool draw_it = ! is_inside_another_atom_to_which_its_bonded(iat, at,
-										 pt_at_surface,
-										 bonded_map[iat],
-										 atom_selection,
-										 neighb_atom_radius);
 
-		     if (draw_it) {
+            std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
+            if (std::string(at->element) == " H")
+               sphere_points_for_atom = H_sphere_points;
 
-			double biggest_overlap = -1; // should be positive if we get a hit
-			mmdb::Atom *atom_with_biggest_overlap = 0;
-			double r_2_for_biggest_overlap = 0;
+	    // if (std::string(at->element) == " H")
+	       // dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
+	    if (std::string(at->element) == " H")
+               sphere_points_for_atom = H_sphere_points;
+            
+            for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
+               const clipper::Coord_orth &pt(sphere_points_for_atom[j]);
+               clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
 
-			// now check which atom this is clashing with (if any) and pick the
-			// one with the biggest overlap
-			//
-			const std::vector<int> &v = contact_map[iat];
-			for (unsigned int jj=0; jj<v.size(); jj++) {
-			   mmdb::Atom *neighb_atom = atom_selection[v[jj]];
-			   double r_2 = get_vdw_radius_neighb_atom(v[jj]);
-			   double r_2_sqrd = r_2 * r_2;
-			   double r_2_plus_prb_squard = r_2_sqrd + 2 * r_2 * probe_radius +
-			      4 * probe_radius * probe_radius;
-			   clipper::Coord_orth pt_na = co(neighb_atom);
-			   double d_sqrd = (pt_na - pt_at_surface).lengthsq();
+               if (false)
+                  std::cout << "pt_at_surface "
+                            << pt_at_surface.x() << " "
+                            << pt_at_surface.y() << " "
+                            << pt_at_surface.z() << "\n";
+               bool draw_it = ! is_inside_another_atom_to_which_its_bonded(iat, at,
+                                                                           pt_at_surface,
+                                                                           bonded_map[iat],
+                                                                           atom_selection,
+                                                                           neighb_atom_radius);
 
-			   if (false)
-			      std::cout << " for " << atom_spec_t(at) << " " << atom_spec_t(neighb_atom)
-					<< " comparing " << d_sqrd << " vs " << r_2_plus_prb_squard
-					<< std::endl;
-			   if (d_sqrd < r_2_plus_prb_squard) {
-			      // a contact dot on something
-			      double delta_d_sqrd = r_2_plus_prb_squard - d_sqrd;
-			      if (delta_d_sqrd > biggest_overlap) {
-				 biggest_overlap = delta_d_sqrd;
-				 atom_with_biggest_overlap = neighb_atom;
-				 r_2_for_biggest_overlap = r_2;
-			      }
-			   }
-			}
+               if (draw_it) {
 
-			if (atom_with_biggest_overlap) {
-			   double d_surface_pt_to_atom_sqrd =
-			      (co(atom_with_biggest_overlap) - pt_at_surface).lengthsq();
-			   double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
-			   double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
-			   // first is yes/no, second is H-is-on-ligand?
-			   // allow waters to H-bond (without being an H)
-			   // std::pair<bool, bool> might_be_h_bond_flag =
-			   // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-			   h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-			   bool is_h_bond = false;
-			   if (hbi.is_h_bond_H_and_acceptor)
-			      is_h_bond = true;
+                  double biggest_overlap = -1; // should be positive if we get a hit
+                  mmdb::Atom *atom_with_biggest_overlap = 0;
+                  double r_2_for_biggest_overlap = 0;
 
-			   std::pair<std::string, std::string> c_type_col =
-			      overlap_delta_to_contact_type(overlap_delta, is_h_bond);
-			   const std::string &c_type = c_type_col.first;
-			   const std::string &col    = c_type_col.second;
+                  // now check which atom this is clashing with (if any) and pick the
+                  // one with the biggest overlap
+                  //
+                  const std::vector<int> &v = contact_map[iat];
+                  for (unsigned int jj=0; jj<v.size(); jj++) {
+                     mmdb::Atom *neighb_atom = atom_selection[v[jj]];
+                     double r_2 = get_vdw_radius_neighb_atom(v[jj]);
+                     double r_2_sqrd = r_2 * r_2;
+                     double r_2_plus_prb_squard = r_2_sqrd + 2 * r_2 * probe_radius +
+                        4 * probe_radius * probe_radius;
+                     clipper::Coord_orth pt_na = co(neighb_atom);
+                     double d_sqrd = (pt_na - pt_at_surface).lengthsq();
 
-			   clipper::Coord_orth pt_spike_inner = pt_at_surface;
-			   if (c_type == "clash") {
-			      clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-			      clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-			      pt_spike_inner = pt_at_surface -
-				 0.3 * sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
-			   }
+                     if (false)
+                        std::cout << " for " << atom_spec_t(at) << " " << atom_spec_t(neighb_atom)
+                                  << " comparing " << d_sqrd << " vs " << r_2_plus_prb_squard
+                                  << std::endl;
+                     if (d_sqrd < r_2_plus_prb_squard) {
+                        // a contact dot on something
+                        double delta_d_sqrd = r_2_plus_prb_squard - d_sqrd;
+                        if (delta_d_sqrd > biggest_overlap) {
+                           biggest_overlap = delta_d_sqrd;
+                           atom_with_biggest_overlap = neighb_atom;
+                           r_2_for_biggest_overlap = r_2;
+                        }
+                     }
+                  }
 
-			   if (c_type != "clash") {
+                  if (atom_with_biggest_overlap) {
+                     double d_surface_pt_to_atom_sqrd =
+                        (co(atom_with_biggest_overlap) - pt_at_surface).lengthsq();
+                     double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
+                     double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
+                     // first is yes/no, second is H-is-on-ligand?
+                     // allow waters to H-bond (without being an H)
+                     // std::pair<bool, bool> might_be_h_bond_flag =
+                     // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+                     h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+                     bool is_h_bond = false;
+                     if (hbi.is_h_bond_H_and_acceptor)
+                        is_h_bond = true;
 
-			      // draw dot if these are atoms from different residues or this is not
-			      // a wide contact
-			      if (at->residue != atom_with_biggest_overlap->residue) {
-				 atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
-				 ao.dots[c_type].push_back(dot);
-			      }
-			   } else {
-			      // clash
-			      clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-			      clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-			      // these days, spikes project away from the atom, not inwards
-			      // clipper::Coord_orth pt_spike_inner =
-			      // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
-			      clipper::Coord_orth pt_spike_inner =
-				 pt_at_surface -
-				 0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
-			      std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
-										    pt_spike_inner);
-			      ao.clashes.positions.push_back(p);
-			   }
+                     std::pair<std::string, std::string> c_type_col =
+                        overlap_delta_to_contact_type(overlap_delta, is_h_bond);
+                     const std::string &c_type = c_type_col.first;
+                     const std::string &col    = c_type_col.second;
 
-			} else {
+                     clipper::Coord_orth pt_spike_inner = pt_at_surface;
+                     if (c_type == "clash") {
+                        clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+                        clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+                        pt_spike_inner = pt_at_surface -
+                           0.3 * sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
+                     }
 
-			   // no environment atom was close to this ligand atom, so just add
-			   // a surface point
+                     if (c_type != "clash") {
 
-			   if (make_vdw_surface) {
-			      atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
-			      ao.dots["vdw-surface"].push_back(dot);
-			   }
-			}
-		     }
-		  }
+                        // draw dot if these are atoms from different residues or this is not
+                        // a wide contact
+                        if (at->residue != atom_with_biggest_overlap->residue) {
+                           atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
+                           ao.dots[c_type].push_back(dot);
+                        }
+                     } else {
+                        // clash
+                        clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+                        clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+                        // these days, spikes project away from the atom, not inwards
+                        // clipper::Coord_orth pt_spike_inner =
+                        // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
+                        clipper::Coord_orth pt_spike_inner =
+                           pt_at_surface -
+                           0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
+                        std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
+                                                                              pt_spike_inner);
+                        ao.clashes.positions.push_back(p);
+                     }
+
+                  } else {
+
+                     // no environment atom was close to this ligand atom, so just add
+                     // a surface point
+
+                     if (make_vdw_surface) {
+                        atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
+                        ao.dots["vdw-surface"].push_back(dot);
+                     }
+                  }
 	       }
 	    }
 	 }
@@ -1707,138 +1744,151 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
    
    clipper::Coord_orth pt_at_1 = co(at);
    double dot_density = dot_density_in;
+
+   int n_sphere_points       = static_cast<int>(dot_density_in * 900);
+   int n_sphere_points_for_H = static_cast<int>(dot_density_in * 440);
+
+   // Yikes! We don't need to calculate these for every atom! They can be pre-calculated
+   // at the time of construction of this object - and made into a const variable ref that is passed to
+   // this function.
+   //
+   std::vector<clipper::Coord_orth>   sphere_points = fibonacci_sphere(n_sphere_points);
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(n_sphere_points_for_H); // less than above
+
+   std::vector<clipper::Coord_orth> sphere_points_for_atom;
    if (std::string(at->element) == " H")
-      dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
-   double   phi_step = 5.0 * (M_PI/180.0);
-   double theta_step = 5.0 * (M_PI/180.0);
-   if (dot_density > 0.0) {
-      phi_step   /= dot_density;
-      theta_step /= dot_density;
-   }
+      sphere_points_for_atom = H_sphere_points;
+   else
+      sphere_points_for_atom = sphere_points;
+
    double r_1 = neighb_atom_radius[iat];
-   bool even = true;
-   for (double theta=0; theta<M_PI; theta+=theta_step) {
-      double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-      for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-	 if (even) {
-	    clipper::Coord_orth pt(r_1*cos(phi)*sin(theta),
-				   r_1*sin(phi)*sin(theta),
-				   r_1*cos(theta));
-	    clipper::Coord_orth pt_at_surface = pt + pt_at_1;
-	    std::map<int, std::vector<int> >::const_iterator it = bonded_map.find(iat);
-	    bool draw_it = ! is_inside_another_atom_to_which_its_bonded(iat, at,
-									pt_at_surface,
-									it->second,
-									atom_selection,
-									neighb_atom_radius);
 
-	    if (draw_it) {
+   for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
+      const clipper::Coord_orth &pt(sphere_points_for_atom[j]);
+      clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
 
-	       double biggest_overlap = -1; // should be positive if we get a hit
-	       mmdb::Atom *atom_with_biggest_overlap = 0;
-	       double r_2_for_biggest_overlap = 0;
+      if (false) // yes these are points on a full sphere
+         std::cout << "pt_at_surface "
+                   << pt_at_surface.x() << " "
+                   << pt_at_surface.y() << " "
+                   << pt_at_surface.z() << "\n";
+      
+      std::map<int, std::vector<int> >::const_iterator it = bonded_map.find(iat);
+      bool draw_it = ! is_inside_another_atom_to_which_its_bonded(iat, at,
+                                                                  pt_at_surface,
+                                                                  it->second,
+                                                                  atom_selection,
+                                                                  neighb_atom_radius);
 
-	       // now check which atom this is clashing with (if any) and pick the
-	       // one with the biggest overlap
-	       //
-	       std::map<int, std::vector<int> >::const_iterator it_contact_map = contact_map.find(iat);
-	       const std::vector<int> &v = it_contact_map->second;
+      if (draw_it) {
 
-	       for (unsigned int jj=0; jj<v.size(); jj++) {
-		  mmdb::Atom *neighb_atom = atom_selection[v[jj]];
-		  // no contacts for atoms in the same residue
-		  if (neighb_atom->residue == at->residue) continue;
-		  double r_2 = neighb_atom_radius[v[jj]];
-		  double r_2_sqrd = r_2 * r_2;
-		  double r_2_plus_prb_squard = r_2_sqrd + 2 * r_2 * probe_radius +
-		     4 * probe_radius * probe_radius;
-		  clipper::Coord_orth pt_na = co(neighb_atom);
-		  double d_sqrd = (pt_na - pt_at_surface).lengthsq();
+         double biggest_overlap = -1; // should be positive if we get a hit
+         mmdb::Atom *atom_with_biggest_overlap = 0;
+         double r_2_for_biggest_overlap = 0;
 
-		  if (d_sqrd < r_2_plus_prb_squard) {
-		     // a contact dot on something
-		     double delta_d_sqrd = r_2_plus_prb_squard - d_sqrd;
-		     if (delta_d_sqrd > biggest_overlap) {
-			biggest_overlap = delta_d_sqrd;
-			atom_with_biggest_overlap = neighb_atom;
-			r_2_for_biggest_overlap = r_2;
-		     }
-		  }
-	       }
+         // now check which atom this is clashing with (if any) and pick the
+         // one with the biggest overlap
+         //
+         std::map<int, std::vector<int> >::const_iterator it_contact_map = contact_map.find(iat);
+         const std::vector<int> &v = it_contact_map->second;
 
-	       if (atom_with_biggest_overlap) {
-		  double d_surface_pt_to_atom_sqrd =
-		     (co(atom_with_biggest_overlap) - pt_at_surface).lengthsq();
-		  double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
-		  double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
-		  // first is yes/no, second is H-is-on-ligand?
-		  // allow waters to H-bond (without being an H)
-		  // std::pair<bool, bool> might_be_h_bond_flag =
-		  // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-		  h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-		  const bool &is_h_bond_HA = hbi.is_h_bond_H_and_acceptor;
+         for (unsigned int jj=0; jj<v.size(); jj++) {
+            mmdb::Atom *neighb_atom = atom_selection[v[jj]];
+            // no contacts for atoms in the same residue
+            if (neighb_atom->residue == at->residue) continue;
+            double r_2 = neighb_atom_radius[v[jj]];
+            double r_2_sqrd = r_2 * r_2;
+            double r_2_plus_prb_squard = r_2_sqrd + 2 * r_2 * probe_radius +
+               4 * probe_radius * probe_radius;
+            clipper::Coord_orth pt_na = co(neighb_atom);
+            double d_sqrd = (pt_na - pt_at_surface).lengthsq();
 
-		  // std::pair<std::string, std::string> c_type_col =
-		  // overlap_delta_to_contact_type(overlap_delta, is_h_bond);
+            if (d_sqrd < r_2_plus_prb_squard) {
+               // a contact dot on something
+               double delta_d_sqrd = r_2_plus_prb_squard - d_sqrd;
+               if (delta_d_sqrd > biggest_overlap) {
+                  biggest_overlap = delta_d_sqrd;
+                  atom_with_biggest_overlap = neighb_atom;
+                  r_2_for_biggest_overlap = r_2;
+               }
+            }
+         }
 
-		  // std::string c_type;
-		  // std::string col;
+         if (atom_with_biggest_overlap) {
+            double d_surface_pt_to_atom_sqrd =
+               (co(atom_with_biggest_overlap) - pt_at_surface).lengthsq();
+            double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
+            double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
+            // first is yes/no, second is H-is-on-ligand?
+            // allow waters to H-bond (without being an H)
+            // std::pair<bool, bool> might_be_h_bond_flag =
+            // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+            h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+            const bool &is_h_bond_HA = hbi.is_h_bond_H_and_acceptor;
 
-		  // test_get_type(overlap_delta, is_h_bond, &c_type, &col);
+            // std::pair<std::string, std::string> c_type_col =
+            // overlap_delta_to_contact_type(overlap_delta, is_h_bond);
 
-		  // test_get_type(overlap_delta, is_h_bond, &c_type, &col);
+            // std::string c_type;
+            // std::string col;
+
+            // test_get_type(overlap_delta, is_h_bond, &c_type, &col);
+
+            // test_get_type(overlap_delta, is_h_bond, &c_type, &col);
 		  
-		  // std::pair<std::string, std::string> ("wide-contact", "blue");
-		  // was
-		  // overlap_delta_to_contact_type(overlap_delta, is_h_bond);
+            // std::pair<std::string, std::string> ("wide-contact", "blue");
+            // was
+            // overlap_delta_to_contact_type(overlap_delta, is_h_bond);
 
-		  // const std::string &c_type = c_type_col.first;
-		  // const std::string &col    = c_type_col.second;
+            // const std::string &c_type = c_type_col.first;
+            // const std::string &col    = c_type_col.second;
 
-		  std::pair<std::string, std::string> c_type_col =
-		     overlap_delta_to_contact_type(overlap_delta, hbi, molecule_has_hydrogens);
-		  const std::string &c_type = c_type_col.first;
-		  const std::string &col    = c_type_col.second;
+            std::pair<std::string, std::string> c_type_col =
+               overlap_delta_to_contact_type(overlap_delta, hbi, molecule_has_hydrogens);
+            const std::string &c_type = c_type_col.first;
+            const std::string &col    = c_type_col.second;
 
-		  clipper::Coord_orth pt_spike_inner = pt_at_surface;
+            clipper::Coord_orth pt_spike_inner = pt_at_surface;
 
-		  if (c_type != "clash") {
+            if (c_type != "clash") {
 
-		     // draw dot if these are atoms from different residues or this is not
-		     // a wide contact
-		     if (at->residue != atom_with_biggest_overlap->residue) {
-			atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
-			ao.dots[c_type].push_back(dot);
-		     } else {
-			// this should not happen now that we have the test/continue above
-		     }
-		  } else {
-		     // clash
-		     clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-		     clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-		     // these days, spikes project away from the atom, not inwards
-		     // clipper::Coord_orth pt_spike_inner =
-		     // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
-		     clipper::Coord_orth pt_spike_inner =
-			pt_at_surface -
-			0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
-		     std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
-									   pt_spike_inner);
-		     ao.clashes.positions.push_back(p);
-		  }
+               // draw dot if these are atoms from different residues or this is not
+               // a wide contact
+               if (at->residue != atom_with_biggest_overlap->residue) {
+                  atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
+                  ao.dots[c_type].push_back(dot);
+               } else {
+                  // this should not happen now that we have the test/continue above
+               }
+            } else {
+               // clash
+               clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+               clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+               // these days, spikes project away from the atom, not inwards
+               // clipper::Coord_orth pt_spike_inner =
+               // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
+               clipper::Coord_orth pt_spike_inner =
+                  pt_at_surface -
+                  0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
+               std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
+                                                                     pt_spike_inner);
+               ao.clashes.positions.push_back(p);
+            }
 
-	       } else {
+         } else {
 
-		  // no environment atom was close to this ligand atom, so just add
-		  // a surface point
+            // no environment atom was close to this ligand atom, so just add
+            // a surface point
 
-		  if (make_vdw_surface) {
-		     atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
-		     ao.dots["vdw-surface"].push_back(dot);
-		  }
-	       }
-	    }
-	 }
+            if (make_vdw_surface) {
+               // we are outputing this point then...
+               // std::cout << "vdw " << pt_at_surface.x()
+               //           << " " << pt_at_surface.y()
+               //           << " " << pt_at_surface.z() << "\n";
+               atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
+               ao.dots["vdw-surface"].push_back(dot);
+            }
+         }
       }
    }
    return ao;
@@ -1965,7 +2015,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 	    colour = "hotpink";
 	 } else {
 	    type = "H-bond";
-	    colour = "greentint";
+	    colour = "darkpurple";
 	 }
       }
    } else {
@@ -2051,6 +2101,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
 	 } else {
 	    type = "H-bond";
 	    colour = "greentint";
+	    colour = "darkpurple";
 	 }
       }
    } else {
@@ -2064,6 +2115,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
 	    } else {
 	       type = "H-bond";
 	       colour = "greentint";
+	       colour = "darkpurple";
 	    }
 	 }
       }

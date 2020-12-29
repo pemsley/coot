@@ -1,5 +1,7 @@
-if (have_coot_python):
-    if coot_python.main_menubar():
+
+
+if True:
+    if coot_gui_api.main_menubar():
         menu = coot_menubar_menu("PISA")
         submenu_pisa = gtk.Menu()
         menuitem_pisa = gtk.MenuItem("PISA Assemblies...")

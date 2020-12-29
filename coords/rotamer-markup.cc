@@ -1,7 +1,7 @@
 
-#ifdef HAVE_CXX_THREAD
 #include <thread>
-#endif // HAVE_CXX_THREAD
+
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"
@@ -13,6 +13,7 @@ std::vector<rotamer_markup_container_t>
 Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) const {
 
    std::vector<rotamer_markup_container_t> dodecs;
+   int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
 
 #ifdef HAVE_CXX_THREAD
    unsigned int n_threads = coot::get_max_number_of_threads();
@@ -37,8 +38,17 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 		  if (residue_p) {
 		     mmdb::Atom *atom_p = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
 		     if (atom_p) {
-			std::pair<mmdb::Residue *, mmdb::Atom *> p(residue_p, atom_p);
-			residues.push_back(p);
+                        int udd_is_fixed_during_refinement = 0;
+                        atom_p->GetUDData(udd_fixed_during_refinement_handle,
+                                          udd_is_fixed_during_refinement);
+                        if (udd_is_fixed_during_refinement == 1) {
+                           if (false) // quite a few of them are fixed in sphere refine
+                              std::cout << "rotamers: ignore this fixed residue "
+                                        << coot::residue_spec_t(residue_p) << std::endl;
+                        } else {
+                           std::pair<mmdb::Residue *, mmdb::Atom *> p(residue_p, atom_p);
+                           residues.push_back(p);
+                        }
 		     }
 		  }
 	       }
@@ -84,6 +94,8 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 					      coot::rotamer_probability_tables *rpt) {
 
    rotamer_markup_container_t rmc;
+   coot::residue_spec_t res_spec(ra.first);
+   rmc.spec = res_spec;
 
    // old: integer probabilities
    // coot::rotamer rot(residue_p);
@@ -102,16 +114,26 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 
 	    if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
 	       // OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
-	       double size = 0.5;
 	       clipper::Coord_orth pos = coot::co(ra.second);
 	       double z = 0;
-	       coot::colour_holder col(z, 0.0, 1.0, std::string(""));
+               bool use_deuteranomaly_mode = false;
+	       coot::colour_holder col(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
 	       if (pr.state == coot::rotamer_probability_info_t::OK) {
+
+                  if (false)
+                     std::cout << "in get_rotamer_probability() OK "
+                               << res_spec << " " << pr.probability << std::endl;
+
+                  // pr should be between 0 and 100.
+                  //
 		  // pr is high, z low, -> green
 		  // pr is ~0, z is ~1 -> red
-		  z = 1.0 - sqrt(sqrt(pr.probability*0.01));
+                  //
+		  z = 1.0 - sqrt(pr.probability*0.01);
+
 		  // args fraction, min, max, dummy-not-colour-triple-flag
-		  col = coot::colour_holder(z, 0.0, 1.0, std::string(""));
+		  col = coot::colour_holder(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
+                  col.brighten(0.1);
 	       }
 	       if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
 		  col = coot::colour_holder("#bb22bb"); // purple
@@ -123,7 +145,7 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 			    << " hal pr " << pr.probability
 			    << " has col " << col << std::endl;
 
-	       rmc = rotamer_markup_container_t(pos, col);
+	       rmc = rotamer_markup_container_t(res_spec, pos, col, pr);
 	    }
 	 }
       }

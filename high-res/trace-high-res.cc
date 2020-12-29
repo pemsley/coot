@@ -84,26 +84,26 @@ main(int argc, char **argv) {
 	 switch(ch) { 
 	    
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbout") { 
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       } 
 	       if (arg_str == "weight") {
-		  weight_col = optarg;
+		  weight_col = coot_optarg;
 	       } 
 	       if (arg_str == "sigma") {
-		  sigma_str = optarg;
+		  sigma_str = coot_optarg;
 	       } 
 	       
 	    } else { 
@@ -113,27 +113,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'o':
-	    output_pdb = optarg;
+	    output_pdb = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 	    
 	 case 'w':
-	    weight_col = optarg;
+	    weight_col = coot_optarg;
 	    break;
 	    
 	 case 's':
-	    sigma_str = optarg;
+	    sigma_str = coot_optarg;
 	    break;
 
 	 default:

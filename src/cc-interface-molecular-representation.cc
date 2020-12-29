@@ -29,6 +29,7 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
       std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
       std::string style          = PyBytes_AS_STRING(PyUnicode_AsUTF8String(style_py));
       status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+      graphics_draw();
 #endif
    }
    return status;
@@ -75,21 +76,12 @@ extern "C" void add_molecular_representation_test() {
          std::string ColorScheme = "colorRampChainsScheme";
          std::string style = "Ribbon";
          status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+         graphics_info_t::graphics_draw();
       }
    }
 }
 
-void set_use_perspective_projection(int state) {
-
-   graphics_info_t::perspective_projection_flag = state;
-   graphics_draw();
-
-}
-
 #else
-
-// needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
-// void add_molecular_representation_test() {}
 
 #endif // USE_MOLECULES_TO_TRIANGLES
 

@@ -177,9 +177,10 @@ COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
  
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
-   COOT_PYTHON_DIR=$COOT_PREFIX/python27/lib/site-packages/coot
+    # this needs fixing
+    COOT_PYTHON_DIR=$COOT_PREFIX/python27/lib/site-packages/coot
 else
-   COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
+    COOT_PYTHON_DIR=$COOT_PREFIX/lib/python3.6/site-packages/coot
 fi
 
 # Added 20090429 - take this out when trying internationalization.
@@ -270,7 +271,7 @@ if [ "$1" = --check-libs ] ; then
    if [ $systype = Darwin ] ; then
       otool -L $coot_bin
    else
-      ldd $coot_bin
+      ldd -r $coot_bin
    fi
 else 
 
@@ -311,12 +312,16 @@ else
       unset LD_LIBRARY_PATH
       # only run the crash catcher if coot was compiled with guile
       if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-         if [ -e $COOT_PREFIX/bin/guile ] ; then
-            if guile --version ; then
-               echo catching the crash log:
-               $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
-            else
-               echo failed to launch the crash catcher
+          if [ -e $COOT_PREFIX/bin/guile ] ; then
+              # diagnose guile if we can
+              if [ -e /usr/bin/ldd ] ; then
+                  ldd -r $COOT_PREFIX/bin/guile
+              fi
+              if guile --version ; then
+                  echo catching the crash log:
+                  $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+              else
+                  echo failed to launch the crash catcher - bad guile
             fi
          fi
       fi

@@ -45,11 +45,13 @@ coot::primitive_chi_angles::get_chi_angles() {
          // std::cout << "pushing back plane residue torsion" << std::endl;
          v.push_back(std::pair<int,float>(i_quad+1, tors));
       }
-      if (v.size() > 0)
+      if (v.size() > 0) {
          nv.push_back(coot::alt_confed_chi_angles("", v));
-      else
-         std::cout << "INFO:: un altconfed rotamer with no chis "
-		   << coot::residue_spec_t(residue) << std::endl;
+      } else {
+         if (false) // too verbose output
+            std::cout << "INFO:: un-altconfed rotamer with no chis "
+                      << coot::residue_spec_t(residue) << std::endl;
+      }
    } else {
       // multiple quads from alt confed atoms:
       std::vector<coot::alt_confed_atom_index_quad> quads_vec =
@@ -269,20 +271,23 @@ coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_na
       }
    }
    if (v.size() < atom_name_quads_in.size()) {
-      std::cout << "primitive chis: Failure to find correct atom quads in residue atoms\n" ;
-      for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
-         std::cout << "  quad needed: :"
-                   << atom_name_quads_in[iquad].atom_name(0) << ":  :"
-                   << atom_name_quads_in[iquad].atom_name(1) << ":  :"
-                   << atom_name_quads_in[iquad].atom_name(2) << ":  :"
-                   << atom_name_quads_in[iquad].atom_name(3) << ":\n";
-      }
-      for (unsigned int iv=0; iv<v.size(); iv++) {
-         std::cout << "  found quad: "
-                   << v[iv].index1 << "  "
-                   << v[iv].index2 << "  "
-                   << v[iv].index3 << "  "
-                   << v[iv].index4 << "\n";
+      bool write_status_of_missing_quads = false;
+      if (write_status_of_missing_quads) {
+         std::cout << "primitive chis: Failure to find correct atom quads in residue atoms\n" ;
+         for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
+            std::cout << "  quad needed: :"
+                      << atom_name_quads_in[iquad].atom_name(0) << ":  :"
+                      << atom_name_quads_in[iquad].atom_name(1) << ":  :"
+                      << atom_name_quads_in[iquad].atom_name(2) << ":  :"
+                      << atom_name_quads_in[iquad].atom_name(3) << ":\n";
+         }
+         for (unsigned int iv=0; iv<v.size(); iv++) {
+            std::cout << "  found quad: "
+                      << v[iv].index1 << "  "
+                      << v[iv].index2 << "  "
+                      << v[iv].index3 << "  "
+                      << v[iv].index4 << "\n";
+         }
       }
    } else {
       // std::cout << "found all quads in residue atoms\n" ;

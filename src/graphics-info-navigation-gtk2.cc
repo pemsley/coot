@@ -137,8 +137,9 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 
    graphics_info_t g;
    GtkWidget *residue_tree = gtk_tree_view_new(); 
-   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
-					 residue_tree);
+   // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
+   //      				 residue_tree);
+   gtk_container_add(GTK_CONTAINER(residue_tree_scrolled_window), residue_tree);
 
    // gtk_widget_ref(residue_tree);
    g_object_set_data_full(G_OBJECT(go_to_atom_window),
@@ -158,8 +159,11 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
       std::cout << "go_to_atom_window: " << go_to_atom_window << std::endl;
    }
    
-   gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
-					  GTK_WIDGET(atom_list));
+   // gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
+   //      				  GTK_WIDGET(atom_list));
+   gtk_container_add( GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_list));
+
+
    /* attach the name to the widget (by hand (as interface.c does
       it) so that we can look it up in the callback of residue selection changed */
 
@@ -468,8 +472,9 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
       atom_tree = GTK_TREE_VIEW(gtk_tree_view_new());
       GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window),
 						 "go_to_atom_atom_scrolledwindow");
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					    GTK_WIDGET(atom_tree));
+      // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+      //   				    GTK_WIDGET(atom_tree));
+      gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_tree));
    } else {
       // std::cout << "using a pre-existing atom tree...\n";
    }

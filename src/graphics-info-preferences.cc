@@ -769,8 +769,9 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
     }
   GtkWidget *icons_tree = gtk_tree_view_new();
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(icons_tree), FALSE);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					icons_tree);
+  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+  // icons_tree);
+  gtk_container_add(GTK_CONTAINER(scrolled_window), icons_tree);
   // gtk_widget_ref(icons_tree);
   g_object_set_data_full(G_OBJECT(preferences),
                          tree_name,
@@ -798,6 +799,7 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
   button_col = gtk_tree_view_column_new();
   icon_col = gtk_tree_view_column_new();
   text_col = gtk_tree_view_column_new();
+  GtkIconTheme *icon_theme = gtk_icon_theme_new();
 
   for (unsigned int i = 0; i < (*pall_items).size(); i++) {
       coot::preferences_icon_info_t item = (*pall_items)[i];
@@ -805,35 +807,44 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
 
     // for icons
     if (item.icon_filename != "") {
-      icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
-                                    GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-      if (icon == NULL) {
-        g_print("BL ERROR:: something went wrong, icon is NULL\n");
-        // try to read as filename (although then should be registered and
-        // read in already, but let's try
-        std::string splash_screen_pixmap_dir = PKGDATADIR;  
-        splash_screen_pixmap_dir += "/";
-        splash_screen_pixmap_dir += "pixmaps";
-        
-        // over-ridden by user?
-        char *s = getenv("COOT_PIXMAPS_DIR");
-        if (s) {
-          splash_screen_pixmap_dir = s;
-        }
+       //icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
+       // GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+       // icon = gtk_widget_render_icon_pixbuf(icons_tree,
+       //                                      item.icon_filename.c_str(),
+       //                                      GTK_ICON_SIZE_SMALL_TOOLBAR);
 
-        // now add the icon
-        std::string icon_path =
-          coot::util::append_dir_file(splash_screen_pixmap_dir,
-                                      item.icon_filename);
-        icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
-        if (error) {
-          g_warning ("Could not load icon: %s\n", error->message);
-          g_error_free(error);
-          error = NULL;
-        }
-      } 
+       
+       GtkIconLookupFlags icon_flags = GTK_ICON_LOOKUP_USE_BUILTIN;
+       icon = gtk_icon_theme_load_icon(icon_theme,
+                                item.icon_filename.c_str(),
+                                GTK_ICON_SIZE_SMALL_TOOLBAR, icon_flags, NULL);
+       if (icon == NULL) {
+          g_print("BL ERROR:: something went wrong, icon is NULL\n");
+          // try to read as filename (although then should be registered and
+          // read in already, but let's try
+          std::string splash_screen_pixmap_dir = PKGDATADIR;  
+          splash_screen_pixmap_dir += "/";
+          splash_screen_pixmap_dir += "pixmaps";
+        
+          // over-ridden by user?
+          char *s = getenv("COOT_PIXMAPS_DIR");
+          if (s) {
+             splash_screen_pixmap_dir = s;
+          }
+
+          // now add the icon
+          std::string icon_path =
+             coot::util::append_dir_file(splash_screen_pixmap_dir,
+                                         item.icon_filename);
+          icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
+          if (error) {
+             g_warning ("Could not load icon: %s\n", error->message);
+             g_error_free(error);
+             error = NULL;
+          }
+       } 
     } else {
-      icon = NULL;
+       icon = NULL;
     }
     gtk_list_store_set(GTK_LIST_STORE(model), &toplevel,
 		       BUTTON_COL, "",

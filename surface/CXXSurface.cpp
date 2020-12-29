@@ -23,9 +23,12 @@
 #include "CXXTriangle.h"
 #include "CXXSphereFlatTriangle.h"
 
+
+
+
 CXX_mot::CXXSurface::CXXSurface()
 {
-	init();
+   init();
 }
 
 CXX_mot::CXXSurface::~CXXSurface(){
@@ -53,13 +56,13 @@ int CXX_mot::CXXSurface::readGraspFile(string path)
 	string text;
 	float *coordBuffer;
 	int *triangleBuffer;
-	
-	Delimiters delimiters(" \0\t\n~;()\"<>:{}[]+-=&*#.,/\\");	
-	int hasVertices, hasAccessibles, hasNormals, hasTriangles, hasPotential, 
-    hasProperty1, hasProperty2;	
-	hasVertices= hasAccessibles= hasNormals= hasTriangles= hasPotential= 
+
+	Delimiters delimiters(" \0\t\n~;()\"<>:{}[]+-=&*#.,/\\");
+	int hasVertices, hasAccessibles, hasNormals, hasTriangles, hasPotential,
+    hasProperty1, hasProperty2;
+	hasVertices= hasAccessibles= hasNormals= hasTriangles= hasPotential=
     hasProperty1= hasProperty2 = 0;
-	
+
 	CXXFortranFile graspFile(path,"r");
 	if (!graspFile.bad()) std::cout << "Opened grasp file [" << path << "]\n";
 	else {
@@ -71,7 +74,7 @@ int CXX_mot::CXXSurface::readGraspFile(string path)
 	text = buffer;
 	cout << "[" << text << "]\n";
 	if (text.find("format=2",0) == string::npos) cout << "Unknown format" << text << endl;
-	
+
 	//information about what things are in the file
 	graspFile.getFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
 	text = buffer;
@@ -80,7 +83,7 @@ int CXX_mot::CXXSurface::readGraspFile(string path)
 	hasAccessibles =  (text.find("accessibles",0) != string::npos);
 	hasNormals =  (text.find("normals",0) != string::npos);
 	hasTriangles =  (text.find("triangles",0) != string::npos);
-	
+
 	//information about what properties are in the file
 	graspFile.getFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
 	text = buffer;
@@ -88,7 +91,7 @@ int CXX_mot::CXXSurface::readGraspFile(string path)
 	hasPotential = (text.find("potential",0)  != string::npos);
 	hasProperty1 = (text.find("gproperty1",0) != string::npos);
 	hasProperty2 = (text.find("gproperty2",0) != string::npos);
-	
+
 	//Number of vertices and triangles:  Here use the fancy tokeniterator to break down line into strings
 	graspFile.getFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
 	text = buffer;
@@ -100,96 +103,96 @@ int CXX_mot::CXXSurface::readGraspFile(string path)
 	int nVertices = atoi(token.c_str());
 	token = *charIter++;
 	nTriangles = atoi(token.c_str());
-	
+
 	vertices.resize(nVertices);
 	triangles.resize(nTriangles);
-	
+
 	std::cout << "Number of vertices is " << vertices.size() << " in " << triangles.size() << " nTriangles\n";
 	//	ostream_iterator<string> out(cout, "\n");
 	//	copy (wordlist.begin(), wordlist.end(), out);
-	
+
 	// A line to skip
 	graspFile.getFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
 	text = buffer;
 	cout << "[" << text << "]\n";
-	
+
 	//Read vertices if present
 	if (hasVertices){
 		coordBuffer = new float[3*nVertices];
 		double *coordDoubleBuffer = new double[3*nVertices];
-		graspFile.getFortranData((char *) coordBuffer, sizeof(float), 
+		graspFile.getFortranData((char *) coordBuffer, sizeof(float),
 								 3*nVertices, CXXFortranFile::FortranFloatData);
 		for (int i=0; i<3*nVertices; i++) coordDoubleBuffer[i] = coordBuffer[i];
-		(void) addPerVertexVector ("vertices", coordDoubleBuffer);	
+		(void) addPerVertexVector ("vertices", coordDoubleBuffer);
 		delete [] coordBuffer;
 		delete [] coordDoubleBuffer;
 	}
-	
+
 	//Read accessibles if present
 	if (hasAccessibles){
 		coordBuffer = new float[3*nVertices];
 		double *coordDoubleBuffer = new double[3*nVertices];
-		graspFile.getFortranData((char *) coordBuffer, sizeof(float), 
+		graspFile.getFortranData((char *) coordBuffer, sizeof(float),
 								 3*nVertices, CXXFortranFile::FortranFloatData);
 		for (int i=0; i<3*nVertices; i++) coordDoubleBuffer[i] = coordBuffer[i];
-		(void) addPerVertexVector ("accessibles", coordDoubleBuffer);	
+		(void) addPerVertexVector ("accessibles", coordDoubleBuffer);
 		delete [] coordBuffer;
 		delete [] coordDoubleBuffer;
 	}
-	
+
 	//Read normals if present
 	if (hasNormals){
 		coordBuffer = new float[3*nVertices];
 		double *coordDoubleBuffer = new double[3*nVertices];
-		graspFile.getFortranData((char *) coordBuffer, sizeof(float), 
+		graspFile.getFortranData((char *) coordBuffer, sizeof(float),
 								 3*nVertices, CXXFortranFile::FortranFloatData);
 		for (int i=0; i<3*nVertices; i++) coordDoubleBuffer[i] = coordBuffer[i];
-		(void) addPerVertexVector ("normals", coordDoubleBuffer);	
+		(void) addPerVertexVector ("normals", coordDoubleBuffer);
 		delete [] coordBuffer;
 		delete [] coordDoubleBuffer;
 	}
 	//Read triangles if present
 	if (hasTriangles){
 		triangleBuffer = new int[3*nTriangles];
-		graspFile.getFortranData((char *) triangleBuffer, sizeof(int), 
+		graspFile.getFortranData((char *) triangleBuffer, sizeof(int),
 								 3*nTriangles, CXXFortranFile::FortranIntData);
 		for (int i=0; i<nTriangles; i++){
-			triangles[i] = CXXTriangle (triangleBuffer[3*i]-1, 
-										triangleBuffer[3*i+1]-1, 
+			triangles[i] = CXXTriangle (triangleBuffer[3*i]-1,
+										triangleBuffer[3*i+1]-1,
 										triangleBuffer[3*i+2]-1);
 		}
 		delete [] triangleBuffer;
 	}
-	
+
 	//Read potential if present
 	if (hasPotential){
 		float *potentialBuffer = new float[nVertices];
 		double *potentialDoubleBuffer = new double[nVertices];
-		graspFile.getFortranData((char *) potentialBuffer, sizeof(float), 
+		graspFile.getFortranData((char *) potentialBuffer, sizeof(float),
 								 nVertices, CXXFortranFile::FortranFloatData);
 		for (int i=0; i<nVertices; i++) potentialDoubleBuffer[i] = potentialBuffer[i];
 		addPerVertexScalar("potential", potentialDoubleBuffer);
 		delete [] potentialBuffer;
 		delete [] potentialDoubleBuffer;
 	}
-	
+
 	//Read gproperty1 if present
 	if (hasProperty1){
 		float *potentialBuffer = new float[nVertices];
 		double *potentialDoubleBuffer = new double[nVertices];
-		graspFile.getFortranData((char *) potentialBuffer, sizeof(float), 
+		graspFile.getFortranData((char *) potentialBuffer, sizeof(float),
 								 nVertices, CXXFortranFile::FortranFloatData);
 		for (int i=0; i<nVertices; i++) potentialDoubleBuffer[i] = potentialBuffer[i];
 		addPerVertexScalar("gproperty1", potentialDoubleBuffer);
 		delete [] potentialBuffer;
 		delete [] potentialDoubleBuffer;
 	}
-	
+
 	//Read gproperty2 if present
 	if (hasProperty2){
 		float *potentialBuffer = new float[nVertices];
 		double *potentialDoubleBuffer = new double[nVertices];
-		graspFile.getFortranData((char *) potentialBuffer, sizeof(float), 
+		graspFile.getFortranData((char *) potentialBuffer, sizeof(float),
 								 nVertices, CXXFortranFile::FortranFloatData);
 		for (int i=0; i<nVertices; i++) potentialDoubleBuffer[i] = potentialBuffer[i];
 		addPerVertexScalar("gproperty2", potentialDoubleBuffer);
@@ -205,10 +208,10 @@ std::string CXX_mot::CXXSurface::report(){
 	int i;
 	CXXCoord AB, AC, ABxAC;
 	std::ostringstream output;
-	
-	output << "This surface has " << vertices.size() << " vertices and " << nTriangles 
+
+	output << "This surface has " << vertices.size() << " vertices and " << nTriangles
     << " triangles\n";
-	
+
 	if (vectors.find("vertices") != vectors.end()){
 		for (i=0, area = 0.; i<nTriangles; i++){
 			const CXXCoord &coordA = coordRef(vectors["vertices"], i, 0);
@@ -221,7 +224,7 @@ std::string CXX_mot::CXXSurface::report(){
 		}
 		output << "The Molecular surface area is " << area << endl;
 	}
-	
+
 	if (vectors.find("accessibles") != vectors.end()){
 		for (i=0, area = 0.; i<nTriangles; i++){
 			const CXXCoord &coordA = coordRef(vectors["accessibles"], i, 0);
@@ -234,7 +237,7 @@ std::string CXX_mot::CXXSurface::report(){
 		}
 		output << "The Solvent Accessible surface area is " << area << endl;
 	}
-	
+
 	map<string, int>::iterator scalar;
 	int j;
 	for (scalar = scalars.begin(), j=0; scalar != scalars.end(); ++scalar, j++){
@@ -246,7 +249,7 @@ std::string CXX_mot::CXXSurface::report(){
 			pMean += potential;
 		}
 		pMean /= vertices.size();
-		output << "Property Number " << scalar->second //<< " name " << scalar->first 
+		output << "Property Number " << scalar->second //<< " name " << scalar->first
         << " Range " << pMin << " to " << pMax << " mean " << pMean << endl;
 	}
 	return output.str();
@@ -260,21 +263,21 @@ int CXX_mot::CXXSurface::writeAsGrasp (const std::string &path)
 	float *coordBuffer;
 	int *triangleBuffer;
 	std::cout << "writeAsGrasp" << path << "\n";
-    
-	Delimiters delimiters(" \0\t\n~;()\"<>:{}[]+-=&*#.,/\\");	
-	
+
+	Delimiters delimiters(" \0\t\n~;()\"<>:{}[]+-=&*#.,/\\");
+
 	CXXFortranFile graspFile(path,"w");
 	if (!graspFile.bad()) std::cout << "Opened grasp file [" << path << "]\n";
 	else {
         std::cout << "Failed to open grasp file [" << path << "]\n";
         return 1;
     }
-    
+
 	//Grasp Surface file format
 	strcpy (buffer,"format=2");
 	for (i=strlen(buffer); i<80; i++) buffer[i] = ' ';
 	graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
-	
+
 	//information about what things are in the file
 	strcpy (buffer,"vertices");
 	if (vectors.find("accessibles") != vectors.end()) strcat (buffer,",accessibles");
@@ -282,7 +285,7 @@ int CXX_mot::CXXSurface::writeAsGrasp (const std::string &path)
 	strcat (buffer,",triangles");
 	for (i=strlen(buffer); i<80; i++) buffer[i] = ' ';
 	graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
-	
+
 	//information about what properties are in the file
 	int firstPotential = 1;
 	buffer[0] = '\0';
@@ -300,56 +303,56 @@ int CXX_mot::CXXSurface::writeAsGrasp (const std::string &path)
 	}
 	for (i=strlen(buffer); i<80; i++) buffer[i] = ' ';
 	graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
-	
+
 	//Number of vertices and triangles, grid, and the number 3.0
 	sprintf(buffer,"%8d%8d%8d%8.5f                                ",
 			int(vertices.size()), nTriangles, 65, 3.0);
 	graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
-	
+
 	// A line that seems to mention the origin
 	sprintf(buffer,"%8.3f%8.3f%8.3f                                        ",
 			0., 0., 0.);
 	graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
-	
+
 	coordBuffer = new float[3*vertices.size()];
-	
+
 	//Output vertices
 	for (i=0; i<int(vertices.size()); i++){
-		CXXCoord_ftype *xyz = vertices[i].xyzPntr(vectors["vertices"]); 
+		CXXCoord_ftype *xyz = vertices[i].xyzPntr(vectors["vertices"]);
 		for (int j=0; j<3; j++){
 			coordBuffer[3*i + j] = xyz[j];
 		}
 	}
-	graspFile.putFortranData((char *) coordBuffer, sizeof(float), 
+	graspFile.putFortranData((char *) coordBuffer, sizeof(float),
 							 3*vertices.size(), CXXFortranFile::FortranFloatData);
-	
+
 	//Write accessibles if present
 	if (vectors.find("accessibles") != vectors.end()){
 		for (i=0; i<int(vertices.size()); i++){
-			CXXCoord_ftype *xyz = vertices[i].xyzPntr(vectors["accessibles"]); 
+			CXXCoord_ftype *xyz = vertices[i].xyzPntr(vectors["accessibles"]);
 			for (int j=0; j<3; j++){
 				coordBuffer[3*i + j] = xyz[j];
 			}
 		}
-		graspFile.putFortranData((char *) coordBuffer, sizeof(float), 
+		graspFile.putFortranData((char *) coordBuffer, sizeof(float),
 								 3*vertices.size(), CXXFortranFile::FortranFloatData);
 	}
-	
+
 	//Write normals if present
 	if (vectors.find("normals") != vectors.end()){
 		for (i=0; i<int(vertices.size()); i++){
-			CXXCoord_ftype *xyz = vertices[i].xyzPntr(vectors["normals"]); 
+			CXXCoord_ftype *xyz = vertices[i].xyzPntr(vectors["normals"]);
 			for (int j=0; j<3; j++){
 				coordBuffer[3*i + j] = xyz[j];
 			}
 		}
-		graspFile.putFortranData((char *) coordBuffer, sizeof(float), 
+		graspFile.putFortranData((char *) coordBuffer, sizeof(float),
 								 3*vertices.size(), CXXFortranFile::FortranFloatData);
 	}
-	
+
 	delete [] coordBuffer;
-	
-	
+
+
 	//Write triangles
 	if (triangles.size()>1){
 		triangleBuffer = new int[3 * nTriangles];
@@ -358,11 +361,11 @@ int CXX_mot::CXXSurface::writeAsGrasp (const std::string &path)
 				triangleBuffer[3*i + j] = 1 + triangles[i][j];
 			}
 		}
-		graspFile.putFortranData((char *) triangleBuffer, sizeof(int), 
+		graspFile.putFortranData((char *) triangleBuffer, sizeof(int),
 								 3*nTriangles, CXXFortranFile::FortranIntData);
 		delete [] triangleBuffer;
 	}
-	
+
 	//Write potential if present
 	if (scalars.find("potential")!=scalars.end()){
 		int scalarHandle = getScalarHandle("potential");
@@ -370,29 +373,29 @@ int CXX_mot::CXXSurface::writeAsGrasp (const std::string &path)
 		for (i=0; i<int(vertices.size()); i++){
 			potentialBuffer[i] = vertices[i].scalar(scalarHandle);
 		}
-		graspFile.putFortranData((char *) potentialBuffer, sizeof(float), 
+		graspFile.putFortranData((char *) potentialBuffer, sizeof(float),
 								 vertices.size(), CXXFortranFile::FortranFloatData);
 		delete [] potentialBuffer;
 	}
-	
+
 	//Write potential if present
 	if (scalars.find("gproperty1")!=scalars.end()){
 		float *potentialBuffer =new float[vertices.size()];
 		for (i=0; i<int(vertices.size()); i++){
 			potentialBuffer[i] = vertices[i].scalar(scalars["gproperty1"]);
 		}
-		graspFile.putFortranData((char *) potentialBuffer, sizeof(float), 
+		graspFile.putFortranData((char *) potentialBuffer, sizeof(float),
 								 vertices.size(), CXXFortranFile::FortranFloatData);
 		delete [] potentialBuffer;
 	}
-	
+
 	//Write potential if present
 	if (scalars.find("gproperty2")!=scalars.end()){
 		float *potentialBuffer =new float[vertices.size()];
 		for (i=0; i<int(vertices.size()); i++){
 			potentialBuffer[i] = vertices[i].scalar(scalars["gproperty2"]);
 		}
-		graspFile.putFortranData((char *) potentialBuffer, sizeof(float), 
+		graspFile.putFortranData((char *) potentialBuffer, sizeof(float),
 								 vertices.size(), CXXFortranFile::FortranFloatData);
 		delete [] potentialBuffer;
 	}
@@ -434,7 +437,7 @@ CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int se
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  selHnd, probeRadius, delta,blend_edges);
 }
 
-CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, 
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd,
                         const double delta, const double probeRadius,const bool blend_edges ){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  contextSelHnd, probeRadius, delta,blend_edges);
@@ -456,30 +459,30 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
 }
 
 int CXX_mot::CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
-	allAtomsManager = allAtomsManager_in;	
-	
+	allAtomsManager = allAtomsManager_in;
+
 	int  nSelAtoms;
-	mmdb::PPAtom SelAtom;	
+	mmdb::PPAtom SelAtom;
 	allAtomsManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;    
+	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;
 	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > vdwBallPntrs;
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
+	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) {
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], getAtomRadius(SelAtom[atomNr])));
 	}
 	map<mmdb::PAtom, const CXXBall *> mainAtoms;
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
-		mainAtoms[vdwBallPntrs[atomNr]->getAtomI()] = vdwBallPntrs[atomNr]; 
+	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) {
+		mainAtoms[vdwBallPntrs[atomNr]->getAtomI()] = vdwBallPntrs[atomNr];
 	}
-	
+
 	int  nContextSelAtoms;
-	mmdb::PPAtom ContextSelAtom;	
+	mmdb::PPAtom ContextSelAtom;
 	allAtomsManager->GetSelIndex(contextSelHnd, ContextSelAtom, nContextSelAtoms);
-	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl; 
-	
+	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl;
+
 	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > contextBallPntrs;
 	int nUniqueContextAtoms = 0;
 	int nSharedContextAtoms = 0;
-	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
+	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) {
 		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[atomNr]);
 		if (equivalentMainAtom != mainAtoms.end()){
 			contextBallPntrs.push_back(equivalentMainAtom->second);
@@ -491,7 +494,7 @@ int CXX_mot::CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in
 		}
 	}
 	std::cout << "nUniqueContextAtoms " << nUniqueContextAtoms << " nSharedContextAtoms " << nSharedContextAtoms << std::endl;
-	
+
 	CXXBall::triangulateBalls(vdwBallPntrs, contextBallPntrs, delta, this, CXXSphereElement::VDW);
 	for (unsigned int i=0; i<vdwBallPntrs.size(); i++){
 		if (vdwBallPntrs[i]) delete vdwBallPntrs[i];
@@ -504,34 +507,34 @@ int CXX_mot::CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in
 	}
 	report();
 	return 0;
-	
-} 
+
+}
 
 int CXX_mot::CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
-	allAtomsManager = allAtomsManager_in;	
-	
+	allAtomsManager = allAtomsManager_in;
+
 	int  nSelAtoms;
-	mmdb::PPAtom SelAtom;	
+	mmdb::PPAtom SelAtom;
 	allAtomsManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;    
+	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;
 	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > vdwBallPntrs;
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
+	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) {
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], probeRadius+getAtomRadius(SelAtom[atomNr])));
 	}
 	map<mmdb::PAtom, const CXXBall *> mainAtoms;
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
-		mainAtoms[vdwBallPntrs[atomNr]->getAtomI()] = vdwBallPntrs[atomNr]; 
+	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) {
+		mainAtoms[vdwBallPntrs[atomNr]->getAtomI()] = vdwBallPntrs[atomNr];
 	}
 
 	int  nContextSelAtoms;
-	mmdb::PPAtom ContextSelAtom;	
+	mmdb::PPAtom ContextSelAtom;
 	allAtomsManager->GetSelIndex(contextSelHnd, ContextSelAtom, nContextSelAtoms);
-	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl; 
-	
+	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl;
+
 	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > contextBallPntrs;
 	int nUniqueContextAtoms = 0;
 	int nSharedContextAtoms = 0;
-	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
+	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) {
 		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[atomNr]);
 		if (equivalentMainAtom != mainAtoms.end()){
 			contextBallPntrs.push_back(equivalentMainAtom->second);
@@ -543,7 +546,7 @@ int CXX_mot::CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsMan
 		}
 	}
 	std::cout << "nUniqueContextAtoms " << nUniqueContextAtoms << " nSharedContextAtoms " << nSharedContextAtoms << std::endl;
-	
+
 	CXXBall::triangulateBalls(vdwBallPntrs, contextBallPntrs, delta, this, CXXSphereElement::Accessible);
 	for (unsigned int i=0; i<vdwBallPntrs.size(); i++){
 		if (vdwBallPntrs[i]) delete vdwBallPntrs[i];
@@ -556,60 +559,68 @@ int CXX_mot::CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsMan
 	}
 	report();
 	return 0;
-} 
+}
 
 int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
-	allAtomsManager = allAtomsManager_in;	
-	
+	allAtomsManager = allAtomsManager_in;
+
 	int  nSelAtoms;
-	mmdb::PPAtom SelAtom;	
+	mmdb::PPAtom SelAtom;
 	allAtomsManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;    
+	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;
 	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > vdwBallPntrs;
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
+	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) {
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], probeRadius+getAtomRadius(SelAtom[atomNr])));
 	}
 	int  nContextSelAtoms;
-	mmdb::PPAtom ContextSelAtom;	
+	mmdb::PPAtom ContextSelAtom;
 	allAtomsManager->GetSelIndex(contextSelHnd, ContextSelAtom, nContextSelAtoms);
-	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl;    
+	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl;
 	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > contextBallPntrs;
-	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
+	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) {
 		contextBallPntrs.push_back(new CXXAtomBall(ContextSelAtom[atomNr], probeRadius+getAtomRadius(ContextSelAtom[atomNr])));
 	}
-	
+
 	//Precalculate contacts
     std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >contactMap;
-    CXXBall::ballContacts(vdwBallPntrs, contextBallPntrs, contactMap);	
+    CXXBall::ballContacts(vdwBallPntrs, contextBallPntrs, contactMap);
     std::cout << "Established contact map\n";
-	
+
     //Start up with reentrant Prbes separated per-atom...removes one locking state
     //for multi-threadig
     std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > > splitReentrantProbes;
     splitReentrantProbes.resize(nSelAtoms);
-	
     CXXSphereElement unitSphereAtOrigin(CXXCoord(0.,0.,0.), 1., delta);
-	
 
+#ifdef __GNUC__
+#if (__GNUC__ >= 9)
 #pragma omp parallel for default(none) shared(selHnd, nSelAtoms, SelAtom, probeRadius, delta, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
-// #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
-		mmdb::PAtom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();		
-		if (!(atomNr%100) || atomNr==nSelAtoms-1) {
+
+#else
+    #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
+#endif
+
+#else
+    #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
+#endif
+
+    for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) {
+       mmdb::PAtom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();
+       if (!(atomNr%100) || atomNr==nSelAtoms-1) {
+
 #pragma omp critical(cout)
-			cout << "Dealing with atom number " <<atomNr <<endl;
-		}
-		double radiusOfAtom1 = getAtomRadius(centralAtom);
-                CXXNewHood theNewHood;
-                theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
-        
-		//We have precalculated neighbours of the central atom, and now can use that 
+          cout << "Dealing with atom number " <<atomNr <<endl;
+       }
+       double radiusOfAtom1 = getAtomRadius(centralAtom);
+       CXXNewHood theNewHood;
+       theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
+
+       //We have precalculated neighbours of the central atom, and now can use that
 		//to our advantage
 		std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > &neighbours = contactMap[vdwBallPntrs[atomNr]];
 		for (unsigned int sphereAtomNr = 0; sphereAtomNr < neighbours.size(); sphereAtomNr++) {
 			theNewHood.addBall(*neighbours[sphereAtomNr]);
 		}
-		
 		//Find the non-hidden segments of the circles
 		theNewHood.findSegments();
                 CXXSurface elementSurface;
@@ -642,7 +653,7 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
     for (unsigned int i=0; i<reentrantProbes.size(); i++){
        delete static_cast<const CXXReentrantProbeBall *>(reentrantProbes[i]);
     }
-	
+
     if (blend_edges) {
         cout << "Starting to blend edges" <<endl;
         assignAtom (allAtomsManager,selHnd);
@@ -651,7 +662,7 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
     //cout << "Starting default colour surface" <<endl;
     //colorByAssignedAtom();
     //cout << "Finished default colour surface" <<endl;
-    
+
     return 0;
 }
 
@@ -660,7 +671,7 @@ int CXX_mot::CXXSurface::assignAtom (mmdb::PManager allAtomsManager_in, int selH
     mmdb::PPAtom selAtom;
     int nSelAtoms;
     double minDistSq;
-    
+
     allAtomsManager_in->GetSelIndex(selHnd, selAtom, nSelAtoms);
     pointerBuffer = new void* [vertices.size()];
     //	Loop over all vertices
@@ -694,8 +705,8 @@ int CXX_mot::CXXSurface::assignAtom (mmdb::PManager allAtomsManager_in, int selH
 int CXX_mot::CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Manager *molHnd, int selHnd){
     double greyColour[] = {0.5,0.5,0.5};
     double Colour[] = {0.5,0.5,0.5};
-    
-    int nVerts = vertices.size(); 
+
+    int nVerts = vertices.size();
     double *colourBuffer = new double[3*nVerts];
     for (int i=0; i< nVerts; i++){
         for (int j=0; j<3; j++){
@@ -704,11 +715,11 @@ int CXX_mot::CXXSurface::colorByColourArray(const std::vector<double*> &colours,
     }
     updateWithVectorData(vertices.size(), "colour", 0, colourBuffer);
     delete [] colourBuffer;
-    
+
     int nSelAtoms;
     mmdb::PPAtom SelAtom;
     molHnd->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-    
+
     int udd = molHnd->GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int" );
     if (udd <= 0 ) {
         udd = -1;
@@ -717,7 +728,7 @@ int CXX_mot::CXXSurface::colorByColourArray(const std::vector<double*> &colours,
     }
     for(int i=0; i<nSelAtoms; i++)
         SelAtom[i]->PutUDData(udd,i);
-    
+
     for (int i=0; i< int(vertices.size()); i++){
         mmdb::PAtom theAtom = (mmdb::PAtom) vertices[i].pointer(pointers["atom"]);
         if (theAtom != 0){
@@ -732,7 +743,7 @@ int CXX_mot::CXXSurface::colorByColourArray(const std::vector<double*> &colours,
         }
     }
     return 0;
-    
+
 }
 
 int CXX_mot::CXXSurface::colorByAssignedAtom(){
@@ -742,8 +753,8 @@ int CXX_mot::CXXSurface::colorByAssignedAtom(){
     double blueColour[] = {0.,0.,1.};
     double yellowColour[] = {1.,1.,0.};
     double greyColour[] = {1.,0.,0.};
-    
-    
+
+
     double *colourBuffer = new double[3*vertices.size()];
     for (int i=0; i< int(vertices.size()); i++){
         for (int j=0; j<3; j++){
@@ -752,7 +763,7 @@ int CXX_mot::CXXSurface::colorByAssignedAtom(){
     }
     updateWithVectorData(vertices.size(), "colour", 0, colourBuffer);
     delete [] colourBuffer;
-    
+
     for (int i=0; i< int(vertices.size()); i++){
         theAtom = (mmdb::PAtom) vertices[i].pointer(pointers["atom"]);
         if (theAtom != 0){
@@ -789,11 +800,11 @@ int CXX_mot::CXXSurface::updateWithVectorData(int count, const string name, int 
     if (int(vertices.size()) < start + count){
         vertices.resize(start+count);
     }
-    
+
     for (unsigned int i=0; i<(unsigned int) count; i++){
         vertices[i+start].setXyz(iVector, &(vectorBuffer[3*i]));
     }
-    
+
     return vertices.size();
 }
 
@@ -803,7 +814,7 @@ int CXX_mot::CXXSurface::updateWithPointerData(int count, const string name, int
    unsigned int ui_count = count;
 
    // There is an "uninitialized argument value" bug here from scan-build July 2016.
-   
+
    if (int(vertices.size()) < start + count){
       vertices.resize(start+count);
    }
@@ -842,10 +853,10 @@ int CXX_mot::CXXSurface::upLoadSphere(CXX_mot::CXXSphereElement &theSphere,
 
    int oldVertexCount;
     CXXCoord theCentre = theSphere.centre();
-    
+
     vector<int, CXX_old::CXXAlloc<int> > equivalence(theSphere.nVertices());
     vector<int, CXX_old::CXXAlloc<int> > uniqueAndDrawn(theSphere.nVertices());
-    
+
     int nDrawn = 0;
     for (unsigned  i=0; i< theSphere.nVertices(); i++){
         CXXCoord comp1(theSphere.vertex(i).vertex());
@@ -926,15 +937,15 @@ int CXX_mot::CXXSurface::upLoadSphere(CXX_mot::CXXSphereElement &theSphere,
     {
         int triangleBuffer[theSphere.nFlatTriangles()*3];// = new int[theSphere.nFlatTriangles()*3];
         int drawCount = 0;
-		std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd = 
+		std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd =
 		theSphere.getFlatTriangles().end();
-		for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle = 
+		for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle =
 			 theSphere.getFlatTriangles().begin();
 			 triangle != trianglesEnd;
 			 ++triangle){
 			const CXXSphereFlatTriangle &theTriangle(*triangle);
             if (theTriangle.doDraw()){
-                if (sense == CXXSphereElement::Contact || 
+                if (sense == CXXSphereElement::Contact ||
                     sense == CXXSphereElement::VDW ||
                     sense == CXXSphereElement::Accessible){
                     for (unsigned int j=0; j<3; j++){
@@ -988,9 +999,9 @@ int CXX_mot::CXXSurface::setCoord(const string &name, int iVertex, const CXXCoor
     if (int(vertices.size()) <= iVertex){
         vertices.resize(iVertex+1);
     }
-    
+
     vertices[iVertex].setCoord(iVector, crd);
-    
+
     return vertices.size();
 }
 
@@ -998,23 +1009,23 @@ int CXX_mot::CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle)
     int result;
     int rc = theAtom->GetUDData(handle, result);
     switch (rc)  {
-            
+
     case  mmdb::UDDATA_WrongUDRType :
             printf ( " wrong UDD registration type\n" );
             break;
-            
+
     case  mmdb::UDDATA_WrongHandle  :
             printf ( " wrong UDD handle\n" );
             break;
-            
+
     case  mmdb::UDDATA_NoData :
             printf ( " UDD not found.\n" );
             break;
-            
+
     case  mmdb::UDDATA_Ok :
-            break;			
-    }	
-    
+            break;
+    }
+
     return result;
 }
 
@@ -1117,7 +1128,7 @@ int CXX_mot::CXXSurface::getCoord(const string &type, const int iVertex, double 
 }
 
 int CXX_mot::CXXSurface::getCoord(const int type, const int iVertex, double *buffer)
-{ 
+{
     if (type>=0 && type <= int(vectors.size())){
         const CXXCoord &theCoord = coordRef(type, iVertex);
         for (int i=0; i<4; i++){
@@ -1142,7 +1153,7 @@ int CXX_mot::CXXSurface::getPointer(const string &type, int iVertex, void **retu
 
 int CXX_mot::CXXSurface::getScalar  (int handle, int iVertex, double &result){
     result = vertices[iVertex].scalar(handle);
-    return 0; 
+    return 0;
 }
 
 int CXX_mot::CXXSurface::addTriangle (const CXXTriangle &aTriangle){
@@ -1153,15 +1164,15 @@ int CXX_mot::CXXSurface::addTriangle (const CXXTriangle &aTriangle){
 void CXX_mot::CXXSurface::appendSurface(const CXXSurface &otherSurface){
     int oldNVertices = vertices.size();
     int oldNTriangles = triangles.size();
-    
+
     if (vectors.size() == 0) vectors = otherSurface.vectorNames();
     if (scalars.size() == 0) scalars = otherSurface.scalarNames();
     if (pointers.size() == 0) pointers = otherSurface.pointerNames();
-    
+
     vertices.insert(vertices.end(),otherSurface.getVertices().begin(), otherSurface.getVertices().end());
     triangles.insert(triangles.end(),otherSurface.getTriangles().begin(), otherSurface.getTriangles().end());
     nTriangles = triangles.size();
-    
+
     vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator triangle;
     vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator triangleEnd = triangles.end();
     for (triangle = (triangles.begin() + oldNTriangles); triangle!=triangleEnd; ++triangle){
@@ -1176,11 +1187,11 @@ void CXX_mot::CXXSurface::compress(double tolerance){
 	compressedVertices.reserve(vertices.size());
 	vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >compressedTriangles;
 	compressedTriangles.reserve(triangles.size());
-	
+
 	int vertexHandle = getVectorHandle("vertices");
 	int normalHandle = getVectorHandle("normals");
     int atomHandle = getVectorHandle("atom");
-    
+
 	vector<int, CXX_old::CXXAlloc<int> >equivalences(vertices.size());
 	for (unsigned int i=0; i<vertices.size(); i++){
 		bool uniqueAndDrawn = true;
@@ -1217,4 +1228,3 @@ void CXX_mot::CXXSurface::compress(double tolerance){
 	triangles=compressedTriangles;
 	nTriangles = triangles.size();
 };
-

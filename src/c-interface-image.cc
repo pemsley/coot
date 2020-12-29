@@ -7,6 +7,7 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef RDKIT_HAS_CAIRO_SUPPORT
+
 #include <cairo.h>
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
@@ -30,7 +31,7 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
 
    GtkWidget *r = 0;
 
-#ifdef RDKIT_HAS_CAIRO_SUPPORT
+#ifdef RDKIT_HAS_CAIRO_SUPPORT_xyz // doesn't compile now
    
    std::string smiles="CO[C@@H](O)C1=C(O[C@H](F)Cl)C(C#N)=C1ONNC[NH3+]";
    RDKit::ROMol *m_local = RDKit::SmilesToMol(smiles);
@@ -39,7 +40,7 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
    WedgeMolBonds(*m_local,&(m_local->getConformer()));
    std::string png_file_name = "image-" + comp_id + ".png";
 
-   { 
+   {
       RDKit::MolDraw2DCairo drawer(200,200);
       drawer.drawMolecule(*m_local);
       drawer.finishDrawing();
@@ -59,7 +60,7 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol) {
    GtkWidget *r = 0;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef RDKIT_HAS_CAIRO_SUPPORT
+#ifdef RDKIT_HAS_CAIRO_SUPPORT_xyz // doesn't compile now.
 
    graphics_info_t g;
    g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number++);

@@ -67,7 +67,7 @@ namespace coot {
 	 else
 	    return 1;
       } 
-      std::string atom_name(int i) const {
+      const std::string &atom_name(int i) const {
 	 if (i>=0 && i<4) { 
 	    return atom_name_[i];
 	 } else {

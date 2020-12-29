@@ -76,13 +76,13 @@ def exec_file(filename):
 if (have_coot_python):
     if coot_python.main_menubar():
 
-        menu = coot_menubar_menu("Unittesting")
+        menu = coot_gui.coot_menubar_menu("Unittesting")
 
 
         def run_all_tests_func():
             exec_file("coot_unittest.py")
 
-        add_simple_coot_menu_menuitem(menu, "Run All Unittest Tests",
+        coot_gui.add_simple_coot_menu_menuitem(menu, "Run All Unittest Tests",
                                       lambda func: run_all_tests_func())
 
 
@@ -99,12 +99,12 @@ if (have_coot_python):
 
             #run_test_set(7)
 
-            dialog_box_of_buttons("Coot Unittests Sets", [200, 320], buttons,
+            coot_gui.dialog_box_of_buttons("Coot Unittests Sets", [200, 320], buttons,
                                   "  Close  ")
 
             
 
-        add_simple_coot_menu_menuitem(menu, "Run A Unittest Set...",
+        coot_gui.add_simple_coot_menu_menuitem(menu, "Run A Unittest Set...",
                                       lambda func: run_test_set_gui())
 
         def run_one_test_gui():
@@ -122,10 +122,10 @@ if (have_coot_python):
               buttons.append([test[1], "run_one_test(" + str(test_list.index(test)) + ")"])
               prev_test_class = test[2].split(".")[1]
             
-            dialog_box_of_buttons("Coot Unittests", [400, 500], buttons,
+            coot_gui.dialog_box_of_buttons("Coot Unittests", [400, 500], buttons,
                                   "  Close  ")
             
 
-        add_simple_coot_menu_menuitem(menu, "Run One Unittest Test...",
+        coot_gui.add_simple_coot_menu_menuitem(menu, "Run One Unittest Test...",
                                       lambda func: run_one_test_gui())
 

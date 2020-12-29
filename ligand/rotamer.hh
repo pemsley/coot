@@ -53,6 +53,10 @@ namespace coot {
          rotamer_name = name;
          alt_conf = alt_conf_in;
       }
+      rotamer_probability_info_t() {
+         state = ROTAMER_NOT_FOUND;
+         probability = -1;
+      }
       friend std::ostream &operator<<(std::ostream &s, const rotamer_probability_info_t &rpi);
    }; 
    std::ostream &operator<<(std::ostream &s, const rotamer_probability_info_t &rpi);

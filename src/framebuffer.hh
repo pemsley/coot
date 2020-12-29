@@ -2,6 +2,7 @@
 #ifndef FRAMEBUFFER_HH
 #define FRAMEBUFFER_HH
 
+#include <vector>
 #include <tuple>
 
 std::tuple<unsigned int, unsigned int, unsigned int>
@@ -35,6 +36,8 @@ public:
 
    unsigned int get_texture_colour() const { return texture_colour; }
    unsigned int get_texture_depth()  const { return texture_depth; }
+
+   unsigned int get_fbo() const { return fbo; }
 
 
 };

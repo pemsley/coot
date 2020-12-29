@@ -42,13 +42,13 @@ def handle_shelx_fcf_file_old(filename):
 
     convert_shelx_fcf_to_cif(filename,output_mmCIF_file_name)
 
-    ret = auto_read_cif_data_with_phases(output_mmCIF_file_name)
+    ret = coot.auto_read_cif_data_with_phases(output_mmCIF_file_name)
     return ret
 #    read_cif_data_with_phases(output_mmCIF_file_name)
-#    read_cif_data_with_phases_fo_fc(output_mmCIF_file_name)
+#    coot.read_cif_data_with_phases_fo_fc(output_mmCIF_file_name)
 
 def handle_shelx_fcf_file(filename):
-    return read_small_molecule_data_cif(filename)
+    return coot.read_small_molecule_data_cif(filename)
     
 def convert_shelx_fcf_to_cif(fcf_filename,cif_filename):
 
@@ -187,14 +187,14 @@ def remove_time_extensions(str):
 #
 def shelxl_refine(imol, hkl_file_in_maybe=False, shelxh_flag=False):
 
-    func = lambda ins_file_name: write_shelx_ins_file(imol, ins_file_name)
+    func = lambda ins_file_name: coot.write_shelx_ins_file(imol, ins_file_name)
     shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag)
 
 # shelxl refinement with input text
 #
 def shelxl_refine_primitive(imol, ins_text, hkl_file_in_maybe=False, shelxh_flag=False):
 
-    func = lambda ins_file_name: save_string_to_file(ins_text, ins_file_name, True)
+    func = lambda ins_file_name: coot_utils.save_string_to_file(ins_text, ins_file_name, True)
     shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag)
 
 def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
@@ -213,9 +213,9 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
    # filenames.
 
    if (shelxh_flag):
-       shelxl_exe = find_exe("shelxh", "PATH")
+       shelxl_exe = coot_utils.find_exe("shelxh", "PATH")
    else:
-       shelxl_exe = find_exe("shelxl", "PATH")
+       shelxl_exe = coot_utils.find_exe("shelxl", "PATH")
    if (not shelxl_exe):
        print("WARNING:: can't find executable shelxl/h")
    else:
@@ -234,7 +234,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
            print("Failed to make shelxl directory ", dir)
        else:
          # run shelx
-         stub = os.path.join(dir,(strip_path(strip_extension(molecule_name(imol))) + "-" + unique_date_time_str()))
+         stub = os.path.join(dir,(coot_utils.strip_path(coot_utils.strip_extension(coot.molecule_name(imol))) + "-" + coot_utils.unique_date_time_str()))
          # BL says: shelxl only excepts filename <= 80 char, so check it before
          if (len(stub) > 80):
              print("BL WARNING:: filename %s too long! Has %s characters, only 80 are allowed!" %(stub, len(stub)))
@@ -279,10 +279,10 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
                    # shouldnt happen!?
                    symlink_target = False
                elif (hkl_filename[0:1] == "/" or hkl_filename[0:1] == "\\"):
-                   # BL nore: maybe we shoudl use slash_start_qm here too?!
+                   # BL nore: maybe we shoudl use coot_utils.slash_start_qm here too?!
                    symlink_target = orig_hkl_file
                else:
-                   if (slash_start_qm(orig_hkl_file)):
+                   if (coot_utils.slash_start_qm(orig_hkl_file)):
                        symlink_target = orig_hkl_file
                    else:
                        symlink_target = "../" + orig_hkl_file
@@ -296,7 +296,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
                # from the filename of the coordinates molecule
                # imol, trial names are derived from the name of
                # the coordinates molecule
-               trial_file_stub     = strip_extension(molecule_name(imol))
+               trial_file_stub     = coot_utils.strip_extension(coot.molecule_name(imol))
                trial_hkl_file_name = trial_file_stub + ".hkl"
                print("BL DEBUG:: looking for", trial_hkl_file_name)
                if (os.path.isfile(trial_hkl_file_name)):
@@ -315,7 +315,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
                    if (hkl_filename_dir == trial_hkl_file_name_dir):
                        # same dirs
                        # so lets strip off the dir of the target:
-                       new_target = strip_path(trial_hkl_file_name)
+                       new_target = coot_utils.strip_path(trial_hkl_file_name)
                        make_symlink(new_target, hkl_filename)
                    else:
                        # different dirs, keep the dirs:
@@ -330,12 +330,12 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
 
               # running shelxl creates stub.res
               print("BL INFO:: Running shelxl as: ", shelxl_exe + " " + stub + " > " + log_filename)
-              shelx_status = popen_command(shelxl_exe, [stub], [], log_filename)
+              shelx_status = coot_utils.popen_command(shelxl_exe, [stub], [], log_filename)
               if (not shelx_status and
                   os.path.isfile(res_filename) and
                   os.path.isfile(fcf_filename)):
                   # it isn't a pdb file, but Coot knows what to do.
-                  imol_res = handle_read_draw_molecule_with_recentre(res_filename, 0)
+                  imol_res = coot.handle_read_draw_molecule_with_recentre(res_filename, 0)
                   handle_shelx_fcf_file(fcf_filename)
                   read_shelx_lst_file(lst_filename, imol_res)
               else:
@@ -359,10 +359,10 @@ def read_shelx_lst_file(file_name, imol):
     def gui_interesting_list(interesting_list):
 
         if (interesting_list):
-           interesting_things_gui("Interesting Things from SHELX", interesting_list)
+           coot_gui.interesting_things_gui("Interesting Things from SHELX", interesting_list)
         else:
             print("INFO:: Nothing Interesting from LST file")
-            add_status_bar_text("Nothing Interesting from LST file")
+            coot.add_status_bar_text("Nothing Interesting from LST file")
 
     # chop off last char of string
     def chop_end(s):
@@ -518,7 +518,7 @@ def read_shelx_lst_file(file_name, imol):
 
     # main body
     file_name = os.path.abspath(file_name)
-    if not valid_model_molecule_qm(imol):
+    if not coot_utils.valid_model_molecule_qm(imol):
        print("WARNING:: Molecule number %i not valid" %imol)
     else:
        if not os.path.isfile(file_name):
@@ -581,21 +581,21 @@ def read_shelx_project(file_name):
         import os
 
         file_name = os.path.abspath(file_name)
-        extension = file_name_extension(file_name)
+        extension = coot_utils.file_name_extension(file_name)
         if (extension == "lst"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         elif (extension == "ins"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         elif (extension == "insh"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         elif (extension == "log"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         elif (extension == "hkl"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         elif (extension == "res"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         elif (extension == "fcf"):
-            file_stub = file_name_sans_extension(file_name)
+            file_stub = coot_utils.file_name_sans_extension(file_name)
         else:
             file_stub = file_name
 
@@ -610,18 +610,18 @@ def read_shelx_project(file_name):
 
         if (os.path.isfile(res_file_name)):
                 print("Read res file ", res_file_name)
-                imol_res = handle_read_draw_molecule_with_recentre(res_file_name, 0)
+                imol_res = coot.handle_read_draw_molecule_with_recentre(res_file_name, 0)
         else:
                 print("  No res file ", res_file_name)
                 imol_res = -1
 
-        if (not valid_model_molecule_qm(imol_res)):
+        if (not coot_utils.valid_model_molecule_qm(imol_res)):
                 print("WARNING:: Bad molecule from res file read.")
         else:
                 if (os.path.isfile(fcf_cif_file_name)):
                     if (not os.path.isfile(fcf_file_name)):
                         print("   Read fcf-cif file ", fcf_cif_file_name)
-                        auto_read_cif_data_with_phases(fcf_cif_file_name)
+                        coot.auto_read_cif_data_with_phases(fcf_cif_file_name)
                     else:
                         # OK both xxx.fcf and xxx.fcf.cif exist, we
                         # only want to read the xxx.fcf.cif if it is
@@ -632,7 +632,7 @@ def read_shelx_project(file_name):
                         fcf_cif_date = os.stat(fcf_cif_file_name)[ST_MTIME]
                         # print "    fcf_date %s fcf_cif_date %s" %(time.ctime(fcf_date), time.ctime(fcf_cif_date))
                         if (fcf_date < fcf_cif_date):
-                            auto_read_cif_data_with_phases(fcf_cif_file_name)
+                            coot.auto_read_cif_data_with_phases(fcf_cif_file_name)
                         else:
                             handle_shelx_fcf_file(fcf_file_name)
 

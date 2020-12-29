@@ -90,9 +90,9 @@ def run_loggraph(logfile):
     import os
 
     # Modern: try qtrview first
-    if command_in_path_qm("logview"):
-        log_view = find_exe("logview")
-        run_concurrently(log_view, [logfile])
+    if coot_utils.command_in_path_qm("logview"):
+        log_view = coot_utils.find_exe("logview")
+        coot_utils.run_concurrently(log_view, [logfile])
     else:
         # no qtrtview (which can be run easily on the command line
 
@@ -108,7 +108,7 @@ def run_loggraph(logfile):
             print("BL ERROR:: We cannot allocate $CCP4I_TCLTK so no wish available")
         else:
             wish_command = "wish"
-            if is_windows():
+            if coot_utils.is_windows():
                 # Windows
                 wish_command += '.exe'
             wish_exe = os.path.join(ccp4i_tcltk, wish_command)
@@ -135,7 +135,7 @@ def run_loggraph(logfile):
                     else:
                         # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
                         #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
-                        run_concurrently(wish_exe, [loggraph_exe, logfile])
+                        coot_utils.run_concurrently(wish_exe, [loggraph_exe, logfile])
 
                     
 # make_molecules_flag is synonymous with continue after refmac run, i.e.
@@ -159,7 +159,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
     global refmac_count
     import os, stat, operator
 
-    refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
+    refmac_execfile = coot_utils.find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
 
     labin_string = ""
     if (phase_combine_flag == 3 and (len(f_col) == 2)):
@@ -169,7 +169,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                          " SIGF-=" + split_label(sig_f_col[1])
     else:
         if (f_col):
-            if (refmac_use_intensities_state()):
+            if (coot.refmac_use_intensities_state()):
                 labin_string = "LABIN IP=" + split_label(f_col) + \
                                  " SIGIP=" + split_label(sig_f_col)
             else:
@@ -207,24 +207,24 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     std_lines = ["MAKE HYDROGENS NO"] # Garib's suggestion 8 Sept 2003
 
-    refinement_type = get_refmac_refinement_method()
+    refinement_type = coot.get_refmac_refinement_method()
     if (refinement_type == 1):
         # do rigid body refinement
         std_lines.append("REFInement TYPE RIGID")
 
-    imol_coords = refmac_imol_coords()
+    imol_coords = coot.refmac_imol_coords()
     if isinstance(force_n_cycles, numbers.Number):
        if force_n_cycles >=0:
            if (refinement_type == 1):
                std_lines.append("RIGIDbody NCYCle " + str(force_n_cycles))
-               if (get_refmac_refinement_method() == 1):
+               if (coot.get_refmac_refinement_method() == 1):
                    group_no = 1
-                   if (is_valid_model_molecule(imol_coords)):
-                       for chain_id in chain_ids(imol_coords):
-                           if (not is_solvent_chain_qm(imol_coords, chain_id)):
-                               n_residues = chain_n_residues(chain_id, imol_coords)
-                               start_resno = seqnum_from_serial_number(imol_coords ,chain_id, 0)
-                               end_resno   = seqnum_from_serial_number(imol_coords ,chain_id, n_residues-1)
+                   if (coot.is_valid_model_molecule(imol_coords)):
+                       for chain_id in coot_utils.chain_ids(imol_coords):
+                           if (not coot_utils.is_solvent_chain_qm(imol_coords, chain_id)):
+                               n_residues = coot.chain_n_residues(chain_id, imol_coords)
+                               start_resno = coot.seqnum_from_serial_number(imol_coords ,chain_id, 0)
+                               end_resno   = coot.seqnum_from_serial_number(imol_coords ,chain_id, n_residues-1)
                                rigid_line = "RIGIdbody GROUp " +  str(group_no) \
                                + " FROM " + str(start_resno) + " " + chain_id \
                                + " TO "   + str(end_resno)   + " " + chain_id 
@@ -240,7 +240,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
         std_lines.append(tls_string)
 
     # TWIN?
-    if (refmac_use_twin_state()):
+    if (coot.refmac_use_twin_state()):
         std_lines.append("TWIN")
 
     # SAD?
@@ -264,13 +264,13 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
             std_lines.append(sad_string)
             
     # NCS?
-    if(refmac_use_ncs_state()):
+    if(coot.refmac_use_ncs_state()):
         if (get_refmac_version()[1] >= 5):
             std_lines.append("NCSR LOCAL")
         else:
-            chain_ids_from_ncs = ncs_chain_ids(imol_coords)
-            if chain_ids_from_ncs:
-                for ncs_set in chain_ids_from_ncs:
+            coot_utils.chain_ids_from_ncs = ncs_chain_ids(imol_coords)
+            if coot_utils.chain_ids_from_ncs:
+                for ncs_set in coot_utils.chain_ids_from_ncs:
                     no_ncs_chains = len(ncs_set)
                     if (no_ncs_chains > 1):
                         ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
@@ -285,16 +285,14 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     data_lines.append(labin_string)
 
-    log_file_name_disambiguator = strip_path(file_name_sans_extension(pdb_in_filename))
+    log_file_name_disambiguator = coot_utils.strip_path(coot_utils.file_name_sans_extension(pdb_in_filename))
     # this should be a database filename:
-    refmac_log_file_name = ""
-    if (len(ccp4i_project_dir) > 0) :
-        refmac_log_file_name += ccp4i_project_dir
-    refmac_log_file_name += "refmac-from-coot-"
-    refmac_log_file_name += log_file_name_disambiguator
-    refmac_log_file_name += "-"
-    refmac_log_file_name += str(refmac_count)
-    refmac_log_file_name += ".log"
+    refmac_log_file_name = os.path.join(coot_utils.get_directory("coot-refmac"),
+                                        (ccp4i_project_dir if (len(ccp4i_project_dir) > 0) else "") + \
+                                        "refmac-from-coot-" + \
+                                        log_file_name_disambiguator + \
+                                        "-" + \
+                                        str(refmac_count) + ".log")
 
     refmac_count = imol_refmac_count + refmac_count + 1
 
@@ -320,20 +318,20 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     data_lines += ["END"]
 
-    if (coot_has_gobject() and sys.version_info >= (2, 4)
+    if (coot_utils.coot_has_gobject() and sys.version_info >= (2, 4)
         and make_molecules_flag):
         # can spawn refmac and add button
 
-        refmac_process, logObj = run_concurrently(refmac_execfile,
+        refmac_process, logObj = coot_utils.run_concurrently(refmac_execfile,
                                                   command_line_args,
                                                   data_lines,
                                                   refmac_log_file_name)
 
-        separator   = add_coot_toolbar_separator()
-        kill_button = coot_toolbar_button("Kill refmac",
+        separator   = coot_toolbuttons.add_coot_toolbar_separator()
+        kill_button = coot_gui.coot_toolbar_button("Kill refmac",
                                           "kill_process(" + str(refmac_process.pid)+ ")",
                                           "stop.svg")
-        add_status_bar_text("Running refmac")
+        coot.add_status_bar_text("Running refmac")
 
         gobject.timeout_add(1000,
                             post_run_refmac,
@@ -347,8 +345,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                             refmac_process, logObj,
                             (kill_button, separator), True)
     else:
-        # no gobject and no subprocess, so run 'old' popen_command
-        refmac_status = popen_command(refmac_execfile,
+        # no gobject and no subprocess, so run 'old' coot_utils.popen_command
+        refmac_status = coot_utils.popen_command(refmac_execfile,
                                       command_line_args,
                                       data_lines,
                                       refmac_log_file_name)
@@ -390,7 +388,7 @@ def post_run_refmac(imol_refmac_count,
             # continue the loop
             return True
     else:
-        # refmac run via popen_command
+        # refmac run via coot_utils.popen_command
         refmac_status = refmac_process
         
     if (refmac_status) : # refmac ran fail...
@@ -417,29 +415,29 @@ def post_run_refmac(imol_refmac_count,
         else:
             r_free_bit = [r_free_col,1]
 
-        recentre_status = recentre_on_read_pdb()
-        novalue = set_recentre_on_read_pdb(0)
-        imol = handle_read_draw_molecule(pdb_out_filename)
+        recentre_status = coot.recentre_on_read_pdb()
+        novalue = coot.set_recentre_on_read_pdb(0)
+        imol = coot.handle_read_draw_molecule(pdb_out_filename)
 
         if (recentre_status) :
-            set_recentre_on_read_pdb(1)
-        set_refmac_counter(imol, imol_refmac_count + 1)
+            coot.set_recentre_on_read_pdb(1)
+        coot.set_refmac_counter(imol, imol_refmac_count + 1)
 
-        if (phase_combine_flag == 3 or refmac_use_twin_state()):
+        if (phase_combine_flag == 3 or coot.refmac_use_twin_state()):
             # for now we have to assume the 'standard' name, let's see if we can do better...
                 # this may not be necessary!?
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, "FP", "SIGFP"] + r_free_bit
         else:
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, f_col, sig_f_col] + r_free_bit
-        new_map_id = make_and_draw_map_with_refmac_params(*args)
+        new_map_id = coot.make_and_draw_map_with_refmac_params(*args)
 
         # set the new map as refinement map
-        if valid_map_molecule_qm(new_map_id):
-            set_imol_refinement_map(new_map_id)
+        if coot_utils.valid_map_molecule_qm(new_map_id):
+            coot.set_imol_refinement_map(new_map_id)
 
         # store the refmac parameters to the new map (if we used a file)
-        if (get_refmac_used_mtz_file_state()):
-            set_stored_refmac_file_mtz_filename(new_map_id, mtz_in_filename)
+        if (coot.get_refmac_used_mtz_file_state()):
+            coot.set_stored_refmac_file_mtz_filename(new_map_id, mtz_in_filename)
             if (phase_combine_flag > 0 and phase_combine_flag < 3):
                 # save the phase information
                 phib = ""
@@ -455,28 +453,28 @@ def post_run_refmac(imol_refmac_count,
                 if (phase_combine_flag == 2):
                     # we have HLs
                     hla, hlab, hlc, hld = eval(phib_fom_pair[0])
-                save_refmac_phase_params_to_map(new_map_id,
+                coot.save_refmac_phase_params_to_map(new_map_id,
                                                 phib, fom,
                                                 hla, hlb, hld, hlc)
 
         if (swap_map_colours_post_refmac_p == 1) :
-            swap_map_colours(imol_mtz_molecule, new_map_id)
+            coot.swap_map_colours(imol_mtz_molecule, new_map_id)
 
         # difference map (flag was set):
         if (show_diff_map_flag == 1):
             if (phase_combine_flag == 3):
                 # for now we have to assume the 'standard' name, let's see if we can do better...
                 args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, "FP", "SIGFP"] + r_free_bit
-                make_and_draw_map_with_refmac_params(*args)
+                coot.make_and_draw_map_with_refmac_params(*args)
                 # make an anomalous difference map too?!
                 args = [mtz_out_filename, "FAN", "PHAN", "", 0, 1, 1, "FP", "SIGFP"] + r_free_bit
                 try:
-                    make_and_draw_map_with_refmac_params(*args)
+                    coot.make_and_draw_map_with_refmac_params(*args)
                 except:
                     print("BL INFO:: couldnt make the anomalous difference map.")
             else:
                 args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, f_col, sig_f_col] + r_free_bit
-                make_and_draw_map_with_refmac_params(*args)
+                coot.make_and_draw_map_with_refmac_params(*args)
 
         # finally run the refmac_log_reader to get interesting things
         read_refmac_log(imol, refmac_log_file_name)
@@ -555,23 +553,23 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
     import os
 
     if os.path.isfile(mtz_file_name):
-        if valid_model_molecule_qm(imol):
-            dir_state = make_directory_maybe("coot-refmac")
+        if coot_utils.valid_model_molecule_qm(imol):
+            dir_state = coot.make_directory_maybe("coot-refmac")
             if not dir_state == 0:
                 print("Failed to make coot-refmac directory\n")
             else:
-                stub = "coot-refmac/refmac-for-phases"
+                stub = os.path.join(coot_refmac_dir, "refmac-for-phases")
                 pdb_in = stub + ".pdb"
                 pdb_out = stub + "-tmp.pdb"
                 mtz_out = stub + ".mtz"
                 cif_lib_filename = ""
-                write_pdb_file(imol, pdb_in)
+                coot.write_pdb_file(imol, pdb_in)
                 # preserve the ncs & tls state
-                ncs_state = refmac_use_ncs_state()
-                tls_state = refmac_use_tls_state()
+                ncs_state = coot.refmac_use_ncs_state()
+                tls_state = coot.refmac_use_tls_state()
                 #print "BL DEBUG:: states were", ncs_state, tls_state
-                set_refmac_use_ncs(0)
-                set_refmac_use_tls(0)
+                coot.set_refmac_use_ncs(0)
+                coot.set_refmac_use_tls(0)
                 run_refmac_by_filename(pdb_in, pdb_out,
                         mtz_file_name, mtz_out, 
                         cif_lib_filename, 0, 0, -1,
@@ -580,8 +578,8 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
                 # I wish I could reset the state, but I currently cannot
                 # as refmac runs only after the button has been pushed
                 # (and we wont be here any more)
-                set_refmac_use_ncs(ncs_state)
-                set_refmac_use_tls(tls_state)
+                coot.set_refmac_use_ncs(ncs_state)
+                coot.set_refmac_use_tls(tls_state)
                 #print "BL DEBUG:: reset states", ncs_state, tls_state
 
         else:
@@ -600,7 +598,7 @@ def refmac_for_phases_and_make_map(mtz_file_name, f_col, sig_f_col):
 
 
 # This will read a refmac log file and extract information in
-# interesting_things_gui format, i.e. a list with either coorinates or residues
+# coot_gui.interesting_things_gui format, i.e. a list with either coorinates or residues
 # to be flagged as interesting
 #
 # the list of extracted information may look like:
@@ -610,7 +608,7 @@ def refmac_for_phases_and_make_map(mtz_file_name, f_col, sig_f_col):
 #   [more deviations]],
 #   next res] 
 #
-# e.g. interesting_things_gui(
+# e.g. coot_gui.interesting_things_gui(
 #       "Bad things by Analysis X",
 #       [["Bad Chiral",0,"A",23,"","CA","A"],
 #        ["Bad Density Fit",0,"B",65,"","CA",""],
@@ -815,7 +813,7 @@ def read_refmac_log(imol, refmac_log_file):
             if (alt_conf1 == "."): alt_conf1 = ""
             if (alt_conf2 == "."): alt_conf2 = ""
 
-            if debug():
+            if coot_utils.debug():
                 print("BL DEBUG:: haeve item lst", item_ls)
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Bond distance",
@@ -1089,7 +1087,7 @@ def read_refmac_log(imol, refmac_log_file):
 
             if (alt_conf1 == "."): alt_conf1 = ""       # check, may be '.' if none
 
-            if debug():
+            if coot_utils.debug():
                 print("BL DEBUG:: have item_ls", item_ls)
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Sphericity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1126,7 +1124,7 @@ def read_refmac_log(imol, refmac_log_file):
                 alt_conf2 = "."
                 item_ls.insert(10, alt_conf2)
             
-            if debug():
+            if coot_utils.debug():
                 print("BL DEBUG:: have item list", item_ls)
                 
             dev       = float(item_ls[12])
@@ -1135,7 +1133,7 @@ def read_refmac_log(imol, refmac_log_file):
             if (alt_conf1 == "."): alt_conf1 = ""
             if (alt_conf2 == "."): alt_conf2 = ""
 
-            if debug():
+            if coot_utils.debug():
                 print("BL DEBUG:: have item list", item_ls)
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Rigid",
@@ -1432,7 +1430,7 @@ def read_refmac_log(imol, refmac_log_file):
 
         if (interesting_list):
             try:
-                run_with_gtk_threading(interesting_things_with_fix_maybe, "Refmac outliers etc.", interesting_list)
+                coot_gui.run_with_gtk_threading(interesting_things_with_fix_maybe, "Refmac outliers etc.", interesting_list)
             except:
                 print("BL INFO:: could not show the interesting Refmac things! Probably no PyGTK!")
         else:
@@ -1456,11 +1454,11 @@ def get_refmac_version():
     else:
 
         # maybe want to cache these too!?
-        refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
+        refmac_execfile = coot_utils.find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
 
         if (refmac_execfile):
             log_file = "refmac_version_tmp.log"
-            status = popen_command(refmac_execfile, ["-i"], [], log_file)
+            status = coot_utils.popen_command(refmac_execfile, ["-i"], [], log_file)
             if (status == 0):
                 fin = open(log_file, 'r')
                 lines = fin.readlines()
@@ -1489,7 +1487,7 @@ def restraints_for_occupancy_refinement(imol, file_name="refmac_extra_params.txt
     # simple version for now.
     # take each residue and make all alt confs to be one
     # ignore close contact ones
-    res_list = residues_with_alt_confs(imol)
+    res_list = coot_utils.residues_with_alt_confs(imol)
     group_id = 1
     if (not res_list):
         print("BL INFO:: no alt confs")
@@ -1498,11 +1496,11 @@ def restraints_for_occupancy_refinement(imol, file_name="refmac_extra_params.txt
         f = open(file_name, 'w')
         for (chain_id, res_no, ins_code) in res_list:
             atom_name = 'dummy'
-            if is_protein_chain_qm(imol, chain_id):
+            if coot_utils.is_protein_chain_qm(imol, chain_id):
                 atom_name = ' CA '
-            if is_solvent_chain_qm(imol, chain_id):
+            if coot_utils.is_solvent_chain_qm(imol, chain_id):
                 atom_name = ' O  '
-            alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
+            alt_confs = coot_utils.residue_alt_confs(imol, chain_id, res_no, ins_code)
             try:
                 # remove no alt confs, assums always CA is alt
                 alt_confs.remove('') 
@@ -1516,7 +1514,7 @@ def restraints_for_occupancy_refinement(imol, file_name="refmac_extra_params.txt
                 for alt_conf in alt_confs:
                     try:
                         # add CA occupancies
-                        atom_spec = atom_specs(imol, chain_id, res_no, ins_code,
+                        atom_spec = coot_utils.atom_specs(imol, chain_id, res_no, ins_code,
                                                atom_name, alt_conf)
                         total_occ += atom_spec[0]
                         line = "occupancy group id " + str(group_id) + \

@@ -231,7 +231,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);
 		  residue_mol->FinishStructEdit();
 
-		  if (0) { // -------- debug ----------
+		  if (false) { // -------- debug ----------
 		     int imod = 1;
 		     mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 		     mmdb::Chain *chain_p;
@@ -260,6 +260,9 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 							  atom_sel.links,
 							  geom, residue_mol, fixed_atoms,
 							  &dummy_xmap);
+                  int n_threads = coot::get_max_number_of_threads() - 1;
+                  if (n_threads < 1) n_threads = 1;
+                  restraints.thread_pool(&graphics_info_t::static_thread_pool, n_threads);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
@@ -2184,6 +2187,29 @@ molecule_class_info_t::delete_sidechains_for_chain(const std::string &chain_id) 
    return done;
 }
 
+bool
+molecule_class_info_t::delete_sidechain(mmdb::Residue *residue_p) {
+
+   bool was_deleted = false;
+
+   if (residue_p) {
+      // make_backup();
+      mmdb::PPAtom atoms = 0;
+      int n_atoms = 0;
+      bool was_deleted = false;
+      residue_p->GetAtomTable(atoms, n_atoms);
+      for (int i=0; i<n_atoms; i++) {
+         if (! (coot::is_main_chain_or_cb_p(atoms[i]))) {
+            residue_p->DeleteAtom(i);
+            was_deleted = true;
+         }
+      }
+      if (was_deleted)
+         residue_p->TrimAtomTable();
+   }
+   return was_deleted;
+}
+
 int
 molecule_class_info_t::delete_sidechain_range(const coot::residue_spec_t &res_1,
 					      const coot::residue_spec_t &res_2) {
@@ -2413,4 +2439,215 @@ molecule_class_info_t::merge_fragments() {
 
    return status;
 
+}
+
+
+std::vector<mmdb::Atom *>
+molecule_class_info_t::closest_atoms_in_neighbour_residues(mmdb::Residue *residue_ref_p, float radius) const {
+
+   std::vector<mmdb::Atom *> v;
+
+   // we don't want to include main chain atoms that are peptide bonded to this one (residue_ref_p)
+
+   if (residue_ref_p) {
+      std::vector<mmdb::Residue *> rv = coot::residues_near_residue(residue_ref_p, atom_sel.mol, radius);
+      for (unsigned int i=0; i<rv.size(); i++) {
+         mmdb::Residue *r = rv[i];
+         int n_residue_atoms = 0;
+         mmdb::Atom **residue_atoms;
+         float closest_dist = 99999.9;
+         mmdb::Atom *closest_atom = 0;
+         r->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int j=0; j<n_residue_atoms; j++) {
+            mmdb::Atom *at = residue_atoms[j];
+            if (! at->isTer()) {
+               clipper::Coord_orth co = coot::co(at);
+               mmdb::Atom **residue_ref_atoms = 0;
+               int n_residue_ref_atoms = 0;
+               residue_ref_p->GetAtomTable(residue_ref_atoms, n_residue_ref_atoms);
+               for (int k=0; k<n_residue_ref_atoms; k++) {
+                  mmdb::Atom *at_ref = residue_ref_atoms[k];
+                  if (! at_ref->isTer()) {
+                     clipper::Coord_orth co_ref = coot::co(at_ref);
+                     double dd = (co-co_ref).lengthsq();
+                     double d = sqrt(dd);
+                     if (d < closest_dist) {
+                        bool exclude = false;
+                        if (coot::is_main_chain_p(at)) {
+                           if (residue_ref_p->chain == r->chain) {
+                              int res_no_delta = r->GetSeqNum() - residue_ref_p->GetSeqNum();
+                              if (abs(res_no_delta) < 2)
+                                 exclude = true;
+                           }
+                        }
+                        if (! exclude) {
+                           closest_dist = d;
+                           closest_atom = at;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         if (closest_atom) {
+            v.push_back(closest_atom);
+         }
+      }
+   }
+
+   std::cout << "debug:: got " << v.size() << " closest atoms " << std::endl;
+
+   return v;
+}
+
+void
+molecule_class_info_t::label_closest_atoms_in_neighbour_atoms(coot::residue_spec_t residue_spec, float radius) {
+
+   mmdb::Residue *residue_ref_p = get_residue(residue_spec);
+   if (residue_ref_p) {
+      int atom_index_handle = atom_sel.UDDAtomIndexHandle; // or SelectionHandle?
+      std::vector<mmdb::Atom *>v = closest_atoms_in_neighbour_residues(residue_ref_p, radius);
+      for (unsigned int i=0; i<v.size(); i++) {
+         mmdb::Atom *at = v[i];
+         int atom_index = -1;
+         at->GetUDData(atom_index_handle, atom_index);
+         if (atom_index >= 0)
+            if (atom_index < atom_sel.n_selected_atoms)
+               labelled_atom_index_list.push_back(atom_index);
+      }
+   }
+}
+
+
+#include "coot-utils/atom-overlaps.hh"
+
+// this is something that you do after alignment.
+void
+molecule_class_info_t::resolve_clashing_sidechains_by_deletion(const coot::protein_geometry *geom_p) {
+
+   auto matches_existing_pair = [] (const std::pair<mmdb::Residue *, mmdb::Residue *> &p,
+                                    const std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > &v) {
+                                   for (unsigned int i=0; i<v.size(); i++) {
+                                      if (p.first == v[i].first)
+                                         if (p.second == v[i].second)
+                                            return true;
+                                      if (p.first == v[i].second)
+                                         if (p.second == v[i].first)
+                                            return true;
+                                   }
+                                   return false;
+                                };
+
+   const std::vector<std::string> sized_residues = {
+                                                    "GLY", "ALA", "SER", "CYS", "PRO", "THR",
+                                                    "VAL", "ASP", "ASN", "GLU", "GLN", "HIS",
+                                                    "ILE", "LEU", "LYS", "MET", "ARG", "PHE",
+                                                    "TYR", "TRP", "MSE" };
+   auto get_index = [] (const std::string &rt, const std::vector<std::string> &v) {
+                       int idx = -1;
+                       int vs = v.size();
+                       for (int i=0; i<vs; i++) {
+                          if (rt == v[i])
+                             return i;
+                       }
+                       return idx;
+                    };
+
+      auto residue_is_bigger = [sized_residues, get_index] (mmdb::Residue *r1, mmdb::Residue *r2) {
+                               bool status = false;
+                               std::string rt_1 = r1->GetResName();
+                               std::string rt_2 = r2->GetResName();
+                               int idx_1 = get_index(rt_1, sized_residues);
+                               int idx_2 = get_index(rt_2, sized_residues);
+                               if (idx_1 > idx_2) status = true;
+                               return status;
+                            };
+
+   bool ignore_waters = true;
+   mmdb::Manager *mol = atom_sel.mol;
+   coot::atom_overlaps_container_t overlaps(mol, geom_p, ignore_waters, 0.5, 0.25);
+   std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > overlapping_residues;
+   overlaps.make_all_atom_overlaps();
+   std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+   for (std::size_t ii=0; ii<olv.size(); ii++) {
+      const coot::atom_overlap_t &o = olv[ii];
+      if (o.overlap_volume > 2.0) {
+         mmdb::Residue *r1 = o.atom_1->residue;
+         mmdb::Residue *r2 = o.atom_2->residue;
+         std::pair<mmdb::Residue *, mmdb::Residue *>  p(r1, r2);
+         if (! matches_existing_pair(p, overlapping_residues))
+            overlapping_residues.push_back(p);
+      }
+   }
+
+   bool things_have_changed = false;
+   for (unsigned int ii=0; ii<overlapping_residues.size(); ii++) {
+      mmdb::Residue *residue_p = overlapping_residues[ii].first;
+      if (residue_is_bigger(overlapping_residues[ii].second, residue_p))
+         residue_p = overlapping_residues[ii].second;
+      delete_sidechain(residue_p);
+      things_have_changed = true;
+   }
+   if (things_have_changed) {
+      have_unsaved_changes_flag = 1;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      make_bonds_type_checked();
+   }
+}
+
+
+void
+molecule_class_info_t::resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,
+                                                                 int imol_refinement_map) {
+
+   auto matches_existing_pair = [] (const std::pair<mmdb::Residue *, mmdb::Residue *> &p,
+                                    const std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > &v) {
+                                   for (unsigned int i=0; i<v.size(); i++) {
+                                      if (p.first == v[i].first)
+                                         if (p.second == v[i].second)
+                                            return true;
+                                      if (p.first == v[i].second)
+                                         if (p.second == v[i].first)
+                                            return true;
+                                   }
+                                   return false;
+                                };
+
+   bool ignore_waters = true;
+   mmdb::Manager *mol = atom_sel.mol;
+   coot::atom_overlaps_container_t overlaps(mol, geom_p, ignore_waters, 0.5, 0.25);
+   std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > overlapping_residues;
+   overlaps.make_all_atom_overlaps();
+   std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+   for (std::size_t ii=0; ii<olv.size(); ii++) {
+      const coot::atom_overlap_t &o = olv[ii];
+      if (o.overlap_volume > 2.0) {
+         mmdb::Residue *r1 = o.atom_1->residue;
+         mmdb::Residue *r2 = o.atom_2->residue;
+         std::pair<mmdb::Residue *, mmdb::Residue *>  p(r1, r2);
+         if (! matches_existing_pair(p, overlapping_residues))
+            overlapping_residues.push_back(p);
+      }
+   }
+
+   bool things_have_changed = false;
+   for (unsigned int ii=0; ii<overlapping_residues.size(); ii++) {
+      mmdb::Residue *residue_1_p = overlapping_residues[ii].first;
+      mmdb::Residue *residue_2_p = overlapping_residues[ii].second;
+
+      delete_sidechain(residue_1_p);
+      delete_sidechain(residue_2_p);
+
+      fill_partial_residue(coot::residue_spec_t(residue_1_p), geom_p, imol_refinement_map);
+      fill_partial_residue(coot::residue_spec_t(residue_2_p), geom_p, imol_refinement_map);
+      things_have_changed = true;
+   }
+
+   if (things_have_changed) {
+      have_unsaved_changes_flag = 1;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      make_bonds_type_checked();
+   }
 }

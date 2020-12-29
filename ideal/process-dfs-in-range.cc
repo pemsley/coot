@@ -20,9 +20,11 @@
 void
 coot::restraints_container_t::make_df_restraints_indices() {
 
-   std::cout << "---------------------------------------------------------------" << std::endl;
-   std::cout << "            make_df_restraints_indices() " << size() << std::endl;
-   std::cout << "---------------------------------------------------------------" << std::endl;
+   if (false) {
+      std::cout << "---------------------------------------------------------------" << std::endl;
+      std::cout << "            make_df_restraints_indices() " << size() << std::endl;
+      std::cout << "---------------------------------------------------------------" << std::endl;
+   }
 
    // does restraints index vectors and df_by_thread_results
 
@@ -1178,7 +1180,7 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
 
    if (restraint.is_closed) return;
 
-   double sigma = 0.03;
+   double sigma = 0.02;
    int idx = 3*(restraint.atom_index_1);
 
    bool harmonic_restraint = true;

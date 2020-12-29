@@ -1572,6 +1572,21 @@
       (gtk-widget-show-all window)
       (list inside-vbox window)))
 
+
+(define (dialog-box-of-buttons-from-specs window-name geometry imol specs)
+
+  (let ((buttons (map (lambda(spec)
+                        (let ((label (residue-spec->string spec))
+                              (cbf (lambda ()
+                                     (set-go-to-atom-molecule imol)
+                                     (set-go-to-atom-chain-residue-atom-name
+                                      (residue-spec->chain-id spec)
+                                      (residue-spec->res-no spec) " C  "))))
+                          (list label cbf)))
+                      specs)))
+    (dialog-box-of-buttons window-name geometry buttons " Close ")))
+
+
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
 ;; also needs to add buttons - let's not duplicate that code.
@@ -2836,7 +2851,7 @@
 
 ;; Wrapper in that we test if there have been sequence(s) assigned to
 ;; imol before we look for the sequence mismatches
-
+;; 
 (define (wrapper-alignment-mismatches-gui imol)
   
   (let ((seq-info (sequence-info imol)))
@@ -2846,6 +2861,97 @@
 	    (associate-pir-with-molecule-gui #t)
 	    (alignment-mismatches-gui imol))
 	(associate-pir-with-molecule-gui #t))))
+
+
+;; Use clustalw to do the alignment. Then mutate using that alignement.
+;; 
+(define (run-clustalw-alignment imol chain-id target-sequence-pir-file)
+
+  (define (get-clustalw2-command)
+    (let ((clustalw2-command "clustalw2"))
+      (if (command-in-path-or-absolute? clustalw2-command)
+          clustalw2-command
+          (let ((s (getenv "CCP4")))
+            (if (not (string? s))
+                #f
+                (let ((file-path (append-dir-file (append-dir-dir s "libexec") "clustalw2")))
+                  (print-var file-path)
+                  (if (command-in-path-or-absolute? file-path)
+                      file-path
+                      #f)))))))
+  
+
+  ;; write out the current sequence
+  (let ((current-sequence-pir-file "current-sequence.pir")
+        (aligned-sequence-pir-file "aligned-sequence.pir")
+        (clustalw2-output-file-name "clustalw2-output-file.log")
+        (clustalw2-command (get-clustalw2-command)))
+
+    (if (not clustalw2-command)
+        (begin
+          (format #t "No clustalw2 command~%~!")
+          #f)
+        (begin
+
+          ;; if these files are not deleted/renamed then the input to clustalw2
+          ;; goes wonky.
+
+          (if (file-exists? aligned-sequence-pir-file)
+              (let ((new-file-name (string-append aligned-sequence-pir-file ".old")))
+                (rename-file aligned-sequence-pir-file new-file-name)))
+
+          (if (file-exists? "current-sequence.dnd")
+              (let ((new-file-name (string-append "current-sequence.dnd" ".old")))
+                (rename-file "current-sequence.dnd" new-file-name)))
+
+          (if (file-exists? "current-sequence.aln")
+              (let ((new-file-name (string-append "current-sequence.aln" ".old")))
+                (rename-file "current-sequence.aln" new-file-name)))
+
+          (print-sequence-chain-general imol chain-id 1 1 current-sequence-pir-file)
+          (goosh-command
+           clustalw2-command
+           '()
+           (list
+            "3"
+            "1"
+            target-sequence-pir-file
+            "2"
+            current-sequence-pir-file
+            "9"
+            "2"
+            ""
+            "4"
+            ""
+            aligned-sequence-pir-file
+            ""
+            "x"
+            ""
+            "x")
+           clustalw2-output-file-name
+           #t)
+
+          (associate-pir-alignment-from-file imol chain-id aligned-sequence-pir-file)
+          (apply-pir-alignment imol chain-id)
+          (simple-fill-partial-residues imol)
+          (resolve-clashing-sidechains-by-deletion imol)))))
+
+
+(if (defined? 'coot-main-menubar)
+    (let ((menu (coot-menubar-menu "Calculate")))
+
+      (add-simple-coot-menu-menuitem
+       menu "Use Clustalw for Alignment, then Mutate"
+       (lambda ()
+         ;; gui with molecule number chain-id and file-name
+         (generic-chooser-entry-and-file-selector "Target PIR file: " valid-model-molecule?
+                                                  "Chain-ID" "A" "PIR file for target sequence"
+                                                  (lambda (imol chain-id target-pir-file-name)
+                                                    (run-clustalw-alignment imol chain-id target-pir-file-name)
+                                                    (associate-pir-file imol chain-id target-pir-file-name)
+                                                    (alignment-mismatches-gui imol)
+                                                    ""))))))
+
 
 
 ;; Multiple residue ranges gui
@@ -3735,6 +3841,69 @@
       (gtk-widget-show-all window)))
 
 
+;; interface to the difference-map based pepflip finder
+(define (pepflips-by-difference-map-gui)
+
+  (define (fill-option-menu-with-difference-map-options menu)
+    (fill-option-menu-with-mol-options menu is-difference-map?))
+
+  (let* ((window (gtk-window-new 'toplevel))
+         (chooser-label "Difference map")
+	 (label (gtk-label-new chooser-label))
+	 (vbox (gtk-vbox-new #f 6))
+	 (hbox-buttons (gtk-hbox-new #f 5))
+         (hbox-sigma (gtk-hbox-new #f 5))
+	 (menu-map (gtk-menu-new))
+	 (menu-coords (gtk-menu-new))
+	 (option-menu-map    (gtk-option-menu-new))
+	 (option-menu-coords (gtk-option-menu-new))
+         (n-sigma-label (gtk-label-new "N-sigma cut-off"))
+         (n-sigma-entry (gtk-entry-new))
+	 (ok-button (gtk-button-new-with-label "  OK  "))
+	 (cancel-button (gtk-button-new-with-label " Cancel "))
+	 (h-sep (gtk-hseparator-new))
+	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu-coords))
+	 (map-mol-list (fill-option-menu-with-difference-map-options menu-map)))
+    (gtk-window-set-default-size window 370 100)
+    (gtk-container-add window vbox)
+    (gtk-box-pack-start vbox label #f #f 5)
+    (gtk-box-pack-start vbox option-menu-map    #t #t 6)
+    (gtk-box-pack-start vbox option-menu-coords #t #t 6)
+    (gtk-box-pack-start hbox-sigma n-sigma-label #f #f 6)
+    (gtk-box-pack-start hbox-sigma n-sigma-entry #f #f 6)
+    (gtk-box-pack-start vbox hbox-sigma  #t #f 6)
+    (gtk-box-pack-start vbox h-sep #t #f 2)
+    (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+    (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
+    
+    (gtk-option-menu-set-menu option-menu-map    menu-map)
+    (gtk-option-menu-set-menu option-menu-coords menu-coords)
+    (gtk-entry-set-text n-sigma-entry "4.0")
+
+    (gtk-signal-connect cancel-button "clicked" (lambda () (gtk-widget-destroy window)))
+    (gtk-signal-connect ok-button "clicked"
+                        (lambda ()
+                          (let* ((imol-coords (get-option-menu-active-molecule
+                                               option-menu-coords model-mol-list))
+                                 (imol-map (get-option-menu-active-molecule
+                                            option-menu-map map-mol-list))
+                                 (n-sigma-str (gtk-entry-get-text n-sigma-entry))
+                                 (n-sigma (string->number n-sigma-str)))
+                            (let ((specs (pepflip-using-difference-map-scm imol-coords imol-map n-sigma)))
+                              (format #t "dialog for specs\n")
+                              (format #t "specs: ~s~%" specs)
+                              (if (null? specs)
+                                  (info-dialog "No pepflips found")
+                                  (dialog-box-of-buttons-from-specs "Potential Pepflip"
+                                                                    (cons 240 170)
+                                                                    imol-coords specs))
+                              (gtk-widget-destroy window)))))
+
+    (gtk-widget-show-all window)))
+
+
+
 ;; return a list, or #f (e.g. if not in same chain and molecule)
 ;; 
 (define (min-max-residues-from-atom-specs specs)
@@ -4021,58 +4190,76 @@
          menu "Sharpen/Blur..."
          sharpen-blur-map-gui)
 
-	(add-simple-coot-menu-menuitem
-	 menu "Multi-sharpen using Refmac..."
-	 refmac-multi-sharpen-gui)
+        (add-simple-coot-menu-menuitem
+         menu "Multi-sharpen using Refmac..."
+         refmac-multi-sharpen-gui)
 
-	(add-simple-coot-menu-menuitem
-	 menu "Interactive Nudge Residues..."
-	 (lambda ()
-	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
+        (add-simple-coot-menu-menuitem
+         menu "Flip Hand of Map..."
+         (lambda ()
+           (map-molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Align and Mutate using ClustalW2"
+         (lambda ()
+           'x
+           (generic-chooser-entry-and-file-selector
+            "Align Sequence to Model: "
+            valid-model-molecule?
+            "Chain ID"
+            ""
+            "Select PIR Alignment file"
+            (lambda (imol chain-id target-sequence-pir-file)
+               (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Interactive Nudge Residues..."
+         (lambda ()
+           (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
 ;;
 (define (add-module-ccp4-gui)
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "CCP4")))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Make Link via Acedrg"
-	 (lambda ()
-	   (acedrg-link-generation-control-window))))))
+        (add-simple-coot-menu-menuitem
+         menu "Make Link via Acedrg"
+         (lambda ()
+           (acedrg-link-generation-control-window))))))
 
 (define (add-module-pdbe-gui)
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "PDBe")))
 
-	;; ---------------------------------------------------------------------
-	;;     Recent structures from the PDBe
-	;; ---------------------------------------------------------------------
-	;;
-	;; 20110921 too crashy at the moment (something to do with lots of threads?)
-	;; 
-	(add-simple-coot-menu-menuitem
-	 menu "PDBe recent structures..."
-	 pdbe-latest-releases-gui)
+        ;; ---------------------------------------------------------------------
+        ;;     Recent structures from the PDBe
+        ;; ---------------------------------------------------------------------
+        ;;
+        ;; 20110921 too crashy at the moment (something to do with lots of threads?)
+        ;;
+        (add-simple-coot-menu-menuitem
+         menu "PDBe recent structures..."
+         pdbe-latest-releases-gui)
 
-	(add-simple-coot-menu-menuitem
-	 menu "Get from PDBe..."
-	 (lambda () 
-	   (let ((mess
-		  (if (command-in-path? "refmac5")
-		      "Get PDBe accession code"
-		      (string-append
-		       "\n  WARNING:: refmac5 not in the path - SF calculation will fail  \n\n"
-		       "Get PDBe accession code"))))
-	     (generic-single-entry mess
-				   "" " Get it "
-				   (lambda (text)
-				     ;; fire off something that is controlled by a time-out -
-				     ;; doesn't return a useful value.
-				     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))))))
+        (add-simple-coot-menu-menuitem
+         menu "Get from PDBe..."
+         (lambda ()
+           (let ((mess
+                  (if (command-in-path? "refmac5")
+                      "Get PDBe accession code"
+                      (string-append
+                       "\n  WARNING:: refmac5 not in the path - SF calculation will fail  \n\n"
+                       "Get PDBe accession code"))))
+             (generic-single-entry mess
+                                   "" " Get it "
+                                   (lambda (text)
+                                     ;; fire off something that is controlled by a time-out -
+                                     ;; doesn't return a useful value.
+                                     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))))))
 
 
 ;; let the c++ part of coot know that this file was loaded:
 (set-found-coot-gui)
-	 
+
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:

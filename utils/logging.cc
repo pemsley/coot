@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <logging.hh>
+#include "logging.hh"
 
 void logging::log(const std::string &type, const std::string &s) {
 
@@ -27,3 +27,24 @@ logging::show() const {
    }
 
 }
+
+#if 0
+
+//friend
+logging2&
+logging2::operator<<(const float &li) {
+
+   std::cout << "--------  put the float here " << li << std::endl;
+   return this;
+   
+}
+
+
+logging2&
+logging2::operator<<(const std::string &li) {
+
+   std::cout << "--------  put the string here " << li << std::endl;
+   return this;
+}
+
+#endif

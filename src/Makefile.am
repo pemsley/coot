@@ -116,6 +116,16 @@ EXTRA_DIST = \
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = dynarama.glade
 
+cootdatadir = $(pkgdatadir)/shaders
+dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
+                     hud-text.shader  hud-bars.shader hud-labels.shader \
+                     map.shader model.shader screen.shader \
+		     moleculestotriangles.shader \
+                     instanced-objects.shader particles.shader lines.shader \
+                     draw-map-cap.shader lines-pulse.shader rama-balls.shader \
+		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader \
+		     model-as-mesh.shader ligand-view.shader
+
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
@@ -191,6 +201,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DPKGPYTHONDIR='"$(pkgpythondir)"' \
+	-DPYTHONDIR='"$(pythondir)"' \
 	-DDATADIR='"$(datadir)"'    \
         -DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
         -DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
@@ -285,6 +296,8 @@ coot_fix_nomenclature_errors_SOURCES = \
 coot_bin_SOURCES = \
 	main.cc 		 \
 	atom-pull.hh		 \
+	array-2d.hh		 \
+	boids.hh boids.cc	 \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
@@ -376,15 +389,16 @@ coot_bin_SOURCES = \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
 	callbacks.c callbacks.h	 \
-   canvas-fixes.hh          \
-   cfc.cc cfc.hh            \
-   cfc-widgets.hh           \
-   cfc-widgets-c-interface.h \
+        canvas-fixes.hh          \
+        cfc.cc cfc.hh            \
+        cfc-widgets.hh           \
+        cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
+	clippter-to-glm.hh       \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
@@ -413,6 +427,10 @@ coot_bin_SOURCES = \
 	coot_wrap_guile.cc       \
         curlew.h                 \
         curlew.hh                \
+	cylinder.hh		 \
+	cylinder.cc		 \
+	cylinder-with-rotation-translation.hh	 \
+	cylinder-with-rotation-translation.cc	 \
 	data-pair-remover.hh     \
         density-results-container-t.hh \
         dots-representation.hh   \
@@ -422,14 +440,17 @@ coot_bin_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	eyes.cc eyes.hh		 \
 	flev.hh			 \
 	flev.cc                  \
         framebuffer.cc           \
         framebuffer.hh           \
-	generic-display-object.hh\
-	generic-display-object.cc\
+	ft-character.hh \
+	old-generic-display-object.hh\
+	old-generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
+	generic-vertex.hh	 \
 	gensurf.hh               \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
@@ -441,9 +462,11 @@ coot_bin_SOURCES = \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
 	globularize.cc           \
+	glarea_tick_function.hh  \
 	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
+	graphics-info-draw.cc    \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
@@ -469,6 +492,8 @@ coot_bin_SOURCES = \
 	graphics-info-trackball.cc	\
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
+	graphics-ligand-mesh-molecule.cc \
+	graphics-ligand-mesh-molecule.hh \
 	gl-matrix.cc 		 \
 	gl-lights-info.hh	 \
 	graphics-info.h 	 \
@@ -480,17 +505,33 @@ coot_bin_SOURCES = \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
 	history_list.hh		 \
+	HUDMesh.cc               \
+	HUDMesh.hh               \
+	HUDTextureMesh.cc        \
+	HUDTextureMesh.hh        \
+	Instanced-Markup-Mesh.hh \
+	Instanced-Markup-Mesh.cc \
         idles.hh                 \
 	interface.h              \
 	key-bindings.cc		 \
 	key-bindings.hh		 \
         manipulation-modes.hh    \
+	LinesMesh.cc LinesMesh.hh \
+	LigandViewMesh.cc        \
+	LigandViewMesh.hh        \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh 	 \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
+	make-a-dodec.cc make-a-dodec.hh \
+	matrix-utils.hh          \
+	matrix-utils.cc          \
         map-statistics.hh        \
+	Mesh.cc Mesh.hh          \
+	Mesh-from-graphical-bonds.cc     \
+	meshed-generic-display-object.hh \
+	meshed-generic-display-object.cc \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
@@ -510,18 +551,26 @@ coot_bin_SOURCES = \
 	molecule-class-info-refine.cc   \
         molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
-	molecule-class-info-patterson.cc \
-	molecule-class-info-ncs.cc 	\
-	molecule-class-info-mol-tris.cc 	\
+	molecule-class-info-string.cc 	\
+	molecule-class-info-patterson.cc   \
+	molecule-class-info-ncs.cc         \
+	molecule-class-info-mol-tris.cc	   \
 	molecule-class-info-widget-work.cc \
-	molecule-class-info-geometry.cc \
+	molecule-class-info-geometry.cc    \
+	molecular-mesh-generator.cc \
+	molecular-mesh-generator-mol-tris.cc \
+	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
+	oct.cc oct.hh            \
+	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
         pick.hh pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
+	prideout-octasphere.hh   \
+	prideout-octasphere.cc   \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
@@ -529,6 +578,8 @@ coot_bin_SOURCES = \
 	python-classes.cc	 \
 	python-classes.hh	 \
 	python-3-interface.hh 	 \
+	Particle.cc Particle.hh  \
+	pulse-data.hh            \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
@@ -544,7 +595,10 @@ coot_bin_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
-        sound.cc \
+	screen-utils.cc		 \
+	screendump-tga.hh        \
+	screendump-tga.cc        \
+        sound.cc                 \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -553,17 +607,21 @@ coot_bin_SOURCES = \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
 	Shader.cc Shader.hh      \
+        simple-distance-object.hh \
 	startup-scripts.hh       \
 	support.c support.h      \
+	select-atom-info.hh      \
 	sound.hh                 \
 	startup-scripts.hh       \
+	stb_image.h stb_image.c  \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \
+	Texture.cc Texture.hh    \
+	TextureMesh.cc TextureMesh.hh \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
-	select-atom-info.hh      \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
@@ -589,13 +647,9 @@ coot_bin_SOURCES = \
 	new-centre.hh            \
         json.hpp
 
-if COOT_USE_PYTHON
-   EXTRA_DIST += coot_wrap_python_pre.cc
-endif
-if COOT_USE_PYTHON
-   dist_python_PYTHON = coot.py coot.pth
-endif
 
+EXTRA_DIST += coot_wrap_python_pre.cc
+dist_python_PYTHON = coot.py coot.pth
 
 # testcartesian_SOURCES = testcartesian.cc
 
@@ -641,6 +695,9 @@ coot_bin_LDFLAGS =
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
 #
+# the -lblas here is a bandaid - the GSL usage of BLAS needs to be
+# fixed in configure.
+#
 coot_bin_LDADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
@@ -657,7 +714,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
       $(EPOXY_LIBS)           \
 		$(GLUT_LIBS) -lGL	\
 		$(CANVAS_LIBS) 		\
-		$(GSL_LIBS)		\
+		$(GSL_LIBS) -lblas      \
 		$(MYSQL_LIBS)		\
 		$(CURL_LIBS)		\
 	  	$(RDKIT_LIBS)	        \

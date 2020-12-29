@@ -74,12 +74,9 @@ namespace coot {
       pdbx_chem_comp_descriptor_item(const std::string &type_in,
 				     const std::string &program_in,
 				     const std::string &program_version_in,
-				     const std::string &descriptor_in) {
-	 type = type_in;
-	 program = program_in;
-	 program_version = program_version_in;
-	 descriptor = descriptor_in;
-      }
+				     const std::string &descriptor_in) :
+         type(type_in), program(program_in), program_version(program_version_in),
+         descriptor(descriptor_in) { }
    };
    
    class pdbx_chem_comp_descriptor_container_t {
@@ -136,16 +133,18 @@ namespace coot {
 		       const std::string &group_in,
 		       int number_atoms_all_in,
 		       int number_atoms_nh_in,
-		       const std::string &description_level_in) {
+		       const std::string &description_level_in) :
+         comp_id(""), three_letter_code(three_letter_code_in), name(name_in), group(group_in),
+         pdb_formal_charge(0) {
 	 setup_internal(comp_id_in,
 			three_letter_code_in, name_in, group_in,
 			number_atoms_all_in, number_atoms_nh_in,
 			description_level_in);
       }
-      dict_chem_comp_t() {
+      dict_chem_comp_t() : pdb_formal_charge(0) {
  	 setup_internal("", "", "", "", 0, 0, "");
       }
-      dict_chem_comp_t(const dict_chem_comp_t &din) {
+      dict_chem_comp_t(const dict_chem_comp_t &din) : pdb_formal_charge(0) {
 	 setup_internal(din.comp_id, din.three_letter_code, din.name,
 			din.group, din.number_atoms_all, din.number_atoms_nh,
 			din.description_level);
@@ -196,28 +195,26 @@ namespace coot {
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       aromaticity_t aromaticity;
       // dict_bond_restraint_t() {};
-      dict_bond_restraint_t(std::string atom_id_1_in,
-			    std::string atom_id_2_in,
-			    std::string type,
+      dict_bond_restraint_t(const std::string &atom_id_1_in,
+			    const std::string &atom_id_2_in,
+			    const std::string &type,
 			    double dist_in,
 			    double dist_esd_in,
 			    aromaticity_t arom_in=UNASSIGNED) :
-      basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
+         basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type) {
 
 	 dist_ = dist_in;
 	 dist_esd_ = dist_esd_in;
-	 type_ = type;
 	 have_target_values = 1;
 	 aromaticity = arom_in;
       }
 
-      dict_bond_restraint_t(std::string atom_id_1_in,
-			    std::string atom_id_2_in,
-			    std::string type,
+      dict_bond_restraint_t(const std::string &atom_id_1_in,
+			    const std::string &atom_id_2_in,
+			    const std::string &type,
 			    aromaticity_t arom_in=UNASSIGNED) :
-	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
+	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type), dist_(0.0), dist_esd_(0.0) {
 	 have_target_values = 0;
-	 type_ = type;
 	 aromaticity = arom_in;
       }
       dict_bond_restraint_t() {} // boost::python needs this
@@ -260,13 +257,12 @@ namespace coot {
       double angle_esd_;
    public:
       // dict_angle_restraint_t() {};
-      dict_angle_restraint_t(std::string atom_id_1,
-			     std::string atom_id_2,
-			     std::string atom_id_3,
+      dict_angle_restraint_t(const std::string &atom_id_1,
+			     const std::string &atom_id_2,
+			     const std::string &atom_id_3,
 			     double angle,
 			     double angle_esd) :
-      basic_dict_restraint_t(atom_id_1, atom_id_2) {
-	 atom_id_3_ = atom_id_3;
+         basic_dict_restraint_t(atom_id_1, atom_id_2), atom_id_3_(atom_id_3) {
          atom_id_3_4c_ = atom_id_mmdb_expand(atom_id_3_);
 	 angle_ = angle;
 	 angle_esd_ = angle_esd;
@@ -312,19 +308,16 @@ namespace coot {
       int period;
    public:
 
-      dict_torsion_restraint_t(std::string id_in,
-			       std::string atom_id_1,
-			       std::string atom_id_2,
-			       std::string atom_id_3,
-			       std::string atom_id_4,
+      dict_torsion_restraint_t(const std::string &id_in,
+			       const std::string &atom_id_1,
+			       const std::string &atom_id_2,
+			       const std::string &atom_id_3,
+			       const std::string &atom_id_4,
 			       double angle,
 			       double angle_esd,
 			       int period_in) :
-      basic_dict_restraint_t(atom_id_1, atom_id_2)
+         basic_dict_restraint_t(atom_id_1, atom_id_2), id_(id_in), atom_id_3_(atom_id_3), atom_id_4_(atom_id_4)
       {
-	 id_ = id_in;
-	 atom_id_3_ = atom_id_3;
-	 atom_id_4_ = atom_id_4;
          atom_id_3_4c_ = atom_id_mmdb_expand(atom_id_3_);
          atom_id_4_4c_ = atom_id_mmdb_expand(atom_id_4_);
 	 angle_ = angle;
@@ -365,20 +358,18 @@ namespace coot {
    public:
       dict_plane_restraint_t() {};
       dict_plane_restraint_t(const std::string &plane_id_in,
-			     const std::vector<std::pair<std::string, double> > &atom_esds_ins) {
-	 plane_id = plane_id_in;
-	 atom_ids = atom_esds_ins;
-      } 
+			     const std::vector<std::pair<std::string, double> > &atom_esds_ins) :
+         atom_ids(atom_esds_ins),
+         plane_id(plane_id_in) { dist_esd_ = 0.02; }
       dict_plane_restraint_t(const std::string &plane_id_in,
 			     const std::string &atom_id_in,
-			     double dist_esd_in) {
-	 plane_id = plane_id_in;
+			     double dist_esd_in) :
+         plane_id(plane_id_in) {
 	 atom_ids.push_back(std::pair<std::string, float> (atom_id_in, dist_esd_in));
       };
       dict_plane_restraint_t(const std::string &plane_id_in,
 			     const std::vector<std::string> &plane_atom_ids,
-			     double dist_esd_in) {
-	 plane_id = plane_id_in;
+			     double dist_esd_in) : plane_id(plane_id_in) {
 
 	 atom_ids.resize(plane_atom_ids.size());
 	 for (unsigned int i=0; i<plane_atom_ids.size(); i++)
@@ -438,13 +429,12 @@ namespace coot {
 			      const std::string &atom_id_1_in,
 			      const std::string &atom_id_2_in,
 			      const std::string &atom_id_3_in,
-			      int volume_sign_in) {
-
-	 chiral_id = chiral_id_in;
-	 local_atom_id_centre = atom_id_centre_in;
-	 local_atom_id_1 = atom_id_1_in;
-	 local_atom_id_2 = atom_id_2_in;
-	 local_atom_id_3 = atom_id_3_in;
+			      int volume_sign_in) :
+         chiral_id(chiral_id_in), local_atom_id_centre(atom_id_centre_in),
+         local_atom_id_1(atom_id_1_in),
+         local_atom_id_2(atom_id_2_in),
+         local_atom_id_3(atom_id_3_in)
+      {
 	 volume_sign = volume_sign_in;
 	 target_volume_ = -999.9;  // unassigned
 	 volume_sigma_  = -999.9;
@@ -526,12 +516,12 @@ namespace coot {
       dict_improper_dihedral_restraint_t(const std::string &atom_id_1_in,
 			                 const std::string &atom_id_2_in,
 			                 const std::string &atom_id_3_in,
-			                 const std::string &atom_id_4_in) {
-	 local_atom_id_1 = atom_id_1_in;
-	 local_atom_id_2 = atom_id_2_in;
-	 local_atom_id_3 = atom_id_3_in;
-	 local_atom_id_4 = atom_id_4_in;
-	 sigma  = 0.005; // willl need fixing
+			                 const std::string &atom_id_4_in) :
+         local_atom_id_1(atom_id_1_in),
+         local_atom_id_2(atom_id_2_in),
+         local_atom_id_3(atom_id_3_in),
+         local_atom_id_4(atom_id_4_in) {
+	 sigma  = 0.005; // will need fixing
       }
       double sigma;
       std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
@@ -570,13 +560,12 @@ namespace coot {
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,
 		const std::string &type_energy_in,
-		std::pair<bool, float> partial_charge_in) {
-	 atom_id = atom_id_in;
-	 atom_id_4c = atom_id_4c_in;
-	 type_symbol = type_symbol_in;
-	 type_energy = type_energy_in;
-	 partial_charge = partial_charge_in;
+		std::pair<bool, float> partial_charge_in) :
+         atom_id(atom_id_in), atom_id_4c(atom_id_4c_in), type_symbol(type_symbol_in),
+         type_energy(type_energy_in), partial_charge(partial_charge_in)
+      {
 	 aromaticity = UNASSIGNED;
+         ordinal_id = -1;
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
@@ -597,12 +586,11 @@ namespace coot {
       std::string atom_forward;
       std::string connect_type;
       dict_chem_comp_tree_t(const std::string &atom_id_in, const std::string &atom_back_in,
-			    const std::string &atom_forward_in, const std::string &connect_type_in) {
-	 atom_id = atom_id_mmdb_expand(atom_id_in);
-	 atom_back = atom_id_mmdb_expand(atom_back_in);
-	 atom_forward = atom_id_mmdb_expand(atom_forward_in);
-	 connect_type = connect_type_in;
-      }
+			    const std::string &atom_forward_in, const std::string &connect_type_in) :
+	 atom_id(atom_id_mmdb_expand(atom_id_in)),
+	 atom_back(atom_id_mmdb_expand(atom_back_in)),
+	 atom_forward(atom_id_mmdb_expand(atom_forward_in)),
+	 connect_type(connect_type_in) {}
       dict_chem_comp_tree_t() {}
    };
 
@@ -624,7 +612,7 @@ namespace coot {
       class eraser {
       public:
 	 std::vector<std::string> baddies;
-	 eraser(const std::vector<std::string> &baddies_in) : baddies(baddies_in) {}
+	 explicit eraser(const std::vector<std::string> &baddies_in) : baddies(baddies_in) {}
 	 bool operator()(const dict_atom &at) const {
 	    return (std::find(baddies.begin(), baddies.end(), at.atom_id_4c) != baddies.end());
 	 }
@@ -715,7 +703,7 @@ namespace coot {
       void delete_atoms_from_restraints(const std::vector<std::string> &H_atoms_to_be_deleted);
 
    public:
-      dictionary_residue_restraints_t(std::string comp_id_in,
+      dictionary_residue_restraints_t(const std::string &comp_id_in,
 				      int read_number_in) {
 	 // a dictionary_residue_restraints_t no longer has a comp_id
 	 residue_info.comp_id = comp_id_in;
@@ -728,16 +716,18 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
-      dictionary_residue_restraints_t(bool constructor_for_srs_restraints) {
+      explicit dictionary_residue_restraints_t(bool constructor_for_srs_restraints) {
 	 filled_with_bond_order_data_only_flag = 1;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
+         if (constructor_for_srs_restraints) {
+         }
       }
       // fake a dictionary (bond and angle restraints) from the
       // coordinates in the residue.  Fake up some bond and angle
       // esds.
-      dictionary_residue_restraints_t(mmdb::Residue *residue_p);
-      dictionary_residue_restraints_t(mmdb::Manager *mol); // mol contains one residue in a hierarchy
+      explicit dictionary_residue_restraints_t(mmdb::Residue *residue_p);
+      explicit dictionary_residue_restraints_t(mmdb::Manager *mol); // mol contains one residue in a hierarchy
 
       std::string cif_file_name;
       void clear_dictionary_residue();
@@ -970,8 +960,7 @@ namespace coot {
 				   const std::string &atom_id_3_in,
 				   mmdb::realtype value_angle_in,
 				   mmdb::realtype value_angle_esd_in) :
-	 basic_dict_restraint_t(atom_id_1, atom_id_2) {
-	 atom_id_3_ = atom_id_3_in;
+	 basic_dict_restraint_t(atom_id_1, atom_id_2), atom_id_3_(atom_id_3_in) {
 	 atom_1_comp_id = atom_1_comp_id_in;
 	 atom_2_comp_id = atom_2_comp_id_in;
 	 atom_3_comp_id = atom_3_comp_id_in;
@@ -1005,11 +994,11 @@ namespace coot {
 				     double value_angle_in,
 				     double value_angle_esd,
 				     int period,
-				     const std::string &id) :
-	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in)  {
+				     const std::string &id_in) :
+	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in),
+         atom_id_3_(atom_id_3_in),
+         atom_id_4_(atom_id_4_in), id_(id_in) {
 
-	 atom_id_3_ = atom_id_3_in;
-	 atom_id_4_ = atom_id_4_in;
 	 atom_1_comp_id = atom_1_comp_id_in;
 	 atom_2_comp_id = atom_2_comp_id_in;
 	 atom_3_comp_id = atom_3_comp_id_in;
@@ -1017,7 +1006,6 @@ namespace coot {
 	 angle_ = value_angle_in;
 	 angle_esd_ = value_angle_esd;
 	 period_ = period;
-	 id_ = id;
       }
       int atom_1_comp_id, atom_2_comp_id, atom_3_comp_id, atom_4_comp_id;
       double angle() const { return angle_; }
@@ -1051,17 +1039,17 @@ namespace coot {
 				   const std::string &atom_id_2_in,
 				   const std::string &atom_id_3_in,
 				   int volume_sign_in
-				   ) : basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
-	 atom_c_comp_id = atom_c_comp_id_in;
-	 atom_1_comp_id = atom_1_comp_id_in;
-	 atom_2_comp_id = atom_2_comp_id_in;
-	 atom_3_comp_id = atom_3_comp_id_in;
-	 atom_id_c_ = atom_id_c_in;
-	 atom_id_3_ = atom_id_3_in;
+				   ) : basic_dict_restraint_t(atom_id_1_in, atom_id_2_in),
+                                       atom_1_comp_id(atom_1_comp_id_in),
+                                       atom_2_comp_id(atom_2_comp_id_in),
+                                       atom_3_comp_id(atom_3_comp_id_in),
+                                       atom_c_comp_id(atom_c_comp_id_in),
+                                       atom_id_c_(atom_id_c_in),
+                                       atom_id_3_(atom_id_3_in),
+                                       chiral_id(chiral_id_in) {
 	 volume_sign = volume_sign_in;
 	 target_volume_ = -999.9;  // unassigned
 	 target_sigma_  = -999.9;
-	 chiral_id = chiral_id_in;
       }
       std::string Chiral_Id() const { return chiral_id; }
       double assign_chiral_volume_target(const std::vector <dict_bond_restraint_t> &bonds_1,
@@ -1084,8 +1072,7 @@ namespace coot {
       dict_link_plane_restraint_t(const std::string &atom_id,
 				  const std::string &plane_id_in,
 				  int atom_comp_id,
-				  double dist_esd) {
-	 plane_id = plane_id_in;
+				  double dist_esd) : plane_id(plane_id_in) {
 	 dist_esd_ = dist_esd;
 	 atom_ids.push_back(atom_id);
 	 atom_comp_ids.push_back(atom_comp_id);
@@ -1103,9 +1090,8 @@ namespace coot {
    // 
    class dictionary_residue_link_restraints_t {
    public:
-      dictionary_residue_link_restraints_t(const std::string link_id_in) {
-	 link_id = link_id_in;}
-      dictionary_residue_link_restraints_t() { link_id = ""; /* things unset */ }
+      explicit dictionary_residue_link_restraints_t(const std::string &link_id_in) : link_id(link_id_in) {}
+      dictionary_residue_link_restraints_t() : link_id("") {}
       std::string link_id;
       std::vector <dict_link_bond_restraint_t>    link_bond_restraint;
       std::vector <dict_link_angle_restraint_t>   link_angle_restraint;
@@ -1121,7 +1107,7 @@ namespace coot {
       std::vector<std::string> names;
       std::vector<std::string> three_letter_codes;
    public:
-      simple_cif_reader(const std::string &cif_dictionary_file_name);
+      explicit simple_cif_reader(const std::string &cif_dictionary_file_name);
       bool has_restraints_for(const std::string &res_type);
    };
 
@@ -1143,17 +1129,18 @@ namespace coot {
 		const std::string &chem_link_comp_id_2_in,
 		const std::string &chem_link_mod_id_2_in,
 		const std::string &chem_link_group_comp_2_in,
-		const std::string &chem_link_name_in) {
-
-         id = id_in;
-         chem_link_comp_id_1 = chem_link_comp_id_1_in;
-         chem_link_mod_id_1 = chem_link_mod_id_1_in;
-         chem_link_group_comp_1 = chem_link_group_comp_1_in;
-         chem_link_comp_id_2 = chem_link_comp_id_2_in;
-         chem_link_mod_id_2 = chem_link_mod_id_2_in;
-         chem_link_group_comp_2 = chem_link_group_comp_2_in;
-         chem_link_name = chem_link_name_in;
-         hash_code = make_hash_code(chem_link_comp_id_1_in, chem_link_comp_id_2, chem_link_group_comp_1_in, chem_link_group_comp_2_in);
+		const std::string &chem_link_name_in) :
+         id(id_in),
+         chem_link_comp_id_1(chem_link_comp_id_1_in),
+         chem_link_mod_id_1(chem_link_mod_id_1_in),
+         chem_link_group_comp_1(chem_link_group_comp_1_in),
+         chem_link_comp_id_2(chem_link_comp_id_2_in),
+         chem_link_mod_id_2(chem_link_mod_id_2_in),
+         chem_link_group_comp_2(chem_link_group_comp_2_in),
+         chem_link_name(chem_link_name_in)
+      {
+         hash_code = make_hash_code(chem_link_comp_id_1_in, chem_link_comp_id_2,
+                                    chem_link_group_comp_1_in, chem_link_group_comp_2_in);
       }
       friend std::ostream& operator<<(std::ostream &s, chem_link lnk);
       static unsigned int make_hash_code(const std::string &comp_id_1, const std::string &comp_id_2, const std::string &group_1, const std::string &group_2);
@@ -1266,13 +1253,11 @@ namespace coot {
 	 // the constructor, can be information that needs to be used
 	 // internally in the operator() function.  This is run once
 	 // 
-	 restraint_eraser(const std::vector<std::string> &names_in) {
-	    names = names_in;
-	 }
+	 explicit restraint_eraser(const std::vector<std::string> &names_in) : names(names_in) {}
 
-	 restraint_eraser(const std::set<std::string> &names_in) {
+	 explicit restraint_eraser(const std::set<std::string> &names_in) {
 	    std::set<std::string>::const_iterator it;
-	    for (it=names_in.begin(); it != names_in.end(); it++)
+	    for (it=names_in.begin(); it != names_in.end(); ++it)
 	       names.push_back(*it);
 	 }
 
@@ -1502,11 +1487,10 @@ namespace coot {
       public:
 	 residue_name_synonym(std::string &comp_id_in,
 			      std::string &comp_alternative_id_in,
-			      std::string &mod_id_in) {
-	    comp_id = comp_id_in;
-	    comp_alternative_id = comp_alternative_id_in;
-	    mod_id = mod_id_in;
-	 }
+			      std::string &mod_id_in) :
+            comp_id(comp_id_in),
+            comp_alternative_id(comp_alternative_id_in),
+            mod_id(mod_id_in) {}
 	 std::string comp_id;
 	 std::string comp_alternative_id;
 	 std::string mod_id;
@@ -1732,7 +1716,7 @@ namespace coot {
       get_monomer_torsions_from_geometry(const std::string &monomer_type,
 					 int imol_enc);
       std::vector <dict_chiral_restraint_t>
-      get_monomer_chiral_volumes(const std::string monomer_type,
+      get_monomer_chiral_volumes(const std::string &monomer_type,
 				 int imol_enc) const;
 
       // as above, except filter out of the returned vectors torsions
@@ -1852,7 +1836,7 @@ namespace coot {
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.
       //
-      std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+      std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
       atoms_match_dictionary(int imol, const std::vector<mmdb::Residue *> &residues,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check) const;
@@ -2029,7 +2013,7 @@ namespace coot {
 
       // This is made public so that we can decide if we want to set IMOL_ENC_ANY for this cif file
       // 
-      bool is_non_auto_load_ligand(const std::string resname) const;
+      bool is_non_auto_load_ligand(const std::string &resname) const;
 
       // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
       // Used in chem mods, when we don't know the comp_id until residue modification time.

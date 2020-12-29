@@ -228,25 +228,36 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
 //    std::cout << "INFO:: there are " << dc.geometry_distortion.size() 
 // 	     << " distortions in container " << chain_number << std::endl;
 
-   if (chain_number < int(chain_index.size()))
+   if (chain_number < static_cast<int>(chain_index.size()))
       chain_index[chain_number] = dc.chain_id;
 
+   // dc can contain "unset" values for max_resno and min_resno, so check them here
+   //
    int max_resno = dc.max_resno;
    int min_resno = dc.min_resno;
-   int nres = max_resno - min_resno +1;
-   offsets[chain_number] = min_resno -1;
-   if (0)
-       std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
-       << offsets[chain_number] << std::endl;
+   if (max_resno >= 0) {
+      int nres = max_resno - min_resno + 1;
+      offsets[chain_number] = min_resno - 1;
+      if (false) // debug
+         std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
+                   << offsets[chain_number] << std::endl;
 
-   draw_chain_axis(nres, chain_number);
-   draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
+      draw_chain_axis(nres, chain_number);
+      draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
 
-   // std::cout << "DEBUG:: blocks.size(): " << blocks.size() << std::endl;
-   // std::cout << "DEBUG:: resizing blocks[" << chain_number << "] to " << nres << std::endl;
-   blocks[chain_number].resize(nres + 1); // needs to index max_resno
-   render_geometry_distortion_blocks_internal_linear(dc, min_resno, max_resno);
-   label_chain(dc.chain_id, chain_number); // labels last so they are on top.
+      if (false) {
+         std::cout << "DEBUG:: blocks.size(): " << blocks.size() << std::endl;
+         std::cout << "DEBUG:: resizing blocks[" << chain_number << "] to " << nres << std::endl;
+      }
+      if (chain_number < static_cast<int>(blocks.size())) {
+         if (nres > 0) {
+            blocks[chain_number].resize(nres + 1); // needs to index max_resno
+            render_geometry_distortion_blocks_internal_linear(dc, min_resno, max_resno);
+            label_chain(dc.chain_id, chain_number); // labels last so they are on top.
+         }
+      }
+   }
+
 
 }
 
@@ -260,6 +271,9 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    int idx_1, idx_2, idx_3, idx_4;
    mmdb::realtype occ_1, occ_2, occ_3;
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
+
+      std::cout << "now examining restraint number " << i << " type "
+                << dc.geometry_distortion[i].restraint.restraint_type << std::endl;
       
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::BOND_RESTRAINT) {
 	 idx_1 = dc.geometry_distortion[i].restraint.atom_index_1;
@@ -700,7 +714,7 @@ coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_inf
    // represented multiple times, we don't want to keep deleting the
    // same residue, so let's make a vector of deleted residues.
    std::vector<coot::residue_spec_t> deleted_block_res_specs;
-   
+
    int chain_number = chain_id_to_chain_index(dc.chain_id);
    for (unsigned int iblock=0; iblock<dc.geometry_distortion.size(); iblock++) {
       coot::residue_spec_t rs(dc.geometry_distortion[iblock].residue_spec);
@@ -917,8 +931,31 @@ coot::geometry_graphs::delete_block(const std::string &chain_id, int resno) {
    }
 }
 
+// make this a static of coot::geometry_graphs
+//
+// static
 void
-coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) { 
+coot::geometry_graphs::density_fit_rescale_button_callback(GtkButton *button, gpointer user_data) {
+
+   coot::geometry_graphs *graph = static_cast<coot::geometry_graphs *>(user_data);
+   GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "rescale_entry"));
+   const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   if (txt) {
+      std::string t(txt);
+      float scale = coot::util::string_to_float(t);
+      graphics_info_t::residue_density_fit_scale_factor = scale;
+      graphics_info_t g;
+      std::vector<coot::geometry_graph_block_info_generic> block_set =
+         g.density_fit_from_mol(g.molecules[graph->get_imol()].atom_sel,
+                                graph->get_imol(),
+                                g.Imol_Refinement_Map());
+      graph->update_residue_blocks(block_set);
+   }
+};
+
+
+void
+coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
 #ifndef HAVE_GNOME_CANVAS
    // Fixes: could not find argument "points" in the `GnomeCanvasLine' class ancestry
@@ -973,7 +1010,29 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    gtk_widget_ref(GTK_WIDGET(canvas));
    gtk_object_set_data_full(GTK_OBJECT(dialog), "geometry_graph_canvas", canvas,
 			    (GtkDestroyNotify) gtk_widget_unref);
-   gtk_object_set_user_data(GTK_OBJECT(canvas), (char *) this); 
+   gtk_object_set_user_data(GTK_OBJECT(canvas), (char *) this);
+
+   if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
+      GtkWidget *dialog_vbox = lookup_widget(dialog, "geometry_graphs_dialog_vbox");
+      if (dialog_vbox) {
+
+         GtkWidget *vbox = gtk_hbox_new(FALSE, 0);
+         GtkWidget *button = gtk_button_new_with_label("Rescale");
+         GtkWidget *entry = gtk_entry_new();
+         gtk_entry_set_text(GTK_ENTRY(entry), "1.0");
+         gtk_box_pack_start (GTK_BOX (vbox), entry,  FALSE, FALSE, 3);
+         gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 3);
+         gtk_widget_show(entry);
+         gtk_widget_show(button);
+         gtk_widget_show(vbox);
+         gtk_widget_set_size_request(entry, 90, -1);
+         gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, FALSE, FALSE, 3);
+         g_object_set_data(G_OBJECT(button), "rescale_entry", entry);
+         g_signal_connect(G_OBJECT(button), "clicked",
+                          G_CALLBACK(density_fit_rescale_button_callback),
+                          this);
+      }
+   }
 
 }
 

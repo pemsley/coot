@@ -5,17 +5,18 @@
 
 // #include <GL/glu.h> OpenGLv1
 
-#include "generic-display-object.hh"
+#include "utils/coot-utils.hh"
+#include "old-generic-display-object.hh"
 #include "graphics-info.h"
 #include "c-interface-widgets.hh"
 
 // ---------------------- generic objects -----------------------------
 
 void
-coot::generic_display_object_t::add_line(const coot::colour_holder &colour_in,
-					 const std::string &colour_name,
-					 const int &width_in, 
-					 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) {
+coot::old_generic_display_object_t::add_line(const coot::colour_holder &colour_in,
+                                             const std::string &colour_name,
+                                             const int &width_in, 
+                                             const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) {
 
    int lines_set_index = -1; // magic unset value
    
@@ -29,20 +30,21 @@ coot::generic_display_object_t::add_line(const coot::colour_holder &colour_in,
    }
 
    if (lines_set_index == -1) {
-      generic_display_line_set_t t(colour_in, colour_name, width_in);
+      old_generic_display_line_set_t t(colour_in, colour_name, width_in);
       lines_set.push_back(t);
       lines_set_index = lines_set.size() -1;
    }
 
-   coot::generic_display_line_t line(coords_in);
+   old_generic_display_line_t line(coords_in);
    lines_set[lines_set_index].add_line(line);
-   
+
 }
 
-void coot::generic_display_object_t::add_point(const coot::colour_holder &colour_in,
-					       const std::string &colour_name,
-					       const int &size_in, 
-					       const clipper::Coord_orth &coords_in) {
+
+void coot::old_generic_display_object_t::add_point(const coot::colour_holder &colour_in,
+                                                   const std::string &colour_name,
+                                                   const int &size_in, 
+                                                   const clipper::Coord_orth &coords_in) {
 
    int points_set_index = -1; // magic unset number
    for (unsigned int ips=0; ips<points_set.size(); ips++) {
@@ -54,7 +56,7 @@ void coot::generic_display_object_t::add_point(const coot::colour_holder &colour
       }
    }
    if (points_set_index == -1) {
-      coot::generic_display_point_set_t point_set(colour_in, colour_name, size_in);
+      coot::old_generic_display_point_set_t point_set(colour_in, colour_name, size_in);
       point_set.add_point(coords_in);
       points_set.push_back(point_set);
    } else {
@@ -65,7 +67,7 @@ void coot::generic_display_object_t::add_point(const coot::colour_holder &colour
 }
 
 void
-coot::generic_display_object_t::add_dodecahedron(const colour_holder &colour_in,
+coot::old_generic_display_object_t::add_dodecahedron(const colour_holder &colour_in,
 						 const std::string &colour_name,
 						 double radius,
 						 const clipper::Coord_orth &pos) {
@@ -77,7 +79,7 @@ coot::generic_display_object_t::add_dodecahedron(const colour_holder &colour_in,
 }
 
 void
-coot::generic_display_object_t::add_pentakis_dodecahedron(const colour_holder &colour_in,
+coot::old_generic_display_object_t::add_pentakis_dodecahedron(const colour_holder &colour_in,
 							  const std::string &colour_name,
 							  double stellation_factor,
 							  double radius,
@@ -95,10 +97,39 @@ coot::generic_display_object_t::add_pentakis_dodecahedron(const colour_holder &c
 void
 graphics_info_t::draw_generic_objects() {
    graphics_info_t g;
-   if (! g.display_generic_objects_as_solid_flag) 
-      g.draw_generic_objects_simple();
-   else 
-      g.draw_generic_objects_solid(); // gluCylinders and gluDisks
+   if (! generic_display_objects.empty()) {
+
+      bool draw_meshes = true;
+      bool draw_mesh_normals = false;
+
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      Shader &shader = shader_for_moleculestotriangles;
+
+      glDisable(GL_BLEND);
+
+      bool do_depth_fog = true;
+      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+         meshed_generic_display_object &obj = generic_display_objects.at(i);
+	 if (obj.mesh.draw_this_mesh) {
+            bool draw_it = true;
+            if (! obj.is_intermediate_atoms_object()) {
+               int imol_for_mesh = obj.get_imol();
+               if (is_valid_model_molecule(imol_for_mesh))
+                  if (! molecules[imol_for_mesh].draw_it)
+                     draw_it = false;
+               if (is_valid_map_molecule(imol_for_mesh))
+                  if (! molecules[imol_for_mesh].draw_it_for_map)
+                     draw_it = false;
+            }
+            if (draw_it)
+               obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
+                             bg_col, do_depth_fog);
+         }
+      }
+   }
 }
 
 
@@ -111,25 +142,27 @@ graphics_info_t::draw_generic_objects_simple() {
    // << " generic objects" << std::endl;
 
    unsigned int n_points = 0;
-   for (unsigned int i=0; i<generic_objects_p->size(); i++) {
+   for (unsigned int i=0; i<generic_display_objects.size(); i++) {
 
-      if ((*generic_objects_p)[i].is_displayed_flag) {
+      if (generic_display_objects[i].mesh.draw_this_mesh) {
 
 	 // if this is attached to a molecule that is not displayed, skip it.
-	 if (generic_objects_p->at(i).is_valid_imol()) { // i.e. is not UNDEFINED
-	    int imol = generic_objects_p->at(i).get_imol();
+	 if (generic_display_objects.at(i).is_valid_imol()) { // i.e. is not UNDEFINED
+	    int imol = generic_display_objects.at(i).get_imol();
 	    if (is_valid_model_molecule(imol))
 	       if (! graphics_info_t::molecules[imol].is_displayed_p()) {
 		  continue;
 	       }
 	 } else {
-	    if (generic_objects_p->at(i).is_intermediate_atoms_object()) {
+	    if (generic_display_objects.at(i).is_intermediate_atoms_object()) {
 	       if (! moving_atoms_asc)
 		  continue;
 	       if (! moving_atoms_asc->mol)
 		  continue;
 	    }
 	 }
+
+#if 0 // it doesn't work like this any more
 
 	 // Lines
 	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
@@ -171,17 +204,32 @@ graphics_info_t::draw_generic_objects_simple() {
 	 for (unsigned int idl=0; idl<(*generic_objects_p)[i].GL_display_list_handles.size(); idl++) {
              glCallList((*generic_objects_p)[i].GL_display_list_handles[idl]);
          }
+#endif // old drawing mechanism
+
       }
    }
    // VRCoot info
    // std::cout << "drew " << n_points << " points" << std::endl; -> ~2000
 }
 
-// static
 void
 graphics_info_t::draw_generic_objects_solid() {
 
+   if (! generic_display_objects.empty()) {
+      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+         const meshed_generic_display_object &obj = generic_display_objects.at(i);
+	 if (obj.mesh.draw_this_mesh) {
+            // std::cout << "draw_generic_objects_solid() " << i << std::endl;
+         }
+      }
+   }
+}
+
 #if 0
+// static
+void
+graphics_info_t::draw_generic_objects_solid_old() {
+
    graphics_info_t g;
    double radius = 0.02;
 
@@ -266,7 +314,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
 	       for (unsigned int ipoint=0; ipoint<npoints; ipoint++) {
 
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 		  GLfloat  mat_specular[]  = {obj.points_set[ips].colour.red,
 					      obj.points_set[ips].colour.green,
 					      obj.points_set[ips].colour.blue,
@@ -302,7 +350,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       for (unsigned int isphere=0; isphere<(*generic_objects_p)[i].spheres.size(); isphere++) { 
 
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 		  GLfloat  mat_specular[]  = {obj.spheres[isphere].col.col[0],
 					      obj.spheres[isphere].col.col[1],
 					      obj.spheres[isphere].col.col[2], 
@@ -333,7 +381,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       glEnable (GL_BLEND);
 	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       for (unsigned int iarrow=0; iarrow<(*generic_objects_p)[i].arrows.size(); iarrow++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 		  GLfloat  mat_specular[]  = {obj.arrows[iarrow].col.col[0],
 					      obj.arrows[iarrow].col.col[1],
 					      obj.arrows[iarrow].col.col[2], 
@@ -354,7 +402,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       glEnable (GL_BLEND);
 	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       for (unsigned int itor=0; itor<(*generic_objects_p)[i].tori.size(); itor++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 		  GLfloat  mat_diffuse[]  = {obj.tori[itor].col.col[0],
 					     obj.tori[itor].col.col[1],
 					     obj.tori[itor].col.col[2], 
@@ -378,7 +426,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	    if ((*generic_objects_p)[i].arcs.size()) {
 	    
 	       for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 
 		  // glEnable(GL_COLOR_MATERIAL);
 		  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -416,7 +464,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       glEnable (GL_BLEND);
 	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       for (unsigned int idodec=0; idodec<(*generic_objects_p)[i].dodecs.size(); idodec++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 		  GLfloat  mat_diffuse[]  = {obj.dodecs[idodec].col.red,
 					     obj.dodecs[idodec].col.green,
 					     obj.dodecs[idodec].col.blue, 
@@ -439,7 +487,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       glEnable (GL_BLEND);
 	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       for (unsigned int idodec=0; idodec<(*generic_objects_p)[i].pentakis_dodecs.size(); idodec++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  const coot::old_generic_display_object_t &obj = (*generic_objects_p)[i];
 		  GLfloat  mat_diffuse[]  = {obj.pentakis_dodecs[idodec].col.red,
 					     obj.pentakis_dodecs[idodec].col.green,
 					     obj.pentakis_dodecs[idodec].col.blue, 
@@ -458,8 +506,8 @@ graphics_info_t::draw_generic_objects_solid() {
       }
       glDisable(GL_LIGHTING);
    }
-#endif
 }
+#endif // draw_generic_objects_solid_old
 
 
 
@@ -467,7 +515,7 @@ graphics_info_t::draw_generic_objects_solid() {
 int number_of_generic_objects() {
 
    graphics_info_t g;
-   return g.generic_objects_p->size();
+   return g.generic_display_objects.size();
 }
 
 std::pair<short int, std::string>

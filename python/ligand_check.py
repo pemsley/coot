@@ -27,10 +27,10 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
         ligand_spec = [chain_id, res_no, ins_code]
         neighbs = residues_near_residue(imol, ligand_spec, 4)
 
-        rn = residue_name(imol, chain_id, res_no, ins_code)
-        n_ligand_atoms = het_group_n_atoms(rn)
+        rn = coot.residue_name(imol, chain_id, res_no, ins_code)
+        n_ligand_atoms = coot.het_group_n_atoms(rn)
 
-        if (not isNumber(n_ligand_atoms)):
+        if (not coot_utils.isNumber(n_ligand_atoms)):
             print("BL ERROR:: failed liagnd atoms not a number.")
             return False
         else:
@@ -39,10 +39,10 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             with_ligand_pdb_file_name = os.path.join(refmac_dir, \
                                                      stub_name + "-with-ligand.pdb")
 
-            make_directory_maybe(refmac_dir)
-            make_directory_maybe("coot-refmac") # XYZOUT goes here
-            write_pdb_file(imol, with_ligand_pdb_file_name)
-            r = refmac_calc_sfs_make_mtz_with_columns(with_ligand_pdb_file_name,
+            coot.make_directory_maybe(refmac_dir)
+            coot.make_directory_maybe("coot-refmac") # XYZOUT goes here
+            coot.write_pdb_file(imol, with_ligand_pdb_file_name)
+            r = get_recent_pdbe.refmac_calc_sfs_make_mtz_with_columns(with_ligand_pdb_file_name,
                                                       refmac_input_mtz_file_name,
                                                       refmac_out_sfs_file_name,
                                                       fobs_col, sig_fobs_col, rfree_col)
@@ -74,13 +74,13 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             return False
         else:
             # happy path
-            imol_map = make_and_draw_map(refmac_out_sfs_file_name,
+            imol_map = coot.make_and_draw_map(refmac_out_sfs_file_name,
                                          "FWT", "PHWT", "", 0, 0)
             neighbs = residues_near_residue(imol, ligand_spec, 4)
 
-            c = map_to_model_correlation(imol, [ligand_spec],
+            c = coot.map_to_model_correlation(imol, [ligand_spec],
                                          neighbs, 0, imol_map)
-            close_molecule(imol_map)
+            coot.close_molecule(imol_map)
             return c
 
     # return False or a list of stats.
@@ -99,11 +99,11 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             return False
         else:
             # happy path
-            imol_map = make_and_draw_map(refmac_out_sfs_file_name,
+            imol_map = coot.make_and_draw_map(refmac_out_sfs_file_name,
                                          "DELFWT", "PHDELWT", "", 0, 1)
             # now do some stats on the map at the ligand site
 
-            c = map_to_model_correlation_stats_py(imol, [ligand_spec],
+            c = coot.map_to_model_correlation_stats_py(imol, [ligand_spec],
                                                   neighbs, 10, imol_map)
             print("BL INFO:: residue %s density statistics %s!" \
                   %(ligand_spec, c))
@@ -146,8 +146,8 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
     #
     def get_bump_score():
         ligand_spec = [chain_id, res_no, ins_code]
-        cs = contact_score_ligand(imol, ligand_spec)
-        graphics_draw()
+        cs = contact_score_isolated_ligand.contact_score_ligand(imol, ligand_spec)
+        coot.graphics_draw()
         return cs
 
     # return a list of [median_ratio, median_ligand, mediand_-env, ks_test_result]
@@ -161,10 +161,10 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
 
         def filter_out_waters(imol, env_residues):
             def is_not_water(residue_item):
-                rn = residue_name(imol,
-                                  residue_spec_to_chain_id(residue_item),
-                                  residue_spec_to_res_no(residue_item),
-                                  residue_spec_to_ins_code(residue_item))
+                rn = coot.residue_name(imol,
+                                  res_spec_utils.residue_spec_to_chain_id(residue_item),
+                                  res_spec_utils.residue_spec_to_res_no(residue_item),
+                                  coot_utils.residue_spec_to_ins_code(residue_item))
                 return (rn != "HOH" and rn != "WAT")
             return [res_item for res_item in env_residues if is_not_water(res_item)]
 
@@ -185,15 +185,15 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
         #
         def ligand_environment_temperature_factors(imol, ligand_spec, radius):
             atoms = residue_info(imol,
-                                 residue_spec_to_chain_id(ligand_spec),
-                                 residue_spec_to_res_no(ligand_spec),
-                                 residue_spec_to_ins_code(ligand_spec))
+                                 res_spec_utils.residue_spec_to_chain_id(ligand_spec),
+                                 res_spec_utils.residue_spec_to_res_no(ligand_spec),
+                                 coot_utils.residue_spec_to_ins_code(ligand_spec))
             env_residues = residues_near_residue(imol, ligand_spec, radius)
             non_water_env_residues = filter_out_waters(imol, env_residues)
             env_residues = [residue_info(imol,
-                                                             residue_spec_to_chain_id(res_spec),
-                                                             residue_spec_to_res_no(res_spec),
-                                                             residue_spec_to_ins_code(res_spec)) for res_spec in non_water_env_residues]
+                                                             res_spec_utils.residue_spec_to_chain_id(res_spec),
+                                                             res_spec_utils.residue_spec_to_res_no(res_spec),
+                                                             coot_utils.residue_spec_to_ins_code(res_spec)) for res_spec in non_water_env_residues]
             # this is a list of residue info not atoms, so flatten
             env_atoms = []
             list(map(env_atoms.extend, env_residues))
@@ -236,7 +236,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
     # add error checking to this
     #
     cor = get_correlation(stub_name)
-    if (isNumber(cor)):
+    if (coot_utils.isNumber(cor)):
         dms = get_ligand_difference_map_stats(stub_name)
         if (not isinstance(dms, list)):
             return False # error

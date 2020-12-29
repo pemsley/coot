@@ -268,6 +268,12 @@ PyObject *amplitude_vs_resolution_py(int mol_map);
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
+//! \brief Flip the hand of the map
+//!
+//! in case it was accidentally generated on the wrong one.
+//! @return the molecule number of the flipped map.
+int flip_hand(int imol_map);
+
 //! \brief Go to the centre of the molecule - for Cryo-EM Molecules
 //!
 //!        and recontour at a sensible value.
@@ -303,8 +309,32 @@ PyObject *map_colour_components_py(int imol);
 void
 colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
 
+#ifdef USE_PYTHON
+//! \brief  the colour_table should be a list of colours
+//!
+//! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
+//! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
+//!
 void
-colour_map_by_other_map_turn_off(int imol_map);
+colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
+                           PyObject *colour_table_list);
+
+PyObject *export_molecule_as_x3d(int imol);
+
+#endif
+
+bool export_molecule_as_obj(int imol, const std::string &file_name);
+
+//! \brief  turn of colour map by other map
+void colour_map_by_other_map_turn_off(int imol_map);
+
+//! \brief Add map caps
+void add_density_map_cap();
+
+//! \brief colour meshes (e.g. Ribbon diagrams) by map
+//!
+//! scale might be 2 and offset 1 (for example)
+void recolour_mesh_by_map(int imol_model, int imol_map, float scale, float offset);
 
 
 //! \name Multi-Residue Torsion
@@ -326,6 +356,10 @@ void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t>
 PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, int n_trials);
 #endif // PYTHON
 //! \}
+
+
+// Where should this go?
+void import_bild(const std::string &file_name);
 
 
 /*  ------------------------------------------------------------------------ */
@@ -607,6 +641,7 @@ PyObject *get_residue_by_type_py(int, const std::string &residue_type);
 SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 			 const char *ins_code, const char *atname,
 			 const char *altconf);
+SCM molecule_to_pdb_string_scm(int imol);
 #endif // USE_GUILE
 
 /*! \brief return the rename from a residue serial number
@@ -714,7 +749,7 @@ SCM residues_near_residue(int imol, SCM residue_in_scm, float radius);
 //!
 SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 
-//! \brief resdiues near residue
+//! \brief residues near residue
 //!
 //! @return residues within radius of pos (x,y,z) position
 //!
@@ -722,6 +757,10 @@ SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 //! pos is a list of 3 numbers.  (get imol from active-atom)
 //!
 SCM residues_near_position_scm(int imol, SCM pos, float radius);
+
+//! \brief label the closest atoms in the residues that neighbour residue_spec
+//!
+void label_closest_atoms_in_neighbour_residues_scm(int imol, SCM residue_spec_scm, float radius);
 
 #endif	/* USE_GUILE */
 
@@ -743,6 +782,12 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 			      const char *ins_code, const char *atname,
 			      const char *altconf);
+
+//! \brief
+//!
+//! Return the molecule as a PDB string
+PyObject *molecule_to_pdb_string_py(int imol);
+
 //! \brief
 //! Return a list of atom info for each atom in the specified residue:
 //
@@ -842,6 +887,10 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
 //! closer than radius Angstroems to the given position.
 //!
 PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
+
+//! \brief label the closest atoms in the residues that neighbour residue_spec
+//!
+void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *residue_spec_py, float radius);
 
 //! \brief return a Python object for the bonds
 //
@@ -1286,14 +1335,86 @@ void orient_view(int imol,
 		 const coot::residue_spec_t &central_residue_spec, // ligand typically
 		 const coot::residue_spec_t &neighbour_residue_spec);
 
-
 /*  \brief return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names). */
 std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type);
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  Mew Screendump                                          */
+/*  ----------------------------------------------------------------------- */
+void screendump_tga(const std::string &file_name);
+void set_framebuffer_scale_factor(unsigned int sf);
 
+/*  ----------------------------------------------------------------------- */
+/*                  Mew Graphics Control                                    */
+/*  ----------------------------------------------------------------------- */
+
+//! \brief set use perspective mode
+void set_use_perspective_projection(short int state);
+
+//! \brief query if perspective mode is being used
+int use_perspective_projection_state();
+
+//! \brief set use ambient occlusion
+void set_use_ambient_occlusion(short int state);
+//! \brief query use ambient occlusion
+int use_ambient_occlusion_state();
+
+//! \brief set use depth blur
+void set_use_depth_blur(short int state);
+//! \brief query use depth blur
+int use_depth_blur_state();
+
+//! \brief set use fog
+void set_use_fog(short int state);
+
+//! \brief query use fog
+int use_fog_state();
+
+//! \brief set use ourline
+void set_use_outline(short int state);
+
+//! \brief query use outline
+int use_outline_state();
+
+//! \brief set the map shininess
+void set_map_shininess(int imol, float shininess);
+
+//! \brief set the map specular strength
+void set_map_specular_strength(int imol, float specular_strength);
+
+//! \brief
+void set_draw_normals(short int state);
+
+//! \brief
+int draw_normals_state();
+
+//! \brief
+void set_draw_mesh(int imol, int mesh_index, short int state);
+
+//! \brief return -1 on unable to lookup mesh
+int draw_mesh_state(int imol, int mesh_index);
+
+//! \brief
+void set_map_material_specular(int imol, float specular_strength, float shininess);
+
+//! \brief
+void set_model_material_specular(int imol, float specular_strength, float shininess);
+
+//! \brief
+void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
+
+//! \brief
+void reload_map_shader();
+
+//! \brief
+void reload_model_shader();
+
+void set_atom_radius_scale_factor(int imol, float scale_factor);
+
+void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
@@ -1481,6 +1602,9 @@ int handle_drag_and_drop_string(const std::string &uri);
 PyObject *map_contours(int imol, float contour_level);
 // \}
 #endif // USE_PYTHON
+
+//! \brief enable radial map colouring
+void set_radial_map_colouring_enabled(int imol, int state);
 
 //! \brief radial map colouring centre
 void set_radial_map_colouring_centre(int imol, float x, float y, float z);
@@ -1760,6 +1884,9 @@ SCM spherical_density_overlap(SCM i_scm, SCM j_scm);
 #endif // USE_GUILE
 #endif // __cplusplus
 
+void resolve_clashing_sidechains_by_deletion(int imol);
+
+void resolve_clashing_sidechains_by_rebuilding(int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                  GUIL Utility Functions                                  */

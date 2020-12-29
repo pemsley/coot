@@ -3972,6 +3972,7 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o Run the damn tests - don't be lazy
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
@@ -3979,7 +3980,7 @@ INFO::
    o Artists acknowledged in glade/aboutdialog?
    o Use glade-2
         Change the splash screen
-        Fix the release name in the About dialog (aboutdialog)
+        Fix the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
         To correct the transparency, duplicate layer, bucket fill with white
         the bottom layer, merge and bevel 6.
@@ -3987,13 +3988,20 @@ INFO::
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
      Use configure-it-for-release
+   o make dist to make a tar-ball
+        Use this to untar and make a build - this will test that the tarball has
+        all the files before commit.
    o git commit -a
    o git tag Release-0.x.y
    o git commit
-   o git push [maybe here? not sure]
+   o git push
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
         OK, disable the build-latest cron-job
+   o on charybdis: md: check that it builds
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-for-tarball # version?
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
+   o on charybdis: bash wrap-build-it-for-release.sh
    o clear out pre-releases
    o check for updates - needs consideration?
    o Build binaries on some hosts
@@ -4031,6 +4039,7 @@ Mon Jan 12 17:26:40 GMT 2009
    Do "R" (sphere) refinment, PHE gets kicked and goes to the right
    solution (I wonder if refmac would do that?)
 
+   # not any more - they both work.
 
 ---
 Mon Jan 12 22:43:50 GMT 2009
@@ -4084,12 +4093,11 @@ Wed Mar  4 13:12:21 GMT 2009
 -----
 Sat Feb 28 19:36:50 GMT 2009
 
-	when testing new tree code:
+     when testing new tree code:
 
      test: torsion general
      test: wiggly ligand best solution C* N9 C1* C2* is correct
      test: var4 and var4 for ATP and var1s for MPR
-
 
      Note: revision 1917 has "new" mgtree code, which seems to work
      for wiggly ligands, but torsion angles are horrifically broken.
@@ -4141,7 +4149,6 @@ Thu Mar 26 18:39:42 GMT 2009
      for *one* residue, they
      must be psi of one and phi of the next (or the other way round).
      Hmm... needs some though.
-
 
 ---
 Fri Apr 17 17:38:02 BST 2009
@@ -7562,7 +7569,7 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
      would happily use plane restraint minimization to create a
      cis-peptide... so I tried to make this less probable by
      introducing a non-linearity term so that the atoms further from
-     the pull point are pulled less than their linearn fraction (by
+     the pull point are pulled less than their linear fraction (by
      raising a fraction to a power). Unfortunately I made an
      arithmetic error which meant that I had made such pull
      transformations *more* likely than less.
@@ -7885,7 +7892,7 @@ http://rdkit.org/docs_temp/Chem/Fragments.m.html
 ----
 Sat  1 Jul 2017 18:27:09 BST
 
-   Makefile variables $@ $^ $<
+   Makefile rules variables $@ $^ $<
    $@ -> target,      $^ -> all dependences,   $< -> first dependency
 
    https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
@@ -7910,7 +7917,7 @@ http://www.blopig.com/blog/2016/11/how-to-calculate-plifs-using-rdkit-and-plip/
 ---
 Wed 12 Jul 2017 21:55:28 BST
 
-look this up:
+Project: look this up:
 
 Ho, B. K. & Gruswitz, F. HOLLOW: generating accurate representations
 of channel and interior surfaces in molecular structures. BMC
@@ -8608,6 +8615,8 @@ Fri 21 Sep 2018 10:49:26 BST
                     non-Pro cis 3er0 (should be 1 in 3,000 or 1 in 10,000 for non-carbohydrate proteins)
                     cablam outlier: 3ja8 Leu 235
 
+    Make a figure of 1cgi in new coot.
+
 ---
 Tue 11 Sep 23:10:09 BST 2018
 
@@ -8866,7 +8875,7 @@ vulkan and cuda:
 
 https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
 
-So can I do marching cudes with cuda and display them with vulkan?
+So can I do marching cubes with CUDA and display them with vulkan?
 
 Does that mean moving everything to vulkan?
 
@@ -8890,6 +8899,7 @@ Sun 10 Mar 2019 12:39:28 GMT
 
    https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
 
+* Forget that, clustalw2 can be installed as part of the build. Now there's an interface for that.
 
 ---
 Tue 12 Mar 2019 17:34:23 GMT
@@ -9183,6 +9193,7 @@ Tue  9 Jul 2019 21:51:00 BST
 ---
 Tue 16 Jul 2019 00:09:20 BST
 
+     Project: tutorial/video examples
      elifesciences.org/articles/16105 for extra examples of big shift molecules
 
 ---
@@ -9217,7 +9228,8 @@ Mon 16 Sep 16:59:51 BST 2019
 ---
 Wed  4 Sep 2019 08:54:02 BST
 
-   o what is this? Systematic residue side-chain optimizations using grid searches in torsion-angle
+   o Project:
+     what is this? Systematic residue side-chain optimizations using grid searches in torsion-angle
      space (Oldfield, 2001).
 
      A number of real-space torsion-angle refinement techniques for proteins, nucleic acids,
@@ -9273,6 +9285,7 @@ Tue  3 Dec 11:03:55 GMT 2019
 ---
 Tue 14 Jan 2020 02:09:52 GMT
 
+   Project: What is this and can we do better?
    OPUS‐Rota: A fast and accurate method for side‐chain modeling
    https://onlinelibrary.wiley.com/doi/full/10.1110/ps.035022.108
 
@@ -9300,7 +9313,6 @@ Thu 13 Feb 18:40:56 GMT 2020
     on ligand covalent bond formation A 184 GLU
 
 
-
 ---
 Fri 14 Feb 16:21:30 GMT 2020
 
@@ -9308,9 +9320,10 @@ Fri 14 Feb 16:21:30 GMT 2020
 
    sudo apt-get install libgtk-3-dev
 
-
 ---
 Thu 20 Feb 21:40:34 GMT 2020
+
+   Project:
 
    https://www.cell.com/structure/pdf/S0969-2126(15)00511-0.pdf 3jci
 
@@ -9321,6 +9334,7 @@ Thu 27 Feb 2020 12:48:11 IST
 
    clustalw is LGPL? Use that for alignments.
 
+* Done!
 
 ---
 Sat 29 Feb 2020 17:52:41 IST
@@ -9344,10 +9358,370 @@ Sat 29 Feb 2020 17:52:41 IST
 
 
 ---
+ HEAD
 Fri 10 Apr 17:07:51 BST 2020
 
    o Gtk/Gdk mode touches OpenGL at glXChooseVisual
      THis is not called in Gtk3.24.11
 
 
+---
+Fri 15 May 13:24:21 BST 2020
+
+   building from scratch
+
+   run the build-it-3-3 script
+   pip3 install pycairo
+   cd ~/compile/PyGObject-xyz
+   python setup.py build
+   python setup.py install
+
+   cd ~/autobuild/Linux-penelope-gtk3-python/include/
+   ln -s ../lib/python3.6/site-packages/PyGObject-3.36.0-py3.6-linux-x86_64.egg/include/pygobject-3.0
+
+   now import gi works from python
+
+   ... or does it?
+
+
+   make sure that g-ir-scanner is correctly installed (from gobject-introspection-1.50.0 or so)
+
+   cd PyGObject-3.36.0 # or so
+   meson -Dprefix=/home/paule/autobuild/Linux-penelope-pre-release-gtk3-python build
+   cd build
+   ninja
+   ninja install
+
+
+   example:
+   prfx=/home/paule/autobuild/Linux-penelope-pre-release-gtk3
+   meson -Dprefix=$prfx build
+   ninja
+   ninja install
+   # now we can use Gtk in python!
+
+
+---
+Sun 17 May 03:08:44 BST 2020
+
+ problems with python:
+
+ This is trying to use python3.8. It used to work with 3.6 - I don't know if that is related.
+
+enelope coot-gtk3/build/src> ./coot-bin --no-graphics
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'coot'
+ERROR:: could not import coot.py
+in PyInit_coot_gui_api() returing module 0x7fa9847def90
+INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
+INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
+INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
+Python 3.8.2 (default, May 17 2020, 01:35:28)
+[GCC 9.2.1 20191008] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import _coot
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
+>>>
+
+penelope coot-gtk3/build/src> nm .libs/coot-bin | grep n_models
+00000000000ce800 T n_models
+0000000000055234 t n_models.cold
+00000000003f9660 T _ZNK21molecule_class_info_t8n_modelsEv
+
+So, Does _coot.so want to be linked with all of coot, despite being "part of" coot-bin. Has the linking
+in 3.8 changed?
+
+Read about embedding here: https://docs.python.org/3/whatsnew/3.8.html
+
+   ... but I get the same problems in 3.6?
+
+./coot-bin --no-graphics
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/python3.6/site-packages/coot.py", line 15, in <module>
+    import _coot
+ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
+ERROR:: could not import coot.py
+in PyInit_coot_gui_api() returing module 0x7fbaf1d5b318
+INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
+INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
+INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
+Python 3.6.5 (default, Mar 29 2020, 05:23:17)
+[GCC 9.2.1 20191008] on linux
+
+   delete all *coot* in site-packages. Try again.
+
+
+Fri 10 Apr 10:49:21 BST 2020
+
+   o 3tib is a good structure for adding carbohydrates (tutorial)
+
+----
+Sat 23 May 03:05:12 BST
+
+python -m ensurepip --default-pip
+python -m pip install --upgrade pip setuptools wheel
+
+https://packaging.python.org/tutorials/installing-packages/
+
+# use that to install pycairo
+pip3 install  pycairo
+now we are ready to install PyGObject?
+
+
+----
+Mon 15 Jun 09:28:20 BST 2020
+
+   Fresnel and related:
+
+---
+Wed 20 May 17:37:12 BST 2020
+
+   to install pip from python
+
+   python -m ensurepip --default-pip
+
+---
+Wed 20 May 19:11:11 BST 2020
+
+   http://click2drug.org/ for interesting applications
+
+---
+Mon 25 May 2020 11:13:41 BST
+
+   o How does ChimeraX do model morphing?
+     https://www.rbvi.ucsf.edu/chimera/data/sbgrid-apr2017/cryomovie.html
+
+---
+Thu  4 Jun 10:53:57 BST 2020
+
+   The test-out-of-the-box build for hal is on teraraid
+
+---
+Tue  9 Jun 20:34:17 BST 2020
+
+   other than NED
+   NASA/IPAC Extragalactic Database: ned.ipac.caltech.edu
+   there is
+   The Extragalactic Distance Database (EDD)
+   http://edd.ifa.hawaii.edu/
+
+---
+Mon 15 Jun 08:57:41 BST 2020
+
+    ERRAT notes and improvement:
+
+    https://yeateslab.mbi.ucla.edu/structure-validation/
+
+    One weakness of the program was a high sensitivity to small
+    deviations in atomic positions, owing mainly to the discontinuous
+    nature of the error function arising from the distance
+    cutoff. Around 2002, another undergraduate student Dennis Obukov,
+    rewrote ERRAT with a continuous distance weighting scheme, which
+    led to more stable and robust behavior.
+
+
+---
+
+   Fresnel
+   https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
+
+---
+lipids Carol Robinson
+
+http://blogs.nature.com/ofschemesandmemes/2014/06/09/under-the-covers-nature-revealed-5-june-2014
+
+---
+Mon 24 Aug 2020 16:52:58 BST
+
+   high res dna 3p4j
+
+---
+Mon 24 Aug 2020 17:50:49 BST
+
+  what is the "ERRASER set" (published with the paper describing the rosetta updates)
+
+---
+Fri 21 Aug 15:46:31 BST 2020
+
+    Header-only C++ libraries
+
+    https://github.com/p-ranav/awesome-hpp
+
+    A Treasure Trove.
+
+    Look at stack trace and command line argument parser(s)
+
+    https://github.com/bombela/backward-cpp
+
+---
+Fri  4 Sep 15:13:15 BST 2020
+
+   header guards, wrapper ifndef
+   http://www.dawnofthedata.com/2013/08/a-handful-of-emacs-utilities.html
+
+   https://elpy.readthedocs.io/en/latest/
+
+   https://martinsosic.com/development/emacs/2017/12/09/emacs-cpp-ide.html
+
+---
+Sat 12 Sep 07:22:01 BST 2020
+
+   assimp compiles out of the box
+
+   817	7:19	cmake -DCMAKE_INSTALL_PREFIX=$HOME/assimp CMakeLists.txt
+   818	7:20	make -j 15
+   819	7:21	make install
+
+---
+Tue 29 Sep 14:55:03 BST 2020
+
+   examples of how how to do stuff:
+
+   https://cpp.hotexamples.com/
+
+---
+ Wed 14 Oct 16:09:39 BST 2020
+
+   bash iterate
+
+   for i in $(seq 1 $END) ;
+   do
+      echo $i
+   done
+
+   https://stackoverflow.com/questions/169511/how-do-i-iterate-over-a-range-of-numbers-defined-by-variables-in-bash
+
+---
+Mon 12 Oct 15:28:53 BST 2020
+
+
+   o microtubule - massive structure: code: 6u42
+
+---
+Tue 20 Oct 15:01:34 BST 2020
+
+   Merging vertices:
+
+   std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > vi1 = pumpkin();
+   std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > vi2 = pumpkin_stalk();
+
+   unsigned int idx_base = vi1.first.size();
+   unsigned int tri_base = vi1.second.size();
+
+    vi1.first.insert(vi1.first.end(), vi2.first.begin(), vi2.first.end());
+    vi1.second.insert(vi1.second.end(), vi2.second.begin(), vi2.second.end());
+    for (unsigned int i=tri_base; i<vi1.second.size(); i++)
+       vi1.second[i].rebase(idx_base);
+
+----
+Wed 11 Nov 18:41:11 GMT 2020
+
+   Flex-EM tutorial is 4ki8 into 6422.
+
+----
+Wed 18 Nov 06:39:54 GMT 2020
+
+   Project: fix up the "no-density" "control points for (multi) add-terminal residue.
+   The positions and the weights need optimization. Tests using experimental maps
+   and deposited models?
+
+
+----
+Wed 18 Nov 06:46:15 GMT 2020
+
+    How to do better baked AO for Python 3 Coot?
+
+----
+Wed 18 Nov 19:12:26 GMT 2020
+
+   2ddx is real non-pro cis peptide high res.
+
+--
+
+
+ 11203 map model correlation and unmodelled density - linoleic acid
+
+----
+Fri 27 Nov 20:36:14 GMT 2020
+
+Hateful python. Sigh... what the hell is going wrong? So difficult to diagnose...
+
+
+penelope coot-gtk3/build-into-release-dir/src> ./coot-bin --python --no-graphics
+debug:: in setup_python() pydirectory is /home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot
+INFO:: coot.py imported
+###debug require_version() available version: Gtk 3.0 []
+Traceback (most recent call last):
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/coot_load_modules.py", line 131, in <module>
+    import fitting
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/fitting.py", line 21, in <module>
+    import coot_gui
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/coot_gui.py", line 35, in <module>
+    gi.require_version('Gtk', '3.0')
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/gi/__init__.py", line 130, in require_version
+    raise ValueError('Namespace %s not available' % namespace)
+ValueError: Namespace Gtk not available
+
+# but
+
+penelope coot-gtk3/build-into-release-dir/src> which python3
+/home/paule/autobuild/Linux-penelope-gtk3/bin/python3
+penelope coot-gtk3/build-into-release-dir/src> python3
+Python 3.6.5 (default, Nov 26 2020, 23:50:25)
+[GCC 9.2.1 20191008] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import gi
+>>> gi.require_version('Gtk', '3.0')
+require_version() available version: Gtk 3.0 ['3.0', '2.0']
+>>>
+
+---
+Sat 12 Dec 03:15:07 GMT 2020
+
+   background mode for blender
+
+$ for n in `seq 1 500`; do blender --background scene.blend -x 1 -f $n ; done
+
+-x n render n frames
+-f N starting at frame N
+
+----
+Fri 27 Nov 12:28:00 GMT 2020
+
+
+   https://aur.archlinux.org/packages/coot-git/
+
+
+----
+Fri 27 Nov 20:04:12 GMT 2020
+
+   How to use GEMMI for sfs calc using electron scattering factors?
+
+---
+Fri 27 Nov 20:12:15 GMT 2020
+
+  get rid of libGLU
+
+	libMoleculesToTrianglesCXXSurface.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/libMoleculesToTrianglesCXXSurface.so.0 
+	libGLU.so.1 => /lib/x86_64-linux-gnu/libGLU.so.1
+
+
+----
+Tue  8 Dec 15:05:10 GMT 2020
+
+
+recordmydesktop -x 800 -y 10 '--width=1600' --height='1080'
+
+bluray resolution is 1920x1080
+
+---
+Mon 14 Dec 14:37:02 GMT 2020
+
+   NVidia stereo and monitors:
+
+   https://nvidia.custhelp.com/app/answers/detail/a_id/4845
 

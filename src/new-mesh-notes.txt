@@ -1,0 +1,64 @@
+
+
+Have you really filled the vertices and indices?
+
+Make sure you're calling setup() for the vertices - and instances.
+
+Call this before setup():
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   If you don't then, there will be a crash on glDrawElements() or glDrawArrays().
+
+Double and triple check the layout: vertex attributes match the shader layout. Are
+you using the shader that you think that you're using?
+
+
+Use() the shader in setup().
+
+In setup():
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+
+   And set the offsets correctly for glVertexAttribPointer(), e.g.:
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
+                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+
+   Attribute 2 has size 4.
+
+In draw():
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+
+In draw():
+   Don't forget to send over the mvp:
+   glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+
+
+
+in coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec)
+
+   1: After I had filled balls, I didn't call
+      im.update_instancing_buffers(balls);
+
+   2: I was iterating over meshes, but trying to draw instanced meshes (this won't happen again
+      hopefully)
+
+   3: I was using the wrong shader, not moleculestotriangles.shader, not instanced-objects.shader
+      (that one contains an orientation in the attributes - I don't need that for balls)
+      rama-balls.shader is what I wanted (is that true for other instanced meshes in the future
+      though? Hmm) So the balls were the wrong colour and drawn at the origin.
+
+
+-------
+
+    Are the any vertices?
+
+    Are the vertices all in the same coordinates?
+
+------
+
+    For object in the world but facing the camera, use the transpose of the view rotation matrix.
+    e.g. in particles.shader or lines-pulse.shader
+     

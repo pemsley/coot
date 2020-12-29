@@ -1,8 +1,8 @@
 
+#include "simple-restraint.hh"
 #include "geometry/mol-utils-2.hh"
 #include "analysis/stats.hh"
 #include "model-bond-deltas.hh"
-#include "simple-restraint.hh"
 
 coot::model_bond_deltas::model_bond_deltas(mmdb::Manager *mol_in, int imol_in,
 					   protein_geometry *geom_p_in) {

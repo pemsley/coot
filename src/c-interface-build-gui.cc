@@ -145,6 +145,7 @@ void update_go_to_atom_residue_list(int imol) {
 
 /* utility function, moving widget work out of c-interface-build.cc */
 void delete_object_handle_delete_dialog(short int do_delete_dialog) {
+
    if (graphics_info_t::delete_item_widget != NULL) {
       if (do_delete_dialog) { // via ctrl
 
@@ -160,13 +161,6 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog) {
                                  // graphics-info-define's delete_item().
 	 } else {
 
-	    gint upositionx, upositiony;
-	    GdkWindow *window = gtk_widget_get_window(graphics_info_t::delete_item_widget);
-	    // gdk_window_get_root_origin (window,
-	    // &upositionx, &upositiony);
-	    gtk_window_get_position(GTK_WINDOW(window), &upositionx, &upositiony);
-	    graphics_info_t::delete_item_widget_x_position = upositionx;
-	    graphics_info_t::delete_item_widget_y_position = upositiony;
 	    gtk_widget_destroy(graphics_info_t::delete_item_widget);
 	    graphics_info_t::delete_item_widget = NULL;
 	    graphics_draw();
@@ -477,8 +471,6 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
 
 void apply_add_OXT_from_widget(GtkWidget *ok_button) {
-
-   std::cout << "---------- apply_add_OXT_from_widget() " << ok_button << std::endl;
 
    GtkWidget *combobox = lookup_widget(ok_button, "add_OXT_molecule_combobox");
 
@@ -1154,7 +1146,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rama_checkbutton)))
       use_rama_restraints = 1;
 
-   if (imol>= 0) { // redundant
+   if (imol >= 0) { // redundant
       if (is_valid_model_molecule(imol)) {
 
 	 // get the sequence:
@@ -1198,7 +1190,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
             }
 
 	    std::vector<std::string> cmd_strings;
-	    cmd_strings.push_back("fit-gap");
+	    cmd_strings.push_back("gap.fit_gap"); // was just "fit-gap" - safe_scheme_command will have to deal with that.
 	    cmd_strings.push_back(graphics_info_t::int_to_string(imol));
 	    cmd_strings.push_back(single_quote(chain_id));
 	    cmd_strings.push_back(graphics_info_t::int_to_string(res1));
@@ -1819,7 +1811,6 @@ void  do_edit_copy_fragment() {
       // then executed and all has to reside within exec as we cannot have
       // multiple line statements in python... lets try
       std::string cmd = "exec(\'def atom_selection_from_fragment_func(imol, text, button_state): \\n \\t jmol = new_molecule_by_atom_selection(imol, text) \\n \\t if button_state: move_molecule_to_screen_centre(jmol) \\n \\t return valid_model_molecule_qm(jmol) \\ngeneric_chooser_and_entry_and_check_button(\"From which molecule shall we copy the fragment?\", \"Atom selection for fragment\", \"//A/1-10\", \"Move new molecule here?\", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)\')";
-//                         exec('def atom_selection_from_fragment_func(imol, text, button_state): \n \t jmol = new_molecule_by_atom_selection(imol, text) \n \t if button_state: move_molecule_to_screen_centre(jmol) \n \t return valid_model_molecule_qm(jmol) \ngeneric_chooser_and_entry_and_check_button("From which molecule shall we copy the fragment?", "Atom selection for fragment", "//A/1-10", "Move new molecule here?", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)')
       safe_python_command(cmd);
    }
 #endif // PYTHON

@@ -283,6 +283,8 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 
 }
 
+#include "nsv.hh"
+
 // direction is either "next" or "previous"
 //
 int
@@ -324,7 +326,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    if (molecules[imol].atom_sel.mol == 0) {
 
       std::cout << "ERROR:: bad go to atom molecule (" << imol
-		<< ") in intelligent_near_atom_centring" << std::endl;
+                << ") in intelligent_near_atom_centring" << std::endl;
 
    } else {
 
@@ -337,6 +339,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
       if (atom_index != -1) {
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
+
          go_to_atom_chain_       = next_atom->GetChainID();
          go_to_atom_atom_name_   = next_atom->name;
          go_to_atom_residue_     = next_atom->GetSeqNum();
@@ -348,24 +351,45 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
          if (go_to_atom_window) {
             update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-            // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
-            // 						 "go_to_atom_residue_tree");
+            //          GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+            //                                                  "go_to_atom_residue_tree");
             // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
          }
-
          try_centre_from_new_go_to_atom();
 
          // Update the graphics (glarea widget):
          //
          update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
-                                             // and show something in the statusbar
+         // and show something in the statusbar
          std::string ai;
          ai = atom_info_as_text_for_statusbar(atom_index, imol);
          add_status_bar_text(ai);
+
+#if GTK3_CAN_DO_SEQUENCE_VIEW
+         mmdb::Residue *residue_p = next_atom->residue;
+         if (residue_p) {
+            GtkWidget *svc = get_sequence_view_is_displayed(imol);
+
+            if (svc) {
+               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+               if (nsv)
+                  nsv->highlight_residue(residue_p);
+            }
+         }
+#endif
       }
    }
    return 1;
 }
+
+void
+graphics_info_t::add_picked_atom_info_to_status_bar(int imol, int atom_index) {
+
+   std::string ai;
+   ai = atom_info_as_text_for_statusbar(atom_index, imol);
+   add_status_bar_text(ai);
+}
+
 
 // This is a function like:
 // graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char
@@ -513,12 +537,6 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	    //
 	    std::pair<std::string, std::string> p =
 	       graphics_info_t::split_atom_name(go_to_atom_atom_name());
-
-	    char altconf[3]; altconf[0] = 0; altconf[1] = 0; altconf[2] = 0;
-	    strncpy(altconf, go_to_atom_atom_altLoc_.c_str(), 3);
-	    if (go_to_atom_atom_altLoc_ == "empty") { 
-	       strcpy(altconf, "");
-	    }
 
 // 	    std::cout << "FAI:: searching chain :" << go_to_atom_chain() << std::endl;
 // 	    std::cout << "FAI:: searching residue no :" << go_to_atom_residue() << std::endl;
@@ -739,7 +757,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
    if (go_to_atom_window) {
 
-      // GtkWidget *option_menu = lookup_widget(GTK_WIDGET(go_to_atom_window), 
+      // GtkWidget *option_menu = lookup_widget(GTK_WIDGET(go_to_atom_window),
       //                                        "go_to_atom_molecule_optionmenu");
 
       GtkWidget *combobox = lookup_widget(go_to_atom_window, "go_to_atom_molecule_combobox");
@@ -1039,23 +1057,24 @@ graphics_info_t::active_atom_spec_simple() {
    float dist_best = 999999999.9;
    mmdb::Atom *at_close = 0;
 
-   coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-		      graphics_info_t::RotationCentre_y(),
-		      graphics_info_t::RotationCentre_z());
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].is_displayed_p()) {
-	 if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
-	    bool do_ca_check_flag = false;
-	    coot::at_dist_info_t at_info =
-	       graphics_info_t::molecules[imol].closest_atom(rc, do_ca_check_flag, "", false);
-	    if (at_info.atom) {
-	       if (at_info.dist <= dist_best) {
-		  dist_best = at_info.dist;
-		  imol_closest = at_info.imol;
-		  at_close = at_info.atom;
-	       }
-	    }
-	 }
+   graphics_info_t g;
+   coot::Cartesian rc = g.RotationCentre(); // not static!
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         if (molecules[imol].is_displayed_p()) {
+            if (molecules[imol].atom_selection_is_pickable()) {
+               bool do_ca_check_flag = false;
+               coot::at_dist_info_t at_info =
+                  molecules[imol].closest_atom(rc, do_ca_check_flag, "", false);
+               if (at_info.atom) {
+                  if (at_info.dist <= dist_best) {
+                     dist_best = at_info.dist;
+                     imol_closest = at_info.imol;
+                     at_close = at_info.atom;
+                  }
+               }
+            }
+         }
       }
    }
    if (at_close) {
@@ -1066,9 +1085,6 @@ graphics_info_t::active_atom_spec_simple() {
    std::pair<int, coot::atom_spec_t> p1(imol_closest, spec);
    return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
 }
-
-
-
 
 
 // static
@@ -1167,33 +1183,6 @@ int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const s
 
 
 
-// do it if have intermediate atoms and ctrl is pressed.
-//
-// axis: 0 for Z, 1 for X.
-//
-short int
-graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
-
-
-   short int handled_flag = 0;
-
-   if (rot_trans_rotation_origin_atom) {
-      if (moving_atoms_asc) {
-	 if (moving_atoms_asc->n_selected_atoms > 0) {
-	    if (control_is_pressed) {
-	       if (axis == 0)
-		  rotate_intermediate_atoms_round_screen_z(angle);
-	       else
-		  rotate_intermediate_atoms_round_screen_x(angle);
-	       handled_flag = 1;
-	    }
-	 }
-      }
-   }
-   return handled_flag;
-}
-
-
 // --- unapply symmetry to current view, (we are looking at
 // symmetry and we want to get back to the main molecule,
 // preserving the orientation, if possible.
@@ -1242,6 +1231,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
 
 
    if (r) {
+#if 0   // needs glm_quat version
       coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
       coot::util::quaternion q(quat[0],quat[1],quat[2],quat[3]);
       clipper::Mat33<double> current_view_mat = q.matrix();
@@ -1253,7 +1243,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       quat[3] = vq.q3;
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
-
+#endif
       graphics_draw();
    }
    return r;

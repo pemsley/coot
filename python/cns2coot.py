@@ -56,7 +56,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
     #  get P 21 and sometimes we might get P 1 21 1 for example
     #  sftools needs P21, can't handle P1211
     #  that being said - there must be a better way
-    # set SYMM1=`awk 'BEGIN { FIELDWIDTHS="55 11 4" } /CRYST1/ {gsub(" ","",$2); printf "%s\n", $2}' $3`
+    # set SYMM1=`awk 'BEGIN { FIELDWIDTHS="55 11 4" } /CRYST1/ {gsub(" ","",$2); coot_utils.printf "%s\n", $2}' $3`
     #
     def get_symm_from_pdb_file(pdb_file):
 
@@ -131,8 +131,8 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
            print("Problems with CCP4 set up")
         
     # main body
-    map1_prefix = strip_extension(twofofc_coeffs)
-    map2_prefix = strip_extension(fofc_coeffs)
+    map1_prefix = coot_utils.strip_extension(twofofc_coeffs)
+    map2_prefix = coot_utils.strip_extension(fofc_coeffs)
     map1_tmp = map1_prefix + "_tmp.pdb"
     map2_tmp = map2_prefix + "_tmp.pdb"
     cell = get_cell_from_pdb(model_pdb)
@@ -145,7 +145,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
     pdbset_log = "cns2coot-pdbset-tmp.log"
 
     print("symm1: ", symm1)
-    popen_command("pdbset",["XYZIN",model_pdb,"XYZOUT",map1_tmp],["CELL " + string.join(cell), "SPACEGROUP " + symm1],pdbset_log,0)
+    coot_utils.popen_command("pdbset",["XYZIN",model_pdb,"XYZOUT",map1_tmp],["CELL " + string.join(cell), "SPACEGROUP " + symm1],pdbset_log,0)
     symm2 = get_symm_from_pdb_file_2(map1_tmp)
     print("symm2: ", symm2)
     symm = get_symm_from_symop_lib(symm2)
@@ -166,11 +166,11 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
        if os.path.isfile(map2_mtz):
           os.remove(map2_mtz)
    
-       popen_command("sftools", [] ,["read " + twofofc_coeffs, "cns", string.join(cell), symm, "END", "W", "P", "R", "SET LABELS", "FOM", "PHIC", "SCALE", "FWT", "PHWT", "WRITE " + map1_mtz] , sftools_1_log, 0)
+       coot_utils.popen_command("sftools", [] ,["read " + twofofc_coeffs, "cns", string.join(cell), symm, "END", "W", "P", "R", "SET LABELS", "FOM", "PHIC", "SCALE", "FWT", "PHWT", "WRITE " + map1_mtz] , sftools_1_log, 0)
 
-       popen_command("sftools", [] ,["read " + fofc_coeffs, "cns", string.join(cell), symm, "END", "W", "P", "R", "SET LABELS", "FOM", "PHIC", "SCALE", "DELFWT", "PHDELWT", "WRITE " + map2_mtz] , sftools_2_log, 0)
+       coot_utils.popen_command("sftools", [] ,["read " + fofc_coeffs, "cns", string.join(cell), symm, "END", "W", "P", "R", "SET LABELS", "FOM", "PHIC", "SCALE", "DELFWT", "PHDELWT", "WRITE " + map2_mtz] , sftools_2_log, 0)
 
-       popen_command("cad", ["HKLIN1", map1_mtz, "HKLIN2", map2_mtz, "HKLOUT", map_coot_mtz],["LABIN FILE_NUMBER 1 E1=FOM E2=PHIC E3=FWT E4=PHWT", "LABIN FILE_NUMBER 2 E1=DELFWT E2=PHDELWT", "END"], cad_log, 0)
+       coot_utils.popen_command("cad", ["HKLIN1", map1_mtz, "HKLIN2", map2_mtz, "HKLOUT", map_coot_mtz],["LABIN FILE_NUMBER 1 E1=FOM E2=PHIC E3=FWT E4=PHWT", "LABIN FILE_NUMBER 2 E1=DELFWT E2=PHDELWT", "END"], cad_log, 0)
 
        if os.path.isfile(map1_mtz):
           os.remove(map1_mtz)
@@ -179,8 +179,8 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
 
        # now load them in Coot
        #
-       read_pdb(model_pdb)
-       make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "FWT", "PHWT", "", 0, 0, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
-       make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "DELFWT", "DELPHWT", "", 0, 1, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
+       coot.read_pdb(model_pdb)
+       coot.make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "FWT", "PHWT", "", 0, 0, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
+       coot.make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "DELFWT", "DELPHWT", "", 0, 1, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
 
 #cns_coot("2fo-fc_Fum480.coeff","fo-fc_Fum480.coeff","bindividual_Fum480.pdb")

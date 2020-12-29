@@ -24,10 +24,10 @@
 #include <future>
 #endif // HAVE_CXX_THREAD
 
-#include "geometry/residue-and-atom-specs.hh"
-#include "mini-mol/mini-mol-utils.hh"
 #include "ideal/simple-restraint.hh"
 #include "multi-peptide.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "mini-mol/mini-mol-utils.hh"
 #include "residue_by_phi_psi.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "analysis/stats.hh"
@@ -744,7 +744,7 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
    ctpl::thread_pool thread_pool(n_threads);
 
    minimol::fragment many_residues; // add residue to this, and return it
-   many_residues.addresidue(res_p, false);
+   many_residues.addresidue(minimol::residue(res_p), false);
 
    // setup up initial conditions for the while loop
    bool prev_happy_fit = true;
@@ -926,7 +926,7 @@ coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
    ctpl::thread_pool thread_pool(n_threads);
 
    minimol::fragment many_residues;
-   many_residues.addresidue(res_p, false);
+   many_residues.addresidue(minimol::residue(res_p), false);
 
    // setup initial conditions for the while loop
    bool happy_fit = true;

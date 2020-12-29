@@ -116,6 +116,10 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
 
 #ifdef USE_GUILE
 SCM molecule_atom_overlaps_scm(int imol) {
+
+   // if the return list is null then that's possibly because there was a missing dictionary.
+   // return a string in that case.
+
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -138,6 +142,15 @@ SCM molecule_atom_overlaps_scm(int imol) {
 	 r = scm_cons(item_scm, r);
       }
       r = scm_reverse(r);
+
+      // if the list is null then that's possibly because there was a missing dictionary.
+      // return a string in that case.
+      //
+      if (olv.empty()) {
+         if (!overlaps.get_have_dictionary()) {
+            r = scm_from_locale_string("WARNING:: No-dictionary (something missing) ");
+         }
+      }
    }
    return r;
 }
@@ -194,75 +207,16 @@ PyObject *molecule_atom_overlaps_py(int imol) {
 void
 graphics_info_t::do_interactive_coot_probe() {
 
-   if (moving_atoms_asc->n_selected_atoms > 0) {
-      if (moving_atoms_asc->mol) {
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         if (moving_atoms_asc->mol) {
 
-	 graphics_info_t g;
-	 bool ignore_waters = true;
-	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p(), ignore_waters);
-
-	 // dot density
-	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.4);
-
-	 std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-
-	 // for quick colour lookups.
-	 std::map<std::string, coot::colour_holder> colour_map;
-	 colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
-	 colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
-	 colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
-	 colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
-	 colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
-	 colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
-	 colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
-	 colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
-	 colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
-	 colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
-	 colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
-	 colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
-	 colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
-	 colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
-
-	 for (it=c.dots.begin(); it!=c.dots.end(); it++) {
-	    const std::string &type = it->first;
-	    const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	    std::string obj_name = std::string("Intermediate Atoms ") + type;
-	    int obj_idx = g.generic_object_index(obj_name.c_str());
-	    if (obj_idx == -1) {
-	       obj_idx = new_generic_object_number(obj_name.c_str());
-	       g.generic_objects_p->at(obj_idx).attach_to_intermediate_atoms();
-	       if (type != "vdw-surface")
-		  g.generic_objects_p->at(obj_idx).is_displayed_flag = true;
-	    } else {
-	       g.generic_objects_p->at(obj_idx).clear();
-	    }
-	    // std::string col = "#445566";
-	    int point_size = 2;
-	    if (type == "vdw-surface") point_size = 1;
-	    for (unsigned int i=0; i<v.size(); i++) {
-	       const std::string &col_inner = v[i].col;
-	       g.generic_objects_p->at(obj_idx).add_point(colour_map[col_inner], col_inner, point_size, v[i].pos);
-	    }
-	 }
-
-	 std::string clashes_object_name = "Intermediate atom clashes";
-	 int clashes_obj_idx = g.generic_object_index(clashes_object_name); // find or set
-	 if (clashes_obj_idx == -1) {
-	    clashes_obj_idx = new_generic_object_number(clashes_object_name);
-	    g.generic_objects_p->at(clashes_obj_idx).attach_to_intermediate_atoms();
-	    g.generic_objects_p->at(clashes_obj_idx).is_displayed_flag = true;
-	 } else {
-	    // just clear the old one, but don't over-ride the current displayed status
-	    g.generic_objects_p->at(clashes_obj_idx).clear();
-	 }
-	 std::string cn =  "#ff59b4";
-	 coot::colour_holder ch(cn);
-	 for (unsigned int i=0; i<c.clashes.size(); i++) {
-	    g.generic_objects_p->at(clashes_obj_idx).add_line(ch, cn, 2, c.clashes[i]);
-	 }
-
-	 // do we need to draw here?
-	 // graphics_draw();
+            std::cout << "doing do_interactive_coot_probe() " << std::endl;
+            // For speed, I need the lock inside this function, it's ok to release the lock after
+            // the contact dots have been found (but before the contact dots meshes have
+            // been generated).
+            coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
+         }
       }
    }
 }

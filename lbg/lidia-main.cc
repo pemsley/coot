@@ -72,9 +72,12 @@ main(int argc, char *argv[]) {
    mmdb::InitMatType(); // mmdb program. 
 
 #ifdef USE_PYTHON
+   std::cout << "FIXME! main()" << std::endl;
+#if 0
    Py_Initialize();
    PySys_SetArgv(argc, argv);
    PyRun_SimpleString("global user_defined_alert_smarts ; user_defined_alert_smarts = []");
+#endif   
 #endif
    
    gtk_init (&argc, &argv);

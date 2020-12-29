@@ -26,13 +26,13 @@ def go_to_residue_by_spec(imol, spec):
         return (len(spec) == 5)
 
     # main line
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     if (atom_spec_qm(spec)):
         atom_name = spec[3]
     else:
         atom_name = " CA "
 
-    set_go_to_atom_chain_residue_atom_name(spec[0],
+    coot_utils.set_go_to_atom_chain_residue_atom_name(spec[0],
                                            spec[1],
                                            atom_name)
 
@@ -104,7 +104,7 @@ def problem_residues2dialog(imol, problemed_res_list_list):
             #print "BL DEBUG:: returning button_list", ret
             return ret
 
-        dialog_box_of_pairs_of_buttons(imol,
+        coot_gui.dialog_box_of_pairs_of_buttons(imol,
                                        "What-Check Report",
                                        [270, 300],
                                        # buttons is a list of: [[button_1_label, button_1_action,],
@@ -122,21 +122,21 @@ def parse_check_db(imol, file_name, action):
     #
     global my_flip, my_rsr, my_delete_atom, my_rotamer_search
     def my_flip(imol_local, res_spec):
-        do_180_degree_side_chain_flip(imol_local,
+        coot.do_180_degree_side_chain_flip(imol_local,
                                       res_spec[0],
                                       res_spec[1],
                                       res_spec[2],
                                       "")
 
     def my_rsr(imol_local, res_spec):
-        with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
+        coot_utils.with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
                            res_spec[1], ""])
 
     #
     def my_delete_atom(imol, atom_spec):
         ls = [imol] + atom_spec
         print "calling delete_atom with args", ls
-        delete_atom(*ls)
+        coot.delete_atom(*ls)
 
     #
     def my_rotamer_search(imol, res_spec):
@@ -145,13 +145,13 @@ def parse_check_db(imol, file_name, action):
         ins_code = res_spec[2]
         altloc   = ""
 
-        imol_map = imol_refinement_map()
-        if (valid_map_molecule_qm(imol_map)):
+        imol_map = coot.imol_refinement_map()
+        if (coot_utils.valid_map_molecule_qm(imol_map)):
             print "rotamer search with imol: %s chain: %s resno: %s inscode: %s" \
                   %(imol, chain_id, resno, ins_code)
-            auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
+            coot.auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
         else:
-            add_status_bar_text("No refinement map available, no rotamer fit")
+            coot.add_status_bar_text("No refinement map available, no rotamer fit")
 
     # return False or a residue spec:
     def line2residue_spec(line):

@@ -149,7 +149,7 @@ def cluster_and_display_waters(site_number, w_positions_np):
        else:
            print(("reject prediction", i, "for cluster", cluster_assignments[i]))
 
-   # set_display_generic_object(obj, 1)
+   # coot.set_display_generic_object(obj, 1)
 
    obj = coot.new_generic_object_number("CFC Site " + str(site_number) + " water cluster means")
 
@@ -473,15 +473,15 @@ def cfc_process_sites(sites):
     # does this (always) do what I want? (I want the site (list of specs) with the most members on top)
     #
     sorted_sites = sorted(sites)
-    # this is debugging/testing/checking the above sort:
+    # this is coot_utils.debugging/testing/checking the above sort:
     for i,site in enumerate(sorted_sites):
        print(("sorted site #{} site: {}".format(i, site)))
 
     imol_first = sites[0][0]
     first_spec = sites[0][1]
-    print(("   debug:: in cfc_proces_sites: first_spec:", first_spec))
+    print(("   coot_utils.debug:: in cfc_proces_sites: first_spec:", first_spec))
     for i,site in enumerate(sorted_sites):
-       print(("   debug site-idx", i, "site:", site))
+       print(("   coot_utils.debug site-idx", i, "site:", site))
 
     site_number = 0
     cfc_process_site(site_number, sites, imol_first, first_spec)
@@ -557,7 +557,7 @@ class cfc_ligand_sites:
           print((fn, residue_specs))
 
           for spec in residue_specs:
-              # centre = residue_centre_from_spec_py(imol, spec)
+              # centre = coot.residue_centre_from_spec_py(imol, spec)
               chain_id = rsu.residue_spec_to_chain_id(spec)
               res_no   = rsu.residue_spec_to_res_no(spec)
               ins_code = ''
@@ -610,11 +610,11 @@ class cfc_ligand_sites:
           sites = coot.chemical_feature_clusters_accept_site_clusters_info_py(cluster_assignments_with_specs)
 
           # show me them
-          if True:  # debug
+          if True:  # coot_utils.debug
               o = coot.new_generic_object_number("site clusters")
               for mean in means:
                   cluster_star_obj(o, mean, 2, 2)
-              # coot.set_display_generic_object(o, 1) this is for debugging
+              # coot.set_display_generic_object(o, 1) this is for coot_utils.debugging
 
           self.sites = sites
 

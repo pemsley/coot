@@ -1,6 +1,6 @@
 
-ylim=23
-xlim=60
+ylim=123
+xlim=160
 
 prediction_text_x_placement = 42
 prediction_text_y_placement = 8
@@ -83,7 +83,7 @@ png('burn-up.png')
 
 do_plot = function() {
    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
-               main="Coot-0.8.9.2 Bug-Fix Development Progress",
+               main="Coot-3-3-3 Development Progress",
                xlab="Real Days (since development start)",
                ylab="'Dev' Days")
 
@@ -95,24 +95,9 @@ do_plot = function() {
    legend(legend_x, legend_y, legend=leg.txt, col=c("brown", "black"), lty=1:1, lwd=3, cex=0.7)
 }
 
-# text(175, 175, labels="CSHL Purge", col='grey', cex=0.7)
-# arrows(160, 180, 118, 200, code=2, cex=0.5)
-
 do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
-
-betterArrow(0, 4, 0, 0, col='grey', code=2)
-text(1, 4.5, labels="Keele", col='grey', cex=1.0)
-
-betterArrow(15, 5, 15, 1, col='grey', code=2)
-text(15, 5.5, labels="Curlew", col='grey', cex=1.0)
-
-betterArrow(29, 16, 35.5, 16, col='grey', code=2)
-text(26, 16, labels="Madrid", col='grey', cex=1.0)
-
-betterArrow(10, 18, 10, 14.5, col='grey', code=2)
-text(10, 18.5, labels="Icknield (EM)", col='grey', cex=1.0)
 
 # betterArrow(2, 14.5, 2, 11.0, col='grey', code=2)
 # text(3, 15.5, labels=" Keele (EM)", col='grey', cex=1.0)

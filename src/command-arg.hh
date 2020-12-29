@@ -16,37 +16,49 @@ namespace coot {
          f = -1;
       }
       command_arg_t(float fin) {
+         i = -1;
          f = fin;
          type = FLOAT;
          b = false;
+         i = -1;
       }
       command_arg_t(const clipper::String &sin) {
+         i = -1;
          s = sin;
          type = STRING;
          b = false;
          f = -1;
+         i = -1;
       }
       command_arg_t(const std::string &sin) {
+         i = -1;
          s = sin;
          type = STRING;
          b = false;
          f = -1;
+         i = -1;
       }
       command_arg_t(const char *sin) {
+         i = -1;
          s = sin;
          type = STRING;
          b = false;
          f = -1;
+         i = -1;
       }
       command_arg_t(bool bin) {
+         i = -1;
          b = bin;
          type = BOOL;
          f = -1;
+         i = -1;
       }
       command_arg_t() {
+         i = -1;
          type = UNSET;
          b = false;
          f = -1;
+         i = -1;
       }
       coot_script_arg_type type;
       bool b;

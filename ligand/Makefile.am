@@ -92,7 +92,8 @@ endif
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql
 
-check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities
+check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities \
+		test-ligand
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
@@ -111,14 +112,17 @@ test_side_chain_densities_SOURCES = test-side-chain-densities.cc
 test_side_chain_densities_LDADD = \
   ./libcoot-ligand.la \
    $(top_builddir)/coot-utils/libcoot-map-utils.la \
-   $(top_builddir)/coords/libcoot-coords.la
-
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/coords/libcoot-coords.la        \
+   $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc
 #
 # test_rotamer_tables_sql_LDADD = ./libcoot-ligand.la  $(MMDB_LIBS) $(install_dir)/lib/libsqlite3.la
 
-# test_ligand_SOURCES = test-ligand.cc
+test_ligand_SOURCES = test-ligand.cc
 
 # test_helix_placement_SOURCES = test-helix-placement.cc
 
@@ -140,21 +144,8 @@ test_side_chain_densities_LDADD = \
 #	$(top_builddir)/compat/libcoot-compat.la           \
 #	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
-#test_ligand_LDADD = \
-#	./libcoot-ligand.la                                \
-#	$(top_builddir)/ideal/libcoot-ideal.la             \
-#	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
-#	$(top_builddir)/coords/libcoot-coords.la           \
-#	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-#	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
-#	$(top_builddir)/db-main/libcoot-db-main.la         \
-#	$(top_builddir)/geometry/libcoot-geometry.la       \
-#	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-#	$(top_builddir)/utils/libcoot-utils.la             \
-#	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
-#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
-#	$(top_builddir)/compat/libcoot-compat.la           \
-#	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+test_ligand_LDADD = \
+	./libcoot-ligand.la
 
 #test_helix_placement_LDADD = \
 #	./libcoot-ligand.la                                \

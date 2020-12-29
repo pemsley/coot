@@ -47,6 +47,21 @@
 	    (read-cif-dictionary cif-out-file-name))
 	  (info-dialog "WARNING:: Bad exit status for Acedrg\n - see acedrg.log")))))
 
+(define (import-from-cif-using-acedrg cif-file-name comp-id)
+  
+  (let* ((pdb-out-file-name (string-append "acedrg-" comp-id ".pdb"))
+	 (cif-out-file-name (string-append "acedrg-" comp-id ".cif"))
+	 (stub (string-append "acedrg-" comp-id)))
+
+    (let ((status (goosh-command 
+		   "acedrg"
+		   (list "-c" cif-file-name "-r" comp-id "-o" stub)
+		   '() "acedrg.log" #f)))
+      (if (ok-goosh-status? status)
+	  (begin
+	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
+	    (read-cif-dictionary cif-out-file-name))
+	  (info-dialog "WARNING:: Bad exit status for Acedrg\n - see acedrg.log")))))
 
 (define (import-from-3d-generator-from-mdl-using-pyrogen mdl-file-name comp-id)
 

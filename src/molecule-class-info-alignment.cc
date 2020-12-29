@@ -6,7 +6,7 @@ void
 molecule_class_info_t::associate_pir_alignment(const std::string &chain_id, const std::string &alignment) {
 
    if (alignment.size()) {
-      pir_alignments[chain_id] = alignment;
+      pir_alignments[chain_id] = coot::pir_alignment_t(alignment);
    }
 }
 
@@ -34,18 +34,20 @@ molecule_class_info_t::max_res_no_in_chain(mmdb::Chain *chain_p) const {
 void
 molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
-   bool debug = false;
+   bool debug = true;
    std::map<std::string, coot::pir_alignment_t>::const_iterator it;
    // std::cout << "INFO:: apply_pir_alignment " << chain_id << std::endl;
 
    it = pir_alignments.find(chain_id);
    if (it == pir_alignments.end()) {
-      std::cout << "WARNING:: No chain " << chain_id << " found in " << pir_alignments.size() << " alignments"
-                << std::endl;
+      std::cout << "WARNING:: apply_pir_alignment() No chain \"" << chain_id << "\" found in "
+                << pir_alignments.size() << " alignments" << std::endl;
    } else {
 
       // Happy path
       const coot::pir_alignment_t &a = it->second;
+
+      std::cout << "DEBUG:: in apply_pir_alignment() with matches.size() " << a.matches.size() << std::endl;
  
       if (a.matches.size() > 0) {
 
@@ -64,6 +66,8 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	    }
 	 }
 
+         std::cout << "DEBUG:: in apply_pir_alignment() with chain_p " << chain_p << std::endl;
+
 	 if (chain_p) {
 
 	    // so now we have the alignment and the chain to which it should be applied
@@ -78,10 +82,14 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	    int i_res = 0; // to start with
 	    std::vector<mmdb::Residue *> deletables;
 
+            std::cout << "DEBUG:: in apply_pir_alignment() with a.size() " << a.size() << std::endl;
+
 	    if (a.size() > 0) {
 	       if (a.size(0) > 0) {
 		  std::vector<coot::pir_alignment_t::matched_residue_t> matches = a.get_matches(0);
-                  std::cout << "INFO:: need to apply " << matches.size() << " alignment matches" << std::endl;
+
+                  std::cout << "INFO:: in apply_pir_alignment() need to apply " << matches.size()
+                            << " alignment matches" << std::endl;
 
 		  for (std::size_t i_align_pair=0; i_align_pair<matches.size(); i_align_pair++) {
 
@@ -96,6 +104,9 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 		     } else {
 
 			std::string pir_res_type = coot::util::single_letter_to_3_letter_code(mr.aligned);
+
+                        if (debug)
+                           std::cout << "i_align_pair: " << i_align_pair << "  " << mr << std::endl;
 
 			if (i_res < n_residues) {
 			   mmdb::Residue *residue_p = residues[i_res];

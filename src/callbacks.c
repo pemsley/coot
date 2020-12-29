@@ -2314,7 +2314,7 @@ void
 on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *dialog;
   GtkWidget *helix_checkbutton;
   GtkWidget *helix_temp_combobox;
@@ -2370,7 +2370,7 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
 				 radius);
 
   gtk_widget_destroy(dialog);
-#endif /* GTK_MAJOR_VERSION */
+
 }
 
 
@@ -2379,15 +2379,12 @@ on_fast_sss_dialog_citation_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *dialog;
   GtkWidget *toolbutton;
   dialog = wrapped_create_coot_references_dialog();
   toolbutton = lookup_widget(dialog, "coot_references_buccaneer_toolbutton");
   fill_references_notebook(GTK_TOOL_BUTTON(toolbutton), COOT_REFERENCE_BUCCANEER);
-#else
-  g_print("INFO:: sorry not in GTK+ 1.2\n");
-#endif /* GTK_MAJOR_VERSION */
 
 }
 
@@ -6501,7 +6498,7 @@ on_preferences_map_radius_entry_changed
   const gchar *text = gtk_entry_get_text(entry);
   float fval = 0;
   fval = atof(text);
-  if ((fval > 0) && (fval <1000)) {
+  if ((fval > 0) && (fval <200)) {
     preferences_internal_change_value_float(PREFERENCES_MAP_RADIUS, fval);
     set_map_radius(fval);
   }
@@ -8072,7 +8069,6 @@ void
 on_delete_item_dialog_destroy          (GtkWidget       *object,
                                         gpointer         user_data)
 {
-
    clear_pending_delete_item();
    clear_pending_picks();
    normal_cursor();
@@ -12680,6 +12676,7 @@ on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
   return FALSE;
 }
 
+void
 on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
@@ -12688,15 +12685,7 @@ on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
 #endif
 }
 
-void
-on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
 
-   /* set_use_perspective_projection(1); */
-
-   printf("This caused linking problems - so was removed - must fix\n");
-}
 
 void
 on_simple_refmac_dialog_response       (GtkDialog       *dialog,
@@ -12727,6 +12716,7 @@ on_simple_refmac_dialog_close          (GtkDialog       *dialog,
    /* Do I need to do anything here? */
 }
 
+ 
 void
 on_simple_refmac_mtz_file_button_clicked
                                         (GtkButton       *button,
@@ -12785,3 +12775,113 @@ on_simple_refmac_filechooserdialog_response
    gtk_widget_destroy(GTK_WIDGET(dialog));
 
 }
+
+void
+on_label_neighbours1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  label_neighbours();
+}
+
+
+gboolean
+on_residue_type_chooser_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+  const char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
+  GtkWidget *stub_button =
+    lookup_widget(widget, "residue_type_chooser_stub_checkbutton");
+   GtkWidget *window = lookup_widget(GTK_WIDGET(widget),
+                                     "residue_type_chooser_window");
+  short int istate = 0;
+
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+    istate = 1;
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+    handle_residue_type_chooser_entry_chose_type(entry_text, istate);
+    gtk_widget_destroy(window);
+  }
+  return FALSE;
+}
+
+void
+on_python_window_entry_activate        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+
+gboolean
+on_python_window_entry_key_press_event (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  return FALSE;
+}
+
+
+void
+on_map_properties_dialog_specularity_state_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_map_properties_dialog_fresnel_state_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_map_properties_dialog_specularity_strength_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_map_properties_dialog_specularity_shininess_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_map_properties_dialog_fresnel_bias_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_map_properties_dialog_fresnel_scale_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_map_properties_dialog_fresnel_power_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+

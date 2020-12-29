@@ -15,7 +15,7 @@ namespace coot {
    // this can throw a std::runtime_error
    class mogul_distribution {
    public:
-      mogul_distribution(const std::vector<std::string> &bits);
+      explicit mogul_distribution(const std::vector<std::string> &bits);
       mogul_distribution() {
 	 bin_start = 0;
 	 bin_end = 0;
@@ -50,14 +50,16 @@ namespace coot {
 	 max_badness = 5.0;
 	 type = NONE;
 	 value = 0;
-	 idx_1 = 0;
-	 idx_2 = 0;
+	 idx_1 = -1;
+	 idx_2 = -1;
+	 idx_3 = -1;
+	 idx_4 = -1;
 	 counts = 0;
 	 mean = 0;
 	 median = 0;
 	 std_dev = 0;
 	 z = 0;
-	 max_badness = 0;
+         dmin = 0.0;
       }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in,
 		 float value_in,
@@ -66,12 +68,15 @@ namespace coot {
 	 value = value_in;
 	 idx_1 = atom_idx_1_in;
 	 idx_2 = atom_idx_2_in;
+	 idx_3 = -1;
+	 idx_4 = -1;
 	 counts = counts_in;
 	 mean = mean_in;
 	 median = median_in;
 	 std_dev = std_dev_in;
 	 z = z_in;
 	 max_badness = 5.0;
+         dmin = 0.0;
       }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in, int atom_idx_3_in,
 		 float value_in,
@@ -81,12 +86,14 @@ namespace coot {
 	 idx_1 = atom_idx_1_in;
 	 idx_2 = atom_idx_2_in;
 	 idx_3 = atom_idx_3_in;
+	 idx_4 = -1;
 	 counts = counts_in;
 	 mean = mean_in;
 	 median = median_in;
 	 std_dev = std_dev_in;
 	 z = z_in;
-	 max_badness = 5.0; 
+	 max_badness = 5.0;
+         dmin = 0.0;
       }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in, int atom_idx_3_in, int atom_idx_4_in,
 		 float value_in, int counts_in, float dmin_in) {
@@ -99,6 +106,10 @@ namespace coot {
 	 counts = counts_in;
 	 dmin = dmin_in;
 	 max_badness = 5.0;
+	 z = 0;
+         std_dev = 0.0;
+         median = 0.0;
+         mean = 0.0;
       }
       bool matches_indices(const std::vector<int> &indices) const;
       void set_max_z_badness(float b) { max_badness = b; }
@@ -164,7 +175,7 @@ namespace coot {
 	 max_z_badness = 5.0;
 	 apply_minimum_sigma_cap = true;
       }
-      mogul(const std::string &file_name) {
+      explicit mogul(const std::string &file_name) {
 	 max_z_badness = 5.0;
 	 apply_minimum_sigma_cap = true;
 	 parse(file_name);

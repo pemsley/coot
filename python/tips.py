@@ -81,4 +81,4 @@ def tip_list():
 def no_coot_tips():
     global do_coot_tips_flag
     do_coot_tips_flag = False
-    set_tip_of_the_day_flag(0)
+    coot.set_tip_of_the_day_flag(0)

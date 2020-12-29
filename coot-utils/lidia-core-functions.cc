@@ -36,10 +36,12 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
       } 
    }
    catch (const RDKit::FileParseException &rte) {
-      std::cout << "WARNING:: " << rte.message() << std::endl;
+      //   std::cout << "WARNING:: " << rte.message() << std::endl; // no more message()
+      std::cout << "WARNING:: " << rte.what() << std::endl;
    }
    catch (const RDKit::BadFileException &e) {
-      std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      // std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      std::cout << "WARNING:: Bad file " << file_name << " " << e.what() << std::endl;
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING runtime_error in mol_to_asc_rdkit() " << rte.what() << std::endl;

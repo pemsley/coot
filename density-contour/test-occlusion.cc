@@ -5,8 +5,7 @@
 #include "occlusion.hh"
 
 #include "density-contour/CIsoSurface.h"
-
-
+#include "transfer-occlusions.hh"
 
 int main(int argc, char **argv) {
 
@@ -31,16 +30,19 @@ int main(int argc, char **argv) {
       CIsoSurface<float> my_isosurface;
       coot::CartesianPairInfo v;
       float contour_level = 0.8;
-      float dy_radius = 18.0;
+      float dy_radius = 118.0;
       coot::Cartesian centre(58, 0, 14);
-      int isample_step = 1;
       bool is_em_map = false;
+      int isample_step = 1;
+      int n_reams = 1;
+      int iream_start = 0;
 
       coot::density_contour_triangles_container_t tri_con;
       tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
                                                           contour_level,
                                                           dy_radius, centre,
-                                                          isample_step);
+                                                          isample_step, iream_start,
+                                                          n_reams, is_em_map);
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
       // tri_con contains points, normals and triangle indices
@@ -54,8 +56,8 @@ int main(int argc, char **argv) {
       positions.resize(tri_con.points.size());
       unsigned int n = tri_con.points.size();
       for (unsigned int i=0; i<n; i++) {
-         const clipper::Coord_orth pos  = tri_con.points[i];
-         const clipper::Coord_orth norm = tri_con.normals[i];
+         const clipper::Coord_orth &pos  = tri_con.points[i];
+         const clipper::Coord_orth &norm = tri_con.normals[i];
          positions[i] = coot::augmented_position(pos, norm);
       }
       auto tp_4 = std::chrono::high_resolution_clock::now();
@@ -63,13 +65,16 @@ int main(int argc, char **argv) {
       // calculate occlusions
       coot::set_occlusions(positions);
       auto tp_5 = std::chrono::high_resolution_clock::now();
+      coot::transfer_occlusions(positions, &tri_con);
 
+      // timings
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
       auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
       auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
       auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
-      std::cout << "import " << d10 <<  " tri_cons " << d21 << " screen: " << d32 << " convert " << d43 << " set_occlusions " << d54
+      std::cout << "import " << d10 <<  " tri_cons " << d21 << " screen: " << d32
+                << " convert " << d43 << " set_occlusions " << d54
                 << " ms " << std::endl;
 
    }

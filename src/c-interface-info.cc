@@ -711,6 +711,36 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 }
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+SCM molecule_to_pdb_string_scm(int imol) {
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      std::string s = graphics_info_t::molecules[imol].pdb_string();
+      r = scm_makfrom0str(s.c_str());
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *molecule_to_pdb_string_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::string s = graphics_info_t::molecules[imol].pdb_string();
+      // std::cout << "s: " << s << std::endl;
+      r = myPyString_FromString(s.c_str());
+   }
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+
+}
+#endif
+
+
 
 // BL says:: we return a string in python list compatible format.
 // to use it in python you need to eval the string!
@@ -1102,6 +1132,58 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
    return r;
 }
 #endif
+
+/*! \brief Label the atoms in the residues around the central residue */
+void label_neighbours() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      float radius = 4.0;
+      int imol = pp.second.first;
+      coot::residue_spec_t central_residue(pp.second.second);
+      graphics_info_t g;
+      g.molecules[imol].label_closest_atoms_in_neighbour_atoms(central_residue, radius);
+      graphics_draw();
+   }
+
+}
+
+#include "c-interface-scm.hh"
+#include "c-interface-python.hh"
+
+#ifdef USE_GUILE
+void label_closest_atoms_in_neighbour_residues_scm(int imol, SCM residue_spec_scm, float radius) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec = make_residue_spec(residue_spec_scm);
+      if (res_spec.first) {
+         graphics_info_t g;
+         g.molecules[imol].label_closest_atoms_in_neighbour_atoms(res_spec.second, radius);
+         graphics_draw();
+      } else {
+         std::cout << "WARNING:: bad spec " << std::endl;
+      }
+   }
+
+}
+#endif
+
+#ifdef USE_PYTHON
+void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *res_spec_py, float radius) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec = make_residue_spec_py(res_spec_py);
+      if (res_spec.first) {
+         graphics_info_t g;
+         g.molecules[imol].label_closest_atoms_in_neighbour_atoms(res_spec.second, radius);
+         graphics_draw();
+      } else {
+         std::cout << "WARNING:: bad spec " << std::endl;
+      }
+   }
+}
+#endif
+
 
 //! find the active residue, find the near residues (within radius)
 //! create a new molecule, run reduce on that, import hydrogens from
@@ -2746,6 +2828,16 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *spgr_text = lookup_widget(window, "single_map_properties_sg_text");
    GtkWidget *reso_text = lookup_widget(window, "single_map_properties_reso_text");
 
+   GtkWidget *line_width_frame = lookup_widget(window, "map_properties_dialog_line_width_frame");
+   GtkWidget *specular_frame   = lookup_widget(window, "map_properties_dialog_specularity_frame");
+   GtkWidget *fresnel_frame    = lookup_widget(window, "map_properties_dialog_fresnel_frame");
+
+   if (false) { // true for gtk2 version
+      gtk_widget_hide(line_width_frame);
+      gtk_widget_hide(specular_frame);
+      gtk_widget_hide(fresnel_frame);
+   }
+
    std::string cell_text_string;
    std::string spgr_text_string;
    std::string reso_text_string;
@@ -2910,8 +3002,13 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
 			// draw the contour level bar
 			float cl = graphics_info_t::molecules[imol].get_contour_level();
-			std::vector<float> map_colours = graphics_info_t::molecules[imol].map_colours();
-			if (map_colours.size() > 2) {
+
+                        // std::pair<GdkRGBA, GdkRGBA> map_colours() const;
+			std::pair<GdkRGBA, GdkRGBA> map_colours =
+                           graphics_info_t::molecules[imol].map_colours();
+
+#if 0
+			if (true) { // this test is needed?
 			   coot::colour_holder ch(map_colours);
 			   void (*func)(int, float) = set_contour_level_absolute;
 			   GtkWidget *canvas = g->get_canvas();
@@ -2924,6 +3021,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 			   gtk_widget_show(canvas);
 			   gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
 			}
+#endif
 		     }
 		  }
 	       }
@@ -3711,7 +3809,7 @@ int place_text(const char *text, float x, float y, float z, int size) {
 
    int handle = graphics_info_t::generic_texts_p->size();
    std::string s(text);
-   coot::generic_text_object_t o(s, handle, x, y, z);
+   coot::old_generic_text_object_t o(s, handle, x, y, z);
    graphics_info_t::generic_texts_p->push_back(o);
    //   return graphics_info_t::generic_text->size() -1; // the index of the
 	  					    // thing we just
@@ -3731,7 +3829,7 @@ int place_text(const char *text, float x, float y, float z, int size) {
 
 void remove_text(int text_handle) {
 
-   std::vector<coot::generic_text_object_t>::iterator it;
+   std::vector<coot::old_generic_text_object_t>::iterator it;
    for (it = graphics_info_t::generic_texts_p->begin();
 	it != graphics_info_t::generic_texts_p->end();
 	it++) {
@@ -4964,9 +5062,9 @@ void write_ccp4mg_picture_description(const char *filename) {
       //       mg_stream << "    orientation = [ " << g.quat[0] << ", "
       // 		<< g.quat[1] << ", " << g.quat[2] << ", " << g.quat[3] << "]\n";
       // Stuart corrects the orientation specification:
-      mg_stream << "    orientation = [ " << -g.quat[3] << ", "
-		<< g.quat[0] << ", " << g.quat[1] << ", " << g.quat[2] << "]\n";
-      mg_stream << ")\n";
+      // mg_stream << "    orientation = [ " << -g.quat[3] << ", "
+      // << g.quat[0] << ", " << g.quat[1] << ", " << g.quat[2] << "]\n";
+      //       mg_stream << ")\n";
 
       // Parameters (maybe further down?)
       // GUI Parameters (for bg colour e.g.)
@@ -5077,7 +5175,7 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
       rotation_size -= 1.0;
    }
    int i_element;
-   i_element = atom_colour(element);
+   i_element = get_atom_colour_from_element(element);
    switch (i_element) {
    case YELLOW_BOND:
       rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;

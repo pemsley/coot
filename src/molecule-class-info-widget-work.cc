@@ -24,12 +24,13 @@
 #endif
 
 #include <vector>
+#include "molecule-class-info.h"
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
-#include "molecule-class-info.h"
 #include "utils/coot-utils.hh"
 #include "globjects.h" // for rotate_rgb.  That should be a utility
 			// function, not in globjects.hh
@@ -72,24 +73,31 @@ molecule_class_info_t::handle_map_colour_change_rotate_difference_map(bool swap_
 void
 molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                                                 bool swap_difference_map_colours_flag,
-                                                bool main_or_secondary) {
+                                                bool main_or_secondary,
+                                                clipper::Coord_orth centre,
+                                                float radius) {
 
-   if (false)
-      std::cout << "handle change to colour "
+   if (true)
+      std::cout << "debug:: handle_map_colour_change() handle change to colour "
                 << map_col_in.red << " "
                 << map_col_in.green << " "
                 << map_col_in.blue << std::endl;
 
    map_colour = map_col_in;
-   map_colour.red   = map_col_in.red  /65535.0;
-   map_colour.green = map_col_in.green/65535.0;
-   map_colour.blue  = map_col_in.blue /65535.0;
+
+   // input map colours are now in the range 0 to 1
+   // map_colour.red   = map_col_in.red  /65535.0;
+   // map_colour.green = map_col_in.green/65535.0;
+   // map_colour.blue  = map_col_in.blue /65535.0;
 
    if (xmap_is_diff_map)
       handle_map_colour_change_rotate_difference_map(swap_difference_map_colours_flag);
 
    // ideally, just change the colour buffer, but this will do for now.
-   setup_glsl_map_rendering();
+
+   // clipper::Coord_orth centre = graphics_info_t::get_rotation_centre_co();
+   // float radius = graphics_info_t::box_radius_xray;
+   setup_glsl_map_rendering(centre, radius);
 
    // main 0: secondary: 1
    // compile_density_map_display_list(main_or_secondary);
@@ -139,7 +147,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    gtk_container_add (GTK_CONTAINER (symmetry_control_vbox), molecule_0_frame);
    gtk_container_set_border_width (GTK_CONTAINER (molecule_0_frame), 6);
 
-   vbox168 = gtk_vbox_new (FALSE, 0);
+   vbox168 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (vbox168);
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog), "vbox168", vbox168, NULL);
    gtk_widget_show (vbox168);
@@ -163,7 +171,8 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    gtk_box_pack_start (GTK_BOX (vbox168), frame162, TRUE, TRUE, 0);
    gtk_container_set_border_width (GTK_CONTAINER (frame162), 4);
 
-   table4 = gtk_table_new (3, 2, FALSE);
+   // table4 = gtk_table_new (3, 2, FALSE);
+   table4 = gtk_grid_new ();
    // gtk_widget_ref (table4);
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog), "table4", table4, NULL);
    gtk_widget_show (table4);
@@ -342,7 +351,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    gtk_box_pack_start (GTK_BOX (ncs_control_vbox), frame_molecule_N, TRUE, TRUE, 0);
    gtk_container_set_border_width (GTK_CONTAINER (frame_molecule_N), 6);
 
-   vbox176 = gtk_vbox_new (FALSE, 0);
+   vbox176 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (vbox176);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox176", vbox176, NULL);
    gtk_widget_show (vbox176);
@@ -373,13 +382,13 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    gtk_widget_show (hseparator11);
    gtk_box_pack_start (GTK_BOX (vbox176), hseparator11, TRUE, TRUE, 2);
 
-   hbox134 = gtk_hbox_new (FALSE, 0);
+   hbox134 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
    // gtk_widget_ref (hbox134);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hbox134", hbox134, NULL);
    gtk_widget_show (hbox134);
    gtk_box_pack_start (GTK_BOX (vbox176), hbox134, TRUE, TRUE, 0);
 
-   vbox172 = gtk_vbox_new (FALSE, 0);
+   vbox172 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (vbox172);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox172", vbox172, NULL);
    gtk_widget_show (vbox172);
@@ -392,7 +401,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    gtk_box_pack_start (GTK_BOX (vbox172), label264, FALSE, FALSE, 0);
    gtk_misc_set_alignment (GTK_MISC (label264), 0.4, 0.5);
 
-   ncs_controller_molecule_n_display_chain_vbox = gtk_vbox_new (FALSE, 0);
+   ncs_controller_molecule_n_display_chain_vbox =
+      gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (ncs_controller_molecule_n_display_chain_vbox);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     "ncs_controller_molecule_n_display_chain_vbox",
@@ -464,7 +474,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_controller_molecule_n_display_chain_ich_checkbutton), TRUE);
    }
 
-   vbox174 = gtk_vbox_new (FALSE, 0);
+   vbox174 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
    // gtk_widget_ref (vbox174);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox174", vbox174, NULL);
    gtk_widget_show (vbox174);
@@ -477,7 +487,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    gtk_box_pack_start (GTK_BOX (vbox174), label265, FALSE, FALSE, 0);
    gtk_misc_set_alignment (GTK_MISC (label265), 0.4, 0.5);
 
-   ncs_controller_molecule_n_vbox = gtk_vbox_new (FALSE, 0);
+   ncs_controller_molecule_n_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
    // gtk_widget_ref (ncs_controller_molecule_n_vbox);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     "ncs_controller_molecule_n_vbox", ncs_controller_molecule_n_vbox, NULL);

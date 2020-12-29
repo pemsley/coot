@@ -97,7 +97,7 @@ std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom) {
 std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
 
    //
-   if (atom) { 
+   if (atom) {
       s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
 	<< atom->GetSeqNum()   << atom->GetInsCode() << " {"
 	<< atom->GetResName() << "}/"
@@ -131,7 +131,14 @@ write_atom_selection_file(atom_selection_container_t asc,
 
    if (write_as_cif_flag) {
 
-      ierr = mol->WriteCIFASCII(filename.c_str());
+      // WriteCIFASCII() seems to duplicate the atoms (maybe related to aniso?)
+      // So let's copy the molecule and throw away the copy, that way we don't
+      // duplicate teh atoms in the original molecule.
+
+      mmdb::Manager *mol_copy  = new mmdb::Manager;
+      mol_copy->Copy(mol, mmdb::MMDBFCM_All);
+      ierr = mol_copy->WriteCIFASCII(filename.c_str());
+      delete mol_copy;
 
    } else {
 
@@ -170,7 +177,7 @@ write_atom_selection_file(atom_selection_container_t asc,
       int udd_new = mol->GetUDDHandle(mmdb::UDR_ATOM, "new hydrogen name");
 //       std::cout << "udd_old: " << udd_old << std::endl;
 //       std::cout << "udd_new: " << udd_new << std::endl;
-      char *str = 0; 
+      char *str;
       if (udd_old > 0 && udd_new > 0) { 
 	 for (int i=0; i<asc.n_selected_atoms; i++) {
 	    str = 0; 

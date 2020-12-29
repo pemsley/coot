@@ -30,7 +30,7 @@ dist_pkgpython_PYTHON = \
    extensions.py        ncs.py               create_server.py                 \
    python_coot_docs.py  clear_backup.py      bones_reader.py                  \
    shelx_extensions.py  parse_pisa_xml.py    		                      \
-   check_for_updates.py 3d_generator_import.py     gui_hole.py     gui_prosmart.py  \
+   check_for_updates.py generator_3d_import.py     gui_hole.py     gui_prosmart.py  \
    get_recent_pdbe.py   jligand.py	     	 jligand_gui.py	              \
    redefine_functions.py user_define_restraints.py template_key_bindings.py   \
    gui_add_linked_cho.py ligand_check.py     run_mogul.py                     \
@@ -40,5 +40,6 @@ dist_pkgpython_PYTHON = \
    enhanced_ligand.py	gui_ligand_sliders.py sharpen_blur.py    \
    acedrg_link.py coot_toolbuttons.py rcrane_loader.py add_linked_cho.py find_baddies.py \
    chemical_feature_clusters.py res_spec_utils.py coot_output_to_window.py \
+   populate_python_menus.py \
    $(TEXI_FILE)
 

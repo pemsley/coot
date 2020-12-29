@@ -23,13 +23,13 @@ def read_acedrg_pyranose_dictionaries():
         fn = os.path.join(get_glyco_tree_acedrg_pyranose_dictionaries_dir(),
                           comp_id + "-acedrg.cif")
         if os.path.isfile(fn):
-            read_cif_dictionary(fn)
+            coot.read_cif_dictionary(fn)
 
 def add_cho_restraints_for_residue(imol, residue_spec):
     if isinstance(residue_spec, list):
         id = glyco_tree_residue_id(imol, residue_spec)
         # print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residue_id:", id
-        # print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residues:", glyco_tree_residues_py(imol, residue_spec)
+        # print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residues:", coot.glyco_tree_residues_py(imol, residue_spec)
         add_cho_restraints_for_residue_with_id(imol, residue_spec, id)
 
 def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
@@ -70,12 +70,12 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
                     return False
                 else:
                     return [[residue_spec_to_chain_id(residue_spec),
-                             residue_spec_to_res_no(residue_spec),
-                             residue_spec_to_ins_code(residue_spec),
+                             res_spec_utils.residue_spec_to_res_no(residue_spec),
+                             coot_utils.residue_spec_to_ins_code(residue_spec),
                              at_name_1, ""],
                             [residue_spec_to_chain_id(parent_residue_spec),
-                             residue_spec_to_res_no(parent_residue_spec),
-                             residue_spec_to_ins_code(parent_residue_spec),
+                             res_spec_utils.residue_spec_to_res_no(parent_residue_spec),
+                             coot_utils.residue_spec_to_ins_code(parent_residue_spec),
                              at_name_2, ""],
                             mean, cho_geman_mcclure_sigma_scale]
 
@@ -124,22 +124,22 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
             print("INFO:: read %s lines from file %s" %(lines, model_fn))
             new_restraints = [line2extra_bond_restraint_spec(line) for line in lines]
             # print "BL DEBUG:: ", new_restraints
-            add_extra_bond_restraints_py(imol, new_restraints)
+            coot.add_extra_bond_restraints_py(imol, new_restraints)
 
 
 def test_get_cho_restraints(imol):
     raw_carbo_tree_list = []
 
-    for chain_id in chain_ids(imol):
-        for res_serial in range(chain_n_residues(chain_id, imol)):
-            res_no = seqnum_from_serial_number(imol, chain_id, res_serial)
-            rn = residue_name(imol, chain_id, res_no, "")
+    for chain_id in coot_utils.chain_ids(imol):
+        for res_serial in range(coot.chain_n_residues(chain_id, imol)):
+            res_no = coot.seqnum_from_serial_number(imol, chain_id, res_serial)
+            rn = coot.residue_name(imol, chain_id, res_no, "")
             if isinstance(rn, str):
                 if (rn == "NAG"):
                     residue_spec = [chain_id, res_no, ""]
-                    rl = glyco_tree_residues_py(imol, residue_spec)
+                    rl = coot.glyco_tree_residues_py(imol, residue_spec)
                     print("rl:", rl)
-                    print_glyco_tree(imol, chain_id, res_no, "")
+                    coot.print_glyco_tree(imol, chain_id, res_no, "")
                     if not isinstance(rl, list):
                         print("bad glyco-tree for residue", residue_spec)
                     else:
@@ -153,12 +153,12 @@ def test_get_cho_restraints(imol):
                             print("BL WARNING:: rl <=3", rl)
 
 def correlation_coefficient_of_this_tree():
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf,
                                    aa_res_spec]:
         residues = glyco_tree_residues(aa_imol, aa_res_spec)
-        cc = map_to_model_correlation(aa_imol, residues, [], 0,
-                                      imol_refinement_map())
+        cc = coot.map_to_model_correlation(aa_imol, residues, [], 0,
+                                      coot.imol_refinement_map())
         txt = "residues %s\ncc: %5.3f" %(residues, cc)
         print(txt)
-        info_dialog(txt)
+        coot.info_dialog(txt)

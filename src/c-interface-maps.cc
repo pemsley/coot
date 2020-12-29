@@ -98,19 +98,27 @@ void swap_map_colours(int imol1, int imol2) {
          short int main_or_secondary = 0; // main
          g.molecules[imol1].handle_map_colour_change(map_2_colours.first,
                                                      g.swap_difference_map_colours,
-                                                     main_or_secondary);
+                                                     main_or_secondary,
+                                                     g.get_rotation_centre_co(),
+                                                     g.box_radius_xray);
          g.molecules[imol2].handle_map_colour_change(map_1_colours.first,
                                                      g.swap_difference_map_colours,
-                                                     main_or_secondary);
+                                                     main_or_secondary,
+                                                     g.get_rotation_centre_co(),
+                                                     g.box_radius_xray);
          if (graphics_info_t::display_mode_use_secondary_p()) {
             g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
             main_or_secondary = 1; // secondary
             g.molecules[imol1].handle_map_colour_change(map_2_colours.second,
                                                         g.swap_difference_map_colours,
-                                                        main_or_secondary);
+                                                        main_or_secondary,
+                                                        g.get_rotation_centre_co(),
+                                                        g.box_radius_xray);
             g.molecules[imol2].handle_map_colour_change(map_1_colours.second,
                                                         g.swap_difference_map_colours,
-                                                        main_or_secondary);
+                                                        main_or_secondary,
+                                                        g.get_rotation_centre_co(),
+                                                        g.box_radius_xray);
             g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
          }
       }
@@ -1270,19 +1278,44 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
       graphics_info_t g;
       int imol_new = graphics_info_t::create_molecule();
 
-      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag,
-      *graphics_info_t::map_glob_extensions);
+      GdkDisplay *display = gdk_display_get_default();
+      GdkWindow *window = 0;
+      GdkCursor *current_cursor = 0;
+
+      if (display) {
+         GtkWidget *w = graphics_info_t::get_main_window();
+         if (w)
+            window = gtk_widget_get_window(GTK_WIDGET(w));
+      }
+
+      if (window) {
+         // doesn't work - I don't know why - possibly because we start
+         // to read the map before gtk functions run.
+         current_cursor = gdk_window_get_cursor(window);
+         GdkCursor *c = gdk_cursor_new_from_name(display, "not-allowed");
+         // std::cout << "---- not-allowed cursor " << window << " " << c << std::endl;
+         gdk_window_set_cursor(window, c);
+         g.graphics_draw();
+      }
+
+      std::vector<std::string> mge = *g.map_glob_extensions;
+      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag, mge);
+
+      if (window) {
+         // change it back
+         gdk_window_set_cursor(window, current_cursor);
+      }
 
       if (istate > -1) { // not a failure
-    g.scroll_wheel_map = imol_new;  // change the current scrollable map.
-    g.activate_scroll_radio_button_in_display_manager(imol_new);
+         g.scroll_wheel_map = imol_new;  // change the current scrollable map.
+         g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
-    g.erase_last_molecule();
-    std::cout << "Read map " << str << " failed" << std::endl;
-    std::string s = "Read map ";
-    s += str;
-    s += " failed.";
-    g.add_status_bar_text(s);
+         g.erase_last_molecule();
+         std::cout << "Read map " << str << " failed" << std::endl;
+         std::string s = "Read map ";
+         s += str;
+         s += " failed.";
+         g.add_status_bar_text(s);
       }
       graphics_draw();
    } else {
@@ -1687,12 +1720,12 @@ int average_map_scm(SCM map_number_and_scales) {
 	    if (scm_is_true(scm_number_p(map_scale_scm))) {
 	       int map_number = scm_to_int(map_number_scm);
 	       if (is_valid_map_molecule(map_number)) {
-		  float scale = scm_to_double(map_scale_scm);
-		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
-		  maps_and_scales_vec.push_back(p);
-		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
+	          float scale = scm_to_double(map_scale_scm);
+	          std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
+	          maps_and_scales_vec.push_back(p);
+	          is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
 	       } else {
-		  std::cout << "Invalid map number " << map_number << std::endl;
+	          std::cout << "Invalid map number " << map_number << std::endl;
 	       }
 	    } else {
 	       std::cout << "Bad scale "
@@ -1703,7 +1736,7 @@ int average_map_scm(SCM map_number_and_scales) {
 	    }
 	 } else {
 	    std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
-		      << std::endl;
+	              << std::endl;
 	 }
 
       }
@@ -2546,6 +2579,15 @@ void go_to_map_molecule_centre(int imol_map) {
    }
 }
 
+//! \brief enable radial map colouring
+void set_radial_map_colouring_enabled(int imol, int state) {
+
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_do_radial_colouring(state);
+
+   graphics_draw();
+}
+
 
 //! \brief radial map colouring centre
 void set_radial_map_colouring_centre(int imol, float x, float y, float z) {
@@ -2577,4 +2619,86 @@ void set_radial_map_colouring_invert(int imol, int invert_state) {
 void set_radial_map_colouring_saturation(int imol, float saturation) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_saturation(saturation);
+}
+
+int flip_hand(int imol) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Xmap<float> xmap = graphics_info_t::molecules[imol].xmap;
+      coot::util::flip_hand(&xmap);
+      imol_new = graphics_info_t::create_molecule();
+      std::string name = "Map ";
+      name += coot::util::int_to_string(imol);
+      name += " Flipped Hand";
+      float contour_level = graphics_info_t::molecules[imol].get_contour_level();
+      bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
+      graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
+   }
+   return imol_new;
+
+}
+
+void
+add_density_map_cap() {
+
+   int imol_map = imol_refinement_map();
+   if (is_valid_map_molecule(imol_map)) {
+
+      graphics_info_t g;
+      clipper::Coord_orth base_point = g.get_rotation_centre_co();
+      base_point -= clipper::Coord_orth(10, 10, 0);
+      double x_axis_step_size = 0.5;
+      double y_axis_step_size = 0.5;
+
+      float z = -0.999; // screen z, front clipping plane
+      glm::vec3 base        = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f,-1.0f, z));
+      glm::vec3 plus_x_axis = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f, 1.0f, z));
+      glm::vec3 plus_y_axis = graphics_info_t::unproject_to_world_coordinates(glm::vec3( 1.0f,-1.0f, z));
+
+      clipper::Coord_orth base_co(base.x, base.y, base.z);
+      clipper::Coord_orth plus_x_axis_co(plus_x_axis.x, plus_x_axis.y, plus_x_axis.z);
+      clipper::Coord_orth plus_y_axis_co(plus_y_axis.x, plus_y_axis.y, plus_y_axis.z);
+      clipper::Coord_orth delta_x_co = plus_x_axis_co - base_co;
+      clipper::Coord_orth delta_y_co = plus_y_axis_co - base_co;
+
+      double l = std::sqrt(delta_x_co.lengthsq());
+      unsigned int n_x_axis_points = static_cast<int>(l/x_axis_step_size + 1);
+      unsigned int n_y_axis_points = n_x_axis_points;
+
+      std::cout << "debug:: base " << glm::to_string(base) << " x-axis " << glm::to_string(plus_x_axis)
+                << std::endl;
+      std::cout << "debug:: l " << l << " n_x_axis_points " << n_x_axis_points << std::endl;
+
+      // clipper::Coord_orth x_axis_uv(1, 0, 0);
+      // clipper::Coord_orth y_axis_uv(0, 1, 0);
+      clipper::Coord_orth x_axis_uv(delta_x_co.unit());
+      clipper::Coord_orth y_axis_uv(delta_y_co.unit());
+
+      g.molecules[imol_map].setup_map_cap(&graphics_info_t::shader_for_map_caps,
+                                          base_co, x_axis_uv, y_axis_uv,
+                                          x_axis_step_size, y_axis_step_size,
+                                          n_x_axis_points, n_y_axis_points);
+
+      graphics_draw();
+
+   }
+}
+
+
+//! \brief colour meshes (e.g. Ribbon diagrams) by map
+//!
+//! scale might be 2 and offset 1 (for example)
+void recolour_mesh_by_map(int imol_model, int imol_map, float scale_factor, float offset) {
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         graphics_info_t g;
+         const clipper::Xmap<float> &xmap(g.molecules[imol_map].xmap);
+         g.molecules[imol_model].recolour_ribbon_by_map(xmap, scale_factor, offset);
+         graphics_draw();
+      }
+   }
 }

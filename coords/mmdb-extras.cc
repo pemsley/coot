@@ -45,7 +45,7 @@ float max_bond_length(const std::string &element) {
 };
 
 int
-atom_colour(const std::string &element) {
+get_atom_colour_from_element(const std::string &element) {
 
    if (element == " C") {
       return YELLOW_BOND;
@@ -60,7 +60,10 @@ atom_colour(const std::string &element) {
 	       return GREEN_BOND;
 	    } else {
 	       if (coot::is_hydrogen(element)) {
-		  return HYDROGEN_GREY_BOND;
+                  if (coot::is_deuterium(element))
+                     return DEUTERIUM_PINK;
+                  else
+                     return HYDROGEN_GREY_BOND;
 	       }
 	    }
 	 }

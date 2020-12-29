@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 
       case 0:
 
-	 if (! optarg) { // no args for these options
+	 if (! coot_optarg) { // no args for these options
 	    std::string arg_str = long_options[option_index].name;
 	    if (arg_str == "help") {
 	       print_usage(argv[0]);
@@ -91,19 +91,19 @@ int main(int argc, char **argv) {
 	    std::string arg_str = long_options[option_index].name;
 
 	    if (arg_str == "ligand-metrics") {
-	       ligand_metrics_tab_file_name = optarg; // Hmm.
+	       ligand_metrics_tab_file_name = coot_optarg; // Hmm.
 	    }
 	    if (arg_str == "database") {
-	       database_name = optarg;
+	       database_name = coot_optarg;
 	    }
 	    if (arg_str == "update-resolutions") {
-	       resolutions_table = optarg;
+	       resolutions_table = coot_optarg;
 	    }
 	    if (arg_str == "update-headers") {
-	       headers_table = optarg;
+	       headers_table = coot_optarg;
 	    }
 	    if (arg_str == "update-edstats") {
-	       edstats_wwpdb_results_tab_file_name = optarg;
+	       edstats_wwpdb_results_tab_file_name = coot_optarg;
 	    }
 	 }
       }

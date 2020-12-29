@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "bonded-quad.hh"
+
 namespace coot {
 
    class lbg_edge {
@@ -54,11 +56,14 @@ namespace coot {
       void add_path_maybe(std::vector<int> circular_path);
       std::vector<std::vector<int> > rings; // converted from ints to string in ring_list()
       std::vector<std::vector<std::string> > indexes_to_names(const std::vector<std::vector<int> > &filtered_rings) const;
-
+      bool
+      has_same_elements_p(const std::vector<int> &test_ring,
+                          const std::vector<std::vector<int> > &filtered_rings) const;
 
    public:
       aromatic_graph_t(const std::vector<std::pair<std::string, std::string> > &bonds_in);
       std::vector<std::vector<std::string> > ring_list();
+      std::vector<bonded_quad_atom_names> bonded_quad_ring_list();
    };
 
 }

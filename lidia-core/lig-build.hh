@@ -24,6 +24,7 @@
 #define LIG_BUILD_HH
 
 #include <math.h>  // for fabs, cos, sin
+#include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -190,17 +191,13 @@ namespace lig_build {
    class offset_text_t {
    public:
       enum text_pos_offset_t { HERE=0, UP=-1, DOWN=1};
-      offset_text_t(const std::string &text_in) {
-	 text = text_in;
+      explicit offset_text_t(const std::string &text_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = HERE;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
-      offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
-	 text = text_in;
+      offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = text_pos_offset_in;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
@@ -212,20 +209,18 @@ namespace lig_build {
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
-   
+
    class atom_id_info_t {
    public:
 
       // simple case
-      atom_id_info_t(const std::string &atom_id_in) {
-	 atom_id = atom_id_in;
+      explicit atom_id_info_t(const std::string &atom_id_in) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 size_hint = 0;
       }
 
       // make a superscript for the formal charge
-      atom_id_info_t(const std::string &atom_id_in, int formal_charge) {
-	 atom_id = atom_id_in;
+      atom_id_info_t(const std::string &atom_id_in, int formal_charge) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
@@ -312,12 +307,11 @@ namespace lig_build {
       std::string atom_name; // PDB atom names typically
       int charge;
       bool aromatic;
-      atom_t(pos_t pos_in, std::string ele_in, int charge_in) {
-	 atom_position = pos_in;
-	 atom_id = ele_in;
-	 element = ele_in;
+      atom_t(const pos_t &pos_in, const std::string &ele_in, int charge_in) :
+         atom_position(pos_in), element(ele_in), atom_id(ele_in) {
 	 charge = charge_in;
-	 is_closed_ = 0;
+	 is_closed_ = false;
+         aromatic = false;
       }
       bool over_atom(const double &x_in, const double &y_in) const {
 	 pos_t mouse(x_in, y_in);
@@ -391,7 +385,7 @@ namespace lig_build {
       atom_t atom;
       bool has_ring_centre_flag;
       pos_t ring_centre;
-      atom_ring_centre_info_t(const atom_t &at) : atom(at) {
+      explicit atom_ring_centre_info_t(const atom_t &at) : atom(at) {
 	 has_ring_centre_flag = 0;
       }
       void add_ring_centre(const pos_t &pos) {
@@ -431,6 +425,7 @@ namespace lig_build {
 	 have_centre_pos_ = false;
 	 is_closed_ = 0;
 	 bond_type = BOND_UNDEFINED;
+         n_ring_atoms_ = 0;
       }
       bond_t(unsigned int first, unsigned int second, bond_type_t bt) {
 	 atom_1 = first;
@@ -438,14 +433,15 @@ namespace lig_build {
 	 bond_type = bt;
 	 have_centre_pos_ = false;
 	 is_closed_ = 0;
+         n_ring_atoms_ = 0;
       }
-      bond_t(unsigned int first, unsigned int second, pos_t centre_pos_in, bond_type_t bt) {
+      bond_t(unsigned int first, unsigned int second, pos_t centre_pos_in, bond_type_t bt) : centre_pos_(centre_pos_in) {
 	 atom_1 = first;
 	 atom_2 = second;
 	 bond_type = bt;
 	 have_centre_pos_ = true;
-	 centre_pos_ = centre_pos_in;
 	 is_closed_ = 0;
+         n_ring_atoms_ = 0;
       }
       // mouse is hovering over bond?
       bool over_bond(double x, double y,
@@ -517,6 +513,7 @@ namespace lig_build {
 	       // non-ring double bond
 	       unsigned int n_C = 0;
 
+               // why are these commented out?
 	       // if (at_1.element == "C") n_C++;
 	       // if (at_2.element == "C") n_C++;
 
@@ -991,7 +988,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_internal(start_atom_index,
 						     atom_index_other,
@@ -1059,7 +1056,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_simple_internal(start_atom_index, *it,
 							    local_no_pass_atoms, depth-1);
@@ -1288,7 +1285,7 @@ namespace lig_build {
 		   << this_atom_index
 		   << ", at depth " << depth << " no-pass-atoms: (";
 	 std::set<unsigned int>::const_iterator it;
-	 for (it=local_no_pass_atoms.begin(); it!=local_no_pass_atoms.end(); it++)
+	 for (it=local_no_pass_atoms.begin(); it!=local_no_pass_atoms.end(); ++it)
 	    std::cout << *it << " ";
 	 std::cout << ")" << std::endl;
       }
@@ -1299,7 +1296,7 @@ namespace lig_build {
       }
 
       void assign_ring_centres(bool force=false) {
-	 bool debug = false;
+	 bool debug_this = false;
 
 	 // first cache the ring info for the atoms.  The ring info should ideally/in future contain
 	 // information about the number (and placement?) of the double bonds in the ring (see comments
@@ -1309,7 +1306,7 @@ namespace lig_build {
 	    if (! bonds[ib].have_centre_pos() || force) {
 	       unsigned int atom_index     = bonds[ib].get_atom_1_index();
 	       unsigned int atom_idx_other = bonds[ib].get_atom_2_index();
-	       if (debug)
+	       if (debug_this)
 		  std::cout << "=============== checking bond " << ib
 			    << " for rings for atom index "
 			    << atom_index << " ===============" << std::endl;
@@ -1320,14 +1317,14 @@ namespace lig_build {
 	       // 
 	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index, atom_idx_other);
 
-	       if (debug) {
+	       if (debug_this) {
 		  std::cout << "   constructor of widgeted_bond_t atom " << atom_index
 			    << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
 			    << ", found n_rings: " << rings.size() << std::endl;
 		  for (unsigned int ir=0; ir<rings.size(); ir++) {
 		     std::cout << "   ring " << ir << " :: ";
 		     std::set<unsigned int>::const_iterator it;
-		     for (it=rings[ir].begin(); it != rings[ir].end(); it ++)
+		     for (it=rings[ir].begin(); it != rings[ir].end(); ++it)
 			std::cout << " " << *it;
 		     std::cout << std::endl;
 		  }
@@ -1335,20 +1332,19 @@ namespace lig_build {
 	       }
 	       if (rings.size() > 0) {
 		  lig_build::pos_t centre_pos_sum;
-		  std::string centre_pos_atoms_string;
 		  unsigned int fav_ring_id = favourite_ring_id(rings);
 		  std::set<unsigned int>::const_iterator it;
-		  for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++) {
+		  for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); ++it) {
 		     centre_pos_sum += atoms[*it].atom_position;
 		  }
 		  lig_build::pos_t centre_pos =
 		     centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
 		  bonds[ib].add_centre(centre_pos, rings[fav_ring_id].size());
-		  if (debug) {
+		  if (debug_this) {
 		     std::cout << "   adding centre at " << centre_pos
 			       << " generated from (";
 		     std::cout << "   (";
-		     for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++)
+		     for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); ++it)
 			std::cout << " " << *it;
 		     std::cout << ")" 
 			       << " for bond " << ib
@@ -1642,7 +1638,7 @@ namespace lig_build {
       bool
       operator==(const molecule_t &mol_other) const {
 
-	 bool status = 0;
+	 bool status = false;
 
 	 // need to check that bonds are the same (atom indexing can be
 	 // different) and also stray atoms need to be checked after bonds.
@@ -2521,6 +2517,8 @@ namespace lig_build {
 
       polygon_position_info_t() {
 	 can_stamp = 0; // unset internals.
+         angle_offset = 0.0;
+	 apply_internal_angle_offset_flag = false;
       } 
       polygon_position_info_t(double x_in, double y_in, double angle_in) {
 	 pos.x = x_in;
@@ -2529,14 +2527,12 @@ namespace lig_build {
 	 apply_internal_angle_offset_flag = 1;
 	 can_stamp = 1;
       }
-      polygon_position_info_t(pos_t pos_in, double angle_in) {
-	 pos = pos_in;
+      polygon_position_info_t(pos_t pos_in, double angle_in) : pos(pos_in){
 	 angle_offset = angle_in;
-	 apply_internal_angle_offset_flag = 1;
+	 apply_internal_angle_offset_flag = true;
 	 can_stamp = 1;
       }
-      polygon_position_info_t(pos_t pos_in, double angle_in, bool io) {
-	 pos = pos_in;
+      polygon_position_info_t(pos_t pos_in, double angle_in, bool io) : pos(pos_in){
 	 angle_offset = angle_in;
 	 apply_internal_angle_offset_flag = io;
 	 can_stamp = 1;

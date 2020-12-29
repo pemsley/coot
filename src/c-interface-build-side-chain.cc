@@ -565,6 +565,56 @@ void set_residue_type_chooser_stub_state(short int istat) {
    add_to_history_typed(cmd, args);
 }
 
+void handle_residue_type_chooser_entry_chose_type(const char *entry_text,
+                                                  short int stub_mode) {
+
+   // mutate_and_auto_fit
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::atom_spec_t atom_spec = pp.second.second;
+      if (entry_text) {
+         std::string et(entry_text);
+         if (! et.empty()) {
+            char c = et[0];
+            c = std::toupper(c);
+            std::string res_type = coot::util::single_letter_to_3_letter_code(c);
+            if (coot::util::is_standard_amino_acid_name(res_type)) {
+               graphics_info_t g;
+               // set the imol and the atom index - bleugh (it's because we are
+               // using a function called from graphics-info-defines.cc - which
+               // uses an atom click. Sigh.
+               mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+               if (at) {
+                  int atom_index = -1;
+                  int UDDAtomIndexHandle = g.molecules[imol].atom_sel.UDDAtomIndexHandle;
+                  int status = at->GetUDData(UDDAtomIndexHandle, atom_index);
+                  if (status == mmdb::UDDATA_Ok) {
+                     g.mutate_auto_fit_residue_atom_index = atom_index;
+                     g.mutate_auto_fit_residue_imol = imol;
+                     g.do_mutation(res_type, stub_mode);
+                  } else {
+                     std::cout << "UDData not OK " << std::endl;
+                  }
+               } else {
+                  std::cout << "No atom in molecule" << std::endl;
+               }
+            } else {
+               std::cout << "Non-standard residue " << c << " " << res_type << std::endl;
+            }
+         } else {
+            std::cout << "empty entry text" << std::endl;
+         }
+      } else {
+         std::cout << "No entry text" << std::endl;
+      }
+   } else {
+      std::cout << "No active atom" << std::endl;
+   }
+}
+
+
 
 void
 do_mutation(const char *type, short int stub_button_state_flag) {
@@ -577,6 +627,22 @@ do_mutation(const char *type, short int stub_button_state_flag) {
    args.push_back(stub_button_state_flag);
    add_to_history_typed(cmd, args);
 }
+
+void mutate_active_residue() {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      bool show_stub_flag = true;
+      GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
+      gtk_widget_show(widget);
+      g.in_mutate_auto_fit_define = 0;
+      g.residue_type_chooser_auto_fit_flag = 1;
+      g.pick_pending_flag = 0;
+   }
+}
+
 
 // return success on residue type match
 // success: 1, failure: 0.
@@ -1003,17 +1069,20 @@ void fill_partial_residues(int imol) {
 
 	 int refinement_replacement_state = refinement_immediate_replacement_state();
 	 set_refinement_immediate_replacement(1);
+
+         std::string alt_conf("");
+         std::vector<mmdb::Residue *> residues;
+
       	 for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
       	    int resno =  m_i_info.residues_with_missing_atoms[i]->GetSeqNum();
       	    std::string chain_id = m_i_info.residues_with_missing_atoms[i]->GetChainID();
       	    std::string residue_type = m_i_info.residues_with_missing_atoms[i]->GetResName();
       	    std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
-      	    std::string altconf("");
-	    short int is_water = 0;
-      	    g.refine_residue_range(imol, chain_id, chain_id, resno, inscode, resno, inscode,
-				   altconf, is_water);
-	    accept_regularizement();
+            residues.push_back(m_i_info.residues_with_missing_atoms[i]);
       	 }
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+         accept_moving_atoms();
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
 	 if (backup_mode)

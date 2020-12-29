@@ -73,14 +73,13 @@
 
 
 command_line_data
-parse_command_line(int argc, char ** argv ) { 
+parse_command_line(int argc, char ** argv ) {
 
    command_line_data cld;
 
-   optind = 0; // reset the (global) extern because
-	       // parse_command_line() is/can be called more once.
+   coot_optind = 0; // reset the (global) extern because
+	            // parse_command_line() is/can be called more once.
 
-#ifdef _GETOPT_H    
    int ch; 
 
  /* 
@@ -149,68 +148,68 @@ parse_command_line(int argc, char ** argv ) {
 	 
       case 0:
 	 
-	 if (optarg) {
+	 if (coot_optarg) {
 
 	    // options that need an argument:
 	    
 	    std::string arg_str = long_options[option_index].name;
 
 	    if (arg_str == "pdb") { 
-	       cld.coords.push_back(optarg);
+	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "coords") { 
-	       cld.coords.push_back(optarg);
+	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "xyzin") {
-	       cld.coords.push_back(optarg);
+	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "map") { 
-	       cld.maps.push_back(optarg);
+	       cld.maps.push_back(coot_optarg);
 	    }
 	    if (arg_str == "data") { 
-	       cld.datasets.push_back(optarg);
+	       cld.datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "hklin") { 
-	       cld.datasets.push_back(optarg);
+	       cld.datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "script") {
-	       cld.script.push_back(optarg);
+	       cld.script.push_back(coot_optarg);
 	    }
 	    if (arg_str == "command") {
-	       cld.command.push_back(optarg);
+	       cld.command.push_back(coot_optarg);
 	    }
 	    if (arg_str == "port") {
-	       cld.port = atoi(optarg);
+	       cld.port = atoi(coot_optarg);
 	    } 
 	    if (arg_str == "host") {
-	       cld.hostname = optarg;
+	       cld.hostname = coot_optarg;
 	    } 
 	    if (arg_str == "hostname") {
-	       cld.hostname = optarg;
+	       cld.hostname = coot_optarg;
 	    }
 	    if (arg_str == "auto") {
-	       cld.auto_datasets.push_back(optarg);
+	       cld.auto_datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "dictionary") {
-	       cld.dictionaries.push_back(optarg);
+	       cld.dictionaries.push_back(coot_optarg);
 	    }
 	    if (arg_str == "ccp4-project") {
-	       cld.ccp4_project = optarg;
+	       cld.ccp4_project = coot_optarg;
 	    }
 	    if (arg_str == "code") {
-	       cld.accession_codes.push_back(optarg);
+	       cld.accession_codes.push_back(coot_optarg);
 	    }
 	    if (arg_str == "comp_id") {
-	       cld.comp_ids.push_back(optarg);
+	       cld.comp_ids.push_back(coot_optarg);
 	    }
 	    if (arg_str == "comp-id") {
-	       cld.comp_ids.push_back(optarg);
+	       cld.comp_ids.push_back(coot_optarg);
 	    }
 	    if (arg_str == "title") {
-	       cld.title = optarg;
+	       cld.title = coot_optarg;
 	    }
 	    if (arg_str == "splash-screen") {
-	       cld.alternate_splash_screen_file_name = optarg;
+	       cld.alternate_splash_screen_file_name = coot_optarg;
 	    }
 	    
 	 } else { 
@@ -369,31 +368,31 @@ parse_command_line(int argc, char ** argv ) {
 	 // try short options then...
 	 
       case 'p':
-	 cld.coords.push_back(optarg);
+	 cld.coords.push_back(coot_optarg);
 	 break; 
 	 
       case 's':
-	 cld.script.push_back(optarg);
+	 cld.script.push_back(coot_optarg);
 	 break; 
 	 
       case 'd':
-	 cld.datasets.push_back(optarg);
+	 cld.datasets.push_back(coot_optarg);
 	 break; 
 	 
       case 'a':
-	 cld.auto_datasets.push_back(optarg);
-	 break; 
+	 cld.auto_datasets.push_back(coot_optarg);
+	 break;
 	 
       case 'm':
-	 cld.maps.push_back(optarg);
+	 cld.maps.push_back(coot_optarg);
 	 break; 
 	 
       case 'c':
-         if (optarg) { 
-            // std::cout << "command optarg: " << optarg << std::endl;
-	    cld.command.push_back(optarg);
+         if (coot_optarg) { 
+            // std::cout << "command coot_optarg: " << coot_optarg << std::endl;
+	    cld.command.push_back(coot_optarg);
          } else { 
-            std::cout << "command optarg is NULL " << std::endl;
+            std::cout << "command coot_optarg is NULL " << std::endl;
          } 
 	 break; 
 	 
@@ -402,8 +401,8 @@ parse_command_line(int argc, char ** argv ) {
 	 break;
 	 
       default:
-	 std::cout << "Unaccounted for optarg condition " << std::endl; 
-	 break; 
+	 std::cout << "Unaccounted for coot_optarg condition " << std::endl; 
+	 break;
       }
    }
 
@@ -411,8 +410,6 @@ parse_command_line(int argc, char ** argv ) {
       cld.try_listener = 1;
 
    cld.roberto_pdbs(argc, argv);
-   
-#endif // _GETOPT_H    
 
    return cld; 
 
@@ -437,8 +434,10 @@ command_line_data::handle_immediate_settings() {
    // small screen
    if (small_screen_display && graphics_info_t::use_graphics_interface_flag) {
      std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
-     gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
-     gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
+
+     std::cout << "Fix small screen parsing in handle_immediate_settings() " << std::endl;
+     // gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
+     // gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
      graphics_info_t::graphics_x_size = 400;
      graphics_info_t::graphics_y_size = 400;
    }

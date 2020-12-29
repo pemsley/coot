@@ -41,25 +41,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#if 0 // old OpenGL interface
-#include <gdk/gdkglconfig.h>
-#include <gtk/gtkgl.h>
-#endif
-
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#   include <OpenGL/glu.h>
-#else
-#   include <GL/gl.h>
-#   include <GL/glu.h>
-#endif
-
-// #include <GL/glut.h> // needed for wirecube and wiresphere.
-
-#ifdef WINDOWS_MINGW
-// in windows we need these for some newer openGL functions
-#include <GL/glext.h>
-#endif // WINDOWS_MINGW
+#include <epoxy/gl.h>
 
 #include "compat/sleep-fixups.h"
 
@@ -153,7 +135,7 @@ coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
-std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::old_generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> graphics_info_t::views;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
@@ -356,7 +338,7 @@ int graphics_info_t::file_selection_dialog_y_size = -1;
 // things for quaternion-based view rotation:
 double graphics_info_t::mouse_current_x = 0.0;
 double graphics_info_t::mouse_current_y = 0.0;
-float* graphics_info_t::quat = new float[4];
+// float* graphics_info_t::quat = new float[4]; // gone. Use glm_quat
 float graphics_info_t::trackball_size = 12.8; // better for me for now. was 0.8
 
 // residue reorientation on "space"
@@ -366,7 +348,7 @@ bool graphics_info_t::reorienting_next_residue_mode = false;
 // things for baton quaternion rotation: Must use a c++ class at some
 // stage:
 // baton
-float* graphics_info_t::baton_quat = new float[4];
+// float* graphics_info_t::baton_quat = new float[4]; // gone - needs glm::quat version
 float  graphics_info_t::baton_length = 3.8; // A;
 int    graphics_info_t::baton_next_ca_options_index = 0;
 int    graphics_info_t::user_set_baton_atom_molecule = -1; // initially unset
@@ -467,7 +449,8 @@ int graphics_info_t::n_molecules_max = 60;
 // int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 
 // generic display objects, gets set in init.
-std::vector<coot::generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+// std::vector<coot::old_generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+std::vector<meshed_generic_display_object> graphics_info_t::generic_display_objects;
 bool graphics_info_t::display_generic_objects_as_solid_flag = 0;
 bool graphics_info_t::display_environment_graphics_object_as_solid_flag = 0;
 GtkWidget *graphics_info_t::generic_objects_dialog = NULL;
@@ -487,7 +470,8 @@ coot::console_display_commands_t graphics_info_t::console_display_commands;
 int graphics_info_t::undo_molecule = -1;
 
 // backup filenames
-short int graphics_info_t::unpathed_backup_file_names_flag = 0;
+bool graphics_info_t::unpathed_backup_file_names_flag = 0;
+bool graphics_info_t::decoloned_backup_file_names_flag = 0;
 
 // backup compress files (default: compress)
 int graphics_info_t::backup_compress_files_flag = 1;
@@ -1380,7 +1364,7 @@ int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTE
 
 
 // Graphics ligand view
-graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
+// graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
 int                      graphics_info_t::show_graphics_ligand_view_flag = 1; // user control
 
 // FLEV
@@ -1421,34 +1405,6 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
-
-#ifdef USE_MOLECULES_TO_TRIANGLES
-std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
-std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
-#endif // USE_MOLECULES_TO_TRIANGLES
-
-// --------------------------------------------------------------------------------------------
-
-float *graphics_info_t::mvp = new float[16];
-int    graphics_info_t::mvp_location = -1;
-int    graphics_info_t::view_rotation_location = -1;
-glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
-GLuint graphics_info_t::programID_for_central_cube = 0;
-GLuint graphics_info_t::central_cube_vertexarray_id = 0;
-GLuint graphics_info_t::central_cube_array_buffer_id = 0;
-GLuint graphics_info_t::central_cube_index_buffer_id = 0;
-GLuint graphics_info_t::hud_text_vertexarray_id = 0;
-GLuint graphics_info_t::hud_text_array_buffer_id = 0;
-GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
-GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
-GLuint graphics_info_t::textureColorbuffer_screen = 0;
-GLuint graphics_info_t::textureColorbuffer_blur = 0;
-framebuffer graphics_info_t::screen_framebuffer;
-framebuffer graphics_info_t::blur_framebuffer;
-bool graphics_info_t::perspective_projection_flag = false;
-
-
-// --------------------------------------------------------------------------------------------
 
 
 GtkWidget *
@@ -1838,10 +1794,10 @@ init_gl_widget(GtkWidget *widget) {
 
 
    // last value does not matter because zero rotation
-   trackball(graphics_info_t::quat , 0.0, 0.0, 0.0, 0.0, 0.0);
+   // trackball(graphics_info_t::quat , 0.0, 0.0, 0.0, 0.0, 0.0);
 
    // initialize also the baton quaternion
-   trackball(graphics_info_t::baton_quat , 0.0, 0.0, 0.0, 0.0, 0.0);
+   // trackball(graphics_info_t::baton_quat , 0.0, 0.0, 0.0, 0.0, 0.0);
 
 
    // gtk_idle_add((GtkFunction)animate, widget);
@@ -2187,6 +2143,13 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 //    area.width  = widget->allocation.width;
 //    area.height = widget->allocation.height;
 
+   GtkAllocation allocation;
+   gint width;
+   gint height;
+   gtk_widget_get_allocation (widget, &allocation);
+   width = allocation.width;
+   height = allocation.height;
+
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    GdkModifierType my_button3_mask = info.gdk_button3_mask();
@@ -2195,7 +2158,11 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
    short int button_was_pressed = 0;
 
    if (event->is_hint) {
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType mask;
+      GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+      GdkDevice *mouse = gdk_seat_get_pointer(seat);
+      gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
       x = x_as_int;
       y = y_as_int;
    } else {
@@ -2275,9 +2242,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		  // intermediate-atom-screen-z-rotate not a single
 		  // atom move.
 
-// 		  std::cout << "Moving single atom " << x_as_int << " "
-// 				<< y_as_int << " " << x << " " << y << std::endl;
-
 		  info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
 		  // info.move_atom_pull_target_position(x_as_int ,y_as_int);
 
@@ -2306,12 +2270,8 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	    } else {
 	       // info.in_moving_atoms_drag_atom_mode_flag test
 
-	       short int handled_non_atom_drag_event = 0;
-	       x_diff = x - info.GetMouseBeginX();
-	       y_diff = y - info.GetMouseBeginY();
-	       handled_non_atom_drag_event =
-		  info.rotate_intermediate_atoms_maybe(0, x_diff * 0.01);
-	       info.rotate_intermediate_atoms_maybe(1, y_diff * 0.01);
+	       bool handled_non_atom_drag_event = false;
+           handled_non_atom_drag_event = info.rotate_intermediate_atoms_maybe(width, height);
 
 	       if (! handled_non_atom_drag_event) {
 
@@ -2394,7 +2354,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	    // 	      << endl;
 
 	    // args: q1, q2, destination
-	    add_quats(spin_quat, info.quat, info.quat);
+	    // add_quats(spin_quat, info.quat, info.quat);
 
 	    // 	 cout << "spin_quat " << spin_quat[0] << " " << spin_quat[1] << " "
 	    // 	      << spin_quat[2] << " " << spin_quat[3] << endl;
@@ -2554,6 +2514,7 @@ do_button_zoom(gdouble x, gdouble y) {
 void
 do_screen_z_rotate(gdouble x, gdouble y) {
 
+#if 0
    // c. f. animate_idle()
 
    float spin_quat[4];
@@ -2592,6 +2553,7 @@ do_screen_z_rotate(gdouble x, gdouble y) {
    trackball(spin_quat,  0.0, 1.0, x_diff, 1.0, 0.5);
    add_quats(spin_quat, g.quat, g.quat);
    g.graphics_draw();
+#endif
 }
 
 void
@@ -2837,11 +2799,16 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_KEY_d:
 
-      if (graphics_info_t::clipping_back < 15.0) {
-	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
-	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
-	 // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
-	 // << graphics_info_t::clipping_back << std::endl;
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t g;
+	 g.delete_active_residue();
+      } else {
+	 if (graphics_info_t::clipping_back < 15.0) {
+	    set_clipping_front(graphics_info_t::clipping_front + 0.4);
+	    set_clipping_back (graphics_info_t::clipping_front + 0.4);
+	    // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+	    // << graphics_info_t::clipping_back << std::endl;
+	 }
       }
       handled = TRUE;
       break;
@@ -3288,248 +3255,249 @@ void keypad_translate_xyz(short int axis, short int direction) {
 gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 {
 
-   // try to correct cntrl and shift anomalies:
-   //
-   if (event->state & GDK_CONTROL_MASK)
-      graphics_info_t::control_is_pressed = 1;
-   else
-      graphics_info_t::control_is_pressed = 0;
-   if (event->state & GDK_SHIFT_MASK)
-      graphics_info_t::shift_is_pressed = 1;
-   else
-      graphics_info_t::shift_is_pressed = 0;
+//    // try to correct cntrl and shift anomalies:
+//    //
+//    if (event->state & GDK_CONTROL_MASK)
+//       graphics_info_t::control_is_pressed = 1;
+//    else
+//       graphics_info_t::control_is_pressed = 0;
+//    if (event->state & GDK_SHIFT_MASK)
+//       graphics_info_t::shift_is_pressed = 1;
+//    else
+//       graphics_info_t::shift_is_pressed = 0;
 
-   // we are getting key release events as the key is pressed (but not
-   // released) :-).
-   //
-   // std::cout << "key release event" << std::endl;
-   graphics_info_t g;
-   int s = graphics_info_t::scroll_wheel_map;
-   if (s < graphics_info_t::n_molecules()) {
-      if (s >= 0) {
-	 if (! graphics_info_t::molecules[s].has_xmap()) {  // NXMAP-FIXME
-	    s = -1; // NO MAP
-	 }
-      }
-   } else {
-      s = -1; // NO MAP
-   }
-
-
-   std::vector<int> num_displayed_maps = g.displayed_map_imols();
-   if (num_displayed_maps.size() == 1)
-      s = num_displayed_maps[0];
-   short int istate = 0;
-
-   switch (event->keyval) {
-   case GDK_KEY_Control_L:
-   case GDK_KEY_Control_R:
-
-//       std::cout << "DEBUG ctrl key release: graphics_info_t::control_is_pressed "
-// 		<< graphics_info_t::control_is_pressed
-// 		<< " graphics_info_t::pick_pending_flag "
-// 		<< graphics_info_t::pick_pending_flag << std::endl;
-
-      graphics_info_t::control_is_pressed = 0; // FALSE.
-      if (graphics_info_t::in_edit_chi_mode_flag)
-	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
-      if (graphics_info_t::in_edit_torsion_general_flag)
-	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
-      if (graphics_info_t::in_multi_residue_torsion_mode)
-	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
-
-      if (graphics_info_t::control_key_for_rotate_flag) {
-	 if (graphics_info_t::pick_pending_flag) {
-	    pick_cursor_maybe();
-	 } else {
-	    normal_cursor();
-	 }
-      } else {
-	 // control key is for pick
-	 if (graphics_info_t::pick_pending_flag) {
-	    normal_cursor();
-	 } else {
-	    pick_cursor_maybe();
-	 }
-      }
+//    // we are getting key release events as the key is pressed (but not
+//    // released) :-).
+//    //
+//    // std::cout << "key release event" << std::endl;
+//    graphics_info_t g;
+//    int s = graphics_info_t::scroll_wheel_map;
+//    if (s < graphics_info_t::n_molecules()) {
+//       if (s >= 0) {
+// 	 if (! graphics_info_t::molecules[s].has_xmap()) {  // NXMAP-FIXME
+// 	    s = -1; // NO MAP
+// 	 }
+//       }
+//    } else {
+//       s = -1; // NO MAP
+//    }
 
 
-      // When we don't have active map dragging, we want to renew the map at
-      // control release, not anywhere else.
-      //
-      for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	 graphics_info_t::molecules[ii].update_map();
-	 graphics_info_t::molecules[ii].update_clipper_skeleton();
-      }
-      g.make_pointer_distance_objects();
-      g.graphics_draw();
-      break;
-   case GDK_KEY_minus:
-      //
-      // let the object decide which level change it needs (and if it needs it)
-      // using graphics_info_t static members
-      if (s >= 0) {
+//    std::vector<int> num_displayed_maps = g.displayed_map_imols();
+//    if (num_displayed_maps.size() == 1)
+//       s = num_displayed_maps[0];
+//    short int istate = 0;
 
-	 // std::cout << "here in key_release_event for -" << std::endl;
-	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
-	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
-	 g.set_density_level_string(s, g.molecules[s].contour_level);
-	 g.display_density_level_this_image = 1;
+//    switch (event->keyval) {
+//    case GDK_KEY_Control_L:
+//    case GDK_KEY_Control_R:
 
-	 // g.graphics_draw();
-      } else {
-	 std::cout << "WARNING: No map - Can't change contour level.\n";
-      }
-      break;
-   case GDK_KEY_plus:
-   case GDK_KEY_equal:  // unshifted plus, usually.
-      //
+// //       std::cout << "DEBUG ctrl key release: graphics_info_t::control_is_pressed "
+// // 		<< graphics_info_t::control_is_pressed
+// // 		<< " graphics_info_t::pick_pending_flag "
+// // 		<< graphics_info_t::pick_pending_flag << std::endl;
 
-      // let the object decide which level change it needs:
-      //
-      if (s >= 0) {
+//       graphics_info_t::control_is_pressed = 0; // FALSE.
+//       if (graphics_info_t::in_edit_chi_mode_flag)
+// 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+//       if (graphics_info_t::in_edit_torsion_general_flag)
+// 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+//       if (graphics_info_t::in_multi_residue_torsion_mode)
+// 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
 
-	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+//       if (graphics_info_t::control_key_for_rotate_flag) {
+// 	 if (graphics_info_t::pick_pending_flag) {
+// 	    pick_cursor_maybe();
+// 	 } else {
+// 	    normal_cursor();
+// 	 }
+//       } else {
+// 	 // control key is for pick
+// 	 if (graphics_info_t::pick_pending_flag) {
+// 	    normal_cursor();
+// 	 } else {
+// 	    pick_cursor_maybe();
+// 	 }
+//       }
 
-	 // graphics_info_t::molecules[s].change_contour(1); // positive change
-	 // graphics_info_t::molecules[s].update_map();
 
-	 g.set_density_level_string(s, g.molecules[s].contour_level);
-	 g.display_density_level_this_image = 1;
+//       // When we don't have active map dragging, we want to renew the map at
+//       // control release, not anywhere else.
+//       //
+//       for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
+// 	 graphics_info_t::molecules[ii].update_map();
+// 	 graphics_info_t::molecules[ii].update_clipper_skeleton();
+//       }
+//       g.make_pointer_distance_objects();
+//       g.graphics_draw();
+//       break;
+//    case GDK_KEY_minus:
+//       //
+//       // let the object decide which level change it needs (and if it needs it)
+//       // using graphics_info_t static members
+//       if (s >= 0) {
 
-	 // g.graphics_draw();
-      } else {
-	 std::cout << "WARNING: No map - Can't change contour level.\n";
-      }
-      break;
+// 	 std::cout << "here in key_release_event for -" << std::endl;
+// 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
+//          std::cout << "graphics_info_t::molecules[s].pending_contour_level_change_count now "
+//                    << graphics_info_t::molecules[s].pending_contour_level_change_count << std::endl;
+// 	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+// 	 g.set_density_level_string(s, g.molecules[s].contour_level);
+// 	 g.display_density_level_this_image = 1;
 
-   case GDK_KEY_A:
-   case GDK_KEY_a:
-      graphics_info_t::a_is_pressed = 0;
-      break;
+// 	 // g.graphics_draw();
+//       } else {
+// 	 std::cout << "WARNING: No map - Can't change contour level.\n";
+//       }
+//       break;
+//    case GDK_KEY_plus:
+//    case GDK_KEY_equal:  // unshifted plus, usually.
+//       //
 
-   case GDK_KEY_B:
-   case GDK_KEY_b:
-      // Only toggle baton mode if we are showing a baton!
-      // (Otherwise confusion reigns!)
-      if (g.draw_baton_flag)
-	 g.toggle_baton_mode();
-      break;
+//       // let the object decide which level change it needs:
+//       //
+//       if (s >= 0) {
 
-   case GDK_KEY_c:
-      if (graphics_info_t::control_is_pressed) {
-         g.copy_active_atom_molecule();
-      } else {
-	 if (! graphics_info_t::shift_is_pressed) {
-	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
-	    g.crosshairs_text();
-	 }
-      }
-      g.graphics_draw();
-      break;
+// 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
+// 	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 
-   case GDK_KEY_e:
-      if (graphics_info_t::control_is_pressed) {
-	 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
-	 if (active_atom.first) {
-	    if (is_valid_model_molecule(active_atom.second.first)) {
-	       // environment graphics object doesn't work this way.  There is
-	       // only one of it and its display is controlled by having its bonds box
-	       // filled or not.
-	       // graphics_info_t::molecules[imol].toggle_display_environment_graphics_object();
-	       graphics_draw();
-	    }
-	 }
-      }
-      break;
+// 	 // graphics_info_t::molecules[s].change_contour(1); // positive change
+// 	 // graphics_info_t::molecules[s].update_map();
 
-   case GDK_KEY_s:
-   case GDK_KEY_S:
-      if (graphics_info_t::control_is_pressed) {
-	 // quick_save() is on button-press
-      } else {
-	 // as it used to be
-	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
-	    graphics_info_t::molecules[ii].update_clipper_skeleton();
-	 g.graphics_draw();
-      }
-      break;
+// 	 g.set_density_level_string(s, g.molecules[s].contour_level);
+// 	 g.display_density_level_this_image = 1;
 
-   case GDK_KEY_i:
-   case GDK_KEY_I:
-      if (! graphics_info_t::control_is_pressed) {
-	 toggle_idle_spin_function();
-      } else {
-	 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-	 if (pp.first) {
-	    const coot::atom_spec_t &spec = pp.second.second;
-	    residue_info_dialog(pp.second.first, spec.chain_id.c_str(), spec.res_no,
-				spec.ins_code.c_str());
-	 }
-      }
-      break;
+// 	 // g.graphics_draw();
+//       } else {
+// 	 std::cout << "WARNING: No map - Can't change contour level.\n";
+//       }
+//       break;
 
-   case GDK_KEY_l:
-   case GDK_KEY_L:
-      // something here, L is released.
-      break;
+//    case GDK_KEY_A:
+//    case GDK_KEY_a:
+//       graphics_info_t::a_is_pressed = 0;
+//       break;
 
-   case GDK_KEY_Shift_L:
-   case GDK_KEY_Shift_R:
-      graphics_info_t::shift_is_pressed = 0;
-      break;
+//    case GDK_KEY_B:
+//    case GDK_KEY_b:
+//       // Only toggle baton mode if we are showing a baton!
+//       // (Otherwise confusion reigns!)
+//       if (g.draw_baton_flag)
+// 	 g.toggle_baton_mode();
+//       break;
 
-   case GDK_KEY_z:
-   case GDK_KEY_Z:
-      graphics_info_t::z_is_pressed = 0;
-      break;
+//    case GDK_KEY_c:
+//       if (graphics_info_t::control_is_pressed) {
+//          g.copy_active_atom_molecule();
+//       } else {
+// 	 if (! graphics_info_t::shift_is_pressed) {
+// 	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
+// 	    g.crosshairs_text();
+// 	 }
+//       }
+//       g.graphics_draw();
+//       break;
 
-   case GDK_KEY_y:
-   case GDK_KEY_Y:
-      graphics_info_t::y_is_pressed = 0;
-      break;
+//    case GDK_KEY_e:
+//       if (graphics_info_t::control_is_pressed) {
+// 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+// 	 if (active_atom.first) {
+// 	    if (is_valid_model_molecule(active_atom.second.first)) {
+// 	       // environment graphics object doesn't work this way.  There is
+// 	       // only one of it and its display is controlled by having its bonds box
+// 	       // filled or not.
+// 	       // graphics_info_t::molecules[imol].toggle_display_environment_graphics_object();
+// 	       graphics_draw();
+// 	    }
+// 	 }
+//       }
+//       break;
 
-   case GDK_KEY_space:
-      // go to next residue
-//       int next = 1;
-//       if (graphics_info_t::shift_is_pressed == 1)
-// 	 next = -1;  // i.e. previous
+//    case GDK_KEY_s:
+//    case GDK_KEY_S:
+//       if (graphics_info_t::control_is_pressed) {
+// 	 // quick_save() is on button-press
+//       } else {
+// 	 // as it used to be
+// 	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
+// 	    graphics_info_t::molecules[ii].update_clipper_skeleton();
+// 	 g.graphics_draw();
+//       }
+//       break;
 
-      // std::cout << "got a space acting on " << g.go_to_atom_chain()
-// 		<< " " << g.go_to_atom_residue()+ next
-// 		<<  " " << g.go_to_atom_atom_name() << std::endl;
+//    case GDK_KEY_i:
+//    case GDK_KEY_I:
+//       if (! graphics_info_t::control_is_pressed) {
+// 	 toggle_idle_spin_function();
+//       } else {
+// 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+// 	 if (pp.first) {
+// 	    const coot::atom_spec_t &spec = pp.second.second;
+// 	    residue_info_dialog(pp.second.first, spec.chain_id.c_str(), spec.res_no,
+// 				spec.ins_code.c_str());
+// 	 }
+//       }
+//       break;
 
-      // commented 030805:
-//       set_go_to_atom_chain_residue_atom_name(g.go_to_atom_chain(),
-// 					     g.go_to_atom_residue()+next,
-// 					     g.go_to_atom_atom_name());
+//    case GDK_KEY_l:
+//    case GDK_KEY_L:
+//       // something here, L is released.
+//       break;
 
-      bool reorienting = graphics_info_t::reorienting_next_residue_mode;
-      if (reorienting) {
-	 if (graphics_info_t::shift_is_pressed) {
-	    g.reorienting_next_residue(false); // backwards
-	 } else {
-	    g.reorienting_next_residue(true); // forwards
-	 }
-      } else {
-	 // old/standard simple translation
-	 if (graphics_info_t::shift_is_pressed) {
-	    g.intelligent_previous_atom_centring(g.go_to_atom_window);
-	 } else {
-	    g.intelligent_next_atom_centring(g.go_to_atom_window);
-	 }
-      }
-      break;
-   }
+//    case GDK_KEY_Shift_L:
+//    case GDK_KEY_Shift_R:
+//       graphics_info_t::shift_is_pressed = 0;
+//       break;
 
-   /* prevent the default handler from being run */
-   // gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "key_release_event");
+//    case GDK_KEY_z:
+//    case GDK_KEY_Z:
+//       graphics_info_t::z_is_pressed = 0;
+//       break;
 
-   std::cout << "---------- GTK-FIXME gtk_signal_emit_stop_by_name() " << std::endl;
-   g_signal_emit_by_name(G_OBJECT(widget), "stop", "key_release_event");
-   return TRUE;
+//    case GDK_KEY_y:
+//    case GDK_KEY_Y:
+//       graphics_info_t::y_is_pressed = 0;
+//       break;
+
+//    case GDK_KEY_space:
+//       // go to next residue
+// //       int next = 1;
+// //       if (graphics_info_t::shift_is_pressed == 1)
+// // 	 next = -1;  // i.e. previous
+
+//       // std::cout << "got a space acting on " << g.go_to_atom_chain()
+// // 		<< " " << g.go_to_atom_residue()+ next
+// // 		<<  " " << g.go_to_atom_atom_name() << std::endl;
+
+//       // commented 030805:
+// //       set_go_to_atom_chain_residue_atom_name(g.go_to_atom_chain(),
+// // 					     g.go_to_atom_residue()+next,
+// // 					     g.go_to_atom_atom_name());
+
+//       bool reorienting = graphics_info_t::reorienting_next_residue_mode;
+//       if (reorienting) {
+// 	 if (graphics_info_t::shift_is_pressed) {
+// 	    g.reorienting_next_residue(false); // backwards
+// 	 } else {
+// 	    g.reorienting_next_residue(true); // forwards
+// 	 }
+//       } else {
+// 	 // old/standard simple translation
+// 	 if (graphics_info_t::shift_is_pressed) {
+// 	    g.intelligent_previous_atom_centring(g.go_to_atom_window);
+// 	 } else {
+// 	    g.intelligent_next_atom_centring(g.go_to_atom_window);
+// 	 }
+//       }
+//       break;
+//    }
+
+//    /* prevent the default handler from being run */
+//    // gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "key_release_event");
+
+//    std::cout << "---------- GTK-FIXME gtk_signal_emit_stop_by_name() " << std::endl;
+//    g_signal_emit_by_name(G_OBJECT(widget), "stop", "key_release_event");
+//    return TRUE;
 
   return TRUE;
 }
@@ -3548,7 +3516,7 @@ gint idle_contour_function(gpointer data) {
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
          int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
-         // std::cout << "---    imol: " << imol << " cc: " << cc << std::endl;
+
          if (cc != 0) {
 
 	          if (cc < 0) {
@@ -3568,6 +3536,8 @@ gint idle_contour_function(gpointer data) {
            graphics_info_t g;
 	   g.molecules[imol].update_map();
 	   continue_status = 0;
+           std::cout << "--- idle_contour_function() imol: " << imol << " contour level: "
+                     << g.molecules[imol].contour_level << std::endl;
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            g.display_density_level_this_image = 1;
            something_changed = true;
@@ -3577,62 +3547,10 @@ gint idle_contour_function(gpointer data) {
    // std::cout << "Here with something_changed: " << something_changed << std::endl;
 
    // is this needed?
-   if (something_changed)
-      graphics_draw();
+   // if (something_changed)
+   //    graphics_draw();
    // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
    return continue_status;
-}
-
-
-// widget is the glarea.
-//
-gint
-animate_idle_spin(gpointer data) {
-
-   float spin_quat[4];
-   graphics_info_t g;
-
-   // spin it 1 degree * user angle setting
-   trackball(spin_quat, 0, 0, g.idle_function_rotate_angle*0.0174,
-	     0.0, g.get_trackball_size());
-   add_quats(spin_quat, g.quat, g.quat);
-
-   g.graphics_draw();
-
-   return 1;
-}
-
-// widget is the glarea.
-//
-gint
-animate_idle_rock(gpointer user_data) {
-
-   graphics_info_t g;
-   double target_angle = get_idle_function_rock_target_angle();
-   double curr_angle = g.idle_function_rock_angle_previous;
-
-   double angle_diff = target_angle - curr_angle;
-
-   if (0)
-      std::cout << "target_angle: " << target_angle
-		<< "   curr_angle: " << curr_angle
-		<< "   angle_diff: " << angle_diff
-		<< std::endl;
-
-   // we don't need to see every angle - that is fine-grained and
-   // full-on, we just need to do an animation where the angle
-   // difference is a big bigger than tiny, otherwise sleep.
-
-   if (fabs(angle_diff) > 0.0004) {
-
-      float spin_quat[4];
-      trackball(spin_quat, 0, 0, angle_diff, 0.0, g.get_trackball_size());
-      add_quats(spin_quat, g.quat, g.quat);
-      g.graphics_draw();
-      g.idle_function_rock_angle_previous = target_angle; // for next round
-
-   }
-   return 1;  // keep going
 }
 
 double
@@ -3959,13 +3877,6 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       // std::cout << "Nothing doin' at the moment" << std::endl;
    }
 
-   if (event->button == 4) {
-      handle_scroll_density_level_event(1); // up
-   }
-
-   if (event->button == 5) {
-      handle_scroll_density_level_event(0); // down
-   }
    return TRUE;
 }
 
@@ -4096,16 +4007,22 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 
    graphics_info_t info;
-   bool handled = 0;
+   bool handled = false;
    if (info.control_is_pressed) {
       if (info.shift_is_pressed) {
 	 if (event->direction == GDK_SCROLL_UP)
 	    change_model_molecule_representation_mode(1);
 	 if (event->direction == GDK_SCROLL_DOWN)
 	    change_model_molecule_representation_mode(0);
-	 handled = 1;
+	 handled = true;
       } else {
-	 // std::cout << "shift is not pressed" << std::endl;
+         // maybe we change the proportional editing (pull atom neighbour displacement) radius
+         bool dir = true;
+         if (event->direction == GDK_SCROLL_DOWN)
+            dir = false;
+         info.pull_restraint_neighbour_displacement_change_max_radius(dir);
+         info.graphics_draw();
+         handled = true;
       }
    } else {
       // std::cout << "control is not pressed " << std::endl;
@@ -4121,6 +4038,8 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 }
 
 void handle_scroll_density_level_event(int scroll_up_down_flag) {
+
+   std::cout << "debug:: handle_scroll_density_level_event() " << scroll_up_down_flag << std::endl;
 
    graphics_info_t info;
 

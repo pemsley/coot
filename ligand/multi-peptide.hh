@@ -1,9 +1,9 @@
 
 #include <atomic>
 
+#include "utils/ctpl.h"
 #include <clipper/core/xmap.h>
 
-#include "utils/ctpl.h"
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
 

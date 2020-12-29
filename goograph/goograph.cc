@@ -37,9 +37,10 @@ coot::goograph::show_dialog() {
    
       gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
       gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
-      gtk_object_set_data(GTK_OBJECT(dialog), "goograph_dialog", dialog);
-      gtk_object_set_data(GTK_OBJECT(dialog), "goograph", this);
-      GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
+      g_object_set_data(G_OBJECT(dialog), "goograph_dialog", dialog);
+      g_object_set_data(G_OBJECT(dialog), "goograph", this);
+      // GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
+      GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
       GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -135,17 +136,19 @@ gint
 coot::goograph::reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
    gint status = 0;
-   coot::goograph *g_p = static_cast<coot::goograph *> (gtk_object_get_data(GTK_OBJECT(widget), "goograph"));
+   coot::goograph *g_p = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(widget), "goograph"));
 
    if (g_p) {
       bool do_redraw = false;
-      if (g_p->dialog_width != widget->allocation.width)
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      if (g_p->dialog_width != allocation.width)
  	 do_redraw = true;
-      if (g_p->dialog_height != widget->allocation.height)
+      if (g_p->dialog_height != allocation.height)
  	 do_redraw = true;
       if (do_redraw) { 
- 	 g_p->dialog_width = widget->allocation.width;
- 	 g_p->dialog_height = widget->allocation.height;
+ 	 g_p->dialog_width  = allocation.width;
+ 	 g_p->dialog_height = allocation.height;
 	 // g_p->set_data_scales();
  	 g_p->draw_graph();
 	 // status = 1; // this slows things down dramatically!
@@ -466,9 +469,9 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 					 NULL);
 	 items.push_back(tick);
 
-	 GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
+	 GooCanvasAnchorType anchor_type = GOO_CANVAS_ANCHOR_CENTER;
 	 if (axis == X_AXIS)
-	    anchor_type = GTK_ANCHOR_SOUTH_WEST;
+	    anchor_type = GOO_CANVAS_ANCHOR_SW;
 
 	 // if it's a MAJOR_TICK, then we want a text label too
 	 // 
@@ -615,7 +618,7 @@ coot::goograph::draw_axis_label(int axis) {
       std::string grey = "#333333";
       std::cout << "draw_axis_label() " << label << std::endl;
       lig_build::pos_t wA = world_to_canvas(A);
-      GtkAnchorType anchor_type = GTK_ANCHOR_NORTH_WEST;
+      GooCanvasAnchorType anchor_type = GOO_CANVAS_ANCHOR_NORTH_WEST;
       GooCanvasItem *text =
 	 goo_canvas_text_new(root, label.c_str(),
 			     wA.x, wA.y,
@@ -641,7 +644,7 @@ coot::goograph::draw_title() {
 			 extents_min_y + 1.15 * y_range());
       lig_build::pos_t wA = world_to_canvas(A);
       GooCanvasItem *root = goo_canvas_get_root_item(canvas);
-      GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
+      GooCanvasAnchorType anchor_type = GOO_CANVAS_ANCHOR_CENTER;
       GooCanvasItem *text =
 	 goo_canvas_text_new(root, title_string.c_str(),
 			     wA.x, wA.y,
@@ -1096,7 +1099,7 @@ coot::goograph::draw_annotation_texts() {
 	 font = "Sans 9";
       if (colour.empty())
 	 colour = dark;
-      GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
+      GooCanvasAnchorType anchor_type = GOO_CANVAS_ANCHOR_CENTER;
       GooCanvasItem *root = goo_canvas_get_root_item(canvas);
       GooCanvasItem *text_item =
 	 goo_canvas_text_new(root, text.c_str(),

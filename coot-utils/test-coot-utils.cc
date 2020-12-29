@@ -1303,6 +1303,82 @@ int test_fsc(int argc, char **argv) {
    return status;
 }
 
+int test_flip(int argc, char **argv) {
+   int status = 0;
+   if (argc > 1) {
+           std::string fn = argv[1];
+           try {
+              clipper::CCP4MAPfile file;
+              clipper::Xmap<float> xmap;
+              std::cout << "# reading map" << std::endl;
+              file.open_read(fn);
+              file.import_xmap(xmap);
+              file.close_read();
+              coot::util::flip_hand(&xmap);
+              clipper::CCP4MAPfile outmapfile;
+              outmapfile.open_write("flipped-hand.map");
+              outmapfile.export_xmap(xmap);
+              outmapfile.close_write();
+           }
+           catch (const clipper::Message_base &exc) {
+                   std::cout << "Failed to flip" << fn << std::endl;
+           }
+   }
+   return status;
+}
+
+int test_interface_residues(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1]; // 6lzg
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+      if (asc.read_success) {
+         float min_dist = 3.8;
+         std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> > ir = coot::interface_residues(asc.mol, "A", "B", min_dist);
+
+         std::set<mmdb::Residue *>::const_iterator it;
+         for (it=ir.first.begin(); it!=ir.first.end(); it++) {
+            mmdb::Residue *r = *it;
+            std::cout << "   B " << coot::residue_spec_t(r) << std::endl;
+         }
+         for (it=ir.second.begin(); it!=ir.second.end(); it++) {
+            mmdb::Residue *r = *it;
+            std::cout << "   B " << coot::residue_spec_t(r) << std::endl;
+         }
+      }
+   }
+   return 0;
+
+}
+
+#include "fib-sphere.hh"
+void
+test_fibonacci() {
+
+   unsigned int n_samples = 450;
+   std::vector<clipper::Coord_orth> pts = coot::fibonacci_sphere(n_samples);
+   for (unsigned int i=0; i<n_samples; i++)
+      std::cout << "spherical " << pts[i].x() << " " << pts[i].y() << " " << pts[i].z() << "\n";
+
+}
+
+#include "polar-atoms.hh"
+
+void
+test_polar_atom_analysis(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1]; // 6lzg
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+      if (asc.read_success) {
+         coot::buried_unsatisfied_polar_atoms(asc.mol);
+      }
+   }
+   
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1386,8 +1462,20 @@ int main(int argc, char **argv) {
    if (false)
       test_map_molecule_centre(argc, argv);
 
-   if (true)
+   if (false)
       test_fsc(argc, argv);
+
+   if (false)
+      test_flip(argc, argv);
+
+   if (false)
+      test_interface_residues(argc, argv);
+
+   if (false)
+      test_fibonacci();
+
+   if (true)
+      test_polar_atom_analysis(argc, argv);
 
    return 0;
 }

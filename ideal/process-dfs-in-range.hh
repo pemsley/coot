@@ -1,4 +1,13 @@
 
+#ifndef COOT_PROCESS_DFS_IN_RANGE_HH
+#define COOT_PROCESS_DFS_IN_RANGE_HH
+
+#include <vector>
+#include <atomic>
+
+#include <gsl/gsl_multimin.h>
+#include "simple-restraint.hh"
+
 namespace coot {
 
    void process_dfs_in_range(int thread_index,
@@ -85,3 +94,5 @@ namespace coot {
 
 
 }
+
+#endif // COOT_PROCESS_DFS_IN_RANGE_HH

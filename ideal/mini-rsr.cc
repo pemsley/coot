@@ -29,17 +29,7 @@
 // Glasgow
 #define MTZFILENAME "/home/paule/data/rnase/rnasa-1.8-all_refmac1.mtz"
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
-#else
-#define __GNU_LIBRARY__
 #include "compat/coot-getopt.h"
-#undef __GNU_LIBRARY__
-#endif
 
 #include <iostream>
 #include <string.h>
@@ -400,7 +390,7 @@ main(int argc, char **argv) {
 	    }
 
 	    // the bool is to annotate for "fixed" residue - here nothing is fixed.
-	    // 
+	    //
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
 	    if (inputs.chain_id.empty())
@@ -736,57 +726,57 @@ get_input_details(int argc, char **argv) {
 
       switch (ch) {
       case 0:
-	 if (! optarg) std::cout << "No optarg" << std::endl;
-	 if (optarg) {
+	 if (! coot_optarg) std::cout << "No coot_optarg" << std::endl;
+	 if (coot_optarg) {
 
-	    // std::cout << "here 2 optarg " << optarg << std::endl;
+	    // std::cout << "here 2 coot_optarg " << coot_optarg << std::endl;
 
 	    std::string arg_str = long_options[option_index].name;
 
 	    if (arg_str == "pdbin") {
-	       // std::cout << "found pdbin " << optarg << std::endl;
-	       d.input_pdb_file_name = optarg;
+	       // std::cout << "found pdbin " << coot_optarg << std::endl;
+	       d.input_pdb_file_name = coot_optarg;
 	    }
 	    if (arg_str == "pdbout") { 
-	       d.output_pdb_file_name = optarg;
+	       d.output_pdb_file_name = coot_optarg;
 	    }
 	    if (arg_str == "hklin") { 
-	       d.mtz_file_name = optarg;
+	       d.mtz_file_name = coot_optarg;
 	    }
 	    if (arg_str == "f") { 
-	       d.f_col = optarg;
+	       d.f_col = coot_optarg;
 	    } 
 	    if (arg_str == "phi") { 
-	       d.phi_col = optarg;
+	       d.phi_col = coot_optarg;
 	    } 
 	    if (arg_str == "mapin") {
-	       d.map_file_name = optarg;
+	       d.map_file_name = coot_optarg;
                d.given_map_flag = 1;
 	    }
 	    if (arg_str == "dictin") {
-	       d.dictionary_file_names.push_back(optarg);
+	       d.dictionary_file_names.push_back(coot_optarg);
 	    }
 	    if (arg_str == "dictionary") {
-	       d.dictionary_file_names.push_back(optarg);
+	       d.dictionary_file_names.push_back(coot_optarg);
 	    }
 	    if (arg_str == "extra-restraints") {
-	       d.extra_restraints_file_names.push_back(optarg);
+	       d.extra_restraints_file_names.push_back(coot_optarg);
 	    }
 	    if (arg_str == "chain-id") {
-	       d.chain_id = optarg;
+	       d.chain_id = coot_optarg;
 	    }
 	    if (arg_str == "chain") {
-	       d.chain_id = optarg;
+	       d.chain_id = coot_optarg;
 	    }
 	    if (arg_str == "resno-start") {
-	       d.resno_start = coot::util::string_to_int(optarg);
+	       d.resno_start = coot::util::string_to_int(coot_optarg);
 	    }
 	    if (arg_str == "resno-end") {
-	       d.resno_end = coot::util::string_to_int(optarg);
+	       d.resno_end = coot::util::string_to_int(coot_optarg);
 	    }
 	    if (arg_str == "resno" || arg_str == "residue-number" || arg_str == "res-no") {
 	       try {
-		  d.resno_start = coot::util::string_to_int(optarg);
+		  d.resno_start = coot::util::string_to_int(coot_optarg);
 		  d.resno_end = d.resno_start;
 	       }
 	       catch (const std::runtime_error &rte) {
@@ -795,7 +785,7 @@ get_input_details(int argc, char **argv) {
 	    }
 	    if (arg_str == "n-peptides") {
 	       try {
-		  d.crankshaft_n_peptides = coot::util::string_to_int(optarg);
+		  d.crankshaft_n_peptides = coot::util::string_to_int(coot_optarg);
 	       }
 	       catch (const std::runtime_error &rte) {
 		  std::cout << "WARNING::" << rte.what() << std::endl;
@@ -803,17 +793,17 @@ get_input_details(int argc, char **argv) {
 	    }
 	    if (arg_str == "residues-around") {
 	       try {
-		  d.residues_around = coot::util::string_to_int(optarg);
+		  d.residues_around = coot::util::string_to_int(coot_optarg);
 	       }
 	       catch (const std::runtime_error &rte) {
 		  std::cout << "WARNING::" << rte.what() << std::endl;
 	       }
 	    }
 	    if (arg_str == "weight") {
-	       d.map_weight = coot::util::string_to_float(optarg);
+	       d.map_weight = coot::util::string_to_float(coot_optarg);
 	    }
 	    if (arg_str == "radius") {
-	       d.radius = coot::util::string_to_float(optarg);
+	       d.radius = coot::util::string_to_float(coot_optarg);
 	    }
 	 } else {
 	    // long argument without parameter:
@@ -867,40 +857,40 @@ get_input_details(int argc, char **argv) {
 	 break;
 
       case 'i':
-	 d.input_pdb_file_name = optarg;
+	 d.input_pdb_file_name = coot_optarg;
 	 break;
 
       case 'o':
-	 d.output_pdb_file_name = optarg;
+	 d.output_pdb_file_name = coot_optarg;
 	 break;
 
       case 'h':
-	 d.mtz_file_name = optarg;
+	 d.mtz_file_name = coot_optarg;
 	 break;
 
       case 'f':
-	 d.f_col = optarg;
+	 d.f_col = coot_optarg;
 	 break;
 
       case 'p':
-	 d.phi_col = optarg;
+	 d.phi_col = coot_optarg;
 	 break;
 
       case 'm':
-	 d.map_file_name = optarg;
+	 d.map_file_name = coot_optarg;
 	 d.given_map_flag = 1;
 	 break;
 
       case '1':
-	 d.resno_start = atoi(optarg);
+	 d.resno_start = atoi(coot_optarg);
 	 break;
 
       case '2':
-	 d.resno_end = atoi(optarg);
+	 d.resno_end = atoi(coot_optarg);
 	 break;
 
       case 'c':
-	 d.chain_id = optarg;
+	 d.chain_id = coot_optarg;
 	 break;
 
       case 'v':
@@ -909,7 +899,7 @@ get_input_details(int argc, char **argv) {
 	 break;
 
       case 'w':
-	 d.map_weight = atof(optarg);
+	 d.map_weight = atof(coot_optarg);
 	 break;
       }
    }

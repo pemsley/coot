@@ -26,6 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
+
 AC_INIT(coot, 0.9.9-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
@@ -198,7 +199,7 @@ AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
 
-coot_gtk2=TRUE
+# coot_gtk2=TRUE
 
 
 # AM_PATH_GTK(2.4.14)
@@ -277,6 +278,12 @@ else
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
+
+AM_PATH_GOOCANVAS
+if test "$GOOCANVAS_CFLAGS" != "" ; then
+   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
+fi
+
 # this can go away in 2020 - no one will try to use that old RDKit.
 #
 # was RDKIT used and if it was does it have Cairo support (if it does
@@ -293,13 +300,6 @@ if test -n "$RDKIT_LIBS" ; then
    esac
 fi
 
-dnl =========================== GooCanvas ================================
-
-AM_PATH_GOOCANVAS
-# give something for the preprocessor to chew on...
-if test "$GOOCANVAS_CFLAGS" != "" ; then
-   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
-fi
 
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
@@ -318,6 +318,8 @@ if test x$coot_enhanced_ligand_additions = xtrue ; then
 else
    ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
+
+echo ENHANCED_LIGAND_TOOLS_CFLAGS $ENHANCED_LIGAND_TOOLS_CFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
@@ -342,18 +344,8 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
-if test $coot_gtk2 = TRUE ; then
-  SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
-else
-  # the creation of coot.py in the src dir (currently) relies on
-  # SWIG_FLAGS being blank for the GTK1 version.
-  SWIG_FLAGS=""
-fi
-dnl echo ....... SWIG_FLAGS=$SWIG_FLAGS
+SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
 AC_SUBST(SWIG_FLAGS)
-
-AM_CONDITIONAL(USING_GTK2_VERSION, test x$coot_gtk2 = xTRUE)
-
 
 
 dnl check for guile modules www and gtk here.
@@ -445,6 +437,7 @@ data/cho-models/Makefile
 data/cho-acedrg/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
+textures/Makefile
 rama-data/Makefile
 man/Makefile
 pli/Makefile

@@ -44,6 +44,10 @@
 #include <sys/stat.h>
 
 #include <string>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
@@ -322,6 +326,7 @@ molecule_class_info_t::update_map_internal() {
          radius = graphics_info_t::box_radius_em;
 
       if (false)
+
           std::cout << "in update_map_internal() " << radius << " vs x "
                     << graphics_info_t::box_radius_xray << " em "
                     << graphics_info_t::box_radius_em << " is-em: "
@@ -332,8 +337,6 @@ molecule_class_info_t::update_map_internal() {
                          graphics_info_t::RotationCentre_z());
 
       update_map_triangles(radius, rc);
-
-      // 20200312-PE do stereo stuff here - removed for now.
 
    }
 }
@@ -435,76 +438,15 @@ molecule_class_info_t::fill_fobs_sigfobs() {
    }
 }
 
-void
-molecule_class_info_t::compile_density_map_display_list(short int first_or_second) {
-
-   // std::cout << "Deleting theMapContours " << theMapContours.first << std::endl;
-   if (first_or_second == SIDE_BY_SIDE_MAIN) {
-      glDeleteLists(theMapContours.first, 1);
-      theMapContours.first = glGenLists(1);
-      if (theMapContours.first > 0) {
-	 glNewList(theMapContours.first, GL_COMPILE);
-
-// 	 std::cout << "in compile_density_map_display_list calling draw_density_map_internal(0,1)"
-// 		   << " theMapContours.first " << theMapContours.first << std::endl;
-	 draw_density_map_internal(0, 1, first_or_second); // don't use theMapContours (make them!)
-
-	 glEndList();
-      } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_MAIN! " << std::endl;
-      }
-   }
-   if (first_or_second == SIDE_BY_SIDE_SECONDARY) {
-      glDeleteLists(theMapContours.second, 1);
-      theMapContours.second = glGenLists(1);
-      if (theMapContours.second > 0) {
-	 glNewList(theMapContours.second, GL_COMPILE);
-
-// 	 std::cout << "in compile_density_map_display_list calling draw_density_map_internal(0,1)"
-// 		   << " theMapContours.second " << theMapContours.second << std::endl;
-	 draw_density_map_internal(0, 1, first_or_second); // don't use theMapContours (make them!)
-	 glEndList();
-      } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_SECONDARY! " << std::endl;
-      }
-   }
-}
 
 
-// old and apparently faster (both at rotating (surprisingly) and
-// generation of the lines) immediate mode
-//
-// This is for electron density of course, not a surface as molecular
-// modellers would think of it.
-//
-void
-molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag,
-					short int main_or_secondary) {
-
-   if (draw_it_for_map) {
-      // std::cout << "here in draw_density_map " << imol_no
-      // << " draw_it_for_map_standard_lines " << draw_it_for_map_standard_lines
-      // << std::endl;
-      if (draw_it_for_map_standard_lines)
-	 draw_density_map_internal(display_lists_for_maps_flag, draw_it_for_map,
-				   main_or_secondary);
-   }
-}
-
-// standard lines, tested for draw_it_for_map_standard_lines before
-// calling this.
-//
-void
-molecule_class_info_t::draw_density_map_internal(short int display_lists_for_maps_flag_local,
-						 bool draw_map_local_flag,
-						 short int main_or_secondary) {
-   // we don't draw maps like this now.
-}
-
-// not a member of the class because of the burden it puts on the header: CIsoSurface is not needed to compile
-// main.cc (or should not be)
+// not a member of the class because of the burden it puts on the header: CIsoSurface is not
+// needed to compile main.cc (or should not be)
 
 #include "gensurf.hh"
+
+#include "density-contour/occlusion.hh"
+#include "density-contour/transfer-occlusions.hh"
 
 //
 void
@@ -598,7 +540,39 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads[ii].join();
       }
 
-      setup_glsl_map_rendering(); // turn tri_con into buffers.
+      if (is_dynamically_transformed_map_flag) {
+         for (unsigned int ii=0; ii<draw_vector_sets.size(); ii++) {
+            // needs the type changing?       FIXME
+            // dynamically_transform(draw_vector_sets[ii]);
+         }
+      }
+
+      // post_process_map_triangles();
+
+      if (false) {
+         for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+            coot::density_contour_triangles_container_t &tri_con = draw_vector_sets[i];
+            std::vector<coot::augmented_position> positions(tri_con.points.size());
+            unsigned int n = draw_vector_sets[i].points.size();
+            for (unsigned int j=0; j<n; j++) {
+               const clipper::Coord_orth &pos  = tri_con.points[j];
+               const clipper::Coord_orth &norm = tri_con.normals[j];
+               positions[i] = coot::augmented_position(pos, norm);
+            }
+            coot::set_occlusions(positions); // crash, related to range
+            coot::transfer_occlusions(positions, &draw_vector_sets[i]);
+         }
+      }
+
+      clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
+      setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp =
+         make_map_mesh();
+
+      // Mesh gm(vp);
+      // meshes.push_back(gm);
+      // meshes.back().setup() here?
 
 
 /*
@@ -712,43 +686,193 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
-// static
+
 void
-molecule_class_info_t::depth_sort() {
+molecule_class_info_t::post_process_map_triangles() {
+
+   // average the normals of the vertices that are close.
+   // note std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+
+   double min_dist = 0.03;
+   double min_dist_sqrd = min_dist * min_dist;
+   unsigned int n_reset = 0;
+
+   for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+      coot::density_contour_triangles_container_t &tri_con_i = draw_vector_sets[i];
+      for (unsigned int ii=0; ii<tri_con_i.points.size(); ii++) {
+         const clipper::Coord_orth &pt_i = tri_con_i.points[ii];
+         std::vector<clipper::Coord_orth> neighb_normals;
+         for (unsigned int j=0; j<draw_vector_sets.size(); j++) {
+            const coot::density_contour_triangles_container_t &tri_con_j = draw_vector_sets[j];
+            for (unsigned int jj=0; jj<tri_con_j.points.size(); jj++) {
+               if (i == j && ii == jj ) continue;
+               const clipper::Coord_orth &pt_j = tri_con_j.points[jj];
+               double dd = (pt_i-pt_j).lengthsq();
+               if (dd < min_dist_sqrd) {
+                  neighb_normals.push_back(tri_con_j.normals[jj]);
+               }
+            }
+         }
+         if (! neighb_normals.empty()) {
+            clipper::Coord_orth sum = tri_con_i.normals[ii];
+            for (unsigned int in=0; in<neighb_normals.size(); in++)
+               sum += neighb_normals[in];
+            tri_con_i.normals[ii] = clipper::Coord_orth(sum.unit());
+            n_reset++;
+         }
+      }
+   }
+
+   std::cout << "DEBUG:: n_reset " << n_reset << std::endl;
 
 }
 
 void
-molecule_class_info_t::sort_map_triangles() {
+molecule_class_info_t::setup_map_cap(Shader *shader_p,
+                                     const clipper::Coord_orth &base_point, // Bring it into this class.
+                                     const clipper::Coord_orth &x_axis_uv, // Of the cap plane, of course.
+                                     const clipper::Coord_orth &y_axis_uv,
+                                     double x_axis_step_size,
+                                     double y_axis_step_size,
+                                     unsigned int n_x_axis_points,
+                                     unsigned int n_y_axis_points) {
 
-   // sort and update map_triangle_centres
+   // this line is completely vital! - But do I want gtk_gl_area_attach_buffers(gl_area) ?
+   //
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-   // maybe we don't need to malloc every frame? Keep it as member data.
+   GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > map_cap =
+      make_map_cap(base_point, x_axis_uv, y_axis_uv, x_axis_step_size, y_axis_step_size,
+                   n_x_axis_points, n_y_axis_points);
 
-   // std::vector<std::pair<int, TRIANGLE> map_triangle_centres; // with associated mid-points and indices
+   shader_p->Use();
+   Material material;
+
+   // What was I trying to do here?
+   // graphical_molecule gm;
+   // graphical_molecule gm_cap(map_cap.first, map_cap.second);
+   // gm.setup_simple_triangles(shader_p, material);
+   // graphical_molecules.push_back(gm);
+   // graphical_molecules.push_back(gm_cap);
+
+   Mesh gm_cap(map_cap);
+   meshes.push_back(gm_cap);
+   meshes.back().setup(shader_p, material);
+
+}
 
 
-#if 0
-   // now update the gl buffer:
+// there are called molecular meshes now
+void
+molecule_class_info_t::mesh_draw_normals(const glm::mat4 &mvp) {
+
+   bool do_all = false;
+   // there are molecular meshes now
+   const float s = 0.1;
+   if (do_all) {
+      for (unsigned int i=0; i<meshes.size(); i++) {
+         meshes[i].draw_normals(mvp, s);
+      }
+   } else {
+      meshes.back().draw_normals(mvp, s);
+   }
+}
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecule_class_info_t::make_map_mesh() {
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+   std::vector<s_generic_vertex> &vertices = vp.first;
+   std::vector<g_triangle> &triangles = vp.second;
+
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      // vertices
+      int idx_base = vertices.size();
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+         glm::vec3 p( tri_con.points[i].x(),  tri_con.points[i].y(),  tri_con.points[i].z());
+         glm::vec3 n(tri_con.normals[i].x(), tri_con.normals[i].y(), tri_con.normals[i].z());
+         glm::vec4 c(0.5, 0.5, 0.5, 1.0);
+         s_generic_vertex g(p,n,c);
+         vertices.push_back(g);
+      }
+      // triangles
+      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+         g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
+                      tri_con.point_indices[i].pointID[1] + idx_base,
+                      tri_con.point_indices[i].pointID[2] + idx_base);
+         if (triangles.size() < 10000)
+            triangles.push_back(t);
+      }
+   }
+   return vp;
+}
+
+
+
+void
+molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_position) {
+
+   bool do_the_sort = false;
+   if ((eye_position - previous_eye_position).lengthsq() > 0.0001) do_the_sort = true;
+
+   if (! do_the_sort) return;
+
+   if (false) // debug
+      for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
+         clipper::Coord_orth delta(map_triangle_centres[i].second.mid_point - eye_position);
+         std::cout << "triangle " << i << " " << map_triangle_centres[i].second.mid_point.format() << " "
+                   << sqrt(delta.lengthsq()) << std::endl;
+      }
+
+   for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
+      clipper::Coord_orth delta(map_triangle_centres[i].second.mid_point - eye_position);
+      double dd = delta.lengthsq();
+      map_triangle_centres[i].second.back_front_projection_distance = dd;
+   }
+
+   // this sign needs checking (I did, I think that it's right now).
+   auto map_triangle_sorter = [] (const std::pair<int, TRIANGLE> &t1,
+                                  const std::pair<int, TRIANGLE> &t2) {
+                                 return (t1.second.back_front_projection_distance < t2.second.back_front_projection_distance);
+                              };
+
+   std::sort(map_triangle_centres.begin(), map_triangle_centres.end(), map_triangle_sorter);
+
+   unsigned int n_triangle_centres = map_triangle_centres.size();
+
+   int *indices_for_triangles = new int[3 * n_triangle_centres]; // d
+   for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
+      indices_for_triangles[3*i  ] = map_triangle_centres[i].second.pointID[0];
+      indices_for_triangles[3*i+1] = map_triangle_centres[i].second.pointID[1];
+      indices_for_triangles[3*i+2] = map_triangle_centres[i].second.pointID[2];
+   }
+
+   // if (xmap_is_diff_map)
+   // return;
 
    GLenum err = glGetError();
-   glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
-   err = glGetError();
+
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
-   err = glGetError();
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-                &indices_for_triangles[0], GL_STATIC_DRAW);
-   err = glGetError();
+   err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
 
-#endif
+   unsigned int n_bytes = 3 * n_triangle_centres * sizeof(unsigned int);
+   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, n_bytes, &indices_for_triangles[0]);
+   err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
 
-   // delete [] indices_for_triangles;
+   delete [] indices_for_triangles;
+
+   // for next time
+   previous_eye_position = eye_position;
 }
 
 
+#include "coot-utils/3d-texture.hh"
 
 void
-molecule_class_info_t::setup_glsl_map_rendering() {
+molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius) {
 
    // This is called from update_map_triangles().
 
@@ -756,17 +880,30 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
    if (true) { // real map
 
+      if (false) { // 3d texture for ambient occlusion
+         three_d_texture_t tdt(draw_vector_sets, centre, radius);
+         std::vector<coot::density_contour_triangles_container_t>::iterator it_nc; // not const
+         for (it_nc=draw_vector_sets.begin(); it_nc!=draw_vector_sets.end(); it_nc++) {
+            coot::density_contour_triangles_container_t &tri_con(*it_nc);
+            tdt.fill_occlusions(tri_con);
+         }
+      }
+
       unsigned int sum_tri_con_points = 0;
       unsigned int sum_tri_con_normals = 0;
       unsigned int sum_tri_con_triangles = 0;
+
+      auto tp_0 = std::chrono::high_resolution_clock::now();
       std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
 
          if (false) {
             std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
-            std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << " triangles" << std::endl;
-            std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here B ------------"
+                      << tri_con.point_indices.size() << " triangles" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here C ------------"
+                      << tri_con.normals.size() << " normals" << std::endl;
          }
 
          sum_tri_con_points    += tri_con.points.size();
@@ -818,17 +955,40 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         // put the triangle mid-points into a single vector. Not sure that this is needed now.
-         // There's a different mechanism (in the works) for triangle sorting.
+         // put the triangle mid-points into a single vector.
+
          int idx_for_mid_points = 0;
-         // std::vector<std::pair<int, TRIANGLE> > map_triangle_centres(sum_tri_con_triangles);
          map_triangle_centres.resize(sum_tri_con_triangles); // class member
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_triangles = idx_base_for_triangles_vec[i];
             for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
                map_triangle_centres[idx_for_mid_points].first = idx_for_mid_points;
-               map_triangle_centres[idx_for_mid_points].second = tri_con.point_indices[j];
+               map_triangle_centres[idx_for_mid_points].second.mid_point = tri_con.point_indices[j].mid_point;
+               map_triangle_centres[idx_for_mid_points].second.pointID[0] = idx_base_for_triangles + tri_con.point_indices[j].pointID[0];
+               map_triangle_centres[idx_for_mid_points].second.pointID[1] = idx_base_for_triangles + tri_con.point_indices[j].pointID[1];
+               map_triangle_centres[idx_for_mid_points].second.pointID[2] = idx_base_for_triangles + tri_con.point_indices[j].pointID[2];
                idx_for_mid_points++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               int idx_base_for_triangles = idx_base_for_triangles_vec[i];
+               for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+                  try {
+                     map_triangle_centres[idx_for_mid_points].first = idx_for_mid_points;
+                     map_triangle_centres[idx_for_mid_points].second.mid_point = tri_con.point_indices[j].mid_point;
+                     map_triangle_centres[idx_for_mid_points].second.pointID[0] = idx_base_for_triangles + tri_con.point_indices[j].pointID[0];
+                     map_triangle_centres[idx_for_mid_points].second.pointID[1] = idx_base_for_triangles + tri_con.point_indices[j].pointID[1];
+                     map_triangle_centres[idx_for_mid_points].second.pointID[2] = idx_base_for_triangles + tri_con.point_indices[j].pointID[2];
+                     idx_for_mid_points++;
+                  }
+                  catch (const std::out_of_range &oor) {
+                     std::cout << "ERROR:: caught out of range " << oor.what() << " at j " << j << std::endl;
+                  }
+               }
             }
          }
 
@@ -862,25 +1022,79 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          n_indices_for_triangles    = 3 * sum_tri_con_triangles;
          n_indices_for_lines        = 6 * sum_tri_con_triangles;
 
+         // "in-line" class
+         class hashed_line_t {
+         public:
+            long hash;
+            hashed_line_t(const unsigned int &i1, const unsigned int &i2) {
+               if (i1 < i2)
+                  hash = i1 + 1000000 * i2;
+               else
+                  hash = i2 + 1000000 * i1;
+            }
+            bool operator<(const hashed_line_t &h) const {
+               return hash < h.hash;
+            }
+         };
+
+         std::set<hashed_line_t> line_hash;
+         unsigned int n_lines_added = 0;
+         unsigned int n_lines_total = 0;
+
          int *indices_for_lines = new int[n_indices_for_lines];
          int idx_for_indices = 0;
-         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
-            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
-            int idx_base_for_points = idx_base_for_points_vec[i];
-            for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
-               indices_for_lines[6*idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
-               indices_for_lines[6*idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
-               indices_for_lines[6*idx_for_indices+2] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
-               indices_for_lines[6*idx_for_indices+3] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
-               indices_for_lines[6*idx_for_indices+4] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
-               indices_for_lines[6*idx_for_indices+5] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
-               idx_for_indices++;
+         bool use_line_hash = false; // make user-settable parameter
+
+         if (xmap_is_diff_map) use_line_hash = false; // too tricky indexing (for now)
+
+         if (use_line_hash) {
+
+            for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+               const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+               int idx_base_for_points = idx_base_for_points_vec[i];
+               for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+
+                  bool add_01 = true;
+                  bool add_12 = true;
+                  bool add_20 = true;
+                  hashed_line_t hash_key_1 = hashed_line_t(idx_base_for_points + tri_con.point_indices[j].pointID[0],
+                                                           idx_base_for_points + tri_con.point_indices[j].pointID[1]);
+                  hashed_line_t hash_key_2 = hashed_line_t(idx_base_for_points + tri_con.point_indices[j].pointID[1],
+                                                           idx_base_for_points + tri_con.point_indices[j].pointID[2]);
+                  hashed_line_t hash_key_3 = hashed_line_t(idx_base_for_points + tri_con.point_indices[j].pointID[2],
+                                                           idx_base_for_points + tri_con.point_indices[j].pointID[0]);
+
+                  if (line_hash.find(hash_key_1) != line_hash.end()) add_01 = false; else line_hash.insert(hash_key_1);
+                  if (line_hash.find(hash_key_2) != line_hash.end()) add_12 = false; else line_hash.insert(hash_key_2);
+                  if (line_hash.find(hash_key_3) != line_hash.end()) add_20 = false; else line_hash.insert(hash_key_3);
+
+                  if (add_01) {
+                     indices_for_lines[idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+                     indices_for_lines[idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+                     idx_for_indices += 2;
+                     n_lines_added++;
+                  }
+                  if (add_12) {
+                     indices_for_lines[idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+                     indices_for_lines[idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+                     idx_for_indices += 2;
+                     n_lines_added++;
+                  }
+                  if (add_20) {
+                     indices_for_lines[idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+                     indices_for_lines[idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+                     idx_for_indices += 2;
+                     n_lines_added++;
+                  }
+                  n_lines_total += 3;
+               }
             }
-         }
-         if (xmap_is_diff_map) {
-            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
-               unsigned int i = i0 + draw_vector_sets.size();
-               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+            std::cout << "debug:: n_lines_total " << n_lines_total << " of which " << n_lines_added
+                      << " were added " << std::endl;
+         } else {
+
+            for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+               const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
                int idx_base_for_points = idx_base_for_points_vec[i];
                for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
                   indices_for_lines[6*idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
@@ -892,33 +1106,53 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                   idx_for_indices++;
                }
             }
-         }
-
-         int *indices_for_triangles = new int[n_indices_for_triangles];
-         int idx_for_triangles = 0;
-         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
-            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
-            int idx_base_for_triangles = idx_base_for_triangles_vec[i];
-            for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-               indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
-               indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
-               indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
-               idx_for_triangles++;
-
-               // as we install these we should find out where the triangles centres are (or maybe before now)
-               // so that we can use the centres for sorting.
+            if (xmap_is_diff_map) {
+               for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+                  unsigned int i = i0 + draw_vector_sets.size();
+                  const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+                  int idx_base_for_points = idx_base_for_points_vec[i];
+                  for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+                     indices_for_lines[6*idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+                     indices_for_lines[6*idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+                     indices_for_lines[6*idx_for_indices+2] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+                     indices_for_lines[6*idx_for_indices+3] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+                     indices_for_lines[6*idx_for_indices+4] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+                     indices_for_lines[6*idx_for_indices+5] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+                     idx_for_indices++;
+                  }
+               }
             }
          }
-         if (xmap_is_diff_map) {
-            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
-               unsigned int i = i0 + draw_vector_sets.size();
-               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+
+         int *indices_for_triangles = new int[n_indices_for_triangles]; // d
+         int idx_for_triangles = 0;
+
+         if (true) {
+            for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+               const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
                int idx_base_for_triangles = idx_base_for_triangles_vec[i];
                for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                  // note change of winding
+                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                   indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
-                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
                   idx_for_triangles++;
+
+                  // as we install these we should find out where the triangles centres are (or maybe before now)
+                  // so that we can use the centres for sorting.
+               }
+            }
+            if (xmap_is_diff_map) {
+               for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+                  unsigned int i = i0 + draw_vector_sets.size();
+                  const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+                  int idx_base_for_triangles = idx_base_for_triangles_vec[i];
+                  for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+                     indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[j].pointID[2];
+                     indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[j].pointID[1];
+                     indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[j].pointID[0];
+                     idx_for_triangles++;
+                  }
                }
             }
          }
@@ -928,9 +1162,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          int n_normals = sum_tri_con_normals;
          float *normals = new float[3 * n_normals];
          int idx_for_normals = 0;
-         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
-            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+         for (unsigned int i0=0; i0<draw_vector_sets.size(); i0++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i0]);
             for (std::size_t i=0; i<tri_con.normals.size(); i++) {
+               // std::cout << "real normal " << idx_for_normals << " " << tri_con.normals[i].format() << std::endl;
                normals[3*idx_for_normals  ] = tri_con.normals[i].x();
                normals[3*idx_for_normals+1] = tri_con.normals[i].y();
                normals[3*idx_for_normals+2] = tri_con.normals[i].z();
@@ -939,7 +1174,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          }
          if (xmap_is_diff_map) {
             for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
-               unsigned int i = i0 + draw_vector_sets.size();
                const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
                for (std::size_t i=0; i<tri_con.normals.size(); i++) {
                   normals[3*idx_for_normals  ] = tri_con.normals[i].x();
@@ -983,11 +1217,21 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                      colours[4*idx_for_colours+3] = 1.0f;
                   } else {
                      // basic/standard single colour map
+
                      if ((4*idx_for_colours) < (4 * n_colours)) {
                         colours[4*idx_for_colours  ] = map_colour.red;
                         colours[4*idx_for_colours+1] = map_colour.green;
                         colours[4*idx_for_colours+2] = map_colour.blue;
                         colours[4*idx_for_colours+3] = 1.0;
+
+                        if (false) {// baked-in ambient occlusion
+                           float occlusion_factor = tri_con.occlusion_factor[j];
+                           float f = 0.9 * (1.0 - occlusion_factor);
+                           colours[4*idx_for_colours  ] *= f;
+                           colours[4*idx_for_colours+1] *= f;
+                           colours[4*idx_for_colours+2] *= f;
+                        }
+
                      } else {
                         std::cout << "oops indexing error for colours"
                                   << idx_for_colours << " " << n_colours << std::endl;
@@ -999,7 +1243,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          }
          if (xmap_is_diff_map) {
             for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
-               unsigned int i = i0 + draw_vector_sets.size();
                const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
                for (std::size_t j=0; j<tri_con.points.size(); j++) {
                   if ((4*idx_for_colours) < (4 * n_colours)) {
@@ -1018,16 +1261,51 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // why is this needed? Is it needed? Done by caller? (or should be?)
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+         bool a_VAO_was_assigned = false;
 
-         glGenVertexArrays(1, &m_VertexArrayID_for_map);
-         GLenum err = glGetError();
+         if (map_mesh_first_time) {
+            glGenVertexArrays(1, &m_VertexArrayID_for_map);
+            if (false)
+               std::cout << "debug:: glGenVertexArrays for m_VertexArrayID_for_map "
+                         << m_VertexArrayID_for_map << std::endl;
+            GLenum err = glGetError();
+            if (err)
+               std::cout << "### in setup_glsl_map_rendering() error on binding vertex array "
+                         << m_VertexArrayID_for_map << std::endl;
+            a_VAO_was_assigned =  true;
+         } else {
+            //std::cout << "debug:: glGenVertexArrays for m_VertexArrayID_for_map skip (not first time)"
+            //                       << std::endl;
+         }
+
+         // valgrind says: Conditional jump or move depends on uninitialised value(s) for this line
+         // when we try to read weird/massive/gemmi map.
+         if (m_VertexArrayID_for_map == VAO_NOT_SET) {
+            std::cout << "ERROR:: You didn't set this map mesh VAO! " << std::endl;
+            // what shader are we using here? Print its name?
+         }
+
          glBindVertexArray(m_VertexArrayID_for_map);
-         err = glGetError();
+         GLenum err = glGetError();
+         if (err)
+            std::cout << "############## in setup_glsl_map_rendering() error glBindVertexArray() "
+                      << m_VertexArrayID_for_map << std::endl;
+         if (err) {
+            std::cout << "Catastrophic failure - exit setup_glsl_map_rendering() now" << std::endl;
+            return;
+         }
 
          // positions
-         glGenBuffers(1, &m_VertexBufferID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         if (map_mesh_first_time) {
+            glGenBuffers(1, &m_VertexBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_VertexBufferID);
+            glGenBuffers(1, &m_VertexBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         }
          glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
@@ -1044,9 +1322,16 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
          // normals
-         glGenBuffers(1, &m_NormalBufferID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         if (map_mesh_first_time) {
+            glGenBuffers(1, &m_NormalBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_NormalBufferID);
+            glGenBuffers(1, &m_NormalBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         }
          glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
@@ -1062,9 +1347,16 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
          // colours
-         glGenBuffers(1, &m_ColourBufferID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         if (map_mesh_first_time) {
+            glGenBuffers(1, &m_ColourBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_ColourBufferID);
+            glGenBuffers(1, &m_ColourBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         }
          glBindBuffer(GL_ARRAY_BUFFER, m_ColourBufferID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
@@ -1080,39 +1372,75 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
          // indices for map lines
-         glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
+         if (map_mesh_first_time) {
+            glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() A-path " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+            glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() B-path " << err << std::endl;
+         }
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+         if (err) std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+
          // Note to self: is n_vertices_for_VertexArray correct here?
+
          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_lines,
                       &indices_for_lines[0], GL_STATIC_DRAW);
          err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
-
+         if (err) std::cout << "error:: setup_glsl_map_rendering() glBufferData() m_indexbuffer_for_map_lines_id "
+                            << err << std::endl;
 
          // indices for map triangles
 
-         glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
+         if (map_mesh_first_time) {
+            glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+            err = glGetError();
+            if (err)
+               std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID "
+                         << err << std::endl;
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles A-path " << err << std::endl;
+         } else {
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() pre glBindBuffer() for triangles B-path " << err << std::endl;
+            glDeleteBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+            glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles B-path " << err << std::endl;
+         }
+
          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
                       &indices_for_triangles[0], GL_STATIC_DRAW);
          err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+         if (err)
+            std::cout << "setup_glsl_map_rendering() glBufferData() m_IndexBuffer_for_map_triangles_ID"
+                      << err << std::endl;
 
          delete [] points;
+         delete [] normals;
          delete [] indices_for_lines;
          delete [] indices_for_triangles;
          delete [] colours;
 
+         // if a VAO was not assigned (because the contour level was too high for the map)
+         // then we don't get to do anything in this function, so we want to only assign
+         // map_mesh_first_time if a VAO for the map *was* assigned.
+         if (a_VAO_was_assigned)
+            map_mesh_first_time = false;
+
       }
+
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      // std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
    }
+
 
    if (false)
       std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "
@@ -1128,12 +1456,28 @@ molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_o
    c.green = 0.1;
    c.blue  = 0.0;
    c.alpha = 1.0;
+
    if (other_map_for_colouring_p) {
+      float min_value = other_map_for_colouring_min_value;
+      float max_value = other_map_for_colouring_max_value;
       float dv = coot::util::density_at_point(*other_map_for_colouring_p, position);
-      float v = 20.0 * dv; // some function of dv;
-      if (v > 1.0) v = 1.0;
-      if (v < 0.0) v = 0.0;
-      c = fraction_to_colour(v);
+
+      float f = 0.0;
+      if (dv < min_value) {
+         f = 0.0;
+      } else {
+         if (dv > max_value) {
+            f = 1.0;
+         } else {
+            // in the range
+            float range = max_value - min_value;
+            float m = dv - min_value;
+            f = m/range;
+         }
+      }
+
+      c = fraction_to_colour(f);
+      // std::cout << "fraction " << f << " col " << c.red << " " << c.green << " " << c.blue << std::endl;
    } else {
       return c;
    }
@@ -1339,21 +1683,11 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
 // modify v
 void
-molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
+molecule_class_info_t::dynamically_transform(coot::density_contour_triangles_container_t *dctc) {
 
-   int s = v.size;
-   for (int i=0; i<s; i++) {
-      clipper::Coord_orth c1(v.data[i].getStart().x(),
-			     v.data[i].getStart().y(),
-			     v.data[i].getStart().z());
-      clipper::Coord_orth c2(v.data[i].getFinish().x(),
-			     v.data[i].getFinish().y(),
-			     v.data[i].getFinish().z());
-      clipper::Coord_orth ct1 = c1.transform(map_ghost_info.rtop);
-      clipper::Coord_orth ct2 = c2.transform(map_ghost_info.rtop);
-      v.data[i] = coot::CartesianPair(coot::Cartesian(ct1.x(), ct1.y(), ct1.z()),
-				coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
-   }
+   int s = dctc->points.size();
+   for (int i=0; i<s; i++)
+      dctc->points[i] = dctc->points[i].transform(map_ghost_info.rtop);
 
 }
 
@@ -2067,22 +2401,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       }
    }
 
-   // was a regular file, let's check the extension:
-   //
-#ifdef WINDOWS_MINGW
-   std::string::size_type islash = coot::util::intelligent_debackslash(filename).find_last_of("/");
-#else
-   std::string::size_type islash = filename.find_last_of("/");
-#endif // MINGW
-   std::string tstring;
-   if (islash == std::string::npos) {
-      // no slash found
-      tstring = filename;
-   } else {
-      tstring = filename.substr(islash + 1);
-   }
 
-   bool good_extension_flag = 0;
+   std::string tstring = coot::util::file_name_non_directory(filename);
+
+   bool good_extension_flag = false;
    for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
       std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
       if (imap != std::string::npos) {
@@ -2136,7 +2458,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       if (coot::util::is_basic_em_map_file(filename)) {
          em = true;
          // fill xmap
-         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
+         // done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
       }
 
       if (! done) {
@@ -4361,7 +4683,14 @@ int
 molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                                      const clipper::HKL_data<clipper::data32::Flag> &free,
                                      clipper::Xmap<float> *xmap_p) {
-   coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+
+   bool sane = sanity_check_atoms(atom_sel.mol);
+
+   if (sane) {
+      coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+   } else {
+      std::cout << "ERROR:: coordinates were not sane" << std::endl;
+   }
    return 0;
 }
 
@@ -4388,7 +4717,8 @@ molecule_class_info_t::fraction_to_colour(float fraction) {
    GdkRGBA col;
    float sat = radial_map_colour_saturation;
    coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
-   cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
+   // cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
+   cc.rotate(0.66 * fraction);
    col.red   = cc.col[0];
    col.green = cc.col[1];
    col.blue  = cc.col[2];
@@ -4403,5 +4733,324 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap) {
   colour_map_using_other_map_flag = true;
   other_map_for_colouring_p = &xmap;
   update_map();
+
+}
+
+
+void
+molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
+                                            const std::vector<coot::colour_t> &colours) {
+
+   if (colours.empty()) {
+      std::cout << "WARNING:: no colours - no map colouring" << std::endl;
+   } else {
+      // we need to tell the glsl colour setup to use value_to_colour() (which uses our table)
+      // (not done yet).
+      colour_map_using_other_map_flag = true; // tell the triangle generator to use a function to get the colour
+                                              // (position_to_colour_using_other_map(co))
+      other_map_for_colouring_p = &xmap;
+      other_map_for_colouring_min_value = table_bin_start;
+      other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
+      other_map_for_colouring_colour_table = colours;
+      update_map();
+   }
+}
+
+
+coot::density_contour_triangles_container_t
+molecule_class_info_t::export_molecule_as_x3d() const {
+
+   // return value should be a vector of vertices and triangle indices
+   coot::density_contour_triangles_container_t tc;
+
+   if (true) {
+
+      unsigned int sum_tri_con_points = 0;
+      unsigned int sum_tri_con_normals = 0;
+      unsigned int sum_tri_con_triangles = 0;
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+         const coot::density_contour_triangles_container_t &tri_con(*it);
+         sum_tri_con_points    += tri_con.points.size();
+         sum_tri_con_normals   += tri_con.normals.size();
+         sum_tri_con_triangles += tri_con.point_indices.size();
+      }
+      if (xmap_is_diff_map) {
+         for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
+            const coot::density_contour_triangles_container_t &tri_con(*it);
+            sum_tri_con_points    += tri_con.points.size();
+            sum_tri_con_normals   += tri_con.normals.size();
+            sum_tri_con_triangles += tri_con.point_indices.size();
+         }
+      }
+
+      if (sum_tri_con_triangles > 0) {
+
+         std::vector<int> idx_base_for_points_vec(   draw_vector_sets.size()); // and normals
+         std::vector<int> idx_base_for_triangles_vec(draw_vector_sets.size());
+         if (xmap_is_diff_map) {
+            idx_base_for_points_vec.resize(draw_vector_sets.size() + draw_diff_map_vector_sets.size());
+            idx_base_for_triangles_vec.resize(draw_vector_sets.size() + draw_diff_map_vector_sets.size());
+         }
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            if (i==0) {
+               idx_base_for_points_vec[i] = 0;
+               idx_base_for_triangles_vec[i] = 0;
+            } else {
+               idx_base_for_points_vec[i]    = idx_base_for_points_vec[i-1]    + draw_vector_sets[i-1].points.size();
+               idx_base_for_triangles_vec[i] = idx_base_for_triangles_vec[i-1] + draw_vector_sets[i-1].points.size();
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               try {
+                  if (i0==0) {
+                     idx_base_for_points_vec.at(i)    = idx_base_for_points_vec.at(i-1)    + draw_vector_sets.at(i-1).points.size();
+                     idx_base_for_triangles_vec.at(i) = idx_base_for_triangles_vec.at(i-1) + draw_vector_sets.at(i-1).points.size();
+                  } else {
+                     idx_base_for_points_vec.at(i)    = idx_base_for_points_vec.at(i-1)    + draw_diff_map_vector_sets.at(i0-1).points.size();
+                     idx_base_for_triangles_vec.at(i) = idx_base_for_triangles_vec.at(i-1) + draw_diff_map_vector_sets.at(i0-1).points.size();
+                  }
+               }
+               catch (std::out_of_range &oor) {
+                  std::cout << "ERROR:: caught out of range " << oor.what() << " at i " << i << std::endl;
+               }
+            }
+         }
+
+         std::cout << "resize points  " << sum_tri_con_points << std::endl;
+         std::cout << "resize normals " << sum_tri_con_normals << " (should be the same)" << std::endl;
+         tc.points.resize(sum_tri_con_points);
+         tc.normals.resize(sum_tri_con_normals);
+         tc.point_indices.resize(sum_tri_con_triangles);
+
+         // Now transfer the points
+
+         int idx_points = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            for (std::size_t j=0; j<tri_con.points.size(); j++) {
+               tc.points[idx_points  ] = tri_con.points[j];
+               idx_points++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               for (std::size_t j=0; j<tri_con.points.size(); j++) {
+                  tc.points[idx_points] = tri_con.points[j];
+                  idx_points++;
+               }
+            }
+         }
+
+         int n_indices_for_triangles = 3 * sum_tri_con_triangles;
+
+         int idx_for_triangles = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_triangles = idx_base_for_triangles_vec[i];
+            for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+               // indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+               // indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+               // indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+               tc.point_indices[idx_for_triangles].pointID[0] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+               tc.point_indices[idx_for_triangles].pointID[1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+               tc.point_indices[idx_for_triangles].pointID[2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+               idx_for_triangles++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               int idx_base_for_triangles = idx_base_for_triangles_vec[i];
+               for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+                  // indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                  // indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+                  // indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                  tc.point_indices[idx_for_triangles].pointID[0] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                  tc.point_indices[idx_for_triangles].pointID[1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+                  tc.point_indices[idx_for_triangles].pointID[2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                  idx_for_triangles++;
+               }
+            }
+         }
+
+         // each index has a normal
+
+         int n_normals = sum_tri_con_normals;
+         int idx_for_normals = 0;
+         for (unsigned int i0=0; i0<draw_vector_sets.size(); i0++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i0]);
+            for (std::size_t i=0; i<tri_con.normals.size(); i++) {
+               // std::cout << "storing normal " << idx_for_normals << " " << tri_con.normals[i].format() << std::endl;
+               tc.normals[idx_for_normals] = tri_con.normals[i];
+               idx_for_normals++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               for (std::size_t i=0; i<tri_con.normals.size(); i++) {
+                  tc.normals[idx_for_normals] = tri_con.normals[i];
+                  idx_for_normals++;
+               }
+            }
+         }
+      }
+   }
+   return tc;
+}
+
+bool
+molecule_class_info_t::sanity_check_atoms(mmdb::Manager *mol) {
+
+   bool sane = true;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) {
+         std::cout << "ERROR:: Bad model " << imod << std::endl;
+         sane = false;
+      } else {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (! chain_p) {
+               std::cout << "ERROR:: Bad chain with index " << ichain << "  in model "
+                         << imod << std::endl;
+               sane = false;
+            } else {
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (! residue_p) {
+                     std::cout << "ERROR:: Bad residue with index " << ires << "  in chain "
+                               << chain_p->GetChainID() << std::endl;
+                     sane = false;
+                  } else {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at) {
+                           std::cout << "ERROR:: Bad atom with index " << iat << "  in residue "
+                                     << coot::residue_spec_t(residue_p) << std::endl;
+                           sane = false;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return sane;
+}
+
+bool
+molecule_class_info_t::export_molecule_as_obj(const std::string &file_name) {
+
+   if (has_xmap()) {
+      return export_map_molecule_as_obj(file_name);
+   } else {
+      return export_model_molecule_as_obj(file_name);
+   }
+}
+
+bool
+molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices_in,
+                                                          const std::vector<g_triangle> &triangles) {
+
+   // write to export_vertices_and_triangles_file_name_for_func, which is set below
+   // in export_model_molecule_as_obj().
+
+   Mesh mesh;
+   std::vector<s_generic_vertex> vertices(vertices_in.size());
+   for (unsigned int i=0; i<vertices_in.size(); i++) {
+      s_generic_vertex gv;
+      glm::mat4 mat_rot   = glm::mat4(vertices_in[i].model_rotation_matrix);
+      mat_rot = glm::transpose(mat_rot); // Wow. But true.
+      glm::mat4 mat_trans = glm::translate(glm::mat4(1.0f), vertices_in[i].model_translation);
+      glm::vec4 pos_t = mat_rot * glm::vec4(vertices_in[i].pos, 1.0);
+      glm::vec4 pos   = mat_trans * pos_t;
+      glm::vec4 norm  = mat_rot * glm::vec4(vertices_in[i].normal, 1.0);
+      gv.color       = vertices_in[i].colour;
+      gv.pos = glm::vec3(pos);
+      if (false)
+         std::cout << "debug pos " << i << " from vertex " << glm::to_string(vertices_in[i].pos) << " "
+                   << glm::to_string(pos) << " " << glm::to_string(gv.pos) << std::endl;
+      gv.normal = glm::vec3(norm);
+      vertices[i] = gv;
+   }
+   mesh.import(vertices, triangles);
+   bool status = mesh.export_as_obj(export_vertices_and_triangles_file_name_for_func);
+   return status;
+}
+
+bool
+molecule_class_info_t::export_model_molecule_as_obj(const std::string &file_name) {
+
+   write_model_vertices_and_triangles_to_file_mode = true;
+   export_vertices_and_triangles_file_name_for_func = file_name;
+   make_bonds_type_checked();
+   write_model_vertices_and_triangles_to_file_mode = false;
+
+   return false;
+}
+
+bool
+molecule_class_info_t::export_map_molecule_as_obj(const std::string &file_name) const {
+
+   // this is not in x3d format of course:
+   coot::density_contour_triangles_container_t raw_mesh = export_molecule_as_x3d();
+
+   // There is an obj exporter in Mesh, but it's more trouble to get raw_mesh
+   // into the right form as input to that function than it is to just write another
+   // one.
+
+   bool status = true;
+
+   std::string name = "exported";
+   std::ofstream f(file_name.c_str());
+   if (f) {
+      std::cout << "opened " << file_name << std::endl;
+      f << "# " << name << " from Coot" << "\n";
+      f << "# " << "\n";
+      f << "" << "\n";
+      f << "g exported_obj\n";
+      for (unsigned int i=0; i<raw_mesh.points.size(); i++) {
+         const clipper::Coord_orth &vert = raw_mesh.points[i];
+         f << "v " << vert.x() << " " << vert.y() << " " << vert.z();
+         f << "\n";
+      }
+      for (unsigned int i=0; i<raw_mesh.normals.size(); i++) {
+         const clipper::Coord_orth &n = raw_mesh.normals[i];
+         f << "vn " << n.x() << " " << n.y() << " " << n.z() << "\n";
+      }
+      for (unsigned int i=0; i<raw_mesh.point_indices.size(); i++) {
+         const TRIANGLE &tri = raw_mesh.point_indices[i];
+         f << "f "
+           << tri.pointID[0]+1 << "//" << tri.pointID[0]+1 << " "
+           << tri.pointID[1]+1 << "//" << tri.pointID[1]+1 << " "
+           << tri.pointID[2]+1 << "//" << tri.pointID[2]+1 << "\n";
+      }
+      f.close();
+      std::cout << "closed " << file_name << std::endl;
+   } else {
+      status = false;
+   }
+   return status;
+
+}
+
+void
+molecule_class_info_t::set_fresnel_colour(const glm::vec4 &col_in) {
+
+   std::cout << "debug:: set fresnel colour for map " << imol_no << " "
+             << glm::to_string(col_in) << std::endl;
+   fresnel_settings.colour = col_in;
 
 }

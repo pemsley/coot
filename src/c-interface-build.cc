@@ -624,6 +624,19 @@ int backup_compress_files_state() {
   return state;
 }
 
+void set_decoloned_backup_file_names(int state) {
+   graphics_info_t::decoloned_backup_file_names_flag = state;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-decoloned-backup-file-names");
+   command_strings.push_back(graphics_info_t::int_to_string(state));
+   add_to_history(command_strings);
+}
+
+int decoloned_backup_file_names_state() {
+   add_to_history_simple("decoloned-backup-file-names-state");
+   return graphics_info_t::decoloned_backup_file_names_flag;
+}
+
 
 
 
@@ -833,9 +846,9 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int model_number_ANY = mmdb::MinInt4;
-      short int istat =
-	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno,
-					  std::string(inscode));
+      std::string ic(inscode);
+      short int istat = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
+
       if (istat) {
 	 // now if the go to atom widget was being displayed, we need to
 	 // redraw the residue list and atom list (if the molecule of the
@@ -1264,6 +1277,7 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 			 (alt_conf       == "-*-unset-*-:") ||
 			 (attribute_name == "-*-unset-*-:")) {
 
+                        std::string ss = myPyString_AsString(display_python(attribute_expression));
 			std::cout << "WARNING:: bad attribute expression: "
 				  << PyUnicode_AsUTF8String(attribute_expression)
 				  << std::endl;
@@ -1272,16 +1286,17 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 
 			coot::atom_attribute_setting_help_t att_val;
 			if (PyUnicode_Check(attribute_value_py)) {
-			   // std::cout << "a string value :" << att_val.s << ":" << std::endl;
-			   att_val = coot::atom_attribute_setting_help_t(PyBytes_AS_STRING(PyUnicode_AsUTF8String(attribute_value_py)));
+			   att_val = coot::atom_attribute_setting_help_t(myPyString_AsString(attribute_value_py));
 			} else {
 			   att_val = coot::atom_attribute_setting_help_t(float(PyFloat_AsDouble(attribute_value_py)));
-			   // std::cout << "a float value :" << att_val.val << ":" << std::endl;
+			   // std::cout << "debug:: a float value :" << att_val.val << ":" << std::endl;
 			}
-			v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
-			//		     std::cout << "DEBUG:: Added attribute: "
-			//                        << scm_to_locale_string(display_scm(attribute_expression))
-			//        << std::endl;
+                        coot::atom_attribute_setting_t as(chain_id, resno, inscode, atom_name, alt_conf,
+                                                          attribute_name, att_val);
+			v[imol].push_back(as);
+
+                        std::cout << "DEBUG:: Added attribute: "
+                                  << myPyString_AsString(display_python(attribute_expression));
 		     }
 		  }
 	       }
@@ -1619,6 +1634,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 		g.residue_type_selection_was_user_picked_residue_range = false;
 		coot::refinement_results_t rr =
 		   g.refine_residues_vec(imol, residues, alt_conf, mol);
+                g.conditionally_wait_for_refinement_to_finish();
 		rv = g.refinement_results_to_py(rr);
 	     }
           }
@@ -1821,6 +1837,7 @@ void set_delete_atom_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-atom-mode");
 }
 
@@ -1835,6 +1852,7 @@ void set_delete_residue_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-residue-mode");
 }
 
@@ -1849,6 +1867,7 @@ void set_delete_residue_hydrogens_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-residue-hydrogens-mode");
 
 }
@@ -1878,6 +1897,7 @@ void set_delete_water_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-residue-water-mode");
 
 }
@@ -1894,6 +1914,7 @@ void set_delete_sidechain_mode() {
    g.delete_item_chain = 0;
    g.delete_item_sidechain = 1;
    g.delete_item_sidechain_range = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
@@ -1910,6 +1931,7 @@ void set_delete_sidechain_range_mode() {
    g.delete_item_chain = 0;
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 1;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-sidechain-range-mode");
 }
 
@@ -1926,6 +1948,7 @@ void set_delete_chain_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 1;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
@@ -2041,8 +2064,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    // we can simply construct spec from chain_id, resno and inscode.
    // There are other places where we do this too (to delete a residue
    // from the geometry graphs).
-   mmdb::Residue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(chain_id, resno, inscode);
+   mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, resno, inscode);
    if (residue_p) {
       coot::residue_spec_t spec(residue_p);
       g.delete_residue_from_geometry_graphs(imol, spec);
@@ -2177,7 +2199,7 @@ int move_molecule_to_screen_centre_internal(int imol) {
 	 std::cout << "           calling g.setup_graphics_ligand_view_aa() "
 		   << std::endl;
       }
-      g.setup_graphics_ligand_view_aa(imol);
+      g.setup_graphics_ligand_view_using_active_atom(imol); // only in imol
    }
    return imoved_stat;
 }
@@ -2900,21 +2922,7 @@ int quick_save() {
 
    // std::cout << "Quick save..." << std::endl;
    graphics_info_t g;
-   for (int imol=0; imol<graphics_n_molecules(); imol++) {
-      g.molecules[imol].quick_save();
-   }
-
-
-   short int il = coot::SCRIPT_UNSET;
-
-#ifdef USE_GUILE
-   il = coot::SCHEME_SCRIPT;
-   g.save_state_file(g.save_state_file_name.c_str(), il);
-#endif
-#ifdef USE_PYTHON
-   il = coot::PYTHON_SCRIPT;
-   g.save_state_file("0-coot.state.py", il);
-#endif
+   g.quick_save();
    return 0;
 }
 
@@ -3289,13 +3297,16 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
 
 void assign_sequence_from_file(int imol, const char *file) {
    if (is_valid_model_molecule(imol)) {
-    graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
-  }
-  std::string cmd = "assign-sequence-from-file";
-  std::vector<coot::command_arg_t> args;
-  args.push_back(imol);
-  args.push_back(single_quote(file));
-  add_to_history_typed(cmd, args);
+      graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
+   } else {
+      std::cout << "WARNING:: assign_sequence_from_file() molecule number " << imol
+                << " is not a valid molecule" << std::endl;
+   }
+   std::string cmd = "assign-sequence-from-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(single_quote(file));
+   add_to_history_typed(cmd, args);
 }
 
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq) {
@@ -4824,6 +4835,11 @@ void accept_regularizement() {
 void accept_moving_atoms() {
 
    graphics_info_t g;
+
+   while (g.continue_threaded_refinement_loop) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
+
    g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 }

@@ -95,7 +95,9 @@ main(int argc, char **argv) {
       std::string max_dist_str;
       short int do_flood_flag = 0;
       short int do_chop_flag = 0;
-      float flood_atom_mask_radius = 1.4; 
+      float flood_atom_mask_radius = 1.4;
+      float water_to_protein_max_dist = 99.9;
+      float water_to_protein_min_dist = 1.5;
 
       const char *optstr = "i:h:f:p:o:s:e:c:m";
       struct option long_options[] = {
@@ -109,6 +111,8 @@ main(int argc, char **argv) {
 	 {"min-dist",  1, 0, 0},
 	 {"max-dist",  1, 0, 0},
 	 {"flood-atom-radius",  1, 0, 0},
+	 {"water-to-protein-max-dist",  1, 0, 0},
+	 {"water-to-protein-min-dist",  1, 0, 0},
 	 {"flood",  0, 0, 0},
 	 {"chop",   0, 0, 0},
 	 {0, 0, 0, 0}
@@ -122,49 +126,72 @@ main(int argc, char **argv) {
 	 switch(ch) { 
 	    
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       } 
 	       if (arg_str == "pdbout") { 
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       } 
 	       if (arg_str == "sigma") {
-		  sigma_str = optarg;
+		  sigma_str = coot_optarg;
 	       }
 	       if (arg_str == "mapin") {
-		  map_file_name = optarg;
+		  map_file_name = coot_optarg;
 	       }
 	       if (arg_str == "min-dist") {
-		  min_dist_str = optarg;
+		  min_dist_str = coot_optarg;
 	       }
 	       if (arg_str == "max-dist") {
-		  max_dist_str = optarg;
+		  max_dist_str = coot_optarg;
 	       }
 	       if (arg_str == "flood-atom-radius") {
-
 		  try {
 		     flood_atom_mask_radius =
-			coot::util::string_to_float(optarg);
+			coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::exception &e) {
 		     std::cout << "argument for --flood_atom_mask_radius"
-			       << " is not a number: " << optarg
+			       << " is not a number: " << coot_optarg
 			       << std::endl;
 		     exit(1);
 		  } 
 	       }
+               if (arg_str == "water-to-protein-max-dist") {
+		  try {
+		     water_to_protein_max_dist =
+			coot::util::string_to_float(coot_optarg);
+		  }
+		  catch (const std::exception &e) {
+		     std::cout << "argument for --water-to-protein-max-dist"
+			       << " is not a number: " << coot_optarg
+			       << std::endl;
+		     exit(1);
+		  } 
+               }
+               if (arg_str == "water-to-protein-min-dist") {
+		  try {
+		     water_to_protein_min_dist =
+			coot::util::string_to_float(coot_optarg);
+		  }
+		  catch (const std::exception &e) {
+		     std::cout << "argument for --water-to-protein-min-dist"
+			       << " is not a number: " << coot_optarg
+			       << std::endl;
+		     exit(1);
+		  } 
+               }
 	       
 	    } else { 
 	       std::string arg_str = long_options[option_index].name;
@@ -183,27 +210,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    break;
 	    
 	 case 'o':
-	    output_pdb = optarg;
+	    output_pdb = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 	    
 	 case 's':
-	    sigma_str = optarg;
+	    sigma_str = coot_optarg;
 	    break;
 
 	 case 'e':
@@ -405,16 +432,18 @@ main(int argc, char **argv) {
 	    if (pdb_file_name.length() > 0) {
 	       std::cout << "INFO:: masking map by coords in " << pdb_file_name
 			 << std::endl;
-	       lig.set_map_atom_mask_radius(1.9);
+	       // lig.set_map_atom_mask_radius();
 	       lig.mask_by_atoms(pdb_file_name);
 	    } 
 	    lig.set_cluster_size_check_off();
 	    lig.set_chemically_sensible_check_off();
 	    lig.set_sphericity_test_off();
-	       
+
 	    lig.set_map_atom_mask_radius(flood_atom_mask_radius);
-	    lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
-                                                                 // used in lig.
+	    // lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
+                                                                    // used in lig.
+            lig.set_water_to_protein_distance_limits(water_to_protein_max_dist,
+                                                     water_to_protein_min_dist);
 	    lig.flood2(input_sigma_level); // with atoms
 	    coot::minimol::molecule water_mol = lig.water_mol();
 	    water_mol.write_file(output_pdb, 30.0);

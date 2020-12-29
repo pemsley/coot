@@ -41,17 +41,19 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 //#include "mmdb-extras.h"
 //#include "mmdb.h"
 
-// display list GLuint
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#else
-#   include <GL/gl.h>
-#endif
+#include <epoxy/gl.h>
 
 #include <glm/glm.hpp>
 
+#ifndef __NVCC__
+#ifdef HAVE_BOOST
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#include "utils/ctpl.h"
+#endif // HAVE_CXX_THREAD
+#endif // __NVCC__
+
+
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
 #include <CXXClasses/Camera.h>
@@ -61,7 +63,6 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include <CXXClasses/MyMolecule.h>
 #include <CXXClasses/RepresentationInstance.h>
 #include <CXXClasses/MolecularRepresentationInstance.h>
-#endif
 #endif
 
 #include "clipper/ccp4/ccp4_map_io.h"
@@ -117,6 +118,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "map-statistics.hh"
 #include "animated-ligand.hh"
 
+#include "array-2d.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
@@ -142,6 +145,12 @@ namespace molecule_map_type {
 #include "cmtz-interface.hh" // for udating molecules
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "model-composition-statistics.hh"
+
+#include "g_triangle.hh"
+
+#include "fresnel-settings.hh"
+
+glm::vec3 cartesian_to_glm(const coot::Cartesian &c);
 
 namespace coot {
 
@@ -252,36 +261,14 @@ namespace coot {
    };
 } // namespace coot
 
-class tri_indices {
-public:
-   unsigned int idx[3];
-   tri_indices() {}
-   tri_indices(const unsigned int &i0, const unsigned int &i1, const unsigned int &i2) {
-      idx[0] = i0;
-      idx[1] = i1;
-      idx[2] = i2;
-   }
-};
 
-class generic_vertex {
-public:
-   glm::mat3 model_rotation_matrix; // orientation
-   glm::vec3 model_translation; // the coordinates of the first atom of the bond
-   glm::vec3 pos;
-   glm::vec3 normal; // normalized when set
-   glm::vec4 colour;
-};
+#include "generic-vertex.hh"
 
-class cylinder {
-public:
-   std::vector<generic_vertex> vertices;
-   std::vector<tri_indices> triangle_indices_vec;
-   cylinder() {} // needs to be filled
-   cylinder(const coot::CartesianPair &cp,
-            float base_radius, float top_radius, float height,
-            unsigned int n_slices, unsigned int n_stacks);
-};
+#include "cylinder.hh"
 
+#include "Mesh.hh"
+#include "LinesMesh.hh"
+#include "Instanced-Markup-Mesh.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -326,9 +313,7 @@ class molecule_class_info_t {
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
-   void draw_density_map_internal(short int display_lists_for_maps_flag_local,
-				  bool draw_map_local_flag,
-				  short int main_or_secondary);
+   const unsigned int VAO_NOT_SET = 999999;
 
    // display flags:
    //
@@ -357,10 +342,10 @@ class molecule_class_info_t {
 
    // saving temporary files (undo)
    //
-   std::string save_molecule_filename(const std::string &dir);
+   std::string get_save_molecule_filename(const std::string &dir);
    int make_backup(); // changes history details
    int make_maybe_backup_dir(const std::string &filename) const;
-   short int backup_this_molecule;
+   bool backup_this_molecule;
 
    // history_index and max_history_index tell us where we are in the
    // history of modifications of this molecule.  When we "Undo"
@@ -710,185 +695,7 @@ public:        //                      public
       draw_it_for_map_standard_lines = 0;
    }
 
-   void setup_internal() {
-
-      atom_sel.atom_selection = NULL;
-      atom_sel.n_selected_atoms = 0;
-      atom_sel.mol = NULL;
-
-      // while zero maps, don't need to intialise the arrays (xmap_is_filled)
-      is_patterson = 0;
-      // draw_vectors = NULL;
-      // diff_map_draw_vectors = NULL;
-
-      //
-      xskel_is_filled = 0; // not filled.
-      skeleton_treenodemap_is_filled = 0;
-
-      draw_hydrogens_flag = 1;
-      bond_width = 3.0;
-      ghost_bond_width = 2.0;
-
-      // initial bonds type (checked and reset in handle_read_draw_molecule)
-      bonds_box_type = coot::UNSET_TYPE;
-
-      save_time_string = "";
-
-      pickable_atom_selection = 1;
-
-      is_intermediate_atoms_molecule = false;
-
-      // refmac stuff
-      //
-      refmac_count = 0;
-      have_sensible_refmac_params = 0;  // initially no refmac params.
-      have_refmac_phase_params    = 0;  // initially no refmac params.
-
-      // history stuff
-      //
-      history_index = 0;
-      max_history_index = 0;
-
-      have_unsaved_changes_flag = 0; // no unsaved changes initially.
-      show_unit_cell_flag = 0;
-      fc_skeleton_draw_on = 0;
-      greer_skeleton_draw_on = 0;
-
-      // Don't draw it initially.
-      draw_it = 0;
-      draw_it_for_map = 0;
-      draw_it_for_map_standard_lines = 1;
-      draw_it_for_extra_restraints = true;
-      extra_restraints_representation_for_bonds_go_to_CA = false;
-
-      // backup on by default, turned off for dummy atoms (baton building)
-      backup_this_molecule = 1;
-
-      // Map stuff
-      map_max_ = 100.0;
-      map_min_ = -100.0;
-      sharpen_b_factor_ = 0.0;
-      sharpen_b_factor_kurtosis_optimised_ = -999999.0;
-      pending_contour_level_change_count = 0;
-      data_resolution_ = -1; // unset
-
-      // fourier (for phase recombination (potentially) in refmac:
-      fourier_weight_label = ""; // unset initially.
-
-      // HL coeff and phi (for phase recombination (potentially) in refmac:
-      // should be enough to unset the first one for testing for HL
-      refmac_phi_col = ""; // unset initially.
-      refmac_hla_col = ""; // unset initially.
-
-      //
-      colour_skeleton_by_random = 0;
-
-      // original Fs saved? (could be from map)
-      original_fphis_filled = 0;
-      original_fobs_sigfobs_filled = false;
-      original_fobs_sigfobs_fill_tried_and_failed = false;
-
-
-      //  bond width (now changeable).
-      bond_width = 3.0;
-      display_stick_mode_atoms_flag = true;
-
-      // bespoke colouring
-      use_bespoke_grey_colour_for_carbon_atoms = false;
-      bespoke_carbon_atoms_colour = coot::colour_t(0.4, 0.4, 0.4);
-
-      //
-      rotate_colour_map_for_difference_map = 240.0; // degrees
-
-      // save index
-      coot_save_index = 0; // how is this related to the backup history_index?
-
-      other_molecule_backup_index = -1; // unset
-
-      // ligand flipping. save the index
-      ligand_flip_number = 0; // or 1 2 3 for the 4 different
-			      // orientations round the eigen vectors.
-			      // (For ligand molecules).  In future,
-			      // this may need to be keyed on the
-			      // resno and chain_id for multiple
-			      // ligands in a molecule.
-
-      show_symmetry = 1; // individually on by default.
-
-      // Draw NCS ghosts?
-      show_ghosts_flag = 0;
-      is_dynamically_transformed_map_flag = 0;
-      ncs_ghosts_have_rtops_flag = 0;
-
-      // contour by sigma
-      contour_by_sigma_flag = 1;
-      contour_sigma_step = 0.1;
-
-      //
-      cootsurface = NULL; // no surface initial, updated by make_surface()
-      theSurface = 0;
-      transparent_molecular_surface_flag = 0;
-
-      //
-      theMapContours.first = 0;
-      theMapContours.second = 0;
-      is_em_map_cached_flag = -1; // unset
-      n_vertices_for_map_VertexArray = 0;
-      n_vertices_for_model_VertexArray = 0;
-      n_indices_for_triangles = 0;
-      n_indices_for_lines = 0;
-      // Assigning to GLuint. Hmm
-      m_VertexArrayID_for_map  = -1;
-      m_VertexBufferID = -1;
-      m_IndexBuffer_for_map_lines_ID  = -1;
-      m_IndexBuffer_for_map_triangles_ID = -1;
-      m_ColourBufferID = -1;
-      m_VertexArray_for_model_ID = -1;
-      m_VertexBuffer_for_model_ID = -1;
-      m_IndexBuffer_for_model_ID = -1;
-      n_indices_for_model_triangles = 0;
-
-      // draw vectors
-      draw_vector_sets.reserve(120); // more than enough
-      draw_vector_sets.resize(120);
-      draw_diff_map_vector_sets.resize(120);
-
-      // don't show strict ncs unless it's turned on.
-      show_strict_ncs_flag = 1;
-
-      // shelx stuff
-      is_from_shelx_ins_flag = 0;
-
-      // symmetry, 20060202 valgrind found that these was not set.
-      symmetry_rotate_colour_map_flag = 0;
-      symmetry_as_calphas = 0;
-      symmetry_whole_chain_flag = 0;
-      symmetry_colour_by_symop_flag = 0;
-
-      // dots colour can now be set from outside.
-      //
-      dots_colour = coot::colour_t(0.3,0.4,0.5);
-      dots_colour_set = false; // so use atom-element colouring
-
-      // solid surface density representation
-      //
-      // draw_it_for_solid_density_surface = 0;
-      density_surface_opacity = 1.0;
-
-      // other map
-      colour_map_using_other_map_flag = false;
-      other_map_for_colouring_p = 0;
-
-      // animated ligand interaction representation
-      draw_animated_ligand_interactions_flag = 0;
-
-      // single model view
-      single_model_view_current_model_number = 0; // all models
-
-      // mtz updating
-      continue_watching_mtz = false;
-
-   }
+   void setup_internal();
 
    int handle_read_draw_molecule(int imol_no_in,
 				 std::string filename,
@@ -912,7 +719,16 @@ public:        //                      public
 			  int brief_atom_labels_flag,
 			  short int seg_ids_in_atom_labels_flag) const;
 
-   void label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_label(int atom_index, int brief_atom_labels_flag,
+                        short int seg_ids_in_atom_labels_flag,
+                        const glm::vec4 &atom_label_colour,
+                        const glm::mat4 &mvp,
+                        const glm::mat4 &view_rotation,
+                        const glm::vec3 &eye_position);
+
+   // don't count the mainchain of the peptide-linked residues
+   //
+   std::vector<mmdb::Atom *> closest_atoms_in_neighbour_residues(mmdb::Residue *residue_p, float radius) const;
 
    void debug_selection() const;
    void debug(bool debug_atoms_also_flag=false) const;
@@ -924,7 +740,9 @@ public:        //                      public
    void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
 
    // return the colour, don't call glColor3f();
-   coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
+   coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background);
+   // return the colour, don't call glColor3f();
+   coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background);
 
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
    bool use_bespoke_grey_colour_for_carbon_atoms;
@@ -1154,6 +972,8 @@ public:        //                      public
 
    mmdb::Atom *get_atom(int idx) const;
 
+   bool have_atom_close_to_position(const coot::Cartesian &pos) const;
+
    // return the maximum residue number in the chain. first of false means failure to do so.
    //
    std::pair<bool,int> max_res_no_in_chain(mmdb::Chain *chain_p) const;
@@ -1172,13 +992,14 @@ public:        //                      public
    }
 
    void makebonds(const coot::protein_geometry *geom_p, const std::set<int> &no_bonds_to_these_atom_indices);
-   void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p);
    void make_ca_bonds(float min_dist, float max_dist);
    void make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices);
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
+   void make_colour_by_chain_bonds(); // simple/usual interfce to below function
    void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode);
    void make_colour_by_molecule_bonds();
    void bonds_no_waters_representation();
@@ -1191,14 +1012,41 @@ public:        //                      public
    void b_factor_representation();
    void b_factor_representation_as_cas();
    void occupancy_representation();
-   void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
+   void user_defined_colours_representation(coot::protein_geometry *geom_p,
+                                            bool all_atoms_mode,
+                                            bool draw_missing_loops_flag);
 
-   void make_bonds_type_checked();
 
-   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
-   void make_glsl_bonds_type_checked();
 
-   void label_atoms(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   // This doesn't catch the case when__builtin_FUNCTION exists but __has_builtin does not
+   // (as seems to be the case in g++ 9.2.1)
+
+#if defined __has_builtin
+#if __has_builtin (__builtin_FUNCTION)
+   void make_bonds_type_checked(const char *s = __builtin_FUNCTION());
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices, const char *s = __builtin_FUNCTION());
+   void make_glsl_bonds_type_checked(const char *s = __builtin_FUNCTION());
+#else
+   void make_bonds_type_checked(const char *s = 0);
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices, const char *s =0);
+   void make_glsl_bonds_type_checked(const char *s = 0);
+#endif
+#else // repeat above
+   void make_bonds_type_checked(const char *s = 0);
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices, const char *s =0);
+   void make_glsl_bonds_type_checked(const char *s = 0);
+#endif
+
+
+   float atom_radius_scale_factor; // 3 is quite nice, 1 by default.
+   void set_atom_radius_scale_factor(float sf); // regenerate
+
+   void draw_atom_labels(int brief_atom_labels_flag,
+                         short int seg_ids_in_atom_labels_flag,
+                         const glm::vec4 &atom_label_colour,
+                         const glm::mat4 &mvp,
+                         const glm::mat4 &view_rotation,
+                         const glm::vec3 &eye_position);
 
    //
    void update_molecule_after_additions(); // cleanup, new
@@ -1210,9 +1058,15 @@ public:        //                      public
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
    void draw_anisotropic_atoms();
-   void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
-   void draw_map_unit_cell(const coot::colour_holder &cell_colour);
-   void draw_unit_cell_internal(float rsc[8][3]);
+
+   // void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
+   // void draw_map_unit_cell(const coot::colour_holder &cell_colour);
+   // void draw_unit_cell_internal(float rsc[8][3]);
+
+   LinesMesh lines_mesh_for_cell;
+   void setup_unit_cell(Shader *shader_p);
+   void draw_unit_cell(Shader *shader_p, const glm::mat4 &mvp);
+
    void draw_dots();
    // return the status of whether or not the dots were cleared.
    bool clear_dots(int dots_handle);
@@ -1228,8 +1082,6 @@ public:        //                      public
    void unset_dots_colour() {
       dots_colour_set = false; // back to default
    }
-
-   void initialize_on_read_molecule();
 
    void initialize_map_things_on_read_molecule(std::string name,
 					       bool is_diff_map,
@@ -1277,8 +1129,11 @@ public:        //                      public
    // just lines: std::vector<coot::CartesianPairInfo> draw_vector_sets;
    std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
    std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
-   void sort_map_triangles();
+   void sort_map_triangles(const clipper::Coord_orth &eye_position);
    static void depth_sort();
+   // we only need to sort the triangles if the eye position has moved. So store the eye position
+   // of the previous time the triangles were sorted
+   clipper::Coord_orth previous_eye_position;
 
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
    // const coot::CartesianPair* diff_map_draw_vectors;
@@ -1412,12 +1267,17 @@ public:        //                      public
    GdkRGBA radius_to_colour(float radius, float min_radius, float max_radius);
    GdkRGBA fraction_to_colour(float fraction);
 
+   float other_map_for_colouring_min_value;
+   float other_map_for_colouring_max_value;
+   std::vector<coot::colour_t> other_map_for_colouring_colour_table;
+   // use the above values to generate a colour given a value (typically, a correlation)
+   GdkRGBA value_to_colour_using_colour_table(float value);
+
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
    void update_map();
    void compile_density_map_display_list(short int first_or_second);
-   void draw_density_map(short int display_list_for_maps_flag,
-			 short int main_or_secondary);
+
    void draw_surface();
    void draw_dipoles() const;
    bool has_display_list_objects();
@@ -1466,7 +1326,8 @@ public:        //                      public
 			       bool allow_waters_flag);
 
 
-   void dynamically_transform(coot::CartesianPairInfo v);
+   // void dynamically_transform(coot::CartesianPairInfo v);
+   void dynamically_transform(coot::density_contour_triangles_container_t *dctc);
 
    void clear_draw_vecs();
    void clear_diff_map_draw_vecs();
@@ -1503,7 +1364,9 @@ public:        //                      public
    void update_map_colour_menu_maybe(int imol);
    void handle_map_colour_change(GdkRGBA map_col,
                                  bool swap_difference_map_colours_flag,
-                                 bool main_or_secondary);
+                                 bool main_or_secondary,
+                                 clipper::Coord_orth centre,
+                                 float radius);
    void handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag);
 
    int next_free_map();
@@ -1581,6 +1444,9 @@ public:        //                      public
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
    void fill_fobs_sigfobs(); // caches
+   bool sanity_check_atoms(mmdb::Manager *mol); // sfcalc_genmap crashes after merge of ligand.
+                                                // Why? Something wrong with the atoms after merge?
+                                                // Let's diagnose.... Return false on non-sane.
 
 
    void update_map_in_display_control_widget() const;
@@ -1651,7 +1517,7 @@ public:        //                      public
 			  const coot::ghost_molecule_display_t &ghost_info,
 			  int is_diff_map_flag,
 			  int swap_difference_map_colours_flag,
-			  float sigma_in);
+			  float contour_level_in);
 
    void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in);
 
@@ -1741,7 +1607,8 @@ public:        //                      public
    void bond_representation(const coot::protein_geometry *geom_p);
    //
 
-   float bonds_colour_map_rotation;
+   float bonds_colour_map_rotation; // OpenGL1
+   void update_bonds_colour_using_map_rotation(float f); // modern OpenGL
    short int bonds_rotate_colour_map_flag;
    int Bonds_box_type() const { return bonds_box_type; }
 
@@ -1829,6 +1696,11 @@ public:        //                      public
    short int delete_residue(int model_number,
 			    const std::string &chain_id, int resno,
                             const std::string &inscode);
+
+   // delete from all models
+   // wraps above
+   short int delete_residue(const coot::residue_spec_t &spec);
+
    // Delete only the atoms of the residue that have the same altconf (as
    // the selected atom).  If the selected atom has altconf "", you
    // should call simply delete_residue().
@@ -1848,6 +1720,8 @@ public:        //                      public
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
+   short int delete_residue_sidechain(const coot::residue_spec_t &rs);
+
    bool delete_atom(const std::string &chain_id,
 		    int resno,
 		    const std::string &ins_code,
@@ -1865,6 +1739,8 @@ public:        //                      public
    int delete_waters(); // return status of atoms deleted (0 -> none deleted).
 
    int delete_chain(const std::string &chain_id);
+
+   bool delete_sidechain(mmdb::Residue *residue_p);
 
    int delete_sidechains_for_chain(const std::string &chain_id);
 
@@ -1924,6 +1800,7 @@ public:        //                      public
    // this is where the PIR alignments are stored, the key is the chain-id
    std::map<std::string, coot::pir_alignment_t> pir_alignments;
 
+
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
    // (e.g. 0.95) then return 0 as first and a blank in second.
@@ -1938,7 +1815,7 @@ public:        //                      public
 				    // changes when when finish.
 				    // Rather crap that this needs to
 				    // be done externally, I think.
-   int backups_state() const { return backup_this_molecule; }
+   bool backups_state() const { return backup_this_molecule; }
    void set_have_unsaved_changes_from_outside();
 
    void mutate_internal(mmdb::Residue *residue, mmdb::Residue *std_residue, const std::string &alt_conf);
@@ -2069,7 +1946,15 @@ public:        //                      public
    std::vector<std::string> set_map_colour_strings() const;
    std::pair<GdkRGBA, GdkRGBA> map_colours() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
+   void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
+                             const std::vector<coot::colour_t> &colours);
    const clipper::Xmap<float> *other_map_for_colouring_p;
+   void turn_off_other_map_for_colouring() {
+      other_map_for_colouring_p = NULL;
+      colour_map_using_other_map_flag = false;
+   }
+   fresnel_settings_t fresnel_settings;
+   void set_fresnel_colour(const glm::vec4 &col_in);
 
    // save yourself and update have_unsaved_changes_flag status
    //
@@ -2083,8 +1968,8 @@ public:        //                      public
    bool Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
    bool Have_redoable_modifications_p() const ;
    int get_history_index() const;
-   void turn_off_backup() { backup_this_molecule = 0; }
-   void turn_on_backup()  { backup_this_molecule = 1; }
+   void turn_off_backup() { backup_this_molecule = false; }
+   void turn_on_backup()  { backup_this_molecule = true;  }
    int apply_undo(const std::string &cwd);
    int apply_redo(const std::string &cwd);
    // Called from outside, if there is a backup file more recent
@@ -2707,8 +2592,10 @@ public:        //                      public
    coot::util::missing_atom_info
    fill_partial_residues(coot::protein_geometry *geom_p, int imol_refinement_map);
    // return 1 if the residue was filled, 0 if the residue was not found
-   int fill_partial_residue(coot::residue_spec_t &residue_spec,
-			     coot::protein_geometry *geom_p, int imol_refinement_map);
+   int fill_partial_residue(const coot::residue_spec_t &residue_spec,
+                            const coot::protein_geometry *geom_p, int imol_refinement_map);
+
+   std::vector<std::string> get_chain_ids() const;
 
    // Ribosome People:
    int exchange_chain_ids_for_seg_ids();
@@ -2870,6 +2757,7 @@ public:        //                      public
    graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(); return bonds_box; }
    //
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const;
+   void label_closest_atoms_in_neighbour_atoms(coot::residue_spec_t residue_spec, float radius);
 
    void remove_ter_atoms(const coot::residue_spec_t &spec); // from all models
 
@@ -2899,6 +2787,7 @@ public:        //                      public
 
    // return the number of new hetatoms
    int assign_hetatms();
+   bool is_het_residue(mmdb::Residue *residue_p) const;
 
    // move waters so that they are around H-bonders (non-C) in protein.
    // return the number of moved atoms
@@ -3106,10 +2995,22 @@ public:        //                      public
    void set_draw_solid_density_surface(bool state);
 
    // new
-   void setup_glsl_map_rendering();
-   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
+   void post_process_map_triangles();
+   void setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius);
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour, float atom_radius_scale_factor=1.0) const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   make_generic_vertices_for_rama_balls(float ball_scale_factor, const glm::vec3 &screen_up_dir) const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   make_generic_vertices_for_bad_CA_CA_distances() const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > fun(float radius_scale) const;
+
+   void setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
+                                 const std::vector<g_triangle> &triangles);
 
    GLuint m_VertexArrayID_for_map;
+   GLuint m_VertexArrayID_for_map_cap;
 
    GLuint n_vertices_for_map_VertexArray;
 
@@ -3118,8 +3019,8 @@ public:        //                      public
    GLuint m_VertexBufferID;
    GLuint m_IndexBuffer_for_map_lines_ID;
    GLuint m_IndexBuffer_for_map_triangles_ID; // solid and transparent surfaces
-   GLuint m_NormalBufferID;
-   GLuint m_ColourBufferID;
+   GLuint m_NormalBufferID; // is this map or model - or something else? Be clear!
+   GLuint m_ColourBufferID; // Likewise.
 
    GLuint m_VertexArray_for_model_ID;
    GLuint n_vertices_for_model_VertexArray;
@@ -3129,11 +3030,63 @@ public:        //                      public
    GLuint m_NormalBuffer_for_model_ID;
    GLuint m_ColourBuffer_for_modelID;
    GLuint m_ModelMatrix_for_model_ID;
+   GLuint m_VertexBuffer_for_map_cap_ID;  // more on map cap below
+   GLuint m_IndexBuffer_for_map_cap_ID;
+   GLuint n_vertices_for_map_cap;
+
+   bool map_mesh_first_time;
+   bool model_mesh_first_time;
 
    float density_surface_opacity;
    bool is_an_opaque_map() const { return density_surface_opacity == 1.0; } // needs explicit assignment to 1.0
                                                                             // elsewhere in the code, e.g. in
                                                                             // the adjustment handler.
+
+   Material material_for_maps;
+   Material material_for_models;
+
+   // using current contour level,
+   // return world coordinates and normals
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+   make_map_cap(const clipper::Coord_orth &base_point,
+                const clipper::Coord_orth &x_axis_uv,  // unit vectors
+                const clipper::Coord_orth &y_axis_uv,
+                double x_axis_step_size,
+                double y_axis_step_size,
+                unsigned int n_axis_points,
+                unsigned int y_axis_points) const;
+
+   void setup_map_cap(Shader *shader_p,
+                      const clipper::Coord_orth &base_pt, // Bring it into this class.
+                      const clipper::Coord_orth &x_axis_uv, // Of the cap plane, of course.
+                      const clipper::Coord_orth &y_axis_uv,
+                      double x_axis_step_size,
+                      double y_axis_step_size,
+                      unsigned int n_axis_points,
+                      unsigned int y_axis_points);
+   void draw_map_cap(Shader *shader_p,
+                     const glm::mat4 &mvp,
+                     const glm::mat4 &world_rotation_matrix,
+                     const glm::mat4 &world_rotation_translation_matrix,
+                     const std::map<unsigned int, lights_info_t> &lights,
+                     const glm::vec3 &eye_position);
+
+   // non molecular mesh
+   Shader shader_for_draw_map_normals;
+   void draw_map_normals(const glm::mat4 &mvp);
+
+   // uses molecular meshes/graphical molecules
+   void draw_normals(const glm::mat4 &mvp); // defunct now I think
+   void mesh_draw_normals(const glm::mat4 &mvp);
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_map_mesh();
+
+   float shader_shininess;
+   float shader_specular_strength;
+
+   int get_square_type(const unsigned int &ii, const unsigned int &jj, // contouring
+                       const coord_array_2d &arr, const float &contour_level) const;
+
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.
    bool transparent_molecular_surface_flag; // 0 by default.
@@ -3481,6 +3434,10 @@ public:        //                      public
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 
+   void resolve_clashing_sidechains_by_deletion(const coot::protein_geometry *geom_p);
+   void resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,
+                                                  int imol_refinement_map);
+
    static int watch_mtz(gpointer data); // return 0 to stop watching
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
@@ -3503,6 +3460,8 @@ public:        //                      public
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
    void set_mean_and_sigma();
 
+   std::string pdb_string() const;
+
    coot::model_composition_stats_t get_model_composition_statistics() const;
 
    void shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
@@ -3512,19 +3471,40 @@ public:        //                      public
                                          const clipper::HKL_data<clipper::data32::Flag> &free);
 
    // radial colouring
+   class radial_colouring_info_t {
+   public:
+      float radius; // from min_radius (0) to max_radius (1)
+      glm::vec4 colour;
+      radial_colouring_info_t(const float &r, const glm::vec4 &c) : radius(r), colour(c) {}
+      float fraction_of_range(float min_radius, float max_radius) const {
+         float delta = max_radius - min_radius;
+         float x = radius - min_radius;
+         return x/delta;
+      }
+   };
+
+   class radial_colouring_info_container_t {
+   public:
+      std::vector<radial_colouring_info_t> colour_stops;
+      void sort_colour_stops(); // smallest at the top
+   };
+
    void set_radial_map_colouring_centre(float x, float y, float z);
    void set_radial_map_colouring_min_radius(float r);
    void set_radial_map_colouring_max_radius(float r);
    void set_radial_map_colouring_invert(bool invert_state);
    void set_radial_map_colouring_saturation(float saturation);
    void set_radial_map_colouring_do_radial_colouring(bool state) {
-      radial_map_colouring_do_radial_colouring = state;
+      if (state != radial_map_colouring_do_radial_colouring) {
+         radial_map_colouring_do_radial_colouring = state;
+         update_map();
+      }
    }
    bool radial_map_colouring_do_radial_colouring;
    clipper::Coord_orth radial_map_colour_centre;
    double radial_map_colour_radius_min;
    double radial_map_colour_radius_max;
-   double radial_map_colour_invert_flag;
+   bool radial_map_colour_invert_flag;
    double radial_map_colour_saturation;
 
    // colour by other map (e.g. correlation)
@@ -3533,6 +3513,51 @@ public:        //                      public
       colour_map_using_other_map_flag = state;
    }
    GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
+
+   coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
+   bool export_molecule_as_obj(const std::string &file_name);
+   bool export_map_molecule_as_obj(const std::string &file_name) const;
+   bool export_model_molecule_as_obj(const std::string &file_name);
+
+   void export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+                                  const std::vector<g_triangle> &triangles);
+
+   bool write_model_vertices_and_triangles_to_file_mode;
+   bool export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices,
+                                           const std::vector<g_triangle> &triangles);
+   std::string export_vertices_and_triangles_file_name_for_func;
+
+   // These meshes are not the way coot 0.9 organized generic display objects.
+   //
+   // meshes are drawn with draw_meshed_generic_display_object_meshes()
+   // and instanced_meshes are drawn with draw_instanced_meshes().
+   //
+   // these are for specific molecule-based objects using regular Mesh
+   std::vector<Mesh> meshes;
+   // these are for specific molecule-based objects using instancing Mesh
+   std::vector<Instanced_Markup_Mesh> instanced_meshes;
+   Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
+
+   // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
+   // instances of cylinders and spheres and hemispheres. Put them in a Model at some stage.
+   void make_meshes_from_bonds_box(); // fills the below meshes.
+   Mesh molecule_as_mesh_atoms_1;
+   Mesh molecule_as_mesh_atoms_2;
+   Mesh molecule_as_mesh_bonds;
+   Mesh molecule_as_mesh_rama_balls;
+   Mesh molecule_as_mesh_rota_dodecs;
+   // pass this function to the Mesh so that we can determine the atom and bond colours
+   static glm::vec4 get_glm_colour_func(int idx_col, int bonds_box_type);
+   void draw_molecule_as_meshes(Shader *shader_p,
+                                const glm::mat4 &mvp,
+                                const glm::mat4 &view_rotation_matrix,
+                                const std::map<unsigned int, lights_info_t> &lights,
+                                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                const glm::vec4 &background_colour,
+                                bool do_depth_fog);
+
+   // float scale_factor 4 , float offset 3
+   void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);
 
 };
 

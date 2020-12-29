@@ -267,6 +267,7 @@ def test_for_mogul():
       mogol_exe = which('mogul')
       if (mogol_exe == None):
          print("mogul not found in path")
+         print("Try: pyrogen --no-mogul")
          return False
       else:
          return True

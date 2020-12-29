@@ -28,8 +28,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 // return true if flip moving_atoms_asc was found
 bool graphics_info_t::pepflip_intermediate_atoms_other_peptide() {
 
-   mmdb::Atom *at_close = 0;
-
    bool status = false;
    if (moving_atoms_asc->mol) {
 
@@ -53,13 +51,16 @@ bool graphics_info_t::pepflip_intermediate_atoms_other_peptide() {
 	 if (residue_p) {
 	    mmdb::Atom *at_other = 0;
 	    std::string at_name_close(at_close->GetAtomName());
+            const char *alt_conf = at_close->altLoc;
 	    if (at_name_close == " N  ") { // PDBv3 FIXME
-	       at_other = residue_p->GetAtom(" CA ");
+	       at_other = residue_p->GetAtom(" CA ", 0, alt_conf);
 	    } else {
-	       at_other = residue_p->GetAtom(" N ");
+	       at_other = residue_p->GetAtom(" N ", 0, alt_conf);
 	    }
 	    status = pepflip_intermediate_atoms(at_other);
 	 }
+      } else {
+         add_status_bar_text("No close atom");
       }
    }
    return status;
@@ -102,72 +103,73 @@ bool graphics_info_t::pepflip_intermediate_atoms(mmdb::Atom *at_close) {
    // If we are on N
    // flip (prev_res)-(this_res)
 
+   std::cout << "in pepflip_intermediate_atoms() with at_close " << coot::atom_spec_t(at_close)
+             << std::endl;
+
    bool status = false;
 
-   if (true) {
+   if (! at_close) {
 
-      if (! at_close) {
+      std::cout << "INFO:: No close atom" << std::endl;
 
-         std::cout << "INFO:: No close atom" << std::endl;
+   } else {
 
+      mmdb::Residue *res_this = at_close->residue;
+      std::string atom_name = at_close->name;
+      const char *alt_conf = at_close->altLoc;
+
+      // if N is at active atom then we want prev,this
+      // otherwise we want this,next
+      //
+      mmdb::Residue *res_1 = NULL;
+      mmdb::Residue *res_2 = NULL;
+      if (atom_name == " N  ") {
+         res_1 = moving_atoms_asc->get_previous(res_this);
+         res_2 = res_this;
       } else {
+         res_1 = res_this;
+         res_2 = moving_atoms_asc->get_next(res_this);
+      }
 
-	 mmdb::Residue *res_this = at_close->residue;
-	 std::string atom_name = at_close->name;
+      if (res_1 && res_2) {
+         mmdb::Atom *at_1_ca = res_1->GetAtom(" CA ", 0, alt_conf);
+         mmdb::Atom *at_1_c  = res_1->GetAtom(" C  ", 0, alt_conf);
+         mmdb::Atom *at_1_o  = res_1->GetAtom(" O  ", 0, alt_conf);
+         mmdb::Atom *at_2_ca = res_2->GetAtom(" CA ", 0, alt_conf);
+         mmdb::Atom *at_2_n  = res_2->GetAtom(" N  ", 0, alt_conf);
+         mmdb::Atom *at_2_h  = res_2->GetAtom(" H  ", 0, alt_conf);
 
-	 // if N is at active atom then we want prev,this
-	 // otherwise we want this,next
-	 //
-	 mmdb::Residue *res_1 = NULL;
-	 mmdb::Residue *res_2 = NULL;
-	 if (atom_name == " N  ") {
-	    res_1 = moving_atoms_asc->get_previous(res_this);
-	    res_2 = res_this;
-	 } else {
-	    res_1 = res_this;
-	    res_2 = moving_atoms_asc->get_next(res_this);
-	 }
+         if (at_1_ca && at_2_ca) {
 
-	 if (res_1 && res_2) {
-	    mmdb::Atom *at_1_ca = res_1->GetAtom(" CA ");
-	    mmdb::Atom *at_1_c  = res_1->GetAtom(" C  ");
-	    mmdb::Atom *at_1_o  = res_1->GetAtom(" O  ");
-	    mmdb::Atom *at_2_ca = res_2->GetAtom(" CA ");
-	    mmdb::Atom *at_2_n  = res_2->GetAtom(" N  ");
-	    mmdb::Atom *at_2_h  = res_2->GetAtom(" H  ");
+            // tell the refinement to stop, wait for it to stop, move the atoms and then restart
 
-	    if (at_1_ca && at_2_ca) {
+            continue_threaded_refinement_loop = false;
+            while (restraints_lock) {
+               std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
 
-	       // tell the refinement to stop, wait for it to stop, move the atoms and then restart
+            clipper::Coord_orth base(at_1_ca->x, at_1_ca->y, at_1_ca->z);
+            clipper::Coord_orth  top(at_2_ca->x, at_2_ca->y, at_2_ca->z);
+            clipper::Coord_orth dir = top - base;
+            coot::util::rotate_atom_about(dir, base, M_PI, at_1_c);
+            coot::util::rotate_atom_about(dir, base, M_PI, at_1_o);
+            coot::util::rotate_atom_about(dir, base, M_PI, at_2_n);
+            coot::util::rotate_atom_about(dir, base, M_PI, at_2_h); // does null check
 
-	       continue_threaded_refinement_loop = false;
-	       while (restraints_lock) {
-		  std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	       }
+            // in the case where the refinement finishes before the
+            // timeout function begins, we would like to force a redraw of the
+            // bonds (so we can see that the atoms flipped). Hmm.. I am not
+            // sure if this works/is-needed - difficult to test. Maybe
+            // it should be added to refinement_of_last_restraints_needs_reset().
 
-	       clipper::Coord_orth base(at_1_ca->x, at_1_ca->y, at_1_ca->z);
-	       clipper::Coord_orth  top(at_2_ca->x, at_2_ca->y, at_2_ca->z);
-	       clipper::Coord_orth dir = top - base;
-	       coot::util::rotate_atom_about(dir, base, M_PI, at_1_c);
-	       coot::util::rotate_atom_about(dir, base, M_PI, at_1_o);
-	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_n);
-	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_h); // does null check
+            // std::cout << "Atoms really moved - restarting refinement" << std::endl;
+            threaded_refinement_loop_counter++;
 
-               // in the case where the refinement finishes before the
-               // timeout function begins, we would like to force a redraw of the
-               // bonds (so we can see that the atoms flipped). Hmm.. I am not
-               // sure if this works/is-needed - difficult to test. Maybe
-               // it should be added to refinement_of_last_restraints_needs_reset().
+            refinement_of_last_restraints_needs_reset();
+            thread_for_refinement_loop_threaded();
 
-               // std::cout << "Atoms really moved - restarting refinement" << std::endl;
-               threaded_refinement_loop_counter++;
-
-	       refinement_of_last_restraints_needs_reset();
-	       thread_for_refinement_loop_threaded();
-
-	       status = true;
-	    }
-	 }
+            status = true;
+         }
       }
    }
    graphics_draw();
@@ -195,12 +197,24 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 	 }
       }
 
-      if (at_close) {
+      if (! at_close) {
+
+         std::pair<int, mmdb::Atom *> aa = get_active_atom();
+         if (is_valid_model_molecule(aa.first)) {
+            mmdb::Atom *at = aa.second;
+            if (at) {
+               mmdb::Residue *residue_p = at->residue;
+               setup_invalid_residue_pulse(residue_p);
+               std::string m = "Residue " + coot::residue_spec_t(residue_p).format() + " is not ";
+               m += "in the moving atoms set";
+               add_status_bar_text(m);
+            }
+         }
+
+      } else {
 
 	 std::string chain_id = at_close->GetChainID();
-	 int res_no = at_close->GetSeqNum();
-	 std::string ins_code = at_close->GetInsCode();
-	 std::string alt_conf = at_close->altLoc;
+         std::string alt_conf = at_close->altLoc;
 	 mmdb::Manager *mol = moving_atoms_asc->mol;
 	 mmdb::Residue *this_res = at_close->residue;
 	 mmdb::Residue *next_res = coot::util::get_following_residue(this_res, mol);
@@ -416,15 +430,8 @@ void graphics_info_t::run_post_intermediate_atoms_moved_hook_maybe() {
       graphics_info_t g;
       PyObject *o = g.get_intermediate_atoms_bonds_representation();
 
-      if (PyBool_Check(o)) {
-	 // no useful representation, (must be False)
-      } else {
-	 PyObject *py_main = PyImport_AddModule("__main__");
-	 if (py_main) {
-	    // wraps PyDict_SetItemString (String because the key is a string (the variable name))
-	    PyModule_AddObject(py_main, "intermediate_atoms_representation_internal", o);
-	 }
-      }
+      // do something with python
+
    }
 }
 #endif

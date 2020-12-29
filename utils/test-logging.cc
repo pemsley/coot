@@ -11,6 +11,8 @@ int main(int argc, char **argv) {
 
    log.show();
 
+   coot_log << "Something here" << std::endl;
+
    return 0;
 
 }

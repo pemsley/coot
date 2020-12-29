@@ -72,7 +72,7 @@ pre_list = ["redefine_functions.py",
             "cns2coot.py",
             "clear_backup.py",
             "tips.py",
-            "3d_generator_import.py",
+            "generator_3d_import.py",
             "dictionary_generators.py",
             "jligand.py",
             "americanisms.py",
@@ -122,69 +122,27 @@ if use_gui_qm:
     # some test that sets have_coot_python
     have_coot_python = False
 
-coot_python_dir = os.getenv('COOT_PYTHON_DIR')
-if coot_python_dir:
-    search_load_path = coot_python_dir
-else:
-    # old
-    # search_load_path = "@prefix@/share/coot/python"
+# we can't import the gui (coot_gui and extenstions) here
+# because realize() hasn't been called yet
 
-    # this is a bit ugly - I'm hacking in the python site packages path
-    #
-    # this is what I want to do:
-    search_load_path = "@pkgpythondir@"
-    #
-    # hack
-    # search_load_path = "@prefix@/lib/python2.7/site-packages/coot"
-    # Hmm {pythondir} is not expanded
-    search_load_path = "@prefix@/lib/python3.6/site-packages/coot"
-
-
-def load_from_search_load_path(file):
-    print("DEBUG:: search_load_path is ", search_load_path)
-    f = os.path.join(search_load_path, file)
-    if f:
-        import importlib
-        print("load", file)
-        # execfile(f, globals())
-        importlib.reload(f)
-    else:
-        print("Error finding", file)
-
-
-python_list = ["redefine_functions.py", "ncs.py", "coot_utils.py", "fitting.py"]
-print("Here in coot_load_modules with python_list", python_list)
-
-
-for coot_python_file in python_list:
-    filename = os.path.join(search_load_path, coot_python_file)
-    print("Here in coot_load_modules with filename", filename)
-    # if filename and os.path.isfile(filename):
-    if True:
-            # we need user configuration of this verbosity
-
-        if True:
-            print("Loading:", coot_python_file)
-
-        try:
-            # BL says::
-            # We execute the files rather than loading it as modules since
-            # some and parts thereof are actually scripts and not modules
-            # if you wish to rather use modules use, e.g.
-            # exec "from " + base + " import *"
-            # and set PYTHONPATH to point to COOT_PYTHON_DIR
-
-            import runpy
-            runpy.run_path(filename)
-
-            # import importlib
-            # importlib.reload(filename)
-            # importlib.reload(coot_python_file)
-
-        except:
-            traceback.print_exc()
-            print("ERROR:: couldn't load ", coot_python_file)
-            if coot_unittesting:
-                coot_real_exit(1)
-            else:
-                print("ERROR: cannot find", coot_python_file)
+import redefine_functions
+import ncs
+import coot_utils
+import fitting
+import filter
+import coot_lsq
+import shelx
+import get_ebi
+import local_code
+import hello
+import mutate
+import refmac
+import libcheck
+import gap
+import raster3d
+import povray
+import remote_control
+import generic_objects
+import parse_pisa_xml
+import cns2coot
+import clear_backup

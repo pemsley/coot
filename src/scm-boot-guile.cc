@@ -72,12 +72,12 @@ void inner_main(void *closure, int argc, char **argv) {
   SCM_BACKTRACE_P = 1;
   SCM_RECORD_POSITIONS_P = 1;
 
-  // this is not the right place.  We need to be in 
+  // this is not the right place.  We need to be in
   std::string d1 = coot::util::append_dir_dir(PKGDATADIR, "scheme");
   std::string d2;
   std::string scheme_dir = d1;
   char *e = getenv(COOT_SCHEME_DIR);
-  if (e) { 
+  if (e) {
      d2 = e;
      scheme_dir = d2;
   }
@@ -98,7 +98,7 @@ void inner_main(void *closure, int argc, char **argv) {
      full_extra_load_path_cmd += scheme_dir;
      full_extra_load_path_cmd +=  "\" %load-path))";
      scm_c_eval_string(full_extra_load_path_cmd.c_str());
-     
+
      std::string ee = "(lambda (key . args) ";
      ee += "(display (list \"Error in proc:\" key \" args: \" args)) (newline))";
      SCM handler = scm_c_eval_string(ee.c_str());
@@ -112,9 +112,9 @@ void inner_main(void *closure, int argc, char **argv) {
      thunk_str += "      (load f)))) ; if we found it in the path";
 
 
-     SCM thunk = scm_c_eval_string(thunk_str.c_str()); 
-     
-/*  We need to get the value out of this, did the thunk fail or not?
+     SCM thunk = scm_c_eval_string(thunk_str.c_str());
+
+     /*  We need to get the value out of this, did the thunk fail or not?
     We want to be able to pass the value back to
     graphics_info_t::guile_gui_loaded_flag used in
     do_scripting_window_activate().  We now do that by setting a flag
@@ -132,7 +132,7 @@ void inner_main(void *closure, int argc, char **argv) {
         flag = "#f";
 
      std::string l = "(lambda () (load-all-scheme " + flag + "))";
-     thunk = scm_c_eval_string(l.c_str()); 
+     thunk = scm_c_eval_string(l.c_str());
      scm_catch(SCM_BOOL_T, thunk, handler);
   }
 
@@ -141,24 +141,23 @@ void inner_main(void *closure, int argc, char **argv) {
      try_load_dot_coot_and_preferences();
   }
 
-
-/* now handle the command line data */
+  /* now handle the command line data */
    handle_command_line_data_argc_argv(argc, argv);
 
    run_command_line_scripts(); // i.e. -c '(do-something)'
    run_state_file_maybe();
    pre_load_rotamer_tables();
-  
-  if (use_graphics_interface_state()) { 
-     gtk_main(); 
-  } else { 
+
+   if (use_graphics_interface_state()) {
+     gtk_main();
+  } else {
      short int python_at_prompt_flag = python_at_prompt_at_startup_state();
      if (python_at_prompt_flag)
-	start_command_line_python_maybe(argv);
-     else 
-	scm_shell(0, argv);		/* can't pass command line args such
-					   as --pdb --no-graphics etc. (guile
-					   doesn't understand them). */
+        start_command_line_python_maybe(argv);
+     else
+        scm_shell(0, argv);		/* can't pass command line args such
+                                           as --pdb --no-graphics etc. (guile
+                                           doesn't understand them). */
   }
 
 }

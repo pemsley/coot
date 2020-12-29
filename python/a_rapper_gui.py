@@ -42,13 +42,13 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
     def all_chars_qm(ls):
         return all(map(lambda x: x.isalpha(), ls))
 
-    if (not valid_model_molecule_qm(imol)):
+    if (not coot_utils.valid_model_molecule_qm(imol)):
         return False
     else:
         single_letter_code_list = []
         for resno in range(resno_start, resno_end + 1):
-            res_name = residue_name(imol, chain_id, resno, "")
-            single_letter_code_list.append(three_letter_code2single_letter(res_name))
+            res_name = coot.residue_name(imol, chain_id, resno, "")
+            single_letter_code_list.append(mutate.three_letter_code2single_letter(res_name))
         if (not all_chars_qm):
             print "bad sequence chars ", single_letter_code_list
             return False
@@ -57,13 +57,13 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
 
 def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models):
 
-    imol_map = imol_refinement_map()
-    if (not valid_map_molecule_qm(imol_map)):
+    imol_map = coot.imol_refinement_map()
+    if (not coot_utils.valid_map_molecule_qm(imol_map)):
         print "No valid map molecule given (possibly ambiguous)"
     else:
         str = "//" + chain_id + "/" + str(start_no) + \
               "-" + str(end_resno)
-        frag_mol = new_molecule_by_atom_selection(imol, str)
+        frag_mol = coot.new_molecule_by_atom_selection(imol, str)
         fragment_pdb = "coot-rapper-fragment-in.pdb"
         rapper_out_pdb = "rapper_out.pdb"
         rapper_mode = "model-loops-benchmark" # maybe "ca-trace" perhaps
@@ -75,10 +75,10 @@ def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models
             sequence_string = "AAA"
         map_file = "coot-rapper.map"
         whole_pdb_file_name = "rapper-all-atoms.pdb"
-        write_pdb_file(frag_mol, fragment_pdb)
-        write_pdb_file(imol, whole_pdb_file_name)
-        close_molecule(frag_mol)
-        export_map(imol_map, map_file)
+        coot.write_pdb_file(frag_mol, fragment_pdb)
+        coot.write_pdb_file(imol, whole_pdb_file_name)
+        coot.close_molecule(frag_mol)
+        coot.export_map(imol_map, map_file)
         print "running rapper: ", imol, chain_id, start_resno, end_resno, \
               sequence, number_of_models
 
@@ -104,7 +104,7 @@ def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models
                                     "--enforce-sidechain-centroid-restraints", "true",
                                     "--edm-fit", "true",
                                     "--rapper-dir", rapper_dir]
-        rapper_status = popen_command(rapper_command,
+        rapper_status = coot_utils.popen_command(rapper_command,
                                       rapper_command_line_args,
                                       [],
                                       "rapper.log",
@@ -114,9 +114,9 @@ def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models
             new_dir_name = rename_dir_by_date("TESTRUNS")
             result_pdb_file_name = os.path.join(new_dir_name, "looptest-best.pdb")
             if (os.path.isfile(result_pdb_file_name)):
-                read_pdb(result_pdb_file_name)
+                coot.read_pdb(result_pdb_file_name)
             else:
-                info_dialog("RAPPER failed - no results")
+                coot.info_dialog("RAPPER failed - no results")
 
         # run rapper, not decided yet how
 
@@ -134,7 +134,7 @@ def a_rapper_gui(loop_building_tool):
 
     def rapper_go_func(*args):
         from types import IntType
-        imol = get_option_menu_active_molecule(option_menu_pdb, model_mol_list)
+        imol = coot_gui.get_option_menu_active_molecule(option_menu_pdb, model_mol_list)
         if (not (type(imol) is IntType)):
             print "bad active model"
         else:
@@ -214,7 +214,7 @@ def a_rapper_gui(loop_building_tool):
     entry_models = gtk.Entry()
 
     #
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu_pdb)
+    model_mol_list = coot_gui.fill_option_menu_with_coordinates_mol_options(option_menu_pdb)
 
     #text_sequence.set_usize(-1, 80) # ?? using text view!?
     pdb_hbox.pack_start(label_pdb, False, False, 2)
@@ -261,7 +261,7 @@ def a_rapper_gui(loop_building_tool):
 
     window.show_all()
 
-menu = coot_menubar_menu("Loop")
+menu = coot_gui.coot_menubar_menu("Loop")
 add_simple_coot_menu_menuitem(menu, "RAPPER...",
                               lambda func: a_rapper_gui('rapper'))
 

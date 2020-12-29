@@ -9,7 +9,7 @@ def hole_ify():
                                                        position[0],
                                                        position[1],
                                                        position[2])
-        add_status_bar_text(s)
+        coot.add_status_bar_text(s)
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     vbox = gtk.VBox(False, 0)
@@ -24,8 +24,7 @@ def hole_ify():
     hole_export_entry = gtk.Entry()
     export_text = gtk.Label("Export surface dots to File: ")
     export_hbox = gtk.HBox(False, 0)
-    option_menu_and_model_mol_list = generic_molecule_chooser(hbox,
-                                                              "HOLE-ify molecule: ")
+    combobox = coot_gui.generic_molecule_chooser(hbox, "HOLE-ify molecule: ")
 
     window.add(vbox)
     hbox_pos_buttons.pack_start(start_button, False, False, 6)
@@ -44,7 +43,7 @@ def hole_ify():
 
     def start_button_cb(*args):
         global start_pos
-        start_pos = rotation_centre()
+        start_pos = coot_utils.rotation_centre()
         print("Start pos set to:", start_pos)
         status_bar_pos(start_pos, "start")
         
@@ -52,7 +51,7 @@ def hole_ify():
 
     def end_button_cb(*args):
         global end_pos
-        end_pos = rotation_centre()
+        end_pos = coot_utils.rotation_centre()
         print("End pos set to:", end_pos)
         status_bar_pos(end_pos, "end")
         
@@ -64,14 +63,14 @@ def hole_ify():
     
     def calculate_button_cb(*args):
         global start_pos, end_pos
-        imol = get_option_menu_active_molecule(*option_menu_and_model_mol_list)
+        imol = combobox_to_molecule_number(combobox)
         if isinstance(imol, int):
             print(start_pos, end_pos)
             if not isinstance(start_pos, list):
-                add_status_bar_text("Start position not set")
+                coot.add_status_bar_text("Start position not set")
             else:
                 if not isinstance(end_pos, list):
-                    add_status_bar_text("End position not set")
+                    coot.add_status_bar_text("End position not set")
                 else:
                     # main?
                     print("hole", imol, start_pos, end_pos)
@@ -83,7 +82,7 @@ def hole_ify():
                                 [colour_map_multiplier, colour_map_offset, 1,
                                  True, export_dots_file_name]
                     print("BL DEBUG:: hole_args", hole_args)
-                    hole(*hole_args)
+                    coot.hole(*hole_args)
                     delete_event()
                     
     calculate_button.connect("clicked", calculate_button_cb)

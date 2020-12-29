@@ -1,4 +1,10 @@
+
 #include <algorithm>
+#include <thread>
+
+#ifndef HAVE_GSL
+#define HAVE_GSL // flycheck needs this - otherwise it doesn't properly parse simple-restraint.hh
+#endif
 
 #include "simple-restraint.hh"
 
@@ -11,17 +17,12 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    // 20180217 now we replace the target position if we can, rather than delete and add.
 
    std::vector<simple_restraint>::iterator it;
-   for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
+   for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
 	    at = atom[it->atom_index_1];
 
-	    // wait until you get the lock
-	    bool unlocked = false;
-	    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-	       std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-	       unlocked = false;
-	    }
+            get_restraints_lock();
             bool is_different = true;
             double d2 = (it->atom_pull_target_pos-pos).lengthsq();
             if (d2 < 0.0001)
@@ -30,16 +31,21 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
             it->is_closed = false; // if it had been closed before, it's active again
             if (is_different)
                needs_reset = true;
-	    restraints_lock = false; // unlocked
+            if (use_proportional_editing)
+               pull_restraint_displace_neighbours(at, pos, pull_restraint_neighbour_displacement_max_radius);
             if (false) // debugging
                std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
                          << atom_spec_t(at) << " " << pos.format() << "\n";
+            release_restraints_lock();
 	    break;
 	 }
       }
    }
 
    if (! at) {
+      if (false)
+         std::cout << "##################### " << restraints_vec.size()
+                   << " No match to pull restraints ----------- add a new one " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
@@ -52,6 +58,8 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
       }
    }
 
+   release_restraints_lock();
+
    // needs_reset = true; // always true makes the refinement smoother for some reason.
    return at;
 }
@@ -63,24 +71,37 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 
    simple_restraint r(TARGET_POS_RESTRAINT, idx, spec, target_pos);
 
-#ifdef HAVE_CXX_THREAD
-   // wait until you get the lock
-   bool unlocked = false;
-   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-      // std::cout << "waiting in add_target_position_restraint()" << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      unlocked = false;
-   }
+   get_restraints_lock();
 
    if (false) // debug
       std::cout << "add_target_position_restraint() for " << idx << " "
                 << spec << target_pos.format() << "\n";
 
-   restraints_vec.push_back(r); // push_back_restraint()
-   post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
-   restraints_lock = false; // unlock
-   needs_reset = true;
-#endif // HAVE_CXX_THREAD
+   bool add_it = true;
+   std::vector<simple_restraint>::const_iterator it;
+   for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+	 if (it->atom_spec == spec) {
+            std::cout << "already there! no double add!" << std::endl;
+            add_it = false;
+            break;
+         }
+      }
+   }
+
+   if (add_it) {
+      unsigned int restraints_vec_size_pre = restraints_vec.size();
+      restraints_vec.push_back(r); // push_back_restraint()
+      unsigned int restraints_vec_size_post = restraints_vec.size();
+
+      std::cout << "addition of target position restraints: pre and post sizes: "
+                << restraints_vec_size_pre << " " << restraints_vec_size_post << std::endl;
+      post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
+      restraints_lock = false; // unlock
+      needs_reset = true;
+   }
+
+   release_restraints_lock();
 }
 
 
@@ -131,6 +152,42 @@ bool coot::target_position_eraser(const simple_restraint &r) {
 }
 
 
+void
+coot::restraints_container_t::pull_restraint_displace_neighbours(mmdb::Atom *pull_atom,
+                                                                 const clipper::Coord_orth &new_pull_atom_target_position, float radius) {
+
+   // proportional by default - pass this parameter?
+   bool use_top_hat_function = false;
+
+   clipper::Coord_orth atom_current_position = co(pull_atom);
+   clipper::Coord_orth delta = new_pull_atom_target_position - atom_current_position;
+   float f = 0.5;
+   clipper::Coord_orth displacement = f * delta;
+   float r_squared = radius * radius;
+
+   for (int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = atom[iat];
+      if (fixed_atom_indices.find(iat) == fixed_atom_indices.end()) { // not fixed
+         float d_squared =
+            (at->x - pull_atom->x) * (at->x - pull_atom->x) +
+            (at->y - pull_atom->y) * (at->y - pull_atom->y) +
+            (at->z - pull_atom->z) * (at->z - pull_atom->z);
+         if (d_squared < r_squared) {
+            float d = sqrt(d_squared);
+            float ff = 1.0f - d/radius;
+            if (ff < 0) ff = 0;
+            float sf = sqrt(ff);
+            if (use_top_hat_function)
+               sf = 1.0;
+            at->x += sf * f * delta.x();
+            at->y += sf * f * delta.y();
+            at->z += sf * f * delta.z();
+         }
+      }
+   }
+}
+
+
 
 double
 coot::distortion_score_target_pos(const coot::simple_restraint &rest,
@@ -161,7 +218,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
    double dist_sq = (current_pos-rest.atom_pull_target_pos).lengthsq();
 
    if (harmonic_restraint) {
-      double sigma = 0.03; // (slightly refined) guess, copy below
+      double sigma = 0.02; // (slightly refined) guess, copy below and in process_dfs_target_position
       double weight = 1.0/(sigma*sigma);
       // return weight * dist * dist;
       return weight * dist_sq;
@@ -210,7 +267,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
       const simple_restraint &rest = (*restraints_p)[i];
       if (rest.restraint_type == TARGET_POS_RESTRAINT) {
          if (rest.is_closed) continue;
-	 double sigma = 0.03; // change as above in distortion score
+	 double sigma = 0.02; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 
 // 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx),

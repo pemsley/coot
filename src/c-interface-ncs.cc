@@ -391,7 +391,7 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 						local_ncs_ghosts[ighost],
 						g.molecules[imol_map].is_difference_map_p(),
 						g.swap_difference_map_colours,
-						g.molecules[imol_map].map_sigma());
+						g.molecules[imol_map].get_contour_level());
 	    nmaps++;
 	 }
 
@@ -775,15 +775,16 @@ void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem
 						      gpointer         user_data) {
    
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 #ifdef HAVE_GSL
    graphics_info_t g;
-   g.ncs_diffs_from_mol(imol);
+   // g.ncs_diffs_from_mol(imol);
+   std::cout << "fixme in validation_graph_ncs_diffs_mol_selector_activate() " << std::endl;
 #else
    printf("not compiled with GSL - remake\n");
 #endif /* HAVE_GSL */
 #else    
-   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+   printf("not compiled with GOO_CANVAS - remake\n"); 
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -822,6 +823,11 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 
    if (is_valid_model_molecule(imol)) {
 
+#if 0
+
+      // we don't use quat - but we do use glm::quat glm_quat - so this
+      // function could be rewritten one day.
+
       short int forward_flag = 1; // emulate previous behaviour.  Not
 				  // sure that this is what is needed.
       coot::util::quaternion q(graphics_info_t::quat[0],
@@ -852,6 +858,7 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 	 graphics_info_t::quat[3] = vq.q3;
       }
       graphics_draw();
+#endif
    } 
 }
 
@@ -866,6 +873,11 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 
    if (is_valid_model_molecule(imol)) {
       
+#if 0
+
+      // we don't use quat - but we do use glm::quat glm_quat - so this
+      // function could be rewritten one day.
+
       coot::util::quaternion q(graphics_info_t::quat[0],
 			       graphics_info_t::quat[1],
 			       graphics_info_t::quat[2],
@@ -909,6 +921,7 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 
       }
       graphics_draw();
+#endif
    } 
 }
 

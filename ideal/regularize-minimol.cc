@@ -71,6 +71,14 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 					      mol,
 					      fixed_atom_specs,
 					      &dummy_xmap);
+
+      int n_threads_max = get_max_number_of_threads();
+      int n_threads = n_threads_max -1;
+      if (n_threads < 1) n_threads = 1;
+      ctpl::thread_pool tp(n_threads);
+      std::cout << "set thread pool " << n_threads << std::endl;
+      restraints.thread_pool(&tp, n_threads);
+
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
       bool do_residue_internal_torsions = false;
       bool do_trans_peptide_restraints = true;
@@ -82,7 +90,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 						   do_trans_peptide_restraints,
 						   0.0, 0, true, true, false,
 						   pseudos);
-	 
+
       if (nrestraints > 0) { 
 	 restraints.minimize(flags);
       }

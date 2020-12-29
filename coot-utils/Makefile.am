@@ -38,9 +38,11 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
-	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh \
-	coot_shiftfield.h shiftfield.h
+	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh \
+	strand-fragments.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh arc-info.hh \
+	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh pepflip-using-difference-map.hh \
+	polar-atoms.hh 3d-texture.hh
 
 
 
@@ -70,9 +72,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
-	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc
-
-
+	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
+	3d-texture.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -117,12 +118,13 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
-	xmap-stats.cc maps-spherical.cc
+	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc
+
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
-   $(CLIPPER_LIBS)
+   $(CLIPPER_LIBS) $(GSL_LIBS)
 
 libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -178,7 +180,8 @@ test_segmap_SOURCES = test-segmap.cc
 test_segmap_LDADD = \
         ./libcoot-map-utils.la \
 	./libcoot-map-heavy.la \
-	$(top_builddir)/coords/libcoot-coords.la
+	$(top_builddir)/coords/libcoot-coords.la \
+	$(CLIPPER_LIBS) -lpthread
 
 # other test binaries may need to be linked like this too
 test_coot_utils_SOURCES = test-coot-utils.cc
@@ -188,6 +191,7 @@ test_coot_utils_LDADD = \
 	./libcoot-coord-extras.la \
 	./libcoot-coord-utils.la  \
 	$(top_builddir)/coords/libcoot-coords.la \
+	$(top_builddir)/analysis/libcoot-analysis.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread

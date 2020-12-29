@@ -69,9 +69,11 @@ void write_symm_search_point(std::ofstream&s , const coot::Cartesian &cart) {
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick() const { 
 
-   coot::Cartesian front = unproject(0.0);
-   coot::Cartesian back  = unproject(1.0);
-   return symmetry_atom_pick(front, back);
+   glm::vec4 front = unproject(0.0);
+   glm::vec4 back  = unproject(1.0);
+   coot::Cartesian f(front.x, front.y, front.z);
+   coot::Cartesian b(back.x,  back.y,  back.z);
+   return symmetry_atom_pick(f, b);
 }
 
 // 
@@ -361,76 +363,71 @@ graphics_info_t::fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_a
    }
 }
 
+// put this somewhere sensible
+#include <glm/gtx/string_cast.hpp> // for to_string()
+
+bool
+atom_pos_within_box(const glm::vec4 &atom_pos, const glm::vec4 &front, const glm::vec4 &back) {
+
+   glm::vec4 a = back - front;
+   glm::vec4 b = atom_pos - front;
+   glm::vec4 c = back - atom_pos;
+   if (glm::dot(a,b) >= 0.0) {
+      if (glm::dot(a,c) >= 0.0) {
+         if (glm::length(a) >= glm::length(b)) {
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
+float atom_pos_distance_to_line(const glm::vec4 &atom_pos, const glm::vec4 &front, const glm::vec4 &back) {
+
+   float d = -1.0;
+   glm::vec4 line_vector = back - front;
+   float lva = glm::distance(back, front);
+
+   glm::vec4 front_to_point = atom_pos - front;
+   double front_to_point_amp = glm::distance(atom_pos, front);
+   // std::cout << "debug:: front_to_point_amp " << front_to_point_amp << " lva " << lva << std::endl;
+   float cos_theta_f = glm::dot(line_vector, front_to_point)/(front_to_point_amp * lva);
+   float sin_theta_f = sin(acos(cos_theta_f));
+   float d_f = sin_theta_f * front_to_point_amp;
+   if (cos_theta_f < -1.0) std::cout << "error in cos_theta_f " << cos_theta_f << std::endl;
+   if (cos_theta_f >  1.0) std::cout << "error in cos_theta_f " << cos_theta_f << std::endl;
+
+   glm::vec4 back_to_point = atom_pos - back;
+   float back_to_point_amp = glm::distance(atom_pos, back);
+   float cos_theta_b = glm::dot(line_vector, back_to_point)/(back_to_point_amp * lva);
+   float sin_theta_b = sin(acos(cos_theta_b));
+   float d_b = sin_theta_f * back_to_point_amp;
+   if (cos_theta_b < -1.0) std::cout << "error in cos_theta_b " << cos_theta_b << std::endl;
+   if (cos_theta_b >  1.0) std::cout << "error in cos_theta_b " << cos_theta_b << std::endl;
+
+   if (false)
+      std::cout << "debug:: sin_theta_f " << sin_theta_f << " d_f " << d_f
+                << " sin_theta_b " << sin_theta_b << " d_b " << d_b
+                << " front_to_point_amp " << front_to_point_amp << " lva " << lva << std::endl;
+   float weighted_d = (sin_theta_f*d_f+sin_theta_b*d_b)/(sin_theta_b+sin_theta_f);
+   float click_front_weight = 0.25 * front_to_point_amp/lva;
+   return weighted_d + click_front_weight;
+
+}
+
 
 // pickable moving atoms molecule
 //
 pick_info
 graphics_info_t::moving_atoms_atom_pick(short int pick_mode) const {
 
-   pick_info p_i;
-   p_i.min_dist = 0; // keep compiler happy
-   p_i.atom_index = -1; // ditto
-   p_i.imol = -1; // ditto
-   p_i.success = GL_FALSE;
-   coot::Cartesian front = unproject(0.0);
-   coot::Cartesian back  = unproject(1.0);
-
-   float m_front = 0.8;   // pickable distance
-   float m_back =  0.04;
-
-   std::pair<float, float> min_dist(999,999);
-   float close_score_best = 999.9;
-
-   float d_front_to_back = (back-front).amplitude();
-
-   // This is the signal that moving_atoms_asc is clear
-   if (moving_atoms_asc->n_selected_atoms > 0) {
-
-      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
-	 coot::Cartesian atom_pos(at->x, at->y, at->z);
-	 //
-	 bool at_is_hydrogen = coot::is_hydrogen_p(at);
-
-	 if ((! at_is_hydrogen && pick_mode == PICK_ATOM_NON_HYDROGEN) ||
-	     (pick_mode == PICK_ATOM_ALL_ATOM)) {
-
-	    if (atom_pos.within_box(front,back)) {
-	       float dist = atom_pos.distance_to_line(front, back);
-	       float d_atom_to_front = (atom_pos-front).amplitude();
-
-	       float frac = d_atom_to_front/d_front_to_back;
-
-	       // we are are looking for a low score, so the
-	       // front has a lower score than the back
-	       float m = m_back + frac * (m_front-m_back);
-
-	       float m_limit = m_back + (1.0-frac) * (m_front-m_back);
-
-	       float close_score = dist * m;
-
-	       if (false) // debugging algorithm
-		  std::cout << i << " " << coot::atom_spec_t(at) << " "
-			    << close_score_best << " "
-			    << close_score << " dist " << dist
-			    << " d-atom-front-to-back " << d_atom_to_front
-			    << " m " << m << " m_limit " << m_limit
-			    << " frac " << frac
-			    << std::endl;
-
-	       if (dist < m_limit) {
-		  if (close_score < close_score_best) {
-
-		     close_score_best = close_score;
-		     p_i.success = GL_TRUE;
-		     p_i.atom_index = i;
-		  }
-	       }
-	    }
-	 }
+   pick_info pi;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         pi = atom_pick_gtk3(true);
       }
    }
-   return p_i;
+   return pi;
 }
 
 // examines the imol_moving_atoms molecule for correspondence
@@ -459,8 +456,15 @@ graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
 // (we are acting on button1 down)
 // note to self, maybe you wanted this (check_if_moving_atom_pull()), not pick_intermediate_atom()?
 //
-void
+// This function has the wrong name! Fix! setup_moving_atom_pull_maybe()
+//
+bool
 graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
+
+   bool status = false;
+
+   // std::cout << "debug:: ------------------------------- check_if_moving_atom_pull() start "
+   //           << std::endl;
 
    short int atom_pick_mode = PICK_ATOM_ALL_ATOM;
    if (! moving_atoms_have_hydrogens_displayed)
@@ -468,11 +472,15 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
    pick_info pi = moving_atoms_atom_pick(atom_pick_mode);
    if (pi.success == GL_TRUE) {
 
-      // Flash picked atom.
-      mmdb::Atom *at = moving_atoms_asc->atom_selection[pi.atom_index];
-      clipper::Coord_orth co(at->x, at->y, at->z);
-      graphics_info_t::flash_position(co);
+      if (true) { // debug
+         mmdb::Atom *at = moving_atoms_asc->atom_selection[pi.atom_index];
+         std::cout << "------------------- picked! " << coot::atom_spec_t(at) << std::endl;
 
+         // OK, so, where do we think the cursor is (in real-world 3d?)
+
+      }
+
+      status = true;
       // quite possibly we will have success if moving_atoms_asc is
       // not null...
 
@@ -495,27 +503,17 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 	 //
 	 moving_atoms_dragged_atom_indices.insert(pi.atom_index);
 
-	 if (false)
-	    std::cout << "moving_atoms_currently_dragged_atom_index " << moving_atoms_currently_dragged_atom_index
-		      << std::endl;
+	 if (true)
+	    std::cout << "moving_atoms_currently_dragged_atom_index "
+                      << moving_atoms_currently_dragged_atom_index << std::endl;
 
 	 in_moving_atoms_drag_atom_mode_flag = 1;
 
-         // This is no longer relevant I think
-         //
-	 // Find the fixed_points_sheared_drag from the imol_moving_atoms.
-	 // and their flag, have_fixed_points_sheared_drag_flag
-	 // set_fixed_points_for_sheared_drag(); // superceeded
-	 //
-	 // if (drag_refine_idle_function_token != -1) {
-	 //    // 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
-	 //    // 		   << std::endl;
-	 //    gtk_idle_remove(drag_refine_idle_function_token);
-	 //    drag_refine_idle_function_token = -1; // magic "not in use" value
-	 // }
-
       } else {
+
 	 // a double click on a dragged intermediate atom means "remove this pull restraint"
+
+         // but this block in a function remove/clear_atom_pull_restraint() or something
 
 	 std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
 	 if (it != moving_atoms_dragged_atom_indices.end()) {
@@ -536,8 +534,11 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
       }
 
    } else {
+      // std::cout << "debug:: ------------------------------- check_if_moving_atom_pull() no pick!"
+      //           << std::endl;
       in_moving_atoms_drag_atom_mode_flag = 0;
    }
+   return status;
 }
 
 
@@ -577,52 +578,8 @@ graphics_info_t::set_fixed_points_for_sheared_drag() {
 void
 graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 					    short int squared_flag) {
-   
-   // First we have to find the "fixed" points connected to them most
-   // distant from the moving_atoms_dragged_atom.
-   //
-   // So now we ask, how much should we move the moving atom?  We have
-   // the current mouse position: x, y and the previous mouse
-   // position: GetMouseBeginX(), GetMouseBeginY(). Let's use
-   // unproject to find the shift in world coordinates...
-   //
-   coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
-							int(GetMouseBeginY()),
-							0.5);
-   coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
-   
-   coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
-   
-   // now tinker with the moving atoms coordinates...
 
-   // 20180219 - I can't be bothered to fix this non-used code
-
-   /*
-
-   if (moving_atoms_dragged_atom_index >= 0) {
-      if (moving_atoms_dragged_atom_index < moving_atoms_asc->n_selected_atoms) {
-	 mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
-	 if (at) {
-	    
-	    move_moving_atoms_by_shear_internal(diff, squared_flag);
-	    
-	    // and regenerate the bonds of the moving atoms:
-	    // 
-	    int do_disulphide_flag = 0;
-	    Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag);
-	    regularize_object_bonds_box.clear_up();
-	    regularize_object_bonds_box = bonds.make_graphical_bonds();
-	    graphics_draw();
-	 } else {
-	    std::cout << "ERROR: null atom in move_moving_atoms_by_shear\n";
-	 }
-      } else {
-	 std::cout << "ERROR: out of index (over) in move_moving_atoms_by_shear\n";
-      }
-   } else {
-      std::cout << "ERROR: out of index (under) in move_moving_atoms_by_shear\n";
-   }
-   */
+   // don't do this
 }
 
 
@@ -631,10 +588,13 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 void
 graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screeny) {
 
+#if 0
+
+   // Fix this later
 
    coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
-						  int(GetMouseBeginY()),
-						  0.5);
+                                                        int(GetMouseBeginY()),
+                                                        0.5);
    coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
 
    coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
@@ -654,7 +614,8 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
       
       Bond_lines_container bonds;
-      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7, false);
+      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
+                                     draw_missing_loops_flag, false);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    } else {
@@ -663,13 +624,15 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    }
    graphics_draw();
+#endif   
 }
 
 // uses moving_atoms_dragged_atom_index
 void
 graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 
-   
+
+#if 0    // FIXME later
    coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
 							int(GetMouseBeginY()), 0.5);
    coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
@@ -686,54 +649,73 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
    regularize_object_bonds_box = bonds.make_graphical_bonds();
    graphics_draw();
 
+#endif
+
 }
 
 void
 graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 
-   coot::Cartesian front = unproject_xyz(screen_x, screen_y, 0);
-   coot::Cartesian back  = unproject_xyz(screen_x, screen_y, 1);
+   // outut in the range -1 to +1
+   auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {
+                                        double fsc = static_cast<double>(screen_coord);
+                                        double fd = static_cast<double>(dimension);
+                                        double f = fsc/fd;
+                                        return 2.0 * f - 1.0;
+                                     };
+
+             if (false)
+                std::cout << "screen_x " << screen_x << " screen_y " << screen_y
+                          << " delta " << screen_x - mouse_begin.first  << " "
+                          << " delta " << screen_y - mouse_begin.second << " "
+                          << std::endl;
+
+   double delta_x = screen_x - mouse_begin.first;
+   double delta_y = screen_y - mouse_begin.second;
+
+   GtkAllocation allocation = get_glarea_allocation();
+   int iw = allocation.width;
+   int ih = allocation.height;
+
+   double mx_now =  mouse_coords_to_clip_space(screen_x, iw);
+   double my_now = -mouse_coords_to_clip_space(screen_y, ih);
+
+   glm::vec3   back_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now,  1.0));
+   glm::vec3  front_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now, -1.0));
 
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-   coot::Cartesian c_at(at->x, at->y, at->z);
-   coot::Cartesian fb = back - front;
-   coot::Cartesian  h = c_at - front;
+   glm::vec3 atom_position(at->x, at->y, at->z);
 
-   float d_fb = fb.length();
-   float d_h  =  h.length();
+   // I *do* need know where the pointer is in 3d space - not just where the delta
 
-   double cos_theta = coot::dot_product(fb, h)/(d_fb*d_h);
-   double d = d_h * cos_theta;
-   float z_depth = d/d_fb;
+   glm::vec3 front_to_atom = atom_position - front_now;
+   glm::vec3 front_to_atom_uv = glm::normalize(front_to_atom);
+   glm::vec3 front_to_back = back_now - front_now;
+   glm::vec3 front_to_back_uv =  glm::normalize(front_to_back);
+   float dp = glm::dot(front_to_back_uv, front_to_atom_uv);
+   float cos_angle_between_front_to_back_and_front_to_atom = dp;
 
-   if (z_depth > 1.0) z_depth = 1.0;
-   if (z_depth < 0.0) z_depth = 0.0;
-
-   coot::Cartesian current_mouse_real_world = unproject_xyz(screen_x, screen_y, z_depth);
-   clipper::Coord_orth c_pos(current_mouse_real_world.x(),
-			     current_mouse_real_world.y(),
-			     current_mouse_real_world.z());
-
-   atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), c_pos);
+   float angle_between_front_to_back_and_front_to_atom = acos(dp);
+   // distance between front and atom position
+   float d_f_a_p = glm::distance(front_now, atom_position);
+   float d_b_a_p = glm::distance(back_now,  atom_position);
+   float d_f_b   = glm::distance(front_now, back_now);
 
    if (false)
-      std::cout << "graphics_info_t::move_atom_pull_target_position() atom_pull.status: "
-		<< atom_pull_local.get_status() << " "
-		<< " atom pull:: idx " << moving_atoms_currently_dragged_atom_index << " "
-		<< coot::co(at).format() << " to " << current_mouse_real_world
-		<< std::endl;
+      std::cout << "dp " << dp << " d_f_a_p " << d_f_a_p << " d_b_a_p " << d_b_a_p << std::endl;
 
-   continue_threaded_refinement_loop = false;
-   while (restraints_lock) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
-   }
+   // the magic :-) Pythagoras in action.
+   glm::vec3 mouse_now = front_now + (back_now - front_now) * d_f_a_p * cos_angle_between_front_to_back_and_front_to_atom / d_f_b;
 
-   // add to or replace in atom_pulls (for representation)
+   glm::vec3 new_position = mouse_now;
+   clipper::Coord_orth new_position_c(new_position.x, new_position.y, new_position.z);
+
+   atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), new_position_c);
    add_or_replace_current(atom_pull_local);
-   //
-   last_restraints->add_atom_pull_restraint(atom_pull_local.spec, c_pos);
+   last_restraints->add_atom_pull_restraint(atom_pull_local.spec, new_position_c);
    thread_for_refinement_loop_threaded();
-   graphics_draw();  // needed
+
+   graphics_draw();
 }
 
 void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_in) {
@@ -923,13 +905,11 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
    if (rot_trans_rotation_origin_atom) { 
       if (moving_atoms_asc->mol) {
 	 if (moving_atoms_asc->n_selected_atoms > 0) {
-	    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-	    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-	    coot::Cartesian screen_z = (front - centre);
 
-	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(screen_z.x(), 
-								     screen_z.y(), 
-								     screen_z.z());
+            coot::ScreenVectors sv;
+	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(sv.screen_z.x(), 
+								     sv.screen_z.y(), 
+								     sv.screen_z.z());
 	    mmdb::Atom *rot_centre = rot_trans_rotation_origin_atom;
 	    clipper::Coord_orth rotation_centre(rot_centre->x, 
 						rot_centre->y, 
@@ -960,7 +940,8 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 	       
 	       Bond_lines_container bonds;
-	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7, false);
+	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
+                                              draw_missing_loops_flag, false);
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    } else {
@@ -982,15 +963,11 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
    if (rot_trans_rotation_origin_atom) { 
       if (moving_atoms_asc->mol) {
 	 if (moving_atoms_asc->n_selected_atoms > 0) {
-	    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-	    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-	    coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-	    coot::Cartesian screen_z = (front - centre);
-	    coot::Cartesian screen_x = (right - centre);
 
-	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(screen_x.x(), 
-								     screen_x.y(), 
-								     screen_x.z());
+            coot::ScreenVectors sv;
+	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(sv.screen_x.x(), 
+								     sv.screen_x.y(), 
+								     sv.screen_x.z());
 	    mmdb::Atom *rot_centre = rot_trans_rotation_origin_atom;
 	    clipper::Coord_orth rotation_centre(rot_centre->x, 
 						rot_centre->y, 
@@ -1018,7 +995,8 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 	       
 	       Bond_lines_container bonds;
-	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7, false);
+	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
+                                              draw_missing_loops_flag, false);
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    } else {
@@ -1041,8 +1019,10 @@ int graphics_info_t::move_reference_chain_to_symm_chain_position() {
       GtkAllocation allocation = get_glarea_allocation();
       int iw = allocation.width;
       int ih = allocation.height;
-      coot::Cartesian front = unproject_xyz(iw/2, ih/2, 0);
-      coot::Cartesian back  = unproject_xyz(iw/2, ih/2, 1);
+      glm::vec4 glm_front = unproject(iw/2, ih/2, 0);
+      glm::vec4 glm_back  = unproject(iw/2, ih/2, 1);
+      coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+      coot::Cartesian back(glm_back.x, glm_back.y, glm_back.z);
       coot::Symm_Atom_Pick_Info_t naii = symmetry_atom_pick(front, back);
       if (naii.success == GL_TRUE) {
 	 if (is_valid_model_molecule(naii.imol)) {
@@ -1050,7 +1030,7 @@ int graphics_info_t::move_reference_chain_to_symm_chain_position() {
 	    graphics_draw();
 	 } else {
 	    std::cout << "not valid mol" << std::endl;
-	 } 
+	 }
       } else {
 	 std::cout << "bad pick " << std::endl;
 	 std::string s = "Symm Atom not found at centre.  Are you centred on a symm atom?";

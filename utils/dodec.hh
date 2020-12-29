@@ -24,11 +24,12 @@ public:
 class pentakis_dodec {
    void init();
 public:
-   pentakis_dodec(double height_in);
-   pentakis_dodec() { prism_vertex_height = sqrt(3); init(); }
+   explicit pentakis_dodec(double height_in);
+   pentakis_dodec() : prism_vertex_height(sqrt(3)) { init(); }
    dodec d;
    double prism_vertex_height; // for pentagonal prism from the origin.
    std::vector<clipper::Coord_orth> pyrimid_vertices;
+   // for triangles, see make-a-dodec.cc
 };
 
 

@@ -100,7 +100,7 @@ namespace coot {
 	 it = dots.find("small-overlap");
 	 if (it != dots.end()) r -= 0.1 * it->second.size();
 	 it = dots.find("big-overlap");
-	 if (it != dots.end()) r -= it->second.size();
+	 if (it != dots.end()) r -= 0.6 * it->second.size();
 	 r -= clashes.size();
 	 return r;
       }
@@ -286,6 +286,7 @@ namespace coot {
 
       static bool overlap_sorter(const atom_overlap_t &ao1, const atom_overlap_t &ao2);
       void sort_overlaps();
+      bool kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -311,11 +312,13 @@ namespace coot {
 				double clash_spike_length_in = 0.5,
 				double probe_radius_in = 0.25);
 
+      // If there are no overlaps, is it because there was no dictionary for one or more residues?
+      bool get_have_dictionary() const { return have_dictionary; }
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
       void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
-      atom_overlaps_dots_container_t contact_dots_for_ligand();
+      atom_overlaps_dots_container_t contact_dots_for_ligand(double dot_density_in = 1.02);
       // this should be a vector or derived symmetry_atom class really.
       std::vector<atom_overlap_t> symmetry_contacts(float d);
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,

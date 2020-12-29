@@ -123,7 +123,6 @@
 (define linked-residues linked-residues-scm)
 (define molecule-atom-overlaps molecule-atom-overlaps-scm)
 (define CG-spin-search CG-spin-search-scm)
-(define molecule-atom-overlaps molecule-atom-overlaps-scm)
 (define c-beta-deviations c-beta-deviations-scm)
 (define set-go-to-atom-from-atom-spec set-go-to-atom-from-atom-spec-scm)
 (define chiral-volume-errors chiral-volume-errors-scm)

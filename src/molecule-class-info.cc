@@ -101,9 +101,223 @@ const double pi = M_PI;
 #include "ligand/residue_by_phi_psi.hh"
 #include "mini-mol/mini-mol-utils.hh"
 
+#include "cylinder-with-rotation-translation.hh" // for bonds
+
 // for debugging
 #include "c-interface.h"
 
+#include "oct.hh"
+#include "molecular-mesh-generator.hh"
+#include "make-a-dodec.hh"
+ 
+
+
+glm::vec3
+cartesian_to_glm(const coot::Cartesian &c) {
+   return glm::vec3(c.x(), c.y(), c.z());
+}
+
+void
+molecule_class_info_t::setup_internal() {
+
+   atom_sel.atom_selection = NULL;
+   atom_sel.n_selected_atoms = 0;
+   atom_sel.mol = NULL;
+
+   // while zero maps, don't need to intialise the arrays (xmap_is_filled)
+   is_patterson = 0;
+   // draw_vectors = NULL;
+   // diff_map_draw_vectors = NULL;
+
+   //
+   xskel_is_filled = 0; // not filled.
+   skeleton_treenodemap_is_filled = 0;
+
+   draw_hydrogens_flag = 1;
+   bond_width = 3.0;
+   atom_radius_scale_factor = 1.0; // used in making balls for atoms
+
+   ghost_bond_width = 2.0;
+
+   // initial bonds type (checked and reset in handle_read_draw_molecule)
+   bonds_box_type = coot::UNSET_TYPE;
+   bonds_rotate_colour_map_flag = 0;
+
+
+
+   save_time_string = "";
+
+   pickable_atom_selection = 1;
+
+   is_intermediate_atoms_molecule = false;
+
+   // refmac stuff
+   //
+   refmac_count = 0;
+   have_sensible_refmac_params = 0;  // initially no refmac params.
+   have_refmac_phase_params    = 0;  // initially no refmac params.
+
+   // history stuff
+   //
+   history_index = 0;
+   max_history_index = 0;
+
+   have_unsaved_changes_flag = 0; // no unsaved changes initially.
+   show_unit_cell_flag = 0;
+   fc_skeleton_draw_on = 0;
+   greer_skeleton_draw_on = 0;
+
+   // Don't draw it initially.
+   draw_it = 0;
+   draw_it_for_map = 0;
+   draw_it_for_map_standard_lines = 1;
+   draw_it_for_extra_restraints = true;
+   extra_restraints_representation_for_bonds_go_to_CA = false;
+
+   // backup on by default, turned off for dummy atoms (baton building)
+   backup_this_molecule = 1;
+
+   // Map stuff
+   map_max_ = 100.0;
+   map_min_ = -100.0;
+   sharpen_b_factor_ = 0.0;
+   sharpen_b_factor_kurtosis_optimised_ = -999999.0;
+   pending_contour_level_change_count = 0;
+   data_resolution_ = -1; // unset
+
+   // fourier (for phase recombination (potentially) in refmac:
+   fourier_weight_label = ""; // unset initially.
+
+   // HL coeff and phi (for phase recombination (potentially) in refmac:
+   // should be enough to unset the first one for testing for HL
+   refmac_phi_col = ""; // unset initially.
+   refmac_hla_col = ""; // unset initially.
+
+   //
+   colour_skeleton_by_random = 0;
+
+   // original Fs saved? (could be from map)
+   original_fphis_filled = 0;
+   original_fobs_sigfobs_filled = false;
+   original_fobs_sigfobs_fill_tried_and_failed = false;
+
+
+   //  bond width (now changeable).
+   bond_width = 3.0;
+   display_stick_mode_atoms_flag = true;
+
+   // bespoke colouring
+   use_bespoke_grey_colour_for_carbon_atoms = false;
+   bespoke_carbon_atoms_colour = coot::colour_t(0.4, 0.4, 0.4);
+
+   //
+   rotate_colour_map_for_difference_map = 240.0; // degrees
+
+   // save index
+   coot_save_index = 0; // how is this related to the backup history_index?
+
+   other_molecule_backup_index = -1; // unset
+
+   // ligand flipping. save the index
+   ligand_flip_number = 0; // or 1 2 3 for the 4 different
+   // orientations round the eigen vectors.
+   // (For ligand molecules).  In future,
+   // this may need to be keyed on the
+   // resno and chain_id for multiple
+   // ligands in a molecule.
+
+   show_symmetry = 1; // individually on by default.
+
+   // Draw NCS ghosts?
+   show_ghosts_flag = 0;
+   is_dynamically_transformed_map_flag = 0;
+   ncs_ghosts_have_rtops_flag = 0;
+
+   // contour by sigma
+   contour_by_sigma_flag = 1;
+   contour_sigma_step = 0.1;
+
+   //
+   cootsurface = NULL; // no surface initial, updated by make_surface()
+   theSurface = 0;
+   transparent_molecular_surface_flag = 0;
+
+   m_VertexArrayID_for_map = VAO_NOT_SET;
+   //
+   theMapContours.first = 0;
+   theMapContours.second = 0;
+   is_em_map_cached_flag = -1; // unset
+   n_vertices_for_map_VertexArray = 0;
+   n_vertices_for_model_VertexArray = 0;
+   n_indices_for_triangles = 0;
+   n_indices_for_lines = 0;
+   // Assigning to GLuint. Hmm
+   m_VertexArrayID_for_map  = -1;
+   m_VertexArrayID_for_map_cap  = -1;
+   m_VertexBufferID = -1;
+   m_IndexBuffer_for_map_lines_ID  = -1;
+   m_IndexBuffer_for_map_triangles_ID = -1;
+   m_ColourBufferID = -1;
+   m_VertexArray_for_model_ID = -1;
+   m_VertexBuffer_for_model_ID = -1;
+   m_IndexBuffer_for_model_ID = -1;
+   n_indices_for_model_triangles = 0;
+   n_vertices_for_map_cap = 0;
+   shader_shininess = 6.0;
+   shader_specular_strength = 0.6;
+
+   map_mesh_first_time = true;
+   model_mesh_first_time = true;
+
+   molecule_as_mesh_atoms_1 = Mesh("molecule_as_mesh_atoms_1");
+   molecule_as_mesh_atoms_2 = Mesh("molecule_as_mesh_atoms_2");
+   molecule_as_mesh_bonds   = Mesh("molecule_as_mesh_bonds");
+
+   // draw vectors
+   draw_vector_sets.reserve(120); // more than enough
+   draw_vector_sets.resize(120);
+   draw_diff_map_vector_sets.resize(120);
+
+   write_model_vertices_and_triangles_to_file_mode = false;
+
+   // don't show strict ncs unless it's turned on.
+   show_strict_ncs_flag = 1;
+
+   // shelx stuff
+   is_from_shelx_ins_flag = 0;
+
+   // symmetry, 20060202 valgrind found that these was not set.
+   symmetry_rotate_colour_map_flag = 0;
+   symmetry_as_calphas = 0;
+   symmetry_whole_chain_flag = 0;
+   symmetry_colour_by_symop_flag = 0;
+
+   // dots colour can now be set from outside.
+   //
+   dots_colour = coot::colour_t(0.3,0.4,0.5);
+   dots_colour_set = false; // so use atom-element colouring
+
+   // solid surface density representation
+   //
+   // draw_it_for_solid_density_surface = 0;
+   density_surface_opacity = 1.0;
+
+   // other map
+   colour_map_using_other_map_flag = false;
+   other_map_for_colouring_p = 0;
+
+   // animated ligand interaction representation
+   draw_animated_ligand_interactions_flag = 0;
+
+   // single model view
+   single_model_view_current_model_number = 0; // all models
+
+   // mtz updating
+   continue_watching_mtz = false;
+
+   previous_eye_position = clipper::Coord_orth(-999, -999, -999);
+
+}
 
 int
 molecule_class_info_t::update_molecule(std::string file_name, std::string cwd) {
@@ -139,6 +353,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (! is_undo_or_redo) {
       bond_width = bond_width_in;
       bonds_box_type = bonds_box_type_in;
+      if (g.draw_stick_mode_atoms_default == false) {
+         display_stick_mode_atoms_flag = false;
+      }
    }
 
    // std::cout << "DEBUG:: ---- imol_no is now " << imol_no << std::endl;
@@ -179,8 +396,8 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 	         int n_links = model_p->GetNumberOfLinks();
 	         std::cout << "   Model "  << imod << " had " << n_links
 		                << " links\n";
+         }
       }
-   }
 
 
       //
@@ -442,33 +659,38 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 
    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
       mmdb::Atom *at = atom_sel.atom_selection[iat];
-      std::string chain_id_from_at(at->GetChainID());
-      if ((chain_id_from_at == chain_id) || !use_this_chain_id) {
-    float d2 = (at->x - pt.x()) * (at->x - pt.x());
-    d2 += (at->y - pt.y()) * (at->y - pt.y());
-    d2 += (at->z - pt.z()) * (at->z - pt.z());
-    if (d2 < dist_best) {
-       dist_best = d2;
-       at_best = at;
-       // Now, does this at belong to a residue that has a CA?  If
-       // it does, reset at_best to be the CA of the residue, but
-       // keep dist_best as it was, of course.
-       if (ca_check_flag == 1) {
-          mmdb::Residue *res = at->residue;
-          int natoms;
-          mmdb::PPAtom residue_atoms;
-          res->GetAtomTable(residue_atoms, natoms);
-          for (int iatom=0; iatom<natoms; iatom++) {
-     if (! residue_atoms[iatom]->isTer()) {
-        if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
-   if (! strcmp(residue_atoms[iatom]->altLoc, at->altLoc)) {
-      at_best = residue_atoms[iatom];
-   }
-        }
-     }
-          }
-       }
-    }
+      if (! at->isTer()) {
+         std::string chain_id_from_at(at->GetChainID());
+         if ((chain_id_from_at == chain_id) || !use_this_chain_id) {
+            float d2 = (at->x - pt.x()) * (at->x - pt.x());
+            d2 += (at->y - pt.y()) * (at->y - pt.y());
+            d2 += (at->z - pt.z()) * (at->z - pt.z());
+            if (d2 < dist_best) {
+               dist_best = d2;
+               at_best = at;
+               // Now, does this at belong to a residue that has a CA?  If
+               // it does, reset at_best to be the CA of the residue, but
+               // keep dist_best as it was, of course.
+               if (ca_check_flag) {
+                  mmdb::Residue *res = at->residue;
+                  if (res) {
+                     int natoms = 0;
+                     mmdb::PPAtom residue_atoms = 0;
+                     res->GetAtomTable(residue_atoms, natoms);
+                     for (int iatom=0; iatom<natoms; iatom++) {
+                        mmdb::Atom *r_at = residue_atoms[iatom];
+                        if (! r_at->isTer()) {
+                           if (! strcmp(r_at->name, " CA ")) {
+                              if (! strcmp(r_at->altLoc, at->altLoc)) {
+                                 at_best = r_at;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+	    }
+	 }
       }
    }
    if (at_best) {
@@ -585,11 +807,14 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 
 void
-molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
-                                   short int seg_ids_in_atom_labels_flag) {
+molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
+                                        short int seg_ids_in_atom_labels_flag,
+                                        const glm::vec4 &atom_label_colour,
+                                        const glm::mat4 &mvp,
+                                        const glm::mat4 &view_rotation,
+                                        const glm::vec3 &eye_position) {
 
    if (draw_it) {
-
       if (has_model()) {
 
          // keep a list of atoms that have labels (either in graphics_info
@@ -603,7 +828,9 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
 
          // also remove labels from atom indexes list of over the end.
          for (int ii=0; ii<n_atoms_to_label ; ii++)
-            label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+            draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag,
+                            seg_ids_in_atom_labels_flag, atom_label_colour,
+                            mvp, view_rotation, eye_position);
 
          n_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -654,7 +881,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 void
 molecule_class_info_t::draw_anisotropic_atoms() {
-
+#if 0
    int c; // atom colour
 
    if (has_model()) {
@@ -662,241 +889,334 @@ molecule_class_info_t::draw_anisotropic_atoms() {
       bool is_bb = g.background_is_black_p(); //
 
       if (draw_it) {
-    if (g.show_aniso_atoms_flag == 1 ) {
-       glPushMatrix();
+         if (g.show_aniso_atoms_flag == 1 ) {
+            glPushMatrix();
 
-       float rx = g.X();
-       float ry = g.Y();
-       float rz = g.Z();
+            float rx = g.X();
+            float ry = g.Y();
+            float rz = g.Z();
 
-       float x1, y1, z1;
-       float x_diff, y_diff, z_diff;
-       float d2, mc_r2 = g.show_aniso_atoms_radius*g.show_aniso_atoms_radius;
-       float rad_50, r;
+            float x1, y1, z1;
+            float x_diff, y_diff, z_diff;
+            float d2, mc_r2 = g.show_aniso_atoms_radius*g.show_aniso_atoms_radius;
+            float rad_50, r;
 
-       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+            for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 
-          // put a wiresphere at the atom positions
+               // put a wiresphere at the atom positions
 
-          if (atom_sel.atom_selection[i]->u11 > 0) {
+               if (atom_sel.atom_selection[i]->u11 > 0) {
 
-     std::string ele = atom_sel.atom_selection[i]->element;
-     // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
-     if (draw_hydrogens_flag || ele != " H") {
+                  std::string ele = atom_sel.atom_selection[i]->element;
+                  // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
+                  if (draw_hydrogens_flag || ele != " H") {
 
-        glLineWidth(1.0);
-        glPushMatrix();
+                     glLineWidth(1.0);
+                     glPushMatrix();
 
-        x1 = atom_sel.atom_selection[i]->x;
-        y1 = atom_sel.atom_selection[i]->y;
-        z1 = atom_sel.atom_selection[i]->z;
+                     x1 = atom_sel.atom_selection[i]->x;
+                     y1 = atom_sel.atom_selection[i]->y;
+                     z1 = atom_sel.atom_selection[i]->z;
 
-        x_diff = x1 - rx;
-        y_diff = y1 - ry;
-        z_diff = z1 - rz;
+                     x_diff = x1 - rx;
+                     y_diff = y1 - ry;
+                     z_diff = z1 - rz;
 
-        d2 = x_diff*x_diff + y_diff*y_diff + z_diff*z_diff;
+                     d2 = x_diff*x_diff + y_diff*y_diff + z_diff*z_diff;
 
-        // are we either inside the distance or there is no distance set?
-        //
-        if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
+                     // are we either inside the distance or there is no distance set?
+                     //
+                     if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
 
-   c = atom_colour(atom_sel.atom_selection[i]->element);
-   set_bond_colour_by_mol_no(c, is_bb);
+                        c = get_atom_colour_from_element(atom_sel.atom_selection[i]->element);
+                        set_bond_colour_by_mol_no(c, is_bb);
 
-   GL_matrix mat(atom_sel.atom_selection[i]->u11,
-         atom_sel.atom_selection[i]->u12,
-         atom_sel.atom_selection[i]->u13,
-         atom_sel.atom_selection[i]->u12,
-         atom_sel.atom_selection[i]->u22,
-         atom_sel.atom_selection[i]->u23,
-         atom_sel.atom_selection[i]->u13,
-         atom_sel.atom_selection[i]->u23,
-         atom_sel.atom_selection[i]->u33);
+                        GL_matrix mat(atom_sel.atom_selection[i]->u11,
+                                      atom_sel.atom_selection[i]->u12,
+                                      atom_sel.atom_selection[i]->u13,
+                                      atom_sel.atom_selection[i]->u12,
+                                      atom_sel.atom_selection[i]->u22,
+                                      atom_sel.atom_selection[i]->u23,
+                                      atom_sel.atom_selection[i]->u13,
+                                      atom_sel.atom_selection[i]->u23,
+                                      atom_sel.atom_selection[i]->u33);
 
-   glTranslatef(x1, y1, z1);
-   // glMultMatrixf(mat.get());
-   // std::cout << "Atom Us " << std::endl;
-   // mat.print_matrix();
-   // std::cout << "Choleskied: " << std::endl;
-   // mat.cholesky().print_matrix();
-   std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
-   if (chol_pair.first) {
-      glMultMatrixf(chol_pair.second.get());
-      rad_50 = r_50(atom_sel.atom_selection[i]->element);
-      r = rad_50_and_prob_to_radius(rad_50,
-    g.show_aniso_atoms_probability);
-      // note: g.show_aniso_atoms_probability is in the range
-      // 0.0 -> 100.0
-      // glutWireSphere(r, 10, 10);
-    std::cout << "Fix wire sphere\n";
-   } else {
-      std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
-        << std::endl;
-   }
-        }
-        glPopMatrix();
-     }
-          }
-       }
-       glPopMatrix();
-    }
+                        glTranslatef(x1, y1, z1);
+                        // glMultMatrixf(mat.get());
+                        // std::cout << "Atom Us " << std::endl;
+                        // mat.print_matrix();
+                        // std::cout << "Choleskied: " << std::endl;
+                        // mat.cholesky().print_matrix();
+                        std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+                        if (chol_pair.first) {
+                           glMultMatrixf(chol_pair.second.get());
+                           rad_50 = r_50(atom_sel.atom_selection[i]->element);
+                           r = rad_50_and_prob_to_radius(rad_50,
+                                                         g.show_aniso_atoms_probability);
+                           // note: g.show_aniso_atoms_probability is in the range
+                           // 0.0 -> 100.0
+                           // glutWireSphere(r, 10, 10);
+                           std::cout << "Fix wire sphere\n";
+                        } else {
+                           std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
+                                     << std::endl;
+                        }
+                     }
+                     glPopMatrix();
+                  }
+               }
+            }
+            glPopMatrix();
+         }
       }
    }
+#endif
 }
 
 coot::colour_t
-molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_dark_background) {
 
+   // this is used for intermediate atoms
+
+   coot::colour_t col(0.5, 0.5, 0.5);
+
+   if (true) {  // background check
+      switch (colour_index) {
+      case CARBON_BOND:
+	 col = coot::colour_t (0.2, 0.7, 0.1);
+	 break;
+      case GREEN_BOND:
+	 col = coot::colour_t (0.0, 0.7, 0.0);
+	 break;
+      case BLUE_BOND:
+	 col = coot::colour_t (0.2, 0.2, 0.8);
+	 break;
+      case RED_BOND:
+	 col = coot::colour_t (0.8, 0.1, 0.1);
+	 break;
+      case YELLOW_BOND:
+	 col = coot::colour_t (0.7, 0.7, 0.0);
+	 break;
+      case GREY_BOND:
+	 col = coot::colour_t (0.5, 0.5, 0.5);
+	 break;
+      case HYDROGEN_GREY_BOND:
+	 col = coot::colour_t (0.7, 0.7, 0.7);
+	 break;
+      case DEUTERIUM_PINK:
+	 col = coot::colour_t (0.8, 0.6, 0.64);
+	 break;
+      case MAGENTA_BOND:
+	 col = coot::colour_t (0.8, 0.1, 0.8);
+	 break;
+      case DARK_GREEN_BOND:
+	 col = coot::colour_t (0.05, 0.69, 0.05);
+	 break;
+      case DARK_ORANGE_BOND:
+	 col = coot::colour_t (0.7, 0.7, 0.05);
+	 break;
+      case DARK_BROWN_BOND:
+	 col = coot::colour_t (0.5, 0.5, 0.1);
+	 break;
+      default:
+	 col = coot::colour_t (0.7, 0.8, 0.8);
+      }
+   }
+   return col;
+}
+
+coot::colour_t
+molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
+
+   // std::cout << "get_bond_colour_by_mol_no() " << colour_index << std::endl;
+
+   GLenum err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() --start-- " << err << std::endl;
    coot::colour_t rgb;
 
    if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(i);
+      rgb = get_bond_colour_basic(colour_index, against_a_dark_background);
+      err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1 a1 " << err << std::endl;
    } else {
-      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
+
       float rotation_size = bonds_colour_map_rotation/360.0;
 
-//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
-// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
-
       // rotation_size typically then: 2*32/360 = 0.178
+      err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1a " << colour_index << std::endl;
 
-      while (rotation_size > 1.0) { // no more black bonds?
-    rotation_size -= 1.0;
-      }
-      if (against_a_dark_background) {
-
-	 if (false)
-	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-		      << " green "   << GREEN_BOND << " "
-		      << " blue "    << BLUE_BOND << " "
-		      << " red "     << RED_BOND << " "
-		      << " yellow "  << YELLOW_BOND << " "
-		      << " grey "    << GREY_BOND << " "
-		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
-		      << " magenta " << MAGENTA_BOND << " "
-		      << std::endl;
-
-	 switch (i) {
-	 case CARBON_BOND:
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb = bespoke_carbon_atoms_colour;
-	    } else {
-	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-	    }
-	    break;
-	 case YELLOW_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	    // replaced in mmdb-extras.h
-	    //       case white:
-	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-	    // 	 break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 default:
-	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-	    rgb.rotate(i*26.0/360.0);
-	 }
-
+      if (colour_index >= 50) {
+         float ii_f = colour_index - 50;
+         ii_f += 1.2 * static_cast<float>(imol_no);
+         rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45;
+         float ra = ii_f*79.0/360.0;
+         ra += rotation_size;
+         while (ra > 1.0) ra -= 1.0;
+         if (ra > 0) {
+            rgb.rotate(ra);
+         }
+         // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
+         // << colour_index << " " << rgb << std::endl;
+         err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1b " << colour_index << std::endl;
       } else {
 
-	 // against a white background.  Less pale, darker, more saturated.
+         while (rotation_size > 1.0) { // no more black bonds?
+            rotation_size -= 1.0;
+         }
 
-	 switch (i) {
-	 case YELLOW_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
+         if (against_a_dark_background) {
 
-	 default:
-	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-	    // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	    rgb.rotate(i*26.0/360.0);
-	 }
-      }
+            if (false)
+               std::cout << "get_bond_colour_by_mol_no() idx: " << colour_index << " vs "
+                         << " green "   << GREEN_BOND << " "
+                         << " blue "    << BLUE_BOND << " "
+                         << " red "     << RED_BOND << " "
+                         << " yellow "  << YELLOW_BOND << " "
+                         << " grey "    << GREY_BOND << " "
+                         << " H-grey "  << HYDROGEN_GREY_BOND << " "
+                         << " magenta " << MAGENTA_BOND << " "
+                         << std::endl;
 
-      // "correct" for the +1 added in the calculation of the rotation
-      // size.
-      // 21. is the default colour map rotation
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1c " << err << std::endl;
 
-      rgb.rotate(float(1.0 - 21.0/360.0));
+            switch (colour_index) {
+            case CARBON_BOND:
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+               }
+               break;
+            case YELLOW_BOND:
+               rgb[0] = 0.6; rgb[1] = 0.98; rgb[2] =  0.2;
+               break;
+            case BLUE_BOND:
+               rgb[0] = 0.3; rgb[1] =  0.3; rgb[2] =  1.0;
+               break;
+            case RED_BOND:
+               rgb[0] = 1.0; rgb[1] =  0.2; rgb[2] =  0.2;
+               break;
+            case GREEN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+               break;
+            case GREY_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+               break;
+            case HYDROGEN_GREY_BOND:
+               rgb[0] = 0.86; rgb[1] =  0.86; rgb[2] =  0.86;
+               break;
+            case DEUTERIUM_PINK:
+               rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
+               break;
+               // replaced in mmdb-extras.h
+               //       case white:
+               // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
+               // 	 break;
+            case MAGENTA_BOND:
+               rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+               break;
+            case ORANGE_BOND:
+               rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+               break;
+            case CYAN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+               break;
+            case DARK_GREEN_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               break;
+            case DARK_ORANGE_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               break;
+            case DARK_BROWN_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+            default:
+               rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+               rgb.rotate(colour_index*26.0/360.0);
+            }
 
-      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-    if (i == CARBON_BOND) {
-       if (use_bespoke_grey_colour_for_carbon_atoms) {
-          rgb = bespoke_carbon_atoms_colour;
-       } else {
-          rgb.rotate(rotation_size);
-       }
-    }
-      } else {
-    rgb.rotate(rotation_size);
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1d " << err << std::endl;
+
+         } else {
+
+            // against a white background.  Less pale (more saturated) and darker.
+
+            switch (colour_index) {
+            case YELLOW_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+               break;
+            case BLUE_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+               break;
+            case RED_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+               break;
+            case GREEN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+               break;
+            case GREY_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
+               break;
+            case HYDROGEN_GREY_BOND:
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               break;
+            case DEUTERIUM_PINK:
+               rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
+               break;
+            case MAGENTA_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+               break;
+            case ORANGE_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+            case CYAN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+               break;
+            case DARK_GREEN_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               break;
+            case DARK_ORANGE_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               break;
+            case DARK_BROWN_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+
+            default:
+               rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
+               // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+               rgb.rotate(colour_index*26.0/360.0);
+            }
+         }
+
+         err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1e " << err << std::endl;
+
+         // "correct" for the +1 added in the calculation of the rotation
+         // size.
+         // 21. is the default colour map rotation
+
+         rgb.rotate(float(1.0 - 21.0/360.0));
+
+         err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1f " << err << std::endl;
+
+         if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
+
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1g " << err << std::endl;
+
+            if (colour_index == CARBON_BOND) {
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb.rotate(rotation_size);
+               }
+            }
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1h " << err << std::endl;
+         } else {
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1k " << err << std::endl;
+            rgb.rotate(rotation_size);
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1l " << err << std::endl;
+         }
       }
    }
+   err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() --end-- " << err << std::endl;
    return rgb;
 }
 
@@ -905,182 +1225,12 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 //
 // not const because bond_colour_internal is set.
 void
-molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+molecule_class_info_t::set_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
 
-   if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(i);
-   } else {
-      std::vector<float> rgb(3);
-      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
-      float rotation_size = bonds_colour_map_rotation/360.0;
-
-//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
-// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
-
-      // rotation_size typically then: 2*32/360 = 0.178
-
-      while (rotation_size > 1.0) { // no more black bonds?
-    rotation_size -= 1.0;
-      }
-      if (against_a_dark_background) {
-
-	 if (false)
-	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-		      << " green "   << GREEN_BOND << " "
-		      << " blue "    << BLUE_BOND << " "
-		      << " red "     << RED_BOND << " "
-		      << " yellow "  << YELLOW_BOND << " "
-		      << " grey "    << GREY_BOND << " "
-		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
-		      << " magenta " << MAGENTA_BOND << " "
-		      << std::endl;
-
-	 switch (i) {
-	 case CARBON_BOND:
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb[0] = bespoke_carbon_atoms_colour[0];
-	       rgb[1] = bespoke_carbon_atoms_colour[1];
-	       rgb[2] = bespoke_carbon_atoms_colour[2];
-	    } else {
-	       if (i == 0) {
-		  if (imol_no == 0) {
-		     rgb[0] = 0.8; rgb[1] =  0.5; rgb[2] =  0.1;
-		  } else {
-		     rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-		  }
-	       } else {
-		  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-	       }
-	    }
-	    break;
-	 case YELLOW_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	    // replaced in mmdb-extras.h
-	    //       case white:
-	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-	    // 	 break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-
-	 default:
-	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	 }
-
-      } else {
-
-	 // against a white background.  Less pale, darker, more saturated.
-
-	 switch (i) {
-	 case YELLOW_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-
-	 default:
-	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	 }
-      }
-
-      // "correct" for the +1 added in the calculation of the rotation
-      // size.
-      // 21. is the default colour map rotation
-      rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
-
-      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-    if (i == CARBON_BOND) {
-
-       if (use_bespoke_grey_colour_for_carbon_atoms) {
-          bond_colour_internal[0] = bespoke_carbon_atoms_colour[0];
-          bond_colour_internal[1] = bespoke_carbon_atoms_colour[1];
-          bond_colour_internal[2] = bespoke_carbon_atoms_colour[2];
-       } else {
-          std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-          bond_colour_internal = rgb_new;
-       }
-       if (graphics_info_t::use_graphics_interface_flag)
-          glColor3f(bond_colour_internal[0],
-    bond_colour_internal[1],
-    bond_colour_internal[2]);
-    } else {
-       bond_colour_internal = rgb;
-       if (graphics_info_t::use_graphics_interface_flag)
-          glColor3f(rgb[0],rgb[1], rgb[2]);
-    }
-      } else {
-//  	 std::cout << "DEBUG: rotating coordinates colour map by "
-//  		   << rotation_size * 360.0 << " degrees " << std::endl;
-    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-    bond_colour_internal = rgb_new;
-    if (graphics_info_t::use_graphics_interface_flag)
-       glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
-      }
-   }
+   coot::colour_t col = get_bond_colour_by_mol_no(colour_index, against_a_dark_background);
+   glColor3f(col.col[0], col.col[1], col.col[2]);
+   // std::vector<float> bond_colour_internal;
+   bond_colour_internal = {col.col[0], col.col[1], col.col[2]};
 }
 
 void
@@ -1113,21 +1263,38 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
       if (i == 0) {
-    rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
-    done = true;
+         rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
+         done = true;
       }
       if (i == 1) {
-    rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.3f; // dark-grey
-    done = true;
+         rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.3f; // dark-grey
+         done = true;
       }
       offset=2; // blue starts at 2.
+   }
+
+   if (false)
+      std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
+                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+      rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
+      const unsigned int n_b_factor_colours = 48; // matches index_for_b_factor() in my_atom_colour_map_t
+      float f = static_cast<float>(i)/static_cast<float>(n_b_factor_colours);
+      // f is in the range 0 to 1
+      const float pi = 3.1415926535;
+      float rotation_size = -0.11 * f * 2.0  * pi;
+      if (rotation_size < -0.6666) rotation_size = -0.66666; // otherwise black bonds
+      // std::cout << "rotation_size: " << rotation_size << std::endl;
+      rgb = rotate_rgb(rgb, rotation_size);
+      done = true;
    }
    if (! done) {
       float max_colour = 30;
 
       // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
 
-      float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour;
+      float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour + bonds_colour_map_rotation/360.0;
       rgb = rotate_rgb(rgb, rotation_size);
    }
 
@@ -1139,9 +1306,9 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
    //
    if (false)
       std::cout << "set_bond_colour_by_colour_wheel_position "  << i << " " << " "
-   << rgb[0] << " " << rgb[1] << " " << rgb[2] << " " << std::endl;
+                << rgb[0] << " " << rgb[1] << " " << rgb[2] << " " << std::endl;
    bond_colour_internal = rgb;
-   glColor3f(rgb[0], rgb[1], rgb[2]);
+   // glColor3f(rgb[0], rgb[1], rgb[2]); old.
 }
 
 
@@ -1358,179 +1525,54 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
    }
 }
 
-
-
-//
 void
-molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colour) {
+molecule_class_info_t::setup_unit_cell(Shader *shader_p) {
 
-   // Don't display if we have closed this molecule
-   // (perhaps use (atom_sel.mol==NULL) instead?) (no).
+   // modify the reference
+   auto setup = [] (LinesMesh &lines_mesh_for_cell,
+                    const clipper::Cell &cell,
+                    Shader *shader_p) {
+                   lines_mesh_for_cell = LinesMesh(cell);
+                   lines_mesh_for_cell.setup(shader_p);
+                };
 
-   // (same test as has_model()):
-   if (atom_sel.n_selected_atoms > 0) {
+   if (lines_mesh_for_cell.empty()) {
 
-      if (show_unit_cell_flag == 1) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-	 if (draw_it) {
+      if (atom_sel.mol) {
+         mmdb::realtype mmdb_cell[6];
+         mmdb::realtype vol;
+         int orthcode;
+         atom_sel.mol->GetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+                               mmdb_cell[3], mmdb_cell[4], mmdb_cell[5],
+                               vol, orthcode);
+         clipper::Cell cell(clipper::Cell_descr(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+                                                clipper::Util::d2rad(mmdb_cell[3]),
+                                                clipper::Util::d2rad(mmdb_cell[4]),
+                                                clipper::Util::d2rad(mmdb_cell[5])));
+         setup(lines_mesh_for_cell, cell, shader_p);
+      }
 
-	    if (have_unit_cell == 1) {
-
-	       glLineWidth(2.0);
-	       glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
-
-	       float corners[8][3] = {
-		  {0,0,0}, //0
-		  {0,0,1}, //1
-		  {0,1,0}, //2
-		  {0,1,1}, //3
-		  {1,0,0}, //4
-		  {1,0,1}, //5
-		  {1,1,0}, //6
-		  {1,1,1}};//7
-
-	       mmdb::realtype x_orth, y_orth, z_orth;
-	       // rsc = real_space_corners
-	       float rsc[8][3];
-
-	       for (int ii=0; ii<8; ii++) {
-
-		  atom_sel.mol->Frac2Orth(corners[ii][0], corners[ii][1], corners[ii][2],
-					  x_orth, y_orth, z_orth);
-
-		  rsc[ii][0] = x_orth;
-		  rsc[ii][1] = y_orth;
-		  rsc[ii][2] = z_orth;
-	       }
-
-	       draw_unit_cell_internal(rsc);
-	    }
-	 }
+      if (! xmap.is_null()) {
+         setup(lines_mesh_for_cell, xmap.cell(), shader_p);
       }
    }
+
 }
 
-//
 void
-molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour) {
+molecule_class_info_t::draw_unit_cell(Shader *shader_p,
+                                      const glm::mat4 &mvp) {
 
-   if (has_xmap()) {
-      if (show_unit_cell_flag == 1) {
-
-	 if (draw_it_for_map) {
-
-	    // rsc = real_space_corners
-	    float rsc[8][3];
-
-	    glLineWidth(2.0);
-	    glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
-
-	    float corners[8][3] = {
-	       {0,0,0}, //0
-	       {0,0,1}, //1
-	       {0,1,0}, //2
-	       {0,1,1}, //3
-	       {1,0,0}, //4
-	       {1,0,1}, //5
-	       {1,1,0}, //6
-	       {1,1,1}};//7
-
-	    for (int ii=0; ii<8; ii++) {
-
-	       clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
-
-	       clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
-
-	       rsc[ii][0] = c_o.x();
-	       rsc[ii][1] = c_o.y();
-	       rsc[ii][2] = c_o.z();
-	    }
-	    draw_unit_cell_internal(rsc);
-	 }
+   if (draw_it || draw_it_for_map) {
+      if (show_unit_cell_flag) { // should be draw_it_for_unit_cell
+         if (lines_mesh_for_cell.empty())
+            setup_unit_cell(shader_p);
+         glm::mat4 dummy(1.0f);
+         lines_mesh_for_cell.draw(shader_p, mvp, dummy);
       }
    }
-}
-
-//
-void
-molecule_class_info_t::draw_unit_cell_internal(float rsc[8][3]) {
-
-   std::vector<coot::CartesianPair> p;
-
-   // bottom left connections
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
-      coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
-      coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
-      coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-
-   // top right front connections
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
-      coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
-      coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
-      coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-
-   // from 5
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
-      coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
-      coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
-      coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
-
-   // from 3
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
-      coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
-      coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
-      coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-
-   float x1, y1, z1;
-   float x2, y2, z2;
-   glBegin(GL_LINES);
-   for (unsigned i=0; i<p.size(); i++) {
-//       glVertex3f(p[i].getStart().x(),  p[i].getStart().y(),  p[i].getStart().z());
-//       glVertex3f(p[i].getFinish().x(), p[i].getFinish().y(), p[i].getFinish().z());
-      coot::Cartesian diff = p[i].getFinish() - p[i].getStart();
-      for (float j=0.0; j<0.999; j+=0.1) {
-    x1 = p[i].getStart().x() + (j)*diff.x();
-    y1 = p[i].getStart().y() + (j)*diff.y();
-    z1 = p[i].getStart().z() + (j)*diff.z();
-    x2 = p[i].getStart().x() + (j+0.1)*diff.x();
-    y2 = p[i].getStart().y() + (j+0.1)*diff.y();
-    z2 = p[i].getStart().z() + (j+0.1)*diff.z();
-
-    glVertex3f(x1, y1, z1);
-    glVertex3f(x2, y2, z2);
-      }
-   }
-   glEnd();
-
-
-    // add a label
-// 	 glColor3f(1.0, 1.0, 1.0);
-// 	 glColor3f(1.0, 0.2, 1.0);
-   // glRasterPos3f(-1.6, -1.6,-1.6);
-   graphics_info_t::printString("0", -1.6, -1.6,-1.6);
-   // glRasterPos3f(rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
-   graphics_info_t::printString("C", rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
-   // glRasterPos3f(rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
-   graphics_info_t::printString("B", rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
-   // glRasterPos3f(rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
-   graphics_info_t::printString("A", rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
-
 
 }
 
@@ -1552,7 +1594,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule(std::string
 //
 void
 molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(std::string molecule_name,
-         short int is_undo_or_redo) {
+                                                                              short int is_undo_or_redo) {
 
    //
    name_ = molecule_name;
@@ -1564,7 +1606,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
    if (! is_undo_or_redo) {
       bonds_colour_map_rotation = (imol_no + 1) * graphics_info_t::rotate_colour_map_on_read_pdb;
       while (bonds_colour_map_rotation > 360.0)
-    bonds_colour_map_rotation -= 360.0;
+         bonds_colour_map_rotation -= 360.0;
       bonds_rotate_colour_map_flag = graphics_info_t::rotate_colour_map_on_read_pdb_flag;
 //       std::cout << "::::::: in initialization setting bonds_colour_map_rotation "
 // 		<< bonds_colour_map_rotation << " for imol no " << imol_no << std::endl;
@@ -1580,31 +1622,31 @@ void
 molecule_class_info_t::set_symm_bond_colour_mol(int icol) {
 
    switch (icol) {
-      case GREEN_BOND:
-    glColor3f (combine_colour(0.1,0),
-       combine_colour(0.8,1),
-       combine_colour(0.1,2));
-    break;
-      case BLUE_BOND:
-    glColor3f (combine_colour(0.2,0),
-       combine_colour(0.2,1),
-       combine_colour(0.8,2));
-    break;
-      case RED_BOND:
-    glColor3f (combine_colour(0.8,0),
-       combine_colour(0.1,1),
-       combine_colour(0.1,2));
-    break;
-      case YELLOW_BOND:
-    glColor3f (combine_colour(0.7,0),
-       combine_colour(0.7,1),
-       combine_colour(0.0,2));
-    break;
+   case GREEN_BOND:
+      glColor3f (combine_colour(0.1,0),
+                 combine_colour(0.8,1),
+                 combine_colour(0.1,2));
+      break;
+   case BLUE_BOND:
+      glColor3f (combine_colour(0.2,0),
+                 combine_colour(0.2,1),
+                 combine_colour(0.8,2));
+      break;
+   case RED_BOND:
+      glColor3f (combine_colour(0.8,0),
+                 combine_colour(0.1,1),
+                 combine_colour(0.1,2));
+      break;
+   case YELLOW_BOND:
+      glColor3f (combine_colour(0.7,0),
+                 combine_colour(0.7,1),
+                 combine_colour(0.0,2));
+      break;
 
-      default:
-    glColor3f (combine_colour(0.7, 0),
-       combine_colour(0.8, 1),
-       combine_colour(0.8, 2));
+   default:
+      glColor3f (combine_colour(0.7, 0),
+                 combine_colour(0.8, 1),
+                 combine_colour(0.8, 2));
    }
 }
 
@@ -1712,6 +1754,8 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 		<< " imol_no " << imol_no << " is_anomalous_map: " << is_anomalous_map
 		<< " is difference map " << is_diff_map << " swapcol: " << swap_difference_map_colours
 		<< std::endl;
+
+   material_for_maps.specular_strength = 0.0; // non-shiny maps by default.
 
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;
@@ -1916,6 +1960,8 @@ molecule_class_info_t::dotted_chopped_name() const {
 void
 molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
+   // this is quite passive. Caller does the atom label drawing.
+
    // note initialization n_labelled_atoms is 0;
    //
    if (is_in_labelled_list(atom_index) == 1) {
@@ -1924,21 +1970,6 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
       labelled_atom_index_list.push_back(atom_index);
    }
 }
-
-// int
-// molecule_class_info_t::labelled_atom(int i) {
-
-//    return labelled_atom_index_list[i];
-
-// }
-
-
-// Olde Pointere Stuff.  Delete when you feel it should go.
-// int
-// molecule_class_info_t::max_labelled_atom() {
-
-//    return n_labelled_atoms;
-// }
 
 
 // or as we would say in lisp: rember
@@ -1951,8 +1982,8 @@ molecule_class_info_t::unlabel_atom(int atom_index) {
    std::vector<int>::iterator it;
    for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
       if ( *it == atom_index) {
-    labelled_atom_index_list.erase(it);
-    break;
+         labelled_atom_index_list.erase(it);
+         break;
       }
    }
 }
@@ -2132,8 +2163,8 @@ int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *a
 
 void
 molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
-        bool against_a_dark_background,
-        bool show_cis_peptide_markups) {
+                                     bool against_a_dark_background,
+                                     bool show_cis_peptide_markups) {
 
    // show_cis_peptide_markups gets turned off by caller when there are intermediate atoms
    // displayed.
@@ -2312,23 +2343,25 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
-    glLineWidth(ghost_bond_width);
-    int c;
-    for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
-       c = atom_colour(atom_sel.atom_selection[i]->element);
-       if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
-          set_bond_colour_by_mol_no(ighost, against_a_dark_background);
-       glBegin(GL_LINES);
-       for (int j=0; j< ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines; j++) {
-          glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
-          glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
-       }
-       glEnd();
-    }
+	 glLineWidth(ghost_bond_width);
+	 int c;
+	 for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
+            mmdb::Atom *at = atom_sel.atom_selection[i];
+            std::string ele(at->element);
+            c = get_atom_colour_from_element(ele);
+	    if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
+	       set_bond_colour_by_mol_no(ighost, against_a_dark_background);
+	    glBegin(GL_LINES);
+	    for (int j=0; j< ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines; j++) {
+	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
+	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
+	    }
+	    glEnd();
+	 }
       }
    }
 }
@@ -2355,168 +2388,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
                                      float p_bond_width,
                                      bool against_a_dark_background) {
 
-   // pass this?
-   const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
-   const bool &use_variable_bond_width = graphics_info_t::use_variable_bond_width;
-   float zsc = graphics_info_t::zoom;
-
-   bool with_gl_lines = false;
-   glLineWidth(p_bond_width);
-
-   if (use_variable_bond_width) { // Erec Stebbins
-      with_gl_lines = true;
-   }
-
-   coot::Cartesian front;
-   coot::Cartesian back;
-
-   if (! with_gl_lines) {
-      front = unproject(0.0);
-      back  = unproject(1.0);
-   }
-
-   for (int i=0; i<bonds_box.num_colours; i++) {
-
-      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
-
-      if (bonds_box.bonds_[i].thin_lines_flag) {
-         if (use_variable_bond_width)
-            glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
-         else
-            glLineWidth(p_bond_width * 0.5);
-      } else {
-         if (use_variable_bond_width)
-            glLineWidth(30.0f * p_bond_width / zsc);
-         else
-            glLineWidth(p_bond_width);
-      }
-
-      // 20180210 molecules from simulation trajectories can have lots of bonds
-      // Let's by-pass this test.
-      if (false) {
-         if (bonds_box.bonds_[i].num_lines > 1024000) {
-            std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
-                      << bonds_box.bonds_[i].num_lines << std::endl;
-         }
-      }
-
-      if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
-	 // if test suggested by Ezra Peisach.
-	 if (bonds_box.bonds_[i].num_lines > 0) {
-	    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
-	       set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
-	    } else {
-	       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-		  set_bond_colour_for_goodsell_mode(i, against_a_dark_background);
-	       } else {
-		  set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
-	       }
-	    }
-	 }
-      } else {
-         set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
-      }
-
-      int linesdrawn = 0;
-
-      if (with_gl_lines) {
-
-         glBegin(GL_LINES);
-         for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-
-            const coot::CartesianPair &pospair = ll.pair_list[j].positions;
-            const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
-            const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
-
-            glVertex3f(start.get_x(),
-                       start.get_y(),
-                       start.get_z());
-            glVertex3f(finish.get_x(),
-                       finish.get_y(),
-                       finish.get_z());
-         }
-         glEnd();
-      }
-
-      if (! with_gl_lines) {
-
-         float zsc = graphics_info_t::zoom;
-
-         if (bonds_box.bonds_[i].thin_lines_flag)
-            zsc *= 0.5;
-
-         glBegin(GL_QUADS);
-
-         if (! use_radius_limit.first) {
-
-            for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-
-               if ((single_model_view_current_model_number == 0) ||
-                   (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
-
-                  // is this slow?
-                  coot::Cartesian vec_perp_to_screen_z =
-                     get_vector_pependicular_to_screen_z(front, back,
-                                                         ll.pair_list[j].positions.getFinish() -
-                                                         ll.pair_list[j].positions.getStart(),
-                                                         zsc, p_bond_width);
-
-                  glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
-                             ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
-                             ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
-                  glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
-                             ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
-                             ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
-
-                  glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
-                             ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
-                             ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
-                  glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
-                             ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
-                             ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
-               }
-            }
-         } else {
-
-            // I am not sure that this (is_within_display_radius) split is necessary...
-
-            for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-
-               if ((single_model_view_current_model_number == 0) ||
-                   (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
-
-                  // is this slow?
-                  coot::Cartesian vec_perp_to_screen_z =
-                     get_vector_pependicular_to_screen_z(front, back,
-                                                         ll.pair_list[j].positions.getFinish() -
-                                                         ll.pair_list[j].positions.getStart(),
-                                                         zsc, p_bond_width);
-
-                  if (graphics_info_t::is_within_display_radius(ll.pair_list[j].positions)) {
-
-                     glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
-                                ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
-                                ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
-                     glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
-                                ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
-                                ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
-
-                     glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
-                                ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
-                                ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
-                     glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
-                                ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
-                                ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
-                  }
-               }
-            }
-         }
-         glEnd();
-      }
-   }
-
-   display_bonds_stick_mode_atoms(bonds_box, front, back, against_a_dark_background);
-
+   // goodbye my old friend
 }
 
 
@@ -2536,80 +2408,78 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
       if (bonds_box.atom_centres_) {
 
-	 // pass this?
-	 const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
+         // pass this?
+         const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
-	 // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
-	 // << std::endl;
+         float zsc = graphics_info_t::zoom;
+         coot::Cartesian z_delta = (front - back) * 0.003;
 
-	 float zsc = graphics_info_t::zoom;
-         float base_point_size =  280.0/zsc;
-         float current_point_size = base_point_size;
-	 glPointSize(current_point_size);
+         // in general, we need to run this loop for every different atom radius
+         for (unsigned int ii=0; ii<2; ii++) {
+            float base_point_size =  280.0/zsc;
+            if (ii==1)
+               base_point_size = 1.5 * base_point_size;
+            float current_point_size = base_point_size;
+            glPointSize(current_point_size);
 
-         /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
-             unapply and reapply the mvp matrix. Hmm.
+            /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
+                unapply and reapply the mvp matrix. Hmm.
 
-             glPushMatrix();
-             glScalef(1.0, 1.0, -1.0);
-             gluDisk(quad, 0, base, slices, 2);
-             glPopMatrix();
-         */
+                glPushMatrix();
+                glScalef(1.0, 1.0, -1.0);
+                gluDisk(quad, 0, base, slices, 2);
+                glPopMatrix();
+            */
 
-         glBegin(GL_POINTS);
+            glBegin(GL_POINTS);
 
-	 // for a big molecule, it's a factor of 10 or more slower
-	 // to put glColor3f in the middle of the loop.
-	 //
-	 // Hence we use sets of atoms consolidated by their colour index
+            // for a big molecule, it's a factor of 10 or more slower
+            // to put glColor3f in the middle of the loop.
+            //
+            // Hence we use sets of atoms consolidated by their colour index
 
-	 // colour by chain atom have atoms of a single colour currently
+            // colour by chain atom have atoms of a single colour currently
 
-	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
-	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
-	 // Note that this delta for atom interacts with the highlight.
-	 //
-	 coot::Cartesian z_delta = (front - back) * 0.003;
-	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-	    if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-	       set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
-	    } else {
-	       set_bond_colour_by_mol_no(icol, against_a_dark_background);
-	    }
-	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-	       // no points for hydrogens
-               const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
-	       if (! gbai.is_hydrogen_atom || gbai.is_water) {
+            // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
+            // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+            // Note that this delta for atom interacts with the highlight.
+            //
+            for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+               if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
+               if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+                  set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
+               } else {
+                  set_bond_colour_by_mol_no(icol, against_a_dark_background);
+               }
+               for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+                  // no points for hydrogens
+                  const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+                  if (! gbai.is_hydrogen_atom || gbai.is_water) {
 
-		  if (! display_stick_mode_atoms_flag && !gbai.is_water) {
-		     continue;
-		  }
+                     if (! display_stick_mode_atoms_flag && !gbai.is_water) {
+                        continue;
+                     }
 
-		  if ((single_model_view_current_model_number == 0) ||
-		      (single_model_view_current_model_number == gbai.model_number)) {
+                     if ((single_model_view_current_model_number == 0) ||
+                         (single_model_view_current_model_number == gbai.model_number)) {
 
-		     if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
+                        if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
 
-                        float this_point_size = base_point_size;
-                        if (gbai.radius_scale != 1.0)
-                           this_point_size = base_point_size * 4.0 * gbai.radius_scale;
+                           bool do_it = false;
+                           if (ii==0 && gbai.radius_scale == 1.0) do_it = true;
+                           if (ii==1 && gbai.radius_scale >  1.0) do_it = true;
 
-                        // This code seems to be doing the right thing - I just don't see that the points
-                        // change size - perhaps I need to put big points into their own loop.
-                        if (current_point_size != this_point_size) {
-                           current_point_size = this_point_size;
-                           // std::cout << "rescale point size " << current_point_size << std::endl;
-                           glPointSize(current_point_size);
+                           if (do_it) {
+                              const coot::Cartesian &pt = gbai.position;
+                              glVertex3f(pt.x()+z_delta.x(), pt.y()+z_delta.y(), pt.z()+z_delta.z());
+                           }
                         }
-
-			const coot::Cartesian &fake_pt = gbai.position;
-			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
-		     }
-		  }
-	       }
-	    }
-	 }
-	 glEnd();
+                     }
+                  }
+               }
+            }
+            glEnd();
+         }
 
     // highlights?
     //
@@ -2717,6 +2587,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       glBegin(GL_POINTS);
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 
+                  if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
 		  coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
 		  cc.brighter(1.15);
 		  glColor3f(cc[0], cc[1], cc[2]);
@@ -2827,11 +2698,11 @@ molecule_class_info_t::display_symmetry_bonds() {
           for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
 
      glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
-        ll.pair_list[j].positions.getStart().get_y(),
-        ll.pair_list[j].positions.getStart().get_z());
+                ll.pair_list[j].positions.getStart().get_y(),
+                ll.pair_list[j].positions.getStart().get_z());
      glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
-        ll.pair_list[j].positions.getFinish().get_y(),
-        ll.pair_list[j].positions.getFinish().get_z());
+                ll.pair_list[j].positions.getFinish().get_y(),
+                ll.pair_list[j].positions.getFinish().get_z());
      if ( (++linesdrawn & 60023) == 0) {
         glEnd();
         glBegin(GL_LINES);
@@ -3072,92 +2943,92 @@ coot::atom_selection_info_t::name () const {
 
 
 // return the atom selection and the number of atoms
-int
-coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
+ int
+    coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
 
-   int SelHnd = -1;
-   const char *alt_conf_str = "*";
-   if (alt_conf_is_set)
-      alt_conf_str = altconf.c_str();
-   if (type == BY_ATTRIBUTES) {
-      SelHnd = mol->NewSelection();
-      mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
-          resno_start, // starting resno, an int
-          ins_code.c_str(), // any insertion code
-          resno_start, // ending resno
-          ins_code.c_str(), // ending insertion code
-          "*", // any residue name
-          "*", // atom name
-          "*", // elements
-          alt_conf_str  // alt loc.
-          );
-   }
-   if (type == BY_STRING) {
-      SelHnd = mol->NewSelection();
-      mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
-   }
-   return SelHnd;
-}
-
-
-std::string
-coot::atom_selection_info_t::mmdb_string() const {
-
-   std::string s = atom_selection_str;
-   if (type == BY_ATTRIBUTES) {
-      s = "//";
-      s += chain_id;
-      s += "/";
-      s += coot::util::int_to_string(resno_start);
-      if (resno_end != resno_start) {
-    s += "-";
-    s += coot::util::int_to_string(resno_end);
-      } else {
-    if (!ins_code.empty()) {
-       s += ".";
-       s += ins_code;
+    int SelHnd = -1;
+    const char *alt_conf_str = "*";
+    if (alt_conf_is_set)
+       alt_conf_str = altconf.c_str();
+    if (type == BY_ATTRIBUTES) {
+       SelHnd = mol->NewSelection();
+       mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+                        resno_start, // starting resno, an int
+                        ins_code.c_str(), // any insertion code
+                        resno_start, // ending resno
+                        ins_code.c_str(), // ending insertion code
+                        "*", // any residue name
+                        "*", // atom name
+                        "*", // elements
+                        alt_conf_str  // alt loc.
+                        );
     }
-      }
-   }
-   return s;
-}
+    if (type == BY_STRING) {
+       SelHnd = mol->NewSelection();
+       mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
+    }
+    return SelHnd;
+ }
 
 
-void
-coot::additional_representations_t::fill_bonds_box() {
+ std::string
+    coot::atom_selection_info_t::mmdb_string() const {
 
-   if (representation_type != coot::BALL_AND_STICK) {
-      atom_selection_container_t atom_sel;
+    std::string s = atom_selection_str;
+    if (type == BY_ATTRIBUTES) {
+       s = "//";
+       s += chain_id;
+       s += "/";
+       s += coot::util::int_to_string(resno_start);
+       if (resno_end != resno_start) {
+          s += "-";
+          s += coot::util::int_to_string(resno_end);
+       } else {
+          if (!ins_code.empty()) {
+             s += ".";
+             s += ins_code;
+          }
+       }
+    }
+    return s;
+ }
 
-      atom_sel.mol = mol;
-      atom_sel.SelectionHandle = mol->NewSelection();
 
-      if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+ void
+    coot::additional_representations_t::fill_bonds_box() {
 
-    mol->SelectAtoms(atom_sel.SelectionHandle,
-     0, atom_sel_info.chain_id.c_str(),
-     atom_sel_info.resno_start, atom_sel_info.ins_code.c_str(),
-     atom_sel_info.resno_end,   atom_sel_info.ins_code.c_str(),
-     "*", "*", "*", "*");
-      }
-      if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
-    mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM,
-        atom_sel_info.atom_selection_str.c_str(),
-        mmdb::SKEY_NEW);
+    if (representation_type != coot::BALL_AND_STICK) {
+       atom_selection_container_t atom_sel;
 
-      }
-      mol->GetSelIndex(atom_sel.SelectionHandle,
-          atom_sel.atom_selection,
-          atom_sel.n_selected_atoms);
+       atom_sel.mol = mol;
+       atom_sel.SelectionHandle = mol->NewSelection();
 
-      if (bonds_box_type == coot::NORMAL_BONDS) {
-    Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
-    bonds_box.clear_up();
-    bonds_box = bonds.make_graphical_bonds();
-      }
-      mol->DeleteSelection(atom_sel.SelectionHandle);
-   }
-}
+       if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+
+          mol->SelectAtoms(atom_sel.SelectionHandle,
+                           0, atom_sel_info.chain_id.c_str(),
+                           atom_sel_info.resno_start, atom_sel_info.ins_code.c_str(),
+                           atom_sel_info.resno_end,   atom_sel_info.ins_code.c_str(),
+                           "*", "*", "*", "*");
+       }
+       if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
+          mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM,
+                      atom_sel_info.atom_selection_str.c_str(),
+                      mmdb::SKEY_NEW);
+
+       }
+       mol->GetSelIndex(atom_sel.SelectionHandle,
+                        atom_sel.atom_selection,
+                        atom_sel.n_selected_atoms);
+
+       if (bonds_box_type == coot::NORMAL_BONDS) {
+          Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
+          bonds_box.clear_up();
+          bonds_box = bonds.make_graphical_bonds();
+       }
+       mol->DeleteSelection(atom_sel.SelectionHandle);
+    }
+ }
 
 std::string
 coot::additional_representations_t::info_string() const {
@@ -3190,13 +3061,13 @@ coot::additional_representations_t::info_string() const {
 
 int
 molecule_class_info_t::add_additional_representation(int representation_type,
-        const int &bonds_box_type,
-        float bonds_width,
-        bool draw_hydrogens_flag,
-        const coot::atom_selection_info_t &info,
-        GtkWidget *display_control_window,
-        const gl_context_info_t &glci,
-        const coot::protein_geometry *geom) {
+                                                     const int &bonds_box_type,
+                                                     float bonds_width,
+                                                     bool draw_hydrogens_flag,
+                                                     const coot::atom_selection_info_t &info,
+                                                     GtkWidget *display_control_window,
+                                                     const gl_context_info_t &glci,
+                                                     const coot::protein_geometry *geom) {
 
 /*   representation_types:
 
@@ -3231,15 +3102,15 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
       int display_list_handle_index = make_ball_and_stick(info.mmdb_string(),
-     bonds_width, sphere_size, do_spheres,
-     glci, geom);
+                                                          bonds_width, sphere_size, do_spheres,
+                                                          glci, geom);
       int n_display_list_tags = display_list_tags.size();
       if ((display_list_handle_index >= 0) &&
-     (display_list_handle_index < n_display_list_tags)) {
-    add_reps[n_rep].add_display_list_handle(display_list_handle_index);
+          (display_list_handle_index < n_display_list_tags)) {
+         add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       }
    }
-
+   
    return n_rep;
 }
 
@@ -3247,11 +3118,11 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 // representation_number should be an unsigned int.
 int
 molecule_class_info_t::adjust_additional_representation(int represenation_number,
-   const int &bonds_box_type_in,
-   float bonds_width,
-   bool draw_hydrogens_flag,
-   const coot::atom_selection_info_t &info,
-   bool show_it_flag_in) {
+                                                        const int &bonds_box_type_in,
+                                                        float bonds_width,
+                                                        bool draw_hydrogens_flag,
+                                                        const coot::atom_selection_info_t &info,
+                                                        bool show_it_flag_in) {
    return -1;
 }
 
@@ -3379,72 +3250,71 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
 
 
 
-void
-molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
-       const float &reso_low,
-       const float &reso_high) const {
+ void
+    molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
+                                                const float &reso_low,
+                                                const float &reso_high) const {
 
-   float inv_low  = 1.0/(reso_low*reso_low);
-   float inv_high = 1.0/(reso_high*reso_high);
-   int n_data = 0;
-   int n_reset = 0;
+    float inv_low  = 1.0/(reso_low*reso_low);
+    float inv_high = 1.0/(reso_high*reso_high);
+    int n_data = 0;
+    int n_reset = 0;
 
+    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
+       //        std::cout << "high: " << inv_high << " low: " << inv_low
+       //  		<< " data: " << hri.invresolsq() << std::endl;
+       n_data++;
 
-   for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
-//        std::cout << "high: " << inv_high << " low: " << inv_low
-//  		<< " data: " << hri.invresolsq() << std::endl;
-      n_data++;
-
-      if ( hri.invresolsq() > inv_low &&
-      hri.invresolsq() < inv_high) {
-      } else {
-    (*fphidata)[hri].f() = 0.0;
-    n_reset++;
-      }
-   }
-   std::cout << "Chopped " << n_reset << " data out of " << n_data << std::endl;
-}
-
-
-void
-molecule_class_info_t::label_symmetry_atom(int i) {
-   //
-
-   // same test as has_model():
-   if (has_model()) {
-
-      unsigned int i_unsigned(i);
-
-      if (i_unsigned < labelled_symm_atom_index_list.size()) {
-
-         int iatom_index = labelled_symm_atom_index_list[i];
-
-         if (iatom_index < atom_sel.n_selected_atoms) {
-
-            // look at translate_atom_with_pre_shift(), it translate
-            // the negative of the passed translation, so print the
-            // negative.
-            //
-            std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
-            std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
-            std::string label = make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
-
-	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
-	    glColor3fv(blueish);
-	    coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
-
-// 	    glRasterPos3f(symm_point.get_x(),
-// 			  symm_point.get_y()+0.02,
-// 			  symm_point.get_z()+0.02);
-
-            graphics_info_t::printString(label,
-                                         symm_point.get_x(),
-                                         symm_point.get_y()+0.02,
-                                         symm_point.get_z()+0.02);
+       if ( hri.invresolsq() > inv_low &&
+            hri.invresolsq() < inv_high) {
+       } else {
+          (*fphidata)[hri].f() = 0.0;
+          n_reset++;
+       }
     }
-      }
-   }
-}
+    std::cout << "Chopped " << n_reset << " data out of " << n_data << std::endl;
+ }
+
+
+ void
+    molecule_class_info_t::label_symmetry_atom(int i) {
+    //
+
+    // same test as has_model():
+    if (has_model()) {
+
+       unsigned int i_unsigned(i);
+
+       if (i_unsigned < labelled_symm_atom_index_list.size()) {
+
+          int iatom_index = labelled_symm_atom_index_list[i];
+
+          if (iatom_index < atom_sel.n_selected_atoms) {
+
+             // look at translate_atom_with_pre_shift(), it translate
+             // the negative of the passed translation, so print the
+             // negative.
+             //
+             std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
+             std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
+             std::string label = make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
+
+             GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
+             glColor3fv(blueish);
+             coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
+
+             // 	    glRasterPos3f(symm_point.get_x(),
+             // 			  symm_point.get_y()+0.02,
+             // 			  symm_point.get_z()+0.02);
+
+             graphics_info_t::printString(label,
+                                          symm_point.get_x(),
+                                          symm_point.get_y()+0.02,
+                                          symm_point.get_z()+0.02);
+          }
+       }
+    }
+ }
 
 std::pair<std::string, clipper::Coord_orth>
 molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
@@ -3462,58 +3332,66 @@ molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
 // Put a label at the ith atom of mol_class_info::atom_selection.
 //
 void
-molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag) {
+molecule_class_info_t::draw_atom_label(int atom_index,
+                                       int brief_atom_labels_flag,
+                                       short int seg_ids_in_atom_labels_flag,
+                                       const glm::vec4 &atom_label_colour,
+                                       const glm::mat4 &mvp,
+                                       const glm::mat4 &view_rotation,
+                                       const glm::vec3 &eye_position) {
 
    if (has_model()) {
-
-      if (i < atom_sel.n_selected_atoms) {
-
-         mmdb::PAtom atom = (atom_sel.atom_selection)[i];
-
+      if (atom_index < atom_sel.n_selected_atoms) {
+         mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
          if (atom) {
+            std::string label = make_atom_label_string(atom, brief_atom_labels_flag,
+                                                       seg_ids_in_atom_labels_flag);
+            graphics_info_t g;
 
-            std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-
-            // GLfloat white[3] = { 1.0, 1.0, 1.0 };
-            GLfloat pink[3] =  { graphics_info_t::font_colour.red,
-                                 graphics_info_t::font_colour.green,
-                                 graphics_info_t::font_colour.blue };
-
-            // glClear(GL_COLOR_BUFFER_BIT);
-            glColor3fv(pink);
-            // glShadeModel (GL_FLAT);
-
-            // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-            graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
+            glm::vec3 position(atom->x, atom->y, atom->z);
+            g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
+                                               &g.shader_for_atom_labels, mvp, view_rotation,
+                                               g.lights, eye_position,
+                                               glm::vec4(g.background_colour, 1.0),
+                                               g.shader_do_depth_blur_flag,
+                                               g.perspective_projection_flag);
 
          }
       } else {
-         std::cout << "INFO:: trying to label atom out of range: "
-                   << i << " " << atom_sel.n_selected_atoms
+         std::cout << "INFO:: draw_atom_label() trying to label atom out of range: "
+                   << atom_index << " " << atom_sel.n_selected_atoms
                    << " Removing label\n";
-         unlabel_atom(i);
+         unlabel_atom(atom_index);
       }
    }
 }
 
 
+ void
+    molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag) {
+
+    // mmdb::CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
+
+    mmdb::mat44 my_matt;
+
+    int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
+
+    if (err != 0) {
+       have_unit_cell = 0;
+       if (warn_about_missing_symmetry_flag)
+          std::cout << "WARNING:: No Symmetry for this model" << std::endl;
+    } else {
+       have_unit_cell = 1;
+    }
+ }
+
 void
-molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag) {
+   molecule_class_info_t::update_bonds_colour_using_map_rotation(float f) {
 
-   // mmdb::CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
-
-   mmdb::mat44 my_matt;
-
-   int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-
-   if (err != 0) {
-      have_unit_cell = 0;
-      if (warn_about_missing_symmetry_flag)
-    std::cout << "WARNING:: No Symmetry for this model" << std::endl;
-   } else {
-      have_unit_cell = 1;
-   }
+   bonds_colour_map_rotation = f;
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
+
 
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
@@ -3522,10 +3400,8 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_sym
 // ------------------------------------------------------------------------------
 
 void
-molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
-    bool add_residue_indices) {
 
-   std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
+molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
    // debug_atom_selection_container(atom_sel);
 
@@ -3541,10 +3417,9 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 }
 
 void
-molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p,
-    bool add_residue_indices) {
+molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
 
-   Bond_lines_container bonds(atom_sel, max_dist);
+   Bond_lines_container bonds(atom_sel, max_dist, graphics_info_t::draw_missing_loops_flag);
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3578,6 +3453,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
 			      geom_p, do_disulphide_flag, draw_hydrogens_flag,
+                              graphics_info_t::draw_missing_loops_flag,
 			      model_number, "dummy", false, false, false);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3592,7 +3468,7 @@ void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
-   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
@@ -3607,7 +3483,7 @@ void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices);
-   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    make_glsl_bonds_type_checked();
@@ -3625,7 +3501,8 @@ void
 molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) {
 
    Bond_lines_container bonds(geom_p);
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag,
+                                  graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    make_glsl_bonds_type_checked();
@@ -3638,12 +3515,19 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
-                                                 0.01, 1.9, draw_hydrogens_flag);
+                                                 0.01, 1.9, draw_hydrogens_flag,
+                                                 graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
    make_glsl_bonds_type_checked();
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
+}
+
+void
+   molecule_class_info_t::make_colour_by_chain_bonds() {
+   std::set<int> no_bonds_to_these_atom_indices;
+   make_colour_by_chain_bonds(no_bonds_to_these_atom_indices, true, false);
 }
 
 void
@@ -3653,7 +3537,9 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag, goodsell_mode);
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogens_flag,
+                                  graphics_info_t::draw_missing_loops_flag,
+                                  change_c_only_flag, goodsell_mode);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
 
@@ -3691,20 +3577,28 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 
+
+
 void
-molecule_class_info_t::make_bonds_type_checked() {
+molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    bool debug = false;
+
+   // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
+
    if (debug)
-      std::cout << "--- make_bonds_type_checked() called  with bonds_box_type "
-   << bonds_box_type << " vs "
-   << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
-   << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
-   << "COLOUR_BY_CHAIN_BONDS " << coot::COLOUR_BY_CHAIN_BONDS << " "
-   << "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
-   << "CA_BONDS " << coot::CA_BONDS << " "
-   << "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
-   << std::endl;
+      std::cout << "debug:: make_bonds_type_checked() --------start--------- called by "
+                << caller << "()" << std::endl;
+   if (debug)
+      std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
+                << bonds_box_type << " vs "
+                << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
+                << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
+                << "COLOUR_BY_CHAIN_BONDS " << coot::COLOUR_BY_CHAIN_BONDS << " "
+                << "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
+                << "CA_BONDS " << coot::CA_BONDS << " "
+                << "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
+                << std::endl;
 
    // Delete this in due course
    graphics_info_t g; // urgh!  (But the best solution?)
@@ -3724,7 +3618,7 @@ molecule_class_info_t::make_bonds_type_checked() {
       std::set<int> s;
       bool goodsell_mode = false;
       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL)
-	 goodsell_mode = true;
+         goodsell_mode = true;
       make_colour_by_chain_bonds(s, graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode);
    }
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
@@ -3748,7 +3642,8 @@ molecule_class_info_t::make_bonds_type_checked() {
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
       b_factor_representation_as_cas();
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS)
-      user_defined_colours_representation(g.Geom_p(), true); // hack, because we need to remeber somehow
+      user_defined_colours_representation(g.Geom_p(), true, g.draw_missing_loops_flag); // hack,
+                                                             // because we need to remeber somehow
                                                              // if this was called with all-atom or CA-only.
                                                              // See c-interface.cc
                                                              // graphics_to_user_defined_atom_colours_representation()
@@ -3770,9 +3665,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
    GLint current_program;
    glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
-   std::cout << "INFO:: current program " << current_program << std::endl;
-
-   make_glsl_bonds_type_checked();
+   // std::cout << "INFO:: make_bonds_type_checked() current program " << current_program << std::endl;
 
    // all these will need to be changed or removed
    update_additional_representations(glci, g.Geom_p());
@@ -3780,311 +3673,472 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_ghosts();
    update_extra_restraints_representation();
 
-   if (debug)
-      std::cout << "--- make_bonds_type_checked() done " << std::endl;
+   if (debug) {
+      std::cout << "debug:: -------------- make_bonds_type_checked() done " << std::endl;
+   }
 }
+
+ void
+    molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
+
+    atom_radius_scale_factor = sf;
+    make_glsl_bonds_type_checked();
+ }
+
+ void
+    molecule_class_info_t::make_meshes_from_bonds_box() {
+
+    if (atom_sel.mol) {
+       unsigned int num_subdivisions = 2;
+       unsigned int n_slices = 8;
+       unsigned int n_stacks = 2; // try 1
+       float atom_radius = 0.04 * bond_width; // use atom_radius_scale_factor
+       float bond_radius = atom_radius;
+
+       // something like this
+       // float radius_scale = 0.2 * bond_width; // arbs
+       // if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
+       // radius_scale *= atom_radius_scale_factor;
+
+       int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+       Material material;
+       Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
+       molecule_as_mesh_atoms_1.make_graphical_bonds_spherical_atoms(shader_p, material, bonds_box, udd_handle_bonded_type,
+                                                                     atom_radius, bond_radius, num_subdivisions,
+                                                                     get_glm_colour_func);
+       molecule_as_mesh_atoms_2.make_graphical_bonds_hemispherical_atoms(shader_p, material, bonds_box, udd_handle_bonded_type,
+                                                                         atom_radius, bond_radius, num_subdivisions,
+                                                                         get_glm_colour_func);
+       molecule_as_mesh_bonds.make_graphical_bonds_bonds(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
+                                                         get_glm_colour_func);
+       GLenum err = glGetError();
+       if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh_atoms::make_graphical_bonds spherical atoms\n";
+    } else {
+       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;
+    }
+
+    
+ }
+
+ // static
+ glm::vec4
+    molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
+    glm::vec4 col(0.55, 0.55, 0.5, 1.0);
+    if (idx_col == 1) col = glm::vec4(0.7, 0.7, 0.2, 1.0);
+    if (idx_col == 2) col = glm::vec4(0.7, 0.2, 0.2, 1.0);
+    if (idx_col == 3) col = glm::vec4(0.2, 0.3, 0.8, 1.0);
+    return col;
+ }
+
+ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
+
+    if (false)
+       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller
+                 << "()" << std::endl;
+
+    if (false)
+       if (! is_intermediate_atoms_molecule)
+          std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
+
+
+    GLenum err = glGetError();
+    if (err) std::cout << "error in make_glsl_bonds_type_checked() -- start --\n";
+
+    err = glGetError();
+    if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
+
+    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+    // make_meshes_from_bonds_box();        --- restore this
+
+    // -----------------------------------------------------------------------------------------------
+
+    // -----------------------------------------------------------------------------------------------
+
+    unsigned int n_slices = 16;
+    unsigned int n_stacks = 2;
+    if (is_intermediate_atoms_molecule)
+       n_slices = 8;
+
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1\n";
+    std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1a\n";
+    if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
+       for (int i=0; i<bonds_box.num_colours; i++) {
+          bool dark_bg_flag = true;
+          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1b "
+                                                 << i << std::endl;
+          coot::colour_t cc = get_bond_colour_by_mol_no(i, dark_bg_flag);
+          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1c "
+                                                 << i << std::endl;
+          index_to_colour[i] = cc.to_glm();
+
+          if (is_intermediate_atoms_molecule)
+             if (i==0)
+                index_to_colour[i] = glm::vec4(0.75, 0.7, 0.65, 1.0);
+       } // end bond-colour for loop
+
+    } else {
+       // rainbow
+       for (int i=0; i<bonds_box.num_colours; i++) {
+          set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW_BONDS); // bleugh
+          glm::vec4 glm_col(bond_colour_internal[0], bond_colour_internal[1], bond_colour_internal[2], 1.0);
+          index_to_colour[i] = glm_col;
+       }
+    }
+
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 2\n";
+
+    std::vector<vertex_with_rotation_translation> vertices;
+    std::vector<g_triangle> triangles;
+    unsigned int idx_base = vertices.size();
+    unsigned int idx_tri_base = triangles.size();
+
+    // --- rama spots ---
+
+    // we usually want to see rama balls on intermediate atoms even if there are no rama restraints.
+    // (but if we don't, how do we turn this off?)
+    if (is_intermediate_atoms_molecule) {
+       if (! graphics_info_t::do_rama_restraints) {
+          glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
+          glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
+          glm::vec3 screen_up_dir = glm::normalize(y_vec - base);
+          float rama_ball_pos_offset_scale = 0.6f;
+          std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > rama_bits =
+             make_generic_vertices_for_rama_balls(atom_radius_scale_factor, screen_up_dir);
+          vertices.insert(vertices.end(), rama_bits.first.begin(), rama_bits.first.end());
+          triangles.insert(triangles.end(), rama_bits.second.begin(), rama_bits.second.end());
+          for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+             triangles[k].rebase(idx_base);
+       }
+
+       // for Rotamers, we *do* want the markup that comes with intermediate atoms!
+       if (true) {
+          glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
+          glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
+          glm::vec3 screen_up_dir = glm::normalize(y_vec - base);
+          int nrms = bonds_box.n_rotamer_markups;
+          // std::cout << "############################# nrms " << nrms << std::endl;
+          if (nrms > 0) {
+
+             double radius = 0.3; // was 0.38;
+             std::pair<std::vector<vn_vertex>, std::vector<g_triangle> > p_dodec =
+                make_pentakis_dodec(DODEC_SPIKEY_MODE);
+
+             // convert p_dodec to a shape
+             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > shape;
+             shape.first.resize(p_dodec.first.size());
+             for (unsigned int i=0; i<p_dodec.first.size(); i++) {
+                s_generic_vertex v(p_dodec.first[i]);
+                shape.first[i] = v;
+             }
+             shape.second = p_dodec.second;
+
+#if 0
+             // make_octasphere should return just a vec3 and triangles
+             // maybe make_plain_octasphere() - no need to pass origin, rewrite all of oct.cc basically.
+             int num_subdivisions = 2;
+             glm::vec3 origin(0,0,0);
+             glm::vec4 col(1.0, 0.0, 0.0, 1.0);
+             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > shape =
+                make_octasphere(num_subdivisions, origin, radius, col);
+#endif
+
+             for (int i=0; i<nrms; i++) {
+                const coot::Cartesian &pos_c  = bonds_box.rotamer_markups[i].pos;
+                const coot::colour_holder &ch = bonds_box.rotamer_markups[i].col;
+                glm::vec4 col(ch.red, ch.green, ch.blue, 1.0f);
+
+                if (false)
+                   std::cout << "make_glsl_bonds_type_checked() " << bonds_box.rotamer_markups[i].spec
+                             << " " << bonds_box.rotamer_markups[i].col << std::endl;
+
+                glm::vec3 ball_centre = cartesian_to_glm(pos_c);
+                ball_centre += screen_up_dir * 1.34;
+
+                std::vector<vertex_with_rotation_translation> rota_vertices(shape.first.size());
+                const std::vector<g_triangle> &rota_triangles = shape.second;
+                for (unsigned int ii=0; ii<rota_vertices.size(); ii++) {
+                   const s_generic_vertex &v = shape.first[ii];
+                   rota_vertices[ii] = vertex_with_rotation_translation(v, ball_centre, radius);
+                   rota_vertices[ii].colour = col;
+                }
+
+                idx_base = vertices.size();
+                idx_tri_base = triangles.size();
+
+                vertices.insert(vertices.end(), rota_vertices.begin(), rota_vertices.end());
+                triangles.insert(triangles.end(), rota_triangles.begin(), rota_triangles.end());
+                for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+                   triangles[k].rebase(idx_base);
+             }
+          }
+       }
+    }
+
+    // --- atoms ---
+
+    // float atom_radius_scale_factor = 3.0;
+    idx_base = vertices.size();
+    idx_tri_base = triangles.size();
+    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > atom_bits =
+       make_generic_vertices_for_atoms(index_to_colour, atom_radius_scale_factor);
+
+    vertices.insert(vertices.end(), atom_bits.first.begin(), atom_bits.first.end());
+    triangles.insert(triangles.end(), atom_bits.second.begin(), atom_bits.second.end());
+    for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+       triangles[k].rebase(idx_base);
+
+    // --- bad CA-CA loop distances
+    if (bonds_box.n_bad_CA_CA_dist_spots > 0) {
+       idx_base = vertices.size();
+       idx_tri_base = triangles.size();
+       std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > bad_CA_CA_bits =
+          make_generic_vertices_for_bad_CA_CA_distances();
+
+       vertices.insert(vertices.end(), bad_CA_CA_bits.first.begin(), bad_CA_CA_bits.first.end());
+       triangles.insert(triangles.end(), bad_CA_CA_bits.second.begin(), bad_CA_CA_bits.second.end());
+       for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+          triangles[k].rebase(idx_base);
+    }
+
+    // --- bonds ---
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 3\n";
+
+    float radius = 0.02f * bond_width;
+    if (is_intermediate_atoms_molecule) radius *= 1.8f;
+    for (int i=0; i<bonds_box.num_colours; i++) {
+       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+
+       bool do_thinning = false;
+       if (ll.thin_lines_flag) do_thinning = true;
+
+       unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
+       for (int j=0; j< ll.num_lines; j++) {
+
+          glm::vec3 start(cartesian_to_glm(ll.pair_list[j].positions.getStart()));
+          glm::vec3 finish(cartesian_to_glm(ll.pair_list[j].positions.getFinish()));
+          std::pair<glm::vec3, glm::vec3> pospair(start, finish); // correct way round?
+          glm::vec3 b = finish - start;
+          float bl = glm::distance(b, glm::vec3(0,0,0));
+          float radius_scale = 1.0;
+          if (do_thinning) radius_scale *= 0.5;
+
+          idx_base = vertices.size();
+          idx_tri_base = triangles.size();
+          cylinder_with_rotation_translation c(pospair, radius * radius_scale, radius * radius_scale, bl, n_slices, n_stacks);
+          if (ll.pair_list[j].has_begin_cap)
+             c.add_flat_start_cap();
+          if (ll.pair_list[j].has_end_cap)
+             c.add_flat_end_cap();
+          for (std::size_t k=0; k<c.vertices.size(); k++)
+             c.vertices[k].colour = index_to_colour[i];
+          vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());
+          triangles.insert(triangles.end(), c.triangle_indices_vec.begin(), c.triangle_indices_vec.end());
+          for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+             triangles[k].rebase(idx_base);
+
+       }
+    }
+    if (vertices.empty()) return;
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 4\n";
+
+
+    // there is a (not quite) race condition here. Although we are in the process of starting the refinement,
+    // the intermediate atoms are not yet drawn, so the draw_cis_peptide_markups is true even though the
+    // atoms of the cis peptide are not displayed.
+
+    bool draw_cis_peps_flag = graphics_info_t::draw_cis_peptide_markups;
+    if (graphics_info_t::moving_atoms_displayed_p())
+       draw_cis_peps_flag = false;
+
+    if (draw_cis_peps_flag) {
+       if (bonds_box.n_cis_peptide_markups > 0) {
+          for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) {
+             const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
+             if ((single_model_view_current_model_number == 0) ||
+                 (single_model_view_current_model_number == m.model_number)) {
+
+                std::vector<glm::vec3> glm_quad(4);
+                glm_quad[0] = cartesian_to_glm(m.pt_ca_1);
+                glm_quad[1] = cartesian_to_glm(m.pt_c_1);
+                glm_quad[2] = cartesian_to_glm(m.pt_n_2);
+                glm_quad[3] = cartesian_to_glm(m.pt_ca_2);
+                molecular_mesh_generator_t mmg;
+                coot::util::cis_peptide_quad_info_t::type_t type = coot::util::cis_peptide_quad_info_t::CIS;
+                if (m.is_pre_pro_cis_peptide) type = coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS;
+                if (m.is_twisted)             type = coot::util::cis_peptide_quad_info_t::TWISTED_TRANS;
+                std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > cpg =
+                   mmg.make_cis_peptide_geom(glm_quad, type);
+
+                unsigned int idx_base = vertices.size();
+                unsigned int idx_tri_base = triangles.size();
+
+                std::vector<vertex_with_rotation_translation> vvrt;
+                vvrt.reserve(10);
+                for (unsigned int jj=0; jj<cpg.first.size(); jj++) {
+                   const s_generic_vertex &sgv = cpg.first[jj];
+                   vertex_with_rotation_translation vrt(sgv, glm::vec3(0,0,0), 1.0);
+                   vrt.model_rotation_matrix = glm::mat3(1.0f);
+                   vrt.model_translation = glm::vec3(0,0,0);
+                   vvrt.push_back(vrt);
+                }
+                vertices.insert(vertices.end(), vvrt.begin(), vvrt.end());
+                triangles.insert(triangles.end(), cpg.second.begin(), cpg.second.end());
+                for (unsigned int jj=idx_tri_base; jj<triangles.size(); jj++)
+                   triangles[jj].rebase(idx_base);
+             }
+          }
+       }
+    }
+
+    if (write_model_vertices_and_triangles_to_file_mode) {
+       export_these_as_3d_object(vertices, triangles);
+    } else {
+       setup_glsl_bonds_buffers(vertices, triangles);
+    }
+ }
+
 
 
 void
-molecule_class_info_t::make_glsl_bonds_type_checked() {
+   molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
+                                                  const glm::mat4 &mvp,
+                                                  const glm::mat4 &view_rotation_matrix,
+                                                  const std::map<unsigned int, lights_info_t> &lights,
+                                                  const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                  const glm::vec4 &background_colour,
+                                                  bool do_depth_fog) {
 
-   unsigned int n_slices = 10;
-   unsigned int n_stacks = 2;
-   int sum_n_triangles = 0;
-   int sum_n_vertices = 0;
+   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
 
-   // setup a few colours
-   std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
-   std::cout << "DEBUG:: bonds_box.num_colours " << bonds_box.num_colours << std::endl;
-   float brass_r = static_cast<float>(229)/static_cast<float>(255);
-   float brass_g = static_cast<float>(177)/static_cast<float>(255);
-   float brass_b = static_cast<float>(119)/static_cast<float>(255);
-   glm::vec4 brass(brass_r, brass_g, brass_b, 1.0f);
-   if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
-      for (int i=0; i<bonds_box.num_colours; i++) {
-         index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-         if (i == 0) index_to_colour[i] = glm::vec4(0.75, 0.6, 0.4, 1.0);
-         if (i == 1) index_to_colour[i] = glm::vec4(0.7, 0.7, 0.2, 1.0);
-         if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
-         if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
-         if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
-         if (i == 5) index_to_colour[i] = glm::vec4(0.8, 0.2, 0.8, 1.0);
-         if (i == 6) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.6, 1.0);
-         if (i == 7) index_to_colour[i] = glm::vec4(0.8, 0.6, 0.25, 1.0);
-         if (i == 8) index_to_colour[i] = glm::vec4(0.1, 0.6, 0.65, 1.0);
-         if (i == 9) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.9, 1.0);
-         if (i == 10) index_to_colour[i] = glm::vec4(0.4, 0.2, 0.1, 1.0); // dark brown
-         if (i == 11) index_to_colour[i] = glm::vec4(0.1, 0.4, 0.1, 1.0); // dark green
-         if (i == 12) index_to_colour[i] = glm::vec4(0.5, 0.4, 0.1, 1.0); // dark orange
-         ;;
+}
 
-         if (is_intermediate_atoms_molecule)
-            if (i==0)
-               if (i == 0) index_to_colour[i] = glm::vec4(0.75, 0.75, 0.75, 1.0);
+ 
+void
+molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+                                                 const std::vector<g_triangle> &triangles) {
 
-            // if (i == 0) index_to_colour[i] = brass;
-      }
-   } else {
-      // rainbow
-      for (int i=0; i<bonds_box.num_colours; i++) {
-         set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW_BONDS);
-         glm::vec4 glm_col(bond_colour_internal[0], bond_colour_internal[1], bond_colour_internal[2], 1.0);
-         index_to_colour[i] = glm_col;
-      }
-   }
-
-   for (int i=0; i<bonds_box.num_colours; i++) {
-      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
-      unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
-      sum_n_triangles += n_triangles;
-      sum_n_vertices += n_slices * (n_stacks+1) * ll.num_lines;
-   }
-
-   // This needs fixing? Or more thought?
-   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
-
-   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits =
-      make_generic_vertices_for_atoms(index_to_colour);
-
-   unsigned int sum_n_vertices_start_atoms  = sum_n_vertices;
-   unsigned int sum_n_triangles_start_atoms = sum_n_triangles;
-   sum_n_vertices  += atom_bits.first.size();
-   sum_n_triangles += atom_bits.second.size();
-   const std::vector<generic_vertex> &atom_vertices  = atom_bits.first;
-   const std::vector<tri_indices>    &atom_triangles = atom_bits.second;
-
-   if (sum_n_triangles > 0) {
-      n_vertices_for_model_VertexArray = sum_n_vertices;
-      n_indices_for_model_triangles = sum_n_triangles * 3;
-      unsigned int     *flat_indices = new unsigned int[sum_n_triangles * 3];
-      unsigned int     *flat_indices_start = flat_indices;
-      unsigned int ifi = 0; // index into flat indices - running
-      generic_vertex *vertices = new generic_vertex[sum_n_vertices];
-      generic_vertex *vertices_start = vertices;
-      unsigned int iv = 0; // index into vertices - running
-
-      std::cout << "---------------------- n atom vertices:  " << atom_vertices.size()
-                << " " << atom_vertices.size()/(1024*1024) << " M" << std::endl;
-      std::cout << "---------------------- n atom triangles: " << atom_triangles.size()
-                << " " << atom_triangles.size()/(1024*1024) << " M" << std::endl;
-
-      for(unsigned int i=0; i<atom_vertices.size(); i++){
-         const generic_vertex &v = atom_vertices[i];
-         vertices[sum_n_vertices_start_atoms+i] = atom_vertices[i];
-      }
-      for (unsigned int i=0; i<atom_triangles.size(); i++) {
-         const tri_indices &t = atom_triangles[i];
-         flat_indices[3*(sum_n_triangles_start_atoms + i)  ] = t.idx[0] + sum_n_vertices_start_atoms;
-         flat_indices[3*(sum_n_triangles_start_atoms + i)+1] = t.idx[1] + sum_n_vertices_start_atoms;
-         flat_indices[3*(sum_n_triangles_start_atoms + i)+2] = t.idx[2] + sum_n_vertices_start_atoms;
-      }
+   export_vertices_and_triangles_func(vertices, triangles);
+}
 
 
-      float radius = 0.1f;
+ void
+    molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
+                                                    const std::vector<g_triangle> &triangles) {
 
-      bool do_real = true;
-      unsigned int idx_running = 0;
-      if (do_real) {
+    if (false)
+       std::cout << "debug:: in setup_glsl_bonds_buffers() with vertices size " << vertices.size()
+                 << " and triangles size " << triangles.size() << std::endl;
 
-         for (int i=0; i<bonds_box.num_colours; i++) {
-            graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+   if (triangles.empty()) return;
+   if (vertices.empty()) return;
 
-            bool do_thinning = false;
-            if (ll.thin_lines_flag)
-               do_thinning = true;
+   graphics_info_t::shader_for_models.Use(); // is this called from the outside before we get here?
 
-            unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
-            for (int j=0; j< ll.num_lines; j++) {
+   n_vertices_for_model_VertexArray = vertices.size(); // the "signal" to the draw function to draw this model
 
-               const coot::CartesianPair &pospair = ll.pair_list[j].positions;
-               const coot::Cartesian &start  = pospair.getStart();
-               const coot::Cartesian &finish = pospair.getFinish();
+   GLenum err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() -- start --\n";
 
-               coot::Cartesian b = finish - start;
-               float bl = b.length();
-               // fill vertices and indices
-               float radius_scale = 1.0;
-               if (do_thinning) radius_scale = 0.5;
-               cylinder c(pospair, radius * radius_scale, radius * radius_scale, bl, n_slices, n_stacks);
-               // indices are a bit hard - they need to be offset
-               for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {
-                  if (false) {
-                     std::cout << "reindex A " <<  c.triangle_indices_vec[j].idx[0] << " to " << ifi << std::endl;
-                     std::cout << "reindex B " <<  c.triangle_indices_vec[j].idx[1] << " to " << ifi+1 << std::endl;
-                     std::cout << "reindex C " <<  c.triangle_indices_vec[j].idx[2] << " to " << ifi+2 << std::endl;
-                  }
-                  flat_indices[ifi  ] = c.triangle_indices_vec[j].idx[0]+iv;
-                  flat_indices[ifi+1] = c.triangle_indices_vec[j].idx[1]+iv;
-                  flat_indices[ifi+2] = c.triangle_indices_vec[j].idx[2]+iv;
-                  ifi += 3;
-               }
-               for (std::size_t j=0; j<c.vertices.size(); j++) {
-                  vertices[iv] = c.vertices[j];
-                  // c.vertices[j].normal.z = -c.vertices[j].normal.z;
-                  // set the colour:
-                  vertices[iv].colour = index_to_colour[i];
-                  iv++;
-               }
-            }
-         }
-      }
-
-      // now the atom parts:
-
-
+   if (model_mesh_first_time) {
       glGenVertexArrays(1, &m_VertexArray_for_model_ID);
-      GLenum err = glGetError();
-      std::cout << "glsl for bonds() glGenVertexArrays() " << err
-             << " for m_VertexArray_for_model_ID " << m_VertexArray_for_model_ID
-                << std::endl;
-      glBindVertexArray(m_VertexArray_for_model_ID);
       err = glGetError();
-      std::cout << "glsl for bonds() glBindVertexArray() " << err
-                << " for m_VertexArray_for_model_ID " << m_VertexArray_for_model_ID
-                << std::endl;
-
-
-      glGenBuffers(1, &m_VertexBuffer_for_model_ID);
-      err = glGetError(); if (err) std::cout << "GL error bonds 3\n";
-      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
-      err = glGetError(); if (err) std::cout << "GL error bonds 4\n";
-      GLuint n_bytes = sizeof(generic_vertex) * n_vertices_for_model_VertexArray;
-      // std::cout << "n_bytes: " << n_bytes << std::endl;
-      glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL error bonds 5\n";
-
-      // model matrix (orientation) 4 x 4, starting at 0
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-      glEnableVertexAttribArray(2);
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-
-      // translate position, 3, size 3 floats
-      glEnableVertexAttribArray(3);
-      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
-
-      // positions, 4, size 3 floats
-      glEnableVertexAttribArray(4);
-      err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
-      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
-
-      //  normals, 5, size 3 floats
-      glEnableVertexAttribArray(5);
-      err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
-      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
-
-      //  colours, 6, size 4 floats
-      glEnableVertexAttribArray(6);
-      err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
-      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
-
-      // Indices
-      glGenBuffers(1, &m_IndexBuffer_for_model_ID);
-      err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
-      err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
-      n_bytes = sum_n_triangles * 3 * sizeof(unsigned int);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, flat_indices, GL_STATIC_DRAW);
-
+      if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 1\n";
    }
+
+   glBindVertexArray(m_VertexArray_for_model_ID);
+   err = glGetError();
+   if (err) std::cout << "GL error in molecule_class_info_t::setup_glsl_bonds_buffers()"
+                      << " glBindVertexArray() " << m_VertexArray_for_model_ID
+                      << " model_mesh_first_time " << model_mesh_first_time
+                      << "\n";
+
+   if (model_mesh_first_time) {
+      glGenBuffers(1, &m_VertexBuffer_for_model_ID);
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 3\n";
+      unsigned int n_vertices = vertices.size();
+      if (is_intermediate_atoms_molecule)
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_DYNAMIC_DRAW);
+      else
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers()  5\n";
+   } else {
+      glDeleteBuffers(1, &m_VertexBuffer_for_model_ID);
+      glGenBuffers(1, &m_VertexBuffer_for_model_ID);
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 3\n";
+      unsigned int n_vertices = vertices.size();
+      if (is_intermediate_atoms_molecule)
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_DYNAMIC_DRAW);
+      else
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers()  5\n";
+   }
+
+   // "from-origin" model matrix (orientation)
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
+   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+
+   // "from origin" translate position, 3, size 3 floats
+   glEnableVertexAttribArray(3);
+   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
+
+   // positions, 4, size 3 floats
+   glEnableVertexAttribArray(4);
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 6\n";
+   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
+   err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
+
+   //  normals, 5, size 3 floats
+   glEnableVertexAttribArray(5);
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 11\n";
+   glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 12\n";
+
+   //  colours, 6, size 4 floats
+   glEnableVertexAttribArray(6);
+   err = glGetError(); if (err) std::cout << "GL error setup_glsl_bonds_buffers()  16\n";
+   glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
+   err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
+
+   // Indices
+   n_indices_for_model_triangles = triangles.size() * 3;
+   if (! is_intermediate_atoms_molecule)
+      std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
+   unsigned int n_bytes = triangles.size() * 3 * sizeof(unsigned int);
+   if (model_mesh_first_time) {
+      glGenBuffers(1, &m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 18\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
+   } else {
+      glDeleteBuffers(1, &m_IndexBuffer_for_model_ID);
+      glGenBuffers(1, &m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 18\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
+   }
+   err = glGetError(); if (err) std::cout << "GL error bonds --- end ---\n";
+   model_mesh_first_time = false;
 }
 
-// Make triangles for a cylinder along the z axis
-//
-// top_radius is currently ignored, cylinders only
-// This should have a less generic name.
-//
-cylinder::cylinder(const coot::CartesianPair &pospair,
-   float base_radius, float top_radius, float height,
-   unsigned int n_slices, unsigned int n_stacks) {
-
-      // n_stacks*n_slices = 12
-      // cylinder_vertex vertices[12];
-      // n_triangles = n_stacks * n_slices * 2;
-      // tri_indices cylinder_indices[24];
-
-      const coot::Cartesian &start  = pospair.getStart();
-      const coot::Cartesian &finish = pospair.getFinish();
-      coot::Cartesian b = finish - start;
-      b.unit_vector_yourself();
-      glm::vec3 normal(b.x(), b.y(), b.z());
-      glm::mat4 ori = glm::orientation(normal, glm::vec3(0.0, 0.0, 1.0));
-
-      // std::cout << "ori " << glm::to_string(ori) << "\n";
-
-      triangle_indices_vec.resize(n_stacks * n_slices * 2);
-      vertices.resize((n_stacks + 1) * n_slices);
-      unsigned int idx = 0;
-
-      float one_over_n_slices = 1.0/static_cast<float>(n_slices);
-      float height_step = height/static_cast<float>(n_stacks);
-      for (unsigned int i_stack=0; i_stack<=n_stacks; i_stack++) {
-         // std::cout << "i_stack " << i_stack << std::endl;
-         for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
-            // std::cout << "   i_slice " << i_slice << std::endl;
-            float z_this = i_stack * height_step;
-            if (i_stack == n_stacks) z_this = height;
-            float theta_this = 2.0 * pi * static_cast<float>(i_slice) * one_over_n_slices;
-
-            float x = cosf(theta_this);
-            float y = sinf(theta_this);
-
-            int idx = i_stack*n_slices + i_slice;
-            glm::vec3 sp(x*base_radius, y*base_radius, z_this);
-            glm::vec3 t(start.x(), start.y(), start.z());
-            // t *= 2.0; // protein scaling hack - makes it look good, but is wrong.
-            // std::cout << "      vertex idx " << idx << std::endl;
-
-            generic_vertex &v = vertices[idx];
-
-            v.pos = sp;
-            v.normal = glm::vec3(x,y,0.0f);
-            v.model_rotation_matrix = glm::transpose(ori);
-            v.model_translation = t;
-            idx++;
-         }
-      }
-
-      // indices
-      for (unsigned int i_stack=0; i_stack<n_stacks; i_stack++) {
-         unsigned int i_slice_last = n_slices-1;
-         for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
-            unsigned int idx_0 = i_stack*n_slices + i_slice;
-            unsigned int idx_1 = i_stack*n_slices + i_slice + 1;
-            unsigned int idx_2 = (i_stack+1)*n_slices + i_slice;
-            unsigned int idx_3 = (i_stack+1)*n_slices + i_slice + 1;
-            if (i_slice == i_slice_last) {
-               idx_1 = i_stack*n_slices;
-               idx_3 = (i_stack+1)*n_slices;
-            }
-
-            // std::cout << "t1: " << idx_0 << " " << idx_1 << " " << idx_2 << std::endl;
-            // std::cout << "t2: " << idx_1 << " " << idx_3 << " " << idx_2 << std::endl;
-            tri_indices ti_1(idx_0, idx_1, idx_2);
-            tri_indices ti_2(idx_1, idx_3, idx_2); // both clockwise
-            int idx = i_stack*n_slices + i_slice;
-            // std::cout << "   indices idx " << idx << " " << triangle_indices_vec.size() << std::endl;
-            triangle_indices_vec[2*idx  ] = ti_1;
-            triangle_indices_vec[2*idx+1] = ti_2;
-         }
-      }
-      // std::cout << "Finished cylinder constructor" << std::endl;
-   }
-
-
-
 void
-molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices) {
+   molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
+                                                  const char *caller) {
+
+   if (false)
+      std::cout << "debug::make_bonds_type_checked(no-bonds-set) "
+                << no_bonds_to_these_atom_indices.size() << " called by "
+                << caller << std::endl;
 
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
@@ -4514,7 +4568,7 @@ void
 molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {
 
    std::string s = "Mol " + coot::util::int_to_string(imol_no) + " Parallel-Plane-Restraints";
-   coot::generic_display_object_t rest_rep(s);
+   coot::old_generic_display_object_t rest_rep(s);
 
    // needed for parallel plane restraints atom name lookup.
    const coot::protein_geometry &geom = *graphics_info_t::Geom_p();  // pass this?
@@ -6141,15 +6195,13 @@ molecule_class_info_t::close_yourself() {
    if (display_control_window) { // is being displayed
       std::string display_frame_name = "display_mol_frame_";
       if (was_map)
-    display_frame_name = "display_map_frame_";
+         display_frame_name = "display_map_frame_";
       display_frame_name += g.int_to_string(imol_no);
-      // std::cout << "DEBUG:: looking up " << display_frame_name << std::endl;
+      std::cout << "DEBUG:: looking up map frame " << display_frame_name << std::endl;
       GtkWidget *display_frame = lookup_widget(display_control_window,
-          display_frame_name.c_str());
+                                               display_frame_name.c_str());
       if (display_frame) {
-
-    gtk_widget_destroy(display_frame);
-
+         gtk_widget_destroy(display_frame);
       }
    }
 
@@ -6318,10 +6370,10 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 // -1 on failure.
 int
 molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
-    int resno,
-    const std::string &atom_name,
-    const std::string &ins_code,
-    const coot::Cartesian &rc) {
+                                                 int resno,
+                                                 const std::string &atom_name,
+                                                 const std::string &ins_code,
+                                                 const coot::Cartesian &rc) {
 
    // This is quite similar to intelligent_next_atom() (see comments
    // there).  However, this is a bit more complex, because we keep a
@@ -6346,31 +6398,31 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-    chain_p = model_p->GetChain(ichain);
-    std::string this_chain_id = chain_p->GetChainID();
-    if ((chain_id == this_chain_id) || (found_this_residue && !prev_residue)) {
-       int nres = chain_p->GetNumberOfResidues();
-       mmdb::PResidue residue_p;
-       for (int ires=0; ires<nres; ires++) {
-          residue_p = chain_p->GetResidue(ires);
-          if (residue_p->GetSeqNum() == resno) {
-     if (ins_code == residue_p->GetInsCode()) {
-        if (chain_id == this_chain_id) {
-   found_this_residue = true;
-   if (prev_residue_candidate) {
-      prev_residue = prev_residue_candidate;
-      break;
-   }
-        }
-     }
-          }
-          prev_residue_candidate = residue_p;
-          if (prev_residue)
-     break;
-       }
-    }
-    if (prev_residue)
-       break;
+         chain_p = model_p->GetChain(ichain);
+         std::string this_chain_id = chain_p->GetChainID();
+         if ((chain_id == this_chain_id) || (found_this_residue && !prev_residue)) {
+            int nres = chain_p->GetNumberOfResidues();
+            mmdb::PResidue residue_p;
+            for (int ires=0; ires<nres; ires++) {
+               residue_p = chain_p->GetResidue(ires);
+               if (residue_p->GetSeqNum() == resno) {
+                  if (ins_code == residue_p->GetInsCode()) {
+                     if (chain_id == this_chain_id) {
+                        found_this_residue = true;
+                        if (prev_residue_candidate) {
+                           prev_residue = prev_residue_candidate;
+                           break;
+                        }
+                     }
+                  }
+               }
+               prev_residue_candidate = residue_p;
+               if (prev_residue)
+                  break;
+            }
+         }
+         if (prev_residue)
+            break;
       }
 
       // OK, we can get here by going backward through the chain
@@ -6382,22 +6434,22 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // deleted, and the residue before that (prev_residue_candidate)
       //
       if (! found_this_residue) {
-    for (int ichain=0; ichain<nchains; ichain++) {
-       chain_p = model_p->GetChain(ichain);
-       if (chain_id == chain_p->GetChainID()) {
-          int nres = chain_p->GetNumberOfResidues();
-          mmdb::PResidue residue_p;
-          for (int ires=0; ires<nres; ires++) {
-     residue_p = chain_p->GetResidue(ires);
-     if (residue_p->GetSeqNum() > resno) {
-        if (prev_residue_candidate)
-   prev_residue = prev_residue_candidate;
-        break;
-     }
-     prev_residue_candidate = residue_p;
-          }
-       }
-    }
+         for (int ichain=0; ichain<nchains; ichain++) {
+            chain_p = model_p->GetChain(ichain);
+            if (chain_id == chain_p->GetChainID()) {
+               int nres = chain_p->GetNumberOfResidues();
+               mmdb::PResidue residue_p;
+               for (int ires=0; ires<nres; ires++) {
+                  residue_p = chain_p->GetResidue(ires);
+                  if (residue_p->GetSeqNum() > resno) {
+                     if (prev_residue_candidate)
+                        prev_residue = prev_residue_candidate;
+                     break;
+                  }
+                  prev_residue_candidate = residue_p;
+               }
+            }
+         }
       }
 
       // Handle the case where we are on first atom of water chain and
@@ -6679,6 +6731,49 @@ molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &
 // ----------------------------------------------------------------------
 //               Pointer Atoms
 // ----------------------------------------------------------------------
+
+bool
+molecule_class_info_t::have_atom_close_to_position(const coot::Cartesian &pos) const {
+
+   bool r = false;
+
+   float close_d = 0.5;
+   float close_d_squared = close_d * close_d;
+   if (atom_sel.mol) {
+      for(int imod = 1; imod <= atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float dd =
+                           (pos.x() - at->x) * (pos.x() - at->x) +
+                           (pos.y() - at->y) * (pos.y() - at->y) +
+                           (pos.z() - at->z) * (pos.z() - at->z);
+                        if (dd < close_d_squared) {
+                           r = true;
+                           break;
+                        }
+                     }
+                  }
+                  if (r) break;
+               }
+               if (r) break;
+            }
+            if (r) break;
+         }
+      }
+   }
+   return r;
+}
+
 void
 molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 
@@ -6773,109 +6868,135 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
       if (type == "Water") {
 
-    // special rule for water: we add a water to a water chain if
-    // possible
+         // special rule for water: we add a water to a water chain if
+         // possible
 
-    atom_p->SetAtomName(" O  ");
-    atom_p->SetElementName(" O");
-    res_p->SetResName("HOH");
+         atom_p->SetAtomName(" O  ");
+         atom_p->SetElementName(" O");
+         res_p->SetResName("HOH");
 
-    mmdb::Chain *w = water_chain();
-    int wresno = 1;
+         mmdb::Chain *w = water_chain();
+         int wresno = 1;
 
-    if (w) {
-       // remove a TER atom if it exists on the last residue
-       // prior to insertion of a new residue.
-       remove_TER_on_last_residue(w);
+         bool ok_to_add = true;
+         if (have_atom_close_to_position(pos))
+            ok_to_add = false;
 
-       // Now add atom to chain w.
-       std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
-       if (wresno_pair.first) {
-          wresno = wresno_pair.second;
-       } else {
-          wresno = 1;
-       }
-       res_p->seqNum = wresno;
-       res_p->AddAtom(atom_p);
-       w->AddResidue(res_p);
-       std::cout << atom_p << " added to molecule" << std::endl;
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
+         if (! ok_to_add) {
+            std::cout << "WARNING:: new atom addition blocked by nearby atom" << std::endl;
+            graphics_info_t g;
+            g.add_status_bar_text("WARNING:: new atom addition blocked by nearby atom");
+         } else {
 
-    } else {
-       // There was no water chain
-       res_p->AddAtom(atom_p);
-       std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
-       if (!pre_existing_chain_flag) {
-          chain_p->SetChainID(mol_chain_id.second.c_str());
-          atom_sel.mol->GetModel(1)->AddChain(chain_p);
-       }
-       res_p->seqNum = 1; // start of a new chain.
-       chain_p->AddResidue(res_p);
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
-    }
+            if (w) {
+               // remove a TER atom if it exists on the last residue
+               // prior to insertion of a new residue.
+               remove_TER_on_last_residue(w);
+
+               // Now add atom to chain w.
+               std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
+               if (wresno_pair.first) {
+                  wresno = wresno_pair.second;
+               } else {
+                  wresno = 1;
+               }
+               res_p->seqNum = wresno;
+               res_p->AddAtom(atom_p);
+               w->AddResidue(res_p);
+               std::cout << atom_p << " added to molecule" << std::endl;
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel = make_asc(atom_sel.mol);
+               have_unsaved_changes_flag = 1;
+               make_bonds_type_checked();
+
+            } else {
+               // There was no water chain
+               res_p->AddAtom(atom_p);
+               std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
+               if (!pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+               }
+               res_p->seqNum = 1; // start of a new chain.
+               chain_p->AddResidue(res_p);
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel = make_asc(atom_sel.mol);
+               have_unsaved_changes_flag = 1;
+               make_bonds_type_checked();
+            }
+         }
       } else {
 
-  	 // Not water
-    std::string element = "";
+         // Not water
+         std::string element = "";
 
-    if (mol_chain_id.first || pre_existing_chain_flag) {
+         if (mol_chain_id.first || pre_existing_chain_flag) {
 
-       if (bits.filled) {
-          bits.SetAtom(atom_p, res_p);
+	       bits.SetAtom(atom_p, res_p);
+               if (false)
+                  std::cout << "debug:: bits.SetAtom() called with atom " << coot::atom_spec_t(atom_p)
+                            << " and residue " << coot::residue_spec_t(res_p)
+                            << " with residue name \"" << res_p->GetResName() << "\"" << std::endl;
+	       res_p->AddAtom(atom_p);
+	       std::cout << atom_p << " added to molecule" << std::endl;
+	       if (! pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+	       }
+	       std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+	       int previous_max = 0;
+	       if (ires_prev_pair.first) { // was not an empty chain
+                  previous_max =  ires_prev_pair.second;
+                  res_p->seqNum = previous_max + 1;
+               } else {
 
-          res_p->AddAtom(atom_p);
-          std::cout << atom_p << " added to molecule" << std::endl;
-          if (! pre_existing_chain_flag) {
-             chain_p->SetChainID(mol_chain_id.second.c_str());
-            atom_sel.mol->GetModel(1)->AddChain(chain_p);
-          }
-          std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
-          int previous_max = 0;
-          if (ires_prev_pair.first) { // was not an empty chain
-             previous_max =  ires_prev_pair.second;
-            res_p->seqNum = previous_max + 1;
-          } else {
+               res_p->AddAtom(atom_p);
+               std::cout << atom_p << " added to molecule" << std::endl;
+               if (! pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+               }
+               std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+               int previous_max = 0;
+               if (ires_prev_pair.first) { // was not an empty chain
+                  previous_max =  ires_prev_pair.second;
+                  res_p->seqNum = previous_max + 1;
+               } else {
 
-     // was an empty chain.  Handle the shelx case:
+                  // was an empty chain.  Handle the shelx case:
 
-     if (! is_from_shelx_ins_flag) {
-        res_p->seqNum = 1 ; // start of a new chain.
-     } else {
-        // in a shelx molecule, we can't make the residue
-        // number 1 because there are no chains.  We need to
-        // make the residue number bigger than the biggest
-        // residue number so far.
-        ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
-        if (ires_prev_pair.first) {
-           res_p->seqNum = ires_prev_pair.second + 1;
-        } else {
-           res_p->seqNum = 1;
-        }
-     }
-          }
-       }
+                  if (! is_from_shelx_ins_flag) {
+                     res_p->seqNum = 1 ; // start of a new chain.
+                  } else {
+                     // in a shelx molecule, we can't make the residue
+                     // number 1 because there are no chains.  We need to
+                     // make the residue number bigger than the biggest
+                     // residue number so far.
+                     ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
+                     if (ires_prev_pair.first) {
+                        res_p->seqNum = ires_prev_pair.second + 1;
+                     } else {
+                        res_p->seqNum = 1;
+                     }
+                  }
+               }
+            }
 
        // Add this element to the sfac (redundancy check in the addition function
-       if (is_from_shelx_ins_flag) {
-          shelxins.add_sfac(element);
-       }
-       chain_p->AddResidue(res_p);
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
-    } else {
-       std::cout << "WARNING:: Can't find new chain for new atom\n";
-    }
+            if (is_from_shelx_ins_flag) {
+               shelxins.add_sfac(element);
+            }
+            chain_p->AddResidue(res_p);
+            atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+            atom_sel.mol->FinishStructEdit();
+            atom_sel = make_asc(atom_sel.mol);
+            have_unsaved_changes_flag = 1;
+            make_bonds_type_checked();
+         } else {
+            std::cout << "WARNING:: Can't find new chain for new atom\n";
+         }
       } // type was water, or not
 
    } else {
@@ -7363,137 +7484,60 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 // Backup filename: return a stub.
 //
 std::string
-molecule_class_info_t::save_molecule_filename(const std::string &dir) {
+molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
 
-   std::string time_string = save_time_string;
+   auto replace_char = [] (const std::string &s, char a) {
+                          std::string r = s;
+                          int slen = s.length();
+                          for (int i=0; i<slen; i++) {
+                             if (r[i] == a)
+                                r[i] = '_';
+                          }
+                          return r;
+                       };
+
    graphics_info_t g;
+   bool decolonify = g.decoloned_backup_file_names_flag;
+   std::string t_name_1 = name_;
+   if (g.unpathed_backup_file_names_flag)
+      t_name_1 = name_for_display_manager();
+   std::string t_name_2 = replace_char(t_name_1, '/');
+   std::string t_name_3 = replace_char(t_name_2, ' ');
 
-   if ((history_index == 0) ||
-       history_index != max_history_index) {
-
-      time_string = dir;
-
-      // unix dependent logic here:  Don't know how to do this on other systems...
-      // We want a filename proceeded by a directory name:
-      // i.e. we end up with something like
-      // "coot-backup/a.pdb_Tues_Aug_19_20:16:00_2003_modification_0.mmdbbin"
-
-      time_string += "/";
-
-      std::string clean_name = name_;
-      if (g.unpathed_backup_file_names_flag) {
-    clean_name = name_for_display_manager();
-      }
-      // convert "/" to "_"
-      int slen = clean_name.length();
-      for (int i=0; i<slen; i++)
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW)
-// BL says: we change /, \ and : to _ in windows
-         if (clean_name[i] == '/' || clean_name[i] == '\\'
-                             || clean_name[i] == ':')
-            clean_name[i] = '_';
-#else
-    if (clean_name[i] == '/')
-       clean_name[i] = '_';
-#endif // win32 things
-
-      time_string += clean_name;
-      time_string += "_";
-
-      // add in the time component:
-
-#if defined(__CYGWIN__) || defined(_MSC_VER)
-
-      // but not if we are in windows:
-
-#else
+   if (save_time_string.empty()) {
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
-#ifdef WINDOWS_MINGW
-// BL says: why not? We can fix this. I show you how it's done in MINGW:
-// dunno if it works in other win32 systems. Havent checked
-// we just convert the : to _
-      for (int i=0; i<24; i++) {
-         if (chars_time[i] == ':') {
-             chars_time[i] = '_';
-         }
+      int l = strlen(chars_time);
+      save_time_string = chars_time;
+      if (! save_time_string.empty()) {
+         std::string::size_type l = save_time_string.length();
+         save_time_string = save_time_string.substr(0, l-1);
       }
-#endif // MINGW
-      time_string += chars_time;
-#endif // other WIN32
-
-      // strip off the trailing newline:
-      slen = time_string.length();
-      if (slen > 2)
-    time_string = time_string.substr(0,slen-1);
-
-      // convert spaces to underscores
-      //
-      for (unsigned int i=0; i<time_string.length(); i++)
-    if (time_string[i] == ' ')
-       time_string[i] = '_';
-
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
-
-      // convert : to underscores in windows
-      //
-#ifndef WINDOWS_MINGW
-      // BL say: nonsense since we would transform the directory C: here.
-      // we have done it before already
-      for (int i=0; i<time_string.length(); i++)
-    if (time_string[i] == ':')
-       time_string[i] = '_';
-#endif // MINGW
-#endif // other win32
-
-      time_string += "_modification_";
-
-      save_time_string = time_string; // why do we do this?  Ah, because we want the
-                                      // time to calculated at the start:
-                                      // and use that as a stub.
-
-      time_string += g.int_to_string(history_index);
-      //time_string += ".mmdbbin";
-      if (! is_from_shelx_ins_flag)
-    time_string += ".pdb";
-      else
-    time_string += ".res";
-
-#if defined(_MSC_VER)
-      // we can do now too (I hope for all of them?!?)
-      // lets be save and only assume WINDOWS_MINGW can do it
-      // maybe we can just deal with it using the compress_flag rather
-      // than hard coding?
-#else
-      if (! is_from_shelx_ins_flag) {
-        if (g.backup_compress_files_flag) {
-          time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
-        }
-      }
-#endif
-
-   } else {
-      // (this is not the first save molecule that we have done)
-
-      // add to the stub that we have previously generated.
-      //
-      time_string += g.int_to_string(history_index);
-      if (! is_from_shelx_ins_flag)
-    time_string += ".pdb";
-      else
-    time_string += ".res";
-#if defined(_MSC_VER)
-      // same here
-#else
-      if (! is_from_shelx_ins_flag) {
-        if (g.backup_compress_files_flag) {
-          time_string += ".gz";
-        }
-      }
-#endif
+      save_time_string = replace_char(save_time_string, ' ');
+      save_time_string = replace_char(save_time_string, '/');
+      if (decolonify)
+         save_time_string = replace_char(save_time_string, ':');
    }
-   return time_string;
+   std::string time_string = save_time_string;
+   std::string t_name_4 = t_name_3 + "_" + time_string;
+
+   std::string index_string = coot::util::int_to_string(history_index);
+   std::string t_name_5 = t_name_4 + "_modification_" + index_string;
+
+   std::string extension = ".pdb";
+   if (coot::is_mmcif_filename(name_))
+      extension = ".cif";
+   if (is_from_shelx_ins_flag)
+      extension = ".res";
+   if (g.backup_compress_files_flag)
+      extension += ".gz";
+
+   std::string t_name_6 = t_name_5 + extension;
+
+   std::string save_file_name = coot::util::append_dir_file(dir, t_name_6);
+   return save_file_name;
+
 }
 
 // Return like mkdir: mkdir returns zero on success, or -1 if an  error  occurred
@@ -7514,7 +7558,7 @@ molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) cons
 int
 molecule_class_info_t::make_backup() { // changes history details
 
-  graphics_info_t g;
+   graphics_info_t g;
    if (backup_this_molecule) {
       std::string backup_dir("coot-backup");
 
@@ -7536,73 +7580,75 @@ molecule_class_info_t::make_backup() { // changes history details
        env_var = NULL;
     }
       }
+
       if (env_var)
     backup_dir = env_var;
 
       if (atom_sel.mol) {
-    int dirstat = make_maybe_backup_dir(backup_dir);
+	 int dirstat = make_maybe_backup_dir(backup_dir);
 
-    if (dirstat != 0) {
-       // fallback to making a directory in $HOME
-       const char *home_dir = getenv("HOME");
-       if (home_dir) {
-          backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
-          dirstat = make_maybe_backup_dir(backup_dir);
-          if (dirstat != 0) {
-     std::cout << "WARNING:: backup directory "<< backup_dir
-       << " failure to exist or create" << std::endl;
-          } else {
-     std::cout << "INFO using backup directory " << backup_dir << std::endl;
-          }
-       } else {
-          std::cout << "WARNING:: backup directory "<< backup_dir
-    << " failure to exist or create" << std::endl;
-       }
-    }
+	 if (dirstat != 0) {
+	    // fallback to making a directory in $HOME
+	    const char *home_dir = getenv("HOME");
+	    if (home_dir) {
+	       backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
+	       dirstat = make_maybe_backup_dir(backup_dir);
+	       if (dirstat != 0) {
+		  std::cout << "WARNING:: backup directory "<< backup_dir
+			    << " failure to exist or create" << std::endl;
+	       } else {
+		  std::cout << "INFO using backup directory " << backup_dir << std::endl;
+	       }
+	    } else {
+	       std::cout << "WARNING:: backup directory "<< backup_dir
+			 << " failure to exist or create" << std::endl;
+	    }
+	 }
 
-    if (dirstat == 0) {
-       // all is hunkey-dorey.  Directory exists.
-       std::string backup_file_name = save_molecule_filename(backup_dir);
- 	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
+	 if (dirstat == 0) {
+	    // all is hunkey-dorey.  Directory exists.
 
-#if defined(_MSC_VER)
-            // and again, although not used any more!?
-       mmdb::byte gz = mmdb::io::GZM_NONE;
-#else
-       mmdb::byte gz;
-       if (g.backup_compress_files_flag) {
-          gz = mmdb::io::GZM_ENFORCE;
-       } else {
-          gz = mmdb::io::GZM_NONE;
-       }
-#endif
-       // Writing out a modified binary mmdb like this results in the
-       // file being unreadable (crash in mmdb read).
-       //
-       int istat;
-       if (! is_from_shelx_ins_flag) {
-          bool as_cif = false;
-          istat = write_atom_selection_file(atom_sel, backup_file_name, as_cif, gz);
-          // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
-          if (istat) {
-             std::string warn;
-             warn = "WARNING:: WritePDBASCII failed! Return status ";
-             warn += istat;
-             g.info_dialog_and_text(warn);
-          }
-       } else {
-          std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
-          istat = p.first;
-       }
+	    std::string backup_file_name = get_save_molecule_filename(backup_dir);
+ 	    std::cout << "INFO:: backup file name " << backup_file_name << std::endl;
 
-       save_history_file_name(backup_file_name);
-       if (history_index == max_history_index)
-          max_history_index++;
-       history_index++;
-    }
+	    mmdb::byte gz;
+	    if (g.backup_compress_files_flag) {
+	       gz = mmdb::io::GZM_ENFORCE;
+	    } else {
+	       gz = mmdb::io::GZM_NONE;
+	    }
+
+	    // Writing out a modified binary mmdb like this results in the
+	    // file being unreadable (crash in mmdb read).
+	    //
+	    int istat;
+	    if (! is_from_shelx_ins_flag) {
+	       bool write_as_cif = false;
+	       if (coot::is_mmcif_filename(name_))
+		  write_as_cif = true;
+
+               istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
+
+	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
+	       if (istat) {
+		  std::string warn;
+		  warn = "WARNING:: WritePDBASCII failed! Return status ";
+		  warn += istat;
+		  g.info_dialog_and_text(warn);
+	       }
+	    } else {
+	       std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
+	       istat = p.first;
+	    }
+
+	    save_history_file_name(backup_file_name);
+	    if (history_index == max_history_index)
+	       max_history_index++;
+	    history_index++;
+	 }
       } else {
-    std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"
-      << std::endl;
+	 std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
+		   << std::endl;
       }
    } else {
       // Occasionally useful but mostly tedious...
@@ -7635,6 +7681,7 @@ void
 molecule_class_info_t::restore_from_backup(int history_offset,
       const std::string &cwd) {
 
+
    // consider passing this:
    bool v2_convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
    bool allow_duplseqnum = graphics_info_t::allow_duplseqnum;
@@ -7657,6 +7704,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 	 // don't want that either:
 	 std::vector<std::string> save_save_state = save_state_command_strings_;
 	 short int is_undo_or_redo = 1;
+
 	 handle_read_draw_molecule(imol_no, filename, cwd,
 				   graphics_info_t::Geom_p(),
 				   reset_rotation_centre,
@@ -8182,8 +8230,6 @@ molecule_class_info_t::store_refmac_params(const std::string &mtz_filename,
       const std::string &r_free_col,
       int r_free_flag) {
 
-   std::cout << "------------------- store_refmac_params() called!\n";
-
    have_sensible_refmac_params = 1; // true
    refmac_mtz_filename = mtz_filename;
    refmac_fobs_col = fobs_col;
@@ -8375,6 +8421,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       }
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions(); // sets unsaved changes flag
+      update_symmetry();
    }
 
    return istat;
@@ -8881,7 +8928,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       coot::ligand lig;
       coot::minimol::residue r(res);
       coot::minimol::fragment f(res->GetChainID());
-      f.residues.push_back(res);
+      f.residues.push_back(coot::minimol::residue(res));
       coot::minimol::molecule ligand;
       ligand.fragments.push_back(f);
 
@@ -9529,6 +9576,29 @@ molecule_class_info_t::water_chain_from_shelx_ins() const {
    return water_chain;
 }
 
+bool
+molecule_class_info_t::is_het_residue(mmdb::Residue *residue_p) const {
+
+   bool status = false;
+
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            if (at->Het) {
+               status =  true;
+               break;
+            }
+         }
+      }
+   }
+   return status;
+}
+
+
 
 // return state, max_resno + 1, or 0, 1 of no residues in chain.
 //
@@ -9544,42 +9614,47 @@ molecule_class_info_t::next_residue_number_in_chain(mmdb::Chain *w,
       int nres = w->GetNumberOfResidues();
       mmdb::Residue *residue_p;
       if (nres > 0) {
-    for (int ires=nres-1; ires>=0; ires--) {
-       residue_p = w->GetResidue(ires);
-       if (residue_p->seqNum > max_res_no) {
-          max_res_no = residue_p->seqNum;
-          if (new_res_no_by_hundreds) {
-     if (max_res_no < 9999) {
-        int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
-        p = std::pair<short int, int>(1, res_no+1);
-     }
-          } else {
-     if (max_res_no < 9999) {
-        p = std::pair<short int, int>(1, max_res_no+1);
-     }
-          }
-       }
-    }
-    if (! p.first) {
-       //  first the first space starting from the front
-       int test_resno_start = 1001;
-       bool is_clear = false;
-       while (! is_clear) {
-          is_clear = true;
-          for (int iser=0; iser<nres; iser++) {
-     int resno_res = w->GetResidue(iser)->seqNum;
-     if (resno_res >= test_resno_start) {
-        if (resno_res <= (test_resno_start+10)) {
-   is_clear = false;
-        }
-     }
-     if (! is_clear)
-        break;
-          }
-          test_resno_start += 100;
-       }
-       p = std::pair<short int, int> (1, test_resno_start);
-    }
+	 for (int ires=nres-1; ires>=0; ires--) {
+	    residue_p = w->GetResidue(ires);
+	    if (residue_p->seqNum > max_res_no) {
+               max_res_no = residue_p->seqNum;
+               bool is_het_residue_flag = is_het_residue(residue_p);
+               if (is_het_residue_flag) {
+                  p = std::pair<short int, int>(1, residue_p->seqNum+1);
+               } else {
+                  if (new_res_no_by_hundreds) {
+                     if (max_res_no < 9999) {
+                        int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
+                        p = std::pair<short int, int>(1, res_no+1);
+                     }
+                  } else {
+                     if (max_res_no < 9999) {
+                        p = std::pair<short int, int>(1, max_res_no+1);
+                     }
+                  }
+	       }
+	    }
+	 }
+	 if (! p.first) {
+	    //  first the first space starting from the front
+	    int test_resno_start = 1001;
+	    bool is_clear = false;
+	    while (! is_clear) {
+	       is_clear = true;
+	       for (int iser=0; iser<nres; iser++) {
+		  int resno_res = w->GetResidue(iser)->seqNum;
+		  if (resno_res >= test_resno_start) {
+		     if (resno_res <= (test_resno_start+10)) {
+			is_clear = false;
+		     }
+		  }
+		  if (! is_clear)
+		     break;
+	       }
+	       test_resno_start += 100;
+	    }
+	    p = std::pair<short int, int> (1, test_resno_start);
+	 }
       }
    }
    return p;
@@ -9597,17 +9672,17 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
     atom_sel.mol->RegisterUDReal(mmdb::UDR_HIERARCHY,
          coot::b_factor_bonds_scale_handle_name.c_str());
       if (udd_handle > 0) {
-    atom_sel.mol->PutUDData(udd_handle, f);
+	 atom_sel.mol->PutUDData(udd_handle, f);
 
-    // test getting the uddata:
-    int udd_b_factor_handle =
-       atom_sel.mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
-          coot::b_factor_bonds_scale_handle_name.c_str());
-    if (udd_b_factor_handle > 0) {
-       mmdb::realtype scale;
-       if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
-// 	       std::cout << " test got b factor scale: " << scale << std::endl;
-       } else {
+	 // test getting the uddata:
+	 int udd_b_factor_handle =
+	    atom_sel.mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
+				       coot::b_factor_bonds_scale_handle_name.c_str());
+	 if (udd_b_factor_handle > 0) {
+	    mmdb::realtype scale;
+	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
+               // 	       std::cout << " test got b factor scale: " << scale << std::endl;
+	    } else {
  	       std::cout << "ERROR:: bad get b factor scale " << std::endl;
        }
     }

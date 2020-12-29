@@ -81,7 +81,7 @@
 #include <direct.h>
 #endif // _MSC_VER
 
-#include "clipper/ccp4/ccp4_map_io.h"
+#include <clipper/ccp4/ccp4_map_io.h>
 
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -155,53 +155,125 @@
 
 #include "c-interface-widgets.hh" // for wrapped_create_generic_objects_dialog();
 
+#ifdef USE_ASSIMP
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+#endif
+
+#include "draw-2.hh" // for glarea_tick_func
+
 int test_function(int i, int j) {
 
    graphics_info_t g;
 
    // Is this the function you are really looking for (these days)?
 
+   if (true) {
+      if (is_valid_model_molecule(i)) {
+         if (is_valid_map_molecule(j)) {
+            graphics_info_t g;
+            const clipper::Xmap<float> &xmap(g.molecules[j].xmap);
+            float scale_factor = 4;
+            float offset = 3;
+            g.molecules[i].recolour_ribbon_by_map(xmap, scale_factor, offset);
+            graphics_draw();
+         }
+      }
+   }
+
+   if (false) {
+      graphics_info_t g;
+      g.setup_draw_for_happy_face_residue_markers();
+   }
+
+   if (false) {
+
+      std::cout << "Hydrogen bonds mesh test" << std::endl;
+      Material material;
+      material.shininess = 10.0;
+      material.specular_strength = 0.02;
+      Mesh mesh("Test cyclinders");
+      glm::vec3 p1(42.08, 9.67, 14.42);
+      glm::vec3 p2(40.59, 5.68, 13.24);
+      glm::vec3 p3(44.88, 12.95, 8.76);
+      glm::vec3 p4(46.13, 10.59, 9.97);
+      graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p1, p2));
+      graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p3, p4));
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      graphics_info_t::mesh_for_hydrogen_bonds = mesh;
+      Shader &shader = graphics_info_t::shader_for_instanced_objects;
+      graphics_info_t::mesh_for_hydrogen_bonds.setup_hydrogen_bond_cyclinders(&shader, material);
+      graphics_info_t::do_tick_hydrogen_bonds_mesh = true;
+      int new_tick_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
+   }
+
+#ifdef USE_ASSIMP
+   if (false) {
+      std::string file_name = "cube.obj";
+      file_name = "cessna.obj";
+
+      Assimp::Importer importer;
+
+      // And have it read the given file with some example postprocessing
+      // Usually - if speed is not the most important aspect for you - you'll
+      // probably to request more postprocessing than we do in this example.
+      const aiScene* scene = importer.ReadFile(file_name,
+                                                aiProcess_CalcTangentSpace       |
+                                                aiProcess_Triangulate            |
+                                                aiProcess_JoinIdenticalVertices  |
+                                                aiProcess_SortByPType);
+
+      // If the import failed, report it
+      if( !scene) {
+         std::cout << "Error in read of " <<  file_name << " " << importer.GetErrorString() << std::endl;
+      } else {
+         std::cout << "------------ scene read OK from " << file_name << std::endl;
+      }
+   }
+#endif
+
    if (0) {
 
       if (is_valid_model_molecule(i)) {
-	 if (is_valid_map_molecule(j)) {
-	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
-	    mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
-	    int imol = 0; // dummy
-	    std::vector<coot::residue_spec_t> v;
-	    v.push_back(coot::residue_spec_t("G", 160, ""));
-	    v.push_back(coot::residue_spec_t("G", 847, ""));
+         if (is_valid_map_molecule(j)) {
+            const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
+            mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
+            int imol = 0; // dummy
+            std::vector<coot::residue_spec_t> v;
+            v.push_back(coot::residue_spec_t("G", 160, ""));
+            v.push_back(coot::residue_spec_t("G", 847, ""));
 
-	    unsigned int n_rounds = 10;
-	    for (unsigned int iround=0; iround<n_rounds; iround++) {
+            unsigned int n_rounds = 10;
+            for (unsigned int iround=0; iround<n_rounds; iround++) {
 
-	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+               mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
-	       std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
+               std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
 
-	       // do we need to send over the base atom too?  Or just say
-	       // that it's the first atom in moving_mol?
-	       //
-	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
+               // do we need to send over the base atom too?  Or just say
+               // that it's the first atom in moving_mol?
+               //
+               coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
 
-	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
+               atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
-	       std::pair<mmdb::Manager *, int> new_mol =
-		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
-	       atom_selection_container_t asc_new = make_asc(new_mol.first);
-	       std::string name = "test-" + coot::util::int_to_string(iround);
-	       bool shelx_flag = 0;
-	       int imol_new = g.create_molecule();
-	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
+               std::pair<mmdb::Manager *, int> new_mol =
+                  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
+               atom_selection_container_t asc_new = make_asc(new_mol.first);
+               std::string name = "test-" + coot::util::int_to_string(iround);
+               bool shelx_flag = 0;
+               int imol_new = g.create_molecule();
+               g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 
-	       // Don't update - not at the moment at least.
-	       //
-	       // g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
+               // Don't update - not at the moment at least.
+               //
+               // g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
 
-	       delete moving_mol;
-	       graphics_draw();
-	    }
-	 }
+               delete moving_mol;
+               graphics_draw();
+            }
+         }
       }
    }
 
@@ -407,13 +479,69 @@ int test_function(int i, int j) {
 #include "ligand/richardson-rotamer.hh"
 
 #include "coot-utils/cablam-markup.hh"
+#include "coot-utils/pepflip-using-difference-map.hh"
+
+#include "coot-utils/atom-tools.hh"
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
+
    if (true) {
+
+      int imol_1 = read_pdb("good-test-for-out-of-register-errors-em-tutorial-partial.pdb");
+      int imol_2 = read_pdb("EMD-3908/fittedModels/PDB/6eoj.ent");
+
+      // imol_1 = read_pdb("6eoj-fragment-RSR-in-coot.pdb");
+
+      if (is_valid_model_molecule(imol_1)) {
+         if (is_valid_model_molecule(imol_2)) {
+            mmdb::Manager *mol_1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
+            mmdb::Manager *mol_2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
+            coot::find_out_of_register_errors(mol_1, mol_2);
+         }
+      }
+   }
+
+   if (false) {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+	 int imol_map = scm_to_int(i_scm);
+	 if (is_valid_map_molecule(imol_map)) {
+	    graphics_info_t g;
+	    if (g.molecules[imol_map].is_difference_map_p()) {
+	       const clipper::Xmap<float> &diff_xmap = g.molecules[imol_map].xmap;
+	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	       coot::pepflip_using_difference_map pf(mol, diff_xmap);
+	       float n_sigma = 4.0;
+	       std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+	       for (std::size_t i=0; i<flips.size(); i++) {
+		  std::cout << i << " " << flips[i] << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (false) {
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         bool show_stub_flag = true;
+         GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
+         gtk_widget_show(widget);
+         g.in_mutate_auto_fit_define = 0;
+         g.residue_type_chooser_auto_fit_flag = 1;
+         g.pick_pending_flag = 0;
+      }
+   }
+
+
+   if (false) {
       int imol_model     = scm_to_int(i_scm);
       int imol_with_data = scm_to_int(j_scm);
       if (is_valid_model_molecule(imol_model)) {

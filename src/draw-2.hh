@@ -1,4 +1,8 @@
 
+#include <string>
+#include <gtk/gtk.h>
+#include <glm/glm.hpp>
+
 GtkWidget *my_gtkglarea(GtkWidget *vbox);
 void my_glarea_add_signals_and_events(GtkWidget *glarea);
 
@@ -17,3 +21,15 @@ void my_glarea_add_signals_and_events(GtkWidget *glarea);
 void remap_key(const std::string &description, int);
 
 // void reset_frame_buffers();
+
+// moved into graphics_info_t
+// glm::vec4 new_unproject(float z);
+
+
+glm::vec3 get_camera_up_direction(const glm::mat4 &mouse_quat_mat);
+
+gboolean
+glarea_tick_func(GtkWidget *widget,
+                 GdkFrameClock *frame_clock,
+                 gpointer data);
+

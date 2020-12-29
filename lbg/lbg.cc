@@ -1153,70 +1153,70 @@ lbg_info_t::handle_key_press_button_toggle(int keyval, bool ctrl_is_pressed) {
 
    switch (keyval) {
 
-   case GDK_n:
+   case GDK_KEY_n:
       lbg_toggle_button_my_toggle(widget_names["nitrogen_toggle_toolbutton"]);
       break;
 
-   case GDK_c:
+   case GDK_KEY_c:
       lbg_toggle_button_my_toggle(widget_names["carbon_toggle_toolbutton"]);
       break;
 
-   case GDK_o:
+   case GDK_KEY_o:
       lbg_toggle_button_my_toggle(widget_names["oxygen_toggle_toolbutton"]);
       break;
 
-   case GDK_p:
+   case GDK_KEY_p:
       lbg_toggle_button_my_toggle(widget_names["phos_toggle_toolbutton"]);
       break;
 
-   case GDK_i:
+   case GDK_KEY_i:
       lbg_toggle_button_my_toggle(widget_names["iodine_toggle_toolbutton"]);
       break;
 
-   case GDK_s:
+   case GDK_KEY_s:
       if  (ctrl_is_pressed)
 	 lbg_toggle_button_my_toggle(widget_names["sulfur_toggle_toolbutton"]);
       else
 	 lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
       break;
 
-   case GDK_d:
+   case GDK_KEY_d:
       lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
       break;
 
-   case GDK_1:
+   case GDK_KEY_1:
       lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
       break;
 
-   case GDK_2:
+   case GDK_KEY_2:
       lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
       break;
 
-   case GDK_3:
+   case GDK_KEY_3:
       lbg_toggle_button_my_toggle(widget_names["c3_toggle_toolbutton"]);
       break;
 
-   case GDK_4:
+   case GDK_KEY_4:
       lbg_toggle_button_my_toggle(widget_names["c4_toggle_toolbutton"]);
       break;
 
-   case GDK_5:
+   case GDK_KEY_5:
       lbg_toggle_button_my_toggle(widget_names["c5_toggle_toolbutton"]);
       break;
 
-   case GDK_6:
+   case GDK_KEY_6:
       lbg_toggle_button_my_toggle(widget_names["c6_toggle_toolbutton"]);
       break;
 
-   case GDK_7:
+   case GDK_KEY_7:
       lbg_toggle_button_my_toggle(widget_names["c7_toggle_toolbutton"]);
       break;
 
-   case GDK_8:
+   case GDK_KEY_8:
       lbg_toggle_button_my_toggle(widget_names["c8_toggle_toolbutton"]);
       break;
 
-   case GDK_b:
+   case GDK_KEY_b:
       // lbg_toggle_button_my_toggle(lbg_bromine_toggle_toolbutton);
       lbg_toggle_button_my_toggle(widget_names["c6_arom_toggle_toolbutton"]);
       break;
@@ -2524,7 +2524,7 @@ lbg_info_t::have_2_stubs_attached_to_atom(unsigned int atom_index,
 void
 lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode) {
 
-   gpointer gp = gtk_object_get_user_data(GTK_OBJECT(canvas));
+   gpointer gp = g_object_get_data(G_OBJECT(canvas), "lbg");
    lbg_info_t *l = static_cast<lbg_info_t *> (gp);
 
    if (l) {
@@ -3167,7 +3167,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    //
    goo_canvas_set_scale(GOO_CANVAS(canvas), 1.0);
 
-   GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
+   // gtk_widget_set_flags(canvas, GTK_CAN_FOCUS);
+   std::cout << "FIXME gtk_widget_set_flags GTK_CAN_FOCUS!"  << std::endl;
 
    GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
    g_object_set(G_OBJECT(root_item), "line_width", 1.5, NULL); // thank you Damon Chaplin
@@ -3175,7 +3176,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    if (lbg_scale_spinbutton) {
                                      // value lower upper step_inc page_inc page_size (which should be 0)
-      GtkObject *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
+      GtkAdjustment *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
       gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(lbg_scale_spinbutton), GTK_ADJUSTMENT(adj));
       gtk_spin_button_set_value(GTK_SPIN_BUTTON(lbg_scale_spinbutton), 1.0);
 
@@ -3194,8 +3195,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 #endif // HAVE_CCP4SRS
 
    if (use_graphics_interface_flag) {
-      gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
-      gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
+      // gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
+      std::cout << "FIXME! bounds padding!" << std::endl;
+      g_object_set_data(G_OBJECT(canvas), "lbg", (gpointer) this);
 
       save_togglebutton_widgets(builder);
       GtkWidget *lbg_scrolled_win =
@@ -3206,6 +3208,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    GooCanvas *gc = GOO_CANVAS(canvas);
 
+#if 0
    if (0)
       std::cout << "   after setting bounds: canvas adjustments: h-lower "
 		<< gc->hadjustment->lower << " h-upper-page "
@@ -3214,6 +3217,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 		<< gc->vadjustment->upper - gc->vadjustment->page_size  << " h-page "
 		<< gc->hadjustment->page_size  << " "
 		<< gc->vadjustment->page_size << std::endl;
+#endif
 
    if (use_graphics_interface_flag) {
 
@@ -3240,14 +3244,15 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    // ------------ (old-style) watch for new files from coot ---------------------
    //
-   if (is_stand_alone())
-      int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+   // Gtk3 porting: comment this out for now.
+   // if (is_stand_alone())
+   // int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
    // Hack in a button (or hide the hbox) for PE to test stuff
    //
    if (use_graphics_interface_flag) {
       if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) {
-	 gtk_widget_show(pe_test_function_button);
+         gtk_widget_show(pe_test_function_button);
       }
    }
 
@@ -3290,11 +3295,13 @@ lbg_info_t::init(GtkBuilder *builder) {
 void
 lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton) {
 
-   float f = gtk_spin_button_get_value_as_float(spinbutton);
+   float f = 1.0; // gtk_spin_button_get_value_as_float(spinbutton);
+   std::cout << "FIXME why oh why is gtk_spin_button_get_value_as_float() missing now!?"
+             << std::endl;
    gpointer user_data = g_object_get_data(G_OBJECT(spinbutton), "user_data");
    if (user_data) {
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 l->scale_canvas(f);
       }
@@ -3462,9 +3469,10 @@ lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > 
 					 s.c_str());
 
 	       // tooltips here?
-	       GtkTooltips *tooltips = gtk_tooltips_new();
+	       // GtkTooltips *tooltips = gtk_tooltips_new();
 	       std::string m = "Ideal: " + ideal_values[i];
-	       gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
+	       // gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
+	       gtk_widget_set_tooltip_text(GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str());
 	    }
 	 }
       }
@@ -3525,7 +3533,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 		  std::string lbg_atom_index_str;
 		  int lbg_atom_index = rdkmol_idx;
 		  try {
-		     RDKit::ATOM_SPTR at_p = rdkm[rdkmol_idx];
+		     const RDKit::Atom *at_p = rdkm[rdkmol_idx];
 		     at_p->getProp("lbg_atom_index", lbg_atom_index_str);
 		     int lbg_atom_index = coot::util::string_to_int(lbg_atom_index_str);
 		     lig_build::pos_t pos = mol.atoms[lbg_atom_index].atom_position;
@@ -3947,9 +3955,9 @@ lbg_info_t::render() {
 
       if (display_atom_names || display_atom_numbers) {
 
-	 lig_build::atom_id_info_t atom_id_info = mol.atoms[iat].atom_name;
+	 lig_build::atom_id_info_t atom_id_info(mol.atoms[iat].atom_name);
 	 if (display_atom_numbers)
-	    atom_id_info = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1); // mol file numbering, 1-indexed
+	    atom_id_info = lig_build::atom_id_info_t(mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1)); // mol file numbering, 1-indexed
 	 atom_id_info.size_hint = -1;
 	 const std::string &ele = mol.atoms[iat].element;
 	 std::string fc = font_colour(ele);
@@ -4345,7 +4353,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       }
    }
    catch (const RDKit::BadFileException &e) {
-      std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      // std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      std::cout << "WARNING:: Bad file " << file_name << " " << e.what() << std::endl;
       try_as_mdl_mol = true;
    }
    catch (const std::runtime_error &rte) {
@@ -4383,7 +4392,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       if (m) {
 	 unsigned int n_atoms = m->getNumAtoms();
 	 for (unsigned int iat=0; iat<n_atoms; iat++) {
-	    RDKit::ATOM_SPTR at_p = (*m)[iat];
+	    const RDKit::Atom *at_p = (*m)[iat];
 	    std::string name;
 	    try {
 	       at_p->getProp("molFileAlias", name);
@@ -4674,7 +4683,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       double sum_y = 0;
       double min_y = 9e9;
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 const RDKit::Atom *at_p = (*rdkm)[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 sum_x += r_pos.x;
 	 sum_y += r_pos.y;
@@ -4718,7 +4727,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       }
 
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 const RDKit::Atom *at_p = (*rdkm)[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 std::string name = "";
 	 try {
@@ -4944,6 +4953,8 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
       try {
          if (get_drug_mdl_file_function_pointer) {
+            std::cout << "DEBUG:: Using get_drug_mdl_file_function_pointer" << std::endl;
+            // this could fail for SSL reasons. Try to dig out the libcurl error
             std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
             if (file_name.empty()) {
                std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
@@ -4960,11 +4971,20 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
    }
 
-   if (status == false) {
+   if (!status) {
 
-      PyObject *pName = PyString_FromString("lidia.fetch");
-      std::cout << "DEBUG:: Here with lidia.fetch pName " << pName << std::endl;
-      PyObject *pModule = PyImport_Import(pName);
+      // If we have failed so far, try again with lidia.fetch.
+      // But import rdkit first so that import.fetch doesn't crash - !
+      std::cout << "DEBUG:: --- start import rdkit/lidia.fetch --- " << std::endl;
+      PyObject *pName_rdkit = PyUnicode_FromString("rdkit");
+      std::cout << "DEBUG:: --- we have pName_rdkit --- " << pName_rdkit << std::endl;
+      PyObject *pModule = PyImport_Import(pName_rdkit);
+      if (! pModule) return;
+      std::cout << "DEBUG:: --- we have imported rdkit --- " << pName_rdkit << std::endl;
+
+      PyObject *pName = PyUnicode_FromString("lidia.fetch");
+      std::cout << "DEBUG:: with lidia.fetch pName " << pName << std::endl;
+      pModule = PyImport_Import(pName);
       if (pModule == NULL) {
          std::cout << "NULL pModule" << std::endl;
       } else {
@@ -4972,20 +4992,25 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
          PyObject *pDict = PyModule_GetDict(pModule);
          if (! PyDict_Check(pDict)) {
-            std::cout << "pDict is not a dict" << std::endl;
+            std::cout << "DEBUG:: pDict is not a dict" << std::endl;
          } else {
 
             PyObject *pFunc = PyDict_GetItemString(pDict, "fetch_molecule");
             if (PyCallable_Check(pFunc)) {
+               std::cout << "DEBUG:: fetch_molecule is a callable function" << std::endl;
                PyObject *arg_list = PyTuple_New(1);
-               PyObject *drug_name_py = PyString_FromString(drug_name.c_str());
+               PyObject *drug_name_py = PyUnicode_FromString(drug_name.c_str());
                PyTuple_SetItem(arg_list, 0, drug_name_py);
+               std::cout << "DEBUG:: fetch_molecule called with arg " << drug_name << std::endl;
                PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+               std::cout << "DEBUG:: fetch_molecule got result " << result_py << std::endl;
 
                if (result_py) {
 
-                  if (PyString_Check(result_py)) {
-                     std::string file_name = PyString_AsString(result_py);
+                  if (PyUnicode_Check(result_py)) {
+                     std::cout << "fetch_molecule result was a string " << std::endl;
+                     std::string file_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(result_py));
+                     std::cout << "fetch_molecule result was a file_name " << file_name << std::endl;
 
                      try {
                         bool sanitize = true;
@@ -5056,7 +5081,7 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 
    //
    // Build the name object
-   PyObject *pName = PyString_FromString(module_name.c_str());
+   PyObject *pName = PyUnicode_FromString(module_name.c_str());
    // Load the module object
    PyObject *pModule = PyImport_Import(pName);
    if (pModule == NULL) {
@@ -5076,8 +5101,8 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 	 } else {
 	    if (PyCallable_Check(pFunc)) {
 	       extracted_func = pFunc;
-	       if (1)
-		  std::cout << "found " << module_name << " " << function_name << " function"
+	       if (true)
+		  std::cout << "DEBUG:: found " << module_name << " " << function_name << " function"
 			    << std::endl;
 	    }
 	 }

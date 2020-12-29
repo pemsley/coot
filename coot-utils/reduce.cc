@@ -904,24 +904,35 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
       mmdb::Atom *at_n_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_confs[i].c_str());
       mmdb::Atom *at_n_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_confs[i].c_str());
       if (at_n_1 && at_n_2 && at_n_3) {
-	 clipper::Coord_orth Hp1 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
+         bool add_them = true;
+         std::string res_name(residue_p->GetResName());
+         if (res_name == "ASN") {
+            if (is_linked(at_name_1, residue_p)) {
+               // Don't add hydrogens on ND2 linked to NAG               
+               add_them = false;
+               // Should add one sp2 Hydrogen atom here
+            }
+         }
+         if (add_them) {
+            clipper::Coord_orth Hp1 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
 									 bl_amino,
 									 clipper::Util::d2rad(120),
 									 clipper::Util::d2rad(180));
-	 clipper::Coord_orth Hp2 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
+            clipper::Coord_orth Hp2 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
 									 bl_amino,
 									 clipper::Util::d2rad(120),
 									 clipper::Util::d2rad(0));
-	 mmdb::realtype bf = at_n_1->tempFactor;
-	 add_hydrogen_atom(H_at_name_1, Hp1, bf, alt_confs[i], residue_p);
-	 add_hydrogen_atom(H_at_name_2, Hp2, bf, alt_confs[i], residue_p);
+	    mmdb::realtype bf = at_n_1->tempFactor;
+	    add_hydrogen_atom(H_at_name_1, Hp1, bf, alt_confs[i], residue_p);
+	    add_hydrogen_atom(H_at_name_2, Hp2, bf, alt_confs[i], residue_p);
+         }
       } else {
-	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
-		   << " alt-conf \"" << alt_confs[i] << "\""
-		   << " failed in add_amino_hydrogens" << std::endl;
-	 std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
-	 std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
-	 std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
+         std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
+                   << " alt-conf \"" << alt_confs[i] << "\""
+                   << " failed in add_amino_hydrogens" << std::endl;
+         std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
+         std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
+         std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
       }
    }
 }
@@ -1199,38 +1210,39 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
    if (geom_p) {
       std::string res_name = residue_p->GetResName();
       if (res_name == "HIS") {
-	 double bl = 0.86;
-	 std::vector<mmdb::Atom *> v = add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
-	 std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-	 atom_overlaps_container_t ao_1(residue_p, neighbs, mol, geom_p, 0.5);
-	 atom_overlaps_dots_container_t aod_1 = ao_1.contact_dots_for_ligand();
-	 double s1 = aod_1.score();
-	 // this only does the first alt conf. It can get messy with alt confs.
+         double bl = 0.86;
+         std::vector<mmdb::Atom *> v = add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
+         std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+         atom_overlaps_container_t ao_1(residue_p, neighbs, mol, geom_p, 0.5);
+         atom_overlaps_dots_container_t aod_1 = ao_1.contact_dots_for_ligand(0.7);
+         double s1 = aod_1.score();
+         // this only does the first alt conf. It can get messy with alt confs.
 
-	 if (v.size() > 0) {
-	    mmdb::Atom *at = v[0];
-	    delete at;
-	    mol->FinishStructEdit();
-	 }
+         if (v.size() > 0) {
+            mmdb::Atom *at = v[0];
+            delete at;
+            mol->FinishStructEdit();
+         }
 
- 	 v = add_his_ring_H(" HD1", " CG ", "ND1", " CE1", bl, residue_p);
- 	 atom_overlaps_container_t ao_2(residue_p, neighbs, mol, geom_p, 0.5);
- 	 atom_overlaps_dots_container_t aod_2 = ao_2.contact_dots_for_ligand();
- 	 double s2 = aod_2.score();
- 	 std::cout << "DEBUG:: HIS protonation scores: " << residue_spec_t(residue_p)
-		   << " NE2: "
-		   << std::right << std::setprecision(1) << std::fixed << s1
-		   << " vs ND1: "
-		   << std::right << std::setprecision(1) << std::fixed << s2 << std::endl;
-	 if (v.size() > 0) { // sanity check
-	    if (s1 > s2) {
-	       // delete HD1
-	       delete v[0];
-	       // add the first one back
-	       add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
-	       mol->FinishStructEdit();
-	    }
-	 }
+         v = add_his_ring_H(" HD1", " CG ", "ND1", " CE1", bl, residue_p);
+         atom_overlaps_container_t ao_2(residue_p, neighbs, mol, geom_p, 0.5);
+         atom_overlaps_dots_container_t aod_2 = ao_2.contact_dots_for_ligand(0.7);
+         double s2 = aod_2.score();
+         std::cout << "DEBUG:: HIS protonation scores: (bigger is better) "
+                   << residue_spec_t(residue_p)
+                   << " NE2: "
+                   << std::right << std::setprecision(1) << std::fixed << s1
+                   << " vs ND1: "
+                   << std::right << std::setprecision(1) << std::fixed << s2 << std::endl;
+         if (v.size() > 0) { // sanity check
+            if (s1 > s2) {
+               // delete HD1
+               delete v[0];
+               // add the first one back
+               add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
+               mol->FinishStructEdit();
+            }
+         }
       }
    } else {
       std::cout << "No geometry" << std::endl;
@@ -1239,7 +1251,7 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
 
 void
 coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
-				     mmdb::Atom *current_H_atom) {
+                                     mmdb::Atom *current_H_atom) {
 
    if (current_H_atom) {
       std::string atom_name = current_H_atom->name;
@@ -1248,30 +1260,30 @@ coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
       if (atom_name == " HE2") new_atom_name = " HD1";
       if (! new_atom_name.empty()) {
 
-	 // ND1 -> HD1   and   NE2 -> HE2 by dictionary
-	 //
-	 // New atom HD1 first
-	 std::cout << "switch_his_protonation() " << 1 << std::endl;
-	 std::string at_name_1 = " CG ";
-	 std::string at_name_2 = " ND1";
-	 std::string at_name_3 = " CE1";
-	 if (new_atom_name == " HE2") {
-	    at_name_1 = " CE1";
-	    at_name_2 = " NE2";
-	    at_name_3 = " CD2";
-	 }
-	 std::string alt_conf = current_H_atom->altLoc;
-	 mmdb::Atom *at_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_conf.c_str());
-	 mmdb::Atom *at_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_conf.c_str());
-	 mmdb::Atom *at_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_conf.c_str());
-	 if (at_1 && at_2 && at_3) {
-	    std::cout << "switch_his_protonation() " << 2 << " " << new_atom_name << std::endl;
-	    current_H_atom->SetAtomName(new_atom_name.c_str());
-	    double bl_arom = 0.93;
-	    clipper::Coord_orth pos = position_by_bisection(at_1, at_2, at_3, bl_arom);
-	    double bf = current_H_atom->tempFactor;
-	    current_H_atom->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
-	 }
+         // ND1 -> HD1   and   NE2 -> HE2 by dictionary
+         //
+         // New atom HD1 first
+         std::cout << "switch_his_protonation() " << 1 << std::endl;
+         std::string at_name_1 = " CG ";
+         std::string at_name_2 = " ND1";
+         std::string at_name_3 = " CE1";
+         if (new_atom_name == " HE2") {
+            at_name_1 = " CE1";
+            at_name_2 = " NE2";
+            at_name_3 = " CD2";
+         }
+         std::string alt_conf = current_H_atom->altLoc;
+         mmdb::Atom *at_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_conf.c_str());
+         mmdb::Atom *at_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_conf.c_str());
+         mmdb::Atom *at_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_conf.c_str());
+         if (at_1 && at_2 && at_3) {
+            std::cout << "switch_his_protonation() " << 2 << " " << new_atom_name << std::endl;
+            current_H_atom->SetAtomName(new_atom_name.c_str());
+            double bl_arom = 0.93;
+            clipper::Coord_orth pos = position_by_bisection(at_1, at_2, at_3, bl_arom);
+            double bf = current_H_atom->tempFactor;
+            current_H_atom->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
+         }
       }
    }
 }
@@ -1478,7 +1490,7 @@ coot::reduce::hydrogen_placement_by_dictionary(mmdb::Residue *residue_p) {
 
 void
 coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
-					       mmdb::Residue *residue_p) {
+                                               mmdb::Residue *residue_p) {
 
    std::vector<std::string> done_atom_name_list; // so that we don't add some atoms twice
    for (unsigned int iat=0; iat<rest.atom_info.size(); iat++) {
@@ -1489,7 +1501,7 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
 	    // skip the HO3' on RNA and DNA. I could instead test for presence/position of next
 	    // residue, but this easier and will be correct for most cases.
 	    if ((rest.residue_info.group == "DNA" || rest.residue_info.group == "RNA") &&
-		H_at_name == "HO3'") {
+	        H_at_name == "HO3'") {
 	       continue;
 	    } else {
 	       // to which atom is this hydrogen connected?
@@ -1501,11 +1513,11 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
 		  const std::string &first_neigh = rest.atom_info[iat_neighb].atom_id_4c;
 		  if (! is_linked(first_neigh, residue_p)) {
 		     if (! energy_type.empty()) {
-			std::vector<std::string> v =
-			   place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
-			done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
+		        std::vector<std::string> v =
+		           place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
+		        done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
 		     } else {
-			place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+		        place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
 		     }
 		  }
 	       }

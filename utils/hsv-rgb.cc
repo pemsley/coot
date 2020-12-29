@@ -154,6 +154,7 @@ coot::colour_holder::colour_holder(const std::string &hex_colour_string) {
 // // dum is a holder for a colour map selection.
 // // 
 coot::colour_holder::colour_holder(double value, double min_z, double max_z,
+                                   bool use_deuteranomaly_mode,
 				   const std::string &dum) {
 
    // Given a min, max range of 0,1
@@ -170,7 +171,20 @@ coot::colour_holder::colour_holder(double value, double min_z, double max_z,
    red = powf(f, 0.2);
    green = powf(1.0-f, 0.2);
 
-} 
+   if (use_deuteranomaly_mode) {
+      blue = f;
+   }
+
+}
+
+void
+coot::colour_holder::scale_intensity(float f) {
+
+   red   *= f;
+   green *= f;
+   blue  *= f;
+
+}
 
 
 
@@ -210,3 +224,14 @@ coot::colour_holder::hex() const {
    hexstring += ss3.str();
    return hexstring;
 } 
+
+void
+coot::colour_holder::brighten(float amount) {
+
+   red   += amount;
+   green += amount;
+   blue  += amount;
+   if (red   > 1.0) red   = 1.0;
+   if (green > 1.0) green = 1.0;
+   if (blue  > 1.0) blue  = 1.0;
+}

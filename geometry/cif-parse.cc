@@ -190,8 +190,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       
-	       // All catagories have loops (AFAICS). 
-	       // std::cout << "DEBUG:: got catagory: " << cat_name << std::endl; 
+	       // All categories have loops (AFAICS). 
+	       // std::cout << "DEBUG:: got category: " << cat_name << std::endl; 
 
 	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
@@ -236,7 +236,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  
 		  if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
 		                   // with one atom e.g. AM.cif (Americium ion)
-		     std::cout << "WARNING:: in init_refmac_mon_lib() unhandled catagory \""
+		     std::cout << "WARNING:: in init_refmac_mon_lib() unhandled category \""
 			       << cat_name << "\" file: " << ciffilename << std::endl; 
 		  
 	       } else {
@@ -1764,7 +1764,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 
 	 // Acedrg marks aromatic bonds in this way.
 	 // 
-	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
+	 s = mmCIFLoop->GetString("aromatic", j, ierr_optional);
 	 if (s) {
 	    if (! ierr_optional) {
 	       std::string ss(s);
@@ -3128,7 +3128,7 @@ coot::protein_geometry::init_standard() {
    std::string hardwired_default_place;
    hardwired_default_place = util::append_dir_dir(dir, "coot");
    hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
-   bool using_clibd_mon = 0; 
+   bool using_clibd_mon = false;
 
    std::string mon_lib_dir; 
    short int env_dir_fails = 0;
@@ -3173,7 +3173,7 @@ coot::protein_geometry::init_standard() {
 	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
 		      << " CLIBD_MON: " << s << std::endl;
 	    mon_lib_dir = s;
-	    using_clibd_mon = 1;
+	    using_clibd_mon = true;
 	    // strip any trailing / from mon_lib_dir
 	    if (mon_lib_dir.length() > 0) {
 	       if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
@@ -3249,7 +3249,7 @@ coot::protein_geometry::init_standard() {
    // 
    std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
    std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
-   if (using_clibd_mon) { 
+   if (using_clibd_mon) {
       mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
       energy_cif_file_name = mon_lib_dir + "/ener_lib.cif";
    }
@@ -3270,7 +3270,6 @@ coot::protein_geometry::init_standard() {
       }
       refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
    }
-
 
    read_energy_lib(energy_cif_file_name);
 

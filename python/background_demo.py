@@ -55,8 +55,8 @@ def background_demo():
     n_local = 1.0
     while (n_local<=n_steps):
         r_col = rgb_colours(n_local)
-        set_background_colour(r_col[0],r_col[1],r_col[2])
-        rotate_y_scene(10,0.1) # n-frames frame-interval(degrees)
+        coot.set_background_colour(r_col[0],r_col[1],r_col[2])
+        coot.rotate_y_scene(10,0.1) # n-frames frame-interval(degrees)
         n_local = n_local + 1.0
 
 background_demo()

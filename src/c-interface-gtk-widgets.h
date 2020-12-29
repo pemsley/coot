@@ -209,7 +209,7 @@ void
 on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
 						  gpointer         user_data);
 
-void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection);
+void add_recentre_on_read_pdb_combobox(GtkWidget *filechooser);
 /* the callback for the above: */
 void
 on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,

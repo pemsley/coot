@@ -202,7 +202,7 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 				     x_pos, y_pos, 
 				     -1,
 				     // GTK_ANCHOR_CENTER,
-				     GTK_ANCHOR_SW,
+				     GOO_CANVAS_ANCHOR_SW,
 				     font, fc);
       }
    }
