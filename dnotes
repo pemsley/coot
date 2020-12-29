@@ -9725,3 +9725,23 @@ Mon 14 Dec 14:37:02 GMT 2020
 
    https://nvidia.custhelp.com/app/answers/detail/a_id/4845
 
+----
+Sun 16 Dec 12:26:55 GMT 2020
+
+Thanks to Takanori and Charles for the hints and prompts. You have
+brought 3 days of confusion and frustration to an end.
+
+The answer (or current fix) is
+
+export GI_TYPELIB_PATH /usr/lib/x86_64-linux-gnu/girepository-1.0
+
+so that the gobject that I compiled uses the system girepository
+also. And that's where Gtk+3 lives.
+
+It might be possible to properly populate that directory at
+compile/installation time and so the env var would not be needed (that
+would be my preferred solution). But this is certainly good enough for
+now.
+
+
+

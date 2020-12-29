@@ -22,7 +22,7 @@
 graphics_ligand_mesh_molecule_t::~graphics_ligand_mesh_molecule_t() {}
 
 // I used to understand polymorphism. Now this looks to me like a mystical incantation.
-template<class graphics_ligand_mesh_atom, class graphics_ligand_mesh_bond> lig_build::molecule_t<graphics_ligand_mesh_atom, graphics_ligand_mesh_bond>::~molecule_t() {}
+// template<class graphics_ligand_mesh_atom, class graphics_ligand_mesh_bond> lig_build::molecule_t<graphics_ligand_mesh_atom, graphics_ligand_mesh_bond>::~molecule_t() {}
 
 bool
 graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_p,
@@ -81,7 +81,7 @@ graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_
 	       init_from_molfile_molecule(m);
 
 	       status = true; // OK, if we got to here...
-               
+
             }
          }
       }

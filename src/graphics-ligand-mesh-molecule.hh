@@ -51,10 +51,11 @@ class graphics_ligand_mesh_molecule_t : public lig_build::molecule_t<graphics_li
    void fill_mesh();
    std::pair<std::vector<glm::vec2>, std::vector<position_triple_t> > fill_mesh_bonds();
    void fill_mesh_atoms();
-   
+
 public:
    // this is a static in graphics_info_t
-   graphics_ligand_mesh_molecule_t() { imol = -1;
+   graphics_ligand_mesh_molecule_t() {
+      imol = -1;
       scale_correction.first = true;
       scale_correction.second = 1.0;
    }
@@ -69,5 +70,6 @@ public:
 
 };
 
+template<class graphics_ligand_mesh_atom, class graphics_ligand_mesh_bond> lig_build::molecule_t<graphics_ligand_mesh_atom, graphics_ligand_mesh_bond>::~molecule_t() {}
 
 #endif // GRAPHICS_LIGAND_MESH_MOLECULE_HH

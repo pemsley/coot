@@ -212,6 +212,8 @@ PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
 
 # I don't know what is happening here yet.
 
+# gnomecanvas works with GTK2.
+# goocanvas can work with gtk3 (maybe?)
 # PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
 # if test -n "$GNOME_CANVAS_CFLAGS" ; then
    # GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"

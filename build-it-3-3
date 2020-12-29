@@ -1993,9 +1993,10 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python3.6
-pver=3.6.5
+pver=3.6.9
 #
 # but more modern pythons do not compile (at least on my mac)
+# 20201225-PE this needs checking
 if [ $OS = Darwin ] ; then
    pver=3.6.5
 fi
@@ -2181,8 +2182,12 @@ fi
 # build_clipper=
 # build_ccp4c=
 
-if $install_top_dir/bin/python3 -V ; then
-   echo we have python3
+if [ -e $install_top_dir/bin/python3 ] ; then
+   if $install_top_dir/bin/python3 -V ; then
+      echo we have python3
+   else
+      build_python=1
+   fi
 else
    build_python=1
 fi
@@ -2558,6 +2563,22 @@ if test -n "$build_pygobject" ; then
    ) > $HOSTLOGDIR/07a-libffi.txt 2>&1
 fi
 
+pip3 install meson
+
+# we should have meson for pygobject, need version 0.46 or later
+# however, is this the way to install pygobject? Or is done with pip3?
+#
+if meson --version ; then
+   echo we have meson
+   v=$(meson --version)
+   if [[ $v < 0.46 ]] ; then
+      echo meson is too old, current version is $v
+      exit 2
+   fi
+else
+   echo we need meson
+   exit 2
+fi
 
 build_gobject_introspection=true
 if [ -e $install_top_dir/include/gobject-introspection-1.0/girffi.h ] ; then
@@ -2605,9 +2626,9 @@ if test -n "$build_gobject_introspection" ; then
    fi
 
    (
-   date
    if [ $skip_build = false ] ; then
       if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
+	 date
          echo building pycairo
          tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
          cd pycairo-$pycairo_version
@@ -3174,6 +3195,10 @@ if [ "$build_numpy" = true ] ; then
       exit 2
    fi
 fi
+
+# numpy needs system libblas (and liblapack?) - it's not clear to
+# me how to build them otherwise.
+# sudo apt-get install libblas-dev liblapack-dev
 
 # cython
 echo pip3 install --upgrade pip

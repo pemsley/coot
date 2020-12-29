@@ -19,7 +19,7 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
 
    GLenum err = glGetError();
    if (err)
-      std::cout << "--------------------- start screen_framebuffer " << name
+      std::cout << "--- start screen_framebuffer " << name
                 << " init() err is " << err << std::endl;
 
    if (false)
@@ -36,7 +36,7 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
 
 framebuffer::~framebuffer() {
 
-   // std::cout << "---------------- framebuffer destuctor - deleting framebuffer and textures " << std::endl;
+   // std::cout << "--- framebuffer destuctor - deleting framebuffer and textures " << std::endl;
    tear_down();
 }
 
@@ -77,16 +77,20 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
 
    glGenFramebuffers(1, &fbo);
    GLenum err = glGetError();
-   if (err) std::cout << "--------------------- start generate_framebuffer_object() " << name
+   if (err) std::cout << "--- start generate_framebuffer_object() " << name
                       << " err is " << err << std::endl;
    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() A  " << name
-                                          << " err is " << err << std::endl;
-
+   err = glGetError();
+   if (err) std::cout << "--- generate_framebuffer_object() A post glBindFramebuffer() "
+		      << name << " err is " << err << std::endl;
    generate_colourtexture(width, height);
+   err = glGetError();
+   if (err) std::cout << "---- generate_framebuffer_object() post generate_colourtexture() "
+		      << name << " err is " << err << std::endl;
    generate_depthtexture( width, height);
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() B  "
-                                          << name << " err is " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "---- generate_framebuffer_object() post generate_depthtexture() "
+		      << name << " err is " << err << std::endl;
 
    // unsigned int attachment_index_color_texture = 0;
 
@@ -128,14 +132,39 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
 void
 framebuffer::generate_colourtexture(unsigned int width, unsigned int height) {
 
+   GLenum err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() --start--  "
+		      << name << " err is " << err << std::endl;
    glGenTextures(1, &texture_colour);
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() A "
+		      << name << " err is " << err << std::endl;
    glBindTexture(GL_TEXTURE_2D, texture_colour);
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() B "
+		      << name << " err is " << err << std::endl;
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() C "
+		      << name << " err is " << err << std::endl;
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() D "
+		      << name << " err is " << err << std::endl;
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() E "
+		      << name << " err is " << err << std::endl;
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() F "
+		      << name << " err is " << err << std::endl;
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-   // std::cout << "in framebuffer::generate_colourtexture() with texture_colour " << texture_colour << std::endl;
+   err = glGetError();
+   if (err) std::cout << "ERROR generate_colourtexture() G "
+		      << name << " err is " << err << std::endl;
+   // std::cout << "in framebuffer::generate_colourtexture() with texture_colour "
+   // << texture_colour << std::endl;
 
 }
 

@@ -46,7 +46,7 @@
 // #include <gdk/gdkgldrawable.h>
 // #include <gtk/gtkgl.h>
 
-#include <gtk/gtkglarea.h> // Shiny new OpenGL interface
+// #include <gtk/gtkglarea.h> // Shiny new OpenGL interface
 
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/gtc/quaternion.hpp>
