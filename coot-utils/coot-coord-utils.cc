@@ -9560,7 +9560,7 @@ coot::util::get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p) {
 	 if (is_standard_amino_acid_name(res_name))
 	    n.first++;
 	 if (is_standard_nucleotide_name(res_name))
-	    n.first++;
+	    n.second++;
       }
    }
 
