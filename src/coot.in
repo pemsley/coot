@@ -304,16 +304,18 @@ else
       status=$?
    fi
    if [ $status != 0 ] ; then
+      echo . ------ Coot crashed - trying to diagnose -----
       #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
       # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
       unset PYTHONHOME
       unset PYTHONPATH
-      unset LD_LIBRARY_PATH
+      # unset LD_LIBRARY_PATH
       # only run the crash catcher if coot was compiled with guile
       if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
           if [ -e $COOT_PREFIX/bin/guile ] ; then
               # diagnose guile if we can
               if [ -e /usr/bin/ldd ] ; then
+                  echo ldd -r on guile gives:
                   ldd -r $COOT_PREFIX/bin/guile
               fi
               if guile --version ; then
