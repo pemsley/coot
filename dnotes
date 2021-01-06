@@ -9478,7 +9478,7 @@ Fri 27 Nov 20:12:15 GMT 2020
 Tue  8 Dec 15:05:10 GMT 2020
 
 
-recordmydesktop -x 800 -y 10 '--width=1600' --height='1080'
+recordmydesktop -x 800 -y 30 '--width=1600' --height='1080'
 
 bluray resolution is 1920x1080
 
