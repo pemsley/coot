@@ -52,10 +52,10 @@
 
 (define (multi-add-linked-residue imol res-spec residues-to-add)
 
-  (format #t "---------------- multi-add-linked-residue ~s ~s ~%~!" imol res-spec)
+  (format #t "INFO:: multi-add-linked-residue ~s ~s ~%~!" imol res-spec)
   (set-go-to-atom-molecule imol)
   (let ((wm (matrix-state)))
-    (set-matrix (/ wm 4))
+    (set-matrix (/ wm 2))
 
     (let ((current-refinement-rate (dragged-refinement-steps-per-frame)))
 
@@ -353,7 +353,7 @@
   (use-unimodal-pyranose-ring-torsions)
   (set-refine-with-torsion-restraints 1)
   (let ((wm (matrix-state)))
-    (set-matrix (/ wm 4))
+    (set-matrix (/ wm 2))
     (set-residue-selection-flash-frames-number 1)
     (set-go-to-atom-molecule imol)
     (set-go-to-atom-from-res-spec parent)
@@ -397,7 +397,7 @@
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
   (let ((wm (matrix-state)))
-    (set-matrix (/ wm 8))
+    (set-matrix (/ wm 2))
     (set-refine-with-torsion-restraints 1)
     (set-add-linked-residue-do-fit-and-refine 0)
     (using-active-atom

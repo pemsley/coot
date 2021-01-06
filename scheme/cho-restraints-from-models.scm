@@ -31,7 +31,7 @@
 ;; the smaller the sigmas the more weight the restraints have
 ;; This pushes up the weight a bit (c.f. 1.0).
 ;;
-(define *cho-geman-mcclure-sigma-scale* 0.5)
+(define *cho-bond-sigma-scale* 3.0)
 
 (define (add-cho-restraints-for-residue-with-id imol residue-spec glyco-id)
  
@@ -76,7 +76,7 @@
 				       (residue-spec->res-no   parent-residue-spec)
 				       (residue-spec->ins-code parent-residue-spec)
 				       at-name-2 "")
-				 mean (* sd *cho-geman-mcclure-sigma-scale*)))))))))
+				 mean (* sd *cho-bond-sigma-scale*)))))))))
 
   (define (glyco-id->level-number glyco-id)
     (list-ref glyco-id 0))
