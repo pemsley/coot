@@ -521,7 +521,7 @@ void apply_add_OXT_from_widget(GtkWidget *ok_button) {
 	    if (false)
 	       std::cout << "DEBUG:: adding OXT to " << imol << " "
 			 << chain_id << " " << resno << std::endl;
-	    add_OXT_to_residue(imol, resno, "", chain_id.c_str());
+	    add_OXT_to_residue(imol, chain_id.c_str(), resno, "");
 	 }
       }
    } else {

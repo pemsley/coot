@@ -5610,7 +5610,7 @@ void setup_reverse_direction(short int i);
 /*! \name Terminal OXT Atom */
 /* c-interface-build */
 /*! \{ */
-short int add_OXT_to_residue(int imol, int reso, const char *insertion_code, const char *chain_id);
+short int add_OXT_to_residue(int imol, const char *chain_id, int reso, const char *insertion_code);
 
 /*! \} */
 

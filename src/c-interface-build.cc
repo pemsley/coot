@@ -2949,7 +2949,7 @@ void set_write_conect_record_state(int state) {
 
 
 short int 
-add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
+add_OXT_to_residue(int imol, const char *chain_id, int resno, const char *insertion_code) {
 
    short int istat = -1; 
    if (is_valid_model_molecule(imol)) {
