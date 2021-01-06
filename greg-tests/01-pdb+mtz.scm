@@ -1466,8 +1466,8 @@
 	     (format #t "Failed to read test-TER-OXT.pdb")
 	     (throw 'fail)))
 	   
-       (let ((add-status-1 (add-OXT-to-residue imol 14 "" "A"))
-	     (add-status-2 (add-OXT-to-residue imol 14 "" "A")))
+       (let ((add-status-1 (add-OXT-to-residue imol "A" 14 ""))
+	     (add-status-2 (add-OXT-to-residue imol "A" 14 "")))
 
 	 ;; The second add should be ignored, only 1 OXT allowed
 	 ;; per residue.
