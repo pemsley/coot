@@ -73,25 +73,8 @@ dnl thanks John Bollinger
 AC_SUBST([OPENMP_CFLAGS])
 AC_SUBST([OPENMP_CXXFLAGS])
 
-AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional experimental features ],
- coot_modern_language_tools="true",
- coot_modern_language_tools="false")
-
-# Note to self: must make these compulsory - not optional
-#
-if $coot_modern_language_tools = true ; then
-   AX_CXX_COMPILE_STDCXX_11
-   AX_CXX_HAVE_THREAD
-fi
-
-AC_ARG_WITH(glsl, [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
-  coot_with_glsl=true,
-  coot_with_glsl=false)
-
-if $coot_with_glsl = true ; then
-   COOT_USE_GLSL=-DUSE_GLSL
-   AC_SUBST(COOT_USE_GLSL)
-fi
+AX_CXX_COMPILE_STDCXX_11
+AX_CXX_HAVE_THREAD
 
 AC_LIB_PREPARE_MULTILIB
 
