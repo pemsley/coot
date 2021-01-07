@@ -2059,27 +2059,30 @@ fi
 #    ln -s /sw/bin/guile-1.6-snarf  $install_top_dir/bin/guile-snarf
 # fi
 
-echo atempting to run installed guile-config \(this may fail, that\'s OK\).
+if [ -e $install_top_dir/bin/guile-config ] ; then
+   if $install_top_dir/bin/guile-config --version ; then
 
-$install_top_dir/bin/guile-config --version
-
-if $install_top_dir/bin/guile-config --version ; then
-
-    # We have a seen a situation somehow where bin/guile-config is installed
-    # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
-    #
-    if test -e $install_top_dir/include/libguile.h ; then
-        echo installation has guile
-        build_guile=
-    else
-       echo no include/libguile.h. guile     should be built
-       echo no include/libguile.h. guile-gtk should be built
-       build_guile_gtk=1
-       build_guile=1
-    fi
+       # We have a seen a situation somehow where bin/guile-config is installed
+       # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
+      #
+       if test -e $install_top_dir/include/libguile.h ; then
+           echo installation has guile
+           build_guile=
+       else
+          echo no include/libguile.h. guile     should be built
+          echo no include/libguile.h. guile-gtk should be built
+          build_guile_gtk=1
+          build_guile=1
+       fi
+   else
+      echo guile-config failed. guile should be built
+      build_guile=1
+      build_guile_gtk=1
+   fi
 else
-   echo guile-config failed. guile should be built
+   echo guile-config missing. guile should be built
    build_guile=1
+   build_guile_gtk=1
 fi
 
 # guile-gui
