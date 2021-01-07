@@ -4013,8 +4013,8 @@ void screendump_image(const char *filename) {
    graphics_draw();
    
    int istatus = graphics_info_t::screendump_image(filename);
-   std::cout << "screendump_image status " << istatus << std::endl;
-   if (istatus) {
+   std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   if (istatus == 1) {
       std::string s = "Screendump image ";
       s += filename;
       s += " written";
@@ -4031,6 +4031,13 @@ void screendump_image(const char *filename) {
       safe_python_command(cmd);
 #endif // USE_PYTHON
 #endif // MINGW
+   }
+
+   if (istatus == 0) {
+      std::string s = "Failed to write screendump image ";
+      s += filename;
+      graphics_info_t g;
+      g.add_status_bar_text(s);
    }
 }
 

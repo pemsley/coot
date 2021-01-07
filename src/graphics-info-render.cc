@@ -1207,7 +1207,7 @@ graphics_info_t::screendump_image(const std::string &file_name) {
    iinfo.invert();
    int istatus = 0;
    try { 
-      istatus = iinfo.write(file_name.c_str());
+      istatus = iinfo.write(file_name.c_str()); // 0 is failure
    }
    catch (...) {
       std::string s("Can't write that image format at the moment.\n");

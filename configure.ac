@@ -123,6 +123,11 @@ fi
 # AM_PATH_LIBPNG
 # so try this:
 PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.2])
+if test -z "$LIBPNG_LIBS" ; then
+   :
+else
+   LIBPNG_CFLAGS="-DUSE_LIBPNG=1 $LIBPNG_CFLAGS"
+fi
 
 # and while we are thinking about images, let's check for Cairo also
 PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])
