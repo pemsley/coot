@@ -1162,6 +1162,7 @@ public:
    static short int quanta_like_zoom_flag;
    static void mouse_zoom(double delta_x, double delta_y);
    static void scroll_zoom(int direction);
+   static void handle_delete_item_curor_change(GtkWidget *widget);
 
    static float box_radius_xray;
    static float box_radius_em;

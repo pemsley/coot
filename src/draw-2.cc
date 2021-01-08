@@ -283,7 +283,8 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    if (! handled) {
 
       if (shift_is_pressed) {
-
+         graphics_info_t::scroll_zoom(direction);
+      } else {
          // scroll density
 
          // start the idle function - why is this needed? The contouring used to
@@ -292,9 +293,6 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
             g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
          }
          g.contour_level_scroll_scrollable_map(direction);
-
-      } else {
-         graphics_info_t::scroll_zoom(direction);
       }
    }
    return TRUE;
@@ -514,40 +512,29 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    if (event->state & GDK_BUTTON2_MASK) {
       if (shift_is_pressed) {
-         do_drag_pan_gtk3(widget);          // View Panning
+         // mouse_view_rotate(widget);
+         std::cout << "shift middle mouse - what to do here?" << std::endl;
       } else {
-         mouse_view_rotate(widget);
+         do_drag_pan_gtk3(widget);          // View Panning
       }
    }
 
-   if (g.delete_item_widget) { 
-      if (g.delete_item_water) {
-	 pick_info naii = g.atom_pick_gtk3(false);
-         GdkDisplay *display = gdk_display_get_default();
-         GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(widget));
-         GdkCursor *current_cursor = gdk_window_get_cursor(window);
-         // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
-	 if (naii.success == GL_TRUE) {
-            int imol = naii.imol;
-            molecule_class_info_t &m = graphics_info_t::molecules[imol];
-            std::string res_name = m.atom_sel.atom_selection[naii.atom_index]->GetResName();
-            if (res_name == "HOH") {
-               GdkCursor *c = gdk_cursor_new_from_name (display, "crosshair");
-               // std::cout << "crosshair type " << gdk_cursor_get_cursor_type(c) << std::endl;
-               gdk_window_set_cursor(window, c);
-            } else {
-               GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
-               // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
-               gdk_window_set_cursor(window, c);
-            }
+   if (event->state & GDK_BUTTON3_MASK) {
+      double delta_x = event->x - g.GetMouseBeginX();
+      double delta_y = event->y - g.GetMouseBeginY();
+      if (event->state & GDK_BUTTON1_MASK) {
+         // chording
+         g.mouse_zoom(delta_x, delta_y);
+      } else {
+         if (! shift_is_pressed) {
+            mouse_view_rotate(widget);
          } else {
-            GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
-            // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
-            gdk_window_set_cursor(window, c);
+            g.mouse_zoom(delta_x, delta_y);
          }
       }
    }
 
+   g.handle_delete_item_curor_change(widget);
 
    // for next motion
    g.SetMouseBegin(event->x,event->y);
