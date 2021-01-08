@@ -75,7 +75,7 @@ if test x$with_python != x; then
       # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
       config_dir=`$PYTHON -c "import sys; print(sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config')"`
       # echo  ======== config_dir: $config_dir
-      PYTHON_LIBS_PRE="`$PYTHON_CONFIG --ldflags`"
+      PYTHON_LIBS_PRE="`$PYTHON_CONFIG --ldflags --embed`"
    
       # extra hacking so that -ldl appears after -lpython2.x (needed
       # for correct linking on some systems)
