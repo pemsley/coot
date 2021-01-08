@@ -5226,6 +5226,17 @@ def add_module_ccp4():
 
 
 def add_module_cryo_em_gui():
+
+    def solidify_maps(w):
+        for imol in range(coot.graphics_n_molecules()):
+            if coot.is_valid_map_molecule(imol):
+                coot.set_draw_solid_density_surface(imol, 1)
+
+    def unsolidify_maps(w):
+        for imol in range(coot.graphics_n_molecules()):
+            if coot.is_valid_map_molecule(imol):
+                coot.set_draw_solid_density_surface(imol, 0)
+
     if coot_gui_api.main_menubar():
         menu = coot_menubar_menu("Cryo-EM")
 
@@ -5262,6 +5273,10 @@ def add_module_cryo_em_gui():
 
         add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
+
+        add_simple_coot_menu_menuitem(menu, "Solidify Maps", solidify_maps)
+
+        add_simple_coot_menu_menuitem(menu, "Unsolidify Maps", unsolidify_maps)
 
 
 def add_module_ccp4_gui():
