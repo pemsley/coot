@@ -4314,7 +4314,6 @@ echo ./configure $coot_prefix \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
-      --with-modern-language-tools \
       --with-enhanced-ligand-tools \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4333,7 +4332,6 @@ echo ./configure $coot_prefix \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
-      --with-modern-language-tools \
       --with-enhanced-ligand-tools \
       $shared_static_flag \
       $coot_optim_args    \
