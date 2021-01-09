@@ -5,7 +5,7 @@
 # Copyright 2009, 2010, 2011, 2012 by The University of York
 # Copyright 2012 by Paul Emsley
 # Copyright 2012, 2013, 2014, 2015, 2016 by Medical Reserch Council
-# Copyright 2014, 2015, 2016 by Medical Research Council
+# Copyright 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 by Medical Research Council
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -394,7 +394,8 @@
 # 5.37 20200514 redirect numpy output
 # 5.38 20200921 Add clustalw2
 # 5.39 20201203 Add use_system_gnomecanvas_if_possible, default no.
-script_version=5.39
+# 5.40 20210109 change the args to boost's build
+script_version=5.40
 
 
 
@@ -3189,13 +3190,17 @@ if [ "$build_boost" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
-         echo boost is found, skip
+         echo found $install_top_dir/include/boost/functional/hash.hpp
+         echo boost is found, skip build
          skip_this=true
       fi
    fi
 
    if [ $skip_this = false ] ; then
       echo building ========================= boost $boost_version =========================
+
+      address_model=64
+      python_version_extention=2.7 # extract this
 
       boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
       boost_version=1_71_0
@@ -3207,7 +3212,8 @@ if [ "$build_boost" = true ] ; then
       # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
       ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
       # bjam no longer exists
-      ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
+      ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      echo b2 install into $install_top_dir complete
       cd -
    fi
    ) > $HOSTLOGDIR/16-boost.txt 2>&1
