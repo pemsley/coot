@@ -2011,7 +2011,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       if (coot::util::is_basic_em_map_file(filename)) {
          em = true;
          // fill xmap
-         // done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
       }
 
       if (! done) {

@@ -17,7 +17,7 @@ coot::util::is_basic_em_map_file(const std::string &file_name) {
 bool
 coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
                                           clipper::Xmap<float> *xmap_p,
-                                          bool check_only) {
+                                          bool check_only) { // default arg, false
 
    bool status = false;
    if (file_exists(file_name)) {
@@ -79,7 +79,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    mz = *reinterpret_cast<int *>(data+36);
 
    if (debug)
-      std::cout << "start and range " << nx_start << " " << ny_start << " " << nz_start
+      std::cout << "debug:: start and range " << nx_start << " " << ny_start << " " << nz_start
                 << " range " << mx << " " << my << " " << mz << std::endl;
    float cell_a = 0, cell_b = 0, cell_c = 0;
    float cell_al = 0, cell_be = 0, cell_ga = 0;
@@ -93,7 +93,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    cell_ga = *reinterpret_cast<float *>(data+60);
 
    if (debug)
-      std::cout << "cell " << cell_a << " " << cell_b << " " << cell_c << " "
+      std::cout << "debug:: cell " << cell_a << " " << cell_b << " " << cell_c << " "
                 << cell_al << " " << cell_be << " " << cell_ga << std::endl;
 
    // axis order
@@ -107,6 +107,17 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
 
    if (debug)
       std::cout << "axis order " << map_row << " " << map_col << " " << map_sec << std::endl;
+
+   // At the moment this function only works with simple X Y Z map ordering.
+   // So escape with fail status if that is not the case
+   bool is_simple_x_y_z_order = false; // initially
+   if (map_row == 1)
+      if (map_col == 2)
+         if (map_sec == 3)
+            is_simple_x_y_z_order = true;
+
+   if (! is_simple_x_y_z_order)
+      return false;
 
    float dmin = 0.0, dmax = 0.0, dmean = 0.0;
    dmax  = *reinterpret_cast<float *>(data+76);
@@ -191,23 +202,25 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    int offset = 0;
    int crs[3];  // col,row,sec coordinate
    clipper::Xmap<float>::Map_reference_coord mrc(xmap);
+   std::cout << "info:: n_sections: " << n_secs  << std::endl;
    for ( int isec = 0; isec < n_secs; isec++ ) {
       crs[2] = isec + nz_start;
       for ( int irow = 0; irow < n_rows; irow++ ) {
          crs[1] = irow + ny_start;
          for ( int icol = 0; icol < n_cols; icol++ ) {
             crs[0] = icol + nx_start;
-            mrc.set_coord( clipper::Coord_grid( crs[axis_order_xyz[0]],
-                                                crs[axis_order_xyz[1]],
-                                                crs[axis_order_xyz[2]] ) );
-            xmap[mrc] = *reinterpret_cast<float *>(map_data + 4 * offset);
+            mrc.set_coord( clipper::Coord_grid( crs[axis_order_xyz[0]], crs[axis_order_xyz[1]], crs[axis_order_xyz[2]] ) );
+            float f = *reinterpret_cast<float *>(map_data + 4 * offset);
+            if (f >  10000) f = 0;
+            if (f < -10000) f = 0;
+            xmap[mrc] = f;
             offset++;
          }
       }
    }
    status = true;
 
-   std::cout << "returning done xmap slurp " << status << std::endl;
+   std::cout << "DEBUG:: coot::util::slurp_parse_xmap_data(): returning status " << status << std::endl;
    return status;
 }
 
