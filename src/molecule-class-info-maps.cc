@@ -2009,9 +2009,14 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       bool done = false;
       if (coot::util::is_basic_em_map_file(filename)) {
-         em = true;
          // fill xmap
-         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
+         auto tp_1 = std::chrono::high_resolution_clock::now();
+         ctpl::thread_pool *thread_pool_p = &graphics_info_t::static_thread_pool;
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, thread_pool_p);
+         auto tp_2 = std::chrono::high_resolution_clock::now();
+         auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+         std::cout << "map read " << d21 << " milliseconds" << std::endl;
+         // em = set_is_em_map(filename); fix later
       }
 
       if (! done) {
@@ -2034,7 +2039,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                double vol = fcell.volume();
                if (vol < 1.0) {
                   std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
-                  << std::endl;
+                            << std::endl;
                   bad_read = true;
                } else {
                   try {
@@ -2042,7 +2047,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                   }
                   catch (const clipper::Message_generic &exc) {
                      std::cout << "WARNING:: failed to read " << filename
-                     << " Bad ASU (inconsistant gridding?)." << std::endl;
+                               << " Bad ASU (inconsistant gridding?)." << std::endl;
                      bad_read = true;
                   }
                }
@@ -2060,6 +2065,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          }
 
          std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
+
+         std::cout << "---------------------------  debug here with em status " << em << std::endl;
 
          if (em) {
 
@@ -2084,17 +2091,17 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          }
       }
    } else {
-     std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
-     clipper::CNSMAPfile file;
-     file.open_read(filename);
-     try {
-       file.import_xmap( xmap );
-     }
-     catch (const clipper::Message_base &exc) {
-       std::cout << "WARNING:: failed to read " << filename << std::endl;
-       bad_read = true;
-     }
-     file.close_read();
+      std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
+      clipper::CNSMAPfile file;
+      file.open_read(filename);
+      try {
+         file.import_xmap( xmap );
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: failed to read " << filename << std::endl;
+         bad_read = true;
+      }
+      file.close_read();
    }
 
    if (! bad_read) {

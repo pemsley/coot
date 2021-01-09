@@ -1,3 +1,22 @@
+/* coot-utils/slurp-map.hh
+ *
+ * Copyright 2019 by Medical Research Council
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <iostream>
 #include <chrono>
@@ -11,12 +30,14 @@ bool
 coot::util::is_basic_em_map_file(const std::string &file_name) {
 
    clipper::Xmap<float> xmap;
-   return slurp_fill_xmap_from_map_file(file_name, &xmap, true);
+   ctpl::thread_pool *thread_pool_p = 0;
+   return slurp_fill_xmap_from_map_file(file_name, &xmap, thread_pool_p, true);
 }
 
 bool
 coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
                                           clipper::Xmap<float> *xmap_p,
+                                          ctpl::thread_pool *thread_pool_p,
                                           bool check_only) { // default arg, false
 
    bool status = false;
@@ -34,7 +55,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
          if (st_size_2 == 1) {
             // Happy Path
             if (st_size > 1024) {
-               status = slurp_parse_xmap_data(data, xmap_p, check_only); // fill xmap
+               status = slurp_parse_xmap_data(data, xmap_p, thread_pool_p, check_only); // fill xmap
             } else {
                std::cout << "WARNING:: bad read " << file_name << std::endl;
             }
@@ -50,8 +71,12 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
    return status;
 }
 
+#include "utils/split-indices.hh"
+
 bool
-coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool check_only) {
+coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
+                                  ctpl::thread_pool *thread_pool_p,
+                                  bool check_only) {
 
    bool status = false;
    bool debug = true;
@@ -199,26 +224,75 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    // mrc.set_coord() is slow - it can be multi-threaded.
    // much faster than using conventional map loading though.
 
-   int offset = 0;
-   int crs[3];  // col,row,sec coordinate
-   clipper::Xmap<float>::Map_reference_coord mrc(xmap);
-   std::cout << "info:: n_sections: " << n_secs  << std::endl;
-   for ( int isec = 0; isec < n_secs; isec++ ) {
-      crs[2] = isec + nz_start;
-      for ( int irow = 0; irow < n_rows; irow++ ) {
-         crs[1] = irow + ny_start;
-         for ( int icol = 0; icol < n_cols; icol++ ) {
-            crs[0] = icol + nx_start;
-            mrc.set_coord( clipper::Coord_grid( crs[axis_order_xyz[0]], crs[axis_order_xyz[1]], crs[axis_order_xyz[2]] ) );
-            float f = *reinterpret_cast<float *>(map_data + 4 * offset);
-            if (f >  10000) f = 0;
-            if (f < -10000) f = 0;
-            xmap[mrc] = f;
-            offset++;
+   auto fill_map_sections = [] (std::pair<unsigned int, unsigned int> start_stop_section_index,
+                                clipper::Xmap<float> *xmap,
+                                int n_secs, int n_rows, int n_cols,
+                                int nx_start, int ny_start, int nz_start,
+                                int *axis_order_xyz,
+                                const char *map_data) {
+                               
+                               int offset = start_stop_section_index.first * n_rows * n_cols;
+                               int crs[3];  // col,row,sec coordinate
+                               clipper::Xmap<float>::Map_reference_coord mrc(*xmap);
+                               // this is unsigned int because split_indices returns unsigned int pairs.
+                               for (unsigned int isec = start_stop_section_index.first; isec < start_stop_section_index.second; isec++ ) {
+                                  crs[2] = isec + nz_start;
+                                  for ( int irow = 0; irow < n_rows; irow++ ) {
+                                     crs[1] = irow + ny_start;
+                                     for ( int icol = 0; icol < n_cols; icol++ ) {
+                                        crs[0] = icol + nx_start;
+                                        mrc.set_coord(clipper::Coord_grid(crs[axis_order_xyz[0]],
+                                                                          crs[axis_order_xyz[1]],
+                                                                          crs[axis_order_xyz[2]]));
+                                        float f = *reinterpret_cast<const float *>(map_data + 4 * offset);
+                                        if (f >  10000) f = 0;
+                                        if (f < -10000) f = 0;
+                                        (*xmap)[mrc] = f;
+                                        offset++;
+                                     }
+                                  }
+                               }
+                            };
+
+
+   bool single_thread_slurp = false;
+   if (! thread_pool_p)
+      single_thread_slurp = true;
+
+   if (single_thread_slurp) {
+      int offset = 0;
+      int crs[3];  // col,row,sec coordinate
+      clipper::Xmap<float>::Map_reference_coord mrc(xmap);
+      std::cout << "info:: n_sections: " << n_secs  << std::endl;
+      for ( int isec = 0; isec < n_secs; isec++ ) {
+         crs[2] = isec + nz_start;
+         for ( int irow = 0; irow < n_rows; irow++ ) {
+            crs[1] = irow + ny_start;
+            for ( int icol = 0; icol < n_cols; icol++ ) {
+               crs[0] = icol + nx_start;
+               mrc.set_coord( clipper::Coord_grid( crs[axis_order_xyz[0]], crs[axis_order_xyz[1]], crs[axis_order_xyz[2]] ) );
+               float f = *reinterpret_cast<float *>(map_data + 4 * offset);
+               if (f >  10000) f = 0;
+               if (f < -10000) f = 0;
+               xmap[mrc] = f;
+               offset++;
+            }
          }
       }
+      status = true;
+   } else {
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      std::vector<std::pair<unsigned int, unsigned int> > airs = atom_index_ranges(n_secs, n_threads);
+      std::vector<std::thread> threads;
+      for (auto air : airs) {
+         std::cout << "INFO:: thread fill sections " << air.first << " to " << air.second << std::endl;
+         threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols, nx_start, ny_start, nz_start,
+                                       axis_order_xyz, map_data));
+      }
+      for (std::size_t i=0; i<n_threads; i++)
+         threads[i].join();
+      status = true;
    }
-   status = true;
 
    std::cout << "DEBUG:: coot::util::slurp_parse_xmap_data(): returning status " << status << std::endl;
    return status;
