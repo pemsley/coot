@@ -395,7 +395,9 @@
 # 5.38 20200921 Add clustalw2
 # 5.39 20201203 Add use_system_gnomecanvas_if_possible, default no.
 # 5.40 20210109 change the args to boost's build
-script_version=5.40
+# 5.41 20210110 change the boost build log output
+# 5.42 20210110 Rework the build of numpy, boost and rdkit
+script_version=5.42
 
 
 
@@ -902,6 +904,9 @@ if [ "$use_proxy" = 1 ] ; then
   export http_proxy https_proxy ftp_proxy ssl_proxy no_proxy
 fi
 
+#intltool-update for libgnomecanvas is here /usr/share/intltool-debian/intltool-update on ubuntu
+# it's in /usr/bin on RHEL
+PATH=/usr/share/intltool-debian:$PATH
 
 # use the right (GNU) tar and provide the path to wget (needed
 # for downloads) and to GNU make - (which is necesary for python
@@ -2915,27 +2920,35 @@ if [ "$build_libgnomecanvas" = 1 ] ; then
    # do both libart_lgpl and libgnomecanvas
 
    libart_lgpl_version=2.3.21
-   ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
-   (
-   tar xf ${AUTOBUILD_SOURCES}/libart_lgpl-2.3.21.tar.gz
-   cd libart_lgpl-$libart_lgpl_version
-   ./configure $generic_prefix
-   ${MAKE} && make install
-   cd -
-   ) > $HOSTLOGDIR/06-libart_lgpl.txt
+   if [ -e $install_top_dir/include/libart-2.0/libart_lgpl/libart.h ] ; then
+       echo not building libart_lgpl_version
+   else
+      (
+      ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
+      tar xf ${AUTOBUILD_SOURCES}/libart_lgpl-2.3.21.tar.gz
+      cd libart_lgpl-$libart_lgpl_version
+      ./configure $generic_prefix
+      ${MAKE} && make install
+      cd -
+      ) > $HOSTLOGDIR/06-libart_lgpl.txt 2>&1
+   fi
 
    # not to self: it seems, from my centos7 build that libgnomecanvas doesn't
    # correctly pick up the libart above - I did a system install of libart before I thought about it.
 
-   libgnomecanvas_version=2.30.3
-   ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$libgnomecanvas_version.tar.bz2
-   (
-   tar xf ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.tar.bz2
-   cd libgnomecanvas-$libgnomecanvas_version
-   ./configure $generic_prefix
-   ${MAKE} && make install
-   cd -
-   ) > $HOSTLOGDIR/06-libgnomecanvas.txt
+   if [ -e $install_top_dir/include/thing/thing.h ] ; then
+      echo not building libgnomecanvas
+   else
+      libgnomecanvas_version=2.30.3
+      (
+      ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$libgnomecanvas_version.tar.bz2
+      tar xf ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.tar.bz2
+      cd libgnomecanvas-$libgnomecanvas_version
+      ./configure $generic_prefix
+      ${MAKE} && make install
+      cd -
+      ) > $HOSTLOGDIR/06-libgnomecanvas.txt 2>&1
+   fi
 fi
 
 
@@ -3237,7 +3250,8 @@ fi
 
 if [ true = true ] ; then
    skip_this=false
-   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy/lib/info.py ] ;  then
+   arch=linux
+   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy-$numpy_version-py2.7-$arch-x86_64.egg/numpy/core/include/numpy/halffloat.h ] ;  then
          echo numpy is found, skip
          skip_this=true
    fi
@@ -3245,15 +3259,17 @@ if [ true = true ] ; then
       echo building numpy
       (
       echo building ========================= numpy ==============================
+      pwd
       # this needs fortran compiler gfortran
 
       # maybe get numpy from github?
       # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
       # numpy needset setuptools
       # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
-      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      pythonhosted_magic_number=b7/6f/24647f014eef9b67a24adfcbcd4f4928349b4a0f8393b3d7fe648d4d2de3
+      ${WGET} https://files.pythonhosted.org/packages/$pythonhosted_magic_number/numpy-$numpy_version.zip
       #
-      tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
       cd numpy-$numpy_version/
       # we need to check that we have a fortran compiler, in this case gnu95
       #
@@ -3265,7 +3281,9 @@ if [ true = true ] ; then
       fi
       python setup.py build --fcompiler=gfortran
       python setup.py install
-      if [ ! $? ] ; then
+      if [ $? ] ; then
+         :
+      else
          echo something bad about numpy.
          exit 2
       fi
@@ -3280,7 +3298,7 @@ export PATH=$HOME/cmake/bin:$PATH
 build_rdkit=true
 rdkit_version=2017_09_3
 # rdkit_version=2019_09_1 # python 3
-rdkit_version=2018_09_2 # Atom pointers gone, needs coot update
+rdkit_version=2018_09_3 # Atom pointers gone, needs coot update
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
@@ -3321,7 +3339,6 @@ if [ "$build_rdkit" = true ] ; then
       fi
 
       echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
-      echo ==================== PYTHONPATH is $PYTHONPATH
 
       if [ "$github_rdkit" = true ] ; then
          if [ ! -d rdkit-github/build ] ; then
@@ -3335,11 +3352,14 @@ if [ "$build_rdkit" = true ] ; then
       else
 
          get_the_rdkit_tar_file=true
-         if [ -e  ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
-            echo found the file $rdkit_tar_download_file_name
+         echo testing for existance of ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
-            echo rdkit tar size: $size
-            if [ "$size" = 29567648 ] ; then
+            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size: $size
+            if [ "$size" = 54644917 ] ; then
                get_the_rdkit_tar_file=false
             fi
          fi
@@ -3350,13 +3370,19 @@ if [ "$build_rdkit" = true ] ; then
             do_rdkit_download=true
             if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
                 s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
-                if [ $s = $rdkit_tar_size ] ; then
+                if [ "$s" = $rdkit_tar_size ] ; then
                    do_rdkit_download=false
                 fi
             fi
             if [ $do_rdkit_download = true ] ; then
                echo $WGET $rdkit_home/$rdkit_tar_host_file_name
-               ${WGET} $rdkit_home/$rdkit_tar_host_file_name
+               if ${WGET} $rdkit_home/$rdkit_tar_host_file_name ; then
+                  if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                     cp ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ${AUTOBUILD_SOURCES}/rdkit-$rdkit_tar_host_file_name
+                  else
+                     echo $rdkit_tar_host_file_name does not exist after download
+                  fi
+               fi
             fi
          fi
 
@@ -3365,7 +3391,7 @@ if [ "$build_rdkit" = true ] ; then
          pwd
          ls
          if [ ! -e rdkit-Release_$rdkit_version ] ; then
-             echo RDKit untar dir not found: rdkit-Release_$rdkit_version
+             echo RDKit untar dir not find: rdkit-Release_$rdkit_version
              exit 2
          fi
          cd rdkit-Release_$rdkit_version
@@ -3474,16 +3500,17 @@ fi
 
 # silicos-it's biscu-it
 if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
-   echo installation has biscu-it
+   echo not building biscu-it
 else
-   ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+   echo building QED
    (date
+    ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
     pwd
     tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
     cd qed-1.0.1
-    $PYTHON setup.py install
+    python setup.py install
     cd -
-   ) > $HOSTLOGDIR/19-biscu-it.txt
+   ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
 fi
 
 # Now we need:
