@@ -128,7 +128,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
    int t0 = glutGet(GLUT_ELAPSED_TIME);
    for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_clipper_skeleton();
-      molecules[ii].update_map();  // uses statics in graphics_info_t
+      molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);  // uses statics in graphics_info_t
                                    // and redraw the screen using the new map
    }
 
@@ -3539,7 +3539,7 @@ graphics_info_t::set_imol_refinement_map(int imol) {
 void
 graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
    for (unsigned int i=0; i<mol_idxs.size(); i++)
-      graphics_info_t::molecules[mol_idxs[i]].update_map();
+      graphics_info_t::molecules[mol_idxs[i]].update_map(auto_recontour_map_flag);
 }
 
 #include <thread>
@@ -3558,8 +3558,8 @@ graphics_info_t::update_maps() {
       if (! do_threaded_map_updates) {
 	 for (int ii=0; ii<n_molecules(); ii++) {
 	    if (molecules[ii].has_xmap()) {
-	       molecules[ii].update_map(); // to take account
-	       // of new rotation centre.
+	       molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
+                                                                                   // of new rotation centre.
 	    }
 	 }
 
@@ -3572,7 +3572,7 @@ graphics_info_t::update_maps() {
 	 if (n_threads == 0) {
 	    for (int ii=0; ii<n_molecules(); ii++) {
 	       if (molecules[ii].has_xmap()) {
-		  molecules[ii].update_map(); // to take account
+		  molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
 		  // of new rotation centre.
 	       }
 	    }
@@ -3717,7 +3717,7 @@ void
 graphics_info_t::update_things_on_move() {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map();
+      molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
@@ -3984,7 +3984,7 @@ graphics_info_t::accept_baton_position() {
    setRotationCentre(baton_tip);
    for(int ii=0; ii<n_molecules(); ii++) {
       // but not skeleton, lets do skeleton only on a middle-mouse recentre
-      molecules[ii].update_map();
+      molecules[ii].update_map(true);
       molecules[ii].update_symmetry();
    }
 

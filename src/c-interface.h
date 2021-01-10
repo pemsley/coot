@@ -841,6 +841,12 @@ void set_scroll_by_wheel_mouse(int istate);
 /*! \brief return the internal state of the scroll-wheel map contouring */
 int scroll_by_wheel_mouse_state();
 
+/*! \brief turn off (0) or on (1) auto recontouring (on screen centre change) (default it on) */
+void  set_auto_recontour_map(int state);
+
+/*! \brief return the auto-recontour state */
+int get_auto_recontour_map();
+
 /*! \brief set the default inital contour for 2FoFc-style map
 
 in sigma */

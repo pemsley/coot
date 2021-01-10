@@ -534,7 +534,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
             const clipper::HKL_data<clipper::data32::Flag> &free_flag =
                g.molecules[imol_with_data] .get_original_rfree_flags();
                g.molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
-               g.molecules[imol_with_data].update_map();
+               g.molecules[imol_with_data].update_map(true);
                graphics_draw();
          }
          catch (const std::runtime_error &rte) {

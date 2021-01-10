@@ -9118,7 +9118,7 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
  	 new_map[ix] = xmap[ix];
       }
       xmap = new_map;
-      update_map();
+      update_map(true);
    }
    return retval;
 }

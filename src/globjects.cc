@@ -2505,7 +2505,7 @@ do_button_zoom(gdouble x, gdouble y) {
       if (iv != info.graphics_sample_step) {
 
 	 for (int imap=0; imap<info.n_molecules(); imap++) {
-	    info.molecules[imap].update_map(); // uses g.zoom
+	    info.molecules[imap].update_map(true); // uses g.zoom
 	 }
 	 info.graphics_sample_step = iv;
       }
@@ -3246,7 +3246,7 @@ void keypad_translate_xyz(short int axis, short int direction) {
                             y_diff * 0.1 * float(direction));
     if (g.GetActiveMapDrag() == 1) {
       for (int ii=0; ii<g.n_molecules(); ii++) {
-        g.molecules[ii].update_map(); // to take account
+        g.molecules[ii].update_map(true); // to take account
         // of new rotation centre.
       }
     }
@@ -3333,7 +3333,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       // control release, not anywhere else.
       //
       for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	 graphics_info_t::molecules[ii].update_map();
+	 graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 graphics_info_t::molecules[ii].update_clipper_skeleton();
       }
       g.make_pointer_distance_objects();
@@ -3348,7 +3348,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 // std::cout << "here in key_release_event for -" << std::endl;
 	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
-	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
+         int is_from_contour_level_change = 1; // true
+	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, GINT_TO_POINTER(is_from_contour_level_change));
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
@@ -3366,7 +3367,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       if (s >= 0) {
 
 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
+         int is_from_contour_level_change = 1; // true
+	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, GINT_TO_POINTER(is_from_contour_level_change));
 
 	 // graphics_info_t::molecules[s].change_contour(1); // positive change
 	 // graphics_info_t::molecules[s].update_map();
@@ -3428,6 +3430,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 // as it used to be
 	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
 	    graphics_info_t::molecules[ii].update_clipper_skeleton();
+	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
+	    graphics_info_t::molecules[ii].update_map(true);
 	 g.graphics_draw();
       }
       break;
@@ -3509,10 +3513,12 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 // widget is the glarea.
 //
 gint
-idle_contour_function(GtkWidget *widget) {
+idle_contour_function(gpointer data) {
 
    gint continue_status = 0;
    bool something_changed = false;
+
+   bool is_from_contour_level_change(GPOINTER_TO_INT(data));
 
    // when there's nothing else to do, update the contour levels
    //
@@ -3540,7 +3546,9 @@ idle_contour_function(GtkWidget *widget) {
 	    }
 
             graphics_info_t g;
-	    g.molecules[imol].update_map();
+            bool really_change_the_map_contours = true;
+            if (! is_from_contour_level_change) really_change_the_map_contours = false;
+	    g.molecules[imol].update_map(really_change_the_map_contours);
 	    continue_status = 0;
             g.set_density_level_string(imol, g.molecules[imol].contour_level);
             g.display_density_level_this_image = 1;
@@ -4006,7 +4014,7 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 			}
 			for (int ii=0; ii<g.n_molecules(); ii++) {
 			   g.molecules[ii].update_clipper_skeleton();
-			   g.molecules[ii].update_map();
+			   g.molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 			}
 			g.graphics_draw();
 
@@ -4095,7 +4103,8 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
          if (imol_map_for_scroll >= 0) {
             // short int istate = info.molecules[s].change_contour(1);
             info.molecules[imol_map_for_scroll].pending_contour_level_change_count++;
-            int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+            int is_from_contour_level_change = 1;
+            int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, GINT_TO_POINTER(is_from_contour_level_change));
             info.set_density_level_string(imol_map_for_scroll, info.molecules[imol_map_for_scroll].contour_level);
             info.display_density_level_this_image = 1;
          } else {
@@ -4109,7 +4118,8 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
          if (imol_map_for_scroll >= 0) {
             // short int istate = info.molecules[s].change_contour(-1);
             info.molecules[imol_map_for_scroll].pending_contour_level_change_count--;
-            int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+            int is_from_contour_level_change = 1;
+            int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, GINT_TO_POINTER(is_from_contour_level_change));
             info.set_density_level_string(imol_map_for_scroll, info.molecules[imol_map_for_scroll].contour_level);
             info.display_density_level_this_image = 1;
          } else {

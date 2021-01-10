@@ -1360,7 +1360,7 @@ public:        //                      public
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
-   void update_map();
+   void update_map(bool auto_recontour_map_flag);
    void compile_density_map_display_list(short int first_or_second);
    void draw_density_map(short int display_list_for_maps_flag,
 			 short int main_or_secondary);

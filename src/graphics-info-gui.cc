@@ -4185,7 +4185,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
       coot::Cartesian c(centres[0].first.x(), centres[0].first.y(), centres[0].first.z());
       g.setRotationCentre(c);
       for(int ii=0; ii<n_molecules(); ii++) {
-	 molecules[ii].update_map();
+	 molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 molecules[ii].update_symmetry();
       }
       graphics_draw();
@@ -4209,7 +4209,7 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *but
       coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
       g.setRotationCentre(c);
       for(int ii=0; ii<n_molecules(); ii++) {
-	 molecules[ii].update_map();
+	 molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 molecules[ii].update_symmetry();
       }
       g.make_pointer_distance_objects();

@@ -61,7 +61,7 @@ void set_display_lists_for_maps(int istat) {
       for (int i=0; i<graphics_info_t::n_molecules(); i++)
 	 if (graphics_info_t::molecules[i].has_xmap() ||
 	     graphics_info_t::molecules[i].has_nxmap())
-	    graphics_info_t::molecules[i].update_map();
+	    graphics_info_t::molecules[i].update_map(graphics_info_t::auto_recontour_map_flag);
    }
    std::string cmd = "set-display-lists-for-maps";
    std::vector<coot::command_arg_t> args;
@@ -81,7 +81,7 @@ void update_maps() {
    for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
       if (is_valid_map_molecule(ii)) {
 	 // std::cout << "DEBUG:: updating " << ii << std::endl;
-	 graphics_info_t::molecules[ii].update_map();
+	 graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
       }
    }
 }
@@ -772,7 +772,7 @@ void set_map_line_width(int w) {
    // update the maps because they may be being draw as graphical
    // objects.
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++)
-      graphics_info_t::molecules[imol].update_map();
+      graphics_info_t::molecules[imol].update_map(false);
    graphics_draw();
    std::string cmd = "set-map-line-width";
    std::vector<coot::command_arg_t> args;
@@ -878,7 +878,7 @@ int another_level_from_map_molecule_number(int imap) {
 	 float current_contour_level = graphics_info_t::molecules[istat].contour_level;
 	 graphics_info_t::molecules[istat].set_contour_level(current_contour_level +
 							     map_sigma*1.0);
-	 graphics_info_t::molecules[istat].update_map();
+	 graphics_info_t::molecules[istat].update_map(true);
 	 graphics_draw();
       }
    }
@@ -1124,7 +1124,7 @@ void change_contour_level(short int is_increment) { // else is decrement.
 	    g.molecules[s].contour_level -= g.iso_level_increment;
 	 }
       }
-      g.molecules[s].update_map();
+      g.molecules[s].update_map(true);
       graphics_draw();
    }
 }

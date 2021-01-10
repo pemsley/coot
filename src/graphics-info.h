@@ -1356,6 +1356,7 @@ public:
    // Calling this turns it on.
    void set_last_map_contour_level(float f);
    void set_last_map_contour_level_by_sigma(float f);
+   static bool auto_recontour_map_flag;
 
    //
    static float rotation_centre_cube_size;

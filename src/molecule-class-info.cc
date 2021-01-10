@@ -264,7 +264,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       //
       if (reset_rotation_centre)
 	 for (int ii=0; ii<g.n_molecules(); ii++) {
-	    g.molecules[ii].update_map();
+	    g.molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 }
 
       // save state strings
@@ -8835,7 +8835,7 @@ void
 molecule_class_info_t::set_contour_level(float f) {
    if (has_xmap()  || has_nxmap()) {
       contour_level = f;
-      update_map();
+      update_map(true);
    }
 }
 
@@ -8843,7 +8843,7 @@ void
 molecule_class_info_t::set_contour_level_by_sigma(float f) {
    if (has_xmap() || has_nxmap()) {
       contour_level = f * map_sigma_;
-      update_map();
+      update_map(true);
    }
 }
 
