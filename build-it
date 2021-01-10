@@ -400,7 +400,8 @@
 # 5.43 20210110 Add unzip to build dependencies
 # 5.44 20210110 Bump the python version, rework the readline configure command line
 # 5.45 20210110 Bump the python version again - no2 2.7.18
-script_version=5.45
+# 5.46 20210110 Add a test for the version of cmake
+script_version=5.46
 
 
 
@@ -1092,6 +1093,34 @@ if test $OS = Linux ; then
       fi
     ;;
   esac
+fi
+
+
+
+
+a=$(cmake --version)
+have_new_enough_cmake=false
+case $a in
+
+   # old versions of cmake don't find Boost (FindBoost) when configuring the RDKit.
+
+   cmake?version?3.1[5-9].*)  # 3.15.x is inferred! 3.18 is new enough, 3.10 is not.
+                              # https://cmake.org/cmake/help/latest/release/3.15.html
+      have_new_enough_cmake=true
+      ;;
+
+   cmake?version?3.[2-9][0-9].*)
+      have_new_enough_cmake=true
+      ;;
+
+   *)
+      echo cmake version fallback: $a
+      ;;
+esac
+echo have_new_enough_cmake: $have_new_enough_cmake
+if [ $have_new_enough_cmake = false ] ; then
+   echo update your cmake and try again
+   my_exit 2
 fi
 
 
