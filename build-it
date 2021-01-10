@@ -397,7 +397,9 @@
 # 5.40 20210109 change the args to boost's build
 # 5.41 20210110 change the boost build log output
 # 5.42 20210110 Rework the build of numpy, boost and rdkit
-script_version=5.42
+# 5.43 20210110 Add unzip to build dependencies
+# 5.44 20210110 Bump the python version, rework the readline configure command line
+script_version=5.44
 
 
 
@@ -1119,6 +1121,7 @@ case $dist_name in
  
       dep_list='
        patch
+       unzip
        m4
        g++
        libxext-dev
@@ -1157,7 +1160,7 @@ case $dist_name in
       ;;
 
     debian)
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev'
+      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
       for dep in $dep_list 
       do 
          echo $dep
@@ -2115,15 +2118,18 @@ fi
 # do we have greg?
 
 # LD_LIBRARY_PATH has been set by now
-echo testing for greg using `which guile`
-$install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
-status=$?
-echo guile greg status $status
-if test $status = 0 ; then
-   echo installation has greg
-   build_greg=
+if [ -e $install_top_dir/bin/guile ] ; then
+   $install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
+   status=$?
+   echo guile greg status $status
+   if test $status = 0 ; then
+      echo installation has greg
+      build_greg=
+   else
+      echo greg should be built
+      build_greg=1
+   fi
 else
-   echo greg should be built
    build_greg=1
 fi
 
@@ -2135,7 +2141,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.15
+pver=2.7.17
 numpy_version=1.7.1
 numpy_version=1.16.6
 # for an upgrade of numpy to work, the old numpy must be deleted from site-packages
@@ -2245,7 +2251,6 @@ fi
 
 build_gtkglext=1
 if test -e ${install_top_dir}/include/gtkglext-1.0/gdk/glext/glext.h ; then
-   echo INFO:: found ${install_top_dir}/include/gtkglext-1.0/gdk/glext/glext.h
    build_gtkglext=
 fi
 if [ -n "$COOT_CCP4_PACKAGES" ] ; then 
@@ -2399,9 +2404,7 @@ if [ -z "$build_mmdb" ] ; then
        echo INFO:: shall we build clipper: fftw not to be built
        # test for new ccp4-based clipper (for mtz and maps)
        if [ -e $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h ] ; then
-          echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h exist
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
-             echo $install_top_dir/include/clipper/contrib/sfscale.h exist
 	     build_clipper=
           else
             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
@@ -2985,6 +2988,52 @@ if [ "$build_goocanvas" != "no" ] ; then
 fi
 
 
+##################### readline #####################################
+
+
+if test -n "$build_readline" ; then
+    echo BUILDING readline:
+    readline_version=6.2
+    readline_version=6.3
+    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} $extras_place/readline-5.1.patch
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
+    cd readline-$readline_version
+    if test -n "$need_readline_patch" ; then
+       echo patching readline...
+       # need a patch (for debian only) to add curses to the additional libs line
+       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
+    fi
+    apply_shared_lib_sed_fix=true
+
+    # when don't we want to apply the sed fix?
+    # ....
+    #
+
+    if [ $apply_shared_lib_sed_fix = true ] ; then
+       echo applying sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+    fi
+    echo ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
+    ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
+    # single thread
+    if make ; then
+       make install
+       # no more missing functions hopefully!
+       # undefined symbol: UP	(/home/paule/autobuild/Linux-penelope-gtk2-python/lib/libreadline.so)
+       ldd -r $install_top_dir/lib/libreadline.so
+    else
+       echo make of readline failed
+    fi
+    ) > $HOSTLOGDIR/06-pre-readline.txt 2>&1
+else
+    echo not building readline:
+fi
+
 ###############################################################################
 ##########         build python and friends                       #############
 ###############################################################################
@@ -3186,10 +3235,8 @@ if test -n "$build_pygtk" ; then
    export DYLD_LIBRARY_PATH=$save_dllp
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
-   echo not building pygtk
+   echo not building pygtk:
 fi
-
-echo done pygtk
 
 ###############################################################################
 ##########         build boost                                    #############
@@ -3200,14 +3247,14 @@ test_for_already_installed_dependencies=true
 
 if [ "$test_for_already_installed_dependencies" = true ] ; then
    if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
-      echo found $install_top_dir/include/boost/functional/hash.hpp
-      echo boost is found, skip build
+      echo not building boost:
       build_boost=false
    fi
 fi
 
 if [ "$build_boost" = true ] ; then
-   echo building boost
+   echo building boost $boost_version # to build.log
+   echo building boost $boost_version 1>&2 # to the terminal
    (
 
       echo building ========================= boost $boost_version =========================
@@ -3230,8 +3277,6 @@ if [ "$build_boost" = true ] ; then
       cd -
 
    ) > $HOSTLOGDIR/16-boost.txt 2>&1
-else
-   echo not building boost
 fi
 
 
@@ -3241,7 +3286,7 @@ build_numpy=true
 #
 if [ "$build_numpy" = true ] ; then
    if gfortran --version > /dev/null ; then
-      echo found fortran compiler
+      :
    else
       echo fortran compiler not found.
       exit 2
@@ -3252,7 +3297,7 @@ if [ true = true ] ; then
    skip_this=false
    arch=linux
    if [ -e $install_top_dir/lib/python2.7/site-packages/numpy-$numpy_version-py2.7-$arch-x86_64.egg/numpy/core/include/numpy/halffloat.h ] ;  then
-         echo numpy is found, skip
+         echo not building numpy:
          skip_this=true
    fi
    if [ $skip_this = false ] ;  then
@@ -3288,7 +3333,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/16-b-numpy.log 2>&1
+      ) > $HOSTLOGDIR/16-b-numpy.txt 2>&1
    fi
 fi
 
@@ -3307,7 +3352,7 @@ if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       if [ -e $install_top_dir/include/rdkit/DistGeom/TriangleSmooth.h ] ;  then
-         echo rdkit is found, skip
+         echo not building rdkit:
          skip_this=true
       fi
    fi
@@ -3500,7 +3545,7 @@ fi
 
 # silicos-it's biscu-it
 if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
-   echo not building biscu-it
+   echo not building biscu-it:
 else
    echo building QED
    (date
@@ -3572,42 +3617,6 @@ if test -n "$build_libtool" ; then
     ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
 else
     echo not building libtool:
-fi 
-
-
-if test -n "$build_readline" ; then
-    echo BUILDING readline:
-    readline_version=6.2
-    readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    ${WGET} $extras_place/readline-5.1.patch
-    (
-    date
-    pwd
-    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
-    cd readline-$readline_version
-    if test -n "$need_readline_patch" ; then
-       echo patching readline...
-       # need a patch (for debian only) to add curses to the additional libs line
-       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
-    fi
-    if [ "$dist_name" = debian ] ; then
-       echo applying debian sed patch for shared-lib libreadline
-       # thanks for the quoting help tony duan @ stackoverflow 
-       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
-       extra_args_for_debian="--with-curses --enable-shared"
-    fi
-    echo ./configure $generic_prefix $extra_args_for_debian
-    ./configure $generic_prefix $extra_args_for_debian
-    # single thread
-    if make ; then
-       make install
-    else
-       echo make of readline failed
-    fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
-else 
-    echo not building readline:
 fi 
 
 
