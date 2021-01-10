@@ -379,10 +379,11 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
 		     running_sequence += letter;
 		     sum_score += score;
 		     n_scored_residues++;
-		     std::cout << "debug:: adding "
-			       << std::right << std::fixed << std::setw(9) << std::setprecision(4)
-			       << score << " for " << letter << " " << "ires " << ires << " "
-			       << residue_spec_t(residue_p) << std::endl;
+                     if (false)
+		        std::cout << "debug:: adding "
+			          << std::right << std::fixed << std::setw(9) << std::setprecision(4)
+			          << score << " for " << letter << " " << "ires " << ires << " "
+			          << residue_spec_t(residue_p) << std::endl;
 		  } else {
                      if (true) { // debug
                         std::cout << "Failed to find " << res_type << " in this map: " << std::endl;
@@ -1505,7 +1506,7 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    if (diff > mn_log_likelihood_ratio_difference_max)
       diff = mn_log_likelihood_ratio_difference_max;
 
-   if (true) // debug/check the engine
+   if (false) // debug/check the engine
        /*
 		<< " e_part: " << std::setw(10) << e_part
 		<< " e_part_normal: " << std::setw(8) << e_part_normal
@@ -1604,7 +1605,8 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 
    std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
 
-   std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
+   if (false)
+      std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
 
    if (it != rotamer_dir_grid_stats_map_cache.end()) {
       success = true;
