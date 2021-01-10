@@ -4197,7 +4197,7 @@
         (add-simple-coot-menu-menuitem
          menu "Flip Hand of Map..."
          (lambda ()
-           (molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
+           (map-molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
 
         (add-simple-coot-menu-menuitem
          menu "Align and Mutate using ClustalW2"

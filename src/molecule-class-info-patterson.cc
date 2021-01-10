@@ -147,7 +147,7 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	 map_min_   = mv.min_density;
 	 
 	 set_initial_contour_level();
-	 update_map();
+	 update_map(true);
 	 ret_val = 1;
       }
 
@@ -223,7 +223,7 @@ molecule_class_info_t::make_patterson_using_intensities(std::string mtz_file_nam
 	 map_min_   = mv.min_density;
 	 
 	 set_initial_contour_level();
-	 update_map();
+	 update_map(true);
 	 ret_val = 1;
 	 
       }

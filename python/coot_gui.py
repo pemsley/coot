@@ -3528,7 +3528,7 @@ def cootaneer_gui_bl():
 
       do_it = assign_sequences_to_mol(imol)
 
-      if (do_it):
+      if do_it:
          # now cootaneer it
          chain_ls = chain_ids(imol)
          for chain_id in chain_ls:
@@ -3564,29 +3564,33 @@ def cootaneer_gui_bl():
       seq_file_name = selector_entry.get_text()
       if (seq_file_name):
          # get and set sequence info
-         assign_sequence_from_file(imol, str(seq_file_name))
-         seq_info_ls = sequence_info(imol)
-         no_of_sequences = len(seq_info_ls)
+         try:
+             assign_sequence_from_file(imol, str(seq_file_name))
+             seq_info_ls = sequence_info(imol)
+             no_of_sequences = len(seq_info_ls)
 
-         # remove children if new file
-         if not imported_sequence_file_qm:
-            table_children = seq_table.get_children()
-            for child in table_children:
-               seq_table.remove(child)
-            widget_range = range(no_of_sequences)
-         else:
-            # we update the number of sequences
-            spin_len = int(spin_button.get_value())
-            widget_range = range(spin_len, no_of_sequences)
+             # remove children if new file
+             if not imported_sequence_file_qm:
+                table_children = seq_table.get_children()
+                for child in table_children:
+                   seq_table.remove(child)
+                widget_range = range(no_of_sequences)
+             else:
+                # we update the number of sequences
+                spin_len = int(spin_button.get_value())
+                widget_range = range(spin_len, no_of_sequences)
 
-         # make new table
-         imported_sequence_file_flags = [True, no_of_sequences]
-         spin_button.set_value(no_of_sequences)
-         seq_table.resize(no_of_sequences, 1)
-         for i in widget_range:
-            seq_widget = entry_text_pair_frame_with_button(seq_info_ls[i])
-            seq_table.attach(seq_widget[0], 0, 1, i, i+1)
-            seq_widget[0].show_all()
+             # make new table
+             imported_sequence_file_flags = [True, no_of_sequences]
+             spin_button.set_value(no_of_sequences)
+             seq_table.resize(no_of_sequences, 1)
+             for i in widget_range:
+                seq_widget = entry_text_pair_frame_with_button(seq_info_ls[i])
+                seq_table.attach(seq_widget[0], 0, 1, i, i+1)
+                seq_widget[0].show_all()
+         except TypeError as e:
+            print(e)
+            print("DEBUG:: seq_info_ls: ", seq_info_ls)
       else:
          print "BL WARNING:: no filename"
 
@@ -5420,19 +5424,40 @@ def add_module_cryo_em_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("Cryo-EM")
 
+      def interactive_nudge_func():
+         with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                        aa_ins_code, aa_atom_name,
+                                        aa_alt_conf, aa_res_spec]:
+            nudge_residues_gui(aa_imol, aa_res_spec)
+
+      def flip_hand_local_func():
+         map_molecule_chooser_gui("Select", lambda imol: flip_hand(imol))
+
+      def go_to_box_middle():
+         m_list = map_molecule_list()
+         if len(m_list) > 0:
+            m = m_list[-1]
+            c = cell(m)
+            set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
+
       add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())
 
       add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
                                     lambda func: refmac_multi_sharpen_gui())
 
-      def interactive_nudge_func():
-         with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
-                                        aa_ins_code, aa_atom_name,
-                                        aa_alt_conf, aa_res_spec]:
-            nudge_residues_gui(aa_imol, aa_res_spec)
       add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
                                     lambda func: interactive_nudge_func())
+
+      add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle",
+                                    lambda func: go_to_map_molecule_centre(imol_refinement_map()))
+
+      add_simple_coot_menu_menuitem(menu, "Go To Box Middle",
+                                    lambda func: go_to_box_middle())
+
+      add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
+                                    lambda func: flip_hand_local_func())
+
 
 
 def add_module_ccp4_gui():

@@ -91,10 +91,10 @@ namespace coot {
    // which calls
    bool add_torsion_to_restraints(dictionary_residue_restraints_t *restraints,
 				  const RDKit::ROMol &mol,
-				  const RDKit::ATOM_SPTR at_1,
-				  const RDKit::ATOM_SPTR at_2,
-				  const RDKit::ATOM_SPTR at_3,
-				  const RDKit::ATOM_SPTR at_4,
+				  const RDKit::Atom *at_1,
+				  const RDKit::Atom *at_2,
+				  const RDKit::Atom *at_3,
+				  const RDKit::Atom *at_4,
 				  const RDKit::Bond *bond, // between atoms 2 and 3
 				  unsigned int *tors_no,
 				  unsigned int *const_no,

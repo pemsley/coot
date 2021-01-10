@@ -1,2 +1,2 @@
 
-gint idle_contour_function(GtkWidget *widget);
+gint idle_contour_function(gpointer data);

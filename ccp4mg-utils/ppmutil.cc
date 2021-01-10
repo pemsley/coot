@@ -387,6 +387,8 @@ int image_info::write(const char *filename, int quality) const {
   char *suffix;
   suffix = get_suffix(filename);
 
+  std::cout << "::write() suffix is " << suffix << std::endl;
+
   if(!pixels){
     printf("No pixel data in image_info object, will not write %s\n",filename);
     return 0;
@@ -402,7 +404,7 @@ int image_info::write(const char *filename, int quality) const {
     }
   }else if(!strcasecmp(suffix,"png")){
     try {
-      writepng(filename);
+       writepng(filename);
     }
     catch (...) {
       printf("Error writing PNG file\n");
@@ -479,6 +481,7 @@ int image_info::write(const char *filename, int quality) const {
     printf("* = 256 colours max\n");
     return 0;
   }
+
   return 1;
 }
 
@@ -2594,7 +2597,7 @@ void image_info::writepng(const char *filename) const {
     printf("Please try writing to a supported format\n");
     return;
   }
-#endif  
+#endif
   FILE * outfile;
 
   if ((outfile = fopen(filename, "wb")) == NULL) {
@@ -2667,6 +2670,7 @@ void image_info::writepng(const char *filename) const {
     printf("Please install libpng (if not already done) and\n");
     printf("rebuild adding -DUSE_LIBPNG to C_DEFINES\n");
     printf("and CXX_DEFINES. Or write to a supported format.\n");
+    throw ImageInfoWritePNGExc();
 #endif 
 }
 

@@ -3972,6 +3972,7 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o Run the damn tests - don't be lazy
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
@@ -3987,13 +3988,20 @@ INFO::
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
      Use configure-it-for-release
+   o make dist to make a tar-ball
+        Use this to untar and make a build - this will test that the tarball has
+        all the files before commit.
    o git commit -a
    o git tag Release-0.x.y
    o git commit
-   o git push [maybe here? not sure]
+   o git push
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
-        OK, disable the build-latest cron-job 
+        OK, disable the build-latest cron-job
+   o on charybdis: md: check that it builds
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-for-tarball # version?
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
+   o on charybdis: bash wrap-build-it-for-release.sh
    o clear out pre-releases
    o check for updates - needs consideration?
    o Build binaries on some hosts
@@ -4031,6 +4039,7 @@ Mon Jan 12 17:26:40 GMT 2009
    Do "R" (sphere) refinment, PHE gets kicked and goes to the right
    solution (I wonder if refmac would do that?)
 
+   # not any more - they both work.
 
 ---
 Mon Jan 12 22:43:50 GMT 2009
@@ -4084,12 +4093,11 @@ Wed Mar  4 13:12:21 GMT 2009
 -----
 Sat Feb 28 19:36:50 GMT 2009
 
-	when testing new tree code:
+     when testing new tree code:
 
      test: torsion general
      test: wiggly ligand best solution C* N9 C1* C2* is correct
      test: var4 and var4 for ATP and var1s for MPR
-
 
      Note: revision 1917 has "new" mgtree code, which seems to work
      for wiggly ligands, but torsion angles are horrifically broken.
@@ -4141,7 +4149,7 @@ Thu Mar 26 18:39:42 GMT 2009
      for *one* residue, they
      must be psi of one and phi of the next (or the other way round).
      Hmm... needs some though.
-     
+ 
 
 ---
 Fri Apr 17 17:38:02 BST 2009
@@ -4214,7 +4222,7 @@ Wed May 20 00:16:05 BST 2009
 	
 	file -> get 1gxt from pdb 
 	
-	(change molecule to (new) 1gxt
+	change molecule to (new) 1gxt
 	
 	but the chains in the residue/chain tree do not change!
 
@@ -4483,7 +4491,7 @@ Tue Jul 14 19:19:07 CDT 2009
 	in backrubbing 
 float 
 molecule_class_info_t::backrub_rotamer(const std::string &...
-  
+
     can we (should we) delete the fragment_asc?
 
 
@@ -5010,7 +5018,7 @@ Wed 23 Sep 2009 22:08:41 BST
 
 ----
 Thu 24 Sep 2009 18:07:02 BST
-   
+
    Student project:
    The use of sound as a form of user-feedback in molecular
    model-building
@@ -7562,7 +7570,7 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
      would happily use plane restraint minimization to create a
      cis-peptide... so I tried to make this less probable by
      introducing a non-linearity term so that the atoms further from
-     the pull point are pulled less than their linearn fraction (by
+     the pull point are pulled less than their linear fraction (by
      raising a fraction to a power). Unfortunately I made an
      arithmetic error which meant that I had made such pull
      transformations *more* likely than less.
@@ -7885,7 +7893,7 @@ http://rdkit.org/docs_temp/Chem/Fragments.m.html
 ----
 Sat  1 Jul 2017 18:27:09 BST
 
-   Makefile variables $@ $^ $<
+   Makefile rules variables $@ $^ $<
    $@ -> target,      $^ -> all dependences,   $< -> first dependency
 
    https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
@@ -7910,7 +7918,7 @@ http://www.blopig.com/blog/2016/11/how-to-calculate-plifs-using-rdkit-and-plip/
 ---
 Wed 12 Jul 2017 21:55:28 BST
 
-look this up:
+Project: look this up:
 
 Ho, B. K. & Gruswitz, F. HOLLOW: generating accurate representations
 of channel and interior surfaces in molecular structures. BMC
@@ -8608,6 +8616,8 @@ Fri 21 Sep 2018 10:49:26 BST
                     non-Pro cis 3er0 (should be 1 in 3,000 or 1 in 10,000 for non-carbohydrate proteins)
                     cablam outlier: 3ja8 Leu 235
 
+    Make a figure of 1cgi in new coot.
+
 ---
 Tue 11 Sep 23:10:09 BST 2018
 
@@ -9175,6 +9185,7 @@ Tue  9 Jul 2019 21:51:00 BST
 ---
 Tue 16 Jul 2019 00:09:20 BST
 
+     Project: tutorial/video examples
      elifesciences.org/articles/16105 for extra examples of big shift molecules
 
 ---
@@ -9196,7 +9207,8 @@ Mon 16 Sep 16:59:51 BST 2019
 ---
 Wed  4 Sep 2019 08:54:02 BST
 
-   o what is this? Systematic residue side-chain optimizations using grid searches in torsion-angle
+   o Project:
+     what is this? Systematic residue side-chain optimizations using grid searches in torsion-angle
      space (Oldfield, 2001).
 
      A number of real-space torsion-angle refinement techniques for proteins, nucleic acids,
@@ -9252,6 +9264,7 @@ Tue  3 Dec 11:03:55 GMT 2019
 ---
 Tue 14 Jan 2020 02:09:52 GMT
 
+   Project: What is this and can we do better?
    OPUS‐Rota: A fast and accurate method for side‐chain modeling
    https://onlinelibrary.wiley.com/doi/full/10.1110/ps.035022.108
 
@@ -9279,7 +9292,6 @@ Thu 13 Feb 18:40:56 GMT 2020
     on ligand covalent bond formation A 184 GLU
 
 
-
 ---
 Fri 14 Feb 16:21:30 GMT 2020
 
@@ -9287,9 +9299,10 @@ Fri 14 Feb 16:21:30 GMT 2020
 
    sudo apt-get install libgtk-3-dev
 
-
 ---
 Thu 20 Feb 21:40:34 GMT 2020
+
+   Project:
 
    https://www.cell.com/structure/pdf/S0969-2126(15)00511-0.pdf 3jci
 
@@ -9300,6 +9313,7 @@ Thu 27 Feb 2020 12:48:11 IST
 
    clustalw is LGPL? Use that for alignments.
 
+* Done!
 
 ---
 Sat 29 Feb 2020 17:52:41 IST
@@ -9407,4 +9421,71 @@ Fri 21 Aug 15:46:31 BST 2020
 Mon 12 Oct 15:28:53 BST 2020
 
    o microtubule - massive structure: code: 6u42
+
+
+----
+Wed 11 Nov 18:41:11 GMT 2020
+
+   Flex-EM tutorial is 4ki8 into 6422.
+
+----
+Wed 18 Nov 06:39:54 GMT 2020
+
+   Project: fix up the "no-density" "control points for (multi) add-terminal residue.
+   The positions and the weights need optimization. Tests using experimental maps
+   and deposited models?
+
+
+----
+Wed 18 Nov 06:46:15 GMT 2020
+
+    How to do better baked AO for Python 3 Coot?
+
+----
+Wed 18 Nov 19:12:26 GMT 2020
+
+   2ddx is real non-pro cis peptide high res.
+
+
+--
+
+
+ 11203 map model correlation and unmodelled density - linoleic acid
+
+
+----
+Fri 27 Nov 12:28:00 GMT 2020
+
+
+   https://aur.archlinux.org/packages/coot-git/
+
+
+----
+Fri 27 Nov 20:04:12 GMT 2020
+
+   How to use GEMMI for sfs calc using electron scattering factors?
+
+---
+Fri 27 Nov 20:12:15 GMT 2020
+
+  get rid of libGLU
+
+	libMoleculesToTrianglesCXXSurface.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/libMoleculesToTrianglesCXXSurface.so.0 
+	libGLU.so.1 => /lib/x86_64-linux-gnu/libGLU.so.1
+
+
+----
+Tue  8 Dec 15:05:10 GMT 2020
+
+
+recordmydesktop -x 800 -y 30 '--width=1600' --height='1080'
+
+bluray resolution is 1920x1080
+
+---
+Mon 14 Dec 14:37:02 GMT 2020
+
+   NVidia stereo and monitors:
+
+   https://nvidia.custhelp.com/app/answers/detail/a_id/4845
 

@@ -195,7 +195,7 @@ void set_refinement_immediate_replacement(int istate) {
 }
 
 int  refinement_immediate_replacement_state() {
-   return graphics_info_t::refinement_immediate_replacement_flag; 
+   return graphics_info_t::refinement_immediate_replacement_flag;
 } 
 
 
@@ -1364,6 +1364,13 @@ void set_refinement_geman_mcclure_alpha(float alpha) {
    g.set_geman_mcclure_alpha(alpha);
 
 }
+
+//! \brief get the Geman-McClure distance alpha value (weight)
+float get_refinement_geman_mcclure_alpha() {
+
+   return graphics_info_t::geman_mcclure_alpha;
+}
+
 
 //! \brief set the Lennard Jones epsilon parameter
 void set_refinement_lennard_jones_epsilon(float epsilon) {

@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(coot, 0.9.1)
+AC_INIT(coot, 0.9.4-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -73,24 +73,13 @@ dnl thanks John Bollinger
 AC_SUBST([OPENMP_CFLAGS])
 AC_SUBST([OPENMP_CXXFLAGS])
 
-AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional experimental features ],
- coot_modern_language_tools="true",
- coot_modern_language_tools="false")
-
-# Note to self: must make these compulsory - not optional
-#
-if $coot_modern_language_tools = true ; then
-   AX_CXX_COMPILE_STDCXX_11
-   AX_CXX_HAVE_THREAD
-fi
-
-AC_ARG_WITH(glsl, [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
-  coot_with_glsl=true,
-  coot_with_glsl=false)
-
-if $coot_with_glsl = true ; then
-   COOT_USE_GLSL=-DUSE_GLSL
-   AC_SUBST(COOT_USE_GLSL)
+AX_CXX_COMPILE_STDCXX_11
+AX_CXX_HAVE_THREAD
+# AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
+if test $HAVE_CXX11 = 1 ; then
+   CXXFLAGS="$CXXFLAGS -std=c++11"
+else
+   echo we can\'t compile coot then
 fi
 
 AC_LIB_PREPARE_MULTILIB
@@ -123,6 +112,11 @@ fi
 # AM_PATH_LIBPNG
 # so try this:
 PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.2])
+if test -z "$LIBPNG_LIBS" ; then
+   :
+else
+   LIBPNG_CFLAGS="-DUSE_LIBPNG=1 $LIBPNG_CFLAGS"
+fi
 
 # and while we are thinking about images, let's check for Cairo also
 PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])

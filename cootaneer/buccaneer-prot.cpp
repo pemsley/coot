@@ -331,6 +331,7 @@ bool ProteinTools::chain_renumber( clipper::MPolymer& pol, const clipper::MMolec
 
 bool ProteinTools::chain_tidy( clipper::MiniMol& target, const clipper::MiniMol& source )
 {
+
   typedef clipper::MMonomer Mm;
   // create new minimol
   target = clipper::MiniMol( source.spacegroup(), source.cell() );
@@ -407,12 +408,39 @@ bool ProteinTools::copy_residue_types( clipper::MiniMol& target, const clipper::
 }
 
 
-bool ProteinTools::globularise( clipper::MiniMol& mol, const clipper::Coord_frac cent )
+bool ProteinTools::globularise( clipper::MiniMol& mol, const clipper::Coord_frac cent, bool nucleotides )
 {
-  typedef clipper::MMonomer Mm;
+
+   auto check_for_chain_break = [] (const clipper::MMonomer& m1,
+                                    const clipper::MMonomer& m2,
+                                    const std::string &at_name_1,
+                                    const std::string &at_name_2,
+                                    double dist_crit = (1.32+0.2)) {
+                                   int c1 = m1.lookup(at_name_1, clipper::MM::ANY);
+                                   int n2 = m1.lookup(at_name_2, clipper::MM::ANY);
+                                   if (c1 >= 0) {
+                                      if (n2 >=0) {
+                                         double dd = (m1[c1].coord_orth() - m2[n2].coord_orth()).lengthsq();
+                                         if (dd > dist_crit * dist_crit) {
+                                            return true;
+                                         }
+                                      }
+                                   }
+                                   return false; // I don't know what we are looking at
+                                };
+
+   typedef clipper::MMonomer Mm;
   const clipper::Spacegroup& spgr = mol.spacegroup();
   const clipper::Cell&       cell = mol.cell();
   clipper::Coord_frac cf1, cf2, cf3, cfmin;
+  double dist_crit = 1.32 * 0.2;
+  std::string at_name_1 = " C  ";
+  std::string at_name_2 = " N  ";
+  if (nucleotides) {
+     dist_crit = 1.57 + 0.33;
+     at_name_1 = " O3'";
+     at_name_2 = " P  ";
+  }
 
   for ( int chn = 0; chn < mol.size(); chn++ ) {
     int res0 = 0;
@@ -421,7 +449,7 @@ bool ProteinTools::globularise( clipper::MiniMol& mol, const clipper::Coord_frac
       if ( res == mol[chn].size()-1 )
 	chnbrk = true;
       else
-	chnbrk = !Mm::protein_peptide_bond( mol[chn][res], mol[chn][res+1] );
+         chnbrk = check_for_chain_break(mol[chn][res], mol[chn][res+1], at_name_1, at_name_2, dist_crit);
       if ( chnbrk ) {
 	// process res0...res
 	// get COM of current chain
@@ -463,7 +491,7 @@ bool ProteinTools::globularise( clipper::MiniMol& mol, const clipper::Coord_frac
   return true;
 }
 
-bool ProteinTools::globularise( clipper::MiniMol& mol )
+bool ProteinTools::globularise( clipper::MiniMol& mol, bool nucleotides)
 {
   // iteratively globularise the model
   for ( int i = 0; i < 3; i++ ) {
@@ -479,7 +507,7 @@ bool ProteinTools::globularise( clipper::MiniMol& mol )
     co = (1.0/no) * co;
     clipper::Coord_frac cf = co.coord_frac( mol.cell() );
     // globularise about it
-    globularise( mol, cf );
+    globularise( mol, cf, nucleotides);
   }
   return true;
 }

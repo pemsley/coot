@@ -163,7 +163,7 @@ int blob_under_pointer_to_screen_centre() {
 	    coot::Cartesian cc(blob.x(), blob.y(), blob.z());
 	    g.setRotationCentre(cc);
 	    for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	       graphics_info_t::molecules[ii].update_map();
+	       graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	       graphics_info_t::molecules[ii].update_symmetry();
 	    }
 	    g.make_pointer_distance_objects();

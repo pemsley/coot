@@ -37,6 +37,8 @@
 #include <vector>
 #endif
 
+// was used for debugging - not needed now.
+// #include <iomanip> // extern char *dcgettext (const char *__domainname, if placed later
 #include <algorithm>
 
 #include <iostream>
@@ -400,7 +402,6 @@ bool graphics_info_t::continue_threaded_refinement_loop = false; // also for Esc
 int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
 bool graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
 
-
 // put this in graphics-info-intermediate-atoms?
 //
 // static
@@ -528,6 +529,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
       std::thread r(refinement_loop_threaded);
       r.detach();
    }
+
 }
 
 // static
@@ -5096,10 +5098,11 @@ graphics_info_t::delete_sidechain_range(int imol,
       // faster is passing a blank asc, but to do that needs to check that
       // updating other geometry graphs will work (not crash) with residues/mol
       // unset.
+      // It seems that I have done that now.
       //
       // atom_selection_container_t asc = molecules[imol].atom_sel;
       atom_selection_container_t asc;
-      update_geometry_graphs(asc, imol);
+      update_geometry_graphs(imol);
    }
    graphics_draw();
 
@@ -5111,8 +5114,9 @@ graphics_info_t::delete_active_residue() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
    if (aa.first) {
       int imol = aa.second.first;
-      coot::residue_spec_t rs(aa.second.second);
-      molecules[imol].delete_residue(rs);
+      coot::residue_spec_t res_spec(aa.second.second);
+      molecules[imol].delete_residue(res_spec);
+      delete_residue_from_geometry_graphs(imol, res_spec);
    }
    graphics_draw();
 }

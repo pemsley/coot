@@ -24,3 +24,4 @@ float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 bool graphics_info_t::draw_stick_mode_atoms_default = true;
 
+bool graphics_info_t::auto_recontour_map_flag = true;

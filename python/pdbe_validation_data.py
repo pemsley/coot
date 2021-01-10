@@ -868,7 +868,7 @@ def sort_subgroups(subgroups):
 def pdb_validate(accession_code, imol):
 
     try:
-        if (len(accession_code) == 4):
+        if len(accession_code) == 4:
             middle_letters = accession_code[1] + accession_code[2]
             gz_file_name = "pdb-validation-" + accession_code + ".xml.gz"
             url = 'http://ftp.ebi.ac.uk/pub/databases/pdb/validation_reports/'

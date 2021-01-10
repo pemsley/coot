@@ -1730,6 +1730,17 @@ int scroll_by_wheel_mouse_state() {
    return graphics_info_t::do_scroll_by_wheel_mouse_flag;
 }
 
+/*! \brief turn off (0) or on (1) auto recontouring (on screen centre change) (default it on) */
+void set_auto_recontour_map(int state) {
+   graphics_info_t::auto_recontour_map_flag = state;
+}
+
+/*! \brief turn off (0) or on (1) auto recontouring (on screen centre change) (default it on) */
+int get_auto_recontour_map() {
+   return graphics_info_t::auto_recontour_map_flag;
+}
+
+
 
 void add_symmetry_on_to_preferences_and_apply() {
 
@@ -1961,7 +1972,7 @@ void set_density_size_from_widget(const char *text) {
    //
    for (int ii=0; ii<g.n_molecules(); ii++) {
       if (is_valid_map_molecule(ii))
-	  g.molecules[ii].update_map();
+	  g.molecules[ii].update_map(true);
    }
    graphics_draw();
 }
@@ -1975,7 +1986,7 @@ set_density_size_em_from_widget(const char *text) {
       g.box_radius_em = tmp;
       for (int ii=0; ii<g.n_molecules(); ii++)
 	 if (is_valid_map_molecule(ii))
-	    g.molecules[ii].update_map();
+	    g.molecules[ii].update_map(true);
    } else {
       std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
 		<< text << "\".  Assuming 55A" << std::endl;
@@ -1990,7 +2001,7 @@ void set_map_radius_em(float radius) {
    graphics_info_t g;
    g.box_radius_em = radius;
    for (int ii=0; ii<g.n_molecules(); ii++)
-      g.molecules[ii].update_map();
+      g.molecules[ii].update_map(true);
    graphics_draw();
    std::string cmd = "set-radius-em";
    std::vector<coot::command_arg_t> args;
@@ -2003,7 +2014,7 @@ void set_density_size(float f) {
    graphics_info_t g;
    g.box_radius_xray = f;
    for (int ii=0; ii<g.n_molecules(); ii++) {
-      g.molecules[ii].update_map();
+      g.molecules[ii].update_map(true);
    }
    graphics_draw();
    std::string cmd = "set-density-size";
@@ -2018,7 +2029,7 @@ void set_density_size_em(float f) {
    graphics_info_t g;
    g.box_radius_em = f;
    for (int ii=0; ii<g.n_molecules(); ii++) {
-      g.molecules[ii].update_map();
+      g.molecules[ii].update_map(true);
    }
    graphics_draw();
    std::string cmd = "set-density-size-em";
@@ -3901,7 +3912,7 @@ int reset_view() {
 
       g.setRotationCentreAndZoom(new_centre, new_zoom);
       for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	 graphics_info_t::molecules[ii].update_map();
+	 graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 graphics_info_t::molecules[ii].update_symmetry();
       }
       graphics_draw();
@@ -4013,8 +4024,8 @@ void screendump_image(const char *filename) {
    graphics_draw();
    
    int istatus = graphics_info_t::screendump_image(filename);
-   std::cout << "screendump_image status " << istatus << std::endl;
-   if (istatus) {
+   std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   if (istatus == 1) {
       std::string s = "Screendump image ";
       s += filename;
       s += " written";
@@ -4031,6 +4042,13 @@ void screendump_image(const char *filename) {
       safe_python_command(cmd);
 #endif // USE_PYTHON
 #endif // MINGW
+   }
+
+   if (istatus == 0) {
+      std::string s = "Failed to write screendump image ";
+      s += filename;
+      graphics_info_t g;
+      g.add_status_bar_text(s);
    }
 }
 
@@ -5000,11 +5018,11 @@ void graphics_to_b_factor_cas_representation(int imol) {
       command_strings.push_back("graphics-to-b-factor-cas-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
-   }
-   else
+   } else {
       std::cout << "WARNING:: no such valid molecule " << imol
 		<< " in graphics_to_b_factor_representation"
 		<< std::endl;
+   }
    graphics_draw();
 }
 

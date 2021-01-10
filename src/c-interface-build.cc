@@ -844,10 +844,11 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
       int model_number_ANY = mmdb::MinInt4;
+      std::string ic(inscode);
       short int istat =
-	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno,
-					  std::string(inscode));
-      if (istat) { 
+	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
+
+      if (istat) {
 	 // now if the go to atom widget was being displayed, we need to
 	 // redraw the residue list and atom list (if the molecule of the
 	 // residue and atom list is the molecule that has just been
@@ -2059,8 +2060,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    // we can simply construct spec from chain_id, resno and inscode.
    // There are other places where we do this too (to delete a residue
    // from the geometry graphs).
-   mmdb::Residue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(chain_id, resno, inscode);
+   mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, resno, inscode);
    if (residue_p) {
       coot::residue_spec_t spec(residue_p);
       g.delete_residue_from_geometry_graphs(imol, spec);
@@ -2919,21 +2919,7 @@ int quick_save() {
 
    // std::cout << "Quick save..." << std::endl;
    graphics_info_t g;
-   for (int imol=0; imol<graphics_n_molecules(); imol++) {
-      g.molecules[imol].quick_save();
-   }
-
-   
-   short int il = coot::SCRIPT_UNSET;
-
-#ifdef USE_GUILE
-   il = coot::SCHEME_SCRIPT;
-   g.save_state_file(g.save_state_file_name.c_str(), il);
-#endif    
-#ifdef USE_PYTHON
-   il = coot::PYTHON_SCRIPT;
-   g.save_state_file("0-coot.state.py", il);
-#endif    
+   g.quick_save();
    return 0;
 }
 
@@ -2963,7 +2949,7 @@ void set_write_conect_record_state(int state) {
 
 
 short int 
-add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
+add_OXT_to_residue(int imol, const char *chain_id, int resno, const char *insertion_code) {
 
    short int istat = -1; 
    if (is_valid_model_molecule(imol)) {
@@ -4846,6 +4832,11 @@ void accept_regularizement() {
 void accept_moving_atoms() {
 
    graphics_info_t g;
+
+   while (g.continue_threaded_refinement_loop) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
+
    g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 }

@@ -128,7 +128,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
    int t0 = glutGet(GLUT_ELAPSED_TIME);
    for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_clipper_skeleton();
-      molecules[ii].update_map();  // uses statics in graphics_info_t
+      molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);  // uses statics in graphics_info_t
                                    // and redraw the screen using the new map
    }
 
@@ -1513,11 +1513,14 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
+   while (continue_threaded_refinement_loop)
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
    if (false) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
-	        << std::endl;
+                << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
-	        << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+                << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
    }
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
@@ -1525,29 +1528,29 @@ graphics_info_t::accept_moving_atoms() {
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) {
-	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
-	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+         molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
+         update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
-	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+         if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 
-	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
-	    // debug
-	    // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
-	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	 } else {
-	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
-	       molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
-	    } else {
-	       if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
-		  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
-	       } else {
-		  std::cout << "------------ ERROR! -------------------" << std::endl;
-		  std::cout << "       moving_atoms_asc_type not known: ";
-		  std::cout << moving_atoms_asc_type << std::endl;
-		  std::cout << "------------ ERROR! -------------------" << std::endl;
-	       }
-	    }
-	 }
+            molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
+            // debug
+            // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
+            update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+         } else {
+            if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
+               molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
+            } else {
+               if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
+                  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
+               } else {
+                  std::cout << "------------ ERROR! -------------------" << std::endl;
+                  std::cout << "       moving_atoms_asc_type not known: ";
+                  std::cout << moving_atoms_asc_type << std::endl;
+                  std::cout << "------------ ERROR! -------------------" << std::endl;
+               }
+            }
+         }
       }
    }
 
@@ -1564,7 +1567,7 @@ graphics_info_t::accept_moving_atoms() {
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(w));
+         gtk_object_get_user_data(GTK_OBJECT(w));
       // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
@@ -3536,7 +3539,7 @@ graphics_info_t::set_imol_refinement_map(int imol) {
 void
 graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
    for (unsigned int i=0; i<mol_idxs.size(); i++)
-      graphics_info_t::molecules[mol_idxs[i]].update_map();
+      graphics_info_t::molecules[mol_idxs[i]].update_map(auto_recontour_map_flag);
 }
 
 #include <thread>
@@ -3555,8 +3558,8 @@ graphics_info_t::update_maps() {
       if (! do_threaded_map_updates) {
 	 for (int ii=0; ii<n_molecules(); ii++) {
 	    if (molecules[ii].has_xmap()) {
-	       molecules[ii].update_map(); // to take account
-	       // of new rotation centre.
+	       molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
+                                                                                   // of new rotation centre.
 	    }
 	 }
 
@@ -3569,7 +3572,7 @@ graphics_info_t::update_maps() {
 	 if (n_threads == 0) {
 	    for (int ii=0; ii<n_molecules(); ii++) {
 	       if (molecules[ii].has_xmap()) {
-		  molecules[ii].update_map(); // to take account
+		  molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
 		  // of new rotation centre.
 	       }
 	    }
@@ -3714,7 +3717,7 @@ void
 graphics_info_t::update_things_on_move() {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map();
+      molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
@@ -3981,7 +3984,7 @@ graphics_info_t::accept_baton_position() {
    setRotationCentre(baton_tip);
    for(int ii=0; ii<n_molecules(); ii++) {
       // but not skeleton, lets do skeleton only on a middle-mouse recentre
-      molecules[ii].update_map();
+      molecules[ii].update_map(true);
       molecules[ii].update_symmetry();
    }
 
@@ -5151,7 +5154,7 @@ void graphics_info_t::draw_pull_restraint_neighbour_displacement_max_radius_circ
             clipper::Coord_orth screen_y_co(screen_y.x(), screen_y.y(), screen_y.z());
       
             glColor3f(0.6, 0.6, 0.6);
-            glLineWidth(1.0);
+            glLineWidth(3.0);
             glBegin(GL_LINES); // call this after unproject_xyz().
             for (unsigned int i=0; i<50; i++) {
                float theta_this = 0.02 * static_cast<float>(i)   * M_PI * 2.0;
@@ -6556,4 +6559,25 @@ graphics_info_t::sfcalc_genmap(int imol_model,
          }
       }
    }
+}
+
+void
+graphics_info_t::quick_save() {
+
+   for (int imol=0; imol<n_molecules(); imol++) {
+      molecules[imol].quick_save();
+   }
+
+   short int il = coot::SCRIPT_UNSET;
+
+#ifdef USE_GUILE
+   il = coot::SCHEME_SCRIPT;
+   save_state_file(save_state_file_name.c_str(), il);
+#endif
+
+#ifdef USE_PYTHON
+   il = coot::PYTHON_SCRIPT;
+   save_state_file("0-coot.state.py", il);
+#endif
+
 }
