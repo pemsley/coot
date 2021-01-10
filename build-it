@@ -2461,7 +2461,7 @@ if test -n "$build_ccp4c" ; then
           $MAKE install
        fi
     fi
-    ) 2>&1 >  $HOSTLOGDIR/01-libccp4.txt 
+    ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
 else 
     echo not building libccp4:
 fi
@@ -3185,18 +3185,18 @@ echo done pygtk
 build_boost=true
 test_for_already_installed_dependencies=true
 
-if [ "$build_boost" = true ] ; then
-   (
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
-         echo found $install_top_dir/include/boost/functional/hash.hpp
-         echo boost is found, skip build
-         skip_this=true
-      fi
+if [ "$test_for_already_installed_dependencies" = true ] ; then
+   if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
+      echo found $install_top_dir/include/boost/functional/hash.hpp
+      echo boost is found, skip build
+      build_boost=false
    fi
+fi
 
-   if [ $skip_this = false ] ; then
+if [ "$build_boost" = true ] ; then
+   echo building boost
+   (
+
       echo building ========================= boost $boost_version =========================
 
       address_model=64
@@ -3215,8 +3215,10 @@ if [ "$build_boost" = true ] ; then
       ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       echo b2 install into $install_top_dir complete
       cd -
-   fi
+
    ) > $HOSTLOGDIR/16-boost.txt 2>&1
+else
+   echo not building boost
 fi
 
 
@@ -3240,6 +3242,7 @@ if [ true = true ] ; then
          skip_this=true
    fi
    if [ $skip_this = false ] ;  then
+      echo building numpy
       (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
@@ -3277,7 +3280,7 @@ export PATH=$HOME/cmake/bin:$PATH
 build_rdkit=true
 rdkit_version=2017_09_3
 # rdkit_version=2019_09_1 # python 3
-rdkit_version=2018_09_2 # Atom pointers gone, needs coot patch
+rdkit_version=2018_09_2 # Atom pointers gone, needs coot update
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
@@ -3331,8 +3334,32 @@ if [ "$build_rdkit" = true ] ; then
          tree_from_build=../rdkit
       else
 
-         echo wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         get_the_rdkit_tar_file=true
+         if [ -e  ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            echo found the file $rdkit_tar_download_file_name
+            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+            echo rdkit tar size: $size
+            if [ "$size" = 29567648 ] ; then
+               get_the_rdkit_tar_file=false
+            fi
+         fi
+         echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
+
+         if [ $get_the_rdkit_tar_file = true ] ; then
+            # $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            do_rdkit_download=true
+            if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                if [ $s = $rdkit_tar_size ] ; then
+                   do_rdkit_download=false
+                fi
+            fi
+            if [ $do_rdkit_download = true ] ; then
+               echo $WGET $rdkit_home/$rdkit_tar_host_file_name
+               ${WGET} $rdkit_home/$rdkit_tar_host_file_name
+            fi
+         fi
+
          echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          pwd
@@ -4275,11 +4302,11 @@ fi
 
 
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
-if finger ; then
+if /usr/bin/finger ; then
    cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
    coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
 else
-   coot_build_info_string="build-host: $HOST on: $cbis_d"
+   coot_build_info_string="build-host: $HOST on: $cbis_d by $USER"
 fi
 
 # We no longer need this because clipper is found using pkg-config
