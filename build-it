@@ -399,7 +399,8 @@
 # 5.42 20210110 Rework the build of numpy, boost and rdkit
 # 5.43 20210110 Add unzip to build dependencies
 # 5.44 20210110 Bump the python version, rework the readline configure command line
-script_version=5.44
+# 5.45 20210110 Bump the python version again - no2 2.7.18
+script_version=5.45
 
 
 
@@ -1128,6 +1129,7 @@ case $dist_name in
        libxmu-dev
        libxt-dev
        libc6-dev
+       libtinfo6-dev
        libncurses5-dev
        libglu1-mesa-dev 
        libjpeg-dev
@@ -2141,7 +2143,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.17
+pver=2.7.18 # this is it - the final version of Python 2
 numpy_version=1.7.1
 numpy_version=1.16.6
 # for an upgrade of numpy to work, the old numpy must be deleted from site-packages
@@ -4455,10 +4457,12 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
+    echo coot build failed, exiting. 1>&2
     echo fail-build $coot_revision > $LOGS/build-status
     my_exit 2 $coot_revision
 else 
     echo coot build was good.
+    echo coot build was good. 1>&2
     echo pass-build $coot_revision > $LOGS/build-status
 fi
 echo done coot build.
