@@ -398,7 +398,8 @@
 # 5.41 20210110 change the boost build log output
 # 5.42 20210110 Rework the build of numpy, boost and rdkit
 # 5.43 20210110 Add unzip to build dependencies
-script_version=5.43
+# 5.44 20210110 Bump the python version, rework the readline configure command line
+script_version=5.44
 
 
 
@@ -2117,14 +2118,18 @@ fi
 # do we have greg?
 
 # LD_LIBRARY_PATH has been set by now
-$install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
-status=$?
-echo guile greg status $status
-if test $status = 0 ; then
-   echo installation has greg
-   build_greg=
+if [ -e $install_top_dir/bin/guile ] ; then
+   $install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
+   status=$?
+   echo guile greg status $status
+   if test $status = 0 ; then
+      echo installation has greg
+      build_greg=
+   else
+      echo greg should be built
+      build_greg=1
+   fi
 else
-   echo greg should be built
    build_greg=1
 fi
 
@@ -2136,7 +2141,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.15
+pver=2.7.17
 numpy_version=1.7.1
 numpy_version=1.16.6
 # for an upgrade of numpy to work, the old numpy must be deleted from site-packages
@@ -2983,6 +2988,52 @@ if [ "$build_goocanvas" != "no" ] ; then
 fi
 
 
+##################### readline #####################################
+
+
+if test -n "$build_readline" ; then
+    echo BUILDING readline:
+    readline_version=6.2
+    readline_version=6.3
+    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} $extras_place/readline-5.1.patch
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
+    cd readline-$readline_version
+    if test -n "$need_readline_patch" ; then
+       echo patching readline...
+       # need a patch (for debian only) to add curses to the additional libs line
+       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
+    fi
+    apply_shared_lib_sed_fix=true
+
+    # when don't we want to apply the sed fix?
+    # ....
+    #
+
+    if [ $apply_shared_lib_sed_fix = true ] ; then
+       echo applying sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+    fi
+    echo ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
+    ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
+    # single thread
+    if make ; then
+       make install
+       # no more missing functions hopefully!
+       # undefined symbol: UP	(/home/paule/autobuild/Linux-penelope-gtk2-python/lib/libreadline.so)
+       ldd -r $install_top_dir/lib/libreadline.so
+    else
+       echo make of readline failed
+    fi
+    ) > $HOSTLOGDIR/06-pre-readline.txt 2>&1
+else
+    echo not building readline:
+fi
+
 ###############################################################################
 ##########         build python and friends                       #############
 ###############################################################################
@@ -3202,7 +3253,8 @@ if [ "$test_for_already_installed_dependencies" = true ] ; then
 fi
 
 if [ "$build_boost" = true ] ; then
-   echo building boost
+   echo building boost $boost_version # to build.log
+   echo building boost $boost_version 1>&2 # to the terminal
    (
 
       echo building ========================= boost $boost_version =========================
@@ -3565,42 +3617,6 @@ if test -n "$build_libtool" ; then
     ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
 else
     echo not building libtool:
-fi 
-
-
-if test -n "$build_readline" ; then
-    echo BUILDING readline:
-    readline_version=6.2
-    readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    ${WGET} $extras_place/readline-5.1.patch
-    (
-    date
-    pwd
-    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
-    cd readline-$readline_version
-    if test -n "$need_readline_patch" ; then
-       echo patching readline...
-       # need a patch (for debian only) to add curses to the additional libs line
-       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
-    fi
-    if [ "$dist_name" = debian ] ; then
-       echo applying debian sed patch for shared-lib libreadline
-       # thanks for the quoting help tony duan @ stackoverflow 
-       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
-       extra_args_for_debian="--with-curses --enable-shared"
-    fi
-    echo ./configure $generic_prefix $extra_args_for_debian
-    ./configure $generic_prefix $extra_args_for_debian
-    # single thread
-    if make ; then
-       make install
-    else
-       echo make of readline failed
-    fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
-else 
-    echo not building readline:
 fi 
 
 
