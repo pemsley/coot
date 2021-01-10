@@ -397,7 +397,8 @@
 # 5.40 20210109 change the args to boost's build
 # 5.41 20210110 change the boost build log output
 # 5.42 20210110 Rework the build of numpy, boost and rdkit
-script_version=5.42
+# 5.43 20210110 Add unzip to build dependencies
+script_version=5.43
 
 
 
@@ -1119,6 +1120,7 @@ case $dist_name in
  
       dep_list='
        patch
+       unzip
        m4
        g++
        libxext-dev
@@ -1157,7 +1159,7 @@ case $dist_name in
       ;;
 
     debian)
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev'
+      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
       for dep in $dep_list 
       do 
          echo $dep
@@ -3279,7 +3281,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/16-b-numpy.log 2>&1
+      ) > $HOSTLOGDIR/16-b-numpy.txt 2>&1
    fi
 fi
 
