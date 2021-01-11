@@ -1161,6 +1161,7 @@ case $dist_name in
        libc6-dev
        libtinfo-dev
        libncurses5-dev
+       libssl-dev
        libglu1-mesa-dev 
        libjpeg-dev
        mesa-common-dev
