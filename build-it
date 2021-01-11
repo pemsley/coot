@@ -401,7 +401,8 @@
 # 5.44 20210110 Bump the python version, rework the readline configure command line
 # 5.45 20210110 Bump the python version again - no2 2.7.18
 # 5.46 20210110 Add a test for the version of cmake
-script_version=5.46
+# 5.47 20210111 Use the correct name for the libtinfo dev package
+script_version=5.47
 
 
 
@@ -1158,7 +1159,7 @@ case $dist_name in
        libxmu-dev
        libxt-dev
        libc6-dev
-       libtinfo6-dev
+       libtinfo-dev
        libncurses5-dev
        libglu1-mesa-dev 
        libjpeg-dev
