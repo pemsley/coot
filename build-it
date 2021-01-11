@@ -3049,8 +3049,8 @@ if test -n "$build_readline" ; then
        # thanks for the quoting help tony duan @ stackoverflow
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
     fi
-    echo ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
-    ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
+    echo ./configure $generic_prefix --with-curses --enable-shared
+    ./configure $generic_prefix --with-curses --enable-shared
     # single thread
     if make ; then
        make install
