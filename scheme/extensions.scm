@@ -46,20 +46,30 @@
 
 
 (if (defined? 'coot-main-menubar)
-    ;; --------------------------------------------------
-    ;;           coordinated water validation dialog
-    ;; --------------------------------------------------
     (let ((menu (coot-menubar-menu "Validate")))
+
+      (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps (Coot)"
+       (lambda ()
+         (using-active-atom
+          (coot-all-atom-contact-dots aa-imol))))
+
+      (add-simple-coot-menu-menuitem
+       menu "All-Atom Contact Dots (Molprobity)"
+       (lambda ()
+         (using-active-atom
+          (probe  aa-imol))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps Dialog"
+       (lambda ()
+         (using-active-atom
+          (molecule-atom-overlaps-gui aa-imol))))
+
       (add-simple-coot-menu-menuitem 
        menu "Highly coordinated waters..."
        (lambda ()
 	 (water-coordination-gui)))
-
-      (add-simple-coot-menu-menuitem
-       menu "Atom Overlaps"
-       (lambda ()
-         (using-active-atom
-          (molecule-atom-overlaps-gui aa-imol))))
 
       (add-simple-coot-menu-menuitem
        menu "Pepflips from Difference Map..."
@@ -490,7 +500,7 @@
 	;; ---------------------------------------------------------------------
 
 	(add-simple-coot-menu-menuitem
-	 submenu-models "Add Hydrogens"
+	 submenu-models "Add Hydrogen Atoms"
 	 (lambda ()
 	   (using-active-atom
 	    (coot-reduce aa-imol))))
@@ -556,6 +566,12 @@
 				      )))
 
 	;; --- D ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Delete Hydrogen Atoms"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-hydrogens aa-imol))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Delete Side-chains for Active Chain"

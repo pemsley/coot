@@ -3575,8 +3575,8 @@ void coot_all_atom_contact_dots(int imol) {
       // spike-length ball-radius
       bool ignore_waters = true;
       coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
-      // dot density
-      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+      // dot density // was 0.95
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.5, true);
 
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 
@@ -3602,7 +3602,12 @@ void coot_all_atom_contact_dots(int imol) {
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
+         
+	 int obj = generic_object_index(obj_name);
+         if (obj == -1)
+            obj = new_generic_object_number_for_molecule(obj_name, imol);
+         else
+            generic_object_clear(obj);
 	 std::string col = "#445566";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
@@ -3615,11 +3620,16 @@ void coot_all_atom_contact_dots(int imol) {
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
+      int clashes_obj = generic_object_index(clashes_name);
+      if (clashes_obj == -1)
+         clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
+      else
+         generic_object_clear(clashes_obj);
       for (unsigned int i=0; i<c.clashes.size(); i++) {
+         const auto &cl = c.clashes[i];
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
-				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
-				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
+				    cl.first.x(),  cl.first.y(),  cl.first.z(),
+				    cl.second.x(), cl.second.y(), cl.second.z());
       }
       set_display_generic_object_simple(clashes_obj, 1);
       graphics_draw();
