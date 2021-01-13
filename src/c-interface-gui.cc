@@ -1888,7 +1888,6 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *filechooser) {
 
    GtkWidget *combobox = lookup_widget(GTK_WIDGET(filechooser),
                                        "coords_filechooserdialog1_recentre_combobox");
-   std::cout << "debug:: in add_recentre_on_read_pdb_checkbutton() found combobox " << combobox << std::endl;
    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre on Molecule");
    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Don't Recentre");
    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre Molecule Here");

@@ -5132,6 +5132,11 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
 /*! \brief delete all hydrogens in molecule,
 
    @return number of hydrogens deleted. */
+int delete_hydrogen_atoms(int imol);
+
+/*! \brief delete all hydrogens in molecule,
+
+   @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
 
 /*! \brief delete all waters in molecule,
