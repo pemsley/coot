@@ -650,7 +650,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 							    bool do_trans_peptide_restraints,
 							    std::string link_flank_link_string) {
 
-   bool debug = true;
+   bool debug = false;
    int iret = 0;
    int n_link_bond_restr = 0;
    int n_link_angle_restr = 0;
@@ -985,7 +985,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
-	 if (false) {
+	 if (debug) { // what are the possible matching chem links?
+                     // This is useful when trying to find why a cif file doesn't link the
+                     // atoms that you want it to link.
 
 	    std::cout << "   DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
 		      << comp_id_1 << " " << group_1 << " and "
