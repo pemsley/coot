@@ -973,7 +973,7 @@ void delete_residues_py(int imol, PyObject *residue_specs_py) {
 
 
 int delete_hydrogen_atoms(int imol) {
-   delete_hydrogens(imol);
+   return delete_hydrogens(imol);
 }
 
 
