@@ -12223,7 +12223,7 @@ create_single_map_properties_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_lines_radiobutton), displayed_map_style_as_lines_radiobutton_group);
   displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_lines_radiobutton));
 
-  displayed_map_style_as_transparent_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Solid/Transparent");
+  displayed_map_style_as_transparent_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Solid");
   gtk_widget_show (displayed_map_style_as_transparent_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox308), displayed_map_style_as_transparent_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_transparent_radiobutton), displayed_map_style_as_lines_radiobutton_group);
