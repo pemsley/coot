@@ -3455,7 +3455,7 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
-      ) > $HOSTLOGDIR/18-rdkit.log 2>&1
+      ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
    fi
 fi
 
