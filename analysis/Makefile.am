@@ -23,7 +23,7 @@ libcoot_analysis_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la    	\
    $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
    $(top_builddir)/utils/libcoot-utils.la 		\
-   $(MMDB_LIBS)  \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)  \
    $(GSL_LIBS) $(RDKIT_LIBS)
 
 libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)

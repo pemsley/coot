@@ -50,7 +50,7 @@ libcoot_coords_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-   $(top_builddir)/ligand/libcoot-ligand.la
+   $(top_builddir)/ligand/libcoot-ligand.la $(CLIPPER_LIBS) -lpthread
 
 
 #   $(MMDB_LIBS) \

@@ -44,8 +44,9 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 #   $(top_builddir)/utils/libcoot-utils.la             
 #
 # bond-record-container-t has sqlite3 code in it (to create the atoms database currently)
-libcoot_lidia_core_la_LIBADD =                        \
-   $(top_builddir)/geometry/libcoot-geometry.la       \
+libcoot_lidia_core_la_LIBADD =                     \
+   $(top_builddir)/geometry/libcoot-geometry.la    \
+   $(top_builddir)/utils/libcoot-utils.la          \
    $(CLIPPER_LIBS) \
    $(RDKIT_LIBS) $(SQLITE3_LIBS)
 

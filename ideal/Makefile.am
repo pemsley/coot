@@ -63,6 +63,7 @@ AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
 libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la     \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la     \
    $(top_builddir)/geometry/libcoot-geometry.la        \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la  \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la   \
