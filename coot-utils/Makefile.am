@@ -86,6 +86,7 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
     $(top_builddir)/utils/libcoot-utils.la \
+    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
     $(CLIPPER_LIBS) $(MMDB_LIBS) \
     $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
@@ -111,7 +112,10 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 
 # should libcoot-coord-utils link $CLIPPER_LIBS? Yes, I think so.
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la $(CLIPPER_LIBS)
+   libcoot-coord-utils.la $(CLIPPER_LIBS) \
+   $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+   $(top_builddir)/utils/libcoot-utils.la
 
 libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -124,7 +128,9 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
-   $(CLIPPER_LIBS) $(GSL_LIBS)
+   $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
 libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -137,7 +143,9 @@ libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmon
 libcoot_map_heavy_la_LIBADD = \
    libcoot-map-utils.la \
    libcoot-coord-utils.la \
-   $(GSL_LIBS)
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
 libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
