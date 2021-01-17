@@ -270,7 +270,9 @@ _coot_extended_la_LIBADD = \
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la
 
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
-_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined \
+          $(top_builddir)/utils/libcoot-utils.la \
+          $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 pyexec_LTLIBRARIES += _coot.la
 

@@ -55,7 +55,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
-   $(top_builddir)/cootaneer/libcootaneer.la \
+   $(top_builddir)/cootaneer/libcootaneer.la          \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
    $(top_builddir)/geometry/libcoot-geometry.la       \
@@ -65,7 +65,7 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
    $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(RDKIT_LIBS)
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(RDKIT_LIBS) -lpthread
 
 libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -195,6 +195,7 @@ findligand_bin_LDADD = \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
+        $(top_builddir)/cootaneer/libcootaneer.la          \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
@@ -215,6 +216,7 @@ findwaters_bin_LDADD = \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+        $(top_builddir)/cootaneer/libcootaneer.la          \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \

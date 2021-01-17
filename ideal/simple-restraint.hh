@@ -32,16 +32,12 @@
 #include <memory>
 
 #ifndef __NVCC__
-#ifdef HAVE_CXX_THREAD
-
 #include <thread>
 #include <atomic>
-#endif // HAVE_CXX_THREAD
 #endif // __NVCC__
 
 #ifndef __NVCC__
 #ifdef HAVE_BOOST
-#ifdef HAVE_CXX_THREAD
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 
@@ -60,7 +56,6 @@ extern int getopt ();
 
 // #include "compat/coot-getopt.h"
 #include "utils/ctpl.h"
-#endif // HAVE_CXX_THREAD
 #endif // HAVE_BOOST
 #endif // __NVCC__
 
@@ -2655,7 +2650,7 @@ namespace coot {
 
    };
 
-#ifdef HAVE_CXX_THREAD
+
 #ifndef __NVCC__
    void my_df_non_bonded_thread_dispatcher(int thread_idx,
 					   const gsl_vector *v,
@@ -2687,7 +2682,7 @@ namespace coot {
                                 std::atomic<unsigned int> &done_count_for_threads);
 
 #endif
-#endif // HAVE_CXX_THREAD
+
 
    double electron_density_score(const gsl_vector *v, void *params);
    // interestingly, this needs a different name to the above so that std::async()
@@ -2695,7 +2690,6 @@ namespace coot {
    double electron_density_score_from_restraints(const gsl_vector *v, coot::restraints_container_t *restraints_p);
    double electron_density_score_from_restraints_simple(const gsl_vector *v, coot::restraints_container_t *restraints_p);
 
-#ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
    // The version of electron_density_score_from_restraints that can be used with a thread pool.
    // The calling function needs to push this onto the queue, one for each thread,
@@ -2715,7 +2709,6 @@ namespace coot {
                                                  double *result,
                                                  std::atomic<unsigned int> &done_count);
 #endif // __NVCC__
-#endif // HAVE_CXX_THREAD
 
    // new style Grad_map/Grad_orth method
    void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
