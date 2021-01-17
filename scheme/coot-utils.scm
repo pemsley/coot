@@ -2517,7 +2517,6 @@
 
   (define (is-pyrimidine? res-name)
     (or (string=? res-name "C")
-        (string=? res-name "A")
         (string=? res-name "T")
         (string=? res-name "U")
         (string=? res-name "DC")
