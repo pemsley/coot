@@ -3384,7 +3384,8 @@ rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/rdkit/DistGeom/TriangleSmooth.h ] ;  then
+      # this file is in 2018_09 but not in 2017_09
+      if [ -e $install_top_dir/include/rdkit//GraphMol/StereoGroup.h ] ;  then
          echo not building rdkit:
          skip_this=true
       fi
