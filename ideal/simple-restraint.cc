@@ -1032,7 +1032,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       }
    }
 
-   
    for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
       mmdb::Residue *r = it_map->first;
       const std::set<mmdb::Residue *> &s = it_map->second;
@@ -1054,9 +1053,9 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    if (true) {
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
-      std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
-	 std::cout << "    " << atom_spec_t(atom[*it]) << std::endl;
+      std::set<int>::const_iterator it_fixed;
+      for (it_fixed=fixed_atom_indices.begin(); it_fixed!=fixed_atom_indices.end(); ++it_fixed)
+	 std::cout << "    " << atom_spec_t(atom[*it_fixed]) << std::endl;
    }
 
    add_fixed_atoms_from_flanking_residues(bpc);
@@ -1630,7 +1629,9 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
             if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
                double dd = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
                rama_distortion_score_sum += dd;
-               std::cout << "zo-rama " << dd << std::endl;
+               mmdb::Atom *at = atom[restraint.atom_index_3];
+               std::string res_type(at->residue->GetResName());
+               // std::cout << atom_spec_t(at) << " " << res_type << " zo-rama " << dd << std::endl;
                if (dd > 0.01) {
                   rama_baddies[restraint.atom_index_1] += 0.5 * dd;
                }
@@ -1652,7 +1653,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size());
    std::map<int, float>::const_iterator it;
    unsigned int idx = 0;
-   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); it++)
+   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); ++it)
       nbc_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
 
    auto sorter = [] (const std::pair<int, float> &v1,
