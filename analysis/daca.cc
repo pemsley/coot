@@ -1233,18 +1233,15 @@ void
 coot::daca::envelope() {
 
    std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
-   for (it =boxes.begin(); it!=boxes.end(); it++) {
-      const std::string &res_name_with_ss(it->first);
+   for (it =boxes.begin(); it!=boxes.end(); ++it) {
       std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
       for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
          std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
          std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
-         for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
-            const std::string &atom_type = it_1->first;
+         for (it_1=m1.begin(); it_1!=m1.end(); ++it_1) {
             std::map<box_index_t, unsigned int> &m2(it_1->second);
-            unsigned int n_count_sum = 0;
             std::map<box_index_t, unsigned int>::iterator it_2;
-            for (it_2=m2.begin(); it_2!=m2.end(); it_2++) {
+            for (it_2=m2.begin(); it_2!=m2.end(); ++it_2) {
                const box_index_t &bi = it_2->first;
                const unsigned int &counts = it_2->second;
                unsigned int c = counts;
@@ -1268,21 +1265,19 @@ coot::daca::smooth() {
    std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >
       copy_boxes = boxes;
 
-   for (it=boxes.begin(); it!=boxes.end(); it++) {
+   for (it=boxes.begin(); it!=boxes.end(); ++it) {
       const std::string &res_name_with_ss(it->first);
       std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
       for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
          std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
          std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
-         for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
+         for (it_1=m1.begin(); it_1!=m1.end(); ++it_1) {
             const std::string &atom_type = it_1->first;
             std::map<box_index_t, unsigned int> &m2(it_1->second);
-            unsigned int n_count_sum = 0;
             std::map<box_index_t, unsigned int>::const_iterator it_2;
-            for (it_2=m2.begin(); it_2!=m2.end(); it_2++) {
+            for (it_2=m2.begin(); it_2!=m2.end(); ++it_2) {
                const box_index_t &bi = it_2->first;
                const unsigned int &counts = it_2->second;
-               float d = bi.d();
                const int box_idx_min = -8;
                const int box_idx_max =  7;
                for (int delta_x = -1; delta_x <= 1; delta_x++) {
@@ -1301,7 +1296,8 @@ coot::daca::smooth() {
                                        if (idx_neighb_z >= box_idx_min) {
                                           if (idx_neighb_z <= box_idx_max) {
                                              box_index_t neighb_box_index(idx_neighb_x, idx_neighb_y, idx_neighb_z);
-                                             int contrib = static_cast<int>(0.125 * static_cast<float>(counts));
+                                             // int contrib = static_cast<int>(0.125 * static_cast<float>(counts));
+                                             int contrib = counts;
                                              copy_boxes[res_name_with_ss][idx_frag][atom_type][neighb_box_index] += contrib;
                                           }
                                        }
@@ -1690,7 +1686,7 @@ coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) cons
 void
 coot::daca::cook() {
 
-   smooth();
-   envelope();
+   // smooth();
+   // envelope();
    normalize_v2();
 }
