@@ -1166,7 +1166,7 @@ coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
 	    if (l > 0) {
 	       for (std::size_t i=0; i<l; i++) {
 		  PyObject *obj_py = PyList_GetItem(highlight_atom_list, i);
-		  if PyLong_Check(obj_py) {
+		  if (PyLong_Check(obj_py)) {
 		     long item = PyLong_AsLong(obj_py);
 		     if (item >= 0) {
 			highlight_atom_indices.push_back(static_cast<unsigned int>(item));
@@ -1180,7 +1180,7 @@ coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
 	       if (l > 0) {
 		  for (std::size_t i=0; i<l; i++) {
 		     PyObject *obj_py = PyTuple_GetItem(highlight_atom_list, i);
-		     if PyLong_Check(obj_py) {
+		     if (PyLong_Check(obj_py)) {
 			long item = PyLong_AsLong(obj_py);
 			if (item >= 0) {
 			   highlight_atom_indices.push_back(static_cast<unsigned int>(item));
@@ -1199,7 +1199,7 @@ coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
 	    if (l > 0) {
 	       for (std::size_t i=0; i<l; i++) {
 		  PyObject *obj_py = PyList_GetItem(highlight_bond_list, i);
-		  if PyLong_Check(obj_py) {
+		  if (PyLong_Check(obj_py)) {
 		     long item = PyLong_AsLong(obj_py);
 		     if (item >= 0) {
 			highlight_bond_indices.push_back(static_cast<unsigned int>(item));
