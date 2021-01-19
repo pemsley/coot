@@ -442,7 +442,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    }
    draw_axes();
    draw_zero_lines();
-   black_border();
+   draw_black_border();
    // green box? directly onto the canvas, out of sight.
    green_box_item = goo_canvas_rect_new(root,
                                         -999., -999.,
@@ -489,7 +489,7 @@ coot::rama_plot::reinitialise() {
    g_print("BL DEBUG:: 1/2 way\n");
    draw_zero_lines();
    g_print("BL DEBUG:: 0 lins\n");
-   black_border();
+   draw_black_border();
    g_print("BL DEBUG:: done borders\n");
 
    if (plot_type == PHI_EDIT) {
@@ -1345,7 +1345,7 @@ coot::rama_plot::key_release_event(GtkWidget *widget, GdkEventKey *event) {
 
 
 void
-coot::rama_plot::black_border() {
+coot::rama_plot::draw_black_border() {
 
 #ifdef HAVE_GOOCANVAS
 

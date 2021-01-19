@@ -431,7 +431,7 @@ namespace coot {
       std::pair<int, std::vector<float> > make_isolines_internal(const clipper::Ramachandran rama_type,
                                                                  double threshold, float x_in, float y_in);
       void setup_canvas(); 
-      void black_border();
+      void draw_black_border();
       void cell_border(int i, int j, int step);
 
       void generate_phi_psis(mmdb::Manager *mol);
