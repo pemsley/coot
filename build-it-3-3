@@ -3213,6 +3213,7 @@ if [ true = true ] ; then
          skip_this=true
    fi
    if [ $skip_this = false ] ;  then
+      echo building numpy $numpy_version
       (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
@@ -3272,7 +3273,7 @@ if [ "$build_rdkit" = true ] ; then
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       # this file is in 2018_09 but not in 2017_09
       if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
-         echo rdkit is found, skip
+         echo not building rdkit:
          skip_this=true
       fi
    fi
@@ -3282,11 +3283,11 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
-      echo building rdkit
+      echo building rdkit $rdkit_version
       (
       echo building ========================= rdkit ==============================
 
-      # at last we can compile rdkit
+      # at last we get to actually compile rdkit
       RDKIT=$install_top_dir
       RDBASE=$install_top_dir
       CMAKE_INSTALL_PREFIX=$install_top_dir
@@ -3303,8 +3304,7 @@ if [ "$build_rdkit" = true ] ; then
          export LD_LIBRARY_PATH=
       fi
 
-      echo === LD_LIBRARY_PATH is $LD_LIBRARY_PATH
-      echo === PYTHONPATH is $PYTHONPATH
+      echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
 
       if [ "$github_rdkit" = true ] ; then
          echo PATH A - pull
@@ -3323,28 +3323,37 @@ if [ "$build_rdkit" = true ] ; then
 
          # OK, So, AFAICS, -N doesn't work with this file. So check the size
          get_the_rdkit_tar_file=true
-         if [ -e  ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
-            echo found the file $rdkit_tar_download_file_name
+         echo testing for existance of ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
-            echo size: $size
-            if [ "$size" = 29567648 ] ; then
+            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size: $size
+            if [ "$size" = 54644917 ] ; then
                get_the_rdkit_tar_file=false
             fi
          fi
-         echo C here with get_the_rdkit_tar_file $get_the_rdkit_tar_file
+         echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
 
          if [ $get_the_rdkit_tar_file = true ] ; then
             # $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             do_rdkit_download=true
             if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
                 s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
-                if [ $s = $rdkit_tar_size ] ; then
+                if [ "$s" = $rdkit_tar_size ] ; then
                    do_rdkit_download=false
                 fi
             fi
             if [ $do_rdkit_download = true ] ; then
                echo $WGET $rdkit_home/$rdkit_tar_host_file_name
-               ${WGET} $rdkit_home/$rdkit_tar_host_file_name
+               if ${WGET} $rdkit_home/$rdkit_tar_host_file_name ; then
+                  if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                     cp ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ${AUTOBUILD_SOURCES}/rdkit-$rdkit_tar_host_file_name
+                  else
+                     echo $rdkit_tar_host_file_name does not exist after download
+                  fi
+               fi
             fi
          fi
 
@@ -3457,6 +3466,23 @@ if [ "$build_rdkit" = true ] ; then
       cd ..
       ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
    fi
+fi
+
+
+
+# silicos-it's biscu-it
+if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
+   echo not building biscu-it:
+else
+   echo building QED
+   (date
+    ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+    pwd
+    tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
+    cd qed-1.0.1
+    python setup.py install
+    cd -
+   ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
 fi
 
 
