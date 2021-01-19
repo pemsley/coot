@@ -22,9 +22,7 @@
 
 WITH_GUILE_CFLAGS=$(COOT_USE_GUILE)
 
-if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
-endif
 
 lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-coord-extras.la \
 	libcoot-map-utils.la libcoot-map-heavy.la

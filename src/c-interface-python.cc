@@ -39,7 +39,6 @@
 
 #include "graphics-info.h"
 
-
 PyObject *myPyString_FromString(const char *str) {
 
    PyObject *r = PyUnicode_FromString(str);

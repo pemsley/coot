@@ -51,6 +51,8 @@
 void setup_python(int argc, char **argv) {
 
 
+   std::cout << "------------ setup_python() start ----------------" << std::endl;
+
 #ifdef USE_PYTHON
 #ifdef USE_PYMAC_INIT
 
@@ -80,7 +82,26 @@ void setup_python(int argc, char **argv) {
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
 
+   // int err = PyRun_SimpleString("import coot");
+
+   PyObject *sys = PyImport_ImportModule("sys");
+   if (! sys) {
+      std::cout << "Null sys" << std::endl;
+   } else {
+      std::cout << "sys imported" << std::endl;
+   }
+   PyObject *coot = PyImport_ImportModule("coot");
+   if (! coot) {
+      std::cout << "Null coot" << std::endl;
+   } else {
+      std::cout << "coot imported" << std::endl;
+   }
+   PyErr_PrintEx(0);
+
+
+   std::cout << "try: import coot" << std::endl;
    int err = PyRun_SimpleString("import coot");
+
    if (err == -1) {
       std::cout << "ERROR:: could not import coot module" << std::endl;
    } else {
@@ -91,6 +112,7 @@ void setup_python(int argc, char **argv) {
                                  // the status-bar, menu-bar etc.
    }
 
+   std::cout << "------------ setup_python() done ----------------" << std::endl;
 #endif // USE_PYTHON
 
 }

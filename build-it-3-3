@@ -1992,8 +1992,10 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python3.6
-pver=3.6.9
+python_version=python3.9
+pver=3.9.1
+python_version_extension=3.9 # extract this
+
 #
 # but more modern pythons do not compile (at least on my mac)
 # 20201225-PE this needs checking

@@ -241,8 +241,11 @@ dnl AM_PATH_GLUT(, [echo You need the GLUT utility library; exit 1], AC_MSG_ERRO
 
 dnl =========================== Python and Guile ======================
 
-AM_WITH_PYTHON
-AM_PATH_PYTHON
+# AM_WITH_PYTHON
+# AM_PATH_PYTHON
+
+AM_PATH_PYTHON([3.9])
+AX_PYTHON_DEVEL
 
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK

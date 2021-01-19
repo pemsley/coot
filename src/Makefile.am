@@ -18,8 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-if COOT_USE_PYTHON
-
 # if coot.py is called __init.py and goes in site-packages/coot/
 #dist_pkgpython_SCRIPTS = __init__.py
 #dist_python_SCRIPTS = coot.pth
@@ -30,8 +28,6 @@ if COOT_USE_PYTHON
 
 dist_python_SCRIPTS = coot.py coot.pth
 
-
-endif
 
 
 ######## 20091001 ########################################################
@@ -221,6 +217,7 @@ AM_CXXFLAGS = \
 #
 #
 AM_CPPFLAGS = \
+        -DUSE_PYTHON \
 	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
@@ -267,36 +264,41 @@ _coot_extended_la_LIBADD = \
                        $(top_builddir)/geometry/libcoot-geometry.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
 
-pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la
+pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
-_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined \
-          $(top_builddir)/utils/libcoot-utils.la \
-          $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
-pyexec_LTLIBRARIES += _coot.la
+_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined \
+           $(top_builddir)/src/libcootsumo.la \
+           $(top_builddir)/utils/libcoot-utils.la AAAAAAAAAAAAAAAAA \
+           $(PYTHON_LIBS) BBBBBBBBBB $(CLIPPER_LIBS) CCCCCCCCCCCCCCCCC
+
 
 
 if OS_WIN32
 # no more libexec for windows
-bin_PROGRAMS =  coot-bin coot-density-score-by-residue-bin \
-	coot-fix-nomenclature-errors dynarama-bin
+bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin dynarama-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin \
-	dynarama-bin
-bin_PROGRAMS =  coot-fix-nomenclature-errors
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin dynarama-bin
+bin_PROGRAMS = 
 endif
+
 dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
 check_PROGRAMS = test-coot-align test-cholesky
 
-coot_fix_nomenclature_errors_SOURCES = \
-	fix-nomenclature.cc    \
-	coot-nomenclature.hh   \
-	coot-nomenclature.cc
+#coot_fix_nomenclature_errors_SOURCES = \
+#	fix-nomenclature.cc    \
+#	coot-nomenclature.cc
 
+coot_bin_SOURCES = main.cc
 
-coot_bin_SOURCES = \
-	main.cc 		 \
+coot_bin_LDADD = $(top_builddir)/coot-surface/libcoot-surface.la \
+                 $(top_builddir)/utils/libcoot-utils.la \
+                 libcootsumo.la $(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
+
+lib_LTLIBRARIES=libcootsumo.la
+
+libcootsumo_la_SOURCES = \
 	atom-pull.hh		 \
 	array-2d.hh		 \
 	boids.hh boids.cc	 \
@@ -347,11 +349,11 @@ coot_bin_SOURCES = \
 	c-interface-ncs.cc	 \
 	c-interface-network.cc	 \
 	c-interface-nucleotides.cc \
-	c-interface-python.cc	 \
 	c-interface-pisa.cc	 \
 	c-interface-pisa-gui.cc	 \
 	c-interface-preferences.cc \
 	c-interface-preferences.h  \
+	c-interface-python.cc	 \
 	c-interface-python.hh	 \
 	c-interface-refine.hh	 \
 	c-interface-refine.h	 \
@@ -412,6 +414,7 @@ coot_bin_SOURCES = \
 	coot-align.cc 		 \
 	coot-align.hh		 \
 	coot-nomenclature.cc	 \
+	coot-nomenclature.hh     \
 	coot-fileselections.h    \
 	coot-glue.hh             \
 	coot-glue-gtk2.c	 \
@@ -662,28 +665,6 @@ dist_python_PYTHON = coot.py coot.pth
 
 # graphics_crash_test_LDADD = @GTK_LIBS@ $(GTKGL_CONTEXT_LIBS) $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
 
-coot_fix_nomenclature_errors_LDADD = \
-	$(top_builddir)/ligand/libcoot-ligand.la      		\
-	$(top_builddir)/db-main/libcoot-db-main.la      	\
-	$(top_builddir)/ideal/libcoot-ideal.la    		\
-        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
-	$(top_builddir)/geometry/libcoot-geometry.la    	\
-	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
-	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
-	$(top_builddir)/utils/libcoot-utils.la	  	        \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-		$(CLIPPER_LIBS) 	\
-		$(MMDB_LIBS)		\
-		$(PYTHON_LIBS)		\
-		$(CURL_LIBS)		\
-	  	$(RDKIT_LIBS)	        \
-		$(BOOST_LDFLAGS)        \
-		$(L_BOOST_PYTHON)
-
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)
 #        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
@@ -700,7 +681,7 @@ coot_bin_LDFLAGS =
 # the -lblas here is a bandaid - the GSL usage of BLAS needs to be
 # fixed in configure.
 #
-coot_bin_LDADD = $(OPENMP_CFLAGS)       \
+libcootsumo_la_LIBADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
@@ -713,7 +694,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
-      $(EPOXY_LIBS)           \
+                $(EPOXY_LIBS)           \
 		$(GLUT_LIBS) -lGL	\
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS) -lblas      \
@@ -732,8 +713,9 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
-test_cholesky_SOURCES = test-chol.cc gl-matrix.cc
+test_cholesky_SOURCES = test-chol.cc
 test_cholesky_LDADD =	\
+        $(top_builddir)/src/libcootsumo.la                \
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
@@ -756,8 +738,9 @@ test_cholesky_LDADD =	\
 # test_command_line_LDADD = -L$(top_srcdir)/compat      -lcoot-compat
 
 # if you like, you can investigate why coot-geometry and clipper is needed here:
-test_coot_align_SOURCES = align.cc coot-align.cc
+test_coot_align_SOURCES = align.cc
 test_coot_align_LDADD =	\
+        $(top_builddir)/src/libcootsumo.la                \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
@@ -775,6 +758,7 @@ test_coot_align_LDADD =	\
 
 coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
 coot_density_score_by_residue_bin_LDADD  =	\
+        $(top_builddir)/src/libcootsumo.la                \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
@@ -789,8 +773,9 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
 
-dynarama_bin_SOURCES = dynarama-main.cc rama_plot.cc rama_mousey.cc
+dynarama_bin_SOURCES = dynarama-main.cc
 dynarama_bin_LDADD = \
+        $(top_builddir)/src/libcootsumo.la                \
         $(top_builddir)/coords/libcoot-coords.la                \
         $(top_builddir)/utils/libcoot-utils.la                  \
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \

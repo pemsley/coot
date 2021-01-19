@@ -70,7 +70,6 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 #	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
 #	echo '#include "mmdb2-interface.cc"' >> $@
 
-if COOT_USE_PYTHON
 if MAKE_ENHANCED_LIGAND_TOOLS
 
 pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
@@ -157,5 +156,4 @@ endif
 clean-local: 
 	rm -f _pyrogen_swig.so
 
-endif
 endif
