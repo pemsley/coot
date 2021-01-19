@@ -2581,41 +2581,33 @@ else
 fi
 
 build_gobject_introspection=true
-if [ -e $install_top_dir/include/gobject-introspection-1.0/girffi.h ] ; then
+ls $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h
+if [ -e $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h ] ; then
    build_gobject_introspection=false
+   echo installation has gobject-introspection
 fi
 
-if test -n "$build_gobject_introspection" ; then
-
+if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
-   echo BUILDING gobject-introspection: 2>&1
    (
    date
    echo BUILDING gobject-introspection:
 
-   skip_build=false
-   if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/include/gobject-introspection-1.0/girffi.h ] ; then
-         skip_build=true
-      fi
-   fi
+   gobject_introspection_version=1.50.0
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
 
-   if [ $skip_build = false ] ; then
-      gobject_introspection_version=1.50.0
-      d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
-      ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
-      tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
-      cd gobject-introspection-$gobject_introspection_version
-      echo ./configure --prefix=$install_top_dir PYTHON=python3
-      ./configure --prefix=$install_top_dir PYTHON=python3
-      if $MAKE ; then
-         $MAKE install
-      fi
-   fi ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
+   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
+   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
+   cd gobject-introspection-$gobject_introspection_version
+   echo ./configure --prefix=$install_top_dir PYTHON=python3
+   ./configure --prefix=$install_top_dir PYTHON=python3
+   if $MAKE ; then
+      $MAKE install
+   fi
+   ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
+fi
 
    # pycairo is a dependency of pygobject.  Is this gtk2 stuff?
-   echo BUILDING pycairo:
-   echo BUILDING pycairo: 2>&1
    pycairo_version=1.17.0
    ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
    skip_build=true
@@ -2625,8 +2617,9 @@ if test -n "$build_gobject_introspection" ; then
       fi
    fi
 
-   (
+if [ true ] ; then
    if [ $skip_build = false ] ; then
+      (
       if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
 	 date
          echo building pycairo
@@ -2636,8 +2629,10 @@ if test -n "$build_gobject_introspection" ; then
          python setup.py install
          cd -
       fi
+      ) > $HOSTLOGDIR/07c-pycairo.txt 2>&1
+   else
+      echo installation has pycairo
    fi
-   ) > $HOSTLOGDIR/07c-pycairo.txt 2>&1
 
    echo BUILDING pygobject:
    echo BUILDING pygobject: 2>&1
@@ -2932,16 +2927,17 @@ build_boost=true
 test_for_already_installed_dependencies=true
 
 if [ "$build_boost" = true ] ; then
-   (
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
-         echo boost is found, skip
+         echo not building boost
          skip_this=true
       fi
    fi
 
    if [ $skip_this = false ] ;  then
+      echo building boost $boost_version
+      (
       echo building ========================= boost $boost_version =========================
 
       boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
@@ -2967,7 +2963,6 @@ if [ "$build_boost" = true ] ; then
       # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
 
       address_model=64
-      python_version_extention=3.6m # extract this
       # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
       pwd
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
@@ -2986,11 +2981,11 @@ if [ "$build_boost" = true ] ; then
 
       # bjam no longer exists
       # use -Wno-deprecated-declarations
-      echo ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
-           ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      echo ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
+           ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
+      ) > $HOSTLOGDIR/16-boost.txt
    fi
-   ) > $HOSTLOGDIR/16-boost.txt
 fi
 
 
@@ -3208,16 +3203,17 @@ pip3 install cython
 
 if [ true = true ] ; then
    skip_this=false
-   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy/lib/info.py ] ;  then
+   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py 
+   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
    fi
    if [ $skip_this = false ] ;  then
+      numpy_version=1.19.4
       echo building numpy $numpy_version
       (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
-      numpy_version=1.19.4
 
       # maybe get numpy from github?
       # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
@@ -3419,8 +3415,8 @@ if [ "$build_rdkit" = true ] ; then
       # http://www.inchi-trust.org/download/105/INCHI-1-SRC.zip
 
       # now libboost_python comes with an extended name: libboost_python27
-      python_version_extention=3.6m
-      libboost_python_ext=3.6m
+
+      libboost_python_ext=$python_version_extension
       libboost_python_ext=
       extension_type=so
 
@@ -3430,23 +3426,27 @@ if [ "$build_rdkit" = true ] ; then
 
       echo will configure with cmake like this:
 
+      # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
+
       echo cmake -DBoost_NO_BOOST_CMAKE=ON \
                -DBoost_INCLUDE_DIR=$install_top_dir/include \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
-               -DBoost_PYTHON36_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                 $tree_from_build
 
       if cmake -DBoost_NO_BOOST_CMAKE=ON \
                -DBoost_INCLUDE_DIR=$install_top_dir/include \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
-               -DBoost_PYTHON36_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                 $tree_from_build ; then
 
@@ -3471,7 +3471,7 @@ fi
 
 
 # silicos-it's biscu-it
-if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
+if [ -e $install_top_dir/lib/$pthon_version/site-packages/silicos_it/descriptors/qed.py ] ; then
    echo not building biscu-it:
 else
    echo building QED
@@ -3503,6 +3503,9 @@ if [ -e coot ] ; then
    echo now in this dir:
    pwd
    echo 33333333333333333333333 and about to fetch and merge...
+   if [ -e ltmain.sh ] ; then
+      rm ltmain.sh
+   fi
    git fetch
    git merge
    echo 44444444444444444444444 done fetch and merge
@@ -3604,7 +3607,7 @@ echo ../coot/configure $coot_prefix \
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
    RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 
-bash ../coot/configure $coot_prefix \
+   ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       SHELL=/bin/bash \
       PYTHON=python3 \
