@@ -37,6 +37,7 @@
 #include "cfc.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#include "init_coot_as_python_module.hh"
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include "cc-interface-molecular-representation.hh"
 #endif // USE_MOLECULES_TO_TRIANGLES
@@ -54,6 +55,10 @@ namespace std {
 %template(vector_atom_spec)      vector<coot::atom_spec_t>;
 %template(vector_mtz_type_label) vector<coot::mtz_type_label>;
 }
+
+%init %{
+  init_coot_as_python_module();
+%}
 
 
 #include "globjects.h"  //includes gtk/gtk.h

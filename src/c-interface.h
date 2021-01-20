@@ -7152,6 +7152,9 @@ void add_ligand_builder_menu_item_maybe();
 /*!  \brief display the ligand builder dialog */
 void start_ligand_builder_gui();
 
+/*  ----------------------------------------------------------------------- */
+/*                  end                                                     */
+/*  ----------------------------------------------------------------------- */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM all_molecule_rotamer_score(int imol);

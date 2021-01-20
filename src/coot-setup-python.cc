@@ -50,9 +50,6 @@
 
 void setup_python(int argc, char **argv) {
 
-
-   std::cout << "------------ setup_python() start ----------------" << std::endl;
-
 #ifdef USE_PYTHON
 #ifdef USE_PYMAC_INIT
 
@@ -88,31 +85,19 @@ void setup_python(int argc, char **argv) {
    if (! sys) {
       std::cout << "Null sys" << std::endl;
    } else {
-      std::cout << "sys imported" << std::endl;
+      // std::cout << "sys imported" << std::endl;
    }
    PyObject *coot = PyImport_ImportModule("coot");
    if (! coot) {
       std::cout << "Null coot" << std::endl;
    } else {
-      std::cout << "coot imported" << std::endl;
-   }
-   PyErr_PrintEx(0);
-
-
-   std::cout << "try: import coot" << std::endl;
-   int err = PyRun_SimpleString("import coot");
-
-   if (err == -1) {
-      std::cout << "ERROR:: could not import coot module" << std::endl;
-   } else {
-      std::cout << "INFO:: coot module imported" << std::endl;
-
+      // std::cout << "coot imported" << std::endl;
       initcoot_python_gobject(); // this is not a good name for this function. We need to say
                                  // this this is the module that wraps the glue to get
                                  // the status-bar, menu-bar etc.
    }
+   PyErr_PrintEx(0);
 
-   std::cout << "------------ setup_python() done ----------------" << std::endl;
 #endif // USE_PYTHON
 
 }

@@ -912,6 +912,7 @@ public:
    void init();
    void setup_key_bindings();
 
+   static bool coot_is_a_python_module; //turned off in main()
    static bool prefer_python;
 
    static bool do_expose_swap_buffers_flag;

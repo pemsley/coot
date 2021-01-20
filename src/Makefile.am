@@ -270,9 +270,8 @@ _coot_la_SOURCES = coot.cc coot_wrap_python.cc
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined \
            $(top_builddir)/src/libcootsumo.la \
-           $(top_builddir)/utils/libcoot-utils.la AAAAAAAAAAAAAAAAA \
-           $(PYTHON_LIBS) BBBBBBBBBB $(CLIPPER_LIBS) CCCCCCCCCCCCCCCCC
-
+           $(top_builddir)/utils/libcoot-utils.la  \
+           $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 
 if OS_WIN32
@@ -301,6 +300,8 @@ lib_LTLIBRARIES=libcootsumo.la
 libcootsumo_la_SOURCES = \
 	atom-pull.hh		 \
 	array-2d.hh		 \
+	init_coot_as_python_module.cc \
+	init_coot_as_python_module.hh \
 	boids.hh boids.cc	 \
 	boot-python.hh           \
 	boot-python.cc           \

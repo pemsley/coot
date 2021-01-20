@@ -3602,6 +3602,9 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    // Delete this in due course
    graphics_info_t g; // urgh!  (But the best solution?)
+
+   if (! g.use_graphics_interface_flag) return;
+
    coot::protein_geometry *geom_p = g.Geom_p();
 
    std::set<int> dummy;

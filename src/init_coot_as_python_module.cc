@@ -145,7 +145,14 @@ void setup_symm_lib() {
 
 
 void
-init_coot_without_main() {
+init_coot_as_python_module() {
+
+   // graphics_info_t::coot_is_a_python_module is set true initially,
+   // in main() it is set to false.
+   // when we import coot from python, main() is not executed, so we come here
+   // with graphics_info_t::coot_is_a_python_module as true
+
+   if (!graphics_info_t::coot_is_a_python_module) return; // coot gui/embedded mode
 
 #ifdef USE_LIBCURL
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
