@@ -20,7 +20,7 @@ private:
    unsigned int compile_shader(const std::string &source, ShaderType type) const;
    void set_uniform_locations();
    void set_attribute_locations();
-   unsigned int create() const;
+   std::pair<unsigned int, std::string> create() const;
    std::map<std::string, unsigned int> uniform_location_map;
    GLint glGetUniformLocation_internal(const std::string &key);
    std::string VertexSource;

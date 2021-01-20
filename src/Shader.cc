@@ -1,6 +1,8 @@
 
 #include <string>
+#include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <epoxy/gl.h>
 
@@ -45,13 +47,15 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    VertexSource.clear();
    FragmentSource.clear();
    name = file_name;
-   std::cout << "::: Shader compile " << file_name << std::endl;
+   std::string message;
 
    entity_type = e;
    parse(file_name);
    if (! VertexSource.empty()) {
       if (! FragmentSource.empty()) {
-         program_id = create();
+         std::pair<unsigned int, std::string> create_results = create();
+         program_id = create_results.first;
+         message = create_results.second;
          Use();
          set_uniform_locations();
          set_attribute_locations();
@@ -61,6 +65,12 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    } else {
       std::cout << "Empty Vertex Shader source\n";
    }
+   std::string fn = file_name;
+   std::stringstream ss;
+   ss << std::setw(33) << fn;
+   fn = ss.str();
+   
+   std::cout << "Shader compile " << fn << " " << message << std::endl;
 }
 
 void
@@ -348,31 +358,37 @@ unsigned int Shader::compile_shader(const std::string &source, ShaderType type) 
       glGetShaderInfoLog(id, length, &length, message);
       std::cout << "error:: Failed to compile " << type_s << " shader: " << message << std::endl;
    } else {
-      std::cout << "   glCompileShader() result was good for " << type_s << " shader " << std::endl;
+      // std::cout << "   glCompileShader() result was good for " << type_s << " shader " << std::endl;
    }
    return id;
 }
 
-unsigned int Shader::create() const {
+std::pair<unsigned int, std::string>
+Shader::create() const {
 
    unsigned int program = glCreateProgram();
    unsigned int vs = compile_shader(  VertexSource, ShaderType::VERTEX);
    unsigned int fs = compile_shader(FragmentSource, ShaderType::FRAGMENT);
+
+   std::string message;
 
    glAttachShader(program, vs);
    glAttachShader(program, fs);
    glLinkProgram(program);
    glValidateProgram(program);
    GLuint err = glGetError();
-   if (err)
+   if (err) {
       std::cout << "Shader::create() err " << err << std::endl;
-   else
-      std::cout << "   Shader::create() link was good " << std::endl;
+      message = "error";
+   } else {
+      // std::cout << "   Shader::create() link was good " << std::endl;
+      message = "success";
+   }
 
    glDeleteShader(vs);
    glDeleteShader(fs);
 
-   return program;
+   return std::pair<unsigned int, std::string> (program, message);
 }
 
 void
