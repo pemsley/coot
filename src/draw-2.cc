@@ -250,7 +250,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.setup_hud_geometry_bars(); // because they depend on the aspect ratio - but can't that be
                                 // passed as a uniform?
 
-   std::cout << "Reset frame buffers " << width << "x" << height << std::endl;
+   // std::cout << "INFO:: Reset frame buffers " << width << "x" << height << std::endl;
    g.reset_frame_buffers(width, height);
 }
 

@@ -35,7 +35,8 @@ graphics_info_t::init_shaders() {
                                                            shader_for_blur};
    std::string p = coot::package_data_dir();
    std::string d = coot::util::append_dir_dir(p, "shaders");
-   std::cout << "INFO:: shader default dir: " << d << std::endl;
+   if (false)
+      std::cout << "INFO:: shader default dir: " << d << std::endl;
    std::vector<std::reference_wrapper<Shader> >::iterator it;
    for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);

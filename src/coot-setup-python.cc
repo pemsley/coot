@@ -73,8 +73,10 @@ void setup_python(int argc, char **argv) {
    std::string pkgpydirectory = PKGPYTHONDIR;
    std::string pydirectory = PYTHONDIR;
 
-   std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
-   std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
+   if (false) {
+      std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
+      std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
+   }
 
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));

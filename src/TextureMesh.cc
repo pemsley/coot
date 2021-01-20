@@ -533,7 +533,7 @@ TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
    unsigned int n_bytes = n_happy_faces_max * sizeof(glm::vec3);
 
    glGenBuffers(1, &inst_positions_id);
-   std::cout << "setup_instancing_buffers: glGenBuffers inst_positions_id " << inst_positions_id << std::endl;
+   // std::cout << "setup_instancing_buffers: glGenBuffers inst_positions_id " << inst_positions_id << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
    glBufferData(GL_ARRAY_BUFFER, n_bytes, nullptr, GL_DYNAMIC_DRAW);
    // prevous attributes are position, normal, colour, texCoords
