@@ -133,7 +133,6 @@ create_window1 (void)
   GtkWidget *calculate1_menu;
   GtkWidget *align_and_mutate1;
   GtkWidget *calculate_all_molecule;
-  GtkWidget *calculate_dock_sequence;
   GtkWidget *fit_loop1;
   GtkWidget *fit_loop1_menu;
   GtkWidget *fit_loop_by_database_search1;
@@ -817,10 +816,6 @@ create_window1 (void)
   calculate_all_molecule = gtk_menu_item_new_with_mnemonic ("All Molecule...");
   gtk_widget_show (calculate_all_molecule);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), calculate_all_molecule);
-
-  calculate_dock_sequence = gtk_menu_item_new_with_mnemonic ("Dock Sequence...");
-  gtk_widget_show (calculate_dock_sequence);
-  gtk_container_add (GTK_CONTAINER (calculate1_menu), calculate_dock_sequence);
 
   fit_loop1 = gtk_menu_item_new_with_mnemonic ("Fit Loop");
   gtk_widget_show (fit_loop1);
@@ -2201,9 +2196,6 @@ create_window1 (void)
   g_signal_connect ((gpointer) calculate_all_molecule, "activate",
                     G_CALLBACK (on_calculate_all_molecule_activate),
                     NULL);
-  g_signal_connect ((gpointer) calculate_dock_sequence, "activate",
-                    G_CALLBACK (on_calculate_dock_sequence_activate),
-                    NULL);
   g_signal_connect ((gpointer) fit_loop1, "activate",
                     G_CALLBACK (on_fit_loop1_activate),
                     NULL);
@@ -2680,7 +2672,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, calculate1_menu, "calculate1_menu");
   GLADE_HOOKUP_OBJECT (window1, align_and_mutate1, "align_and_mutate1");
   GLADE_HOOKUP_OBJECT (window1, calculate_all_molecule, "calculate_all_molecule");
-  GLADE_HOOKUP_OBJECT (window1, calculate_dock_sequence, "calculate_dock_sequence");
   GLADE_HOOKUP_OBJECT (window1, fit_loop1, "fit_loop1");
   GLADE_HOOKUP_OBJECT (window1, fit_loop1_menu, "fit_loop1_menu");
   GLADE_HOOKUP_OBJECT (window1, fit_loop_by_database_search1, "fit_loop_by_database_search1");

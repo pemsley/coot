@@ -583,28 +583,28 @@
 
 	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
-	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
+	      (menuitem2 (gtk-menu-item-new-with-label "Assign Sequence...")))
 
 	  (gtk-menu-item-set-submenu menuitem2 submenu)
 	  (gtk-menu-append (coot-menubar-menu "Calculate") menuitem2)
 	  (gtk-widget-show menuitem2)
 	  
-	  ;; 
-	  (if (coot-has-pygtk?)
-	      (add-simple-coot-menu-menuitem
-	       submenu "Dock Sequence (py)..."
-	       (lambda ()
-		 (run-python-command "cootaneer_gui_bl()"))))
-	  
 	  (add-simple-coot-menu-menuitem
-	   submenu "Associate Sequence...."
+	   submenu "1: Associate Sequence...."
 	   (lambda ()
 	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
 
+	  ;; 
+	  (if (coot-has-pygtk?)
+	      (add-simple-coot-menu-menuitem
+	       submenu "2: Assign Sequence (py)..."
+	       (lambda ()
+		 (run-python-command "cootaneer_gui_bl()"))))
+	  
 	  ;; only add this to the GUI if the python version is not available.
 	  (if (not (coot-has-pygtk?))
 	      (add-simple-coot-menu-menuitem
-	       submenu "Dock sequence on this fragment..."
+	       submenu "Assign the sequence to this fragment..."
 	       (lambda ()
 		 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
 				       (lambda (imol)
