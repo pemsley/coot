@@ -861,6 +861,43 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
    } 
 }
 
+float
+graphics_info_t::get_estimated_map_weight(int imol_map) {
+
+   float v = -1.0; // invalid value (negative)
+
+   if (is_valid_map_molecule(imol_map)) {
+      float mean = graphics_info_t::molecules[imol_map].map_mean();
+      float sd   = graphics_info_t::molecules[imol_map].map_sigma();
+
+      v = 50*0.3/sd;
+      if (graphics_info_t::molecules[imol_map].is_EM_map())
+	 v *= 0.35;
+   }
+   return v;
+}
+
+void
+on_select_fitting_map_dialog_estimate_weight_button_clicked(GtkButton *button, gpointer user_data) {
+
+   GtkWidget *entry = GTK_WIDGET(user_data);
+   graphics_info_t g;
+   float e = g.get_estimated_map_weight(g.Imol_Refinement_Map());
+   std::string t = coot::util::float_to_string_using_dec_pl(e, 2);
+   g.geometry_vs_map_weight = e;
+
+   gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+}
+
+// static
+void
+graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.set_refinement_map(imol);
+
+}
 
 
 void
@@ -887,14 +924,33 @@ graphics_info_t::show_select_map_dialog() {
       GCallback callback = G_CALLBACK(select_refinement_map_combobox_changed);
       fill_combobox_with_map_options(combobox, callback, imol_refinement_map);
 
+      // now fill the weight entry:
+      GtkWidget *weight_entry = lookup_widget(widget, "select_fitting_map_dialog_weight_entry");
+      std::string ws = std::to_string(geometry_vs_map_weight);
+      gtk_entry_set_text(GTK_ENTRY(weight_entry), ws.c_str());
+
+      // add a callback for the weight estimate button
+      GtkWidget *estimate_buton = lookup_widget(widget, "select_fitting_map_dialog_estimate_button");
+      g_signal_connect(G_OBJECT(estimate_buton), "clicked",
+                       G_CALLBACK(on_select_fitting_map_dialog_estimate_weight_button_clicked),
+                       weight_entry);
+
       gint resp = gtk_dialog_run(GTK_DIALOG(widget));
       if (resp == GTK_RESPONSE_DELETE_EVENT) {
           if (imol_map == -1) {
               // unset refinement map if it has not been set previously
               set_refinement_map(-1);
+              
           }
       }
+      if (resp == GTK_RESPONSE_OK) {
+         std::string t = gtk_entry_get_text(GTK_ENTRY(weight_entry));
+         float f = coot::util::string_to_float(t);
+         geometry_vs_map_weight = f;
+      }
+
       gtk_widget_destroy (widget);
+
    }
 }
 

@@ -69,6 +69,11 @@ float matrix_state() {
    return graphics_info_t::geometry_vs_map_weight;
 }
 
+float get_map_weight() {
+   return graphics_info_t::geometry_vs_map_weight;
+}
+
+
 void set_refine_auto_range_step(int i) { 
    graphics_info_t::refine_auto_range_step = i;
 } 

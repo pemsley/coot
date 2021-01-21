@@ -4955,6 +4955,9 @@ on_select_map_for_fitting_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
+
+  // this doesn't do anything because gtk_dialog_run() is used
+
 //  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
 //				    "select_fitting_map_dialog");
 
@@ -12525,7 +12528,8 @@ on_weight_maxtrix_estimate_button_clicked
 {
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "refine_params_weight_matrix_entry");
-  estimate_map_weight(entry);
+  /*  and set geometry_vs_map_weight */
+  add_estimated_map_weight_to_entry(entry);
 
 }
 

@@ -3396,6 +3396,13 @@ void set_matrix(float f);
 /*! \brief return the relative weight of the geometric terms to the map terms. */
 float matrix_state();
 
+/*! \brief return the relative weight of the geometric terms to the map terms.
+
+A more sensible name for the matrix_state() function) */
+float get_map_weight();
+
+float estimate_map_weight(int imol_map);
+
 
 /*! \brief change the +/- step for autoranging (default is 1)
 

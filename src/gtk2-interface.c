@@ -13955,6 +13955,10 @@ create_select_fitting_map_dialog (void)
   GtkWidget *vbox95;
   GtkWidget *label128;
   GtkWidget *select_map_for_fitting_combobox;
+  GtkWidget *hbox458;
+  GtkWidget *label847;
+  GtkWidget *select_fitting_map_dialog_weight_entry;
+  GtkWidget *select_fitting_map_dialog_estimate_button;
   GtkWidget *dialog_action_area32;
   GtkWidget *select_map_for_fitting_button;
 
@@ -13983,6 +13987,23 @@ create_select_fitting_map_dialog (void)
   gtk_widget_show (select_map_for_fitting_combobox);
   gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_combobox, FALSE, FALSE, 0);
 
+  hbox458 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox458);
+  gtk_box_pack_start (GTK_BOX (vbox95), hbox458, TRUE, FALSE, 6);
+
+  label847 = gtk_label_new ("Weight: ");
+  gtk_widget_show (label847);
+  gtk_box_pack_start (GTK_BOX (hbox458), label847, FALSE, FALSE, 0);
+
+  select_fitting_map_dialog_weight_entry = gtk_entry_new ();
+  gtk_widget_show (select_fitting_map_dialog_weight_entry);
+  gtk_box_pack_start (GTK_BOX (hbox458), select_fitting_map_dialog_weight_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (select_fitting_map_dialog_weight_entry), 8226);
+
+  select_fitting_map_dialog_estimate_button = gtk_button_new_with_mnemonic ("Estimate");
+  gtk_widget_show (select_fitting_map_dialog_estimate_button);
+  gtk_box_pack_start (GTK_BOX (hbox458), select_fitting_map_dialog_estimate_button, FALSE, FALSE, 0);
+
   dialog_action_area32 = GTK_DIALOG (select_fitting_map_dialog)->action_area;
   gtk_widget_show (dialog_action_area32);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area32), GTK_BUTTONBOX_END);
@@ -14003,6 +14024,10 @@ create_select_fitting_map_dialog (void)
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, vbox95, "vbox95");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, label128, "label128");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_combobox, "select_map_for_fitting_combobox");
+  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, hbox458, "hbox458");
+  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, label847, "label847");
+  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_fitting_map_dialog_weight_entry, "select_fitting_map_dialog_weight_entry");
+  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_fitting_map_dialog_estimate_button, "select_fitting_map_dialog_estimate_button");
   GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_button, "select_map_for_fitting_button");
 
