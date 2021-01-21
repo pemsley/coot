@@ -3722,18 +3722,18 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 		  // add this link to mol
 		  mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
-		  strncpy(link->atName1,  at_1->GetAtomName(), 19);
-		  strncpy(link->aloc1,    at_1->altLoc, 9);
-		  strncpy(link->resName1, at_1->GetResName(), 19);
-		  strncpy(link->chainID1, at_1->GetChainID(), 9);
-		  strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		  strcpy(link->atName1,  at_1->GetAtomName());
+		  strcpy(link->aloc1,    at_1->altLoc);
+		  strcpy(link->resName1, at_1->GetResName());
+		  strcpy(link->chainID1, at_1->GetChainID());
+		  strcpy(link->insCode1, at_1->GetInsCode());
 		  link->seqNum1         = at_1->GetSeqNum();
 
-		  strncpy(link->atName2,  at_2->GetAtomName(), 19);
-		  strncpy(link->aloc2,    at_2->altLoc, 9);
-		  strncpy(link->resName2, at_2->GetResName(), 19);
-		  strncpy(link->chainID2, at_2->GetChainID(), 9);
-		  strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		  strcpy(link->atName2,  at_2->GetAtomName());
+		  strcpy(link->aloc2,    at_2->altLoc);
+		  strcpy(link->resName2, at_2->GetResName());
+		  strcpy(link->chainID2, at_2->GetChainID());
+		  strcpy(link->insCode2, at_2->GetInsCode());
 		  link->seqNum2         = at_2->GetSeqNum();
 
 		  model_p->AddLink(link);
@@ -4317,18 +4317,18 @@ coot::util::transfer_links(mmdb::Manager *mol_orig, mmdb::Manager *mol_new) {
 		     // add this link to mol
 		     mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
-		     strncpy(link->atName1,  at_1->GetAtomName(), 19);
-		     strncpy(link->aloc1,    at_1->altLoc, 9);
-		     strncpy(link->resName1, at_1->GetResName(), 19);
-		     strncpy(link->chainID1, at_1->GetChainID(), 9);
-		     strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		     strncpy(link->atName1,  at_1->GetAtomName(), 20);
+		     strncpy(link->aloc1,    at_1->altLoc, 20);
+		     strcpy(link->resName1, at_1->GetResName());
+		     strcpy(link->chainID1, at_1->GetChainID());
+		     strcpy(link->insCode1, at_1->GetInsCode());
 		     link->seqNum1         = at_1->GetSeqNum();
 
-		     strncpy(link->atName2,  at_2->GetAtomName(), 19);
-		     strncpy(link->aloc2,    at_2->altLoc, 9);
-		     strncpy(link->resName2, at_2->GetResName(), 19);
-		     strncpy(link->chainID2, at_2->GetChainID(), 9);
-		     strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		     strncpy(link->atName2,  at_2->GetAtomName(), 20);
+		     strncpy(link->aloc2,    at_2->altLoc, 20);
+		     strcpy(link->resName2, at_2->GetResName());
+		     strcpy(link->chainID2, at_2->GetChainID());
+		     strcpy(link->insCode2, at_2->GetInsCode());
 		     link->seqNum2         = at_2->GetSeqNum();
 
 		     new_model_p->AddLink(link);
