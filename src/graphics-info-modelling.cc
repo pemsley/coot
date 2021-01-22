@@ -3398,6 +3398,31 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       // fix up the residue number and chain id to match the clicked atom
 	       int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
 	       interesting_residue_p->seqNum = new_resno;
+
+               // we always want to remove OP3 from the residue to which a new residue
+               // is added when we add to the "N-terminus"
+               //
+               if (term_type == "N" || term_type == "MN") {
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms = 0;
+                  bool deleted = false;
+                  res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                  for (int iat=0; iat<n_residue_atoms; iat++) {
+                     mmdb::Atom *at = residue_atoms[iat];
+                     if (at) {
+                        std::string at_name(at->name);
+                        if (at_name == " OP3") {  // PDBv3 FIXME
+                           delete at;
+                           at = NULL;
+                           deleted = true;
+                           break;
+                        }
+                     }
+                  }
+                  if (deleted)
+                     res_p->TrimAtomTable();
+               }
+
 	       coot::util::transform_mol(mol, rtop_pair.second);
 	       // byte gz = GZM_NONE;
 	       // mol->WritePDBASCII("overlapped.pdb", gz);

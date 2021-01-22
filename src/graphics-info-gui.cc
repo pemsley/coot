@@ -912,7 +912,7 @@ graphics_info_t::show_select_map_dialog() {
       // list (if there are maps in the list)
       // 
       if (imol_map == -1) { 
-	 for (int imol=0; imol<n_molecules(); imol++) { 
+	 for (int imol=0; imol<n_molecules(); imol++) {
 	    if (molecules[imol].has_xmap()) {
 	       imol_refinement_map = imol;
 	       break;
