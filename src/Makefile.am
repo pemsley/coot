@@ -696,7 +696,6 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS)       \
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
                 $(EPOXY_LIBS)           \
-		$(GLUT_LIBS) -lGL	\
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS) -lblas      \
 		$(MYSQL_LIBS)		\
@@ -714,14 +713,15 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS)       \
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
+# the filename for libcootsumo.la in LIBADD must be direct, or the Makefile doesn't know how to make it.
 test_cholesky_SOURCES = test-chol.cc
 test_cholesky_LDADD =	\
-        $(top_builddir)/src/libcootsumo.la                \
+        libcootsumo.la                                    \
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/utils/libcoot-utils.la            \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
@@ -741,7 +741,7 @@ test_cholesky_LDADD =	\
 # if you like, you can investigate why coot-geometry and clipper is needed here:
 test_coot_align_SOURCES = align.cc
 test_coot_align_LDADD =	\
-        $(top_builddir)/src/libcootsumo.la                \
+        libcootsumo.la                                          \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
@@ -759,7 +759,7 @@ test_coot_align_LDADD =	\
 
 coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
 coot_density_score_by_residue_bin_LDADD  =	\
-        $(top_builddir)/src/libcootsumo.la                \
+        libcootsumo.la                                          \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
@@ -776,7 +776,7 @@ coot_density_score_by_residue_bin_LDADD  =	\
 
 dynarama_bin_SOURCES = dynarama-main.cc
 dynarama_bin_LDADD = \
-        $(top_builddir)/src/libcootsumo.la                \
+        libcootsumo.la                                          \
         $(top_builddir)/coords/libcoot-coords.la                \
         $(top_builddir)/utils/libcoot-utils.la                  \
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
