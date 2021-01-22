@@ -244,7 +244,7 @@ dnl =========================== Python and Guile ======================
 # AM_WITH_PYTHON
 # AM_PATH_PYTHON
 
-AM_PATH_PYTHON([3.8])
+AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
 
 AM_WITH_GUILE_GTK
