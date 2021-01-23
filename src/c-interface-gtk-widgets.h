@@ -501,7 +501,7 @@ void set_refine_params_comboboxes(GtkWidget *button);
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
 void set_refinement_weight_from_entry(GtkWidget *entry);
 
-void estimate_map_weight(GtkWidget *entry);
+void add_estimated_map_weight_to_entry(GtkWidget *entry);
 
 
 void check_chiral_volumes_from_widget(GtkWidget *window);

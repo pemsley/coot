@@ -79,7 +79,7 @@
 		    (if (ok-goosh-status? status)
 			(let ((pdb-name (string-append comp-id "-pyrogen.pdb"))
 			      (cif-name (string-append comp-id "-pyrogen.cif")))
-			  
+
 			  (read-pdb pdb-name)
 			  (read-cif-dictionary cif-name)))))))
 
@@ -101,6 +101,12 @@
 	     menu "Hydrogenate region"
 	     (lambda ()
 	       (hydrogenate-region 6)))
+
+            (add-simple-coot-menu-menuitem
+             menu "Contact Dots for Ligand"
+             (lambda ()
+               (using-active-atom
+                coot-contact-dots-for-ligand-scm aa-imol (list aa-chain-id aa-res-no aa-ins-code))))
 
 	    (add-simple-coot-menu-menuitem
 	     menu "SMILES → 2D"

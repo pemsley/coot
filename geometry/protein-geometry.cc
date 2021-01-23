@@ -1481,10 +1481,6 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
    if (local_group_1 == "SACCHARIDE")   local_group_1 = "pyranose";  // CCD annotation for FUC
    if (local_group_2 == "SACCHARIDE")   local_group_2 = "pyranose";
 
-   if (false)
-      std::cout << "debug:: in make_hash_code " << group_1 << " " << group_2 << " -> "
-		<< local_group_1 << " " << local_group_2 << std::endl;
-
    for (unsigned int i = 0; i < comp_id_1.length(); i++) {
      unsigned int chr = comp_id_1[i];
      hash_c1  = ((hash_c1 << 5) - hash_c1) + chr;
@@ -1511,6 +1507,11 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
    hash = hash_g1 + 8 * hash_g2;
 
    // hash |= 0;
+
+   if (false)
+      std::cout << "debug:: in make_hash_code \"" << group_1 << "\" \"" << group_2 << "\" -> \""
+		<< local_group_1 << "\" \"" << local_group_2 << "\"" << " return hash " << hash
+                << std::endl;
 
    return hash;
 }

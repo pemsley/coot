@@ -2413,7 +2413,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             else:
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
-            if (not is_nucleotide(imol_ligand, "A", 1)):
+            if is_nucleotide(imol, chain_id_in, resno):
+                if residue_exists_qm(imol, chain_id_in, resno-1, ""):
+                    delete_atom(imol_ligand, "A", 1, "", " OP3", "")
+
+            if not is_nucleotide(imol_ligand, "A", 1):
                 match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)

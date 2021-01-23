@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include <string>
+
 #include "generic-display-objects-c.h"
 
 

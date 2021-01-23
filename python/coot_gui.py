@@ -3701,6 +3701,7 @@ def cootaneer_gui_bl():
       vbox = gtk.VBox(False, 3)
       hbox = gtk.HBox(False, 3)
       entry = gtk.Entry()
+      entry.set_size_request(40, -1)
       textview = gtk.TextView()
       textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
       textview.set_editable(True)
@@ -3714,8 +3715,11 @@ def cootaneer_gui_bl():
       chain_check_button = gtk.CheckButton("Assign Chain ID as well?")
 
       frame.add(hbox)
-      vbox.pack_start(chain_id_label, False, False, 2)
-      vbox.pack_start(entry, False, False, 2)
+
+      chain_id_h_box = gtk.HBox(False, 3)
+      chain_id_h_box.pack_start(chain_id_label, False, False, 2)
+      chain_id_h_box.pack_start(entry, False, False, 2)
+      vbox.pack_start(chain_id_h_box, True, False, 2)
       vbox.pack_start(sequence_label, False, False, 2)
       vbox.pack_start(textview, True, False, 2)
       add_text_to_text_buffer(text_buffer, seq_info[1])
@@ -3808,8 +3812,10 @@ def cootaneer_gui_bl():
          hhbox = fframe.get_children()[0]
          vvbox = hhbox.get_children()[0]
          child_list = vvbox.get_children()
-         chain_id = child_list[1].get_text()
-         seq_textbuffer = child_list[3].get_buffer()
+         # for idx,c  in zip(range(len(child_list)), child_list):
+         #    print(idx,c)
+         chain_id       = child_list[1].get_text()
+         seq_textbuffer = child_list[2].get_buffer()
          startiter, enditer = seq_textbuffer.get_bounds() 
          seq_in = seq_textbuffer.get_text(startiter, enditer)
          pair = [chain_id, seq_in]
@@ -3891,8 +3897,9 @@ def cootaneer_gui_bl():
    fill_table_with_sequences()
 
    vbox.pack_start(h_sep, False, False, 2)
-   file_sel_entry = file_selector_entry(vbox, "Select PIR file")
-   vbox.pack_start(import_button, False, False, 6)
+   # file_sel_entry = file_selector_entry(vbox, "Select PIR file")
+   # vbox.pack_start(import_button, False, False, 6)
+   file_sel_entry = False
 
    buttons_hbox.pack_start(go_button, False, False, 6)
    buttons_hbox.pack_start(cancel_button, False, False, 6)
@@ -3902,7 +3909,7 @@ def cootaneer_gui_bl():
    vbox.pack_start(buttons_hbox, False, False, 5)
 
 
-   import_button.connect("clicked", import_function_event, file_sel_entry)
+   # import_button.connect("clicked", import_function_event, file_sel_entry)
 
    cancel_button.connect("clicked", delete_event)
 

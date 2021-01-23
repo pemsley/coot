@@ -3396,6 +3396,13 @@ void set_matrix(float f);
 /*! \brief return the relative weight of the geometric terms to the map terms. */
 float matrix_state();
 
+/*! \brief return the relative weight of the geometric terms to the map terms.
+
+A more sensible name for the matrix_state() function) */
+float get_map_weight();
+
+float estimate_map_weight(int imol_map);
+
 
 /*! \brief change the +/- step for autoranging (default is 1)
 
@@ -5129,6 +5136,11 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 /*! \brief delete all atoms in residue that are not main chain or CB */
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char*ins_code,
 			      short int do_delete_dialog);
+/*! \brief delete all hydrogens in molecule,
+
+   @return number of hydrogens deleted. */
+int delete_hydrogen_atoms(int imol);
+
 /*! \brief delete all hydrogens in molecule,
 
    @return number of hydrogens deleted. */

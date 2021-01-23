@@ -819,16 +819,6 @@ graphics_info_t::refinement_map_select_add_columns(GtkWidget *item, GtkPositionT
    g.set_refinement_map(pos);
 }
 
-// static
-void
-graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data) {
-
-   graphics_info_t g;
-   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
-   g.set_refinement_map(imol);
-
-}
-
 
 void 
 graphics_info_t::set_refmac_phase_input(int phase_flag) {

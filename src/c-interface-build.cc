@@ -972,6 +972,9 @@ void delete_residues_py(int imol, PyObject *residue_specs_py) {
 #endif
 
 
+int delete_hydrogen_atoms(int imol) {
+   return delete_hydrogens(imol);
+}
 
 
 /*! \brief delete all hydrogens in molecule */

@@ -400,7 +400,9 @@
 # 5.43 20210110 Add unzip to build dependencies
 # 5.44 20210110 Bump the python version, rework the readline configure command line
 # 5.45 20210110 Bump the python version again - no2 2.7.18
-script_version=5.45
+# 5.46 20210110 Add a test for the version of cmake
+# 5.47 20210111 Use the correct name for the libtinfo dev package
+script_version=5.47
 
 
 
@@ -1095,6 +1097,34 @@ if test $OS = Linux ; then
 fi
 
 
+
+
+a=$(cmake --version)
+have_new_enough_cmake=false
+case $a in
+
+   # old versions of cmake don't find Boost (FindBoost) when configuring the RDKit.
+
+   cmake?version?3.1[5-9].*)  # 3.15.x is inferred! 3.18 is new enough, 3.10 is not.
+                              # https://cmake.org/cmake/help/latest/release/3.15.html
+      have_new_enough_cmake=true
+      ;;
+
+   cmake?version?3.[2-9][0-9].*)
+      have_new_enough_cmake=true
+      ;;
+
+   *)
+      echo cmake version fallback: $a
+      ;;
+esac
+echo have_new_enough_cmake: $have_new_enough_cmake
+if [ $have_new_enough_cmake = false ] ; then
+   echo update your cmake and try again
+   my_exit 2
+fi
+
+
 if test $OS = IRIX64 ; then
    osversion=`uname -r`
    systype=${osversion}-sgi
@@ -1129,8 +1159,9 @@ case $dist_name in
        libxmu-dev
        libxt-dev
        libc6-dev
-       libtinfo6-dev
+       libtinfo-dev
        libncurses5-dev
+       libssl-dev
        libglu1-mesa-dev 
        libjpeg-dev
        mesa-common-dev
@@ -3020,8 +3051,8 @@ if test -n "$build_readline" ; then
        # thanks for the quoting help tony duan @ stackoverflow
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
     fi
-    echo ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
-    ./configure $generic_prefix $extra_args_for_debian --with-curses --enable-shared
+    echo ./configure $generic_prefix --with-curses --enable-shared
+    ./configure $generic_prefix --with-curses --enable-shared
     # single thread
     if make ; then
        make install
@@ -3353,7 +3384,8 @@ rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/rdkit/DistGeom/TriangleSmooth.h ] ;  then
+      # this file is in 2018_09 but not in 2017_09
+      if [ -e $install_top_dir/include/rdkit//GraphMol/StereoGroup.h ] ;  then
          echo not building rdkit:
          skip_this=true
       fi

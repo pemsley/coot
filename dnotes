@@ -9489,3 +9489,11 @@ Mon 14 Dec 14:37:02 GMT 2020
 
    https://nvidia.custhelp.com/app/answers/detail/a_id/4845
 
+----
+Mon 18 Jan 19:08:12 GMT 2021
+
+Gtk-Message: 19:07:14.114: Failed to load module "appmenu-gtk-module"
+Gtk-Message: 19:07:14.119: Failed to load module "canberra-gtk-module"
+
+   $ sudo apt-get install appmenu-gtk2-module appmenu-gtk3-module
+

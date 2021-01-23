@@ -243,12 +243,19 @@ coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_embedded_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
-                       $(PYTHON_LIBS)
+                       $(PYTHON_LIBS) \
+                       $(MMDB_LIBS)
+
 coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_extended_la_LIBADD = \
-                       $(top_builddir)/pli/libcoot-pli.la   \
-                       $(top_builddir)/geometry/libcoot-geometry.la   \
-                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
+                       $(top_builddir)/pli/libcoot-pli.la                 \
+                       $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+                       $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+                       $(top_builddir)/geometry/libcoot-geometry.la       \
+                       $(top_builddir)/utils/libcoot-utils.la             \
+                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
+                       $(PYTHON_LIBS) \
+                       $(MMDB_LIBS)
 
 pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
 endif

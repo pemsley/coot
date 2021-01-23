@@ -1100,10 +1100,10 @@ namespace coot {
       bool needs_reset; // needs reset when an atom pull restraint gets *added*.
 
       // The bool is the "atoms of this residue are fixed" flag.
-      std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
+      std::vector<std::pair<bool,mmdb::Residue *> > residues_vec; // these are sorted in
+                                                                  // the constructor
       std::set<mmdb::Residue *> residues_vec_moving_set;
       std::map<mmdb::Residue *, std::set<mmdb::Residue *> > fixed_neighbours_set;
-      void fill_fixed_neighbours_set();
       void debug_sets() const;
       int udd_bond_angle;  // for is a bond, angle or not (0).
       int udd_atom_index_handle; // for indexing into the atoms array.
@@ -1813,7 +1813,6 @@ namespace coot {
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
 								       std::pair<bool, mmdb::Residue *> res_1,
 								       std::pair<bool, mmdb::Residue *> res_2,
-								       bool do_rama_plot_restraints,
 								       bool do_trans_peptide_restraints);
       std::pair<bool, link_restraints_counts> try_make_phosphodiester_link_ng(const coot::protein_geometry &geom,
 									      std::pair<bool, mmdb::Residue *> res_1,
@@ -1885,6 +1884,10 @@ namespace coot {
       void make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
 				     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
 				     const protein_geometry &geom);
+
+      void make_rama_plot_restraints_ng(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+                                        const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+                                        const protein_geometry &geom); // uses restraints_vec
 
       int add_link_bond(std::string link_type,
 			mmdb::PResidue first, mmdb::PResidue second,

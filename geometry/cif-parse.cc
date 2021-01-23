@@ -2894,7 +2894,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    if (debug) {
       std::cout << "---------------------- Here are the chem_links: -----------------"
 		<< std::endl;
-      print_chem_links();
+      print_chem_links(); // prints the chem_link_map
    }
 
    // This needs to iterate to make the count now that we use a map
@@ -2904,7 +2904,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    unsigned int search_hash_code_b = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, group_1);
 
    if (debug)
-      std::cout << "here in matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
+      std::cout << "DEBUG:: here in matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
 		<< comp_id_1 << " " << comp_id_2 << " groups: " << group_1 << " " << group_2 << std::endl;
 
    // Is this link a TRANS peptide or a CIS?  Both have same group and
@@ -2916,8 +2916,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    // "gap" and "symmetry" have hash code 0 (blank strings)
 
    std::vector<std::pair<coot::chem_link, bool> > matching_chem_links;
-   std::map<unsigned int, std::vector<chem_link> >::const_iterator it =
-      chem_link_map.find(search_hash_code_f);
+   std::map<unsigned int, std::vector<chem_link> >::const_iterator it = chem_link_map.find(search_hash_code_f);
    if (it == chem_link_map.end()) {
       it = chem_link_map.find(search_hash_code_b);
       if (it != chem_link_map.end())
@@ -2925,11 +2924,19 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    }
 
    if (debug) {
-      if (it != chem_link_map.end())
+      if (it != chem_link_map.end()) {
 	 std::cout << "matching_chem_link() found the hash at least! " << std::endl;
-      else
+         std::cout << "Here is the vector of chem links in the map:" << std::endl;
+         const std::vector<chem_link> &v = it->second;
+         std::vector<chem_link>::const_iterator itv;
+         for (itv=v.begin(); itv!=v.end(); itv++) {
+            const chem_link &cl = *itv;
+            std::cout << "                 " << cl << std::endl;
+         }
+      } else {
 	 std::cout << "matching_chem_link() failed to find hash " << search_hash_code_f << " "
 		   << search_hash_code_b << std::endl;
+      }
    }
 
    if (it == chem_link_map.end()) {
@@ -3032,6 +3039,8 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       for (itv=v.begin(); itv!=v.end(); itv++) {
 	 const chem_link &cl = *itv;
 
+         // std::cout << ":::::::::::::::::::::::::: testing comp_id and group match for " << cl << std::endl;
+
 	 std::pair<bool, bool> match_res =
 	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
@@ -3040,9 +3049,9 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 		      << comp_id_1 << " " << comp_id_2 << " " 
 		      << cl << std::endl;
 
-	 if (debug)
-	    std::cout << "   checking chem link: " << cl << " -> "
-		      << match_res.first << " " << match_res.second << std::endl;
+	 if (false) // was debug but TMI ATM - we are looking for a bug in above code
+	    std::cout << "    checking chem link:                             " << cl << " -> matched: "
+		      << match_res.first << " need order-switch: " << match_res.second << std::endl;
 
 	 if (match_res.first) {
 	    if (cl.Id() != "gap" && cl.Id() != "symmetry") {
@@ -3054,11 +3063,11 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
 	       } else {
 		  if (debug)
-		     std::cout << "reject link on peptide/allow-peptide test " << std::endl;
+		     std::cout << "    reject link on peptide/allow-peptide test " << std::endl;
 	       }
 	    } else {
 	       if (debug) {
-		  std::cout << "reject link \"" << cl.Id() << "\"" << std::endl;
+		  std::cout << "    reject link \"" << cl.Id() << "\"" << std::endl;
 	       }
 	    }
 	 }
@@ -3082,7 +3091,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       throw std::runtime_error(rte);
    }
    if (debug)
-      std::cout << "matching_chem_link() returns " << matching_chem_links.size()
+      std::cout << "DEBUG:: matching_chem_link() returns " << matching_chem_links.size()
 		<< " matching chem links" << std::endl;
    return matching_chem_links;
 }

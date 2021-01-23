@@ -2277,6 +2277,7 @@ public:
    int Imol_Refinement_Map() const;
    //
    int set_imol_refinement_map(int imol);
+   float get_estimated_map_weight(int imol_map);
 
    void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type;
