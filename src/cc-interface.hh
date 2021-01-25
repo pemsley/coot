@@ -1187,10 +1187,10 @@ int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &at
 #ifdef USE_GUILE
 //! \name Dock Sidechains
 //! \{
-//! \brief cootaneer (i.e. dock sidechains onto mainchain model)
+//! \brief cootaneer (i.e. assign sidechains onto mainchain model)
 //!
 //! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
-//! docked with sidechains.
+//! assigned with sidechains.
 //!
 //! @return the success status (0 is fail).
 int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
@@ -1199,6 +1199,22 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
 #ifdef USE_PYTHON
 int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
 #endif
+
+//! \}
+
+/*  ----------------------------------------------------------------------- */
+/*                  Sequence from Map                                       */
+/*  ----------------------------------------------------------------------- */
+
+//! \name Sequence from Map
+//! \{
+//! \brief 
+//!
+//! Use the map to estimate the sequence - you will need a decent map
+//! 
+//! @return the guessed sequence (empty is fail).
+std::string sequence_from_map(int imol, const std::string &chain_id,
+                              int resno_start, int resno_end, int imol_map);
 
 //! \}
 

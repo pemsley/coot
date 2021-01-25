@@ -79,15 +79,23 @@ AM_CXXFLAGS = \
 #
 cootdatadir = $(pkgdatadir)/data
 
-dist_cootdata_DATA = \
-	ligands-2016.db
+dist_cootdata_DATA = ligands-2016.db
+
+cootdata_assign_side_chain_datadir = $(cootdatadir)/assign-side-chains
+
+dist_cootdata_assign_side_chain_data_DATA = useable-grid-points-nstep=5,box_radius=5.0-charybdis.data
+
+# now think about side-chain-data dir.  Hmm!
 
 
-if OS_WIN32
-bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
-else
-libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
-endif
+# this block is a bit dodgy, I feel. It uses tar to install a directory of data files
+.PHONY: install_side_chain_data
+
+install_side_chain_data: install-dist_cootdataDATA
+	$(MKDIR_P) $(cootdata_assign_side_chain_datadir) && $(AMTAR) -x -C $(cootdata_assign_side_chain_datadir) -f $(top_srcdir)/ligand/side-chain-data.tar.gz
+
+install-data-local: install_side_chain_data
+
 
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql
@@ -97,6 +105,12 @@ check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-cha
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
+
+if OS_WIN32
+bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+else
+libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+endif
 
 test_trace_SOURCES = test-trace.cc
 test_trace_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la

@@ -1,4 +1,8 @@
+#ifndef SIDE_CHAIN_DENSITIES_HH
+#define SIDE_CHAIN_DENSITIES_HH
 
+
+#include <atomic>
 // This file is here because we need to know the rotamer name
 //
 #include "coot-utils/coot-coord-utils.hh"
@@ -160,7 +164,8 @@ namespace coot {
       std::map<std::string, double>
       likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
 						 const clipper::Xmap<float> &xmap,
-						 bool limit_to_correct_rotamers_only=false);
+						 bool limit_to_correct_rotamers_only=false,
+                                                 bool verbose_output_mode = false);
 
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
@@ -195,18 +200,19 @@ namespace coot {
    public:
 
       std::string id;
+      std::atomic<bool> results_addition_lock;
       side_chain_densities(const std::string &id_in, mmdb::Manager *mol,
 			   int n_steps_in, float grid_box_radius_in,
 			   const clipper::Xmap<float> &xmap,
-			   const std::string &file_name) {
+			   const std::string &file_name) : id(id_in) {
 	 n_steps = n_steps_in;
 	 grid_box_radius = grid_box_radius_in;
-	 id = id_in;
 	 fill_useable_grid_points_vector(file_name);
 	 proc_mol(id, mol, xmap);
          null_hypothesis_scale = 1.0;
          null_hypothesis_sigma = 1.0;
 	 set_default_magic_numbers(); // probably not needed
+         results_addition_lock = false;
       }
 
       // constructor for testing residues vs the "database" - using
@@ -218,16 +224,48 @@ namespace coot {
       //
       side_chain_densities(int n_steps_in,
 			   float grid_box_radius_in,
-			   const std::string &useable_grid_points_file_name) : n_steps(n_steps_in), grid_box_radius(grid_box_radius_in) {
-	 fill_useable_grid_points_vector(useable_grid_points_file_name);
+			   const std::string &useable_grid_points_file_name) {
+         init(n_steps_in, grid_box_radius_in, useable_grid_points_file_name);
+      }
+
+      // "wrapper" for above using default values
+      side_chain_densities();
+
+      void init(int n_steps_in, float grid_box_radius_in, const std::string &useable_grid_points_file_name) {
+         n_steps = n_steps_in;
+         grid_box_radius = grid_box_radius_in;
+         fill_useable_grid_points_vector(useable_grid_points_file_name);
 	 null_hypothesis_scale = 1.0;
 	 null_hypothesis_sigma = 1.0;
 	 set_default_magic_numbers();
+         results_addition_lock = false;
       }
 
       double mn_log_likelihood_ratio_difference_min;
       double mn_scale_for_normalized_density;
       double mn_density_block_sample_x_max;
+
+      class results_t {
+      public:
+         int offset;
+         float sum_score;
+         unsigned int n_scored_residues;
+         std::string running_sequence;
+         std::string sequence_name;
+         std::string true_sequence; // for testing/analysis
+         results_t(const int &offset_in, const float &f, const unsigned int &n_scored_residues_in,
+                   const std::string &running_sequence_in,
+                   const std::string &gene_name_in,
+                   const std::string &true_sequence_in) : offset(offset_in),
+                                                          sum_score(f),
+                                                          n_scored_residues(n_scored_residues_in),
+                                                          running_sequence(running_sequence_in),
+                                                          sequence_name(gene_name_in),
+                                                          true_sequence(true_sequence_in) { }             
+      };
+      std::map<std::string, std::vector<results_t> > results_container;
+      void get_results_addition_lock();
+      void release_results_addition_lock();
 
       void set_default_magic_numbers() {
 	 // magic numbers
@@ -235,6 +273,9 @@ namespace coot {
 	 mn_scale_for_normalized_density = 1.0;
 	 mn_density_block_sample_x_max = 13.0;
       }
+
+      std::vector<mmdb::Residue *> make_a_run_of_residues(mmdb::Manager *mol, const std::string &chain_id,
+                                                          int resno_start, int resno_end) const;
 
       void set_magic_number(const std::string &mn_name, double val);
 
@@ -250,6 +291,11 @@ namespace coot {
       // a function to density block map cache
       void fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
 			       const clipper::Xmap<float> &xmap);
+      // above is called by 
+      void fill_residue_blocks(mmdb::Manager *mol, const std::string &chain_id,
+                               int resno_start, int resno_end,
+                               const clipper::Xmap<float> &xmap);
+      
 
       // we want to find the probability distribution from all the sample of that type
       // of rotamer for that particular residue type.
@@ -263,7 +309,8 @@ namespace coot {
       std::map<std::string, double>
       get_rotamer_likelihoods(mmdb::Residue *residue_p,
 			      const clipper::Xmap<float> &xmap,
-			      bool limit_to_correct_rotamers_only=false);
+			      bool limit_to_correct_rotamers_only = false,
+                              bool verbose_output_mode = true);
 
       void gen_useable_grid_points(mmdb::Residue *residue_this_p,
 				   mmdb::Residue *residue_next_p,
@@ -276,13 +323,17 @@ namespace coot {
       void check_useable_grid_points(mmdb::Residue *residue_p,
 				     const std::string &useable_grid_points_mapped_to_residue_file_name) const;
       void test_sequence(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end,
-			 const clipper::Xmap<float> &xmap, const std::string &sequence);
+			 const clipper::Xmap<float> &xmap,
+                         const std::string &sequence_name,    // from fasta file
+                         const std::string &sequence);
 
-
-      void probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
-						       const std::string &chain_id,
-						       int resno_start, int resno_end,
-						       const clipper::Xmap<float> &xmap);
+      // return the "guessed" sequence
+      std::string
+      probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
+                                                  const std::string &chain_id,
+                                                  int resno_start, int resno_end,
+                                                  const clipper::Xmap<float> &xmap,
+                                                  bool verbose_output_mode = false);
 
       // Have a guess at the sequence - choose the best fitting residue at every position
       // and turn that into a string.
@@ -296,4 +347,8 @@ namespace coot {
       
    };
 }
+
+
+
+#endif // SIDE_CHAIN_DENSITIES_HH
 

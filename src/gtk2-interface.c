@@ -13204,7 +13204,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.9.3.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.9.4.png");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
@@ -25517,7 +25517,7 @@ create_aboutdialog (void)
   GdkPixbuf *aboutdialog_logo_pixbuf;
 
   aboutdialog = gtk_about_dialog_new ();
-  gtk_container_set_border_width (GTK_CONTAINER (aboutdialog), 4);
+  gtk_container_set_border_width (GTK_CONTAINER (aboutdialog), 8);
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), "Coot");
   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), "Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by The University of York\nCopyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley");

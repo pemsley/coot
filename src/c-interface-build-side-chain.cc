@@ -1136,3 +1136,23 @@ void simple_fill_partial_residues(int imol) {
       }
    }
 }
+
+
+#include "ligand/side-chain-densities.hh"
+
+std::string sequence_from_map(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
+
+   std::string guessed_sequence;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         coot::side_chain_densities scd;
+         scd.fill_residue_blocks(mol, chain_id, resno_start, resno_end, xmap);
+         guessed_sequence =
+            scd.probability_of_each_rotamer_at_each_residue(mol, chain_id, resno_start, resno_end, xmap);
+         // std::cout << "guessed sequence " << guessed_sequence << std::endl;
+      }
+   }
+   return guessed_sequence;
+}

@@ -57,7 +57,7 @@ namespace coot {
       std::vector<fasta> sequences;
    public:
       explicit fasta_multi(const std::string &fasta_file_name) { read(fasta_file_name); }
-      const fasta &operator[](unsigned int i) { return sequences[i]; }
+      const fasta &operator[](unsigned int i) const { return sequences[i]; }
       void read(const std::string &file_name);
       unsigned int size() const { return sequences.size(); }
    };

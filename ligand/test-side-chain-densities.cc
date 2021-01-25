@@ -146,6 +146,8 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
 				    int resno_end,
 				    const std::string &map_file_name) {
 
+   // "Guess the residue type"
+
    try {
       clipper::CCP4MAPfile file;
       file.open_read(map_file_name);
@@ -154,9 +156,13 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
       if (asc.read_success) {
 	 // "analysis" constructor
-	 coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
-	 scd.set_data_dir("side-chain-data");
-	 scd.probability_of_each_rotamer_at_each_residue(asc.mol, chain_id, resno_start, resno_end, xmap);
+	 // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
+	 coot::side_chain_densities scd;
+	 // scd.set_data_dir("side-chain-data");
+         scd.fill_residue_blocks(asc.mol, chain_id, resno_start, resno_end, xmap);
+         std::string guessed_sequence =
+            scd.probability_of_each_rotamer_at_each_residue(asc.mol, chain_id, resno_start, resno_end, xmap);
+         std::cout << "guessed sequence " << guessed_sequence << std::endl;
       }
    }
    catch (const clipper::Message_base &exc) {
@@ -165,7 +171,9 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
    }
 }
 
+#include <thread>
 #include "utils/coot-fasta.hh"
+#include "utils/split-indices.hh"
 
 void test_sequence(int n_steps, float grid_box_radius,
 		   const std::string &useable_grid_points_file_name,
@@ -174,12 +182,27 @@ void test_sequence(int n_steps, float grid_box_radius,
 		   int resno_start,
 		   int resno_end,
 		   const std::string &map_file_name,
-		   const std::string &sequence_file_name) {
+		   const std::string &multi_sequence_file_name) {
 
-   coot::fasta_multi fam(sequence_file_name);
+   auto proc_threads = [] (const std::pair<unsigned int, unsigned int> &start_stop_pair,
+                           const std::string &chain_id,
+                           int resno_start,
+                           int resno_end,
+                           mmdb::Manager *mol,
+                           const clipper::Xmap<float> &xmap,
+                           const coot::fasta_multi &fam,
+                           coot::side_chain_densities &scd) { // fill scd
+
+                          for(unsigned int idx=start_stop_pair.first; idx!=start_stop_pair.second; ++idx) {
+                             scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
+                          }
+                          
+                       };
+
+   coot::fasta_multi fam(multi_sequence_file_name);
    if (fam.size() > 0) {
-      std::string sequence = fam[0].sequence;
-      std::cout << "Input Sequence:\n" << sequence << std::endl;
+
+      unsigned int n_sequences = fam.size();
       try {
          clipper::CCP4MAPfile file;
          file.open_read(map_file_name);
@@ -190,7 +213,33 @@ void test_sequence(int n_steps, float grid_box_radius,
             // "analysis" constructor
             coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
             scd.set_data_dir("side-chain-data");
-            scd.test_sequence(asc.mol, chain_id, resno_start, resno_end, xmap, sequence);
+
+            unsigned int n_threads = coot::get_max_number_of_threads();
+            std::vector<std::pair<unsigned int, unsigned int> > index_vector =
+               coot::atom_index_ranges(n_sequences, n_threads);
+            std::vector<std::thread> threads;
+
+#if 0 // threaded version - reinstate when multisequence comparison is fast
+            for (unsigned int i=0; i<index_vector.size(); i++) {
+               std::pair<unsigned int, unsigned int> start_stop_pair = index_vector[i];
+               threads.push_back(std::thread(proc_threads, std::cref(start_stop_pair),
+                                             std::cref(chain_id), resno_start, resno_end, asc.mol,
+                                             std::cref(xmap),
+                                             std::cref(fam), std::ref(scd)));
+            }
+
+            for (unsigned int i=0; i<index_vector.size(); i++)
+               threads[i].join();
+#endif
+#if 1 // the single threaded way
+            for (unsigned int idx=0; idx<n_sequences; idx++) {
+               std::string sequence = fam[idx].sequence;
+               std::cout << "Input Sequence:\n" << sequence << std::endl;
+               
+               const std::string &name = fam[idx].name;
+               scd.test_sequence(asc.mol, chain_id, resno_start, resno_end, xmap, name, sequence);
+            }
+#endif
          }
       }
       catch (const clipper::Message_base &exc) {
@@ -198,6 +247,8 @@ void test_sequence(int n_steps, float grid_box_radius,
          std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
       }
    }
+
+   // Now, what's best in fam?
 }
 
 // generate "stats.table" for every rotamer
@@ -328,10 +379,10 @@ int main(int argc, char **argv) {
 		     		    pdb_file_name,
 			     	    chain_id, res_no);
           }
-	       catch (const std::runtime_error &rte) {
-	          std::cout << "" << rte.what() << std::endl;
-	       }
-	       done = true;
+          catch (const std::runtime_error &rte) {
+             std::cout << "" << rte.what() << std::endl;
+          }
+          done = true;
       }
    }
 
@@ -389,12 +440,12 @@ int main(int argc, char **argv) {
 	    std::string chain_id(argv[4]);
 	    int resno_start = coot::util::string_to_int(argv[5]);
 	    int resno_end   = coot::util::string_to_int(argv[6]);
-	    std::string sequence_file_name(argv[7]);
+	    std::string multi_sequence_file_name(argv[7]);
 	    std::string useable_grid_points_file_name(argv[8]);
             std::cout << "testing sequence..." << std::endl;
 	    test_sequence(n_steps, grid_box_radius, useable_grid_points_file_name,
 			  pdb_file_name, chain_id, resno_start, resno_end,
-			  map_file_name, sequence_file_name);
+			  map_file_name, multi_sequence_file_name);
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: " << rte.what() << std::endl;
@@ -402,6 +453,7 @@ int main(int argc, char **argv) {
 	 done = true;
       }
    }
+
 
    if (argc == 3) {
       std::string a1(argv[1]);
