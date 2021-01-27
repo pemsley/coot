@@ -4171,7 +4171,11 @@
                  (resno-end   (apply max residue-number-list)))
              (let ((new-sequence (sequence-from-map imol ch-id resno-start resno-end imol-map)))
                (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))
+               (format #t "INFO:: mutate-residue-range ~s ~s ~s ~s ~s~%" imol ch-id resno-start resno-end new-sequence)
+               (format #t "INFO:: mutate-residue-range lengths: ~s ~s~%"
+                       (+ (- resno-end resno-start) 1) (string-length new-sequence))
                (mutate-residue-range imol ch-id resno-start resno-end new-sequence)
+               (backrub-rotamers-for-chain imol ch-id)
                (refine-residues imol fragment-residues)))))))))
 
 ;;
