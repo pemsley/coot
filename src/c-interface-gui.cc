@@ -5616,6 +5616,7 @@ void set_sequence_view_is_docked(short int state) {
 void nsv(int imol) {
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
@@ -5650,6 +5651,7 @@ void nsv(int imol) {
 	 }
 
       } else {
+
 	 graphics_info_t g;
          GtkWidget *main_window_vbox = 0;
          if (g.sequence_view_is_docked_flag) {

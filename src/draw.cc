@@ -187,7 +187,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int stereo_mode) {
       }
 
       if (stereo_mode == IN_STEREO_ZALMAN_LEFT) {
-	// g_print("BL DEBUG:: now draw 'right'\n");
 	// draws the other Zalman lines
 	glStencilFunc(GL_EQUAL, 0, 1);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
@@ -208,30 +207,18 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int stereo_mode) {
 
       stereo_projection_setup_maybe(widget, stereo_mode);
 
-      // 	 glOrtho(GLdouble left,   GLdouble right, 
-      //               GLdouble bottom, GLdouble top,  
-      //               GLdouble near,   GLdouble far);
+      // 	 glOrtho(GLdouble left,   GLdouble right,
+      //                 GLdouble bottom, GLdouble top,
+      //                 GLdouble near,   GLdouble far);
 
       GLdouble near_scale = 0.1;
-//       if (! graphics_info_t::esoteric_depth_cue_flag)
-// 	 near_scale = 0.3;
       
       GLdouble near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
       GLdouble far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
 
-      //	 if (graphics_info_t::esoteric_depth_cue_flag) 
       glOrtho(-0.3*graphics_info_t::zoom*aspect_ratio, 0.3*graphics_info_t::zoom*aspect_ratio,
 	      -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
 	      near, far);
-      // 	 else
-      // 	    glOrtho(-0.3*info.zoom*aspect_ratio, 0.3*info.zoom*aspect_ratio,
-      // 		    -0.3*info.zoom,  0.3*info.zoom,
-      // 		    -0.10*info.zoom,
-      //   		    +0.30*info.zoom);
-
-      //glFogf(GL_FOG_START, -0.00*info.zoom);
-      //glFogf(GL_FOG_END,    0.3*info.zoom);
-
 
       if (graphics_info_t::esoteric_depth_cue_flag) {
 	 glFogf(GL_FOG_START,  0.0f);

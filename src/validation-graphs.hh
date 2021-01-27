@@ -1,4 +1,10 @@
 
+#ifndef VALIDATION_GRAPHS_HH
+#define VALIDATION_GRAPHS_HH
+
+
+#include <gtk/gtk.h>
+
 namespace coot {
 
    class validation_graphs_t {
@@ -33,3 +39,6 @@ namespace coot {
       }
    };
 }
+
+#endif // VALIDATION_GRAPHS_HH
+

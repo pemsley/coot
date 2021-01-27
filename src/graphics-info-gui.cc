@@ -3281,10 +3281,16 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    if (imol < n_molecules()) {
 
       // first delete the old sequence view if it exists
-      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-      if (w) {
-	 coot::sequence_view *sv = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
-	 delete sv;
+      if (false) {  // we don't need to do this because destroying the scrolled window will do it
+                    // for us by proxy
+         GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+         if (w) {
+            gpointer o = g_object_get_data(G_OBJECT(w), "nsv"); // w is the canvas
+            std::cout << "got o " << o << std::endl;
+            coot::sequence_view *sv = reinterpret_cast<coot::sequence_view *>(o);
+            std::cout << "in set_sequence_view_is_displayed() extracted sv " << sv << std::endl;
+            delete sv;
+         }
       }
 
 //       coot::sequence_view *sv = (coot::sequence_view *)
@@ -3292,6 +3298,7 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 //       std::cout << "DEBUG:: seting sequence_view_is_displayed[" << imol
 // 		<< "] " << widget << std::endl;
 //       sequence_view_is_displayed[imol] = widget; // ols style
+
 
       coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }
