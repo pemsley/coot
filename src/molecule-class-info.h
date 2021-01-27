@@ -3243,6 +3243,8 @@ public:        //                      public
    // The length of the string is guaranteed to the the length of the vector.
    std::pair<std::string, std::vector<mmdb::Residue *> > sequence_from_chain(mmdb::Chain *chain_p) const;
 
+   std::string get_sequence_as_block(const std::string &chain_id) const;
+
    std::vector<coot::chain_mutation_info_container_t>
    sequence_comparison_to_chains(const std::string &sequence) const;
 

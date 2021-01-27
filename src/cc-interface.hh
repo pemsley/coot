@@ -1715,6 +1715,21 @@ PyObject *map_statistics_py(int imol);
 
 //! \}
 
+/*  ----------------------------------------------------------------------- */
+/*                  sequence (assignment)                                   */
+/*  ----------------------------------------------------------------------- */
+/* section Get Sequence  */
+/*! \name Get Sequence */
+/* \{ */
+//! \brief get the sequence for chain_id in imol
+std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_id);
+
+//! \brief write the sequence for imol as fasta
+void write_sequence(int imol, const std::string &file_name);
+
+/* \} */
+
+
 /* ------------------------------------------------------------------------- */
 /*                      interesting positions list                           */
 /* ------------------------------------------------------------------------- */
