@@ -238,17 +238,17 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    mmdb::Manager *mol = atom_sel.mol;
 	 
-	    mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
+            mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
-	    strncpy(link->atName1,  at_1->GetAtomName(), 19);
-	    strncpy(link->aloc1,    at_1->altLoc, 9);
+	    strncpy(link->atName1,  at_1->GetAtomName(), 20);
+	    strncpy(link->aloc1,    at_1->altLoc, 20);
 	    strncpy(link->resName1, at_1->GetResName(), 19);
 	    strncpy(link->chainID1, at_1->GetChainID(), 9);
 	    strncpy(link->insCode1, at_1->GetInsCode(), 9);
 	    link->seqNum1         = at_1->GetSeqNum();
 
-	    strncpy(link->atName2,  at_2->GetAtomName(), 19);
-	    strncpy(link->aloc2,    at_2->altLoc, 9);
+	    strncpy(link->atName2,  at_2->GetAtomName(), 20);
+	    strncpy(link->aloc2,    at_2->altLoc, 20);
 	    strncpy(link->resName2, at_2->GetResName(), 19);
 	    strncpy(link->chainID2, at_2->GetChainID(), 9);
 	    strncpy(link->insCode2, at_2->GetInsCode(), 9);
