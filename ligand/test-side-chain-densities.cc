@@ -176,7 +176,6 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
 #include "utils/split-indices.hh"
 
 void test_sequence(int n_steps, float grid_box_radius,
-		   const std::string &useable_grid_points_file_name,
 		   const std::string &pdb_file_name,
 		   const std::string &chain_id,
 		   int resno_start,
@@ -211,15 +210,16 @@ void test_sequence(int n_steps, float grid_box_radius,
          atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
          if (asc.read_success) {
             // "analysis" constructor
-            coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
-            scd.set_data_dir("side-chain-data");
+            // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
+            // scd.set_data_dir("side-chain-data");
+            coot::side_chain_densities scd;
 
+#if 0 // threaded version - reinstate when multisequence comparison is fast
             unsigned int n_threads = coot::get_max_number_of_threads();
             std::vector<std::pair<unsigned int, unsigned int> > index_vector =
                coot::atom_index_ranges(n_sequences, n_threads);
             std::vector<std::thread> threads;
 
-#if 0 // threaded version - reinstate when multisequence comparison is fast
             for (unsigned int i=0; i<index_vector.size(); i++) {
                std::pair<unsigned int, unsigned int> start_stop_pair = index_vector[i];
                threads.push_back(std::thread(proc_threads, std::cref(start_stop_pair),
@@ -428,10 +428,8 @@ int main(int argc, char **argv) {
 	 }
 	 done = true;
       }
-   }
 
-   if (argc == 9) {
-      std::string a1(argv[1]);
+
       if (a1 == "test-sequence") {
          std::cout << "test-sequence mode " << std::endl;
 	 try {
@@ -440,10 +438,10 @@ int main(int argc, char **argv) {
 	    std::string chain_id(argv[4]);
 	    int resno_start = coot::util::string_to_int(argv[5]);
 	    int resno_end   = coot::util::string_to_int(argv[6]);
+
 	    std::string multi_sequence_file_name(argv[7]);
-	    std::string useable_grid_points_file_name(argv[8]);
             std::cout << "testing sequence..." << std::endl;
-	    test_sequence(n_steps, grid_box_radius, useable_grid_points_file_name,
+	    test_sequence(n_steps, grid_box_radius,
 			  pdb_file_name, chain_id, resno_start, resno_end,
 			  map_file_name, multi_sequence_file_name);
 	 }

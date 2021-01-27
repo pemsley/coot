@@ -241,6 +241,7 @@ namespace coot {
          results_addition_lock = false;
       }
 
+      // magic numbers
       double mn_log_likelihood_ratio_difference_min;
       double mn_scale_for_normalized_density;
       double mn_density_block_sample_x_max;

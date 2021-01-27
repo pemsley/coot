@@ -333,9 +333,10 @@ coot::stored_fragment_t::try_assign_sidechains(coot::stored_fragment_t &stored_f
 
       // ugly!
       //
-      std::string llkdfile = package_data_dir();
-      llkdfile += "/cootaneer-llk-2.40.dat";
+      std::string pkg_data_dir = package_data_dir();
+      std::string llkdfile = pkg_data_dir + "/cootaneer-llk-2.40.dat";
       // was that over-ridden?
+
       const char *cp = getenv("COOT_PREFIX");
       if (cp) {
 	 llkdfile = cp;
@@ -350,21 +351,26 @@ coot::stored_fragment_t::try_assign_sidechains(coot::stored_fragment_t &stored_f
 	 stored_frag.frag.fragment_id = "A"; // is this really what I want to do?
 	 minimol::molecule mmm(stored_frag.frag);
 	 mmdb::Manager *mol = mmm.pcmmdbmanager();
-	 sequencer.sequence_chain(xmap, sequences, *mol, chain_id);
-	 std::string best_seq = sequencer.best_sequence();
-	 std::string full_seq = sequencer.full_sequence();
-	 double conf = sequencer.confidence();
-	 int chnnum = sequencer.chain_number();
-	 int chnoff = sequencer.chain_offset();
-	 std::cout << "Sequence: " << best_seq << "\nConfidence: " << conf << "\n";
-	 if (chnnum >= 0) {
-	    std::cout << "\nFrom    : " << full_seq << "\nChain id: "
-		      << chnnum << "\tOffset: " << chnoff+1 << "\n";
-	    if (conf > 0.9) {
-	       std::cout << "----------------------------- sequenced --------------------" << std::endl;
+         if (! sequences.empty()) {
+            std::cout << "---------- calling sequencer.sequence_chain "
+                      << sequences.size() << " " << mol << " " << chain_id << std::endl;
+            sequencer.sequence_chain(xmap, sequences, *mol, chain_id);
+            std::cout << "---------- done sequencer.sequence_chain" << std::endl;
+            std::string best_seq = sequencer.best_sequence();
+            std::string full_seq = sequencer.full_sequence();
+            double conf = sequencer.confidence();
+            int chnnum = sequencer.chain_number();
+            int chnoff = sequencer.chain_offset();
+            std::cout << "Sequence: " << best_seq << "\nConfidence: " << conf << "\n";
+            if (chnnum >= 0) {
+               std::cout << "\nFrom    : " << full_seq << "\nChain id: "
+                         << chnnum << "\tOffset: " << chnoff+1 << "\n";
+               if (conf > 0.9) {
+                  std::cout << "----------------------------- sequenced --------------------" << std::endl;
 	       // modify stored_frag
-	       apply_sequence(stored_frag, mol, best_seq, chnoff, standard_residues_mol, locked);
-	    }
+                  apply_sequence(stored_frag, mol, best_seq, chnoff, standard_residues_mol, locked);
+               }
+            }
 	 }
 	 delete mol;
       }

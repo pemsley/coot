@@ -378,37 +378,13 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
                                           const std::string &sequence_name, // from fasta file
                                           const std::string &sequence) {
    std::vector<results_t> results;
-   std::vector<mmdb::Residue *> a_run_of_residues;
    std::string gene_name = sequence_name;
    std::vector<std::string> parts = util::split_string_no_blanks(gene_name);
    if (parts.size() > 0) gene_name = parts[0];
 
    // What is the probability of each rotamer at each residue?
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   if (model_p) {
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         if (chain_p) {
-            std::string this_chain_id(chain_p->GetChainID());
-            if (this_chain_id == chain_id) {
-               int n_residues = chain_p->GetNumberOfResidues();
-               for (int ires=0; ires<n_residues; ires++) {
-                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                  if (residue_p) {
-                     int res_no = residue_p->GetSeqNum();
-                     if (res_no >= resno_start) {
-                        if (res_no <= resno_end) {
-                           a_run_of_residues.push_back(residue_p);
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
+
+   std::vector<mmdb::Residue *> a_run_of_residues = make_a_run_of_residues(mol, chain_id, resno_start, resno_end);
 
    std::cout << "debug:: in test_sequence() with " << a_run_of_residues.size()
              << " residues in a_run_of_residues" << std::endl;
@@ -423,7 +399,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
             likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
          std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
          if (false) { // debugging
-            std::cout << "transfer to scored_residues " << i<< " " << residue_spec_t(residue_p) << " "
+            std::cout << "debug:: transfer to scored_residues " << i<< " " << residue_spec_t(residue_p) << " "
                       << residue_p->GetResName() << " " << " with score map: ---" << std::endl;
             std::map<std::string, double>::const_iterator it_debug;
             for (it_debug=likelihood_map.begin();
@@ -1331,6 +1307,9 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
                                                     bool limit_to_correct_rotamers_only,
                                                     bool verbose_output_mode) {
 
+   // To see what's going on with residue scoring.
+   verbose_output_mode = true;
+
    // fill_residue_blocks() has been called before we get here
 
    std::map<std::string, double> bs; // return this, best_score_for_res_type
@@ -1407,16 +1386,25 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
             std::map<std::string, double> best_score_for_res_type;
             // std::cout << "here with probability_map size " << probability_map.size() << std::endl;
             for (it=probability_map.begin(); it!=probability_map.end(); it++) {
+               const std::string &key = it->first; // resname:rot_name
+               // std::cout << "key: " << key << std::endl;
                std::string m;
-               std::pair<std::string, std::string> rrp = map_key_to_residue_and_rotamer_names(it->first);
+               std::pair<std::string, std::string> rrp = map_key_to_residue_and_rotamer_names(key);
                const std::string &res_name = rrp.first;
                const std::string &rot_name = rrp.second;
                const double &score = it->second;
                if (best_score_for_res_type.find(res_name) == best_score_for_res_type.end()) {
                   best_score_for_res_type[res_name] = score;
+                  std::cout << "first  score for res-type " << std::setw(10) << std::left << key << " "
+                            << std::fixed << std::right << std::setw(7) << std::setprecision(2)
+                            << score << std::endl;
                } else {
-                  if (score > best_score_for_res_type[res_name])
+                  if (score > best_score_for_res_type[res_name]) {
                      best_score_for_res_type[res_name] = score;
+                     std::cout << "better score for res-type " << std::setw(10) << std::left << key << " "
+                               << std::fixed << std::right << std::setw(7) << std::setprecision(2)
+                               << score << std::endl;
+                  }
                }
             }
             bs = best_score_for_res_type;
@@ -1429,10 +1417,13 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
                   if (best_score < 0) {
                      if (score > 1.1 * best_score) m = " ooo";
                   } else {
-                     if (score > 0) m = " ooo"; // anything positive
+                     if (score > 0)
+                        if (score > 0.5 * best_score)
+                           m = " ooo";
                   }
                   if (score == best_score) m = " ***";
-                  std::cout << "   " << res_type << " " << std::fixed << std::right << std::setprecision(4)
+                  std::cout << "   " << res_type << " "
+                            << std::fixed << std::right << std::setw(8) << std::setprecision(2)
                             << score << m << std::endl;
                }
             }
@@ -1591,7 +1582,7 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    // null hypothesis
 
    double nhs = null_hypothesis_scale;
-   nhs = 2.0;
+   nhs = 2.0; // why is this 2.0?
 
    // distance between grid point and the CB
    double d = get_grid_point_distance_from_grid_centre(grid_idx, step_size);
@@ -1615,8 +1606,12 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
       std::cout << "in get_log_likelihood_ratio() C " << c_part_null_normal << " " << e_part_null_normal
                 << std::endl;
    }
-
-   double diff = e_part - e_part_normal;
+   double w = 1.0;
+   // w = 2.3/(d + 1.0);
+   // w = 1.0 - d * 0.166;
+   // w = w * w * w;
+   // w = 1.0;
+   double diff = w * (e_part - e_part_normal);
 
    // remove this hideous baddies: Magic number - needs optimizing
    double mn_log_likelihood_ratio_difference_max = 18.0;
@@ -2134,8 +2129,10 @@ coot::side_chain_densities::combine_directory(const std::string &rot_dir, int n_
 void
 coot::side_chain_densities::set_magic_number(const std::string &mn_name, double val) {
 
+   get_results_addition_lock();
    if (mn_name == "mn_log_likelihood_ratio_difference_min") mn_log_likelihood_ratio_difference_min = val;
    if (mn_name == "mn_scale_for_normalized_density") mn_scale_for_normalized_density = val;
    if (mn_name == "mn_density_block_sample_x_max") mn_density_block_sample_x_max = val;
+   release_results_addition_lock();
 
 }

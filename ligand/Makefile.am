@@ -113,7 +113,14 @@ libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
 endif
 
 test_trace_SOURCES = test-trace.cc
-test_trace_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
+test_trace_LDADD = ./libcoot-ligand.la                \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la    \
+   $(top_builddir)/geometry/libcoot-geometry.la       \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+   $(top_builddir)/utils/libcoot-utils.la             \
+   $(top_builddir)/compat/libcoot-compat.la           \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 coot_make_ligands_db_SOURCES = make-ligands-db.cc
 coot_make_ligands_db_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
