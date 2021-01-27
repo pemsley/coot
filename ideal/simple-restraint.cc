@@ -1050,7 +1050,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
-   if (true) {
+   if (false) { //debugging
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
       std::set<int>::const_iterator it_fixed;
@@ -3889,9 +3889,6 @@ coot::restraints_container_t::make_monomer_restraints(int imol,
    // std::cout << "------------------------ in make_monomer_restraints() "
    // << do_residue_internal_torsions << std::endl;
 
-   std::cout << "------------------------ in make_monomer_restraints() "
-             << restraints_usage_flag << std::endl;
-   
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(imol, geom, do_residue_internal_torsions);
    else
