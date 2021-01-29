@@ -2423,6 +2423,15 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
    return std::pair<bool,float>(status,score);
 }
 
+void
+molecule_class_info_t::backrub_rotamer_residue_range(const std::string &chain_id, int resno_start, int resno_end,
+                                                     const coot::protein_geometry &pg) {
+
+   for (int resno=resno_start; resno<=resno_end; resno++)
+      backrub_rotamer(chain_id, resno, "", "", pg);
+}
+
+
 
 int
 molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec,

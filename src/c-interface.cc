@@ -6360,7 +6360,7 @@ PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
 
 //    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
-   Py_XINCREF(Py_True);
+   Py_XINCREF(Py_True); // warning: dereferencing type-punned pointer will break strict-aliasing rules
    PyList_SetItem(r, 0, Py_True);
    PyList_SetItem(r, 1, PyString_FromString(res.chain_id.c_str()));
    PyList_SetItem(r, 2, PyInt_FromLong(res.res_no));

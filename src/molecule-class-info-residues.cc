@@ -1704,6 +1704,57 @@ molecule_class_info_t::het_groups() const {
    return r;
 }
 
+std::string
+molecule_class_info_t::get_sequence_as_block(const std::string &chain_id) const {
+
+   bool with_spaces = false; // block spaced output is easier to read
+   std::string seq;
+   if (atom_sel.mol) {
+      mmdb::Manager *mol = atom_sel.mol;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (std::string(chain_p->GetChainID()) == chain_id) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::PResidue residue_p;
+	    int residue_count_block = 0;
+	    int residue_count_line = 0;
+	    if (nres > 0 ) {
+	       residue_count_block = chain_p->GetResidue(0)->GetSeqNum();
+	       residue_count_line  = residue_count_block;
+	       if (residue_count_block > 0)
+		  while (residue_count_block > 10)
+		     residue_count_block -= 10;
+	       if (residue_count_line > 0)
+		  while (residue_count_line > 50)
+		     residue_count_line -= 50;
+	    }
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
+	       if (residue_count_block == 10) {
+		  if (with_spaces)
+		     seq += " ";
+		  residue_count_block = 0;
+	       }
+	       if (residue_count_line == 50) {
+		  seq += "\n";
+		  residue_count_line = 0;
+	       }
+	       residue_count_block++;
+	       residue_count_line++;
+	    }
+	 }
+      }
+   }
+   return seq;
+
+}
+
+
 // the length of the string is guaranteed to the the length of the vector
 std::pair<std::string, std::vector<mmdb::Residue *> >
 molecule_class_info_t::sequence_from_chain(mmdb::Chain *chain_p) const {

@@ -2017,8 +2017,18 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, thread_pool_p);
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
-         std::cout << "map read " << d21 << " milliseconds" << std::endl;
-         // em = set_is_em_map(filename); fix later
+         std::cout << "INFO:: map read " << d21 << " milliseconds" << std::endl;
+         try {
+            clipper_map_file_wrapper file;
+            file.open_read(filename);
+            set_is_em_map(file); // sets is_em_map_cached_flag
+            em = is_em_map_cached_flag;
+
+         }
+         catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << filename << std::endl;
+            bad_read = true;
+         }
       }
 
       if (! done) {
@@ -2034,8 +2044,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             if (true) {
 
                clipper::Grid_sampling fgs = file.grid_sampling();
-
-               std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
 
                clipper::Cell fcell = file.cell();
                double vol = fcell.volume();
@@ -2067,8 +2075,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          }
 
          std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
-
-         std::cout << "---------------------------  debug here with em status " << em << std::endl;
 
          if (em) {
 
@@ -2126,18 +2132,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       update_map_in_display_control_widget();
       contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
+      if (em)
+         contour_level = 4.5*sqrt(var);
 
-      bool em = is_EM_map();
-
-      if (em) {
-	 // make better defaults
-	 contour_level = mean + nearest_step(mean + 5.0*sqrt(var), 0.2);
-	 contour_sigma_step = 0.4;
-      } else {
-	 // "how it used to be" logic.  contour_level is set above and reset here
-	 // Hmm.
-	 set_initial_contour_level();
-      }
+      std::cout << "-------------------------  em " << em << " contour_level " << contour_level << std::endl;
 
       std::cout << "      Map extents: ..... "
 		<< xmap.grid_sampling().nu() << " "

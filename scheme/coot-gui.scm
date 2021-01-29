@@ -4159,6 +4159,25 @@
 
     (gtk-container-add window vbox)
     (gtk-widget-show-all window))))
+
+(define (auto-assign-sequence-from-map)
+  (using-active-atom
+   (let ((imol aa-imol)
+         (ch-id aa-chain-id))
+     (let ((imol-map (imol-refinement-map)))
+       (let ((fragment-residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+         (let ((residue-number-list (map (lambda (item) (list-ref item 2)) fragment-residues)))
+           (let ((resno-start (apply min residue-number-list))
+                 (resno-end   (apply max residue-number-list)))
+             (let ((new-sequence (sequence-from-map imol ch-id resno-start resno-end imol-map)))
+               (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))
+               (format #t "INFO:: mutate-residue-range ~s ~s ~s ~s ~s~%" imol ch-id resno-start resno-end new-sequence)
+               (format #t "INFO:: mutate-residue-range lengths: ~s ~s~%"
+                       (+ (- resno-end resno-start) 1) (string-length new-sequence))
+               (mutate-residue-range imol ch-id resno-start resno-end new-sequence)
+               (backrub-rotamers-for-chain imol ch-id)
+               (refine-residues imol fragment-residues)))))))))
+
 ;;
 (define (add-module-cryo-em)
   (if (defined? 'coot-main-menubar)
@@ -4210,7 +4229,18 @@
             ""
             "Select PIR Alignment file"
             (lambda (imol chain-id target-sequence-pir-file)
-               (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
+              (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Auto-assign Sequence Based on Map"
+         (lambda ()
+           (auto-assign-sequence-from-map)))
+
+        (add-simple-coot-menu-menuitem
+         menu "No Auto-Recontour Map Mode" (lambda () (set-auto-recontour-map 0)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Enable Auto-Recontour Map Mode" (lambda () (set-auto-recontour-map 1)))
 
         (add-simple-coot-menu-menuitem
          menu "Interactive Nudge Residues..."
