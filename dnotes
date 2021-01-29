@@ -3980,17 +3980,16 @@ INFO::
    o Artists acknowledged in glade/aboutdialog?
    o Use glade-2
         Change the splash screen
-        Fix the release name in the About dialog (aboutdialog) (not needed for bug fix)
+        Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
-        To correct the transparency, duplicate layer, bucket fill with white 
-        the bottom layer, merge and bevel 6.
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
      Use configure-it-for-release
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
-        all the files before commit.
+        all the files before commit: cd ../build-test-dist and untar it there, copy into
+        the new directory the script configure-it.
    o git commit -a
    o git tag Release-0.x.y
    o git commit

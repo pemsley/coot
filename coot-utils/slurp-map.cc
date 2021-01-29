@@ -285,7 +285,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
       std::vector<std::pair<unsigned int, unsigned int> > airs = atom_index_ranges(n_secs, n_threads);
       std::vector<std::thread> threads;
       for (auto air : airs) {
-         std::cout << "INFO:: thread fill sections " << air.first << " to " << air.second << std::endl;
+         // std::cout << "DEBUG:: thread fill sections " << air.first << " to " << air.second << std::endl;
          threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols, nx_start, ny_start, nz_start,
                                        axis_order_xyz, map_data));
       }

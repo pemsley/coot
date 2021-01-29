@@ -26490,7 +26490,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.9.3.png</property>
+      <property name="pixbuf">coot-0.9.4.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -52642,7 +52642,7 @@ Move Molecule Here:</property>
 </widget>
 
 <widget class="GtkAboutDialog" id="aboutdialog">
-  <property name="border_width">4</property>
+  <property name="border_width">8</property>
   <property name="visible">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="name" translatable="yes">Coot</property>

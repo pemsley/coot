@@ -249,7 +249,7 @@ namespace coot {
       class results_t {
       public:
          int offset;
-         float sum_score;
+         double sum_score;
          unsigned int n_scored_residues;
          std::string running_sequence;
          std::string sequence_name;
@@ -327,6 +327,9 @@ namespace coot {
 			 const clipper::Xmap<float> &xmap,
                          const std::string &sequence_name,    // from fasta file
                          const std::string &sequence);
+
+      // find the best result stored by the above function.
+      std::string get_result() const;
 
       // return the "guessed" sequence
       std::string
