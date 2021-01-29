@@ -1907,7 +1907,7 @@ public:        //                      public
    // that is doing multiple mutations and therefore doesn't do a
    // backup.  However, backup should be done in the wrapping function
    //
-   int mutate_single_multipart(int ires, const std::string &chain_id,
+   int mutate_single_multipart(int ires_serial, const std::string &chain_id,
 			       const std::string &target_res_type);
 
    // mutate and autofit the residues
@@ -2176,6 +2176,11 @@ public:        //                      public
 					 const std::string &ins_code,
 					 const std::string &alt_conf,
 					 const coot::protein_geometry &pg);
+
+   // calls above
+   void backrub_rotamer_residue_range(const std::string &chain_id, int resno_start, int resno_end, const coot::protein_geometry &pg);
+
+   // a chain-base version of the above would be useful (currently a scripting function)
 
 
    int set_residue_to_rotamer_number(coot::residue_spec_t res_spec,

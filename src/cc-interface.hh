@@ -1216,6 +1216,9 @@ int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_s
 std::string sequence_from_map(int imol, const std::string &chain_id,
                               int resno_start, int resno_end, int imol_map);
 
+void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end,
+                                int imol_map, const std::string &file_name_for_sequences);
+
 //! \}
 
 /*  ----------------------------------------------------------------------- */

@@ -1156,3 +1156,57 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
    }
    return guessed_sequence;
 }
+
+
+void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
+                                const std::string &multi_sequence_file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         coot::side_chain_densities scd;
+         coot::fasta_multi fam(multi_sequence_file_name);
+         unsigned int n_sequences = fam.size();
+         if (n_sequences > 0) {
+            for (unsigned int idx=0; idx<n_sequences; idx++) {
+               std::string sequence = fam[idx].sequence;
+               std::cout << "Input Sequence:\n" << sequence << std::endl;
+               const std::string &name = fam[idx].name;
+               scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
+            }
+            std::string new_sequence = scd.get_result();
+            std::cout << "debug:: new_sequence " << new_sequence << std::endl;
+            if (! new_sequence.empty()) {
+               int sl = new_sequence.length();
+               int residue_count = resno_end - resno_start + 1;
+               std::cout << "DEBUG:: new_sequence length " << sl
+                         << " residue_count " << residue_count << std::endl;
+               if (sl == residue_count) {
+                  molecule_class_info_t &m = graphics_info_t::molecules[imol];
+                  bool backup_state = m.backups_state();
+                  m.turn_off_backup();
+                  int ires_serial_first = m.residue_serial_number(chain_id, resno_start, "");
+                  if (ires_serial_first != -1) {
+                     for (int ires=resno_start; ires<=resno_end; ires++) {
+                        int idx_offset = ires-resno_start;
+                        // need to convert ires to a serial number
+                        int ires_serial = ires_serial_first + idx_offset;
+                        char letter = new_sequence[idx_offset];
+                        std::string new_residue_type = coot::util::single_letter_to_3_letter_code(letter);
+                        m.mutate_single_multipart(ires_serial, chain_id, new_residue_type);
+                     }
+                     m.fill_partial_residues(graphics_info_t::Geom_p(), imol_map);
+                     m.backrub_rotamer_residue_range(chain_id, resno_start, resno_end, *graphics_info_t::Geom_p());
+                  } else {
+                     std::cout << "WARNING:: failed to find serial number of residue " << resno_start << std::endl;
+                  }
+                  if (backup_state)
+                     m.turn_on_backup();
+               }
+            }
+            graphics_draw();
+         }
+      }
+   }
+}

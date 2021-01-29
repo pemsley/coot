@@ -1751,7 +1751,7 @@ molecule_class_info_t::get_sequence_as_block(const std::string &chain_id) const 
       }
    }
    return seq;
-   
+
 }
 
 
