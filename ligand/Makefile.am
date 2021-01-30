@@ -21,7 +21,7 @@
 
 lib_LTLIBRARIES=libcoot-ligand.la
 
-EXTRA_DIST = Makefile.simple read-dunbrack.awk
+EXTRA_DIST = Makefile.simple read-dunbrack.awk side-chain-data.tar.gz
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
@@ -34,7 +34,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
 	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
-   scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
+	scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
 	side-chain-densities.hh
 
 pkgincludedir = $(includedir)/coot/ligand
