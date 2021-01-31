@@ -903,6 +903,10 @@ public:
        gtk_widget_draw(glarea_2, NULL);
    }
 
+   // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
+   // is displayed or undisplayed)
+   static bool mol_displayed_toggle_do_redraw; // normally true
+
 
    static bool is_valid_model_molecule(int imol) {
 

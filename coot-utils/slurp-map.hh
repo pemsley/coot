@@ -36,11 +36,9 @@ namespace coot {
       //
       bool slurp_fill_xmap_from_map_file(const std::string &file_name,
                                          clipper::Xmap<float> *xmap_p,
-                                         ctpl::thread_pool *thread_pool_p,
                                          bool check_only=false);
 
       bool slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
-                                 ctpl::thread_pool *thread_pool_p,
                                  bool check_only=false);
 
    }

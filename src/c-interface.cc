@@ -5562,7 +5562,8 @@ void set_mol_displayed(int imol, int state) {
       graphics_info_t::molecules[imol].set_mol_is_displayed(state);
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Displayed", state);
-      graphics_draw();
+      if (g.mol_displayed_toggle_do_redraw)
+         graphics_draw();
    } else {
       std::cout << "not valid molecule" << std::endl;
    } 
@@ -5590,7 +5591,7 @@ void set_mol_active(int imol, int state) {
       graphics_info_t::molecules[imol].set_mol_is_active(state);
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Active", state);
-      graphics_draw();
+      // graphics_draw(); // was this needed?
    } else {
       std::cout << "not valid molecule" << std::endl;
    } 
@@ -5628,6 +5629,7 @@ int map_is_displayed(int imol) {
 void set_all_maps_displayed(int on_or_off) {
 
    graphics_info_t g;
+   g.mol_displayed_toggle_do_redraw = false;
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_map_molecule(imol)) {
@@ -5636,6 +5638,7 @@ void set_all_maps_displayed(int on_or_off) {
 	    set_display_control_button_state(imol, "Displayed", on_or_off);
       }
    }
+   g.mol_displayed_toggle_do_redraw = true;
    graphics_draw();
 } 
 
@@ -5644,6 +5647,7 @@ void set_all_maps_displayed(int on_or_off) {
 void set_all_models_displayed_and_active(int on_or_off) {
 
    graphics_info_t g;
+   g.mol_displayed_toggle_do_redraw = false;
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_model_molecule(imol)) {
@@ -5654,6 +5658,7 @@ void set_all_models_displayed_and_active(int on_or_off) {
 	    set_display_control_button_state(imol, "Displayed", on_or_off);
       }
    }
+   g.mol_displayed_toggle_do_redraw = true;
    graphics_draw();
 }
 
@@ -5698,6 +5703,8 @@ void set_only_last_model_molecule_displayed() {
       }
    }
 
+   g.mol_displayed_toggle_do_redraw = false;
+
    for (unsigned int j=0; j<turn_these_off.size(); j++) {
       if (turn_these_off[j] != imol_last) {
 
@@ -5725,6 +5732,7 @@ void set_only_last_model_molecule_displayed() {
 
       }
    }
+   g.mol_displayed_toggle_do_redraw = true; // back on again
    graphics_draw();
 
 }

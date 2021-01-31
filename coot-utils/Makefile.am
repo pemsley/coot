@@ -39,7 +39,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh pepflip-using-difference-map.hh polar-atoms.hh
 
 
@@ -70,7 +70,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
-	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc
+	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
+	merge-molecules.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la

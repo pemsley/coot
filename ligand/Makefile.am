@@ -35,7 +35,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
 	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
 	scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
-	side-chain-densities.hh
+	side-chain-densities.hh tube-finder.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -45,7 +45,8 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
-        ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc
+        ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc \
+	tube-finder.cc
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords
@@ -65,7 +66,7 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
    $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(RDKIT_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
 
 libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -101,10 +102,15 @@ install-data-local: install_side_chain_data
 #                  test-random test-ligand test-rotamer-tables-sql
 
 check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities \
-		test-ligand
+		test-ligand test-tube-finder
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
+
+test_tube_finder_SOURCES = test-tube-finder.cc
+test_tube_finder_LDADD = ./libcoot-ligand.la          \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+   $(CLIPPER_LIBS)
 
 if OS_WIN32
 bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
