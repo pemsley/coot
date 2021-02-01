@@ -3051,6 +3051,14 @@ molecule_class_info_t::residue_serial_number(const std::string &chain_id,
    if (res) {
       // std::cout << "DEBUG:: residue_serial_number residue " << resno << " found " << std::endl;
       iserial = res->index;
+      if (iserial == -1) {
+         coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+         iserial = res->index;
+      }
+      if (iserial == -1) {
+         std::cout << "WARNING:: residue_number_serial() returns -1 for " << chain_id << " " << resno
+                   << " \"" << insertion_code << "\"" << std::endl;
+      }
    } else {
       std::cout << "WARNING:: residue" << resno << " " << insertion_code
 		<< " " << chain_id << " not found" << std::endl;

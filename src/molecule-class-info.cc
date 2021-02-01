@@ -7385,7 +7385,7 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 	 } else {
 	    istat = 1;
 
-	    if (true)
+	    if (false)
 	       std::cout << "DEBUG:: move_std_residue: " << nResidueAtoms
 			 << " atoms in residue "
 			 << moving_residue << " " << moving_residue->seqNum << " "

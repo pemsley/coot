@@ -1200,7 +1200,8 @@ void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno
                      m.fill_partial_residues(graphics_info_t::Geom_p(), imol_map);
                      m.backrub_rotamer_residue_range(chain_id, resno_start, resno_end, *graphics_info_t::Geom_p());
                   } else {
-                     std::cout << "WARNING:: failed to find serial number of residue " << resno_start << std::endl;
+                     std::cout << "WARNING:: apply_sequence_to_fragment() failed to find serial number of residue "
+                               << chain_id << " with res-no " << resno_start << std::endl;
                   }
                   if (backup_state)
                      m.turn_on_backup();
