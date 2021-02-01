@@ -251,16 +251,21 @@ namespace coot {
          int offset;
          double sum_score;
          unsigned int n_scored_residues;
-         std::string running_sequence;
+         std::string sequence;
          std::string sequence_name;
          std::string true_sequence; // for testing/analysis
+         results_t() {
+            offset = -1; // unset
+            n_scored_residues = 0;
+            sum_score = 0;
+         }
          results_t(const int &offset_in, const float &f, const unsigned int &n_scored_residues_in,
                    const std::string &running_sequence_in,
                    const std::string &gene_name_in,
                    const std::string &true_sequence_in) : offset(offset_in),
                                                           sum_score(f),
                                                           n_scored_residues(n_scored_residues_in),
-                                                          running_sequence(running_sequence_in),
+                                                          sequence(running_sequence_in),
                                                           sequence_name(gene_name_in),
                                                           true_sequence(true_sequence_in) { }             
       };
@@ -329,7 +334,7 @@ namespace coot {
                          const std::string &sequence);
 
       // find the best result stored by the above function.
-      std::string get_result() const;
+      results_t get_result() const;
 
       // return the "guessed" sequence
       std::string

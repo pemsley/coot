@@ -1050,7 +1050,7 @@ void setup_180_degree_flip(short int state) {
 // Fill amino acid residues
 void fill_partial_residues(int imol) {
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
       coot::util::missing_atom_info m_i_info =
@@ -1096,10 +1096,10 @@ void fill_partial_residues(int imol) {
 
 void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode) {
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
-      if (imol_map > -1) { 
+      if (imol_map > -1) {
 	 coot::residue_spec_t rs(chain_id, resno, inscode);
 	 g.molecules[imol].fill_partial_residue(rs, g.Geom_p(), imol_map);
 	 // post process...
@@ -1119,7 +1119,6 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
    }
 }
 
-
 // Fill amino acid residues, do backrub rotamer search for residues, but don't do refinement
 //
 void simple_fill_partial_residues(int imol) {
@@ -1138,6 +1137,7 @@ void simple_fill_partial_residues(int imol) {
 }
 
 
+#include "c-interface-sequence.hh"
 #include "ligand/side-chain-densities.hh"
 
 std::string sequence_from_map(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
@@ -1157,26 +1157,27 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
    return guessed_sequence;
 }
 
+void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
+                                    const coot::fasta_multi &fam) {
 
-void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
-                                const std::string &multi_sequence_file_name) {
+   // change the residue number if you can
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
          coot::side_chain_densities scd;
-         coot::fasta_multi fam(multi_sequence_file_name);
          unsigned int n_sequences = fam.size();
          if (n_sequences > 0) {
             for (unsigned int idx=0; idx<n_sequences; idx++) {
                std::string sequence = fam[idx].sequence;
-               std::cout << "Input Sequence:\n" << sequence << std::endl;
                const std::string &name = fam[idx].name;
                scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
             }
-            std::string new_sequence = scd.get_result();
+            coot::side_chain_densities::results_t new_sequence_result = scd.get_result();
+            std::string new_sequence = new_sequence_result.sequence;
             std::cout << "debug:: new_sequence " << new_sequence << std::endl;
+            int offset = new_sequence_result.offset;
             if (! new_sequence.empty()) {
                int sl = new_sequence.length();
                int residue_count = resno_end - resno_start + 1;
@@ -1199,6 +1200,10 @@ void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno
                      }
                      m.fill_partial_residues(graphics_info_t::Geom_p(), imol_map);
                      m.backrub_rotamer_residue_range(chain_id, resno_start, resno_end, *graphics_info_t::Geom_p());
+                     // now, can I change the residue numbers?
+                     // residue-1 in the target (sequence) number scheme has offset 0
+                     int resno_offset = offset + 1 - resno_start;
+                     m.renumber_residue_range(chain_id, resno_start, resno_end, resno_offset);
                   } else {
                      std::cout << "WARNING:: apply_sequence_to_fragment() failed to find serial number of residue "
                                << chain_id << " with res-no " << resno_start << std::endl;
@@ -1215,5 +1220,66 @@ void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno
 
    } else {
       std::cout << "WARNING:: not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
+void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
+                                const std::string &multi_sequence_file_name) {
+
+   coot::fasta_multi fam(multi_sequence_file_name);
+   apply_fasta_multi_to_fragment(imol, chain_id, resno_start, resno_end, imol_map, fam);
+}
+
+
+void assign_sequence_to_active_fragment() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::atom_spec_t atom_spec = pp.second.second;
+      int imol_map = imol_refinement_map();
+      if (is_valid_model_molecule(imol)) {
+         if (is_valid_map_molecule(imol_map)) {
+            const molecule_class_info_t &m = graphics_info_t::molecules[imol];
+            mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+            coot::residue_spec_t residue_spec(atom_spec);
+            mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+            if (residue_p) {
+               float close_dist_max = 1.7;
+               std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+               if (v.size() > 0) {
+                  std::string chain_id = atom_spec.chain_id;
+                  int resno_low  =  10000000;
+                  int resno_high = -10000000;
+                  for (unsigned int i=0; i<v.size(); i++) {
+                     int resno = v[i]->GetSeqNum();
+                     // check that v[i] is in the same chain as the active atom
+                     if (true) {
+                        if (resno < resno_low)  resno_low  = resno;
+                        if (resno > resno_high) resno_high = resno;
+                     }
+                  }
+                  coot::fasta_multi fam;
+                  std::vector<std::pair<std::string, std::string> > sequence_info = m.sequence_info();
+                  for (auto seq : sequence_info) {
+                     coot::fasta f(seq.first, seq.second, coot::fasta::SIMPLE_STRING);
+                     fam.add(f);
+                  }
+                  apply_fasta_multi_to_fragment(imol, chain_id, resno_low, resno_high, imol_map, fam);
+               } else {
+                  std::cout << "empty v from simple_residue_tree() " << std::endl;
+               }
+            } else {
+               std::cout << "residue not found in molecules " << residue_spec << std::endl;
+            }
+         } else {
+            std::cout << "Not a valid map molecule " << imol_map << std::endl;
+         }
+      } else {
+         std::cout << "Not a valid model molecule " << imol << std::endl;
+      }
+   } else {
+      std::cout << "No active atom" << std::endl;
    }
 }

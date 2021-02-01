@@ -2402,7 +2402,7 @@ public:        //                      public
    // sequence [a -other function]
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
-   std::vector<std::pair<std::string, std::string> > sequence_info() { return input_sequence; };
+   std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 

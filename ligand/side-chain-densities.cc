@@ -500,32 +500,26 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
    release_results_addition_lock();
 }
 
-std::string
+
+coot::side_chain_densities::results_t
 coot::side_chain_densities::get_result() const {
 
-   std::string r;
-   // std::map<std::string, std::vector<results_t> > results_container;
-   std::map<std::string, std::vector<results_t> >::const_iterator it;
    double best_score = -9e10;
-   std::string sequence_for_best_score;
-   int offset_for_best_score = -1;
+   results_t best_results;
+
+   std::map<std::string, std::vector<results_t> >::const_iterator it;
    for (it=results_container.begin(); it!=results_container.end(); ++it) {
       const std::vector<results_t> &v = it->second;
       for (unsigned int i=0; i<v.size(); i++) {
          const results_t &result = v[i];
          if (result.sum_score > best_score) {
             best_score = result.sum_score;
-            offset_for_best_score = result.offset;
-            sequence_for_best_score = result.running_sequence;
+            best_results = result;
          }
       }
    }
 
-   // if something was assigned, extract the sequence
-   if (offset_for_best_score >= 0)
-      r = sequence_for_best_score;
-
-   return r;
+   return best_results;
 }
 
 bool
@@ -1352,7 +1346,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
                                                     bool verbose_output_mode) {
 
    // To see what's going on with residue scoring.
-   verbose_output_mode = true;
+   // verbose_output_mode = true;
 
    // fill_residue_blocks() has been called before we get here
 
