@@ -2,8 +2,8 @@
 # the smaller the sigmas the more weight the restraints have
 # This pushes up the weight a bit (c.f. 1.0)
 
-global cho_geman_mcclure_sigma_scale
-cho_geman_mcclure_sigma_scale = 0.5
+global cho_bond_sigma_scale
+cho_bond_sigma_scale = 3.0
 
 def get_glyco_model_dir():
     import os
@@ -46,7 +46,7 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
     # return list [atom_1, atom_2, d, esd]
     # or False
     def line2extra_bond_restraint_spec(parent_residue_spec, line):
-        global cho_geman_mcclure_sigma_scale
+        global cho_bond_sigma_scale
         parts = line.split()
         if (len(parts) == 7):
             at_name_1 = pad_name(parts[0])
@@ -77,7 +77,7 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
                              residue_spec_to_res_no(parent_residue_spec),
                              residue_spec_to_ins_code(parent_residue_spec),
                              at_name_2, ""],
-                            mean, cho_geman_mcclure_sigma_scale]
+                            mean, cho_bond_sigma_scale]
 
     def glyco_id2level_number(glyco_id):
         return glyco_id[0]

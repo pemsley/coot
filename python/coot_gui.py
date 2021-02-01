@@ -5419,7 +5419,7 @@ def refmac_multi_sharpen_gui():
    window.show_all()
 
 
-def auto_asign_sequence_from_map():
+def auto_assign_sequence_from_map():
 
     active_atom = active_residue()
     # get these from the current fragment
@@ -5435,6 +5435,7 @@ def auto_asign_sequence_from_map():
     new_sequence = sequence_from_map(imol, ch_id, resno_start, resno_end, imol_map)
     set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
     mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
+    backrub_rotamers_for_chain(imol, ch_id)
     refine_residues(imol, fragment_residues)
 
 
@@ -5497,8 +5498,29 @@ def add_module_cryo_em_gui():
       add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
 
-      add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
-                                    lambda func: ass_seq_assoc_seq())
+      add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
+                                    lambda func:
+                                    generic_chooser_entry_and_file_selector(
+                                       "Align Sequence to Model: ",
+                                       valid_model_molecule_qm,
+                                       "Chain ID",
+                                       "",
+                                       "Select PIR Alignment file",
+                                       lambda imol, chain_id, target_sequence_pif_file:
+                                       run_clustalw_alignment(imol, chain_id,
+                                                              target_sequence_pif_file)))
+
+      add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map",
+                                    lambda func: auto_assign_sequence_from_map())
+
+      add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode",
+                                    lambda func: set_auto_recontour_map(0))
+
+      add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode",
+                                    lambda func: set_auto_recontour_map(1))
+
+      add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
+                                    lambda func: interactive_nudge_func())
 
 
 def add_module_ccp4_gui():

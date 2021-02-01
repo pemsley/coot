@@ -789,6 +789,16 @@ def add_module_carbohydrate_gui():
                 lambda func: use_unimodal_pyranose_ring_torsions())
 
             add_simple_coot_menu_menuitem(
+                menu, "Display Extra Restraints",
+                lambda func: using_active_atom(
+                    set_show_extra_restraints, "aa_imol", 1))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Undisplay Extra Restraints",
+                lambda func: using_active_atom(
+                    set_show_extra_restraints, "aa_imol", 0))
+
+            add_simple_coot_menu_menuitem(
                 menu, "Extract this Tree",
                 lambda func:
                 new_molecule_from_this_glyco_tree())

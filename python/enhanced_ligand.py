@@ -41,6 +41,14 @@ if (use_gui_qm != 2):
         lambda func: hydrogenate_region(6))
 
     add_simple_coot_menu_menuitem(
+        menu,
+        "Contact Dots for Ligand",
+        lambda func:
+        using_active_atom(coot_contact_dots_for_ligand,
+                          "aa_imol",
+                          ["aa_chain_id", "aa_res_no", "aa_ins_code"]))
+
+    add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> 2D",
           lambda func:
