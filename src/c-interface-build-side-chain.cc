@@ -1184,6 +1184,7 @@ void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno
                          << " residue_count " << residue_count << std::endl;
                if (sl == residue_count) {
                   molecule_class_info_t &m = graphics_info_t::molecules[imol];
+                  m.make_backup_from_outside();
                   bool backup_state = m.backups_state();
                   m.turn_off_backup();
                   int ires_serial_first = m.residue_serial_number(chain_id, resno_start, "");
@@ -1207,6 +1208,11 @@ void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno
             }
             graphics_draw();
          }
+      } else {
+         std::cout << "WARNING:: not a valid map " << imol_map << std::endl;
       }
+
+   } else {
+      std::cout << "WARNING:: not a valid model molecule " << imol << std::endl;
    }
 }

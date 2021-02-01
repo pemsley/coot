@@ -398,6 +398,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
          std::map<std::string, double> likelihood_map =
             likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
          std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
+
          if (false) { // debugging
             std::cout << "debug:: transfer to scored_residues " << i<< " " << residue_spec_t(residue_p) << " "
                       << residue_p->GetResName() << " " << " with score map: ---" << std::endl;
@@ -410,7 +411,10 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
             }
             std::cout << "-----" << std::endl;
          }
+
          scored_residues[i] = p;
+         // std::cout << "debug:: scored_residues - storing map of size " << p.second.size() << " for residue vector index "
+         // << i << " " << residue_spec_t(p.first) << std::endl;
       }
 
       std::string true_sequence;
@@ -435,6 +439,17 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
             if ((ires+offset) < sequence_length) {
                mmdb::Residue *residue_p = scored_residues[ires].first;
                const std::map<std::string, double> &scored_map = scored_residues[ires].second;
+
+               if (false) { // debug
+                  std::map<std::string, double>::const_iterator it_debug;
+                  for (it_debug=scored_map.begin();
+                       it_debug!=scored_map.end();
+                       it_debug++) {
+                     std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
+                  }
+                  std::cout << "\nDone map: " << std::endl;
+               }
+
                char letter = sequence[ires+offset];
                std::string res_type = util::single_letter_to_3_letter_code(letter);
                // std::cout << "----------- debug:: res_type from " << letter << " is \"" << res_type << "\"" << std::endl;
@@ -451,15 +466,16 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
                                   << score << " for " << letter << " " << "ires " << ires << " "
                                   << residue_spec_t(residue_p) << std::endl;
                   } else {
-                     if (true) { // debug
-                        std::cout << "Failed to find " << res_type << " in this map: " << std::endl;
+                     if (false) { // debug
+                        std::cout << "DEBUG:: Failed to find " << res_type << " in this map: " << std::endl;
                         std::map<std::string, double>::const_iterator it_debug;
+                        std::cout << "This was the map: POINT B, it has size " << scored_map.size() << std::endl;
                         for (it_debug=scored_map.begin();
                              it_debug!=scored_map.end();
                              it_debug++) {
-                           std::cout << "   " << it_debug->first << " " << it_debug->second
-                                     << std::endl;
+                           std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
                         }
+                        std::cout << "\nDone map: " << std::endl;
                      }
                      running_sequence += '.';
                   }
@@ -472,7 +488,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
             results_t result(offset, sum_score, n_scored_residues, running_sequence, sequence_name,
                              true_sequence);
             results.push_back(result);
-            std::cout << " offset " << offset << " sum_score " << std::setw(8) << sum_score
+            std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(8) << sum_score
                       << " n_scored_residues " << n_scored_residues << " " << running_sequence
                       << " gene-name " << gene_name
                       << " true-sequence " << true_sequence << std::endl;
@@ -1336,7 +1352,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
                                                     bool verbose_output_mode) {
 
    // To see what's going on with residue scoring.
-   // verbose_output_mode = true;
+   verbose_output_mode = true;
 
    // fill_residue_blocks() has been called before we get here
 
@@ -1423,15 +1439,17 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
                const double &score = it->second;
                if (best_score_for_res_type.find(res_name) == best_score_for_res_type.end()) {
                   best_score_for_res_type[res_name] = score;
-                  std::cout << "first  score for res-type " << std::setw(10) << std::left << key << " "
-                            << std::fixed << std::right << std::setw(7) << std::setprecision(2)
-                            << score << std::endl;
+                  if (false)
+                     std::cout << "DEBUG:: first  score for res-type " << std::setw(10) << std::left << key << " "
+                               << std::fixed << std::right << std::setw(7) << std::setprecision(2)
+                               << score << std::endl;
                } else {
                   if (score > best_score_for_res_type[res_name]) {
                      best_score_for_res_type[res_name] = score;
-                     std::cout << "better score for res-type " << std::setw(10) << std::left << key << " "
-                               << std::fixed << std::right << std::setw(7) << std::setprecision(2)
-                               << score << std::endl;
+                     if (false)
+                        std::cout << "DEBUG:: better score for res-type " << std::setw(10) << std::left << key << " "
+                                  << std::fixed << std::right << std::setw(7) << std::setprecision(2)
+                                  << score << std::endl;
                   }
                }
             }

@@ -3045,8 +3045,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 // 
 	 float masked_map_val = -1.0;
 	 addres.set_map_atom_mask_radius(1.2);
-	 if (terminus_type == "MC" || terminus_type == "MN" ||
-	     terminus_type == "singleton")
+	 if (terminus_type == "MC" || terminus_type == "MN" || terminus_type == "singleton")
 	    masked_map_val = 0.0;
 	 addres.set_masked_map_value(masked_map_val);   
 
@@ -3068,8 +3067,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 int SelHndSphere = molecules[imol].atom_sel.mol->NewSelection();
 	 mmdb::Atom *terminal_at = NULL;
 	 std::string atom_name = "Unassigned";
-	 if (terminus_type == "MC" || terminus_type == "C" ||
-	     terminus_type == "singleton")
+	 if (terminus_type == "MC" || terminus_type == "C" || terminus_type == "singleton")
 	    atom_name = " C  ";
 	 if (terminus_type == "MN" || terminus_type == "N")
 	    atom_name = " N  ";
