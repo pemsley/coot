@@ -300,8 +300,9 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
             threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols, nx_start, ny_start, nz_start,
                                           axis_order_xyz, map_data, std::ref(print_lock)));
          }
-         for (std::size_t i=0; i<n_threads; i++)
+         for (std::size_t i=0; i<airs.size(); i++)
             threads[i].join();
+         std::cout << "DEBUG:: thread join finished" << std::endl;
          status = true;
       }
       catch (const std::system_error &e) {
