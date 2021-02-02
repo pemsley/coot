@@ -172,7 +172,12 @@ test_ligand_SOURCES = test-ligand.cc
 #	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 test_ligand_LDADD = \
-	./libcoot-ligand.la
+	./libcoot-ligand.la \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(CLIPPER_LIBS)
 
 #test_helix_placement_LDADD = \
 #	./libcoot-ligand.la                                \

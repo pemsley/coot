@@ -3972,6 +3972,7 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o make check
    o Run the damn tests - don't be lazy
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
@@ -3992,20 +3993,26 @@ INFO::
         the new directory the script configure-it.
    o git commit -a
    o git tag Release-0.x.y
-   o git commit
-   o git push
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
-        OK, disable the build-latest cron-job
-   o on charybdis: md: check that it builds
-   o on charybdis: put the tar ball now in for-source-tar/build/coot-0.x.y.z.tar.gz into
-                   the web server source directory
+   o on charybdis: md: check that it builds, the build will put the release in the
+                   pre-release directory. So move it to release (and remove the
+                   revision tag)
+                   cd ~/fuse/ftp/coot/source/pre-releases/
+                   mv coot-0.9.4.1-revision-10273.tar.gz coot-0.9.4.1.tar.gz
+                   mv coot-0.9.4.1.tar.gz ../releases/
+   o on charybdis: disable the build-latest cron-job
    o on charybdis: clear out pre-releases
    o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
    o on charybdis: bash wrap-build-it-for-release.sh
+                   that doesn't do the transfer to web server at the moment, so:
+                   cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
+                   cd ~/fuse/ftp/coot/binaries/release/
+                   give-read-permission to the new files
 
-   o Build binaries on some hosts
+   o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
    o Update latest version info on coot web page, Projects/coot/web/index.html
+   o Blog post
    o Mail mailing list
 
 ---

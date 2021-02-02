@@ -95,7 +95,11 @@ logramatest_SOURCES = logramatest.cpp
 crankshaft_test_SOURCES = crankshaft-test.cc
 
 crankshaft_test_LDADD = ./libcoot-ideal.la \
-        $(top_builddir)/compat/libcoot-compat.la
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/utils/libcoot-utils.la            \
+        $(top_builddir)/compat/libcoot-compat.la -lpthread
 
 with_geometry_SOURCES = with-geometry.cc
 

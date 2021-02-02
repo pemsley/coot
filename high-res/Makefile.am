@@ -53,7 +53,9 @@ check_PROGRAMS = testatomgraph tracehighres
 
 testatomgraph_SOURCES = test-atom-graph.cc
 
-testatomgraph_LDADD =  libcoot-high-res.la
+testatomgraph_LDADD =  libcoot-high-res.la \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la\
+   $(MMDB_LIBS)
 
 #testatomgraph_LDADD =  libcoot-high-res.la                \
 #	$(top_builddir)/ligand/libcoot-ligand.la          \
@@ -94,7 +96,12 @@ testatomgraph_LDADD =  libcoot-high-res.la
 
 tracehighres_SOURCES = trace-high-res.cc
 
-tracehighres_LDADD = libcoot-high-res.la $(top_builddir)/utils/libcoot-utils.la $(top_builddir)/compat/libcoot-compat.la
+tracehighres_LDADD = libcoot-high-res.la \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la   \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(top_builddir)/compat/libcoot-compat.la \
+   $(CLIPPER_LIBS)
 
 
 #tracehighres_LDADD = libcoot-high-res.la                  \

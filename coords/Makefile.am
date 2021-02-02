@@ -62,10 +62,12 @@ check_PROGRAMS = test-phenix-geo test-transform
 
 test_transform_SOURCES = test-transform.cc
 
-test_transform_LDADD = libcoot-coords.la
+test_transform_LDADD = libcoot-coords.la \
+   $(MMDB_LIBS)
 
 test_phenix_geo_SOURCES = test-phenix-geo.cc
 
 test_phenix_geo_LDADD = libcoot-coords.la \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/utils/libcoot-utils.la           
+   $(top_builddir)/utils/libcoot-utils.la  \
+   $(MMDB_LIBS)
