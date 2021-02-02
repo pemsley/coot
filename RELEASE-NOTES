@@ -1,4 +1,14 @@
 
+  Release 0.9.4.1
+
+  o BUG-FIX: Fix crash on reading some CCP4/MRC maps
+
+  o BUG-FIX: Colour-by-chain fixed again: now respects draw-missing-residues-loops setting
+
+  o BUG-FIX: Fix the installation of side-chain-data
+
+----
+
   Release 0.9.4
 
   o FEATURE: Add function for Backrub Rotamer for chain
@@ -7,7 +17,9 @@
 
   o FEATURE: Add "no-recontour on panning" mode
 
-  o FEATURE: Add function add_hydrogens_atoms()
+  o FEATURE: function add_hydrogens_atoms() added to the API
+
+  o FEATURE: function assign_sequence_to_active_fragment() added to the API
 
   o FEATURE: Add "Atom Overlaps" to the Validation menu
 
