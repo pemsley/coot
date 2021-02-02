@@ -6183,11 +6183,12 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
                              atom_colour_type, &atom_colour_map, udd_atom_index_handle, udd_bond_handle,
                              draw_hydrogens_flag, do_goodsell_colour_mode);
 
-   add_polymer_bonds(asc, atom_colour_type, &atom_colour_map,
-                     draw_hydrogens_flag, draw_missing_loops_flag, do_goodsell_colour_mode);
+   add_polymer_bonds(asc, atom_colour_type, &atom_colour_map,  // draw_missing_loops_flag not used here
+                     draw_hydrogens_flag, do_goodsell_colour_mode);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
-   atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
+   if (draw_missing_loops_flag)
+      atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
 
    // -------- metals and waters
    int udd_found_bond_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond"); // pass this.
@@ -6246,7 +6247,6 @@ Bond_lines_container::add_polymer_bonds(const atom_selection_container_t &asc,
                                         int atom_colour_type,
                                         coot::my_atom_colour_map_t *atom_colour_map_p,
                                         int draw_hydrogens_flag,
-                                        bool draw_missing_loops_flag,
                                         bool do_goodsell_colour_mode) {
 
    add_peptide_bonds(       asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
