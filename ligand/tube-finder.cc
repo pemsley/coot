@@ -42,9 +42,9 @@ coot::tube_finder_t::tube_finder_t(const clipper::Xmap<float> &xmap) {
 
       float rmi = 1.0/float(RAND_MAX);
       for (unsigned int i=0; i<n_test_points; i++) {
-         float rx = x_limits.first + random() * rmi * half_x * fudge;
-         float ry = y_limits.first + random() * rmi * half_y * fudge;
-         float rz = z_limits.first + random() * rmi * half_z * fudge;
+         float rx = x_limits.first + util::random() * rmi * half_x * fudge;
+         float ry = y_limits.first + util::random() * rmi * half_y * fudge;
+         float rz = z_limits.first + util::random() * rmi * half_z * fudge;
          // rx = x_limits.first + quarter_x;
          // ry = y_limits.first + quarter_y;
          // rz = z_limits.first + quarter_z;
