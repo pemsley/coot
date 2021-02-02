@@ -4249,11 +4249,18 @@
 
 (define (template-keybindings-to-preferences)
 
-  (let* ((pkg-data-dir 
-          (if (file-exists? (pkgdatadir))
-              (pkgdatadir)
-              (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
-  (let* ((bindings-file-name "template-key-bindings.scm")
+  ;; (let* ((pkg-data-dir
+  ;;         (if (file-exists? (pkgdatadir))
+  ;;             (pkgdatadir)
+  ;;             (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
+
+  (let ((pkg-data-dir
+         (let ((coot-prefix-dir (getenv "COOT_PREFIX"))) ;; try this first
+           (if (string? coot-prefix-dir)
+               (append-dir-dir (append-dir-dir coot-prefix-dir "share") "coot")
+               (pkgdatadir))))) ;; self-install directory
+
+    (let* ((bindings-file-name "template-key-bindings.scm")
 	 (scm-dir (append-dir-dir pkg-data-dir "scheme"))
 	 (ref-scm (append-dir-file scm-dir bindings-file-name)))
     (if (not (string? ref-scm))
