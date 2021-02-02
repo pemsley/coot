@@ -6248,7 +6248,7 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
       }
    } else {
       std::cout << "WARNING:: the new residue range overlaps with original one. "
-         << "Please change the range. Nothing has been done." << std::endl;
+                << "Please change the range. Nothing has been done." << std::endl;
    }
    return status;
 
