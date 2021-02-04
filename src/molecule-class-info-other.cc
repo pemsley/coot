@@ -5609,6 +5609,8 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
       }
    }
 
+   fill_ghost_info(true, 0.7);
+
    std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
    if (!resulting_merge_info.empty())
       std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;

@@ -1442,6 +1442,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       int imol = 0; // dummy
       GtkWidget *wp = 0; // = get_image_widget_for_comp_id(v[i].first, imol);
 
+      wp = get_image_widget_for_comp_id(v[i].first, imol);
+
       // gtk_image_new_from_file("test.png");
 
       if (wp) {
