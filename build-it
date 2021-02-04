@@ -3413,7 +3413,7 @@ if [ "$build_rdkit" = true ] ; then
    
       if [ $(uname) = Darwin ] ; then
          echo LD_LIBRARY_FALLBACK_PATH  $LD_LIBRARY_FALLBACK_PATH
-	 # what is unexport in bash?
+         # what is unexport in bash?
          export LD_LIBRARY_PATH=
       fi
 
@@ -3487,7 +3487,7 @@ if [ "$build_rdkit" = true ] ; then
       which cmake
 
       # No help:  -DBoost_INCLUDE_DIR=$install_top_dir/include 
-      # Cmake policy:	 -DMACOSX_RPATH=ON
+      # Cmake policy:    -DMACOSX_RPATH=ON
 
       # old verisons of boost (before 1.60?) can't find boost python
       # with new (github Feb 2016) rdkit
@@ -3539,11 +3539,11 @@ if [ "$build_rdkit" = true ] ; then
 
       echo will configure with cmake like this:
       echo cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
+         -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
          -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7 \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+         -DRDK_TEST_MULTITHREADED=OFF    \
          -DRDK_BUILD_THREADSAFE_SSS=OFF  \
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
@@ -3551,11 +3551,11 @@ if [ "$build_rdkit" = true ] ; then
 
 
       if cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
+         -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
          -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7 \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+         -DRDK_TEST_MULTITHREADED=OFF    \
          -DRDK_BUILD_THREADSAFE_SSS=OFF  \
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
