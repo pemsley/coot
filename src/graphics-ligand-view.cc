@@ -380,6 +380,25 @@ graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+   auto get_molfile_molecule = [] (RDKit::RWMol &rdkm) {
+                                  unsigned int n_atoms = rdkm.getNumAtoms();
+                                  // return a kekulize mol
+                                  RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+                                  double weight_for_3d_distances = 0.005;
+                                  int mol_2d_depict_conformer =
+                                     coot::add_2d_conformer(&rdk_mol_with_no_Hs, weight_for_3d_distances);
+                                  // why is there no connection between a lig_build molecule_t
+                                  // and a rdkit molecule conformer?
+                                  //
+                                  // For now hack around using a molfile molecule...
+                                  //
+                                  // I think I should have a rdkit_mol->lig_build::molecule_t converter
+                                  // (for later).
+                                  lig_build::molfile_molecule_t m =
+                                     coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
+                                  return m;
+                               };
+
    imol = imol_in;
    if (residue_p) {
       try {
@@ -392,59 +411,34 @@ graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
-	    
-	    // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
-	    // coot::debug_rdkit_molecule(&rdkm);
-
 	    unsigned int n_atoms = rdkm.getNumAtoms();
 	    if (n_atoms > 1) {
-	       // return a kekulize mol
-	       RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
-
-	       double weight_for_3d_distances = 0.005;
-	       int mol_2d_depict_conformer =
-		  coot::add_2d_conformer(&rdk_mol_with_no_Hs, weight_for_3d_distances);
-
-	       if (false) {  // debug screen positioning
-		  for (unsigned int iconf=0; iconf<rdkm.getNumConformers(); iconf++) { 
-		     RDKit::Conformer &conf = rdkm.getConformer(iconf);
-		     int n_atoms = conf.getNumAtoms();
-		     for (int iat=0; iat<n_atoms; iat++) { 
-			RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-			std::cout << iconf << " " << iat << "  "
-				  << std::setw(8) << std::fixed
-				  << std::right << std::setprecision(3) << r_pos.x << "  "
-				  << std::right << std::setprecision(3) << r_pos.y << "  "
-				  << std::right << std::setprecision(3) << r_pos.z
-				  << std::endl;
-		     }
-		  }
-	       }
-
-	       // why is there no connection between a lig_build molecule_t
-	       // and a rdkit molecule conformer?
-
-	       // For now hack around using a molfile molecule...
-	       //
-	       // I think I should have a rdkit_mol->lig_build::molecule_t converter
-	       // (for later).
-	 
-	       lig_build::molfile_molecule_t m =
-		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
-
-	       if (false) {
-		  std::cout << "make_molfile_molecule() makes molecule: " << std::endl;
-		  m.debug();
-	       }
-
+               lig_build::molfile_molecule_t m = get_molfile_molecule(rdkm);
 	       init_from_molfile_molecule(m, against_a_dark_background);
-
 	       status = true; // OK, if we got to here...
 	    }
 	 }
       }
       catch (const std::runtime_error &coot_error) {
 	 std::cout << coot_error.what() << std::endl;
+         try {
+            std::string res_name = residue_p->GetResName();
+            std::pair<bool, coot::dictionary_residue_restraints_t> p =
+               geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
+            if (p.first) {
+               const coot::dictionary_residue_restraints_t &restraints = p.second;
+               RDKit::RWMol rdkm = coot::rdkit_mol(restraints);
+               lig_build::molfile_molecule_t m = get_molfile_molecule(rdkm);
+               init_from_molfile_molecule(m, against_a_dark_background);
+               status = true;
+            }
+         }
+         catch (const std::runtime_error &coot_error_inner) {
+            std::cout << coot_error_inner.what() << std::endl;
+         }
+         catch (const std::exception &rdkit_error) {
+            std::cout << rdkit_error.what() << std::endl;
+         }
       }
       catch (const std::exception &rdkit_error) {
 	 std::cout << rdkit_error.what() << std::endl;
@@ -452,7 +446,7 @@ graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
    }
 #endif   // MAKE_ENHANCED_LIGAND_TOOLS
    return status;
-} 
+}
 
 
 
