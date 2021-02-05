@@ -3,7 +3,8 @@
 
   o BUG-FIX: Fix crash on reading some CCP4/MRC maps
 
-  o BUG-FIX: Colour-by-chain fixed again: now respects draw-missing-residues-loops setting
+  o BUG-FIX: Colour-by-chain fixed again: now respects the draw-missing-residues-loops
+             setting
 
   o BUG-FIX: Fix the installation of side-chain-data
 
