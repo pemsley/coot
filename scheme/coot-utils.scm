@@ -3500,7 +3500,7 @@
 				   set-file-name-func)
 	 (set! continue-status #f))
        coot-updates-error-handler)
-    
+
       (while continue-status
 	     (if (string? file-name-for-progress-bar)
 		 (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
