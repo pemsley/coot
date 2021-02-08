@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
       std::string xmap_file_name  = argv[3];
       float border = 40.0;
 
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
       float angstroms_per_bin = 1.0;
 
       std::cout << "asc n_selected_atoms " << asc.n_selected_atoms << std::endl;

@@ -303,7 +303,7 @@ validate(const std::string &comp_id,
    std::string dir = acedrg_install_dir + "/share/acedrg/tables/allOrgBondTables";
    brc.read_acedrg_table_dir(dir);
    
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
 
    coot::residue_spec_t residue_spec(chain_id, res_no, "");
 

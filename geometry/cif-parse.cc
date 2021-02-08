@@ -3179,8 +3179,9 @@ coot::protein_geometry::init_standard() {
 	    env_dir_fails = 1;
 	 } else {
 	    env_dir_fails = 0;
-	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
-		      << " CLIBD_MON: " << s << std::endl;
+            if (verbose_mode)
+               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
+                         << " CLIBD_MON: " << s << std::endl;
 	    mon_lib_dir = s;
 	    using_clibd_mon = true;
 	    // strip any trailing / from mon_lib_dir
@@ -3197,8 +3198,9 @@ coot::protein_geometry::init_standard() {
 
 	 s = getenv("CCP4_LIB");
 	 if (s) {
-	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
-		      << s << std::endl;
+            if (verbose_mode)
+               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
+                         << s << std::endl;
 	    mon_lib_dir = s;
 
 	 } else {

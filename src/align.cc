@@ -55,7 +55,7 @@ main(int argc, char **argv) {
     
 
     if (argc > 1) { 
-       atom_selection_container_t asc = get_atom_selection(argv[1], 1, 0);
+       atom_selection_container_t asc = get_atom_selection(argv[1], true, false, false);
        if (asc.n_selected_atoms > 0) { 
 	  do_alignment(asc);
        }

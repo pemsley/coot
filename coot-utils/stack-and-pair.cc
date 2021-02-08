@@ -212,6 +212,7 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 				      bool residues_are_all_moving_flag,
 				      const coot::protein_geometry &geom) {
 
+   bool console_output_for_restraints_generation_timings = false; // pass this?
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    std::vector<coot::stack_and_pair::paired_residues_info_t> v;
@@ -262,8 +263,9 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
       }
       auto tp_3 = std::chrono::high_resolution_clock::now();
       auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
-      std::cout << "------------------ timings: for residues SelectAtoms() "
-                << d32 << " ms" << std::endl;
+      if (console_output_for_restraints_generation_timings)
+         std::cout << "------------------ timings: for residues SelectAtoms() "
+                   << d32 << " ms" << std::endl;
 
       mol->GetSelIndex(selection_handle_moving, selected_atoms_moving, n_selected_atoms_moving);
    }
@@ -449,9 +451,10 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
    auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
    auto d76 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7 - tp_6).count();
    auto d87 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8 - tp_7).count();
-   std::cout << "------------------ timings: for paired_residues(): "
-	     << d10 << " " << d54 << " " << d65 << " "
-	     << d76 << "  " << d87 << " " << std::endl;
+   if (console_output_for_restraints_generation_timings)
+      std::cout << "------------------ timings: for paired_residues(): "
+                << d10 << " " << d54 << " " << d65 << " "
+                << d76 << "  " << d87 << " " << std::endl;
    return v;
 }
 

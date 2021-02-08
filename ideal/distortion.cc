@@ -320,6 +320,12 @@ coot::geometry_distortion_info_container_t::distortion() const {
    double total_distortion = 0.0;
    for (unsigned int i=0; i< geometry_distortion.size(); i++) {
       const coot::simple_restraint &rest = geometry_distortion[i].restraint;
+      const double &rest_distortion_score = geometry_distortion[i].distortion_score;
+
+      if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	 total_distortion += rest_distortion_score;
+      }
+
       if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
 	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
@@ -1135,6 +1141,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	       distortion = coot::distortion_score_parallel_planes(rest, v);
 	       atom_index = rest.plane_atom_index[0].first;
 	    }
+
 	 if (restraints_usage_flag & coot::NON_BONDED_MASK)
 	    if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	       distortion = coot::distortion_score_non_bonded_contact(rest, lennard_jones_epsilon, v);
@@ -1147,6 +1154,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	       // double dist = sqrt((pt_2-pt_1).lengthsq());
 	       // std::cout << " NBC i " << i << " dist " << dist << " distortion " << distortion << std::endl;
 	    }
+
 	 if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
 	    if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	       distortion = coot::distortion_score_geman_mcclure_distance(rest, v,
@@ -2026,7 +2034,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
    double max_dist = 2.5 * lj_sigma; // r_max
 
-   max_dist = 999.9; // does this match the 2 in the derivatives
+   // max_dist = 999.9; // does this match the 2 in the derivatives
 
    if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 
@@ -2062,6 +2070,21 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
 
    }
+
+
+#if 0
+   bool debug_output = false;
+   if (nbc_restraint.restraint_index == 870)
+      debug_output = true;
+   if (nbc_restraint.restraint_index == 846)
+      debug_output = true;
+   if (debug_output) {
+      double dist = sqrt(dist_sq);
+      std::cout << "returning V_lj: for index " << nbc_restraint.restraint_index
+                << " atom indices " << nbc_restraint.atom_index_1 << "  " << nbc_restraint.atom_index_2
+                << " distance " << dist << " lj-epsilon " << lj_epsilon << " V_jl "<< V_lj << std::endl;
+   }
+#endif
 
    return V_lj;
 }

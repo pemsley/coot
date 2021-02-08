@@ -385,9 +385,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 			       << "failed to get atom index idx_2 for atom name: "
 			       << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
-		     std::cout << "Here's the atoms we have:\n";
-		     for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-			std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+                     if (false) {
+                        std::cout << "Here's the atoms we have:\n";
+                        for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+                           std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+                     }
 		  }
 		  // give up trying to construct this thing then.
 		  std::string message = "Failed to get atom index for atom name \"";
@@ -408,11 +410,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 			    << "failed to get atom index idx_1 for atom name: \""
 			    << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
-		  std::cout << "Here's the atoms we have:\n";
-		  for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-		     std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":";
-		  // give up trying to construct this thing then.
-		  std::cout << std::endl;
+                  if (false) {
+                     std::cout << "Here's the atoms we have:\n";
+                     for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+                        std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":";
+                     // give up trying to construct this thing then. (Come back with a full dictionary molecule)
+                     std::cout << std::endl;
+                  }
 	       }
 	       std::string message = "Failed to get atom index for atom name \"";
 	       message += atom_name_1;

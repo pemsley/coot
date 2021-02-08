@@ -484,7 +484,7 @@ int main(int argc, char **argv) {
    int status = 0;
 
    input_data_t inputs = get_input_details(argc, argv);
-   atom_selection_container_t asc = get_atom_selection(inputs.input_pdb_file_name, 1, 0);
+   atom_selection_container_t asc = get_atom_selection(inputs.input_pdb_file_name, true, false, false);
    if (! asc.read_success) {
       std::cout << "fail on read pdb" << inputs.input_pdb_file_name << std::endl;
    } else {

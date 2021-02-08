@@ -308,6 +308,7 @@ namespace coot {
 
    public:
 
+      int restraint_index;
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
       bool is_closed; // so that we can "remove" restraints without deleting them
@@ -348,6 +349,7 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 chiral_hydrogen_index = -1;
          is_closed = true;
+         restraint_index = -1;
       }
 
       // Bond
@@ -357,6 +359,7 @@ namespace coot {
 		       float sig, float obs){
 
 	 restraint_type = rest_type;
+         restraint_index = -1;
 	 atom_index_1 = atom_1;
 	 atom_index_2 = atom_2;
 	 observed_value = obs;
@@ -380,6 +383,7 @@ namespace coot {
 		       float tar, float sig){
 
 	 restraint_type = rest_type;
+         restraint_index = -1;
 	 atom_index_1 = atom_1;
 	 atom_index_2 = atom_2;
 	 observed_value = -1;  // not given or used
@@ -404,6 +408,7 @@ namespace coot {
 		       float sig, bool is_single_Hydrogen_atom_angle_restraint_in) {
 
 	 restraint_type = rest_type;
+         restraint_index = -1;
 	 atom_index_1 = atom_1;
 	 atom_index_2 = atom_2;
 	 atom_index_3 = atom_3;
@@ -425,6 +430,7 @@ namespace coot {
 		       float sig, float obs, int periodicity_in){
 
 	 restraint_type = rest_type;
+         restraint_index = -1;
 	 atom_index_1 = atom_1;
 	 atom_index_2 = atom_2;
 	 atom_index_3 = atom_3;
@@ -449,6 +455,7 @@ namespace coot {
 		       const std::vector<bool> &fixed_atom_flags_in) {
 
 	 restraint_type = rest_type;
+         restraint_index = -1;
 	 rama_plot_residue_type = rama_plot_zo_residue_type;
 	 atom_index_1 = atom_1;
 	 atom_index_2 = atom_2;
@@ -475,6 +482,7 @@ namespace coot {
 	 // atom_index_in is a plane restraint.  This could well
 	 // change in the future.
 	 //
+         restraint_index = -1;
 	 restraint_type = restraint_type_in;
 
 	 plane_atom_index.resize(atom_index_in.size());
@@ -502,6 +510,7 @@ namespace coot {
 	 // change in the future.
 	 //
 	 restraint_type = restraint_type_in;
+         restraint_index = -1;
 
 	 plane_atom_index = atom_index_sigma_in;
 
@@ -524,6 +533,7 @@ namespace coot {
 		       double target_angle_in,
 		       double sigma_in) {
 	 restraint_type = restraint_type_in;
+         restraint_index = -1;
 	 // atom_index = atom_index_plane_1_in;
 	 // atom_index_other_plane = atom_index_plane_2_in;
 	 plane_atom_index.resize(atom_index_plane_1_in.size());
@@ -548,6 +558,7 @@ namespace coot {
 		      float sigma_in, const std::vector<bool> &fixed_atom_flags_in) {
 
        restraint_type = restraint_type_in;
+       restraint_index = -1;
 
        atom_index_1 = index_1;
        atom_index_2 = index_2;
@@ -570,6 +581,7 @@ namespace coot {
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       const protein_geometry &geom) {
 
+         restraint_index = -1;
 	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = index_1;
@@ -604,6 +616,7 @@ namespace coot {
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       double dist_min) {
 
+         restraint_index = -1;
 	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = index_1;
@@ -634,6 +647,7 @@ namespace coot {
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       int chiral_hydrogen_index_in) {
 
+         restraint_index = -1;
 	 if (restraint_type_in == CHIRAL_VOLUME_RESTRAINT) {
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = atom_idx_1_in;
@@ -656,6 +670,7 @@ namespace coot {
 		       bool fixed_atom_flag_in,
 		       float sig, float obs){
 
+         restraint_index = -1;
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_1;
 	 observed_value = obs;
@@ -676,6 +691,8 @@ namespace coot {
 		       const atom_spec_t &spec_in,
 		       const clipper::Coord_orth &pos) :
 	 atom_spec(spec_in) {
+
+         restraint_index = -1;
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
@@ -1753,6 +1770,7 @@ namespace coot {
 	    n_link_angle_restr = 0;
 	    n_link_trans_peptide = 0;
 	    n_link_plane_restr = 0;
+            n_link_improper_dihedral_restr = 0;
 	    link_type = "link";
 	 }
       public:

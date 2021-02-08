@@ -922,7 +922,7 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                                                const std::string &pdb_file_name,
                                                const std::string &chain_id) {
 
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
    if (asc.read_success) {
       std::vector<std::pair<mmdb::Residue *, double> > co_scores = CO_orientations(asc.mol);
       std::map<residue_spec_t, double> scores_map;

@@ -85,7 +85,7 @@ libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 
 check_PROGRAMS =  with-geometry logramatest crankshaft-test test-rama-plot
 if OS_WIN32
-bin_PROGRAMS = mini-rsr-bin
+bin_PROGRAMS = mini-rsr-bin coot-ligand-validation
 else
 libexec_PROGRAMS = mini-rsr-bin
 endif
@@ -108,6 +108,14 @@ mini_rsr_bin_SOURCES = mini-rsr.cc
 test_rama_plot_SOURCES = test-rama-plot.cc
 
 test_rama_plot_LDADD = ./libcoot-ideal.la
+
+coot_ligand_validation_SOURCES = lv.cc
+
+coot_ligand_validation_LDADD = ./libcoot-ideal.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la    \
+        $(top_builddir)/compat/libcoot-compat.la -lpthread
 
 # test_indexing_SOURCES = test-indexing.cc
 

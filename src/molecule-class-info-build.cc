@@ -128,7 +128,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 
    make_backup();
    bool added = 0;
-   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, true, false);
+   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, true, true, false);
    if (asc.read_success) { 
       int imod = 1;
       mmdb::Model *new_model_p = asc.mol->GetModel(imod);

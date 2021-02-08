@@ -117,7 +117,7 @@ public:
 	    mol->DeleteSelection(SelectionHandle);
       delete mol;
       atom_selection = 0;
-      mol = 0; 
+      mol = 0;
    }
 
    void delete_atom_selection() { 
@@ -165,7 +165,8 @@ public:
 atom_selection_container_t make_asc(mmdb::Manager *mol, bool transfer_atom_indices_flag=false);
 
 atom_selection_container_t get_atom_selection(std::string t, 
-					      bool allow_duplseqnum, 
+					      bool allow_duplseqnum,
+                                              bool verbose_mode,
 					      bool convert_to_v2_name_flag);
 
 // put these in coot namespace? -- FIXME

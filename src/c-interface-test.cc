@@ -267,7 +267,7 @@ int test_function(int i, int j) {
 
    if (0) {
       // atom_selection_container_t asc = get_atom_selection("double.pdb");
-      atom_selection_container_t asc = get_atom_selection("test-frag.pdb", true, true);
+      atom_selection_container_t asc = get_atom_selection("test-frag.pdb", true, false, false);
       coot::dots_representation_info_t dots;
       int sel_hnd = asc.SelectionHandle;
       std::vector<std::pair<mmdb::Atom *, float> > v =

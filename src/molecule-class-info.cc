@@ -156,7 +156,8 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
-   atom_sel = get_atom_selection(filename, allow_duplseqnum, convert_to_v2_atom_names_flag);
+   bool verbose = true;
+   atom_sel = get_atom_selection(filename, allow_duplseqnum, verbose, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
 

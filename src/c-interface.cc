@@ -860,7 +860,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 					      const char *file_name) {
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
-      atom_selection_container_t asc = get_atom_selection(file_name, graphics_info_t::allow_duplseqnum, true);
+      atom_selection_container_t asc = get_atom_selection(file_name, graphics_info_t::allow_duplseqnum, true, false);
       mmdb::Manager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;

@@ -4,7 +4,7 @@ lib_LTLIBRARIES=libcoot-analysis.la
 pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh
 pkgincludedir = $(includedir)/coot/analysis
 
-# CXXFLAGS = 	$(COOT_GSL_FLAGS)
+# CXXFLAGS =	$(COOT_GSL_FLAGS)
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
@@ -20,9 +20,9 @@ libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc sta
 # one of these libraries?
 libcoot_analysis_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la    \
-   $(top_builddir)/geometry/libcoot-geometry.la    	\
-   $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
-   $(top_builddir)/utils/libcoot-utils.la 		\
+   $(top_builddir)/geometry/libcoot-geometry.la	\
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la	\
+   $(top_builddir)/utils/libcoot-utils.la		\
    $(CLIPPER_LIBS) $(MMDB_LIBS)  \
    $(GSL_LIBS) $(RDKIT_LIBS)
 
@@ -35,12 +35,10 @@ check_PROGRAMS = test-mogul test-cablam peptide-projection test-align improper-d
 
 coot_daca_SOURCES = coot-daca.cc
 
-# what is goin on here!? 	$(CLIPPER_LIBS) is needed to resolve libRDKitPartialCharges.so.1
-# at run time! I so don't understand!
 coot_daca_LDADD = libcoot-analysis.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
-	$(top_builddir)/geometry/libcoot-geometry.la    	\
-	$(top_builddir)/utils/libcoot-utils.la 		\
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
+	$(top_builddir)/geometry/libcoot-geometry.la		\
+	$(top_builddir)/utils/libcoot-utils.la			\
 	$(CLIPPER_LIBS)
 
 coot_bfactan_SOURCES = bfactan.cc

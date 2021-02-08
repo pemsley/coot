@@ -24,6 +24,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
    // restraints_usage_flag = BONDS_AND_ANGLES; // debugging
 
+   bool console_output_for_restraints_generation_timings = false;
+
    if (! thread_pool_p) {
          std::cout << "ERROR:: " << __FUNCTION__ << " --- thread pool was not set! ---------"
 		   << std::endl;
@@ -79,10 +81,11 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set;
 
-      make_link_restraints_ng(geom,
-			      do_rama_plot_restraints, do_trans_peptide_restraints,
-			      &residue_link_vector_map, // fill this
-			      &residue_pair_link_set);  // fill this
+      if (residues_vec.size() > 1)
+         make_link_restraints_ng(geom,
+                                 do_rama_plot_restraints, do_trans_peptide_restraints,
+                                 &residue_link_vector_map, // fill this
+                                 &residue_pair_link_set);  // fill this
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
@@ -102,10 +105,10 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // non_bonded_contacts_atom_indices (so, out of range if you use it?)
 
       if (! thread_pool_p) {
-         std::cout << "--------- ERROR:: " << __FUNCTION__ << " - thread pool was not set! ---------"
+         std::cout << "ERROR:: ------- " << __FUNCTION__ << " - thread pool was not set! ---------"
 		   << std::endl;
          // and yet we continue... that's bad news.
-	      std::cout << "Bad things will now happen" << std::endl;
+         std::cout << "ERROR:: Bad things will now happen" << std::endl;
       }
 
       make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
@@ -114,7 +117,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       if (do_rama_plot_restraints)
          make_rama_plot_restraints_ng(residue_link_vector_map, residue_pair_link_set, geom);
 
-      if (true) {
+      if (console_output_for_restraints_generation_timings) {
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
          auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
@@ -128,19 +131,24 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // probably not needed because plane restraints don't come in a bunch (I don't know why)
       // disperse_plane_restraints();
 
-      if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS)
-	      make_helix_pseudo_bond_restraints();
+      if (residues_vec.size() > 1)
+         if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS)
+            make_helix_pseudo_bond_restraints();
 
-      if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS)
-	      make_strand_pseudo_bond_restraints();
+      if (residues_vec.size() > 1)
+         if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS)
+            make_strand_pseudo_bond_restraints();
 
-      if (do_auto_helix_restraints)
-         make_helix_pseudo_bond_restraints_from_res_vec_auto();
+      if (residues_vec.size() > 1)
+         if (do_auto_helix_restraints)
+            make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
-      if (do_auto_h_bond_restraints)
-         make_h_bond_restraints_from_res_vec_auto(geom);
+      if (residues_vec.size() > 1)
+         if (do_auto_h_bond_restraints)
+            make_h_bond_restraints_from_res_vec_auto(geom);
 
-      make_base_pairing_and_stacking_restraints_ng(imol, geom);
+      if (residues_vec.size() > 1)
+         make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
@@ -154,6 +162,10 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // info();  - are the NBCs correct?
 
    }
+
+   for (unsigned int i=0; i<restraints_vec.size(); i++)
+      restraints_vec[i].restraint_index = i;
+   
    return size();
 }
 
@@ -258,6 +270,8 @@ coot::restraints_container_t::make_rama_plot_restraints_ng(const std::map<mmdb::
 void
 coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int imol, const coot::protein_geometry &geom) {
 
+
+   bool console_output_for_restraints_generation_timings = false;
    auto tp_6 = std::chrono::high_resolution_clock::now();
    stack_and_pair sp(mol, residues_vec);
    std::vector<stack_and_pair::stacked_planes_info_t> stacked_residues = sp.stacked_residues(mol);
@@ -303,20 +317,24 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
          }
       }
    }
-   std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
-             << std::endl;
+   if (console_output_for_restraints_generation_timings)
+      std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
+                << std::endl;
+
    auto tp_9 = std::chrono::high_resolution_clock::now();
 
    if (extra_restraints.has_restraints())
       add_extra_restraints(imol, "from make_base_pairing_and_stacking_restraints_ng()", extra_restraints, geom);
 
-   auto tp_10 = std::chrono::high_resolution_clock::now();
-   auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
-   auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
-   auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
-   auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_9).count();
-   std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
-             << d76 << " " << d87 << " " << d98 << " " << d109 << " ms" << std::endl;
+   if (console_output_for_restraints_generation_timings) {
+      auto tp_10 = std::chrono::high_resolution_clock::now();
+      auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
+      auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
+      auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
+      auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_9).count();
+      std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
+                << d76 << " " << d87 << " " << d98 << " " << d109 << " ms" << std::endl;
+   }
 
 }
 
@@ -473,7 +491,7 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
       }
    }
 
-   flank_restraints.report();
+   // flank_restraints.report();
 }
 
 // static
@@ -532,7 +550,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 	 const unsigned int &j = *it;
 
-	 if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
+	 if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end()) 
 	 continue;
 
 	 // for updating non-bonded contacts
@@ -542,13 +560,27 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	 mmdb::Atom *at_2 = atom[j];
 	 std::string alt_conf_2(at_2->altLoc);
 
+
+         {
+            bool at_1_is_fixed_flag = false;
+            bool at_2_is_fixed_flag = false;
+            if (fixed_atom_indices.find(i) != fixed_atom_indices.end()) at_1_is_fixed_flag = true;
+            if (fixed_atom_indices.find(j) != fixed_atom_indices.end()) at_2_is_fixed_flag = true;
+
+            if (false)
+               std::cout << "make_non_bonded_contact_restraints_workpackage_ng considering "
+                         << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << " : "
+                         << fixed_atom_indices.size() << " fixed flags: " << at_1_is_fixed_flag << " " << at_2_is_fixed_flag
+                         << std::endl;
+         }
+
 	 if (!alt_conf_1.empty())        // alt confs don't see each other
 	    if (!alt_conf_2.empty())
 	       if (alt_conf_1 != alt_conf_2)
 		  continue;
 
 	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
-	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+	    if (fixed_atom_indices.find(j) != fixed_atom_indices.end())
 	       continue;
 
 	 if (j < i) /* only add NBC one way round */
@@ -802,6 +834,8 @@ void
 coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_ng(int imol,
 										  const coot::protein_geometry &geom) {
 
+   bool console_output_for_restraints_generation_timings = false;
+
    auto tp_0 = std::chrono::high_resolution_clock::now();
    std::vector<std::string> energy_type_for_atom(n_atoms);
    std::vector<bool> H_atom_parent_atom_is_donor_vec(n_atoms, false);
@@ -832,8 +866,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   std::cout << "------------------ timings: make_non_bonded_contact_restraints_ng(): energy types "
-             << d10 << " milliseconds\n";
+   if (console_output_for_restraints_generation_timings)
+      std::cout << "------------------ timings: make_non_bonded_contact_restraints_ng(): energy types "
+                << d10 << " milliseconds\n";
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
 
@@ -895,8 +930,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    auto d2a = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2a - tp_2 ).count();
    auto d2b = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2b - tp_2a).count();
    auto d2c = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2c - tp_2b).count();
-   std::cout << "------------------ timings: make_non_bonded_contact_restraints_ng(): find_the_contacts(): "
-             << d2a << " start-stop-reserve: " << d2b << " start-stop-push: " << d2c << " milliseconds\n";
+   if (console_output_for_restraints_generation_timings)
+      std::cout << "------------------ timings: make_non_bonded_contact_restraints_ng(): find_the_contacts(): "
+                << d2a << " start-stop-reserve: " << d2b << " start-stop-push: " << d2c << " milliseconds\n";
 
    std::atomic<unsigned int> done_count(0);
    bool use_extended_atom_mode = ! model_has_hydrogen_atoms;
@@ -949,9 +985,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
    auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
 
-   std::cout << "------------------ timings: non-bonded contacts "  << d32
-	     << " dispatching threads: " << d43 << " waiting: " << d54
-             << " adding NBCs to restraints " << d65 << std::endl;
+   if (console_output_for_restraints_generation_timings)
+      std::cout << "------------------ timings: non-bonded contacts "  << d32
+                << " dispatching threads: " << d43 << " waiting: " << d54
+                << " adding NBCs to restraints " << d65 << std::endl;
 
 }
 
@@ -1681,13 +1718,16 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
    // make_polymer_links_ng uses the residues_vec (which is sorted in initialization)
    // so, only the passed active atoms are consider for polymer links
 
-   std::cout << "INFO:: making link polymer links " << std::endl;
+   // std::cout << "INFO:: making link polymer links " << std::endl;
 
    std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set = *residue_pair_link_set_p;
 
    int idx_reference_index_handle = mol->GetUDDHandle(mmdb::UDR_RESIDUE, "index from reference residue");
 
    link_restraints_counts accum_links;
+
+   if (residues_vec.size() == 1)
+      return; // nothing to link
 
    // the residues are sorted by now, we can't have a forward link on the last residue of residues_vec
    //
@@ -1778,7 +1818,8 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
       }
    }
 
-   accum_links.report();
+   if (verbose_geometry_reporting)
+      accum_links.report();
 
 }
 
@@ -2086,6 +2127,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 						      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
 						      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p) {
 
+   bool show_timings = false; // maybe pass this - or put it in the class
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    make_polymer_links_ng(geom, do_rama_plot_restraints, do_trans_peptide_restraints,
@@ -2107,14 +2149,18 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
       link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
-      others.report();
 
-      auto tp_3 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-      std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
-                << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
+      if (verbose_geometry_reporting)
+         others.report();
+
+      if (show_timings) {
+         auto tp_3 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+         auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+         std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
+                   << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
+      }
 
    }
 }
@@ -2122,7 +2168,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
-   double interesting_distortion_limit = 10.0;
+   double interesting_distortion_limit = 1.0;
    analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(              BOND_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT,     interesting_distortion_limit);
@@ -2163,8 +2209,9 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
-   if (distortions.size() < n_baddies) n_baddies = distortions.size();
-	std::cout << std::setw(3) << std::endl;
+   if (distortions.size() < n_baddies)
+      n_baddies = distortions.size();
+   std::cout << std::setw(3);
    for (unsigned int i=0; i<n_baddies; i++) {
       const std::tuple<unsigned int, double, double, double> &d = distortions[i];
       const simple_restraint &rest = restraints_vec[std::get<0>(d)];
@@ -2187,10 +2234,10 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       if (r_type == BOND_RESTRAINT)
          std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " nZ "         << std::get<1>(d)
-                   << " delta "      << std::get<2>(d)
-                   << " target "     << rest.target_value
-                   << " sigma "      << rest.sigma
+                   << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
+                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::get<2>(d)
+                   << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
+                   << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
@@ -2201,7 +2248,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
-         std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
+         std::cout << "INFO:: Model: Bad GM Distance: " << std::setw(5)
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value

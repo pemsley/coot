@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
       std::string xmap_file_name  = argv[3];
       float border = 5.0;
 
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
       float angstroms_per_bin = 1.0;
 
       // I don't like spherically_averaged_molecule now.  Better do this:
