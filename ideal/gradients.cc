@@ -453,10 +453,14 @@ coot::my_df_non_bonded_lennard_jones(const gsl_vector *v,
 				     const simple_restraint &this_restraint,
 				     const double &lj_epsilon) {
 
-   // no need to calculate anything if both these atoms are non-moving
+   // no need to calculate anything if both these atoms are non-moving.
+   // But if they are both fixed, why was this restraint ever added?
    //
-   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1])
+   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1]) {
+      std::cout << "Both fixed - this should never happen my_df_non_bonded_lennard_jones"
+                << std::endl;
       return;
+   }
 
    int idx_1 = 3*this_restraint.atom_index_1;
    int idx_2 = 3*this_restraint.atom_index_2;
@@ -471,6 +475,7 @@ coot::my_df_non_bonded_lennard_jones(const gsl_vector *v,
 
    double lj_sigma = this_restraint.target_value;
    double max_dist = lj_sigma * 2.5; // 2.5 is conventional limit, i.e. ~3.5 * 2.5
+   max_dist = 999.9; // does this match the 2 in the derivatives
    double b_i_sqrd = (a1-a2).lengthsq();
    if (b_i_sqrd < 0.81) b_i_sqrd = 0.81; // stabilize (as per distortion score lj)
 

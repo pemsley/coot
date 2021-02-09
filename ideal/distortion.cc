@@ -2034,7 +2034,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
    double max_dist = 2.5 * lj_sigma; // r_max
 
-   // max_dist = 999.9; // does this match the 2 in the derivatives
+   max_dist = 999.9; // does this match the 2 in the derivatives
 
    if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 
