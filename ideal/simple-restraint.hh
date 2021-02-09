@@ -2157,32 +2157,6 @@ namespace coot {
 			     const std::string &chain_id,
 			     const clipper::Xmap<float> *xmap_in);
 
-      // iend_res is inclusive, so that 17,17 selects just residue 17.
-      //
-      // Interface used by Regularize button callback:
-      //
-      restraints_container_t(int istart_res, int iend_res,
-			     bool have_flanking_residue_at_start,
-			     bool have_flanking_residue_at_end,
-			     short int have_disulfide_residues,
-			     const std::string &altloc,
-			     const std::string &chain_id,
-			     mmdb::Manager *mol_in, // const in an ideal world
-			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> *xmap_in);
-
-      // Interface used by Refine button callback:
-      //
-      restraints_container_t(int istart_res, int iend_res,
-			     short int have_flanking_residue_at_start,
-			     short int have_flanking_residue_at_end,
-			     short int have_disulfide_residues,
-			     const std::string &altloc,
-			     const std::string &chain_id,
-			     mmdb::Manager *mol, // const in an ideal world
-			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> *map_p_in,
-			     float map_weight);
 
       // For validation.
       //

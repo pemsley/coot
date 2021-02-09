@@ -687,15 +687,17 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 							in_alt_conf_split_flag);
    
    clipper::Xmap<float> dummy_xmap;
-   coot::restraints_container_t restraints(resno_mid-side_step,
-					   resno_mid+side_step,
-					   have_flanking_residue_at_start,
-					   have_flanking_residue_at_end,
-					   have_disulfide_residues,
-					   altconf,
-					   chn,
-					   residues_mol_pair.first,
-					   fixed_atom_specs, &dummy_xmap);
+   // coot::restraints_container_t restraints(resno_mid-side_step,
+   //      				   resno_mid+side_step,
+   //      				   have_flanking_residue_at_start,
+   //      				   have_flanking_residue_at_end,
+   //      				   have_disulfide_residues,
+   //      				   altconf,
+   //      				   chn,
+   //      				   residues_mol_pair.first,
+   //      				   fixed_atom_specs, &dummy_xmap);
+
+   coot::restraints_container_t restraints(SelResidues, nSelResidues, chn, atom_sel.mol, &dummy_xmap);
 
    ctpl::thread_pool thread_pool(2);
    restraints.thread_pool(&thread_pool, 2);
@@ -1146,8 +1148,7 @@ restr_res_vector() {
       coot::protein_geometry geom;
       geom.init_standard();
       std::vector<mmdb::Link> links;
-      coot::restraints_container_t
-	 restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.add_map(weight);
       bool do_trans_peptide_restraints = true;
       int imol = 0;

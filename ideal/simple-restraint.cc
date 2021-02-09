@@ -126,29 +126,6 @@ coot::restraints_container_t::~restraints_container_t() {
    }
 }
 
-// iend_res is inclusive, so that 17,17 selects just residue 17.
-//   have_disulfide_residues: other residues are included in the
-//				residues_mol for disphide restraints.
-// 
-coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend_res_in,
-						     bool have_flanking_residue_at_start,
-						     bool have_flanking_residue_at_end,
-						     short int have_disulfide_residues,
-						     const std::string &altloc,
-						     const std::string &chain_id,
-						     mmdb::Manager *mol_in, 
-						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
-
-   init();
-   are_all_one_atom_residues = false;
-   init_from_mol(istart_res_in, iend_res_in, 
-		 have_flanking_residue_at_start, 
-		 have_flanking_residue_at_end,
-		 have_disulfide_residues,
-		 altloc,
-		 chain_id, mol_in, fixed_atom_specs);
-}
 
 // Used in omega distortion graph
 // 
@@ -258,29 +235,6 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
 
 }
 
-coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend_res_in,
-						     short int have_flanking_residue_at_start,
-						     short int have_flanking_residue_at_end,
-						     short int have_disulfide_residues,
-						     const std::string &altloc,
-						     const std::string &chain_id,
-						     mmdb::Manager *mol_in,
-						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> *map_p_in,
-						     float map_weight_in) : xmap_p(map_p_in) {
-
-   init();
-   init_from_mol(istart_res_in, iend_res_in, 		 
-		 have_flanking_residue_at_start, 
-		 have_flanking_residue_at_end,
-		 have_disulfide_residues,
-		 altloc,
-		 chain_id, mol_in, fixed_atom_specs);
-   are_all_one_atom_residues = false;
-   map_weight = map_weight_in;
-   include_map_terms_flag = 1;
-
-}
 
 bool
 coot::residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
@@ -7776,27 +7730,12 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 protein_geometry geom;
 	 geom.replace_monomer_restraints(residue_p->GetResName(), imol, dict_restraints);
    
-	 short int have_flanking_residue_at_start = 0;
-	 short int have_flanking_residue_at_end = 0;
-	 short int have_disulfide_residues = 0;
-	 std::string altloc("");
-	 std::vector<coot::atom_spec_t> fixed_atom_specs;
-
-	 char *chain_id = residue_p->GetChainID();
-	 int istart_res = residue_p->GetSeqNum();
-	 int iend_res   = istart_res;
 	 clipper::Xmap<float> dummy_xmap;
 
-	 coot::restraints_container_t restraints(istart_res,
-						 iend_res,
-						 have_flanking_residue_at_start,
-						 have_flanking_residue_at_end,
-						 have_disulfide_residues,
-						 altloc,
-						 chain_id,
-						 mol,
-						 fixed_atom_specs,
-						 &dummy_xmap);
+         std::vector<std::pair<bool,mmdb::Residue *> > residues;
+         residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_p));
+         mmdb::Manager *null_mol = 0;
+         coot::restraints_container_t restraints(residues, geom, null_mol, &dummy_xmap);
    
 	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;

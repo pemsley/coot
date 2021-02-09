@@ -6594,10 +6594,10 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
       int n_chains = model_p->GetNumberOfChains();
       for (int i_chain=0; i_chain<n_chains; i_chain++) {
          chain_p = model_p->GetChain(i_chain);
-         std::string mol_chain(chain_p->GetChainID());
+         std::string chain_id(chain_p->GetChainID());
 
-         std::pair<short int, int> resno_1 = first_residue_in_chain(mol_chain);
-         std::pair<short int, int> resno_2 =  last_residue_in_chain(mol_chain);
+         std::pair<short int, int> resno_1 = first_residue_in_chain(chain_id);
+         std::pair<short int, int> resno_2 =  last_residue_in_chain(chain_id);
 
          if (! (resno_1.first && resno_2.first)) {
             std::cout << "WARNING: Error getting residue ends in find_deviant_geometry\n";
@@ -6611,7 +6611,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
             mmdb::PResidue *SelResidues = NULL;
 
             atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
-                                 (char *) mol_chain.c_str(),
+                                 chain_id.c_str(),
                                  resno_1.second, "*",
                                  resno_2.second, "*",
                                  "*",  // residue name
@@ -6636,8 +6636,8 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
                }
             }
 
-            std::cout << "INFO:: " << nSelResidues
-                      << " residues selected for deviant object" << std::endl;
+            std::cout << "INFO:: " << nSelResidues << " residues selected for deviant object"
+                      << std::endl;
 
             if (nSelResidues > 0) {
 
@@ -6646,21 +6646,24 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
                                                      have_flanking_residue_at_start,
                                                      have_flanking_residue_at_end,
                                                      altconf,
-                                                     (char *) mol_chain.c_str(),
+                                                     chain_id,
                                                      0 // 0 because we are not in alt conf split
                                                      );
                clipper::Xmap<float> dummy_xmap;
-               coot::restraints_container_t
-                  restraints(resno_1.second,
-                             resno_2.second,
-                             have_flanking_residue_at_start,
-                             have_flanking_residue_at_end,
-                             have_disulfide_residues,
-                             altconf,
-                             (char *) mol_chain.c_str(),
-                             residues_mol,
-                             fixed_atom_specs,
-                             &dummy_xmap);
+
+               // coot::restraints_container_t
+               //    restraints(resno_1.second,
+               //               resno_2.second,
+               //               have_flanking_residue_at_start,
+               //               have_flanking_residue_at_end,
+               //               have_disulfide_residues,
+               //               altconf,
+               //               (char *) mol_chain.c_str(),
+               //               residues_mol,
+               //               fixed_atom_specs,
+               //               &dummy_xmap);
+
+               coot::restraints_container_t restraints(SelResidues, nSelResidues, chain_id, residues_mol, &dummy_xmap);
             }
          }
       }

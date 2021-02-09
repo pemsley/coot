@@ -80,16 +80,23 @@ int test_parallel_plane_restraints() {
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    clipper::Xmap<float> dummy_xmap;
 
-   coot::restraints_container_t restraints(37,
-					   38,
-					   have_flanking_residue_at_start,
-					   have_flanking_residue_at_end,
-					   have_disulfide_residues,
-					   alt_conf,
-					   chain_id.c_str(),
-					   mol,
-					   fixed_atom_specs,
-					   &dummy_xmap);
+   // coot::restraints_container_t restraints(37,
+   //      				   38,
+   //      				   have_flanking_residue_at_start,
+   //      				   have_flanking_residue_at_end,
+   //      				   have_disulfide_residues,
+   //      				   alt_conf,
+   //      				   chain_id.c_str(),
+   //      				   mol,
+   //      				   fixed_atom_specs,
+   //      				   &dummy_xmap);
+
+   std::vector<std::pair<bool,mmdb::Residue *> > residues;
+   mmdb::Residue *residue_37_p = coot::util::get_residue(coot::residue_spec_t(chain_id, 37, ""), mol);
+   mmdb::Residue *residue_38_p = coot::util::get_residue(coot::residue_spec_t(chain_id, 38, ""), mol);
+   residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_37_p));
+   residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_38_p));
+   coot::restraints_container_t restraints(residues, t.geom, mol, &dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
