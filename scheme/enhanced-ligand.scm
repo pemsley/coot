@@ -106,7 +106,7 @@
              menu "Contact Dots for Ligand"
              (lambda ()
                (using-active-atom
-                coot-contact-dots-for-ligand-scm aa-imol (list aa-chain-id aa-res-no aa-ins-code))))
+                (coot-contact-dots-for-ligand-scm aa-imol (list aa-chain-id aa-res-no aa-ins-code)))))
 
 	    (add-simple-coot-menu-menuitem
 	     menu "SMILES → 2D"

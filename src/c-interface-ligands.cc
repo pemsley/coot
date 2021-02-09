@@ -3452,6 +3452,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
    graphics_info_t g;
    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
+
    if (residue_p) {
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
@@ -3500,6 +3501,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
 				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
       }
+
       set_display_generic_object(clashes_obj, 1);
 
    } else {
@@ -3563,6 +3565,8 @@ coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
    coot::residue_spec_t res_spec = residue_spec_from_scm(ligand_spec_scm);
    if (is_valid_model_molecule(imol)) {
       coot_contact_dots_for_ligand_internal(imol, res_spec);
+   } else {
+      std::cout << "WARNING:: Not a valid molecule " << imol << std::endl;
    }
 }
 #endif
