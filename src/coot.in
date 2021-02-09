@@ -20,87 +20,6 @@
 # you will want to redefine this if you are ccp4
 PYTHON=python
 
-function apply_pending_install { 
-
-   COOT_PREFIX="$1"
-   dir_list="
-bin
-info
-man
-share
-include
-lib"
-
-   old_dir="old"
-   old_dir=revision-$($coot_bin --version | sed -e 's/.*revision //' -e 's/).*//')
-   echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
-
-   if [ -d $COOT_PREFIX/$old_dir ] ; then
-       rm -rf $COOT_PREFIX/$old_dir
-   fi 
-
-   if [ ! -e $COOT_PREFIX/$old_dir ] ; then
-      mkdir $COOT_PREFIX/$old_dir
-
-      if [ -d $COOT_PREFIX/$old_dir ] ; then
-
-	 # set $coot_bin_dir to the newly installed 
-         # coot-something directory in pending-install
-         # (if we can, that is).
-	 #
-         t=$(echo $COOT_PREFIX/pending-install/coot*)
-         if [ -e "$t" ] ; then 
-            coot_bin_dir=$t
-            echo set coot_bin_dir to $coot_bin_dir
-         else 
-            echo situation too complicated to install - clean up pending installs.
-         fi
-
-         if [ -z "$coot_bin_dir" ] ; then 
-           echo coot_bin_dir not set.
-         else 
-            # continue, it's good
-
-	    echo =====================================================================
-	    echo ==================== installing fresh coot ==========================
-	    echo =====================================================================
-
-            # move aside current dirs
-            for dir in $dir_list
-            do
-	      if [ -e "$COOT_PREFIX/$dir" ] ; then 
-                 # echo move out $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
-                 mv $COOT_PREFIX/$dir $COOT_PREFIX/$old_dir/$dir
-              else 
-                 echo on move-out: "$COOT_PREFIX/$dir" does not exist.
-              fi
-            done
-
-
-   	    # move in the new ones
-            for dir in $dir_list
-            do 
-	      # echo debug:: moving in $dir
-	      if [ -e "$coot_bin_dir/$dir" ] ; then 
-                 # echo move-in "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
-                 mv "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
-              else 
-                 echo on move-in: "$coot_bin_dir/$dir" does not exist.
-              fi
-            done
-         fi
-      else 
-         echo WARNING:: $COOT_PREFIX/$old_dir could not be created.
-      fi 
-   else 
-       echo WARNING:: $COOT_PREFIX/$old_dir could not be removed, aborting new binary install
-   fi
-
-   echo  removing pending-install...
-   rm -rf $COOT_PREFIX/pending-install
-
-}
-
 
 function check_for_no_graphics {
 
@@ -120,12 +39,12 @@ function check_for_no_graphics {
 current_exe_dir=$(dirname $0)
 systype=$(uname)
 
-if [ $systype = Darwin ] ; then 
+if [ $systype = Darwin ] ; then
    COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
-else 
-   if [ $current_exe_dir = . ] ; then 
+else
+   if [ $current_exe_dir = . ] ; then
       COOT_PREFIX=$(readlink -f $(dirname $PWD))
-   else 
+   else
       COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
    fi
    if test "$COOT_PREFIX" = ""; then
@@ -222,6 +141,12 @@ if [ $systype = Darwin ] ; then
    else 
 	DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH}
    fi
+   if [ -z "$LTDL_LIBRARY_PATH" ] ;  then
+	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	OLD_LTDL_LIBRARY_PATH=${LTDL_LIBRARY_PATH}
+	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib:${LTDL_LIBRARY_PATH}
+   fi
 fi
 if [ $systype = IRIX ] ; then 
    if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
@@ -262,6 +187,7 @@ export COOT_PIXMAPS_DIR
 export COOT_DATA_DIR
 export GUILE_LOAD_PATH
 export DYLD_FALLBACK_LIBRARY_PATH
+export LTDL_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
@@ -279,8 +205,8 @@ else
       if [ "$arg" = --ccp4-mode ] ; then
          ccp4_mode=true
       fi
-      if [ "$arg" = --libtool-hack ] ; then
-         export LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+      if [ "$arg" = --disable-libtool-hack ] ; then
+         LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
       fi
    done
 
