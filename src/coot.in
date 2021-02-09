@@ -18,7 +18,7 @@
 # fi
 
 # you will want to redefine this if you are ccp4
-PYTHON=python
+PYTHON=@PYTHON@
 
 
 function check_for_no_graphics {
@@ -126,6 +126,13 @@ if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then
 fi
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
+GUILE_BIN=guile
+if [ -e $COOT_PREFIX/bin/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/bin/guile
+fi
+if [ -e $COOT_PREFIX/libexe/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/libexec/guile
+fi
 
 if [ $systype = Linux ] ; then 
    if [ -z "$LD_LIBRARY_PATH" ] ;  then
@@ -238,15 +245,15 @@ else
       # unset LD_LIBRARY_PATH
       # only run the crash catcher if coot was compiled with guile
       if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-          if [ -e $COOT_PREFIX/bin/guile ] ; then
+          if [ -e $GUILE_BIN ] ; then
               # diagnose guile if we can
               if [ -e /usr/bin/ldd ] ; then
                   echo ldd -r on guile gives:
                   ldd -r $COOT_PREFIX/bin/guile
               fi
-              if guile --version ; then
+              if $GUILE_BIN --version ; then
                   echo catching the crash log:
-                  $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+                  $GUILE_BIN -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
               else
                   echo failed to launch the crash catcher - bad guile
             fi
