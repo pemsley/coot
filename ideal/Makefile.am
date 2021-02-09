@@ -85,9 +85,9 @@ libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 
 check_PROGRAMS =  with-geometry logramatest crankshaft-test test-rama-plot
 if OS_WIN32
-bin_PROGRAMS = mini-rsr-bin coot-ligand-validation
+bin_PROGRAMS = mini-rsr-bin
 else
-libexec_PROGRAMS = mini-rsr-bin
+libexec_PROGRAMS = mini-rsr-bin coot-ligand-validation-bin
 endif
 
 logramatest_SOURCES = logramatest.cpp
@@ -109,9 +109,9 @@ test_rama_plot_SOURCES = test-rama-plot.cc
 
 test_rama_plot_LDADD = ./libcoot-ideal.la
 
-coot_ligand_validation_SOURCES = lv.cc
+coot_ligand_validation_bin_SOURCES = lv.cc
 
-coot_ligand_validation_LDADD = ./libcoot-ideal.la \
+coot_ligand_validation_bin_LDADD = ./libcoot-ideal.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la    \
@@ -183,4 +183,5 @@ logramatest_LDADD = \
 	$(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(GSL_LIBS)
 
-dist_bin_SCRIPTS = coot-mini-rsr
+dist_bin_SCRIPTS = coot-mini-rsr coot-ligand-validation
+
