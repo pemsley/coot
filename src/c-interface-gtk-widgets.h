@@ -864,5 +864,12 @@ void clear_atom_pull_restraint_on_accept_reject_destroy();
 void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
 					 GtkWidget *text_widget, GtkWidget *label_widget);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                      clean up (reducing code in callbacks.c)             */
+/*  ----------------------------------------------------------------------- */
+void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button);
+
+
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS
