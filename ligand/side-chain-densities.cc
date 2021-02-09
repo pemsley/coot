@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iomanip>
 #include <thread>
+#include <chrono>
+
 
 #include <boost/math/distributions/skew_normal.hpp>
 
@@ -390,7 +392,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
              << " residues in a_run_of_residues" << std::endl;
 
    if (! a_run_of_residues.empty()) {
-      fill_residue_blocks(a_run_of_residues, xmap); // return fast if already filled.
+      fill_residue_blocks(a_run_of_residues, xmap); // return fast if already filled, uses atomic locking.
       int n_residues = a_run_of_residues.size();
       std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > scored_residues(n_residues);
       for (int i=0; i<n_residues; i++) {
@@ -1239,10 +1241,11 @@ void
 coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
                                                 const clipper::Xmap<float> &xmap) {
 
+   get_results_addition_lock(); // all wait, except the first one
    if (density_block_map_cache.size() > 0) {
       return; // already done
    } else {
-      get_results_addition_lock();
+      auto tp_0 = std::chrono::high_resolution_clock::now();
       for (std::size_t i=0; i<residues.size(); i++) {
          mmdb::Residue *residue_p = residues[i];
          mode_t mode = SAMPLE_FOR_RESIDUE;
@@ -1255,8 +1258,11 @@ coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue 
          density_block_map_cache[residue_p] = block;
       }
       add_mean_and_variance_to_individual_density_blocks();
-      release_results_addition_lock();
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "TIMINGS:: fill_residue_blocks() " << d10 << " milliseconds" << std::endl;
    }
+   release_results_addition_lock();
 
 }
 

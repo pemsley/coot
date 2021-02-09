@@ -754,12 +754,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
                                  contour_level, dy_radius, centre,
                                  isample_step);
 
-	 // if "cut-glass mode", then make re-wire to use map GLSL triangles
-	 //
-	 if (graphics_info_t::do_flat_shading_for_solid_density_surface) {
-	    setup_glsl_map_rendering(); // turn tri_con into buffers.
-	 }
-
 	 if (xmap_is_diff_map) {
 	    tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
 									     -contour_level,
@@ -825,66 +819,6 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    catch (const std::out_of_range &oor) {
       std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
    }
-}
-
-#ifdef GRAPHICS_TESTING
-
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-
-#endif // GRAPHICS_TESTING
-
-void
-molecule_class_info_t::setup_glsl_map_rendering() {
-
-#ifdef GRAPHICS_TESTING
-
-   // This is called from update_map_triangles().
-
-   // using coot::density_contour_triangles_container_t tri_con;
-
-   // transfer the points
-   float *points = new float[3 * tri_con.points.size()];
-   for (std::size_t i=0; i<tri_con.points.size(); i++) {
-      points[3*i  ] = tri_con.points[i].x();
-      points[3*i+1] = tri_con.points[i].y();
-      points[3*i+2] = tri_con.points[i].z();
-   }
-
-   // transfer the indices
-   n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
-   int *indices = new int[n_vertices_for_VertexArray];
-   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-      indices[6*i  ] = tri_con.point_indices[i].pointID[0];
-      indices[6*i+1] = tri_con.point_indices[i].pointID[1];
-      indices[6*i+2] = tri_con.point_indices[i].pointID[1];
-      indices[6*i+3] = tri_con.point_indices[i].pointID[2];
-      indices[6*i+4] = tri_con.point_indices[i].pointID[2];
-      indices[6*i+5] = tri_con.point_indices[i].pointID[0];
-   }
-
-   glGenVertexArrays(1, &m_VertexArrayID);
-   glBindVertexArray(m_VertexArrayID);
-
-   GLuint vertexbuffer;
-   glGenBuffers(1, &vertexbuffer);
-   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * tri_con.points.size(), &points[0], GL_STATIC_DRAW);
-   glEnableVertexAttribArray(0);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   unsigned int ibo;
-   glGenBuffers(1, &ibo);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
-		&indices[0], GL_STATIC_DRAW);
-
-   delete [] points;
-   delete [] indices;
-
-#endif // GRAPHICS_TESTING
-
 }
 
 
