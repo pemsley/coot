@@ -2615,7 +2615,7 @@
 		(overlap-ligands imol-ligand imol chain-id-in resno))
 
             (if (is-nucleotide? imol chain-id-in resno)
-                (if (residue-exists? imol chain-id-in (- resno 1))
+                (if (residue-exists? imol chain-id-in (- resno 1) "")
                     (delete-atom imol-ligand "A" 1 "" " OP3" "")))
 
             (if (and (is-nucleotide? imol-ligand "A" 1)
