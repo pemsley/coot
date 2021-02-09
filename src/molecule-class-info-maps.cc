@@ -1957,6 +1957,12 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             file.open_read(filename);
             set_is_em_map(file); // sets is_em_map_cached_flag
             em = is_em_map_cached_flag;
+            if (imol_no == 0) {
+               clipper::Cell c = file.cell();
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+               graphics_info_t g;
+               g.setRotationCentre(m);
+            }
 
          }
          catch (const clipper::Message_base &exc) {
@@ -2016,9 +2022,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             //
             if (imol_no == 0) {
                clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(),
-               0.5*c.descr().b(),
-               0.5*c.descr().c());
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                new_centre.first = true;
                new_centre.second = m;
                std::cout << "INFO:: map appears to be EM map."<< std::endl;
