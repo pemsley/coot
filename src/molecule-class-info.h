@@ -1334,6 +1334,7 @@ public:        //                      public
    int    add_atom_label(char *chain_id, int iresno, char *atom_id);
    int remove_atom_label(char *chain_id, int iresno, char *atom_id);
    void remove_atom_labels(); // and symm labels
+   int add_atom_labels_for_residue(mmdb::Residue *residue_p);
 
    // xmap information
    //

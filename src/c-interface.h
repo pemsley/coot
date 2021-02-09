@@ -3852,6 +3852,9 @@ void set_environment_distances_label_atom(int state);
 /*! \brief Label the atoms in the residues around the central residue */
 void label_neighbours();
 
+/*! \brief Label the atoms in the central residue */
+void label_atoms_in_residue();
+
 
 
 /*! \brief Add a geometry distance between points in a given molecule

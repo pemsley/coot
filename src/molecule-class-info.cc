@@ -1972,6 +1972,27 @@ int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom
    return i;
 }
 
+int
+molecule_class_info_t::add_atom_labels_for_residue(mmdb::Residue *residue_p) {
+
+   int n_atoms = 0;
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            int i = get_atom_index(at);
+            add_to_labelled_atom_list(i);
+            n_atoms++;
+         }
+      }
+   }
+   return n_atoms;
+}
+
+
 
 int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *atom_id) {
 

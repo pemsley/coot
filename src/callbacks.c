@@ -13052,6 +13052,13 @@ on_label_neighbours1_activate          (GtkMenuItem     *menuitem,
   label_neighbours();
 }
 
+void
+on_label_atoms_in_residue1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+
+  label_atoms_in_residue();
+}
+
 
 gboolean
 on_residue_type_chooser_entry_key_press_event

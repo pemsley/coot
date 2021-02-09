@@ -4849,3 +4849,7 @@ void
 on_map_properties_dialog_fresnel_power_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data);
+
+void
+on_label_atoms_in_residue1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

@@ -1143,8 +1143,22 @@ void label_neighbours() {
       g.molecules[imol].label_closest_atoms_in_neighbour_atoms(central_residue, radius);
       graphics_draw();
    }
-
 }
+
+/*! \brief Label the atoms in the central residue */
+void label_atoms_in_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      coot::residue_spec_t residue_spec(pp.second.second);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
+      g.molecules[imol].add_atom_labels_for_residue(residue_p);
+      graphics_draw();
+   }
+}
+
 
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
