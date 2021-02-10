@@ -130,7 +130,7 @@ GUILE_BIN=guile
 if [ -e $COOT_PREFIX/bin/guile ] ; then
     GUILE_BIN=$COOT_PREFIX/bin/guile
 fi
-if [ -e $COOT_PREFIX/libexe/guile ] ; then
+if [ -e $COOT_PREFIX/libexec/guile ] ; then
     GUILE_BIN=$COOT_PREFIX/libexec/guile
 fi
 
