@@ -205,7 +205,7 @@ if [ "$1" = --check-libs ] ; then
    else
       ldd -r $coot_bin
    fi
-else 
+else
 
    for arg in "$@" ;
    do
@@ -249,7 +249,7 @@ else
               # diagnose guile if we can
               if [ -e /usr/bin/ldd ] ; then
                   echo ldd -r on guile gives:
-                  ldd -r $COOT_PREFIX/bin/guile
+                  ldd -r $GUILE_BIN
               fi
               if $GUILE_BIN --version ; then
                   echo catching the crash log:
