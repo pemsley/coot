@@ -2610,11 +2610,12 @@ if test "$build_gobject_introspection" = true ; then
 fi
 
    # pycairo is a dependency of pygobject.  Is this gtk2 stuff?
-   pycairo_version=1.17.0
+   pycairo_version=1.17.0 #  check for a more recent version.
    ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
    skip_build=true
    if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/lib/python3.6/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py ] ; then
+      # check this file name.
+      if [ -e $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py ] ; then
          skip_build=true
       fi
    fi
@@ -2938,12 +2939,14 @@ if [ "$build_boost" = true ] ; then
    fi
 
    if [ $skip_this = false ] ;  then
+      boost_version=1_71_0
+      boost_version=1_72_0 # not tested yet
+      boost_server_dir=1.72.0
       echo building boost $boost_version
       (
       echo building ========================= boost $boost_version =========================
 
-      boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
-      boost_version=1_71_0
+      boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 
