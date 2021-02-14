@@ -136,6 +136,8 @@ void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
                                              GdkEventConfigure *event) {
 
+   return;
+
    if (resize_canvas_with_window) {
 
       // try after ideas from gimp
@@ -366,30 +368,29 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    if (dynarama_label)
       gtk_label_set_text(GTK_LABEL(dynarama_label), mol_name.c_str());
 
-   int ysize = 500;
+   int ysize = 800;
    if (! is_kleywegt_plot_flag_local) // extra space needed
-      ysize = 535;
+      ysize = 835;
 
-   GtkAllocation alloc = { 0, 0, 400, ysize };
-   gtk_widget_size_allocate(dynawin, &alloc);
-   if (dynawin) {
-      gtk_widget_show(dynawin);
-   } else {
-      std::cout<<"ELLOR:: no window, should bail out"<<std::endl;
-   }
+   // GtkAllocation alloc = { 0, 0, 460, ysize };
+   // gtk_widget_size_allocate(dynawin, &alloc);
+   // if (dynawin) {
+   // gtk_widget_show(dynawin);
+   // } else {
+   // std::cout<<"ELLOR:: no window, should bail out"<<std::endl;
+   // }
 
-   gchar *txt;
-   g_signal_connect(dynawin, "configure-event",
-                    G_CALLBACK(rama_resize), this);
+   g_signal_connect(dynawin, "configure-event", G_CALLBACK(rama_resize), this);
 
    allow_seqnum_offset_flag = 0;
 
    canvas = goo_canvas_new();
    root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
-   gtk_widget_set_size_request(canvas, 400, 400);
-   gtk_container_add(GTK_CONTAINER(scrolled_window),
-                     canvas);
+   gtk_widget_set_size_request(scrolled_window, 600, 600);
+
+   // gtk_widget_set_size_request(canvas, 400, 400);
+   gtk_container_add(GTK_CONTAINER(scrolled_window), canvas);
    // gtk_widget_ref(canvas);
    g_object_set_data(G_OBJECT(canvas),  "rama_plot", (gpointer) this);
    g_object_set_data(G_OBJECT(canvas), " user_data", (gpointer) this);
@@ -955,14 +956,9 @@ void
 coot::rama_plot::show_background(GooCanvasItem *new_bg) {
 
    if (current_bg != new_bg) {
-      if (current_bg) {
-         g_object_set (current_bg,
-                       "visibility", GOO_CANVAS_ITEM_INVISIBLE,
-                       NULL);
-      }
-      g_object_set (new_bg,
-                    "visibility", GOO_CANVAS_ITEM_VISIBLE,
-                    NULL);
+      if (current_bg)
+         g_object_set (current_bg, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
+      g_object_set (new_bg, "visibility", GOO_CANVAS_ITEM_VISIBLE, NULL);
       current_bg = new_bg;
    }
 }
@@ -1777,7 +1773,6 @@ coot::rama_stats_container_t
 coot::rama_plot::draw_phi_psi_points() {
 
    coot::rama_stats_container_t counts;
-   short int as_white_flag = 0;
 
    for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
       counts += draw_phi_psi_points_for_model(phi_psi_model_sets[imod]);
@@ -1790,11 +1785,10 @@ coot::rama_stats_container_t
 coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set) {
 
    coot::rama_stats_container_t counts;
-   bool as_white_flag = 0;
+   bool as_white_flag = false;
 
    std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
-   
-   for (it=pp_set.phi_psi.begin(); it!=pp_set.phi_psi.end(); it++) {
+   for (it=pp_set.phi_psi.begin(); it!=pp_set.phi_psi.end(); ++it) {
       int type = draw_phi_psi_point(it->second, as_white_flag);
       if (type != coot::rama_plot::RAMA_UNKNOWN) {
 	 counts.n_ramas++; 
@@ -1853,10 +1847,9 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::Residue *residue_p;
 	    if (nres > 2) { 
 	       for (int ires=1; ires<(nres-1); ires++) { 
-		  residue_p = chain_p->GetResidue(ires);
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 
 		  // this could be improved
 		  mmdb::Residue *res_prev = chain_p->GetResidue(ires-1);
@@ -2112,8 +2105,7 @@ coot::rama_plot::button_press_conventional (GtkWidget *widget, GdkEventButton *e
 void
 coot::rama_plot::recentre_graphics_maybe(GooCanvasItem *item) {
 
-   gchar *chain = static_cast<gchar *> (g_object_get_data(G_OBJECT(item),
-                                                          "chain"));
+   gchar *chain = static_cast<gchar *> (g_object_get_data(G_OBJECT(item), "chain"));
    int resno = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "res_no"));
 
    if (is_stand_alone()) {
@@ -2146,10 +2138,8 @@ coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
 gint
 coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) {
 
-   gchar *res_name = static_cast<gchar *> (g_object_get_data(G_OBJECT(item),
-                                                             "res_name"));
-   gint *is_pre_pro = static_cast<gint *> (g_object_get_data(G_OBJECT(item),
-                                                             "is_pre_pro"));
+   gchar *res_name = static_cast<gchar *> (g_object_get_data(G_OBJECT(item), "res_name"));
+   gint *is_pre_pro = static_cast<gint *> (g_object_get_data(G_OBJECT(item), "is_pre_pro"));
 
 #ifdef CLIPPER_HAS_TOP8000
    // for clarity all copied
@@ -2579,8 +2569,8 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
 	 
    } else {
       hide_stats_frame();
-   } 
-} 
+   }
+}
 
 // A canvas item (actually group), so that we can destroy it
 //

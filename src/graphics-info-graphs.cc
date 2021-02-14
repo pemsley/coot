@@ -1493,6 +1493,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 #endif // HAVE_GSL
 }
 
+
 // Use this to update the molecule only.  (Because we call a graph
 // function that doesn't setup the canvas and draw the ticks (it only
 // updates the blocks that it has been given).

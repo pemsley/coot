@@ -35,6 +35,8 @@
 #include "clipper/core/ramachandran.h"
 #include "coot-utils/coot-rama.hh"
 
+#undef CLIPPER_HAS_TOP8000
+
 namespace coot { 
 
    class canvas_tick_t {

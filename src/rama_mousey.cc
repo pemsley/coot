@@ -42,7 +42,7 @@ on_dynarama2_window_destroy(GObject *caller, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (!plot) {
-      std::cout<<"failed to get the plot from " << canvas <<std::endl;
+      std::cout<<"debug:: in on_dynarama2_window_destroy() failed to get the plot from " << canvas <<std::endl;
    } else {
       if (plot->is_stand_alone()) {
          // gtk_exit(0);
@@ -77,7 +77,7 @@ on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (!plot) {
-      std::cout<<"failed to get the plot from " << canvas <<std::endl;
+      std::cout<<"debug:: on-dynarama_ok_button() failed to get the plot from " << canvas <<std::endl;
    } else {
       if (plot->is_stand_alone()) {
          // gtk_exit(0);
@@ -98,7 +98,7 @@ on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (!plot) {
-      std::cout<<"failed to get the plot from " << canvas <<std::endl;
+      std::cout<<"debug:: on_dynarama2_cancel_button_clicked() failed to get the plot from " << canvas <<std::endl;
    } else {
       if (plot->is_stand_alone()) {
          // gtk_exit(0);
@@ -618,7 +618,9 @@ void rama_zoom_in(GtkWidget *widget) {
 }
 
 gboolean rama_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data){
+
    coot::rama_plot *plot = (coot::rama_plot *) (user_data);
+   std::cout << "rama_resize() " << user_data << " " << plot << std::endl;
    plot->resize_rama_canvas_internal(widget, event);
    return FALSE;
 }
