@@ -46,30 +46,19 @@
 gint
 coot::on_geometry_graph_block_clicked(GooCanvasItem *item, GooCanvasItem *target, GdkEvent *event, gpointer user_data) {
 
-   std::cout << "block clicked!!!!!!!!!!!!!!!!" << std::endl;
+   coot::geometry_graph_block_info *block_info_p = static_cast<coot::geometry_graph_block_info*>(user_data);
+   if (block_info_p) {
+      const coot::geometry_graph_block_info &block_info(*block_info_p);
 
-   if (true) {
-      coot::geometry_graph_block_info *block_info_p = static_cast<coot::geometry_graph_block_info*>(user_data);
-      if (block_info_p) {
-         const coot::geometry_graph_block_info &block_info(*block_info_p);
-         std::cout << "do something with block info now " << std::endl;
+      if (false)
+         std::cout << "INFO:: trying to centre on: " << block_info.atom_spec.chain_id << " "
+                   << block_info.atom_spec.res_no << " "
+                   << block_info.atom_spec.atom_name << std::endl;
 
-         // coot::geometry_graphs *graphs = static_cast<coot::geometry_graphs *>(g_object_get_data(G_OBJECT(item), "geometry-graph"));
-         // if (graphs)
-         // graphs->button_press(item, event, *block_info);
-         // else
-         // std::cout << "in on_geometry_graph_block_clicked() Null graphs" << std::endl;
-
-         if (true)
-            std::cout << "INFO:: trying to centre on: " << block_info.atom_spec.chain_id << " "
-                      << block_info.atom_spec.res_no << " "
-                      << block_info.atom_spec.atom_name << std::endl;
-
-         set_go_to_atom_molecule(block_info.imol);
-         set_go_to_atom_chain_residue_atom_name(block_info.atom_spec.chain_id.c_str(),
-                                                block_info.atom_spec.res_no,
-                                                block_info.atom_spec.atom_name.c_str());
-      }
+      set_go_to_atom_molecule(block_info.imol);
+      set_go_to_atom_chain_residue_atom_name(block_info.atom_spec.chain_id.c_str(),
+                                             block_info.atom_spec.res_no,
+                                             block_info.atom_spec.atom_name.c_str());
    }
    return TRUE; // it's been handled.
 }
@@ -80,9 +69,12 @@ void
 coot::geometry_graphs::button_press(GooCanvasItem *item, GdkEvent *event,
                                     const coot::geometry_graph_block_info &binfo) {
 
-   std::cout << "INFO:: trying to centre on: " << binfo.atom_spec.chain_id << " "
-             << binfo.atom_spec.res_no << " "
-             << binfo.atom_spec.atom_name << std::endl;
+   // "button_press" event was for the old gnomecanvas. We probably don't need this now.
+
+   if (false)
+      std::cout << "INFO:: trying to centre on: " << binfo.atom_spec.chain_id << " "
+                << binfo.atom_spec.res_no << " "
+                << binfo.atom_spec.atom_name << std::endl;
 
    set_go_to_atom_molecule(binfo.imol);
    set_go_to_atom_chain_residue_atom_name(binfo.atom_spec.chain_id.c_str(),
@@ -100,7 +92,9 @@ coot::geometry_graphs::mouse_over(GooCanvasItem *item, GdkEvent *event,
    // do a tooltip
    //std::cout << block_info.resno << std::endl;
 
-   tooltip_like_box(block_info, event);
+   // tooltip_like_box(block_info, event);
+
+   std::cout << "Don't do tooltips like this" << std::endl;
 
 
 }
@@ -243,8 +237,9 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    mmdb::realtype occ_1, occ_2, occ_3;
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
 
-      std::cout << "now examining restraint number " << i << " type "
-                << dc.geometry_distortion[i].restraint.restraint_type << std::endl;
+      if (false)
+         std::cout << "now examining restraint number " << i << " type "
+                   << dc.geometry_distortion[i].restraint.restraint_type << std::endl;
 
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::BOND_RESTRAINT) {
          idx_1 = dc.geometry_distortion[i].restraint.atom_index_1;
@@ -643,7 +638,7 @@ coot::geometry_graphs::render_b_factor_blocks(int imol,
       draw_chain_axis(nres, chain_number);
       draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
       blocks[chain_number].resize(nres+1); // needs to index max_resno
-      
+
       std::string inscode("");
       std::string at_name(" CA ");
       std::string altconf("");
@@ -680,7 +675,6 @@ coot::geometry_graphs::chain_id_to_chain_index(const std::string &chain_id) cons
 void
 coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_info_container_t &dc) {
 
-
    // This can be called with any arrangement of residues, ie. with gaps.
    //
 
@@ -692,10 +686,10 @@ coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_inf
    int chain_number = chain_id_to_chain_index(dc.chain_id);
    for (unsigned int iblock=0; iblock<dc.geometry_distortion.size(); iblock++) {
       coot::residue_spec_t rs(dc.geometry_distortion[iblock].residue_spec);
-      bool ifound = 0;
+      bool ifound = false;
       for (unsigned int i=0; i<deleted_block_res_specs.size(); i++) {
          if (deleted_block_res_specs[i] == rs) {
-            ifound = 1;
+            ifound = true;
             break;
          }
       }
@@ -881,17 +875,26 @@ coot::geometry_graphs::delete_block(int chain_number, int raw_resno) {
             if (offsetted_residue_number >= 1) {
                if (offsetted_residue_number < int(blocks[chain_number].size())) {
                   if (blocks[chain_number][offsetted_residue_number]) {
+                     // FIX_THIS - Done - keeping for reference.
                      // gtk_object_destroy(GTK_OBJECT(blocks[chain_number][offsetted_residue_number]));
-                     // FIX_THIS
-                     blocks[chain_number][offsetted_residue_number] = NULL;
+                     GooCanvasItem *item = blocks[chain_number][offsetted_residue_number];
+                     GooCanvasItem *parent = goo_canvas_item_get_parent(item);
+                     int n_children = goo_canvas_item_get_n_children(parent);
+                     for (int i=0; i<n_children; i++) {
+                        GooCanvasItem *child = goo_canvas_item_get_child(parent, i);
+                        if (item == child) {
+                           goo_canvas_item_remove_child(parent, i);
+                           break;
+                        }
+                     }
                   }
                }
             }
-         }
-         else
+         } else {
             std::cout << "ERROR:: Attempt to delete non-existant residue block raw: "
                       << raw_resno <<  " after-offset: " << offsetted_residue_number << " chain-num: "
                       << chain_number << std::endl;
+         }
       } else {
          std::cout << "ERROR:: Attempt to delete non-existant residue block in "
                    << "non-existant chain " << chain_number << " " << blocks.size()
@@ -990,7 +993,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
    // gtk_widget_ref(GTK_WIDGET(canvas));
    g_object_set_data(G_OBJECT(dialog), "geometry_graph_canvas", canvas);
-   g_object_set_data(G_OBJECT(canvas), "canvas", (char *) this);
+   g_object_set_data(G_OBJECT(canvas), "geometry-graph", this); // looked up by geometry_graph_dialog_to_object()
 
    if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
       GtkWidget *dialog_vbox = lookup_widget(dialog, "geometry_graphs_dialog_vbox");
@@ -1031,6 +1034,9 @@ void
 coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_info,
                                   int offset_in, int chain_number) {
 
+   // when updating, it would be better to set g_object_set_data to resize it
+   // rather than delete an create a new one.
+
    std::string outline_color = "grey10";
    int resno = block_info.resno;
    GooCanvasItem *item;
@@ -1063,10 +1069,12 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
       std::cout << " block: " << x1 << " " << x2 << " " << y1 << " " << y2 << " fill " << colour << std::endl;
    }
 
+   std::string tooltip = block_info.distortion_info_string;
    item = goo_canvas_rect_new(goo_canvas_get_root_item(canvas),
                               x1, y1, x2, y2,
                               "fill_color", colour.c_str(),
-                              "outline_color", outline_color.c_str(),
+                              "stroke-color", outline_color.c_str(),
+                              "tooltip", tooltip.c_str(),
                               NULL);
 
 //    std::cout << "plotting block[" << chain_number << "][" << resno-offset<< "]" << std::endl;
@@ -1088,7 +1096,7 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
    g_object_set_data(G_OBJECT(item), "geometry-graph", this);
 
    g_signal_connect(G_OBJECT(item), "button_press_event",
-                    G_CALLBACK(coot::on_geometry_graph_block_clicked), // dangerous?
+                    G_CALLBACK(coot::on_geometry_graph_block_clicked),
                     gpointer(local_block_info_p));
 
 }

@@ -190,6 +190,8 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 // convenience function
 void
 graphics_info_t::update_geometry_graphs(int imol) {
+
+   std::cout << "------------------- update_geometry_graphs " << imol << std::endl;
    update_geometry_graphs(molecules[imol].atom_sel, imol);
 }
 
@@ -200,6 +202,7 @@ graphics_info_t::update_geometry_graphs(int imol) {
 void
 graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs? Check the next function also
 
+   std::cout << "------------------- update_geometry_graphs selresidues " << std::endl;
 
    GtkWidget *graph = coot::get_validation_graph(imol, coot::GEOMETRY_GRAPH_ROTAMER);
    if (graph) {
@@ -222,6 +225,8 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
+
+   std::cout << "------------------- update_geometry_graphs asc " << std::endl;
 
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
@@ -346,6 +351,7 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 void
 graphics_info_t::update_validation_graphs(int imol) {
 
+   std::cout << "--------------------------- update_validation_graphs() " << imol << std::endl;
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
       // this ojbect get data has been changed - the set needs to changed too - whereever that is.

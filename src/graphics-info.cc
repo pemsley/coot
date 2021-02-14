@@ -1528,7 +1528,6 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -1536,7 +1535,6 @@ graphics_info_t::accept_moving_atoms() {
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
    }
-#endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
 
    clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
