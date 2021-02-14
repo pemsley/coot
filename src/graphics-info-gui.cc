@@ -1236,7 +1236,6 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
 
 }
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 // coot::rama_plot is an unknown type if we don't have canvas
 void
 graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
@@ -1277,7 +1276,6 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
       std::cout << "ERROR:: (trapped) in handle_rama_plot_update() attempt to draw to null plot\n";
    }
 }
-#endif // HAVE_GNOME_CANVAS or HAVE_GTK_CANVAS
 
 
 // --------------------------------------------------------------------------------
@@ -2890,8 +2888,6 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 //    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-
       if (edit_phi_psi_plot) {
 	 std::vector <coot::util::phi_psi_t> vp;
 	 std::string label = int_to_string(c_atom_p->GetSeqNum());
@@ -2914,7 +2910,7 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 	 if (vp.size() > 0)
 	    edit_phi_psi_plot->draw_it(vp);
       }
-#endif // HAVE_GTK_CANVAS
+
       regularize_object_bonds_box.clear_up();
       int imol = 0; // should be fine for backbone edits
       g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
@@ -2967,7 +2963,6 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 //    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
       if (edit_phi_psi_plot) {
 	 std::vector <coot::util::phi_psi_t> vp;
@@ -2998,7 +2993,7 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 	    edit_phi_psi_plot->draw_it(vp);
       }
 
-#endif // HAVE_GTK_CANVAS
+
       regularize_object_bonds_box.clear_up();
       int imol = 0; // should be fine for backbone edits
       g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
@@ -3052,7 +3047,6 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
@@ -3072,7 +3066,6 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
       edit_phi_psi_plot->draw_it(vp);
    }
 
-#endif // HAVE_GTK_CANVAS
 
    regularize_object_bonds_box.clear_up();
    int imol = 0; // should be fine for backbone edits
@@ -3191,8 +3184,6 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 //    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-
    if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
@@ -3211,7 +3202,6 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
       edit_phi_psi_plot->draw_it(vp);
    }
 
-#endif // HAVE_GTK_CANVAS
 
    regularize_object_bonds_box.clear_up();
    int imol = 0; // should be fine for backbone edits
@@ -3272,14 +3262,14 @@ graphics_info_t::get_sequence_view(int imol) {
 void
 graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-
    if (imol < n_molecules()) {
 
       // first delete the old sequence view if it exists
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
       if (w) {
-	 coot::sequence_view *sv = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
+	 // coot::sequence_view *sv = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
+         // needs the set to be fixed also!
+	 coot::sequence_view *sv = static_cast<coot::sequence_view *>(g_object_get_data(G_OBJECT(w), "sequence_view"));
 	 delete sv;
       }
 
@@ -3291,19 +3281,17 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 
       coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }
-#endif // HAVE_GTK_CANVAS
+
 }
 
 GtkWidget *
 graphics_info_t::get_sequence_view_is_displayed(int imol) const {
 
    GtkWidget *w = 0;
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    if (is_valid_model_molecule(imol))
        w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 
-#endif
    return w;
 }
 

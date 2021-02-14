@@ -86,8 +86,6 @@
 
 
 
-#ifdef HAVE_GOOCANVAS
-
 void
 coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog) {
 
@@ -143,10 +141,7 @@ coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *
 		<< imol << std::endl;
    }
 }
-#endif
 
-
-#ifdef HAVE_GOOCANVAS
 
 GtkWidget *
 coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
@@ -190,7 +185,6 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
    }
    return w;
 }
-#endif
 
 
 // convenience function
@@ -228,8 +222,6 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
@@ -349,33 +341,28 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
    // and now ramachandran also
 
 
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 }
 
 void
 graphics_info_t::update_validation_graphs(int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(gtk_object_get_user_data(GTK_OBJECT(w)));
+      // this ojbect get data has been changed - the set needs to changed too - whereever that is.
+      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
       std::cout << "doing handle_rama_plot_update() " << std::endl;
       handle_rama_plot_update(plot);
    }
    // now update the geometry graphs, so get the asc
    atom_selection_container_t u_asc = molecules[imol].atom_sel;
    update_geometry_graphs(u_asc, imol);
-#endif // HAVE_GTK_CANVAS
+
 }
 
 
 
 void
-graphics_info_t::delete_residue_from_geometry_graphs(int imol,
-						     coot::residue_spec_t res_spec) {
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
 
    std::vector<coot::geometry_graph_type> graph_types;
    graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
@@ -396,16 +383,12 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol,
 	 }
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 }
 
 void
 graphics_info_t::delete_residues_from_geometry_graphs(int imol,
 						      const std::vector<coot::residue_spec_t> &res_specs) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    std::vector<coot::geometry_graph_type> graph_types;
    graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
@@ -430,15 +413,11 @@ graphics_info_t::delete_residues_from_geometry_graphs(int imol,
 	 }
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 }
 
 void
 graphics_info_t::delete_chain_from_geometry_graphs(int imol, const std::string &chain_id) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    std::vector<coot::geometry_graph_type> graph_types;
    graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
@@ -460,8 +439,6 @@ graphics_info_t::delete_chain_from_geometry_graphs(int imol, const std::string &
 	 }
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 }
 
 

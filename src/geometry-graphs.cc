@@ -1031,6 +1031,7 @@ void
 coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_info,
                                   int offset_in, int chain_number) {
 
+   std::string outline_color = "grey10";
    int resno = block_info.resno;
    GooCanvasItem *item;
    double scale = 10.0;
@@ -1065,7 +1066,7 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
    item = goo_canvas_rect_new(goo_canvas_get_root_item(canvas),
                               x1, y1, x2, y2,
                               "fill_color", colour.c_str(),
-                              "outline_color", "black",
+                              "outline_color", outline_color.c_str(),
                               NULL);
 
 //    std::cout << "plotting block[" << chain_number << "][" << resno-offset<< "]" << std::endl;
