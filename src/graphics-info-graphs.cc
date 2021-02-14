@@ -143,7 +143,7 @@ coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *
 		<< imol << std::endl;
    }
 }
-#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#endif
 
 
 #ifdef HAVE_GOOCANVAS
@@ -190,7 +190,7 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
    }
    return w;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+#endif
 
 
 // convenience function
@@ -206,8 +206,6 @@ graphics_info_t::update_geometry_graphs(int imol) {
 void
 graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs? Check the next function also
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    GtkWidget *graph = coot::get_validation_graph(imol, coot::GEOMETRY_GRAPH_ROTAMER);
    if (graph) {
@@ -220,8 +218,7 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
 	 gr->update_residue_blocks(dv);
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
+
 }
 
 #include "nsv.hh"
@@ -471,9 +468,6 @@ graphics_info_t::delete_chain_from_geometry_graphs(int imol, const std::string &
 void
 graphics_info_t::geometric_distortion(int imol) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
    // we need to assign these
 //    int resno_1;
 //    int resno_2;
@@ -541,8 +535,6 @@ graphics_info_t::geometric_distortion(int imol) {
       }
    }
 
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif
 }
 
 #ifdef HAVE_GSL
@@ -762,27 +754,20 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 // #endif // HAVE_GSL
 // #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 void
 graphics_info_t::print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const {
    for (unsigned int i=0; i<v.size(); i++) {
       std::cout << v[i] << "\n";
    }
 }
-#endif // HAVE_GSL
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
 
 ////B
 void
 graphics_info_t::calc_b_factor_graphs(int imol) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
-   if (imol<n_molecules())
-      if (imol >= 0)
+   if (imol<n_molecules()) {
+      if (imol >= 0) {
 	 if (molecules[imol].has_model()) {
 	    mmdb::Manager *mol = molecules[imol].atom_sel.mol;
 	    bool is_shelx_mol = molecules[imol].is_from_shelx_ins();
@@ -897,19 +882,16 @@ graphics_info_t::calc_b_factor_graphs(int imol) {
 	       }
 	    }
 	 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
+      }
+   }
 }
 ////E
 
 void
 graphics_info_t::b_factor_graphs(int imol) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
-   if (imol<n_molecules())
-      if (imol >= 0)
+   if (imol<n_molecules()) {
+      if (imol >= 0) {
 	 if (molecules[imol].has_model()) {
 	    mmdb::Manager *mol = molecules[imol].atom_sel.mol;
 	    bool is_shelx_mol = molecules[imol].is_from_shelx_ins();
@@ -971,15 +953,12 @@ graphics_info_t::b_factor_graphs(int imol) {
 	       }
 	    }
 	 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
+      }
+   }
 }
 
 void
 graphics_info_t::omega_graphs(int imol) {
-
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    if (imol >= 0) {
       if (imol < n_molecules()) {
@@ -1047,12 +1026,8 @@ graphics_info_t::omega_graphs(int imol) {
 	 }
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 }
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 coot::omega_distortion_info_container_t
 graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &asc,
 					    const std::string &chain_id) {
@@ -1063,16 +1038,12 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
       restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 
 coot::rotamer_graphs_info_t
 graphics_info_t::rotamer_graphs(int imol) {
 
    coot::rotamer_graphs_info_t info;
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol >= 0) {
       if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
@@ -1215,13 +1186,9 @@ graphics_info_t::rotamer_graphs(int imol) {
 	 }
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
    return info;
 }
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 				  int imol_moving_atoms) {
@@ -1327,12 +1294,8 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
    }
    return dv;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
 						 int nSelResidues, int imol) {
@@ -1397,15 +1360,11 @@ graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
    }
    return v;
 }
-#endif //  defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GS
 
 
 void
 graphics_info_t::density_fit_graphs(int imol) {
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol >= 0) {
       if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
@@ -1489,8 +1448,6 @@ graphics_info_t::density_fit_graphs(int imol) {
 	 }
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 }
 
 
@@ -1501,8 +1458,6 @@ graphics_info_t::density_fit_graphs(int imol) {
 // We pass imol_moving_atoms because we will be updating a graph and
 // we want to know which graph to update.
 //
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 				      int imol_moving_atoms,
@@ -1568,15 +1523,11 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
    }
    return drv;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 
 
 
 // To be called for each chain in the molecule (or atom selection).
 //
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 					   int imol,
@@ -1641,11 +1592,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
    }
    return v;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
    std::vector<coot::geometry_graph_block_info_generic> v;
@@ -1680,11 +1627,7 @@ graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
    }
    return v;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::ncs_diffs_from_mol(int imol) {
 
@@ -1700,7 +1643,6 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
 	 coot::ncs_differences_t diff = graphics_info_t::molecules[imol].ncs_chain_differences(master, w);
 
 	 mmdb::Manager *mol = molecules[imol].atom_sel.mol;
-	 mmdb::Model *model_p = mol->GetModel(imodel);
 	 int n_chains = diff.diffs.size();
 	 int max_chain_length = coot::util::max_min_max_residue_range(mol);
 	 coot::geometry_graphs *graphs =
@@ -1746,5 +1688,3 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
    }
    return drv;
 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-#endif // HAVE_GSL

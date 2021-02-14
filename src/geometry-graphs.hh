@@ -19,12 +19,9 @@
  */
 
 
-#ifndef HAVE_GEOMETRY_GRAPHS
-#define HAVE_GEOMETRY_GRAPHS
+#ifndef HAVE_GEOMETRY_GRAPHS_HH
+#define HAVE_GEOMETRY_GRAPHS_HH
 
-#ifdef HAVE_GSL
-
-#ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
 
 #include "ideal/simple-restraint.hh"
@@ -44,7 +41,8 @@ namespace coot {
 ////E
    };
 
-   gint on_geometry_graph_block_clicked(GooCanvasItem *item, 
+   gint on_geometry_graph_block_clicked(GooCanvasItem *item,
+                                        GooCanvasItem *target,
 					GdkEvent *event, 
 					gpointer data);
 
@@ -223,9 +221,5 @@ namespace coot {
 }
 
 
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
-#endif //  HAVE_GSL
-
-#endif // HAVE_GEOMETRY_GRAPHS
+#endif // HAVE_GEOMETRY_GRAPHS_HH
 

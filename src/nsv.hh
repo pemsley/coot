@@ -19,7 +19,9 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
+#ifndef NSV_HH
+#define NSV_HH
+
 
 #include <string>
 #include <goocanvas.h>
@@ -143,4 +145,6 @@ namespace exptl {
 }
 
 
-#endif // a CANVAS
+
+#endif // NSV_HH
+

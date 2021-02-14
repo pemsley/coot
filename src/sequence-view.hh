@@ -21,34 +21,12 @@
 #ifndef HAVE_SEQUENCE_VIEW
 #define HAVE_SEQUENCE_VIEW
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-
-#ifdef HAVE_GTK_CANVAS
-
 #include <gtk/gtk.h>
-#include <gdk_imlib.h>
-#include <gtk-canvas.h>
-
-#else 
-
-   #ifdef HAVE_GNOME_CANVAS
-      #include <gtk/gtk.h>
-      #include <libgnomecanvas/libgnomecanvas.h>
-      typedef GnomeCanvas     GtkCanvas; 
-      typedef GnomeCanvasItem GtkCanvasItem; 
-   #endif
-#endif
+#include <goocanvas.h>
 
 #include <mmdb2/mmdb_manager.h>
-#ifndef HAVE_STRING
-#define HAVE_STRING
 #include <string>
-#endif // HAVE_STRING
-#ifndef HAVE_VECTOR
-#define HAVE_VECTOR
 #include <vector>
-#endif // HAVE_VECTOR
-
 
 namespace coot {
 
@@ -71,7 +49,7 @@ namespace coot {
       // chain number thereof.
       std::vector<std::pair<int, int> > sequence_row;
       GtkWidget *container_widget;
-      GtkCanvas *canvas;
+      GooCanvas *canvas;
       int coot_mol_no; // for the coot callback
       float res_offset;
       float res_scale;
@@ -85,10 +63,10 @@ namespace coot {
       void draw_mol_chain_label(std::string mol_chain, int i_chain, int mol_no);
       void tooltip_like_box(const coot::sequence_view_res_info_t &si);
       void clear_tooltip_box();
-      GtkCanvasItem *tooltip_item;
-      GtkCanvasItem *tooltip_item_text;
+      GooCanvasItem *tooltip_item;
+      GooCanvasItem *tooltip_item_text;
       std::string seq_int_to_string(int i) const;
-      std::vector<GtkCanvasItem *> canvas_item_vec;
+      std::vector<GooCanvasItem *> canvas_item_vec;
       int max_number_of_residues_in_a_chain(mmdb::Manager *mol_in) const;
       std::string colour_by_secstr(mmdb::Residue *res, mmdb::Model *model) const;
       std::string fixed_font;
@@ -132,7 +110,5 @@ namespace coot {
 #endif
    
 }
-
-#endif // HAVE_GTK_CANVAS
 
 #endif //  HAVE_SEQUENCE_VIEW

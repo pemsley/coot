@@ -244,10 +244,8 @@ namespace coot {
 					  const std::vector<coot::command_arg_t> &args);
 
 
-#ifdef HAVE_GOOCANVAS
    void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
    GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type);
-#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    class coord_orth_triple {
    public:
@@ -768,12 +766,8 @@ class graphics_info_t {
 
    void check_and_warn_inverted_chirals_and_cis_peptides() const;
 
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    void handle_rama_plot_update(coot::rama_plot *plot);
-#endif
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    // Geometry Graphs:
    coot::geometry_graphs * geometry_graph_dialog_to_object(GtkWidget *w) const {
       coot::geometry_graphs *gr = NULL;
@@ -782,12 +776,12 @@ class graphics_info_t {
       } else {
 	 GtkWidget *local_graph_dialog = lookup_widget(w, "geometry_graph_canvas");
 	 if (local_graph_dialog)
-	    gr = (coot::geometry_graphs *) (gtk_object_get_user_data(GTK_OBJECT(local_graph_dialog)));
+	    // gr = (coot::geometry_graphs *) (gtk_object_get_user_data(GTK_OBJECT(local_graph_dialog)));
+            // this need a corresponding change to set the g_object data - whereever that is.
+            gr = static_cast<coot::geometry_graphs *> (g_object_get_data(G_OBJECT(local_graph_dialog), "geometry-graph"));
       }
       return gr;
    }
-#endif // HAVE_GSL
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    std::vector<coot::geometry_distortion_info_container_t>
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
@@ -1361,10 +1355,8 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
 
-#ifdef HAVE_GOOCANVAS
    void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                           const coot::residue_spec_t &res_spec);
-#endif
 
    float X() { return rotation_centre_x; };
    float Y() { return rotation_centre_y; };
@@ -2100,8 +2092,6 @@ public:
 /*    static GtkWidget **rotamer_graph; */
 /*    static GtkWidget **ncs_diffs_graph; */
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    std::vector<coot::geometry_graph_block_info_generic>
    density_fit_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms,
 			int imol_for_map);
@@ -2122,8 +2112,6 @@ public:
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(int imol,
 								  const coot::ncs_chain_difference_t &d);
-#endif
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    // now used for rotamer_score (from c-interface.h), so it is now not GTK2-only 20090817
    coot::rotamer_probability_info_t get_rotamer_probability(mmdb::Residue *res,
@@ -3057,10 +3045,9 @@ public:
    // return NULL on failure (this molecule does not have a sequence
    // view)
    //
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    coot::sequence_view *get_sequence_view(int imol);
    static coot::rama_plot *edit_phi_psi_plot;
-#endif // HAVE_GTK_CANVAS/GNOME_CANVAS
 
    // distances and angles displayed on screen
    // uses distance_objects vector
