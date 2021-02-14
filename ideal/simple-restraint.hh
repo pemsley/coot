@@ -1199,6 +1199,9 @@ namespace coot {
       std::vector<refinement_lights_info_t>
       chi_squareds(std::string title, const gsl_vector *v, bool print_table_flag=true) const;
 
+      // like above but not quite. "Energy" scoring
+      void distortion_score_each_restraint(const gsl_vector *v) const;
+
       // all the alt confs should either be the same as each other or ""
       //
       short int check_altconfs_for_plane_restraint(const std::vector<std::string> &altconfs) const {

@@ -2049,13 +2049,12 @@ starting_structure_diff_score(const gsl_vector *v, void *params) {
    //
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params;
-   double d;
    double dist = 0; 
 
    // if (v->size != restraints->init_positions_size() ) {
 
    for (int i=0; i<restraints->init_positions_size(); i++) { 
-      d = restraints->initial_position(i) - gsl_vector_get(v, i);
+      double d = restraints->initial_position(i) - gsl_vector_get(v, i);
       dist += 0.01*d*d;
    }
    std::cout << "starting_structure_diff_score: " << dist << std::endl; 
@@ -2610,6 +2609,27 @@ coot::restraints_container_t::resolve_bonds() {
    setup_gsl_vector_variables();
    return resolve_bonds(x);
 
+}
+
+
+void
+coot::restraints_container_t::distortion_score_each_restraint(const gsl_vector *v) const {
+
+   for (int i=0; i<size(); i++) {
+      const simple_restraint &restraint = restraints_vec[i];
+      if (restraints_usage_flag & BONDS_MASK) {
+         if (restraint.restraint_type == BOND_RESTRAINT) {
+            double dist = distortion_score_bond(restraint, v);
+            const simple_restraint &rest = restraint;
+         }
+      }
+      if (restraints_usage_flag & ANGLES_MASK) {
+         if (restraint.restraint_type == ANGLE_RESTRAINT) {
+            double dist = distortion_score_angle(restraint, v);
+            const simple_restraint &rest = restraint;
+         }
+      }
+   }
 }
 
 coot::model_bond_deltas
