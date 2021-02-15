@@ -127,6 +127,8 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
       graph_label += coot::util::int_to_string(imol_refinement_map());
    }
 
+   graph_label += "\n and \n some \n extra lines \n for \n debuging";
+
    // set the window title:
    std::string title("Graph");
    switch(graph_type) {
@@ -360,9 +362,9 @@ coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_in
       s += dc.atom[idx_1]->GetResName();
       s += " ";
       s  = "Bond: ";
-      s += dc.atom[idx_1]->name;
+      s += coot::util::remove_whitespace(dc.atom[idx_1]->GetAtomName());
       s += "-";
-      s += dc.atom[idx_2]->name;
+      s += coot::util::remove_whitespace(dc.atom[idx_2]->GetAtomName());
       s += " z score: ";
       s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
    }
@@ -379,11 +381,11 @@ coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_in
       s += dc.atom[idx_1]->GetResName();
       s += " ";
       s  = "Angle: ";
-      s += dc.atom[idx_1]->name;
+      s += coot::util::remove_whitespace(dc.atom[idx_1]->GetAtomName());
       s += "-";
-      s += dc.atom[idx_2]->name;
+      s += coot::util::remove_whitespace(dc.atom[idx_2]->GetAtomName());
       s += "-";
-      s += dc.atom[idx_3]->name;
+      s += coot::util::remove_whitespace(dc.atom[idx_3]->GetAtomName());
       s += " z score: ";
       s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
    }
@@ -400,7 +402,7 @@ coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_in
       s = "Plane: ";
       for (unsigned int iat=0; iat<geometry_distortion.restraint.plane_atom_index.size(); iat++) {
          int idx = geometry_distortion.restraint.plane_atom_index[iat].first;
-         s += dc.atom[idx]->name;
+         s += coot::util::remove_whitespace(dc.atom[idx]->GetAtomName());
          s += " ";
       }
       s += " z score: ";
@@ -942,6 +944,14 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    // goo_canvas_init();
 
    GtkWidget *dialog = create_geometry_graphs_dialog();
+
+   // geometry graphs dialogs have viewports in the scrolled window.
+   // So, if it exists, we need to add the canvas to the viewport
+   // (not the scrolled window)
+   // Doesn't help with the jumping.
+
+   GtkWidget *viewport = lookup_widget(dialog, "geometry_graphs_viewport");
+
    canvas = GOO_CANVAS(goo_canvas_new());
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL);
 
@@ -967,18 +977,26 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    gtk_widget_set_size_request(dialog, 600, 400);
    GtkWidget *scrolled_window = lookup_widget(dialog, "geometry_graphs_scrolledwindow");
 
+
+   if (true) { // test rectangle
+      goo_canvas_rect_new(goo_canvas_get_root_item(canvas), 0, 0, canvas_usize_x, canvas_usize_y,
+                          "fill-color-rgba", "#50505050",
+                          "stroke-width", 0.0,
+                          NULL);
+   }
+
 //    std::cout << "INFO:: canvas size based on " << n_chains << " chains with max"
 //              << " length " << max_chain_length << std::endl;
 //    std::cout << "INFO:: canvas size: " << canvas_usize_x << " " << canvas_usize_y
 //              << std::endl;
 
-   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-                                         GTK_WIDGET(canvas));
+   // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+   // GTK_WIDGET(canvas));
 
    // this doesn't work: perhaps because of this? gtk_scrolled_window_add: assertion 'child_widget == NULL' failed
-   // gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(canvas));
 
-   
+   gtk_container_add(GTK_CONTAINER(viewport), GTK_WIDGET(canvas));
+
    double left_limit    = 0;
    double upper_limit   = 0;
 
@@ -986,7 +1004,6 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    // goo_canvas_set_scroll_region(canvas, left_limit, upper_limit, scroll_width, scroll_height);
 
    // gtk_canvas_set_pixels_per_unit(GTK_CANVAS(canvas),zoom);
-
 
    gtk_widget_show(GTK_WIDGET(canvas));
    gtk_widget_show(dialog);
@@ -1154,9 +1171,6 @@ coot::geometry_graphs::draw_chain_axis_tick_and_tick_labels(int min_resno,
                                                             int max_resno,
                                                             int chain_number) const {
 
-   GooCanvasItem *item;
-   GooCanvasPoints *points;
-
    double res_scale = 10.0;
    double chain_scale = 80.0;
 
@@ -1166,11 +1180,11 @@ coot::geometry_graphs::draw_chain_axis_tick_and_tick_labels(int min_resno,
 
    for (int i=tick_start_res_no; i<max_resno; i+= 10) {
 
-      points = goo_canvas_points_new(2);
+      GooCanvasPoints *points = goo_canvas_points_new(2);
       double x0 = (i - min_resno + 1) * res_scale + 5.0;
-      double y0 = 55.0 + chain_number * chain_scale;
+      double y0 = 50.0 + chain_number * chain_scale;
       double x1 = x0;
-      double y1 = y0 + 5.0;
+      double y1 = y0 + 6.0;
 
       points->coords[0] = x0;
       points->coords[1] = y0;
@@ -1178,18 +1192,18 @@ coot::geometry_graphs::draw_chain_axis_tick_and_tick_labels(int min_resno,
       points->coords[2] = x1;
       points->coords[3] = y1;
 
-      item = goo_canvas_polyline_new(goo_canvas_get_root_item(canvas),
-                                     TRUE, 0,
-                                     "width_pixels", 2.0,
-                                     "points", points,
-                                     "fill_color", tick_colour.c_str(),
-                                     NULL);
+      GooCanvasItem *item = goo_canvas_polyline_new(goo_canvas_get_root_item(canvas),
+                                                    TRUE, 0,
+                                                    "points", points,
+                                                    "line-width", 2.0,
+                                                    "stroke-color", tick_colour.c_str(),
+                                                    NULL);
       goo_canvas_points_unref(points);
 
       item = goo_canvas_text_new(goo_canvas_get_root_item(canvas),
                                  std::to_string(i).c_str(),
-                                 x0 - 6.0,
-                                 y1 + 4.0,
+                                 x0 - 9.0,
+                                 y1 + 6.0,
                                  -1,
                                  GOO_CANVAS_ANCHOR_WEST,
                                  "font", fixed_font_str.c_str(),

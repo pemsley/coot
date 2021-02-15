@@ -1375,13 +1375,13 @@ coot::rama_plot::draw_black_border() {
    points->coords[6] = 180.0;
    points->coords[7] = psi_start; 
 
-      item = goo_canvas_polyline_new(border_group,
-                                     TRUE, 0,
-                                     "points", points,
-                                     "stroke-color", "black",
-                                     "line-width", line_thickness,
-            NULL);
-      goo_canvas_points_unref (points);
+   item = goo_canvas_polyline_new(border_group,
+                                  TRUE, 0,
+                                  "points", points,
+                                  "stroke-color", "black",
+                                  "line-width", line_thickness,
+                                  NULL);
+   goo_canvas_points_unref(points);
 
 #endif
 }
