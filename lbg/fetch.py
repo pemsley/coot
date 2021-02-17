@@ -54,7 +54,7 @@ def parse_wiki_drug_xml(tree, was_redirected=False):
                     db_dict["PubChem"] = pubchem_id
                 if redirect_re.search(line):
                     if was_redirected:
-                        print "oops - found #REDIRECT but was redirected already!"
+                        print("oops - found #REDIRECT but was redirected already!")
                         return db_dict
                     else:
                         inn = unbracket(line)
@@ -63,7 +63,7 @@ def parse_wiki_drug_xml(tree, was_redirected=False):
             print("returning db_dict: {}".format(db_dict))
             return db_dict # happy case
     except:
-        print "wikipedia didn't understand the query, bad format?"
+        print("wikipedia didn't understand the query, bad format?")
         return {}
 
     return {}
@@ -94,14 +94,14 @@ def name_to_web_chem_db_id(drug_name, was_redirected=False):
     url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + \
            dn + "&prop=revisions&rvprop=content"
     if debug:
-        print "fetching wikipedia url:", url
+        print("fetching wikipedia url:", url)
 
     response = urllib2.urlopen(url)
     xml_string = response.read()
     xml_tree = ElementTree.fromstring(xml_string)
     db_dict = parse_wiki_drug_xml(xml_tree, was_redirected)
     if debug:
-        print "parse_wiki_drug_xml db_dict:", db_dict
+        print("parse_wiki_drug_xml db_dict:", db_dict)
         fn = drug_name + '.xml'
         # DeepCode hates this:
         # f = open(fn, 'w+')
@@ -137,7 +137,7 @@ def fetch_molecule(drug_name):
           # print "returning", file_name
           return file_name
        except urllib2.HTTPError as e:
-           print e
+           print(e)
            try_chemspider = True
     else:
         try_chemspider = True
@@ -162,7 +162,7 @@ def fetch_molecule(drug_name):
           # print "returning", file_name
           return file_name
        else:
-          print "no ChemSpider in dictionary"
+          print("no ChemSpider in dictionary")
           return False
 
     #if we got here, bad news

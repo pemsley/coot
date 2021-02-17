@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkIconFactory" id="iconfactory1">
     <sources>
+      <source stock-id="generated-icon-5-c-svg" filename="pixmaps/5-c.svg"/>
+      <source stock-id="generated-icon-delete-hydrogens-svg" filename="pixmaps/Trash-hydrogens-Andy_Trash_Can.svg"/>
       <source stock-id="generated-icon-double-svg" filename="pixmaps/double.svg"/>
-      <source stock-id="generated-icon-charge-svg" filename="pixmaps/charge.svg"/>
-      <source stock-id="generated-icon-single-svg" filename="pixmaps/single.svg"/>
+      <source stock-id="generated-icon-face-smile-svg" filename="pixmaps/face-smile.svg"/>
       <source stock-id="generated-icon-6-c-exp-2-svg" filename="pixmaps/6-c-exp-2.svg"/>
-      <source stock-id="generated-icon-sp3-svg" filename="pixmaps/sp3.svg"/>
-      <source stock-id="lbg-key-icon-svg" filename="pixmaps/Anonymous_Architetto_--_Chiave.svg"/>
       <source stock-id="generated-icon-3-c-svg" filename="pixmaps/3-c.svg"/>
-      <source stock-id="generated-icon-triple-svg" filename="pixmaps/triple.svg"/>
-      <source stock-id="generated-icon-4-c-svg" filename="pixmaps/4-c.svg"/>
+      <source stock-id="generated-icon-single-svg" filename="pixmaps/single.svg"/>
       <source stock-id="generated-icon-7-c-svg" filename="pixmaps/7-c.svg"/>
       <source stock-id="generated-icon-clean-up-2d" filename="pixmaps/05_Hotel_Icon_Hair_Salon.svg"/>
-      <source stock-id="generated-icon-delete-hydrogens-svg" filename="pixmaps/Trash-hydrogens-Andy_Trash_Can.svg"/>
-      <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
-      <source stock-id="generated-icon-face-smile-svg" filename="pixmaps/face-smile.svg"/>
-      <source stock-id="generated-icon-5-c-svg" filename="pixmaps/5-c.svg"/>
-      <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
       <source stock-id="generated-icon-6-c-arom-svg" filename="pixmaps/6-c-arom.svg"/>
+      <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
+      <source stock-id="generated-icon-4-c-svg" filename="pixmaps/4-c.svg"/>
+      <source stock-id="generated-icon-charge-svg" filename="pixmaps/charge.svg"/>
+      <source stock-id="lbg-key-icon-svg" filename="pixmaps/Anonymous_Architetto_--_Chiave.svg"/>
+      <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
+      <source stock-id="generated-icon-triple-svg" filename="pixmaps/triple.svg"/>
+      <source stock-id="generated-icon-sp3-svg" filename="pixmaps/sp3.svg"/>
     </sources>
   </object>
   <object class="GtkAdjustment" id="adjustment1">
@@ -60,6 +60,9 @@
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Lidia: Coot's Ligand Builder</property>
     <property name="icon">pixmaps/coot-icon.png</property>
+    <child>
+      <placeholder/>
+    </child>
     <child>
       <object class="GtkVBox" id="lbg_vbox">
         <property name="visible">True</property>
@@ -474,6 +477,7 @@
                           </object>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="homogeneous">False</property>
                           </packing>
                         </child>
                         <child>
@@ -798,8 +802,6 @@
                           <object class="GtkScrolledWindow" id="lbg_scrolledwindow">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="hscrollbar_policy">automatic</property>
-                            <property name="vscrollbar_policy">automatic</property>
                             <property name="shadow_type">etched-in</property>
                             <child>
                               <placeholder/>
@@ -831,8 +833,6 @@
                             <property name="invisible_char">●</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="climb_rate">0.10000000000000001</property>
                             <property name="digits">2</property>
                             <property name="numeric">True</property>
@@ -872,7 +872,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="spacing">2</property>
-                        <property name="has_resize_grip">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1041,9 +1040,9 @@
                               <object class="GtkLabel" id="label10">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">Mol. Weight </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="y_options"/>
@@ -1066,9 +1065,9 @@
                               <object class="GtkLabel" id="label11">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">cLogP </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1119,9 +1118,9 @@
                               <object class="GtkLabel" id="label12">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">#HBA </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>
@@ -1133,9 +1132,9 @@
                               <object class="GtkLabel" id="label13">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">#Donors </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">6</property>
@@ -1147,9 +1146,9 @@
                               <object class="GtkLabel" id="label14">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">PSA </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="top_attach">1</property>
@@ -1161,9 +1160,9 @@
                               <object class="GtkLabel" id="label15">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">#RotBonds </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1177,9 +1176,9 @@
                               <object class="GtkLabel" id="label16">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">#Arom </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>
@@ -1193,9 +1192,9 @@
                               <object class="GtkLabel" id="label17">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">#Alerts </property>
                                 <property name="justify">right</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">6</property>
@@ -1339,8 +1338,6 @@
                                 <property name="text" translatable="yes">10</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1400,8 +1397,6 @@
                   <object class="GtkScrolledWindow" id="lbg_srs_search_results_scrolledwindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
                     <child>
                       <object class="GtkViewport" id="lbg_srs_search_results_viewport">
                         <property name="visible">True</property>
@@ -1541,8 +1536,8 @@
                               <object class="GtkComboBox" id="lbg_search_combobox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="has_frame">False</property>
                                 <property name="focus_on_click">False</property>
+                                <property name="has_frame">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1632,13 +1627,17 @@
     <property name="transient_for">lbg_window</property>
     <signal name="close" handler="on_lbg_import_from_comp_id_dialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_import_from_comp_id_dialog_response" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox19">
+      <object class="GtkBox" id="dialog-vbox19">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area19">
+          <object class="GtkButtonBox" id="dialog-action_area19">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -1710,8 +1709,6 @@
                     <property name="width_chars">8</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1761,13 +1758,17 @@
     <property name="transient_for">lbg_window</property>
     <signal name="close" handler="on_lbg_import_from_smiles_dialog_close" swapped="no"/>
     <signal name="response" handler="lbg_import_from_smiles_dialog_response_cb" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox18">
+      <object class="GtkBox" id="dialog-vbox18">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area18">
+          <object class="GtkButtonBox" id="dialog-action_area18">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -1831,8 +1832,6 @@
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -1875,13 +1874,16 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="logo">pixmaps/coot-icon.png</property>
     <signal name="close" handler="on_lbg_aboutdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_aboutdialog_response" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -1903,13 +1905,17 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox12">
+      <object class="GtkBox" id="dialog-vbox12">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area12">
+          <object class="GtkButtonBox" id="dialog-action_area12">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -1963,8 +1969,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <signal name="changed" handler="on_lbg_atom_x_entry_changed" swapped="no"/>
                 <signal name="insert-at-cursor" handler="on_lbg_atom_x_entry_insert_at_cursor" swapped="no"/>
               </object>
@@ -1998,12 +2002,12 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox7">
+      <object class="GtkBox" id="dialog-vbox7">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area7">
+          <object class="GtkButtonBox" id="dialog-action_area7">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2067,12 +2071,12 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox9">
+      <object class="GtkBox" id="dialog-vbox9">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area9">
+          <object class="GtkButtonBox" id="dialog-action_area9">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2134,12 +2138,12 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <signal name="close" handler="on_lbg_export_as_svg_filechooserdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_export_as_svg_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox21">
+      <object class="GtkBox" id="dialog-vbox21">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area21">
+          <object class="GtkButtonBox" id="dialog-action_area21">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2196,13 +2200,17 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox16">
+      <object class="GtkBox" id="dialog-vbox16">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area16">
+          <object class="GtkButtonBox" id="dialog-action_area16">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2267,8 +2275,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
                 <property name="invisible_char">●</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <signal name="changed" handler="on_lbg_get_drug_entry_changed" swapped="no"/>
               </object>
               <packing>
@@ -2303,12 +2309,12 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <signal name="close" handler="on_lbg_open_filechooserdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_open_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkBox" id="dialog-vbox2">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area2">
+          <object class="GtkButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2371,12 +2377,12 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <signal name="close" handler="on_lbg_save_as_filechooserdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_save_as_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox5">
+      <object class="GtkBox" id="dialog-vbox5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area5">
+          <object class="GtkButtonBox" id="dialog-action_area5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2434,13 +2440,16 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="title" translatable="yes">Coot Lidia Search Results</property>
     <property name="type_hint">normal</property>
     <signal name="response" handler="on_lbg_sbase_search_results_dialog_response" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox4">
+      <object class="GtkBox" id="dialog-vbox4">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area4">
+          <object class="GtkButtonBox" id="dialog-action_area4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2479,8 +2488,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
                 <property name="height_request">200</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
                 <child>
                   <object class="GtkViewport" id="viewport1">
                     <property name="visible">True</property>
@@ -2528,13 +2535,17 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <signal name="close" handler="on_lbg_smiles_dialog_close" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox11">
+      <object class="GtkBox" id="dialog-vbox11">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area11">
+          <object class="GtkButtonBox" id="dialog-action_area11">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -2592,8 +2603,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
                     <property name="invisible_char">●</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>

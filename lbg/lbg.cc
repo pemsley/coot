@@ -21,9 +21,7 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
 #include <Python.h> // this is here get round header warnings
-#endif
 
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
@@ -41,9 +39,7 @@
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
-#ifdef USE_PYTHON
 #include <boost/python.hpp>
-#endif
 #endif
 
 #include <cairo.h>
@@ -60,7 +56,6 @@
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 //
 lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm,
@@ -103,15 +98,16 @@ lbg(lig_build::molfile_molecule_t mm,
       if (use_graphics_interface_flag) {
 
 	 GtkBuilder *builder = gtk_builder_new();
-	 guint add_from_file_status =
-	    gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+
+         // add_from_file_status is positive on success
+	 guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+         // std::cout << "debug add_from_file_status " << add_from_file_status << std::endl;
 
 	 if (! add_from_file_status) {
 
 	    // Handle error...
 
-	    std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full
-		      << "\" failed." << std::endl;
+	    std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full << "\" failed." << std::endl;
 	    if (builder) {
 	       std::cout << "ERROR:: where builder was non-null" << std::endl;
 	    } else {
@@ -191,7 +187,6 @@ lbg(lig_build::molfile_molecule_t mm,
    }
    return lbg;
 }
-#endif // GTK_VERSION
 
 void
 lbg_info_t::new_lbg_window() {
@@ -4945,6 +4940,7 @@ void
 lbg_info_t::get_drug(const std::string &drug_name) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+eeeeeeeeeeeeeeeeeeeeeee;eeeeeeeeeeeeeeeeeeeee:
 
    bool status = false;
    std::string status_string;
