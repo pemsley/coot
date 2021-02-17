@@ -4940,7 +4940,6 @@ void
 lbg_info_t::get_drug(const std::string &drug_name) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-eeeeeeeeeeeeeeeeeeeeeee;eeeeeeeeeeeeeeeeeeeee:
 
    bool status = false;
    std::string status_string;
