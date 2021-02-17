@@ -194,7 +194,10 @@ AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
 
-# coot_gtk2=TRUE
+#GLM
+AC_LANG_PUSH(C++)
+AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(GLM headers are required.))
+AC_LANG_POP
 
 
 # AM_PATH_GTK(2.4.14)
