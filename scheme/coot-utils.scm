@@ -1662,9 +1662,11 @@
       (let ((imol (car args)))
 	(tf imol
 	    (identity-matrix)
-	    (list-ref args 1)
-	    (list-ref args 2)
-	    (list-ref args 3)
+            (list
+             (list-ref args 1)
+             (list-ref args 2)
+             (list-ref args 3))
+            (rotation-centre), (list-ref (cell imol) 0)
 	    (space-group imol)
 	    (cell imol))))
      ((= (length args) 3) ; no matrix or about point specified
