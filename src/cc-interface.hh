@@ -305,6 +305,11 @@ SCM map_colour_components(int imol);
 //
 PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
+
+/*! \brief read a CCP4 map or a CNS map (despite the name). */
+int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
+
+int handle_read_emdb_data(const std::string &dir_name);
 //! \}
 
 

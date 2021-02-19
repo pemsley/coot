@@ -1265,15 +1265,14 @@ void check_for_dark_blue_density() {
 }
 
 int
-handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
+handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
 
    int istate = -1;
-   if (filename) {
-      std::string str(filename);
+   if (true) {
       graphics_info_t g;
       int imol_new = graphics_info_t::create_molecule();
 
-      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag,
+      istate = g.molecules[imol_new].read_ccp4_map(filename, is_diff_map_flag,
 						   *graphics_info_t::map_glob_extensions);
 
       if (istate > -1) { // not a failure
@@ -1281,19 +1280,35 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
 	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
 	 g.erase_last_molecule();
-	 std::cout << "Read map " << str << " failed" << std::endl;
+	 std::cout << "Read map " << filename << " failed" << std::endl;
 	 std::string s = "Read map ";
-	 s += str;
+	 s += filename;
 	 s += " failed.";
 	 g.add_status_bar_text(s);
       }
       graphics_draw();
-   } else {
-      // error
-      std::cout << "ERROR:: filename null in handle_read_ccp4_map\n";
    }
    return istate;
 }
+
+
+#include "utils/coot-utils.hh"
+
+int handle_read_emdb_data(const std::string &dir_name) {
+
+   int status = 0;
+   std::string map_dir = coot::util::append_dir_dir(dir_name, "map");
+   std::string pdb_dir = coot::util::append_dir_dir(coot::util::append_dir_dir(dir_name, "fittedModels"), "PDB");
+   std::vector<std::string> map_files = coot::util::glob_files(map_dir, "*.map");
+   std::vector<std::string> pdb_files = coot::util::glob_files(pdb_dir, "*.ent");
+   for (auto map_file : map_files)
+      handle_read_ccp4_map(map_file, 0);
+   for (auto pdb_file : pdb_files)
+      read_pdb(pdb_file.c_str());
+
+   return status;
+}
+
 
 void set_contour_by_sigma_step_by_mol(float f, short int state, int imol) {
 

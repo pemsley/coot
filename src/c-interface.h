@@ -2601,33 +2601,6 @@ void set_skeleton_box_size(float f);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                        Skeleton                                          */
-/*  ----------------------------------------------------------------------- */
-/* section Skeleton Colour */
-/*! \name  Skeleton Colour */
-/* \{ */
-/* MOVE-ME to c-interface-gtk-widgets.h */
-void handle_skeleton_colour_change(int mol, gdouble* map_col);
-/*! \brief set the skeleton colour */
-void set_skeleton_colour(int imol, float r, float g, float b);
-
-/* MOVE-ME to c-interface-gtk-widgets.h */
-gdouble* get_skeleton_colour();
-
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
-/*                         read a ccp4 map                                  */
-/*  ----------------------------------------------------------------------- */
-/* section Read Maps */
-/*! \name  Read Maps */
-/* \{ */
-
-/*! \brief read a CCP4 map or a CNS map (despite the name). */
-int handle_read_ccp4_map(const char* filename, int is_diff_map_flag);
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
 /*                        save coordinates                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Save Coordinates */

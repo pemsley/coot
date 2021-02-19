@@ -1262,7 +1262,7 @@ on_ok_button_map_name_clicked          (GtkButton       *button,
 						   when destroyed,
 						   scribbles over
 						   filename. */
-   handle_read_ccp4_map(sfile, is_diff_map_flag);
+   handle_read_ccp4_map_internal(sfile, is_diff_map_flag);
    free(sfile);
 }
 
@@ -10724,7 +10724,7 @@ on_map_name_filechooserdialog1_response
 						      when destroyed,
 						      scribbles over
 						      filename. */
-      handle_read_ccp4_map(sfile, is_diff_map_flag);
+      handle_read_ccp4_map_internal(sfile, is_diff_map_flag);
       free(sfile);
 
    } else {

@@ -385,6 +385,7 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+#include "c-interface-widgets.hh"
 void 
 on_skeleton_color_changed(GtkWidget *w,
 			  GtkColorSelection *colorsel) { 

@@ -116,6 +116,7 @@ parse_command_line(int argc, char ** argv ) {
       {"comp_id",    1, 0, 0},
       {"comp-id",    1, 0, 0},
       {"em",         0, 0, 0},
+      {"emdb",       1, 0, 0},
       {"title",      1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
@@ -199,6 +200,9 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "code") {
 	       cld.accession_codes.push_back(coot_optarg);
 	    }
+	    if (arg_str == "emdb") {
+	       cld.emdb_codes.push_back(coot_optarg);
+	    }
 	    if (arg_str == "comp_id") {
 	       cld.comp_ids.push_back(coot_optarg);
 	    }
@@ -211,7 +215,7 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "splash-screen") {
 	       cld.alternate_splash_screen_file_name = coot_optarg;
 	    }
-	    
+
 	 } else { 
 
 	    // long argument without parameter:

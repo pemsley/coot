@@ -1855,10 +1855,9 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::Residue *residue_p;
 	    if (nres > 2) { 
 	       for (int ires=1; ires<(nres-1); ires++) { 
-		  residue_p = chain_p->GetResidue(ires);
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 
 		  // this could be improved
 		  mmdb::Residue *res_prev = chain_p->GetResidue(ires-1);
