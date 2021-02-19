@@ -25,10 +25,10 @@
 
 #include <map>
 
-#include "clipper/core/coords.h"
-#include "clipper/core/xmap.h"
-#include "clipper/core/hkl_data.h"
-#include "clipper/contrib/sfcalc_obs.h"
+#include <clipper/core/coords.h>
+#include <clipper/core/xmap.h>
+#include <clipper/core/hkl_data.h>
+#include <clipper/contrib/sfcalc_obs.h>
 #include "coot-coord-utils.hh"
 #include "coot-density-stats.hh"
 #include <mmdb2/mmdb_manager.h>
@@ -369,8 +369,7 @@ namespace coot {
 	 residue_triple_t(mmdb::Residue *this_residue_in,
 			  mmdb::Residue *prev_residue_in,
 			  mmdb::Residue *next_residue_in,
-			  std::string alt_conf_in) {
-	    alt_conf = alt_conf_in;
+			  const std::string &alt_conf_in) : alt_conf(alt_conf_in) {
 	    this_residue = this_residue_in;
 	    prev_residue = prev_residue_in;
 	    next_residue = next_residue_in;
