@@ -259,7 +259,7 @@ int copy_molecule(int imol) {
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       graphics_info_t::molecules[new_mol_number].install_new_map(graphics_info_t::molecules[imol].xmap, label, is_em_flag);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
-         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
+         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map(true);
       }
       iret = new_mol_number;
    }

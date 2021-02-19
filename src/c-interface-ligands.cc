@@ -2143,7 +2143,7 @@ int read_small_molecule_data_cif(const char *file_name) {
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
 	 g.molecules[imol_diff].install_new_map(maps.second, map_name, is_em_map_flag);
-	 g.molecules[imol_diff].set_map_is_difference_map();
+	 g.molecules[imol_diff].set_map_is_difference_map(true);
       }
       graphics_draw();
    }
@@ -2180,7 +2180,7 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
 	 g.molecules[imol_diff].install_new_map(maps.second, map_name, false);
-	 g.molecules[imol_diff].set_map_is_difference_map();
+	 g.molecules[imol_diff].set_map_is_difference_map(true);
       }
    }
    return imol_map;

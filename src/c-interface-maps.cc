@@ -792,12 +792,12 @@ int swap_difference_map_colours_state() {
 }
 
 /* return success status 0 = failure (imol does not have a map) */
-int set_map_is_difference_map(int imol) {
+int set_map_is_difference_map(int imol, short int  bool_flag) {
 
    int istatus = 0;
    if (imol< graphics_n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
-	 graphics_info_t::molecules[imol].set_map_is_difference_map();
+	 graphics_info_t::molecules[imol].set_map_is_difference_map(bool_flag);
 	 istatus = 1;
 	 graphics_draw();
       } else {
@@ -1610,7 +1610,7 @@ int difference_map(int imol1, int imol2, float map_scale) {
 	 // int swpcolf = graphics_info_t::swap_difference_map_colours;
 	 bool is_em_flag = graphics_info_t::molecules[imol1].is_EM_map();
 	 graphics_info_t::molecules[imol].install_new_map(dm.first, name, is_em_flag);
-	 graphics_info_t::molecules[imol].set_map_is_difference_map();
+	 graphics_info_t::molecules[imol].set_map_is_difference_map(true);
 
 	 r = imol;
 	 graphics_draw();

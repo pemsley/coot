@@ -1940,6 +1940,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    bool bad_read = false; // so far
    bool em = false;
+   map_name = filename;
 
    if ( map_file_type == CCP4 ) {
 
@@ -3375,10 +3376,10 @@ molecule_class_info_t::change_contour(int direction) {
 
 //
 void
-molecule_class_info_t::set_map_is_difference_map() {
+molecule_class_info_t::set_map_is_difference_map(bool flag) {
 
    if (has_xmap() || has_nxmap()) {
-      xmap_is_diff_map = 1;
+      xmap_is_diff_map = flag;
       // we should update the contour level...
       set_initial_contour_level();
       // and set the right colors

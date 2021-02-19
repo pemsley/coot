@@ -475,7 +475,7 @@
 				     (lambda (imol)
 				       (format #t "setting map number ~s to be a difference map~%"
 					       imol)
-				       (set-map-is-difference-map imol)))))
+				       (set-map-is-difference-map imol 1)))))
 
 
 	(add-simple-coot-menu-menuitem

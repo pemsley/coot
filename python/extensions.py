@@ -393,7 +393,7 @@ if (have_coot_python):
 
      def set_diff_map_func(imol):
        print "setting map number %s to be a difference map" %imol
-       set_map_is_difference_map(imol)
+       set_map_is_difference_map(imol, 1)
         
      add_simple_coot_menu_menuitem(
        submenu_maps,

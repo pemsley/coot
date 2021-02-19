@@ -6730,7 +6730,7 @@ run_command_line_scripts() {
        std::vector<std::string> c;
        c.push_back("get-eds-pdb-and-mtz");
        c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
-       
+
 #ifdef USE_GUILE
        std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
        safe_scheme_command(sc.c_str());

@@ -1576,10 +1576,11 @@ int  esoteric_depth_cue_state();
    red is positive and green is negative. */
 void set_swap_difference_map_colours(int i);
 int swap_difference_map_colours_state();
+
 /*! \brief post-hoc set the map of molecule number imol to be a
   difference map
   @return success status, 0 -> failure (imol does not have a map) */
-int set_map_is_difference_map(int imol);
+int set_map_is_difference_map(int imol, short int bool_flag);
 
 /*! \brief map is difference map? */
 int map_is_difference_map(int imol);

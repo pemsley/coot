@@ -63,7 +63,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #endif
 #endif
 
-#include "clipper/ccp4/ccp4_map_io.h"
+#include <clipper/ccp4/ccp4_map_io.h>
 
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
@@ -1348,6 +1348,7 @@ public:        //                      public
    bool xmap_is_diff_map;
    clipper::NXmap<float> nxmap;
    bool is_patterson;  // for (at least) contour level protection
+   std::string map_name;
 
 
    float contour_level;
@@ -2372,7 +2373,7 @@ public:        //                      public
 
 
    //
-   void set_map_is_difference_map();
+   void set_map_is_difference_map(bool flag);
    short int is_difference_map_p() const;
 
 
