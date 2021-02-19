@@ -2014,7 +2014,7 @@ if test -e ${install_top_dir}/lib/libltdl.la ; then
 fi
 if test -z "$build_libtool" ; then
     echo installation has libtool
-else 
+else
     echo libtool should be built
 fi
 
@@ -2972,7 +2972,7 @@ if [ "$build_libgnomecanvas" = 1 ] ; then
    # not to self: it seems, from my centos7 build that libgnomecanvas doesn't
    # correctly pick up the libart above - I did a system install of libart before I thought about it.
 
-   if [ -e $install_top_dir/include/thing/thing.h ] ; then
+   if [ -e $install_top_dir/include/libgnomecanvas-2.0/libgnomecanvas/libgnomecanvas.h ] ; then
       echo not building libgnomecanvas
    else
       libgnomecanvas_version=2.30.3
@@ -4526,6 +4526,7 @@ unset PKG_CONFIG_PATH
 # new style
 mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 refmac_mon_lib=refmac-monomer-library.tar.gz
+refmac_mon_lib=refmac-monomer-library-20210105.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
