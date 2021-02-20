@@ -127,19 +127,15 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
       graph_label += coot::util::int_to_string(imol_refinement_map());
    }
 
-   graph_label += "\n and \n some \n extra lines \n for \n debuging";
-
    // set the window title:
    std::string title("Graph");
    switch(graph_type) {
         case coot::GEOMETRY_GRAPH_GEOMETRY:
                 title = _("Geometry Graphs");
                 break;
-////B
         case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
                 title = _(" < B > Factor Graphs ");
                 break;
-////E
         case coot::GEOMETRY_GRAPH_B_FACTOR:
                 title = _(" B Factor Variance Graphs ");
                 break;
@@ -951,6 +947,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    // Doesn't help with the jumping.
 
    GtkWidget *viewport = lookup_widget(dialog, "geometry_graphs_viewport");
+   gtk_widget_destroy(viewport); // goocanvases don't want or need viewports
 
    canvas = GOO_CANVAS(goo_canvas_new());
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL);
@@ -978,7 +975,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    GtkWidget *scrolled_window = lookup_widget(dialog, "geometry_graphs_scrolledwindow");
 
 
-   if (true) { // test rectangle
+   if (false) { // test rectangle
       goo_canvas_rect_new(goo_canvas_get_root_item(canvas), 0, 0, canvas_usize_x, canvas_usize_y,
                           "fill-color-rgba", "#50505050",
                           "stroke-width", 0.0,
@@ -995,7 +992,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
    // this doesn't work: perhaps because of this? gtk_scrolled_window_add: assertion 'child_widget == NULL' failed
 
-   gtk_container_add(GTK_CONTAINER(viewport), GTK_WIDGET(canvas));
+   gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(canvas));
 
    double left_limit    = 0;
    double upper_limit   = 0;
