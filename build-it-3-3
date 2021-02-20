@@ -3482,10 +3482,12 @@ else
    echo building QED
    (date
     ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+    ${WGET} $extras_place/coot/qed-python3.patch
     pwd
     tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
     cd qed-1.0.1
-    python setup.py install
+    patch -p0 < ../qed-python3.patch # correct patch level? needs checking
+    python3 setup.py install
     cd -
    ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
 fi
