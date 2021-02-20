@@ -617,10 +617,10 @@ void rama_zoom_in(GtkWidget *widget) {
 
 }
 
-gboolean rama_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data){
+gboolean rama_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data){
 
-   coot::rama_plot *plot = (coot::rama_plot *) (user_data);
-   std::cout << "rama_resize() " << user_data << " " << plot << std::endl;
+   coot::rama_plot *plot = static_cast<coot::rama_plot *>(user_data);
+   // std::cout << "rama_resize() " << user_data << " " << plot << std::endl;
    plot->resize_rama_canvas_internal(widget, event);
    return FALSE;
 }

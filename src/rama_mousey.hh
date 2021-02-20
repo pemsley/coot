@@ -101,7 +101,7 @@ gboolean rama_item_motion_event (GooCanvasItem *item, GooCanvasItem *target,
 void rama_show_preferences();
 void rama_zoom_in(GtkWidget *widget);
 void rama_zoom_out(GtkWidget *widget); 
-gboolean rama_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
+gboolean rama_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
 END_C_DECLS
 

@@ -27,15 +27,12 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 
-#ifdef HAVE_GOOCANVAS
+#include <gtk/gtk.h>
 #include <goocanvas.h>
-#endif
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/ramachandran.h"
 #include "coot-utils/coot-rama.hh"
-
-#undef CLIPPER_HAS_TOP8000
 
 namespace coot { 
 
@@ -170,9 +167,7 @@ namespace coot {
       int imol;  // which molecule in mapview did this come from?
       clipper::Ramachandran rama;
       clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
-#ifdef CLIPPER_HAS_TOP8000
       clipper::Ramachandran r_ileval, r_pre_pro, r_non_gly_pro_pre_pro_ileval;
-#endif
 
       //GtkCanvas *canvas;
       GtkWidget *canvas;
@@ -510,7 +505,7 @@ namespace coot {
       void mouse_motion_notify_editphipsi(GdkEventMotion *event, double x, double y);
       gint button_press (GtkWidget *widget, GdkEventButton *event); 
       gint button_press_conventional (GtkWidget *widget, GdkEventButton *event);
-#ifdef HAVE_GOOCANVAS
+
       gint item_enter_event(GooCanvasItem *item, GdkEventCrossing *event);
       gint item_motion_event(GooCanvasItem *item, GdkEventMotion *event);
       gint button_item_press (GooCanvasItem *item, GdkEventButton *event);
@@ -518,7 +513,7 @@ namespace coot {
       gint button_press_editphipsi (GooCanvasItem *item, GdkEventButton *event);
       gint button_press_backbone_edit (GooCanvasItem *item, GdkEventButton *event);
       gint button_item_release (GooCanvasItem *item, GdkEventButton *event);
-#endif
+
 
       void draw_phi_psis_on_canvas(char *filename);
       // void update_canvas(mmdb::Manager *mol);  // mol was updated(?)

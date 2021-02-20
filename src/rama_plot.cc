@@ -136,8 +136,6 @@ void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
                                              GdkEventConfigure *event) {
 
-   return;
-
    if (resize_canvas_with_window) {
 
       // try after ideas from gimp
@@ -256,11 +254,13 @@ coot::rama_plot::create_dynarama_window() {
             // Happy Path
 
                coot::rama_plot *plot;
+               GtkWidget *dynarama_viewport = 0;
                dynawin = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_window"));
                dynarama_ok_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_ok_button"));
                dynarama_cancel_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_cancel_button"));
                dynarama_label = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_label"));
                scrolled_window = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_scrolledwindow"));
+               dynarama_viewport = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_viewport"));
                selection_hbox = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_selection_hbox"));
                selection_checkbutton = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                          "dynarama_selection_checkbutton"));
@@ -308,6 +308,9 @@ coot::rama_plot::create_dynarama_window() {
                g_object_unref (G_OBJECT (builder));
                status = add_from_file_status;
 	       gtk_widget_hide(rama_stats_label2);
+
+               // new goocanvass don't wan't or need the viewport. So add the canvas to the scrolled_window
+               gtk_widget_destroy(dynarama_viewport);
          }
       }
    }
@@ -334,8 +337,6 @@ coot::rama_plot::init_internal(const std::string &mol_name,
                                float step_in,
                                short int hide_buttons,
                                short int is_kleywegt_plot_flag_local) {
-
-#ifdef HAVE_GOOCANVAS
 
    fixed_font_str = "Sans 9";
 
@@ -368,9 +369,9 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    if (dynarama_label)
       gtk_label_set_text(GTK_LABEL(dynarama_label), mol_name.c_str());
 
-   int ysize = 800;
+   int ysize = 500;
    if (! is_kleywegt_plot_flag_local) // extra space needed
-      ysize = 835;
+      ysize = 535;
 
    // GtkAllocation alloc = { 0, 0, 460, ysize };
    // gtk_widget_size_allocate(dynawin, &alloc);
@@ -380,16 +381,14 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    // std::cout<<"ELLOR:: no window, should bail out"<<std::endl;
    // }
 
-   g_signal_connect(dynawin, "configure-event", G_CALLBACK(rama_resize), this);
+   g_signal_connect(dynawin, "configure-event", G_CALLBACK(rama_configure_event), this);
 
    allow_seqnum_offset_flag = 0;
 
    canvas = goo_canvas_new();
    root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   gtk_widget_set_size_request(scrolled_window, 400, 400);
 
-   gtk_widget_set_size_request(scrolled_window, 600, 600);
-
-   // gtk_widget_set_size_request(canvas, 400, 400);
    gtk_container_add(GTK_CONTAINER(scrolled_window), canvas);
    // gtk_widget_ref(canvas);
    g_object_set_data(G_OBJECT(canvas),  "rama_plot", (gpointer) this);
@@ -456,8 +455,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    // Hope everything is there before we resize?!
    //      g_signal_connect_after(dynawin, "size-allocate",
 
-   g_signal_connect_after(dynawin, "configure-event",
-                          G_CALLBACK(rama_resize), this);
+   g_signal_connect_after(dynawin, "configure-event", G_CALLBACK(rama_configure_event), this);
 
    gtk_widget_set_can_focus(canvas, TRUE);
 
@@ -473,8 +471,6 @@ coot::rama_plot::init_internal(const std::string &mol_name,
       gtk_window_remove_accel_group(GTK_WINDOW(dynawin), accel_gr);
       accel_grp_ls = accel_grp_ls->next;
    }
-
-#endif
 
 }
 
@@ -500,9 +496,7 @@ coot::rama_plot::reinitialise() {
       init_internal("Ramachandran Plot (Phi/Psi Edit Mode)", 0.02, 0.002, 1);
       hide_stats_frame();
       gtk_widget_set_sensitive(rama_view_menu, FALSE);
-#ifdef HAVE_GOOCANVAS
       green_box_item = NULL;
-#endif
    }
    if (plot_type == BACKBONE_EDIT) {
       phipsi_edit_flag = 0;
@@ -512,9 +506,7 @@ coot::rama_plot::reinitialise() {
       init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);
       hide_stats_frame();
       gtk_widget_set_sensitive(rama_view_menu, FALSE);
-#ifdef HAVE_GOOCANVAS
       green_box_item = NULL;
-#endif
    }
    if (plot_type == RAMA) {
       // normal plot
@@ -532,13 +524,8 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    n_diffs = 50; // default value.
    drawing_differences = 0; 
 
-#if CLIPPER_HAS_TOP8000
    rama.init(clipper::Ramachandran::All2);
    displayed_rama_type = clipper::Ramachandran::All2;
-#else
-   rama.init(clipper::Ramachandran::All5);
-   displayed_rama_type = clipper::Ramachandran::All5;
-#endif
 
    // clipper defaults:
    rama_threshold_preferred = 0.01; 
@@ -568,7 +555,7 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
    rama.set_thresholds(level_prefered, level_allowed);
    //
-#ifdef CLIPPER_HAS_TOP8000
+
    r_gly.init(clipper::Ramachandran::Gly2);
    r_gly.set_thresholds(level_prefered, level_allowed);
    //
@@ -586,16 +573,6 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    //
    r_non_gly_pro_pre_pro_ileval.init(clipper::Ramachandran::NoGPIVpreP2);
    r_non_gly_pro_pre_pro_ileval.set_thresholds(level_prefered, level_allowed);
-#else
-   r_gly.init(clipper::Ramachandran::Gly5);
-   r_gly.set_thresholds(level_prefered, level_allowed);
-   //
-   r_pro.init(clipper::Ramachandran::Pro5);
-   r_pro.set_thresholds(level_prefered, level_allowed);
-   // 
-   r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro5);
-   r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
-#endif
 }
 
 void
@@ -635,18 +612,15 @@ coot::rama_plot::setup_canvas() {
 void
 coot::rama_plot::draw_rect() {
 
-#ifdef HAVE_GOOCANVAS
-
       GooCanvasItem *item;
       item = goo_canvas_rect_new(root,
-            -100.0,
-            -100.0,
-            300.0,
-            300.0,
-            "fill-color", "grey20",
-            "stroke-color", "black",
-            NULL);
-#endif
+                                 -100.0,
+                                 -100.0,
+                                 300.0,
+                                 300.0,
+                                 "fill-color", "grey20",
+                                 "stroke-color", "black",
+                                 NULL);
 }
 
 void
@@ -682,17 +656,14 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
 
    int take_bg_image = 1;
 
-#ifdef HAVE_GOOCANVAS
 
    bg_all = goo_canvas_group_new(root, NULL);
    bg_gly = goo_canvas_group_new(root, NULL);
    bg_pro = goo_canvas_group_new(root, NULL);
    bg_non_gly_pro = goo_canvas_group_new(root, NULL);
-#ifdef CLIPPER_HAS_TOP8000
    bg_ileval = goo_canvas_group_new(root, NULL);
    bg_pre_pro = goo_canvas_group_new(root, NULL);
    bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
-#endif
 
    // if default we use images otherwise we make blocks
 
@@ -703,7 +674,7 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
           fabs(rama_threshold_allowed - 0.002) < 0.000001 &&
           psi_axis_mode == PSI_CLASSIC)
       {
-#ifdef CLIPPER_HAS_TOP8000
+
          take_bg_image = make_background_from_image(rama, bg_all, "rama2_all.png");
          take_bg_image += make_background_from_image(r_gly, bg_gly, "rama2_gly.png");
          take_bg_image += make_background_from_image(r_pro, bg_pro, "rama2_pro.png");
@@ -716,13 +687,6 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
          take_bg_image += make_background_from_image(r_non_gly_pro_pre_pro_ileval,
                                                      bg_non_gly_pro_pre_pro_ileval,
                                                      "rama2_non_gly_pro_pre_pro_ileval.png");
-#else
-         take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
-         take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
-         take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
-         take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
-                                                     "rama_non_gly_pro.png");
-#endif
       }
    }
 
@@ -736,11 +700,10 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
          make_background(r_gly, bg_gly);
          make_background(r_pro, bg_pro);
          make_background(r_non_gly_pro, bg_non_gly_pro);
-#ifdef CLIPPER_HAS_TOP8000
          make_background(r_ileval, bg_ileval);
          make_background(r_pre_pro, bg_pre_pro);
          make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
-#endif
+
       }
 
       if (isolines) {
@@ -748,29 +711,23 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
          make_isolines(r_gly, bg_gly);
          make_isolines(r_pro, bg_pro);
          make_isolines(r_non_gly_pro, bg_non_gly_pro);
-#ifdef CLIPPER_HAS_TOP8000
          make_isolines(r_ileval, bg_ileval);
          make_isolines(r_pre_pro, bg_pre_pro);
          make_isolines(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
-#endif
       }
    } else {
-#ifdef CLIPPER_HAS_TOP8000
       make_background(r_ileval, bg_ileval);
       make_background(r_pre_pro, bg_pre_pro);
       make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
-#endif
    }
 
 
    hide_all_background();
    // upon init show all
    show_background(bg_all);
-#endif
 
 }
 
-#ifdef HAVE_GOOCANVAS
 
 // return the merge colour based on start and end colour as well as probability
 // in c++11 array<int, 5> fillarr(int arr[])
@@ -914,10 +871,7 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
    }
 
 }
-#endif
 
-
-#ifdef HAVE_GOOCANVAS
 
 int
 coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_type,
@@ -948,10 +902,8 @@ coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_typ
 
    return ret;
 }
-#endif
 
 
-#ifdef HAVE_GOOCANVAS
 void
 coot::rama_plot::show_background(GooCanvasItem *new_bg) {
 
@@ -962,10 +914,8 @@ coot::rama_plot::show_background(GooCanvasItem *new_bg) {
       current_bg = new_bg;
    }
 }
-#endif
 
 
-#ifdef HAVE_GOOCANVAS
 void
 coot::rama_plot::hide_all_background() {
    // maybe have a vector?
@@ -981,7 +931,6 @@ coot::rama_plot::hide_all_background() {
    g_object_set (bg_non_gly_pro,
                  "visibility", GOO_CANVAS_ITEM_INVISIBLE,
                  NULL);
-#ifdef CLIPPER_HAS_TOP8000
    g_object_set (bg_ileval,
                  "visibility", GOO_CANVAS_ITEM_INVISIBLE,
                  NULL);
@@ -991,14 +940,10 @@ coot::rama_plot::hide_all_background() {
    g_object_set (bg_non_gly_pro_pre_pro_ileval,
                  "visibility", GOO_CANVAS_ITEM_INVISIBLE,
                  NULL);
-#endif
 }
-#endif
 
 void
 coot::rama_plot::display_background() {
-
-#ifdef HAVE_GOOCANVAS
 
    GooCanvasItem *item;
    GooCanvasItem *bg_non_gly_pro;
@@ -1062,7 +1007,6 @@ coot::rama_plot::display_background() {
       }
    }
 
-#endif // HAVE_GOOCANVAS
 }
 
 // returns an int to make line and a vector of (x1,y1,x2,y2) to make_isolines between
@@ -1201,7 +1145,7 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
 //                                                "stroke-color", "black",
                                                 "stroke-color", "grey60",
                                                 "line-width", 0.5,
-				NULL);
+                                                NULL);
          }
       }
    }
@@ -1240,8 +1184,6 @@ coot::rama_plot::big_square(int model_number,
 void
 coot::rama_plot::clear_canvas_items(int all) {
 
-#ifdef HAVE_GOOCANVAS
-
    if (all) {
       gint no_children = goo_canvas_item_get_n_children(root);
       for (int i=no_children-1; i>0; i--) {
@@ -1261,7 +1203,6 @@ coot::rama_plot::clear_canvas_items(int all) {
    // and make new ones
    residues_grp = goo_canvas_group_new(root, NULL);
    arrow_grp = goo_canvas_group_new(root, NULL);
-#endif
 
 }
 
@@ -1283,8 +1224,6 @@ coot::rama_plot::destroy_yourself() {
 void
 coot::rama_plot::basic_white_underlay() {
 
-#ifdef HAVE_GOOCANVAS
-
    GooCanvasItem *item;
 
    float corner;
@@ -1297,18 +1236,16 @@ coot::rama_plot::basic_white_underlay() {
    // we dont do an outline around the white canvas
    // but make a box later
    item = goo_canvas_rect_new(root,
-            -180.0,
-            corner,
-            360.0,
-            360.0,
-            "fill-color", "white",
-            "stroke-color", "black",
-            "line-width", 0.0,
-            NULL);  
+                              -180.0,
+                              corner,
+                              360.0,
+                              360.0,
+                              "fill-color", "white",
+                              "stroke-color", "black",
+                              "line-width", 0.0,
+                              NULL);
    // 12/12/18 was grey97
    // orig grey 90; grey 100 is white; 95 was good
-
-#endif
 
 } 
 
