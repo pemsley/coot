@@ -56,6 +56,45 @@
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
+void draw_test_graphs_in_canvas(GtkWidget *canvas) {
+
+   std::cout << "draw_test_graphs_in_canvas()" << std::endl;
+
+   if (true) { // test rectangle
+      int rgba = (111 << 24) + (100 << 16) + (100 << 8) + 108;
+
+      int n_chains = 2;
+      int max_chain_length = 100;
+      int canvas_usize_x = max_chain_length*10 + 200; // add a bit to get
+      int canvas_usize_y = 80 * n_chains + 30;
+
+      goo_canvas_rect_new(goo_canvas_get_root_item(GOO_CANVAS(canvas)),
+                          0, 0,
+                          canvas_usize_x, canvas_usize_y,
+                          "fill-color-rgba", rgba,
+                          // "stroke-width", 0.0,
+                          NULL);
+
+      unsigned int n_blocks = 50;
+      for (unsigned int i=0; i<n_blocks; i++) {
+         double i_d = static_cast<double>(i);
+         double y = 110.0;
+         double x = i_d * 20.0;
+         double width  = 20;
+         double height = 60 * sin(0.5 * i_d);
+         int rgba_innner = ((111-3*i) << 24) + ((20+4*i) << 16) + (100 << 8) + 228;
+         std::cout << "block " << x << " " << y << std::endl;
+
+         goo_canvas_rect_new(goo_canvas_get_root_item(GOO_CANVAS(canvas)),
+                             x, y, width, height,
+                             "fill-color-rgba", rgba_innner,
+                             // "stroke-width", 1.0,
+                             NULL);
+      }
+   }
+}
+
+
 //
 lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm,
@@ -79,7 +118,10 @@ lbg(lig_build::molfile_molecule_t mm,
    glade_file_full += "/";
    glade_file_full += glade_file;
 
-   bool glade_file_exists = 0;
+   // testing
+   // glade_file_full = "../../coot/lbg/lbg-ng.glade";
+
+   bool glade_file_exists = false;
    struct stat buf;
    int err = stat(glade_file_full.c_str(), &buf);
    if (! err)
@@ -136,6 +178,8 @@ lbg(lig_build::molfile_molecule_t mm,
 	       g_object_unref (G_OBJECT (builder));
 	       if (ligand_spec_pair.first)
 		  lbg->set_ligand_spec(ligand_spec_pair.second);
+
+               // draw_test_graphs_in_canvas(lbg->canvas);
 
 	       mmdb::Residue *residue_p = coot::get_first_residue_helper_fn(mol);
 	       if (residue_p) {
@@ -3050,17 +3094,16 @@ void
 lbg_info_t::clear_canvas() {
 
    // clear the canvas
-   GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
-
-   gint n_children = goo_canvas_item_get_n_children (root);
-   for (int i=0; i<n_children; i++)
-      goo_canvas_item_remove_child(root, 0);
+   if (true) {
+      GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+      gint n_children = goo_canvas_item_get_n_children (root);
+      for (int i=0; i<n_children; i++)
+         goo_canvas_item_remove_child(root, 0);
+   }
 }
 
 
 
-
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 bool
 lbg_info_t::init(GtkBuilder *builder) {
 
@@ -3195,10 +3238,9 @@ lbg_info_t::init(GtkBuilder *builder) {
       g_object_set_data(G_OBJECT(canvas), "lbg", (gpointer) this);
 
       save_togglebutton_widgets(builder);
-      GtkWidget *lbg_scrolled_win =
-	 GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
+      GtkWidget *lbg_scrolled_win = GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
       gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
-      goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 1200);
+      // goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 1200);
    }
 
    GooCanvas *gc = GOO_CANVAS(canvas);
@@ -3255,33 +3297,21 @@ lbg_info_t::init(GtkBuilder *builder) {
    // or the "show alerts" (because we can't match to the alert patterns).
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON
    // all, with QED
 
    if (! silicos_it_qed_default_func) { // set in init
       gtk_widget_hide(lbg_qed_hbox);
       gtk_widget_hide(lbg_qed_properties_vbox);
    }
-
-#else
-
-   gtk_widget_hide(lbg_qed_hbox);
-   gtk_widget_hide(lbg_qed_properties_vbox);
-
-#endif
 #else
    gtk_widget_hide(lbg_qed_hbox);
-   gtk_widget_hide(lbg_alert_hbox_outer);
-   gtk_widget_hide(lbg_show_alerts_checkbutton); // perhaps this should be in the
-                                                 // lbg_alert_hbox_outer?
    gtk_widget_hide(lbg_qed_properties_vbox);
-   gtk_widget_hide(lbg_clean_up_2d_toolbutton);
 #endif
+
 
    return true;
 
 }
-#endif // GTK_VERSION
 
 
 // void lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton)
@@ -3290,9 +3320,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 void
 lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton) {
 
-   float f = 1.0; // gtk_spin_button_get_value_as_float(spinbutton);
-   std::cout << "FIXME why oh why is gtk_spin_button_get_value_as_float() missing now!?"
-             << std::endl;
+   // float f = 1.0; // gtk_spin_button_get_value_as_float(spinbutton);
+   float f = gtk_spin_button_get_value(spinbutton);
    gpointer user_data = g_object_get_data(G_OBJECT(spinbutton), "user_data");
    if (user_data) {
       GtkWidget *canvas = GTK_WIDGET(user_data);

@@ -71,10 +71,7 @@ static double LIGAND_TO_CANVAS_SCALE_FACTOR = 17;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
 
 
-
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 bool save_togglebutton_widgets(GtkBuilder *builder);
-#endif // GTK_VERSION
 
 void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode);
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);

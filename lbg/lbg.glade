@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.36.0 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <object class="GtkIconFactory" id="iconfactory1">
@@ -60,9 +60,6 @@
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Lidia: Coot's Ligand Builder</property>
     <property name="icon">pixmaps/coot-icon.png</property>
-    <child>
-      <placeholder/>
-    </child>
     <child>
       <object class="GtkVBox" id="lbg_vbox">
         <property name="visible">True</property>
@@ -831,15 +828,17 @@
                             <property name="can_focus">True</property>
                             <property name="max_length">4</property>
                             <property name="invisible_char">●</property>
+                            <property name="max_width_chars">7</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="climb_rate">0.10000000000000001</property>
+                            <property name="climb_rate">0.1</property>
                             <property name="digits">2</property>
                             <property name="numeric">True</property>
+                            <property name="value">0.03</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">False</property>
+                            <property name="fill">True</property>
                             <property name="pack_type">end</property>
                             <property name="position">0</property>
                           </packing>
@@ -1597,7 +1596,7 @@
                 <property name="tooltip_text" translatable="yes">Send to Coot</property>
                 <property name="border_width">6</property>
                 <property name="use_stock">True</property>
-                <property name="xalign">0.52999997138977051</property>
+                <property name="xalign">0.5299999713897705</property>
                 <signal name="clicked" handler="on_lbg_apply_button_clicked" swapped="no"/>
               </object>
               <packing>
@@ -1619,6 +1618,9 @@
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkDialog" id="lbg_import_from_comp_id_dialog">
     <property name="can_focus">False</property>
@@ -1627,9 +1629,6 @@
     <property name="transient_for">lbg_window</property>
     <signal name="close" handler="on_lbg_import_from_comp_id_dialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_import_from_comp_id_dialog_response" swapped="no"/>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox19">
         <property name="visible">True</property>
@@ -1750,6 +1749,9 @@
       <action-widget response="-5">lbg_button12</action-widget>
       <action-widget response="-6">lbg_button13</action-widget>
     </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkDialog" id="lbg_import_from_smiles_dialog">
     <property name="can_focus">False</property>
@@ -1758,9 +1760,6 @@
     <property name="transient_for">lbg_window</property>
     <signal name="close" handler="on_lbg_import_from_smiles_dialog_close" swapped="no"/>
     <signal name="response" handler="lbg_import_from_smiles_dialog_response_cb" swapped="no"/>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox18">
         <property name="visible">True</property>
@@ -1856,6 +1855,9 @@
       <action-widget response="-5">button10</action-widget>
       <action-widget response="-6">button11</action-widget>
     </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkAboutDialog" id="lbg_aboutdialog">
     <property name="can_focus">False</property>
@@ -1874,9 +1876,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="logo">pixmaps/coot-icon.png</property>
     <signal name="close" handler="on_lbg_aboutdialog_close" swapped="no"/>
     <signal name="response" handler="on_lbg_aboutdialog_response" swapped="no"/>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -1900,14 +1899,14 @@ QED Scores by Silicos-it's module Biscu-it</property>
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkDialog" id="lbg_atom_x_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox12">
         <property name="visible">True</property>
@@ -1990,6 +1989,9 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <action-widgets>
       <action-widget response="0">lbg_atom_x_dialog_close_button</action-widget>
     </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_export_as_pdf_filechooserdialog">
     <property name="can_focus">True</property>
@@ -2200,9 +2202,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox16">
         <property name="visible">True</property>
@@ -2300,6 +2299,9 @@ QED Scores by Silicos-it's module Biscu-it</property>
       <action-widget response="0">lbg_get_drug_ok_button</action-widget>
       <action-widget response="0">lbg_get_drug_cancel_button</action-widget>
     </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkFileChooserDialog" id="lbg_open_filechooserdialog">
     <property name="can_focus">True</property>
@@ -2440,9 +2442,6 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <property name="title" translatable="yes">Coot Lidia Search Results</property>
     <property name="type_hint">normal</property>
     <signal name="response" handler="on_lbg_sbase_search_results_dialog_response" swapped="no"/>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox4">
         <property name="visible">True</property>
@@ -2529,15 +2528,15 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <action-widgets>
       <action-widget response="-7">button3</action-widget>
     </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkDialog" id="lbg_smiles_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <signal name="close" handler="on_lbg_smiles_dialog_close" swapped="no"/>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox11">
         <property name="visible">True</property>
@@ -2635,5 +2634,8 @@ QED Scores by Silicos-it's module Biscu-it</property>
     <action-widgets>
       <action-widget response="-5">lbg_smiles_dialog_ok_button</action-widget>
     </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
 </interface>
