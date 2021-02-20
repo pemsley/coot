@@ -5272,8 +5272,6 @@ void set_sequence_view_is_docked(short int state) {
 
 void nsv(int imol) {
 
-#ifdef HAVE_GOOCANVAS
-
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
@@ -5329,7 +5327,6 @@ void nsv(int imol) {
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
-#endif // GOOCANVAS
 }
 
 void set_nsv_canvas_pixel_limit(int cpl) {
@@ -5441,7 +5438,6 @@ void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    toolbar. It's still here for completeness. */
 void toolbar_multi_refine_stop() {
 
-#if (GTK_MAJOR_VERSION > 1)
 
 #ifdef USE_GUILE
 
@@ -5469,14 +5465,12 @@ void toolbar_multi_refine_stop() {
    toolbar_multi_refine_button_set_sensitive("stop",     0); // it's already stopped.
 #endif // USE_PYTHON
 #endif // USE_GUILE
-#endif // GTK_MAJOR_VERSION
 
 }
 
 
 void toolbar_multi_refine_continue() {
 
-#if (GTK_MAJOR_VERSION > 1)
 
 #ifdef USE_GUILE
 
@@ -5502,13 +5496,11 @@ void toolbar_multi_refine_continue() {
 
 #endif // USE_PYTHON
 #endif // USE_GUILE
-#endif // GTK_MAJOR_VERSION
 
 }
 
 void toolbar_multi_refine_cancel() {
 
-#if (GTK_MAJOR_VERSION > 1)
 #ifdef USE_GUILE
 
    // the idle function looks at this value
@@ -5533,7 +5525,6 @@ void toolbar_multi_refine_cancel() {
 
 #endif // USE_PYTHON
 #endif // USE_GUILE
-#endif // GTK_MAJOR_VERSION
 
 }
 

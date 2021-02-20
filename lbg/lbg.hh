@@ -24,7 +24,6 @@ n * This program is distributed in the hope that it will be useful, but
 
 // Don't compile any of this if we don't have the canvas.
 
-#ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
 #   ifndef HAVE_INCLUDED_PYTHON
@@ -1421,8 +1420,6 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		void (*sbase_import_function_pointer) (std::string comp_id),
 		std::string (*get_drug_mdl_file_function_pointer) (std::string drug_name)
 		);
-
-#endif // HAVE_GOOCANVAS
 
 #endif // LBG_HH
 

@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -449,5 +448,3 @@ lbg_info_t::handle_lbg_drag_and_drop_mol_file(const std::string &uri_clean,
 
 }
 
-
-#endif // HAVE_GOOCANVAS

@@ -886,12 +886,8 @@ void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#ifdef HAVE_GOOCANVAS
       graphics_info_t g;
       g.b_factor_graphs(imol);
-#else
-      printf("not compiled with HAVE_GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
 
 }
 
@@ -902,12 +898,8 @@ void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menu
 
    int imol = GPOINTER_TO_INT(user_data);
 
-#ifdef HAVE_GOOCANVAS
       graphics_info_t g;
       g.calc_b_factor_graphs(imol);
-#else
-   printf("not compiled with HAVE_GOOCANVAS - remake\n");
-#endif
 
 }
 ////E B GRAPH
@@ -917,13 +909,8 @@ void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
 
    int imol = GPOINTER_TO_INT(user_data);
 
-#ifdef HAVE_GOOCANVAS
       graphics_info_t g;
       g.geometric_distortion(imol);
-#else
-      printf("not compiled with HAVE_GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
-
 }
 
 void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
@@ -931,12 +918,8 @@ void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
 
    int imol = GPOINTER_TO_INT(user_data);
 
-#ifdef HAVE_GOOCANVAS
    graphics_info_t g;
    g.omega_graphs(imol);
-#else
-   printf("not compiled with HAVE_GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
 
 }
 
@@ -944,12 +927,8 @@ void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
 						     gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#ifdef HAVE_GOOCANVAS
    graphics_info_t g;
    g.rotamer_graphs(imol);
-#else
-   printf("not compiled with HAVE_GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
 
 }
 
@@ -957,12 +936,8 @@ void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuit
 							 gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#ifdef HAVE_GOOCANVAS
    graphics_info_t g;
    g.density_fit_graphs(imol);
-#else
-   printf("not compiled with HAVE_GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
 }
 
 void probe_mol_selector_activate (GtkMenuItem     *menuitem,
@@ -1661,8 +1636,6 @@ void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *comb
 
 void do_ramachandran_plot(int imol) {
 
-#ifdef HAVE_GOOCANVAS
-
    if (is_valid_model_molecule(imol)) {
 
       coot::rama_plot *rama = new coot::rama_plot;
@@ -1684,7 +1657,6 @@ void do_ramachandran_plot(int imol) {
          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
       }
    }
-#endif // HAVE_GOOCANVAS
 }
 
 void set_kleywegt_plot_n_diffs(int ndiffs) {
@@ -1966,24 +1938,18 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
 void set_ramachandran_psi_axis_mode(int mode) {
 
-#if HAVE_GOOCANVAS
    graphics_info_t g;
    if (mode == 1)
       g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
    else
       g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
-#endif
 }
 
 int
 ramachandran_psi_axis_mode() {
 
    graphics_info_t g;
-#ifdef HAVE_GOOCANVAS
    return g.rama_psi_axis_mode;
-#else
-   return 0;
-#endif
 }
 
 // ----------------------------------------------------------------------------------
@@ -2707,7 +2673,6 @@ int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char
 //! B-factor distribution histogram
 void b_factor_distribution_graph(int imol) {
 
-#if HAVE_GOOCANVAS
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::b_factor_histogram b(mol);
@@ -2736,7 +2701,6 @@ void b_factor_distribution_graph(int imol) {
       g->show_dialog();
 
    }
-#endif // HAVE_GOOCANVASHAVE_GOOCANVAS
 }
 
 

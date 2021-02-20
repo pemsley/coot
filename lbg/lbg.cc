@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
 
 #include <Python.h> // this is here get round header warnings
 
@@ -5195,7 +5194,6 @@ lbg_info_t::pe_test_function() {
    bond_pick_pending = true;
 
 
-#ifdef USE_PYTHON
    // RECAP mol
 
    // first get the function:
@@ -5220,10 +5218,7 @@ lbg_info_t::pe_test_function() {
 	 std::cout << "Result: " << result << std::endl;
       }
    }
-#endif
 
 #endif
 }
 
-
-#endif // HAVE_GOOCANVAS

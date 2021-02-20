@@ -27,9 +27,7 @@
 // We don't use gtkgraph these days
 // #include "libgtkgraph/gtkgraph.h"
 
-#ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
-#endif
 
 #include "coot-utils/coot-map-utils.hh" // for variance map
 
@@ -169,11 +167,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
 
 void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-#ifdef HAVE_GOOCANVAS
    show_hole_probe_radius_graph_goocanvas(hole_path, path_length);
-#else
-   show_hole_probe_radius_graph_basic(hole_path, path_length);
-#endif    
 }
 
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
@@ -242,7 +236,6 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-#ifdef HAVE_GOOCANVAS
    if (graphics_info_t::use_graphics_interface_flag) { 
       coot::goograph* g = new coot::goograph;
       int trace = g->trace_new();
@@ -268,7 +261,6 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
       g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_LINE);
       g->show_dialog();
    }
-#endif // HAVE_GOOCANVAS   
 }
 
 

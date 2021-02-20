@@ -20,8 +20,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
-
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -2392,5 +2390,3 @@ topological_equivalence_t::tetrahedral_atoms() const {
    
    return v;
 }
-
-#endif // GOO_CANVAS

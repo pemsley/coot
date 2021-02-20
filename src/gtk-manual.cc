@@ -270,7 +270,6 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 /* We should come here and be given imol.  New molecules should insert
    themselves into the Ramachandran Plot menu(item). */
 
-#ifdef HAVE_GOOCANVAS
 
   rama_widget = dynarama_is_displayed_state(imol);
   if (rama_widget == NULL) {
@@ -283,9 +282,6 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
         gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
      }
   }
-#else
-  printf("not compiled with GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
 
 }
 
@@ -325,12 +321,8 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 					  gpointer         user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
-#ifdef HAVE_GOOCANVAS
   std::cout << "calling do_sequence_view() " << imol  << std::endl;
    do_sequence_view(imol);
-#else
-  printf("not compiled with GOOCANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
 
 }
 

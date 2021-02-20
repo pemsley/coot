@@ -282,9 +282,7 @@ parse_command_line(int argc, char ** argv ) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
 			   enableds.push_back("Molecular-triangles");
 #endif
-#ifdef HAVE_GOOCANVAS
 			   enableds.push_back("Goocanvas");
-#endif
 #ifdef HAVE_GSL
 			   enableds.push_back("GSL");
 #endif

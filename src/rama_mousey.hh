@@ -1,8 +1,9 @@
 
+#ifndef RAMA_MOUSEY_HH
+#define RAMA_MOUSEY_HH
+
 
 #include <gtk/gtk.h>
-
-#if defined(HAVE_GOOCANVAS)
 
 #include <goocanvas.h>
 #include "rama_plot.hh"
@@ -105,4 +106,6 @@ gboolean rama_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpoin
 
 END_C_DECLS
 
-#endif // HAVE_GOOCANVAS
+
+#endif // RAMA_MOUSEY_HH
+

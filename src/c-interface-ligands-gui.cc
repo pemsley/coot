@@ -815,7 +815,6 @@ start_ligand_builder_gui() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-#ifdef HAVE_GOOCANVAS
       lig_build::molfile_molecule_t mm;
       mmdb::Manager *mol = NULL;
       std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
@@ -839,9 +838,6 @@ start_ligand_builder_gui() {
 	  sbase_import_function,
 	  get_drug_mdl_via_wikipedia_and_drugbank
 	  );
-#else
-      std::cout << "No goocanvas" << std::endl;
-#endif // HAVE_GOOCANVAS
 
    }
 }
@@ -1268,12 +1264,6 @@ void add_ligand_builder_menu_item_maybe() {
       if (! w) {
 	 std::cout << "oops failed to look up ligand_builder menu item"
 		   << std::endl;
-      } else {
-#ifdef HAVE_GOOCANVAS
-	 // all is hunky dory, it's OK to see the menu item
-#else
-	 gtk_widget_set_sensitive(w, FALSE);  // or hide!?
-#endif // HAVE_GOOCANVAS
       }
    }
 

@@ -202,23 +202,9 @@ AC_LANG_POP
 
 # AM_PATH_GTK(2.4.14)
 PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
+PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0])
 
-# libgnomecanvas is not provided on new GNU/Linux systems.
-# So until all libgnomecanvas-using code is replaced I will have to install that myself
-# rather than rely on the system for it
-#
 
-# I don't know what is happening here yet.
-
-# gnomecanvas works with GTK2.
-# goocanvas can work with gtk3 (maybe?)
-# PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
-# if test -n "$GNOME_CANVAS_CFLAGS" ; then
-   # GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
-# fi
-# AC_SUBST(GNOME_CANVAS_CFLAGS)
-
-# AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1])
 
 MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
 AC_SUBST(MAKE_COOTRC_CMD)
@@ -282,10 +268,11 @@ fi
 AC_SUBST(L_BOOST_PYTHON)
 
 
-AM_PATH_GOOCANVAS
-if test "$GOOCANVAS_CFLAGS" != "" ; then
-   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
-fi
+# Goocanvas is no longer optional
+# AM_PATH_GOOCANVAS
+# if test "$GOOCANVAS_CFLAGS" != "" ; then
+#   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
+# fi
 
 # this can go away in 2020 - no one will try to use that old RDKit.
 #

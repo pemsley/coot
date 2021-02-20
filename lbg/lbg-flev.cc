@@ -19,8 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
-
 #ifdef USE_PYTHON
 #include <Python.h> // this is here get round header warnings
 #endif
@@ -3181,5 +3179,3 @@ lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a
 
    return r;
 } 
-
-#endif // HAVE_GOOCANVAS

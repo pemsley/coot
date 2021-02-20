@@ -18,8 +18,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
-
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -474,5 +472,3 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
 
    }
 }
-
-#endif // HAVE_GOOCANVAS

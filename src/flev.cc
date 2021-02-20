@@ -388,7 +388,6 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 		     }
 		     
 
-#ifdef HAVE_GOOCANVAS		     
 		     lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						   flat.mol, view_name, ligand_res_name, imol,
 						   graphics_info_t::Geom_p(),
@@ -410,10 +409,6 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 			lbg_local_p->draw_all_flev_annotations();
 			lbg_local_p->write_png(png_file_name);
 		     } 
-
-#endif // HAVE_GOOCANVAS		     
-		     
-
 		  }
 	       }
 	    }

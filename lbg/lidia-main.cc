@@ -19,13 +19,9 @@
  * 02110-1301, USA
  */
 
-#ifdef USE_PYTHON
 #include <Python.h>
-#endif
 
 #include <iostream>
-
-#ifdef HAVE_GOOCANVAS
 
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
@@ -131,7 +127,6 @@ main(int argc, char *argv[]) {
    std::string (*get_drug_mdl_via_wikipedia_and_drugbank) (std::string drug_name) = NULL;
    coot::protein_geometry *geom_p = NULL;
    
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    if (lbg(mm, p, mol, view_name, molecule_file_name, imol,
 	   geom_p,
 	   use_graphics, stand_alone_flag,
@@ -141,20 +136,6 @@ main(int argc, char *argv[]) {
 	   get_drug_mdl_via_wikipedia_and_drugbank)) {
        gtk_main ();
    } 
-#endif // GTK_VERSION
+
    return 1;
 }
-
-
-#else
-
-int
-main(int argc, char *argv[]) {
-
-   std::cout << "No goo canvas at compile-time, no lidia " << std::endl;
-   return 0;
-}
-
-
-
-#endif 

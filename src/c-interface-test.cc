@@ -135,15 +135,11 @@
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
 //
-#ifdef USE_PYTHON
 #include "Python.h"
-#endif // USE_PYTHON
 
-#ifdef HAVE_GOOCANVAS
 #include <goocanvas.h>
 #include "lbg/wmolecule.hh"
 #include "goograph/goograph.hh"
-#endif
 
 #include "ideal/simple-restraint.hh"  // for multi-residue torsion map fitting.
 #include "ideal/torsion-bonds.hh"     // for multi-residue torsion map fitting.
@@ -297,7 +293,6 @@ int test_function(int i, int j) {
    }
 
 
-#ifdef HAVE_GOOCANVAS
    if (0) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       graphics_info_t g;
@@ -314,7 +309,6 @@ int test_function(int i, int j) {
 	 }
       }
    }
-#endif // HAVE_GOOCANVAS
 
    if (0) {
 
@@ -901,7 +895,6 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    }
 
    if (0) {
-#if HAVE_GOOCANVAS
       coot::goograph *g = new coot::goograph;
       std::vector<std::pair<double, double> > data;
       data.push_back(std::pair<double, double> ( 104.5,  4));
@@ -922,7 +915,6 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       g->set_plot_title("Density Histogram");
       g->set_data(trace, data);
       g->show_dialog();
-#endif
    }
 
    if (0) {

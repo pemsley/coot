@@ -22,7 +22,6 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#ifdef HAVE_GOOCANVAS
 
 #include <iostream>
 
@@ -462,7 +461,6 @@ on_rama_open_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpo
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
-#ifdef HAVE_GOOCANVAS
 
 // Canvas and item callbacks
 gboolean rama_item_button_press (GooCanvasItem *item,
@@ -479,9 +477,6 @@ gboolean rama_item_button_press (GooCanvasItem *item,
    plot->button_item_press(item, event);
    return TRUE;
 }
-#endif
-
-#ifdef HAVE_GOOCANVAS
 
 gboolean rama_item_button_release (GooCanvasItem *item,
                       GooCanvasItem *target,
@@ -498,9 +493,7 @@ gboolean rama_item_button_release (GooCanvasItem *item,
    plot->button_item_release(item, event);
    return TRUE;
 }
-#endif
 
-#ifdef HAVE_GOOCANVAS
 gboolean rama_item_enter_event (GooCanvasItem *item,
                                 GooCanvasItem *target,
                                 GdkEventCrossing *event,
@@ -515,9 +508,9 @@ gboolean rama_item_enter_event (GooCanvasItem *item,
 
    return TRUE;
 }
-#endif
 
-#ifdef HAVE_GOOCANVAS
+
+
 gboolean rama_item_motion_event (GooCanvasItem *item,
                                 GooCanvasItem *target,
                                 GdkEventMotion *event,
@@ -534,7 +527,7 @@ gboolean rama_item_motion_event (GooCanvasItem *item,
    return TRUE;
 
 }
-#endif
+
 
 // The motion callback was attached at the canvas, so widget is a
 // canvas here.
@@ -625,4 +618,3 @@ gboolean rama_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpoin
    return FALSE;
 }
 
-#endif // HAVE_GTK_CANVAS or HAVE_GNOME_CANVAS

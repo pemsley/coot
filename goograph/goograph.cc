@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
 #include <iostream>
 #include <algorithm>
 #include "utils/coot-utils.hh"
@@ -1248,7 +1247,5 @@ coot::goograph::clear_traces_and_annotations() {
    extents_max_y = -9999999990.0;
 
 }
-
-#endif
 
 

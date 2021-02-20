@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -527,5 +526,3 @@ lbg_info_t::optimise_residue_circles::numerical_gradients(gsl_vector *x, gsl_vec
       std::cout << "gradient_comparison " << i << " " << gsl_vector_get(df, i) << "    " << v_av/micro_step << std::endl; 
    }
 }
-
-#endif // HAVE_GOOCANVAS

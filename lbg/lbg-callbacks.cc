@@ -20,7 +20,6 @@
  * 02110-1301, USA
  */
 
-#ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -971,6 +970,4 @@ on_lbg_import_comp_id_menuitem_activate(GtkMenuItem *button, gpointer user_data)
       gtk_widget_show(l->lbg_import_from_comp_id_dialog);
    
 }
-
-#endif // HAVE_GOOCANVAS
 

@@ -135,13 +135,7 @@ PyObject *coot_has_guile() {
 bool coot_can_do_lidia_p() {
 
    bool r = false;
-
-#ifdef HAVE_GOOCANVAS
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    r = true;
-#endif
-#endif
-
    return r;
 
 }
@@ -2913,8 +2907,6 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
 void
 fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
-#ifdef HAVE_GOOCANVAS
-
    if (is_valid_map_molecule(imol)) {
       // set_and_get_histogram_values(); surely?
 
@@ -3029,9 +3021,6 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 	 }
       }
    }
-#else
-   gtk_widget_hide(map_contour_frame);
-#endif
 }
 
 /*  ----------------------------------------------------------------------- */

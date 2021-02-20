@@ -21,8 +21,6 @@
 #ifndef HAVE_GOOGRAPH_HH
 #define HAVE_GOOGRAPH_HH
 
-#ifdef HAVE_GOOCANVAS
-
 #include <vector>
 #include <string>
 #include <iostream>
@@ -339,6 +337,5 @@ namespace coot {
    };
 }
 
-#endif // HAVE_GOOCANVAS
 #endif // HAVE_GOOGRAPH_HH
 
