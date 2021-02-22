@@ -1055,6 +1055,7 @@ public:        //                      public
 					   // makes bonds.
 
    void update_symmetry();
+   void make_glsl_symmetry_bonds();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
    void draw_anisotropic_atoms();

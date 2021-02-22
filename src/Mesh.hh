@@ -102,7 +102,14 @@ public:
              bool do_depth_fog);
    void draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation);
    void draw_normals(const glm::mat4 &mvp, float normal_scaling); // debugging
-   void draw_hud_ligand(Shader *shader_p);
+   void draw_symmetry(Shader *shader_p,
+                      const glm::mat4 &mvp,
+                      const glm::mat4 &mouse_based_rotation_matrix,
+                      const std::map<unsigned int, lights_info_t> &lights,
+                      const glm::vec3 &eye_position,
+                      const glm::vec4 &background_colour,
+                      bool do_depth_fog);
+
 
    // the current draw method is a mess with changing between colours and instancing adn idex of the attribute array
    // the new system has this layout:

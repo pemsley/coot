@@ -29,6 +29,14 @@ public:
    s_generic_vertex() {}
 };
 
+class symmetry_atoms_line_vertex {
+public:
+   glm::vec3 pos;
+   glm::vec4 colour;
+   symmetry_atoms_line_vertex(const glm::vec3 &pos_in,
+                              const glm::vec4 &col_in) : pos(pos_in), colour(col_in) {}
+};
+
 // for instanced objects (those animated/moving) the position in molecular space
 // and the colour is dictacted by the instancing matrices (and colours)
 // We don't need to create them here.

@@ -1344,11 +1344,6 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
 }
 
 void
-Mesh::draw_hud_ligand(Shader *shader_p) {
-   
-}
-
-void
 Mesh::draw(Shader *shader_p,
            const glm::mat4 &mvp,
            const glm::mat4 &mouse_based_rotation_matrix,
@@ -1553,6 +1548,16 @@ Mesh::draw(Shader *shader_p,
    if (is_instanced) glDisableVertexAttribArray(6);
    glUseProgram(0);
 
+}
+
+void
+Mesh::draw_symmetry(Shader *shader_p,
+                    const glm::mat4 &mvp,
+                    const glm::mat4 &mouse_based_rotation_matrix,
+                    const std::map<unsigned int, lights_info_t> &lights,
+                    const glm::vec3 &eye_position,
+                    const glm::vec4 &background_colour,
+                    bool do_depth_fog) {
 }
 
 void
