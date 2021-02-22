@@ -855,9 +855,9 @@ float norm_255 = 1.0/255.0;
 
 // this background is too "light" when we zoom in - the depth-cueing looks bad.
 // glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
-glm::vec3 graphics_info_t::background_colour = glm::vec3(32.0 * norm_255,
-                                                         34.0 * norm_255,
-                                                         34.0 * norm_255);
+glm::vec3 graphics_info_t::background_colour = glm::vec3(20.0 * norm_255,
+                                                         20.0 * norm_255,
+                                                         20.0 * norm_255);
 //
 short int graphics_info_t::delete_item_atom = 0;
 short int graphics_info_t::delete_item_residue = 1;
