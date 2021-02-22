@@ -19,7 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
-
+#ifndef ADDITIONAL_REPRESENTATION_HH
+#define ADDITIONAL_REPRESENTATION_HH
 
 namespace coot {
 
@@ -95,3 +96,6 @@ namespace coot {
 
 
 }
+
+#endif // ADDITIONAL_REPRESENTATION_HH
+

@@ -11,11 +11,14 @@
 #include "Particle.hh"
 #include "molecular-triangles-mesh.hh"
 
-#if USE_ASSIMP
+#ifdef USE_ASSIMP
 #include <assimp/scene.h>
 #endif
 
+#ifdef THIS_IS_HMT
+#else
 #include "coords/graphical-bonds-container.hh"
+#endif
 
 class Mesh {
    enum { VAO_NOT_SET = 99999999 };
@@ -61,6 +64,7 @@ public:
    std::vector<g_triangle> triangles;
    Shader shader_for_draw_normals;
    std::string name;
+   unsigned int type; // from molecular triangles object type
 
    Mesh() { init(); }
    // import from somewhere else
@@ -84,6 +88,9 @@ public:
    void set_name(const std::string &n) { name = n; }
    void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
    void import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triangle> &indexed_vertices);
+   void import(const std::vector<position_normal_vertex> &verts,
+               const std::vector<g_triangle> &indexed_vertices,
+               const glm::vec4 &colour);
    void setup(Shader *shader_p, const Material &material_in);
    // can be considered as "draw_self()"
    void draw(Shader *shader,
@@ -209,9 +216,11 @@ public:
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
    bool have_instances() const { return (n_instances > 0); }
+   void translate_by(const glm::vec3 &t);
    bool export_as_obj_via_assimp(const std::string &file_name) const;
    bool export_as_obj_internal(const std::string &file_name) const;
    bool export_as_obj(const std::string &file_name) const;
+   bool export_as_obj(std::ofstream &f, unsigned int vertex_index_offset) const;
 
    // make the matrix (called several times). After which, the calling function calls update_instancing_buffer_data()
    static glm::mat4 make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::vec3 &p2, float theta);

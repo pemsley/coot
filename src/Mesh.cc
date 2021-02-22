@@ -27,8 +27,12 @@
 
 #include "cylinder.hh"
 
+#ifdef THIS_IS_HMT
 // Get rid of this at some stage - needs thinking about meshed objects
+#include "generic-display-object.hh"
+#else
 #include "old-generic-display-object.hh"
+#endif
 
 void
 Mesh::init() {
@@ -110,6 +114,46 @@ Mesh::import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triang
 }
 
 void
+Mesh::import(const std::vector<position_normal_vertex> &verts, const std::vector<g_triangle> &indexed_vertices,
+             const glm::vec4 &colour) {
+
+   is_instanced = false;
+   is_instanced_with_rts_matrix = false;
+
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_tri_base = triangles.size();
+
+   std::vector<s_generic_vertex> gv(verts.size());
+   for (unsigned int ii=0; ii<verts.size(); ii++) {
+      gv[ii].pos    = verts[ii].pos;
+      gv[ii].normal = verts[ii].normal;
+      gv[ii].color  = colour;
+   }
+
+   vertices.insert(vertices.end(), gv.begin(), gv.end());
+   triangles.insert(triangles.end(),
+                    indexed_vertices.begin(),
+                    indexed_vertices.end());
+   if (idx_base != 0)
+      for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+         triangles[i].rebase(idx_base);
+
+   // now the caller function should call setup(shader, material) so that setup_buffers() is run
+
+}
+
+void
+Mesh::translate_by(const glm::vec3 &t) {
+
+   for (unsigned int ii=0; ii<vertices.size(); ii++)
+      vertices[ii].pos += t;
+
+   setup_buffers();
+}
+
+
+
+void
 Mesh::debug() const {
 
    std::cout << "Mesh::debug() " << name << " n-vertices " << vertices.size()
@@ -188,13 +232,19 @@ Mesh::fill_one_dodec() {
 
 }
 
+#ifdef THIS_IS_HMT
+#else
+#include "old-generic-display-object.hh"
+#endif
+
+
 void
 Mesh::add_one_ball(float scale, const glm::vec3 &centre) { // i.e. a smooth-shaded pentakis dodec
 
    pentakis_dodec pkdd(1.05);
    // coordninate system finagalling - baah - convert dodecs to glm.
    clipper::Coord_orth centre_c(centre.x, centre.y, centre.z);
-   coot::old_generic_display_object_t::pentakis_dodec_t penta_dodec(pkdd, 0.01, centre_c); // Hmmm!!!!    
+   coot::old_generic_display_object_t::pentakis_dodec_t penta_dodec(pkdd, 0.01, centre_c);
    std::vector<clipper::Coord_orth> v = penta_dodec.pkdd.d.coords();
 
    unsigned int vertex_index_start_base   = vertices.size();
@@ -476,7 +526,9 @@ Mesh::setup_buffers() {
    if (vertices.empty()) return;
 
    if (first_time) {
-      glGenVertexArrays(1, &vao);
+      glGenVertexArrays (1, &vao);
+      // std::cout << "############## first time: generated VAO " << vao << std::endl;
+      // don't return before we set first_time = false at the end
    }
    glBindVertexArray(vao);
    GLenum err = glGetError();
@@ -2034,6 +2086,9 @@ Mesh::export_as_obj_internal(const std::string &file_name) const {
 
    bool status = true;
 
+   std::cout << "debug:: export_as_obj_internal: n vertices:  " <<  vertices.size() << std::endl;
+   std::cout << "debug:: export_as_obj_internal: n triangles: " << triangles.size() << std::endl;
+
    std::ofstream f(file_name.c_str());
    if (f) {
       f << "# " << name << "\n";
@@ -2063,10 +2118,37 @@ Mesh::export_as_obj_internal(const std::string &file_name) const {
    return status;
 }
 
+bool
+Mesh::export_as_obj(std::ofstream &f, unsigned int vertex_index_offset) const {
 
-#ifdef USE_ASSIMP
+   bool status = true;
+   if (f) {
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const s_generic_vertex &vert = vertices[i];
+         f << "v " << vert.pos.x << " " << vert.pos.y << " " << vert.pos.z;
+         // f << " " << vert.color.r << " " << vert.color.g << " " << vert.color.b;
+         f << "\n";
+      }
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const s_generic_vertex &vert = vertices[i];
+         f << "vn " << vert.normal.x << " " << vert.normal.y << " " << vert.normal.z << "\n";
+      }
+      for (unsigned int i=0; i<triangles.size(); i++) {
+         const g_triangle &tri = triangles[i];
+         f << "f "
+           << tri.point_id[0]+1+vertex_index_offset << "//" << tri.point_id[0]+1+vertex_index_offset << " "
+           << tri.point_id[1]+1+vertex_index_offset << "//" << tri.point_id[1]+1+vertex_index_offset << " "
+           << tri.point_id[2]+1+vertex_index_offset << "//" << tri.point_id[2]+1+vertex_index_offset << "\n";
+      }
+   }
+   return status;
+}
+
+
+
 // We import from assimp from Model and export from Mesh - at the moment
 //
+#ifdef USE_ASSIMP
 #include <assimp/Exporter.hpp>
 #endif // USE_ASSIMP
 

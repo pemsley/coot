@@ -99,7 +99,7 @@ IndexedModel OBJModel::ToIndexedModel()
 
         if (currentIndex->vertexIndex >= vertices.size()) {
            std::cout << "index error i " << i << " currentIndex->vertexIndex " << currentIndex->vertexIndex
-                     << " " << vertices.size() << std::endl;
+                     << " vertices.size() " << vertices.size() << std::endl;
         }
            
         glm::vec3 currentPosition = vertices[currentIndex->vertexIndex];
@@ -110,7 +110,8 @@ IndexedModel OBJModel::ToIndexedModel()
            if (currentIndex->uvIndex < uvs.size()) {
               currentTexCoord = uvs[currentIndex->uvIndex];
            } else {
-              std::cout << "texcoords hassUVs indexing error i " << i << " " << currentIndex->uvIndex << std::endl;
+              std::cout << "texcoords indexing error A i " << i
+                        << " currentIndex->uvIndex " << currentIndex->uvIndex << std::endl;
               currentTexCoord = glm::vec2(0,0);
            }
         else
@@ -120,7 +121,7 @@ IndexedModel OBJModel::ToIndexedModel()
            if (currentIndex->normalIndex < normals.size()) {
               currentNormal = normals[currentIndex->normalIndex];
            } else {
-              std::cout << "normals indexing error i " << i << " " << currentIndex->normalIndex << std::endl;
+              std::cout << "normals indexing error A i " << i << " " << currentIndex->normalIndex << std::endl;
               currentNormal = glm::vec3(0,0,1);
            }
         } else {
@@ -222,7 +223,8 @@ unsigned int OBJModel::FindLastVertexIndex(const std::vector<OBJIndex*>& indexLo
                        if (currentIndex->uvIndex < uvs.size()) {
                           currentTexCoord = uvs[currentIndex->uvIndex];
                        } else {
-                          std::cout << "texcoords hasUVs other indexing error i " << i << " " << currentIndex->uvIndex << std::endl;
+                          std::cout << "texcoords indexing error B i " << i
+                                    << " currentIndex->uvIndex " << uvs.size() << std::endl;
                           currentTexCoord = glm::vec2(0,0);
                        }
                     else
@@ -232,7 +234,8 @@ unsigned int OBJModel::FindLastVertexIndex(const std::vector<OBJIndex*>& indexLo
                        if (currentIndex->normalIndex < normals.size()) {
                           currentNormal = normals[currentIndex->normalIndex];
                        } else {
-                          std::cout << "normals indexing error i " << i << " " << currentIndex->normalIndex << std::endl;
+                          std::cout << "normals indexing error B i " << i << " "
+                                    << currentIndex->normalIndex << std::endl;
                           currentNormal = glm::vec3(0,0,1);
                        }
                     } else {

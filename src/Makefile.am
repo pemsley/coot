@@ -530,6 +530,7 @@ libcootsumo_la_SOURCES = \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
+	Model.cc Model.hh        \
 	make-a-dodec.cc make-a-dodec.hh \
 	matrix-utils.hh          \
 	matrix-utils.cc          \

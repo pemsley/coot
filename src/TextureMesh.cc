@@ -349,6 +349,9 @@ TextureMesh::draw(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "   error draw() " << shader_name << " post-set eye position "
                       << " with GL err " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "   error draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
 
    // this lights block can be in it's own function (same as Mesh)
    std::map<unsigned int, lights_info_t>::const_iterator it;

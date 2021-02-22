@@ -4,7 +4,10 @@
 #include "Texture.hh"
 #include "stb_image.h"
 
+#ifdef THIS_IS_HMT
+#else
 #include "utils/coot-utils.hh"
+#endif
 
 Texture::Texture(const std::string &file_name) {
    init(file_name);

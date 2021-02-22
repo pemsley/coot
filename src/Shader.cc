@@ -46,6 +46,7 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    // clear then go
    VertexSource.clear();
    FragmentSource.clear();
+   std::string::size_type pos = file_name.find_first_of(".shader");
    name = file_name;
    std::string message;
 

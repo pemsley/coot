@@ -114,6 +114,52 @@ molecular_mesh_generator_t::get_max_resno_for_polymer(mmdb::Chain *chain_p) cons
    return res_no_max;
 }
 
+#if 0   // Rainbow ribbons needs fixing.
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
+                                                         mmdb::Chain *chain_p,
+                                                         const std::string &colour_scheme,
+                                                         const std::string &style) {
+
+   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() "
+             << colour_scheme << " " << style << std::endl;
+   
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+
+   if (! mol) {
+      std::cout << "ERROR:: null mol " << __FUNCTION__ << "()" << std::endl;
+      return vp;
+   }
+
+   auto my_mol = std::make_shared<MyMolecule>(mol);
+   auto ss_cs = ColorScheme::colorBySecondaryScheme();
+   auto ribbon_ramp_cs = ColorScheme::colorRampChainsScheme();
+   auto chain_cs = ColorScheme::colorChainsScheme();
+   auto this_cs = chain_cs;
+
+   if (colour_scheme == "colorRampChainsScheme" || colour_scheme == "Ramp") {
+      this_cs = ribbon_ramp_cs;
+      std::cout << "here with colorRampChainsScheme" << std::endl;
+      int nres = chain_p->GetNumberOfResidues();
+      if (nres > 0) {
+         std::string atom_selection_str = "//" + std::string(chain_p->GetChainID());
+         int min_resno = chain_p->GetResidue(0)->GetSeqNum();
+         int max_resno = get_max_resno_for_polymer(chain_p);
+         if (max_resno > 0) {
+            AtomPropertyRampColorRule apcrr;
+            apcrr.setStartValue(min_resno);
+            apcrr.setEndValue(max_resno);
+            auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
+            ribbon_ramp_cs->addRule(apcrr_p);
+            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+            vp = molecular_representation_instance_to_mesh(molrepinst);
+         }
+      }
+   }
+   return vp;
+}
+#endif
 
 std::vector<molecular_triangles_mesh_t>
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
@@ -122,6 +168,8 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &style) {
 
    std::vector<molecular_triangles_mesh_t> mtm;
+
+   // std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
    if (! mol) {
       std::cout << "ERROR:: null mol " << __FUNCTION__ << "()" << std::endl;
@@ -216,30 +264,38 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
       }
 #endif
 
-      for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++) {
+      unsigned int idx = 0;
+      for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++, idx++) {
+
+         molecular_triangles_mesh_t current_primitives;
+
          DisplayPrimitive &displayPrimitive = **displayPrimitiveIter;
-         if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive ||
+         if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive    ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive ||
-             displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BallsPrimitive ||
-             displayPrimitive.type() == DisplayPrimitive::PrimitiveType::CylinderPrimitive ){
+             displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BallsPrimitive      ||
+             displayPrimitive.type() == DisplayPrimitive::PrimitiveType::CylinderPrimitive
+             ) {
+
+            current_primitives.type_index = displayPrimitive.type();
             displayPrimitive.generateArrays();
 
             VertexColorNormalPrimitive &surface = dynamic_cast<VertexColorNormalPrimitive &>(displayPrimitive);
             vertices.resize(surface.nVertices());
 
             auto vcnArray = surface.getVertexColorNormalArray();
-            for (unsigned int iVertex=0; iVertex < surface.nVertices(); iVertex++){
+            for (unsigned int iVertex=0; iVertex < surface.nVertices(); iVertex++) {
                s_generic_vertex &gv = vertices[iVertex];
                VertexColorNormalPrimitive::VertexColorNormal &vcn = vcnArray[iVertex];
-               for (int ii=0; ii<3; ii++) {
-                  gv.pos[ii]    = vcn.vertex[ii];
-                  gv.normal[ii] = vcn.normal[ii];
-                  gv.color[ii]  = 0.0037f * vcn.color[ii];
+               for (int i=0; i<3; i++) {
+                  gv.pos[i]    = vcn.vertex[i];
+                  gv.normal[i] = vcn.normal[i];
+                  gv.color[i]  = 0.0037f * vcn.color[i];
                }
                gv.color[3] = 1.0;
             }
 
             auto indexArray = surface.getIndexArray();
+            triangles.clear();
             unsigned long nIndices = 3 * surface.nTriangles();
             triangles.resize(surface.nTriangles());
             for (unsigned int iTriangle=0; iTriangle<surface.nTriangles(); iTriangle++){
@@ -247,14 +303,15 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                for (int ii=0; ii<3; ii++)
                   gt[ii] = indexArray[3*iTriangle+ii];
             }
-            // add_to_mesh(&vp, vertices, triangles);
-            // mtm.add_to_mesh(vertices, triangles);
-            std::string prim_name = "displayPrimitiveNameHere";
-            molecular_triangles_mesh_t prim(vertices, triangles, prim_name);
-            mtm.push_back(prim);
+            current_primitives.add_to_mesh(vertices, triangles);
          }
-      }
-   }
+
+         if (! current_primitives.vertices.empty())
+            mtm.push_back(current_primitives);
+
+      } // end of displayPrimitive loop
+
+   } // valid model_p test
 
    std::cout << "INFO:: " << __FUNCTION__  << "() n_primitives: " << mtm.size() << std::endl;
    return mtm;
