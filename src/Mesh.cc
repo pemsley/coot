@@ -69,7 +69,6 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
    name = mtm.name;
 }
 
-
 void
 Mesh::close() {
 
@@ -530,6 +529,8 @@ Mesh::setup_buffers() {
       // std::cout << "############## first time: generated VAO " << vao << std::endl;
       // don't return before we set first_time = false at the end
    }
+
+   std::cout << "Mesh::setup_buffers() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    GLenum err = glGetError();
    if (err) std::cout << "error setup_buffers() on binding vao " << vao << " error "
@@ -789,7 +790,6 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_DYNAMIC_DRAW);
    err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
 
-   glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "GL error #####"
                       << " setup_vertex_and_instancing_buffers_for_particles() --- end --- "
@@ -1234,6 +1234,7 @@ Mesh::draw_instanced(Shader *shader_p,
    if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: You forgot to setup this Mesh " << name << " " << shader_p->name << std::endl;
 
+   std::cout << "Mesh::draw_instanced() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw_instanced() " << shader_name << " " << name
@@ -1444,6 +1445,7 @@ Mesh::draw(Shader *shader_p,
       std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
                 << shader_p->name << std::endl;
 
+   std::cout << "Mesh::draw() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw() " << shader_name << " " << name
@@ -1550,6 +1552,7 @@ Mesh::draw(Shader *shader_p,
 
 }
 
+// draw symmetry with lines
 void
 Mesh::draw_symmetry(Shader *shader_p,
                     const glm::mat4 &mvp,
@@ -1558,6 +1561,54 @@ Mesh::draw_symmetry(Shader *shader_p,
                     const glm::vec3 &eye_position,
                     const glm::vec4 &background_colour,
                     bool do_depth_fog) {
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
+                << shader_p->name << std::endl;
+
+   shader_p->Use();
+   GLenum err = glGetError();
+   if (err) std::cout << "error:: Mesh::draw_symmetry() " << shader_p->name << " " << name
+                      << " use shader with GL err " << err << std::endl;
+
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err) std::cout << "error:: Mesh::draw_symmetry() " << shader_p->name << " " << name
+                      << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: " << shader_p->name << " Mesh::draw_symmetry() post mvp uniform "
+                      << err << std::endl;
+
+   // is this needed?
+   // glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() " << err << std::endl;
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+
+   shader_p->set_vec4_for_uniform("background_colour", background_colour);
+   shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+   glLineWidth(5.0);
+   unsigned int n_verts = n_symmetry_atom_lines_vertices;
+
+   unsigned int first = 0;
+   if (n_verts > 1211111111) {
+      n_verts = 12;
+      first = 6;
+   }
+
+   glDrawArrays(GL_LINES, first, n_verts); // first and count
+   err = glGetError();
+   if (err) std::cout << "error:: Mesh::draw_symmetry() " << shader_p->name << " " << name
+                      << " post glDrawArrays() " << vao << " with GL err " << err << std::endl;
+
+   if (false) {
+      // why does this do damage? Anyway, the "switch" is done by binding the VAO
+      glDisableVertexAttribArray(0);
+      glDisableVertexAttribArray(1);
+   }
+   glBindVertexArray(0);
 }
 
 void

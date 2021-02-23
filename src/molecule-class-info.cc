@@ -1342,7 +1342,7 @@ molecule_class_info_t::update_symmetry() {
          std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
             extents.which_boxes(point, atom_sel, shift_search_size);
 
-         std::cout << "debug:: update_symmetry() have " << symm_trans_boxes.size() << " symtryans boxes" << std::endl;
+         std::cout << "debug:: update_symmetry() have " << symm_trans_boxes.size() << " sym-trans boxes" << std::endl;
 
          if (symm_trans_boxes.size() > 0) {
 
@@ -2358,13 +2358,6 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 void
 molecule_class_info_t::display_bonds(bool against_a_dark_background) {
 
-   display_bonds(bonds_box, bond_width, against_a_dark_background);
-   for (unsigned int i=0; i<add_reps.size(); i++) {
-      if (add_reps[i].show_it) {
-    display_bonds(add_reps[i].bonds_box, add_reps[i].bond_width, against_a_dark_background);
-      }
-   }
-   display_symmetry_bonds();
 }
 
 
@@ -3887,23 +3880,48 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
     } else {
        setup_glsl_bonds_buffers(vertices, triangles);
     }
- }
+}
 
+void
+molecule_class_info_t::make_glsl_symmetry_bonds() {
+
+   // do things with symmetry_bonds_box;
+   // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   Shader &shader = graphics_info_t::shader_for_symmetry_atoms_bond_lines;
+   mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(&shader, symmetry_bonds_box); // boxes
+}
 
 
 void
-   molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
-                                                  const glm::mat4 &mvp,
-                                                  const glm::mat4 &view_rotation_matrix,
-                                                  const std::map<unsigned int, lights_info_t> &lights,
-                                                  const glm::vec3 &eye_position, // eye position in view space (not molecule space)
-                                                  const glm::vec4 &background_colour,
-                                                  bool do_depth_fog) {
+molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
+                                               const glm::mat4 &mvp,
+                                               const glm::mat4 &view_rotation_matrix,
+                                               const std::map<unsigned int, lights_info_t> &lights,
+                                               const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                               const glm::vec4 &background_colour,
+                                               bool do_depth_fog) {
 
    molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
    molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
    molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
 
+}
+
+void
+molecule_class_info_t::draw_symmetry(Shader *shader_p,
+                                     const glm::mat4 &mvp,
+                                     const glm::mat4 &view_rotation,
+                                     const std::map<unsigned int, lights_info_t> &lights,
+                                     const glm::vec3 &eye_position,
+                                     const glm::vec4 &background_colour,
+                                     bool do_depth_fog) {
+
+   if (draw_it)
+      if (show_symmetry)
+         mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
+                                               eye_position, background_colour, do_depth_fog);
 }
 
  
@@ -3915,9 +3933,9 @@ molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_r
 }
 
 
- void
-    molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
-                                                    const std::vector<g_triangle> &triangles) {
+void
+molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
+                                                const std::vector<g_triangle> &triangles) {
 
     if (false)
        std::cout << "debug:: in setup_glsl_bonds_buffers() with vertices size " << vertices.size()
@@ -4022,8 +4040,8 @@ molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_r
 }
 
 void
-   molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
-                                                  const char *caller) {
+molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
+                                               const char *caller) {
 
    if (false)
       std::cout << "debug::make_bonds_type_checked(no-bonds-set) "

@@ -1,4 +1,4 @@
-
+//
 #ifndef MESH_HH
 #define MESH_HH
 
@@ -18,6 +18,7 @@
 #ifdef THIS_IS_HMT
 #else
 #include "coords/graphical-bonds-container.hh"
+#include "coords/mmdb-crystal.h"
 #endif
 
 class Mesh {
@@ -54,6 +55,7 @@ public:
    GLuint inst_model_translation_buffer_id;
    GLuint inst_colour_buffer_id;
    GLuint inst_scales_buffer_id;
+   unsigned int n_symmetry_atom_lines_vertices;
    bool this_mesh_is_closed;
    bool draw_this_mesh;
    bool is_instanced;
@@ -186,6 +188,8 @@ public:
                                    unsigned int n_slices,
                                    unsigned int n_stacks,
                                    glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+   void make_symmetry_atoms_bond_lines(Shader *shader_p,
+                                  const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes);
 
    // update vertices
    // the vertices have been updated (externally) (say by position and colour) so they need to

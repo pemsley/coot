@@ -3538,6 +3538,8 @@ public:        //                      public
    // these are for specific molecule-based objects using instancing Mesh
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
    Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
+   // And now symmetry atoms are displayed as a Mesh
+   Mesh mesh_for_symmetry_atoms;
 
    // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
    // instances of cylinders and spheres and hemispheres. Put them in a Model at some stage.
@@ -3556,6 +3558,13 @@ public:        //                      public
                                 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                                 const glm::vec4 &background_colour,
                                 bool do_depth_fog);
+   void draw_symmetry(Shader *shader_p,
+                      const glm::mat4 &mvp,
+                      const glm::mat4 &mouse_based_rotation_matrix,
+                      const std::map<unsigned int, lights_info_t> &lights,
+                      const glm::vec3 &eye_position,
+                      const glm::vec4 &background_colour,
+                      bool do_depth_fog);
 
    // float scale_factor 4 , float offset 3
    void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);

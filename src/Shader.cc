@@ -205,6 +205,7 @@ void Shader::set_uniform_locations() {
        entity_type == Entity_t::GENERIC_DISPLAY_OBJECT) {
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 0: " << err << std::endl;
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
+
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
       view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2: " << err << std::endl;

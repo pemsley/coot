@@ -4132,6 +4132,7 @@ string   static std::string sessionid;
    static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
+   static Shader shader_for_symmetry_atoms_bond_lines;
    static Shader shader_for_lines;
    static Shader shader_for_rama_balls;
    static Shader shader_for_particles;

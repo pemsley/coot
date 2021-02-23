@@ -415,3 +415,96 @@ Mesh::make_graphical_bonds_bonds(Shader *shader_p,
                       << err << std::endl;
 
 }
+
+
+void
+Mesh::make_symmetry_atoms_bond_lines(Shader *shader_p,
+                                     const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symm_boxes) {
+
+   // this function doesn't use setup_buffers() becuase all it is making is unindexed lines
+
+   auto get_colour = [] (int icol, int isymop) {
+                        glm::vec4 c(0.5, 0.5, 0.5, 1.0);
+                        if (icol == 1) { c.x = 0.7; c.y = 0.7; }
+                        if (icol == 2) { c.x = 0.8; c.y = 0.4; c.z = 0.4; }
+                        if (icol == 3) { c.z = 0.8; c.x = 0.4; c.y = 0.4; }
+                        return c;
+                     };
+
+   if (first_time) {
+      glGenVertexArrays(1, &vao);
+      std::cout << "make_symmetry_atoms_bond_lines() created vao " << vao << std::endl;
+   } else {
+      std::cout << "make_symmetry_atoms_bond_lines() using pre-existing vao " << vao << std::endl;
+   }
+   glBindVertexArray(vao);
+
+   // first count the number of lines, so that we can size the buffer
+   unsigned int n_lines = 0;
+   for (unsigned int i=0; i<symm_boxes.size(); i++) {
+      const std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > &s_box = symm_boxes[i];
+      const graphical_bonds_container &gbc = s_box.first;
+      if (gbc.symmetry_has_been_created == 1) {
+         for (int icol=0; icol<gbc.num_colours; icol++) {
+            graphical_bonds_lines_list<graphics_line_t> &ll = gbc.symmetry_bonds_[icol];
+            n_lines += ll.num_lines;
+         }
+      }
+   }
+
+   n_symmetry_atom_lines_vertices = n_lines * 2;
+   std::vector<symmetry_atoms_line_vertex> vertices_for_symmetry_atoms_lines(n_symmetry_atom_lines_vertices);
+
+   unsigned int icount = 0;
+   for (unsigned int i=0; i<symm_boxes.size(); i++) {
+      const std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > &s_box = symm_boxes[i];
+      const graphical_bonds_container &gbc = s_box.first;
+      int isymop = s_box.second.first.isym();
+      if (gbc.symmetry_has_been_created == 1) {
+         for (int icol=0; icol<gbc.num_colours; icol++) {
+            // set the colour using icol and isymop
+            glm::vec4 col = get_colour(icol, isymop);
+            graphical_bonds_lines_list<graphics_line_t> &ll = gbc.symmetry_bonds_[icol];
+            for (int j=0; j<ll.num_lines; j++) {
+               glm::vec3 pos_1(ll.pair_list[j].positions.getStart().get_x(),
+                               ll.pair_list[j].positions.getStart().get_y(),
+                               ll.pair_list[j].positions.getStart().get_z());
+               glm::vec3 pos_2(ll.pair_list[j].positions.getFinish().get_x(),
+                               ll.pair_list[j].positions.getFinish().get_y(),
+                               ll.pair_list[j].positions.getFinish().get_z());
+               vertices_for_symmetry_atoms_lines[icount  ].pos = pos_1;
+               vertices_for_symmetry_atoms_lines[icount+1].pos = pos_2;
+               vertices_for_symmetry_atoms_lines[icount  ].colour = col;
+               vertices_for_symmetry_atoms_lines[icount+1].colour = col;
+               icount += 2;
+            }
+         }
+      }
+   }
+
+   if (first_time) {
+   } else {
+      glDeleteBuffers(1, &buffer_id);
+   }
+   unsigned int buffer_size = n_lines * 2 * sizeof(symmetry_atoms_line_vertex);
+   glGenBuffers(1, &buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   glBufferData(GL_ARRAY_BUFFER, buffer_size, &(vertices_for_symmetry_atoms_lines[0]), GL_STATIC_DRAW);
+
+   glEnableVertexAttribArray(0); // position
+   glEnableVertexAttribArray(1); // colour
+
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(symmetry_atoms_line_vertex), 0);
+   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(symmetry_atoms_line_vertex), reinterpret_cast<void *>(sizeof(glm::vec3)));
+
+   // glDisableVertexAttribArray(0);
+   // glDisableVertexAttribArray(1);
+
+   glBindVertexArray(0); // we don't need to disable the vertexattribarray if we unbind the vertex array
+   GLenum err = glGetError();
+   if (err) std::cout << "error Mesh::make_symmetry_atoms_bond_lines() check-before-return error "
+                      << err << std::endl;
+
+   first_time = false;
+
+}

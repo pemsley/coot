@@ -16,6 +16,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_map_caps,
                                                            shader_for_models,
                                                            shader_for_model_as_meshes,
+                                                           shader_for_symmetry_atoms_bond_lines,
                                                            shader_for_central_cube,
                                                            shader_for_origin_cube,
                                                            shader_for_hud_text,
@@ -60,6 +61,7 @@ graphics_info_t::init_shaders() {
    shader_for_happy_face_residue_markers.init("happy-face-residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_ligand_view.init("ligand-view.shader", Shader::Entity_t::NONE);
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
+   shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.

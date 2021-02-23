@@ -35,6 +35,7 @@ public:
    glm::vec4 colour;
    symmetry_atoms_line_vertex(const glm::vec3 &pos_in,
                               const glm::vec4 &col_in) : pos(pos_in), colour(col_in) {}
+   symmetry_atoms_line_vertex() {}
 };
 
 // for instanced objects (those animated/moving) the position in molecular space

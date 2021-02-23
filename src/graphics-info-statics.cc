@@ -65,6 +65,7 @@ Shader graphics_info_t::shader_for_map_caps;
 Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_model_as_meshes;
 Shader graphics_info_t::shader_for_moleculestotriangles;
+Shader graphics_info_t::shader_for_symmetry_atoms_bond_lines;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
@@ -186,7 +187,7 @@ fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
-Mesh graphics_info_t::mesh_for_hydrogen_bonds;;
+Mesh graphics_info_t::mesh_for_hydrogen_bonds;
 
 LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
 LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
