@@ -152,8 +152,9 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    space_group_number = *reinterpret_cast<int *>(data+88);
    if (space_group_number == 0) // EM, maybe chimera maps
       space_group_number = 1;
-   int size_extended_header = -1;
+   int size_extended_header = 0;
    size_extended_header = *reinterpret_cast<int *>(data+92);
+   std::cout << "##### size_extended_header " << size_extended_header << std::endl;
    char *extra = data+96; // 100 bytes max
    char *ext_type = data+104; // 1 byte
    char *version = data+108;  // 1 byte
@@ -192,7 +193,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
       std::cout << "   " << s << std::endl;
    }
 
-   char *map_data = data + 1024; // points to the start of the grid (of 4 byte floats)
+   char *map_data = data + size_extended_header + 1024; // points to the start of the grid (of 4 byte floats)
 
    int index_axis_order[3];
    index_axis_order[axis_order_xyz[0]] = mx;
