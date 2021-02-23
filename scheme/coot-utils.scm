@@ -1609,9 +1609,9 @@
 
     (define tf
       (lambda (imol mat trans about-pt radius space-group cell)
-	
-;	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
-;		imol mat trans about-pt radius space-group cell)
+
+	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
+		imol mat trans about-pt radius space-group cell)
 
 	(transform-map-raw imol 
 			   (list-ref mat 0) 
@@ -1637,7 +1637,8 @@
 			   (list-ref cell 3) 
 			   (list-ref cell 4) 
 			   (list-ref cell 5))))
-    
+
+    (format #t  "debug:: transform-map was passed ~s~%" args)
 
     ;; main line
     (cond 
@@ -1719,10 +1720,17 @@
   (let ((space-group (symmetry-operators->xHM 
 		      (symmetry-operators imol-ref)))
 	(cell-params (cell imol-ref)))
+
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-ref ~s~%" imol-ref)
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-mov ~s~%" imol-mov)
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-map ~s~%" imol-map)
+    (format #t "debug:: transform-map-using-lsq-matrix: symmetry-operators imol-ref ~s~%" (symmetry-operators imol-ref))
+    (format #t "debug:: transform-map-using-lsq-matrix: space-group ~s~%" space-group)
+    (format #t "debug:: transform-map-using-lsq-matrix: cell-params ~s~%" cell-params)
     
     (if (not (and space-group cell-params))
-	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
-			       cell space-group imol-ref)))
+	(let ((message (format #f "Bad cell or symmetry ~s ~s for molecule ~s~%"
+			       cell-params space-group imol-ref)))
 	  message) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
