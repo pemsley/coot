@@ -1942,7 +1942,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    bool em = false;
    map_name = filename;
 
-   if ( map_file_type == CCP4 ) {
+   if (map_file_type == CCP4) {
 
       bool done = false;
       if (coot::util::is_basic_em_map_file(filename)) {
