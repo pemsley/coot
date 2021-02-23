@@ -3969,6 +3969,11 @@ fi
 # run tests
 echo running tests...
 
+# before we do lets slim the binary
+cd $install_top_dir/bin
+strip --strip-unneeded coot-bin.exe
+cd -
+
 if test "$run_tests" = true ; then
    # download the test data to make sure we have the latest version.
    echo downloading test data...
