@@ -92,8 +92,9 @@ dist_cootdata_assign_side_chain_data_DATA = useable-grid-points-nstep=5,box_radi
 # this block is a bit dodgy, I feel. It uses tar to install a directory of data files
 .PHONY: install_side_chain_data
 
+# thanks John Bollinger
 install_side_chain_data: install-dist_cootdataDATA
-	$(MKDIR_P) $(cootdata_assign_side_chain_datadir) && $(AMTAR) -x -C $(cootdata_assign_side_chain_datadir) -f $(top_srcdir)/ligand/side-chain-data.tar.gz
+	$(MKDIR_P) $(DESTDIR)$(cootdata_assign_side_chain_datadir) && $(AMTAR) -x -C $(DESTDIR)$(cootdata_assign_side_chain_datadir) -f $(top_srcdir)/ligand/side-chain-data.tar.gz
 
 install-data-local: install_side_chain_data
 
