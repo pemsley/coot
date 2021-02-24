@@ -1535,7 +1535,7 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 			bool is_fixed_second_residue = res_2_pair.first;
 
 			if (false)
-			   std::cout << "adding link bond: "
+			   std::cout << "###################### adding link bond: "
 				     << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
 
 			lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
@@ -2047,6 +2047,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  // it was a new pair.
 
 		  if (false) {
+                     std::cout << "                 Here A with at_1 at_2 "
+                               << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
 		     std::cout << "failed to find these residues in the polyer-linked set: "
 			       << residue_spec_t(res_1) << " "
 			       << residue_spec_t(res_2) << std::endl;
@@ -2073,7 +2075,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		     continue;
 
 		  if (false)
-		     std::cout << "------- considering " << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
+		     std::cout << "---- for atom pair " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                               << "considering residues " << residue_spec_t(res_1) << " to " << residue_spec_t(res_2)
 			       << std::endl;
 
 		  // not sure that this is what I want now, really

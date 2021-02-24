@@ -2870,7 +2870,8 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_1,
 					   const std::string &comp_id_2,
 					   const std::string &group_2) const {
-   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 1);
+   bool allow_peptide_link_flag = true;
+   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, allow_peptide_link_flag);
 }
 
 // throw an error on no chem links at all. (20100420, not sure why an
@@ -2887,10 +2888,10 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_2,
 					   bool allow_peptide_link_flag) const {
 
-   bool switch_order_flag = 0;
+   bool switch_order_flag = false;
    bool found = false;
    bool debug = false;
-   
+
    if (debug) {
       std::cout << "---------------------- Here are the chem_links: -----------------"
 		<< std::endl;
@@ -2904,7 +2905,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    unsigned int search_hash_code_b = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, group_1);
 
    if (debug)
-      std::cout << "DEBUG:: here in matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
+      std::cout << "DEBUG:: matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
 		<< comp_id_1 << " " << comp_id_2 << " groups: " << group_1 << " " << group_2 << std::endl;
 
    // Is this link a TRANS peptide or a CIS?  Both have same group and
@@ -2925,8 +2926,8 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
    if (debug) {
       if (it != chem_link_map.end()) {
-	 std::cout << "matching_chem_link() found the hash at least! " << std::endl;
-         std::cout << "Here is the vector of chem links in the map:" << std::endl;
+	 std::cout << "DEBUG:: matching_chem_link() found the hash at least! " << std::endl;
+         std::cout << "DEBUG:: matching_chem_link() Here is the vector of chem links in the map:" << std::endl;
          const std::vector<chem_link> &v = it->second;
          std::vector<chem_link>::const_iterator itv;
          for (itv=v.begin(); itv!=v.end(); itv++) {
@@ -2934,7 +2935,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
             std::cout << "                 " << cl << std::endl;
          }
       } else {
-	 std::cout << "matching_chem_link() failed to find hash " << search_hash_code_f << " "
+	 std::cout << "DEBUG:: matching_chem_link() failed to find hash " << search_hash_code_f << " "
 		   << search_hash_code_b << std::endl;
       }
    }
@@ -2944,7 +2945,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       // NAG-ASN for example
 
       if (debug)
-	 std::cout << "iterator hit the chem_link_map end" << std::endl;
+	 std::cout << "DEBUG:: matching_chem_link() iterator hit the chem_link_map end" << std::endl;
 
       unsigned int search_bl_1_f  = chem_link::make_hash_code(comp_id_1, comp_id_2, "", group_2);
       unsigned int search_bl_1_b  = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, "");
@@ -2995,7 +2996,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       }
 
       if (debug) {
-	 std::cout << "-------- here with candidate_chem_links size ------- "
+	 std::cout << "DEBUG:: matching_chem_link() -------- here with candidate_chem_links size ------- "
 		   << candidate_chem_links.size() << std::endl;
 	 std::set<chem_link>::const_iterator it;
 	 for(it=candidate_chem_links.begin(); it!=candidate_chem_links.end(); it++)
@@ -3018,10 +3019,14 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 		  found = true;
 		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
 
-		  // std::cout << "::::::::: adding matching chem link " << cl << std::endl;
+                  if (debug)
+                     std::cout << "DEBUG:: matching_chem_link() ::::::::: pushing back matching chem link " << cl << std::endl;
 		  matching_chem_links.push_back(p);
 	       }
-	    }
+	    } else {
+               if (debug)
+                  std::cout << "DEBUG:: matching_chem_links() test for matches_comp_ids_and_groups failed " << std::endl;
+            }
 	 }
       }
 
@@ -3045,7 +3050,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug)
-	    std::cout << "... matching_chem_link: found matching link "
+	    std::cout << "DEBUG:: matching_chem_links() ... matching_chem_link: found matching link "
 		      << comp_id_1 << " " << comp_id_2 << " " 
 		      << cl << std::endl;
 
@@ -3059,18 +3064,24 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 		  switch_order_flag = match_res.second;
 		  found = true;
 		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+                  if (debug)
+                     std::cout << "DEBUG:: matching_chem_link(): pushing back chem link " << cl << " " << switch_order_flag
+                               << std::endl;
 		  matching_chem_links.push_back(p);
 
 	       } else {
 		  if (debug)
-		     std::cout << "    reject link on peptide/allow-peptide test " << std::endl;
+		     std::cout << "    reject link " << cl.Id() << " on peptide/allow-peptide test " << std::endl;
 	       }
 	    } else {
 	       if (debug) {
 		  std::cout << "    reject link \"" << cl.Id() << "\"" << std::endl;
 	       }
 	    }
-	 }
+	 } else {
+            if (debug)
+               std::cout << "    reject link " << cl.Id() << " matches_comp_ids_and_groups() found no match" << std::endl;
+         }
       }
    }
 
@@ -3079,7 +3090,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    // do).
    // 
    if ( (!found) && (allow_peptide_link_flag)) {
-      std::string rte = "INFO:: No chem link for groups \"";
+      std::string rte = "INFO:: matching_chem_links() No chem link for groups \"";
       rte += group_1;
       rte += "\" \"";
       rte += group_2;

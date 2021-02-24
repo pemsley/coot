@@ -658,14 +658,14 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	    // that 5 atom rings need to be excluded in this manner.
 	    //
 	    if (it_1->first == "CR15" || it_1->first == "CR16" || it_1->first == "CR1"  ||
-		it_1->first == "CR6"  || it_1->first == "CR5"  || it_1->first == "CR5"  ||
+		it_1->first == "CR6"  ||
 		it_1->first == "CR56" || it_1->first == "CR5"  || it_1->first == "CR66" ||
 		it_1->first == "NPA"  || it_1->first == "NPB"  || it_1->first == "NRD5" ||
 		it_1->first == "NRD6" || it_1->first == "NR15" || it_1->first == "NR16" ||
 		it_1->first == "NR6"  || it_1->first == "NR5") {
 
 	       if (it_2->first == "CR15" || it_2->first == "CR16" || it_2->first == "CR1"  ||
-		   it_2->first == "CR6"  || it_2->first == "CR5"  || it_2->first == "CR5"  ||
+		   it_2->first == "CR6"  ||
 		   it_2->first == "CR56" || it_2->first == "CR5"  || it_2->first == "CR66" ||
 		   it_2->first == "NPA"  || it_2->first == "NPB"  || it_2->first == "NRD5" ||
 		   it_2->first == "NRD6" || it_2->first == "NR15" || it_2->first == "NR16" ||
@@ -690,7 +690,7 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
             } else {
                // actual hydrogens to acceptors can be shorter still
                if (it_1->second.hb_type == coot::HB_HYDROGEN)
-               r.second -= 0.38; // was 0.4
+                  r.second -= 0.38; // was 0.4
             }
             done_hb_shorten = true;
 	 } else {
