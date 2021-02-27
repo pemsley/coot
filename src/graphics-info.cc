@@ -3801,19 +3801,19 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    }
 //    std::cout << "DEBUG: in graphics: cg_start: " << cg_start.format() << "  "
 // 	     << use_cg_start << std::endl;
-   *baton_next_ca_options = molecules[imol_for_skel].next_ca_by_skel(previous_ca_positions,
-								     cg_start,
-								     use_cg_start,
-								     3.8,
-								     skeleton_level,
-								     max_skeleton_search_depth);
+   baton_next_ca_options = molecules[imol_for_skel].next_ca_by_skel(previous_ca_positions,
+                                                                    cg_start,
+                                                                    use_cg_start,
+                                                                    3.8,
+                                                                    skeleton_level,
+                                                                    max_skeleton_search_depth);
 
    // Print out the baton_next_ca_options
    //
    std::cout << "-- baton_next_ca_options" << std::endl;
-   for(unsigned int i=0; i<baton_next_ca_options->size(); i++) {
-      std::cout << "   " << (*baton_next_ca_options)[i].score  << "  "
-		<< (*baton_next_ca_options)[i].position.format() << std::endl;
+   for(unsigned int i=0; i<baton_next_ca_options.size(); i++) {
+      std::cout << "   " << baton_next_ca_options[i].score  << "  "
+		<< baton_next_ca_options[i].position.format() << std::endl;
    }
    std::cout << "--" << std::endl;
 
@@ -3821,9 +3821,9 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    //
    std::string molname("Baton Atom Guide Points");
    if (baton_tmp_atoms_to_new_molecule) {
-      create_molecule_and_display(*baton_next_ca_options, molname);
+      create_molecule_and_display(baton_next_ca_options, molname);
    } else {
-      update_molecule_to(*baton_next_ca_options, molname);
+      update_molecule_to(baton_next_ca_options, molname);
    }
 }
 
@@ -4003,10 +4003,10 @@ graphics_info_t::accept_baton_position() {
       std::cout << "Ooops:: must have a skeleton first" << std::endl;
    } else {
       short int use_cg = 1;
-      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options->size() << " "
+      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options.size() << " "
 		<< baton_next_ca_options_index << std::endl;
-      if (baton_next_ca_options->size() > 0) {
-	 clipper::Coord_grid cg = (*baton_next_ca_options)[baton_next_ca_options_index].near_grid_pos;
+      if (baton_next_ca_options.size() > 0) {
+	 clipper::Coord_grid cg = baton_next_ca_options[baton_next_ca_options_index].near_grid_pos;
 	 baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
       } else {
 	 clipper::Coord_grid cg;
@@ -4035,32 +4035,26 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
    coot::Cartesian tip_pos(0.0, 0.0, 0.0);
    unsigned int uindex = index;
 
-   if (!baton_next_ca_options) {
-      std::cout << "ERROR: baton_next_ca_options is NULL\n";
-   } else {
-      if (uindex >= baton_next_ca_options->size()) {
-	 if ((uindex == 0) && (baton_next_ca_options->size() == 0)) {
+   {
+      if (uindex >= baton_next_ca_options.size()) {
+	 if ((uindex == 0) && (baton_next_ca_options.size() == 0)) {
 	    std::cout << "INFO:: no baton next positions from here\n";
 	    tip_pos = non_skeleton_tip_pos();
 	 } else {
 	    std::cout << "ERROR: bad baton_next_ca_options index: "
-		      << index << " size " << baton_next_ca_options->size()
+		      << index << " size " << baton_next_ca_options.size()
 		      << std::endl;
 	 }
       } else {
 	 // now we want a vector baton_length in the direction starting
 	 // at baton_root to baton_next_ca_options[index]
 	 //
-	 coot::Cartesian target_point = to_cartesian((*baton_next_ca_options)[index].position);
+	 coot::Cartesian target_point = to_cartesian(baton_next_ca_options[index].position);
 	 std::cout << "Ca option " << index << " score: "
-		   << (*baton_next_ca_options)[index].score << std::endl;
-
+		   << baton_next_ca_options[index].score << std::endl;
 	 coot::Cartesian target_dir = target_point - baton_root;
-
 	 target_dir.unit_vector_yourself();
-
 	 target_dir *= baton_length;
-
 	 tip_pos = target_dir + baton_root;
       }
    }
@@ -4122,7 +4116,7 @@ graphics_info_t::baton_tip_try_another() {
    baton_next_ca_options_index++;
 
    // make baton_next_ca_options_index an unsigned int
-   if (baton_next_ca_options_index >= int(baton_next_ca_options->size())) {
+   if (baton_next_ca_options_index >= int(baton_next_ca_options.size())) {
       std::cout << "info: cycling back to start of ca options" << std::endl;
       baton_next_ca_options_index = 0;
    }
@@ -4136,7 +4130,7 @@ void
 graphics_info_t::baton_tip_previous() {
 
    if (baton_next_ca_options_index == 0) {
-      baton_next_ca_options_index = int(baton_next_ca_options->size()-1);
+      baton_next_ca_options_index = int(baton_next_ca_options.size()-1);
    } else {
       baton_next_ca_options_index--;
    }

@@ -373,8 +373,8 @@ short int graphics_info_t::draw_baton_flag = 0; // off initially
 short int graphics_info_t::baton_mode = 0;      // rotation mode
 coot::Cartesian graphics_info_t::baton_root = coot::Cartesian(0.0, 0.0, 0.0);
 coot::Cartesian graphics_info_t::baton_tip =  coot::Cartesian(0.0, 0.0, 3.8);
-std::vector<coot::scored_skel_coord> *graphics_info_t::baton_next_ca_options = NULL;
-std::vector<clipper::Coord_orth> *graphics_info_t::baton_previous_ca_positions = NULL;
+std::vector<coot::scored_skel_coord> graphics_info_t::baton_next_ca_options;
+std::vector<clipper::Coord_orth> graphics_info_t::baton_previous_ca_positions;
 short int graphics_info_t::baton_build_direction_flag = 1; // forwards by default
 int graphics_info_t::baton_build_start_resno = 1;
 short int graphics_info_t::baton_build_params_active = 0; // not active initially.
