@@ -1461,7 +1461,7 @@ public:
 
    // 0: never run it
    // 1: ask to run it
-   // 2: alwasy run it
+   // 2: run it without asking
    static short int run_state_file_status;
    static bool state_file_was_run_flag;
    static bool run_startup_scripts_flag;
