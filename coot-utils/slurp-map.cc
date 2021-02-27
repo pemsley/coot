@@ -31,7 +31,7 @@ bool
 coot::util::is_basic_em_map_file(const std::string &file_name) {
 
    clipper::Xmap<float> xmap;
-   return slurp_fill_xmap_from_map_file(file_name, &xmap, true);
+   return slurp_fill_xmap_from_map_file(file_name, &xmap, true); // check-only mode
 }
 
 bool

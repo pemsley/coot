@@ -417,7 +417,75 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
-   if (true) {
+   if (false) {
+
+      // test local map sharpening
+
+      // I had intended to use this for interactive local map sharpening.
+      // i.e. move a small map fragment to the origin,
+      //      sharpen/blur that map
+      //      transfer those grid coordinates back to where they came from
+      // but the function crashes.
+
+      // multisharpen_box(int imol_map, imol_map_ref, position, box_radius, float b_factor)
+
+      // first create a target molecule for the interactively sharpened map
+      int imol_map = scm_to_int(i_scm);
+      int imol_map_updating = copy_molecule(imol_map);
+      float cl = get_contour_level_absolute(imol_map);
+      set_contour_level_absolute(imol_map_updating, cl);
+
+      // now sharpen/blur
+      float box_radius = 10.0;
+      float b_factor = 12.0; // blur
+      graphics_info_t g;
+      coot::Cartesian pos = g.RotationCentre();
+      clipper::Coord_orth centre(pos.x(), pos.y(), pos.z());
+
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float>    &xmap = g.molecules[imol_map].xmap;
+         clipper::Xmap<float> &xmap_updating = g.molecules[imol_map_updating].xmap;
+
+         coot::util::map_fragment_info_t mfi(xmap, centre, box_radius, true);
+         mfi.simple_origin_shift(xmap, centre, box_radius);
+
+         // is the map in mfi sensible?
+         if (true) {
+            int imol_new_map = graphics_info_t::create_molecule();
+            std::cout << "INFO:: Creating origin map in molecule number " << imol_new_map << std::endl;
+            bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+            is_em_map_flag = false;
+            std::string old_name = graphics_info_t::molecules[imol_map].get_name();
+            std::string new_name = "Origin Fragment Map from " + old_name;
+            g.molecules[imol_new_map].install_new_map(mfi.xmap, new_name, is_em_map_flag);
+         }
+
+         // coot::util::sharpen_blur_map(&mfi.xmap, b_factor); // put this inside mfi
+
+         // is the blur map in mfi sensible?
+         if (false) {
+            int imol_new_map = graphics_info_t::create_molecule();
+            std::cout << "INFO:: Creating blurred origin map in molecule number " << imol_new_map << std::endl;
+            std::string old_name = graphics_info_t::molecules[imol_map].get_name();
+            std::string new_name = "Blur Origin Fragment Map from " + old_name;
+            bool is_em_map_flag = false;
+            g.molecules[imol_new_map].install_new_map(mfi.xmap, new_name, is_em_map_flag);
+         }
+
+         clipper::Xmap_base::Map_reference_coord ix(xmap_updating);
+
+         // now transfer, with shift, mfi.xmap back into xmap_updating
+         mfi.unshift(&xmap_updating, centre);
+
+         // recontour molecule imol_map_updating
+         g.molecules[imol_map_updating].update_map(true);
+
+      }
+      graphics_draw();
+   }
+
+
+   if (false) {
 
       int imol_1 = read_pdb("good-test-for-out-of-register-errors-em-tutorial-partial.pdb");
       int imol_2 = read_pdb("EMD-3908/fittedModels/PDB/6eoj.ent");
@@ -569,7 +637,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
             coot::closest_rotamer_info_t closest_rotamer = rotamer.get_closest_rotamer(rn);
             std::cout << " drive to " << closest_rotamer.rotamer_probability_info.rotamer_name << " ";
             for (unsigned int i=0; i<closest_rotamer.residue_chi_angles.size(); i++)
-               std::cout << " " << closest_rotamer.residue_chi_angles[i].first << " " << closest_rotamer.residue_chi_angles[i].second << " ";
+               std::cout << " " << closest_rotamer.residue_chi_angles[i].first << " "
+                         << closest_rotamer.residue_chi_angles[i].second << " ";
             std::cout << std::endl;
          }
       }

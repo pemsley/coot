@@ -2057,7 +2057,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, is_anomalous_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
+      auto tp_0 = std::chrono::high_resolution_clock::now();
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = chrono::duration_cast<chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
 
       float mean = mv.mean;
       float var = mv.variance;

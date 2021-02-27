@@ -9505,3 +9505,19 @@ Gtk-Message: 19:07:14.119: Failed to load module "canberra-gtk-module"
 
    $ sudo apt-get install appmenu-gtk2-module appmenu-gtk3-module
 
+---
+Wed 24 Feb 16:52:51 GMT 2021
+
+Paul Bourke:
+
+   "Standard" character ramp for grey scale pictures, black -> white.
+      "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'. "
+   A more convincing but shorter sequence for representing 10 levels of grey is
+      " .:-=+*#%@"
+
+
+----
+Fri 26 Feb 15:42:29 GMT 2021
+
+   fill_map_sections() in slurp_map uses set_coord() on a set of map sections.
+   Use as a template for threaded map manipulation.  Can this be used in xmap_stats?
