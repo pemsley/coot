@@ -936,11 +936,11 @@ public:
 
    static bool display_mode_use_secondary_p() {
 
-     bool r = 0;
+     bool r = false;
      if ((display_mode == coot::SIDE_BY_SIDE_STEREO) ||
 	 (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
 	 (display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
-       r = 1;
+       r = true;
      }
      return r;
    }

@@ -544,8 +544,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
             GLuint display_list_index = 0; // bad
 
             // These conditions have been validated by reversing them.
-            if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT ||
-                main_or_secondary == IN_STEREO_MONO)
+            if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT || main_or_secondary == IN_STEREO_MONO)
                display_list_index = theMapContours.first;
             if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_RIGHT)
                display_list_index = theMapContours.second;
@@ -555,8 +554,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
                   // 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
                   glCallList(display_list_index);
             } else {
-                  std::cout << "ERROR:: using display list " << display_list_index
-                  << " when main_or_secondary is " << main_or_secondary << std::endl;
+               if (true) // too noisy
+                  std::cout << "ERROR:: using display list index " << display_list_index
+                            << " when main_or_secondary is " << main_or_secondary << std::endl;
             }
 
 
