@@ -630,9 +630,12 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	 //
 	 bool is_1_4_related = raic.is_1_4(i, j, fixed_atom_flags);
 
-	 if (false)
-	    std::cout << "here with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
-		      << " is_1_4_related " << is_1_4_related << std::endl;
+	 if (false) {
+            get_print_lock();
+	    std::cout << "make_non_bonded_contact_restraints_workpackage_ng() here with at_1 " << atom_spec_t(at_1)
+                      << " at_2 " << atom_spec_t(at_2) << " is_1_4_related: " << is_1_4_related << std::endl;
+            release_print_lock();
+         }
 
 	 bool mc_atoms_tandem = false;
 	 if (! is_1_4_related) {
@@ -655,15 +658,19 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 	 if (is_1_4_related) {
 
-	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+            if (in_same_ring_flag)
+               dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+            else
+               dist_min = 2.8;
 
 	    if (mc_atoms_tandem) dist_min = 2.99;
 
 	    // Hydrogens are handled below this if() also - I am not sure
 	    // that this delta should be applied here
 
-	    if (at_1) dist_min -= 0.7;
-	    if (at_2) dist_min -= 0.7;
+            // Yeah... I don't think that it should be added here.
+            // if (atom_is_hydrogen[i]) dist_min -= 0.7;
+            // if (atom_is_hydrogen[j]) dist_min -= 0.7;
 
 	 } else {
 
