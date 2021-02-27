@@ -1311,11 +1311,9 @@ public:
    float Y() { return rotation_centre_y; };
    float Z() { return rotation_centre_z; };
 
-   // why isn't this static? Make it static
-   coot::Cartesian RotationCentre() const
-      { return coot::Cartesian(rotation_centre_x,
-			       rotation_centre_y,
-			       rotation_centre_z);}
+   static coot::Cartesian RotationCentre() { return coot::Cartesian(rotation_centre_x,
+                                                                    rotation_centre_y,
+                                                                    rotation_centre_z);}
 
    // we need static, so that we don't need to instance a
    // graphics_info_t for every frame draw.
