@@ -28,10 +28,10 @@ pkgincludedir = $(includedir)/coot/lidia-core
 
 AM_CPPFLAGS = \
 	 -I$(top_srcdir) \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
-	$(RDKIT_CXXFLAGS) 		\
-	$(BOOST_CPPFLAGS) 		\
-	$(SQLITE3_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
+	$(RDKIT_CXXFLAGS) 		  \
+	$(BOOST_CPPFLAGS) 	          \
+	$(SQLITE3_CFLAGS)                 \
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \

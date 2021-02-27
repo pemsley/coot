@@ -265,22 +265,6 @@ else
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
-# this can go away in 2020 - no one will try to use that old RDKit.
-#
-# was RDKIT used and if it was does it have Cairo support (if it does
-# have cairo support, we can use it to generate molecular (chemical)
-# depictions.
-#
-if test -n "$RDKIT_LIBS" ; then
-
-   case "$RDKIT_LIBS" in
-
-     *MolDraw2D*)
-          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
-          ;;
-   esac
-fi
-
 dnl =========================== GooCanvas ================================
 
 AM_PATH_GOOCANVAS
@@ -301,13 +285,24 @@ if $coot_enhanced_ligand_additions = true ; then
    fi
 fi
 
-if test x$coot_enhanced_ligand_additions = xtrue ; then
-   ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
-else 	
-   ENHANCED_LIGAND_TOOLS_CFLAGS=""
+AC_ARG_WITH(rdkit-prefix, [location of the RDKit package], rdkit_prefix="$withval", rdkit_prefix="")
+
+if test x$rdkit_prefix = x ; then
+  :
+else
+   rdkit_install_dir="$withval"
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
+   rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_python27 -lpython2.7"
+   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 fi
 
-echo ENHANCED_LIGAND_TOOLS_CFLAGS $ENHANCED_LIGAND_TOOLS_CFLAGS
+if test x$coot_enhanced_ligand_additions = xtrue ; then
+   ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
+else 	
+   ENHANCED_LIGAND_TOOLS_CPPFLAGS=""
+fi
+
+echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
@@ -315,7 +310,7 @@ AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
-AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)
+AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
 
 AC_SUBST(RDKIT_CXXFLAGS)
 AC_SUBST(RDKIT_LIBS)

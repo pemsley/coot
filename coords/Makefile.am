@@ -29,7 +29,7 @@ pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)                 \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)	\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 

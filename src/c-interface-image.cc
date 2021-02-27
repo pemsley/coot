@@ -10,12 +10,10 @@
 #include <cairo.h>
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
-
 #else
 #include "lidia-core/rdkit-interface.hh"
-
-
 #endif // RDKIT_HAS_CAIRO_SUPPORT
+
 
 #include "utils/coot-utils.hh"
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -30,6 +28,7 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
 
    GtkWidget *r = 0;
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef RDKIT_HAS_CAIRO_SUPPORT
    
    std::string smiles="CO[C@@H](O)C1=C(O[C@H](F)Cl)C(C#N)=C1ONNC[NH3+]";
@@ -49,6 +48,7 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
       drawer.writeDrawingText(png_file_name.c_str());
    }
 #endif // RDKIT_HAS_CAIRO_SUPPORT
+#endif // RDKIT
    
    return r;
 }

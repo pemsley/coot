@@ -48,7 +48,7 @@ pkgincludedir = $(includedir)/coot/coot-utils
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
