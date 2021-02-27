@@ -356,7 +356,7 @@ namespace coot {
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar,
-		       float sig, float obs){
+		       float sig, float obs) : fixed_atom_flags(fixed_atom_flags_in) {
 
 	 restraint_type = rest_type;
          restraint_index = -1;
@@ -365,7 +365,6 @@ namespace coot {
 	 observed_value = obs;
 	 sigma = sig;
 	 target_value = tar;
-	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = false;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
@@ -380,7 +379,7 @@ namespace coot {
       // Geman-McClure distance (no obs)
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
 		       const std::vector<bool> &fixed_atom_flags_in,
-		       float tar, float sig){
+		       float tar, float sig) : fixed_atom_flags(fixed_atom_flags_in) {
 
 	 restraint_type = rest_type;
          restraint_index = -1;
@@ -389,7 +388,6 @@ namespace coot {
 	 observed_value = -1;  // not given or used
 	 sigma = sig;
 	 target_value = tar;
-	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = true;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
@@ -405,7 +403,7 @@ namespace coot {
 		       int atom_3,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar,
-		       float sig, bool is_single_Hydrogen_atom_angle_restraint_in) {
+		       float sig, bool is_single_Hydrogen_atom_angle_restraint_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
 	 restraint_type = rest_type;
          restraint_index = -1;
@@ -414,7 +412,6 @@ namespace coot {
 	 atom_index_3 = atom_3;
 	 sigma = sig;
 	 target_value = tar;
-	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = is_single_Hydrogen_atom_angle_restraint_in;
@@ -427,7 +424,7 @@ namespace coot {
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3, int atom_4,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar,
-		       float sig, float obs, int periodicity_in){
+		       float sig, float obs, int periodicity_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
 	 restraint_type = rest_type;
          restraint_index = -1;
@@ -438,7 +435,6 @@ namespace coot {
 	 observed_value = obs;
 	 sigma = sig;
 	 target_value = tar;
-	 fixed_atom_flags = fixed_atom_flags_in;
 	 periodicity = periodicity_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
@@ -452,7 +448,7 @@ namespace coot {
       simple_restraint(restraint_type_t rest_type,
 		       const std::string &rama_plot_zo_residue_type,
 		       int atom_1, int atom_2, int atom_3, int atom_4, int atom_5,
-		       const std::vector<bool> &fixed_atom_flags_in) {
+		       const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in)  {
 
 	 restraint_type = rest_type;
          restraint_index = -1;
@@ -462,7 +458,6 @@ namespace coot {
 	 atom_index_3 = atom_3;
 	 atom_index_4 = atom_4;
 	 atom_index_5 = atom_5;
-	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
@@ -501,7 +496,7 @@ namespace coot {
       //
       simple_restraint(restraint_type_t restraint_type_in,
 		       const std::vector<std::pair<int, double> > &atom_index_sigma_in,
-		       const std::vector<bool> &fixed_atom_flags_in) {
+		       const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
 	 //
 	 // Check restraint_type?
@@ -516,7 +511,6 @@ namespace coot {
 
 	 target_value = 0.0; // not needed for planes
 	 sigma = 0.02; // hack
-	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
@@ -555,7 +549,7 @@ namespace coot {
      // improper dihedral (new-style 4 atom plane restraints)
      simple_restraint(restraint_type_t restraint_type_in,
 		      int index_1, int index_2, int index_3, int index_4,
-		      float sigma_in, const std::vector<bool> &fixed_atom_flags_in) {
+		      float sigma_in, const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
        restraint_type = restraint_type_in;
        restraint_index = -1;
@@ -565,7 +559,6 @@ namespace coot {
        atom_index_3 = index_3;
        atom_index_4 = index_4;
 
-       fixed_atom_flags = fixed_atom_flags_in;
        sigma = sigma_in;
        is_user_defined_restraint = false;
        is_H_non_bonded_contact = false;
