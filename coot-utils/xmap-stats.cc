@@ -39,7 +39,6 @@ map_density_distribution(const clipper::Xmap<T> &map,
    T rho;
 
    clipper::Xmap_base::Map_reference_index ix;
-   ix = map.first() + 1000;
    for (ix=map.first(); !ix.last(); ix.next()) {
 
       n_point += 1.0;
