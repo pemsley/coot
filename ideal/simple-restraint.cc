@@ -58,7 +58,7 @@
 #include "compat/coot-sysdep.h"
 
 zo::rama_table_set coot::restraints_container_t::zo_rama;
-
+std::atomic<bool> coot::restraints_container_t::print_lock(false);
 
 void
 coot::restraints_container_t::clear() {
@@ -86,6 +86,24 @@ coot::restraints_container_t::release_restraints_lock() {
 
    restraints_lock = false;
 }
+
+// static
+void
+coot::restraints_container_t::get_print_lock() {
+
+   bool unlocked = false;
+   while (! print_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(1));
+      unlocked = false;
+   }
+}
+
+// static
+void
+coot::restraints_container_t::release_print_lock() {
+   print_lock = false;
+}
+
 
 
 
@@ -4681,9 +4699,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 								 const coot::restraints_container_t::reduced_angle_info_container_t &ai,
 								 const coot::protein_geometry &geom) {
 
-
-#ifdef HAVE_CXX_THREAD
-
    std::cout << "------------------- timing" << std::endl;
    std::set<unsigned int> fixed_atom_flags_set; // fill this properly!
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -4705,7 +4720,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
    std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
 	     << " milliseconds for " << n_nbc << " nbcs " << std::endl;
 
-#endif // HAVE_CXX_THREAD
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
    construct_non_bonded_contact_list(bpc, geom);
@@ -4768,11 +4782,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
       energy_type_cache[at] = get_type_energy(imol, at, geom);
    }
 
+
    int n_nbc_r = 0;
-   for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
+   for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) {
+
+      mmdb::Atom *at_1 = atom[i];
+
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
 
-	 mmdb::Atom *at_1 = atom[i];
 	 mmdb::Atom *at_2 = atom[filtered_non_bonded_atom_indices[i][j]];
 
 	 std::vector<bool> fixed_atom_flags =
@@ -4903,11 +4920,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << " is_1_4_related " << is_1_4_related << std::endl;
 
 	       if (is_1_4_related) {
-		  dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+                  if (in_same_ring_flag)
+                     dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+                  else
+                     dist_min = 3.8;
 		  if (is_hydrogen(at_1))
 		      dist_min -= 0.7;
 		  if (is_hydrogen(at_2))
 		      dist_min -= 0.7;
+
 	       } else {
 
 		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,

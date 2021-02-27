@@ -2314,6 +2314,9 @@ namespace coot {
       std::atomic<bool> restraints_lock;
       void get_restraints_lock();
       void release_restraints_lock();
+      static std::atomic<bool> print_lock;
+      static void get_print_lock();
+      static void release_print_lock();
 #endif
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
