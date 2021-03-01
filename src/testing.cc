@@ -214,21 +214,22 @@ int test_internal() {
 int greg_internal_tests() {
    int status = 1;
    std::vector<named_func> functions;
+   functions.push_back(named_func(test_COO_mod, "test COO modification"));
    functions.push_back(named_func(test_OXT_in_restraints, "OXT in restraints?"));
    functions.push_back(named_func(test_relativise_file_name, "Relative file name"));
    functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
    functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
    functions.push_back(named_func(test_lsq_plane, "test lsq plane"));
-   functions.push_back(named_func(test_COO_mod, "test COO modification"));
    functions.push_back(named_func(test_remove_whitespace, "remove whitespace"));
    functions.push_back(named_func(test_new_comp_id, "New comp_ids are sane"));
    functions.push_back(named_func(test_trailing_slash, "Remove Trailing Slash"));
 
+   status = run_internal_tests(functions);
+   return status;
+
    // restore this at some stage
    // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
 
-   status = run_internal_tests(functions);
-   return status;
 }
 
 // greg runs these tests too, these tests use data from the greg test
@@ -662,6 +663,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   bool output_numerical_gradients) {
 
 #ifdef HAVE_GSL
+
    long t0 = glutGet(GLUT_ELAPSED_TIME);
    
    // now refine a bit of structure:
@@ -676,7 +678,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    std::string altconf = "";
    short int in_alt_conf_split_flag = 0;
    const char *chn = chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
-	       
+
    std::pair<mmdb::Manager *, int> residues_mol_pair = 
       coot::util::create_mmdbmanager_from_res_selection(atom_sel.mol,
 							SelResidues, nSelResidues, 
@@ -2741,8 +2743,7 @@ int test_COO_mod() {
    std::string file_name = greg_test("hideous-OXT.pdb");
    atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
 
-   
-   if (!  asc.read_success) {
+   if (! asc.read_success) {
       std::cout << "failed to correctly read hideous-OXT.pdb " << std::endl;
    } else { 
       std::cout << "read " << asc.n_selected_atoms << " atom " << std::endl;
@@ -2751,43 +2752,49 @@ int test_COO_mod() {
       
       mmdb::PResidue *SelResidues = new mmdb::PResidue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
+      mmdb::Residue *refined_res = SelResidues[0];
 
+      // result.residue seems not to be the residue I want.
+      // Fixing this fixes this test's failure
       residue_selection_t result =
-	 testing_func_probabilities_refine_fragment(asc, SelResidues,
-						    1, "A", 93, t.geom, 0, 0, 0, 0);
-      delete [] SelResidues;
+	 testing_func_probabilities_refine_fragment(asc, SelResidues, 1, "A", 93, t.geom, 0, 0, 0, 0);
 
       // now test...
-   
-      std::vector<int> atom_index(3);
-      atom_index[0] = 1; // CA
-      atom_index[1] = 6; // C
-      atom_index[2] = 7; // O
-      for (unsigned int i=0; i<3; i++) {
-	 clipper::Coord_orth pos(result.SelResidues[0]->GetAtom(atom_index[i])->x,
-				 result.SelResidues[0]->GetAtom(atom_index[i])->y,
-				 result.SelResidues[0]->GetAtom(atom_index[i])->z);
 
+      g.lsq_plane_atom_positions->clear();
+      std::vector<int> atom_index = {1,6,7}; //  CA, C, O
+      for (unsigned int i=0; i<3; i++) {
+         // mmdb::Atom *at = result.SelResidues[0]->GetAtom(atom_index[i]);
+         mmdb::Atom *at = refined_res->GetAtom(atom_index[i]);
+	 clipper::Coord_orth pos = coot::co(at);
+         std::cout << "pushing back atom " << i << " " << coot::atom_spec_t(at) << " "
+                   << pos.format() << std::endl;
 	 g.lsq_plane_atom_positions->push_back(pos);
       }
-      clipper::Coord_orth oxt_pos(result.SelResidues[0]->GetAtom(8)->x,
-				  result.SelResidues[0]->GetAtom(8)->y,
-				  result.SelResidues[0]->GetAtom(8)->z);
-      clipper::Coord_orth o_pos(result.SelResidues[0]->GetAtom(7)->x,
-				result.SelResidues[0]->GetAtom(7)->y,
-				result.SelResidues[0]->GetAtom(7)->z);
+      mmdb::Atom *at_oxt = refined_res->GetAtom(8);
+      mmdb::Atom *at_o   = refined_res->GetAtom(7);
+      clipper::Coord_orth oxt_pos = coot::co(at_oxt);
+      clipper::Coord_orth o_pos = coot::co(at_o);
       result.clear_up();
-   
-      std::pair<float,float> d_pair =
-	 coot::lsq_plane_deviation(*g.lsq_plane_atom_positions, oxt_pos);
+
+      std::pair<float,float> d_pair = coot::lsq_plane_deviation(*g.lsq_plane_atom_positions, oxt_pos);
       float d = fabs(d_pair.first);
+      if (false) {
+         std::cout << "Here are the lsq plane atoms " << std::endl;
+         for (unsigned int i=0; i<g.lsq_plane_atom_positions->size(); i++) {
+            std::cout << i << " " << g.lsq_plane_atom_positions->at(i).format() << std::endl;
+         }
+         std::cout << "Here is the OXT atom " << oxt_pos.format() << std::endl;
+      }
       std::cout << "OXT out of plane distance: " << d << std::endl;
       double oxt_dist = clipper::Coord_orth::length(o_pos, oxt_pos);
       std::cout << "OXT->O distance: " << oxt_dist << std::endl;
-   
+
       if (d < 0.02)
 	 if (oxt_dist > 2.0)
 	    status = 1;
+
+      delete [] SelResidues;
 
    }
    return status;
