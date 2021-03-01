@@ -3472,6 +3472,9 @@ void set_refine_ramachandran_restraints_weight(float w);
 @return weight as a float */
 float refine_ramachandran_restraints_weight();
 
+/* \brief set the weight for torsion restraints (default 1.0)*/
+void set_torsion_restraints_weight(double w);
+
 /* \brief set the state for using rotamer restraints "drive" mode */
 void set_refine_rotamers(int state);
 
@@ -7116,6 +7119,8 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
+/*! \name Sequence View */
+/* \{ */
 
 /*!  \brief display the sequence view for molecule number imol */
 void nsv(int imol);
