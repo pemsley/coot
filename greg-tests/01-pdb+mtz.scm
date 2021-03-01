@@ -1678,6 +1678,36 @@
 
 
 
+(greg-testcase "Test for flying hydrogens on undo" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "monomer-VAL.pdb")))
+
+       (if (not (valid-model-molecule? imol))
+           (begin
+             (format "   Failure to read monomer-VAL.pdb~%")
+             (throw 'fail)))
+
+       (with-auto-accept (regularize-zone imol "A" 1 1 ""))
+       (set-undo-molecule imol)
+       (apply-undo)
+       (with-auto-accept (regularize-zone imol "A" 1 1 ""))
+       (let ((atom-1 (get-atom imol "A" 1 "" "HG11"))
+             (atom-2 (get-atom imol "A" 1 "" " CG1")))
+
+         (if (bond-length-within-tolerance? atom-1 atom-2 0.98 0.04)
+             #t
+             (begin
+               (if (and (list? atom-1)
+                        (list? atom-2))
+                   (format "   flying hydrogen failure, bond length ~s, should be 0.96~%"
+                           (bond-length-from-atoms atom-1 atom-2))
+                   (format "   flying hydrogen failure, atoms: ~s ~s~%" atom-1 atom-2))
+               #f))))))
+
+
+
+
 ;; Restore this when the delete-residue-with-full-spec makes it to trunk.
 ;; 
 
@@ -1802,7 +1832,6 @@
        #t ;; don't crash
        )))
 
-
 (greg-testcase "Simple Averaged maps" #t 
    (lambda ()
 
@@ -1892,36 +1921,6 @@
 	       (atom-2 (get-atom imol "B" 464 "" " C1 ")))
 
 	   (bond-length-within-tolerance? atom-1 atom-2 1.43 0.2))))))
-
-
-
-(greg-testcase "Test for flying hydrogens on undo" #t 
-   (lambda ()
-
-     (let ((imol (greg-pdb "monomer-VAL.pdb")))
-       
-       (if (not (valid-model-molecule? imol))
-	   (begin 
-	     (format "   Failure to read monomer-VAL.pdb~%")
-	     (throw 'fail)))
-
-       (with-auto-accept (regularize-zone imol "A" 1 1 ""))
-       (set-undo-molecule imol)
-       (apply-undo)
-       (with-auto-accept (regularize-zone imol "A" 1 1 ""))
-       
-       (let ((atom-1 (get-atom imol "A" 1 "" "HG11"))
-	     (atom-2 (get-atom imol "A" 1 "" " CG1")))
-
-	 (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
-	     #t
-	     (begin
-	       (if (and (list? atom-1)
-			(list? atom-2))
-		   (format "   flying hydrogen failure, bond length ~s, should be 0.96~%"
-			   (bond-length-from-atoms atom-1 atom-2))
-		   (format "   flying hydrogen failure, atoms: ~s ~s~%" atom-1 atom-2))
-	       #f))))))
 
 
 
