@@ -6008,6 +6008,14 @@ int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }
 
+/* \brief set the weight for torsion restraints (default 1.0)*/
+void set_torsion_restraints_weight(double w) {
+
+   graphics_info_t::torsion_restraints_weight = w;
+}
+
+
+
 void set_refine_rotamers(int state) {
    graphics_info_t::do_rotamer_restraints = state;
 }

@@ -165,7 +165,6 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
    for (unsigned int i=0; i<restraints_vec.size(); i++)
       restraints_vec[i].restraint_index = i;
-   
    return size();
 }
 
@@ -515,6 +514,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                                                                                 std::vector<simple_restraint> *nbc_restraints_fragment_p,
                                                                                 std::atomic<unsigned int> &done_count) {
 
+
+   if (false) {
+      get_print_lock();
+      std::cout << "H_atom_parent_atom_is_donor_vec vector size " << H_atom_parent_atom_is_donor_vec.size() << std::endl;
+      for (unsigned int i=0; i<H_atom_parent_atom_is_donor_vec.size(); i++)
+         std::cout << "H_atom_parent_atom_is_donor_vec " << i << " " << H_atom_parent_atom_is_donor_vec[i] << std::endl;
+      release_print_lock();
+   }
+
    // make_fixed_flags() will have to be done in place using fixed_atom_indices
 
    // think about is_in_same ring without a cache. Hmm.
@@ -523,10 +531,120 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
    std::vector<std::set<int> > &non_bonded_contacts_atom_indices = *non_bonded_contacts_atom_indices_p;
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
 
-   float dist_max = 8.0; // needed?
-
    // bool extended_atom_mode = false; // turn this on if there are no Hydrogen atoms in the model
         // extended_atom_mode = ! model_has_hydrogen_atoms;
+
+   // there is no need to modify a pointer. It can return a value
+   //
+   auto tweak_neighbours_for_rn_diff_is_1 = [] (const std::vector<bool> &fixed_atom_flags,
+                                                const std::string &atom_name_1,
+                                                const std::string &atom_name_2,
+                                                const int &res_no_1,
+                                                const int &res_no_2,
+                                                bool second_is_pro,
+                                                double *dist_min_p) {
+
+                                               double &dist_min(*dist_min_p);
+
+                                               bool strange_exception = false;
+                                               if (fixed_atom_flags.size()) {
+                                                  if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
+                                                     if (atom_name_1 == " O  ")
+                                                        if (atom_name_2 == " CA ")
+                                                           strange_exception = true;
+                                                     if (atom_name_1 == " CA ")
+                                                        if (atom_name_2 == " O  ")
+                                                           strange_exception = true;
+                                                     if (atom_name_1 == " N  ")
+                                                        if (atom_name_2 == " CB ")
+                                                           strange_exception = true;
+                                                     if (atom_name_1 == " CB ")
+                                                        if (atom_name_2 == " N  ")
+                                                           strange_exception = true;
+                                                     if (atom_name_1 == " C  ")
+                                                        if (atom_name_2 == " CB ")
+                                                           strange_exception = true;
+                                                  }
+                                               }
+                                               if (strange_exception)
+                                                  dist_min = 2.7;
+
+                                               // Strange that these are not marked as 1-4 related.  Fix here...
+                                               // HA-CA-N-C can be down to ~2.4A.
+                                               // HA-CA-C-N can be down to ~2.41A.
+                                               if (res_no_2 > res_no_1) {
+                                                  if (atom_name_1 == " C  ") {
+                                                     if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+                                                        strange_exception = true;
+                                                        dist_min = 2.4;
+                                                     }
+                                                  }
+                                                  if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+                                                     if (atom_name_2 == " N  ") {
+                                                        strange_exception = true;
+                                                        dist_min = 2.41;
+                                                     }
+                                                  }
+                                                  if (atom_name_1 == " N  ") {
+                                                     if (atom_name_2 == " H  ") {
+                                                        strange_exception = true;
+                                                        dist_min = 2.4;
+                                                     }
+                                                  }
+
+                                                  // CA(n) - CD(n+1) for XXX-PRO needs to be reduced by 0.8 or so
+                                                  if (second_is_pro) {
+                                                     if (atom_name_1 == " CA ") {
+                                                        if (atom_name_2 == " CD ") {
+                                                           dist_min = 3.1;
+                                                        }
+                                                     }
+                                                  }
+
+                                               } else {
+                                                  if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+                                                     if (atom_name_2 == " C  ") {
+                                                        strange_exception = true;
+                                                        dist_min = 2.4;
+                                                     }
+                                                  }
+                                                  if (atom_name_1 == " N  ") {
+                                                     if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+                                                        strange_exception = true;
+                                                        dist_min = 2.41;
+                                                     }
+                                                  }
+                                                  if (atom_name_2 == " N  ") {
+                                                     if (atom_name_1 == " H  ") {
+                                                        strange_exception = true;
+                                                        dist_min = 2.4;
+                                                     }
+                                                  }
+                                               }
+                                            };
+
+   auto tweak_neighbours_for_rn_diff_is_2 = [] (const std::vector<bool> &fixed_atom_flags,
+                                                const std::string &atom_name_1,
+                                                const std::string &atom_name_2,
+                                                double *dist_min_p) {
+
+                                               double &dist_min(*dist_min_p);
+                                               bool strange_exception = false;
+                                               if (fixed_atom_flags.size()) {
+                                                  if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
+                                                     if (atom_name_1 == " C  ")
+                                                        if (atom_name_2 == " N  ")
+                                                           strange_exception = true;
+                                                     if (atom_name_1 == " N  ")
+                                                        if (atom_name_2 == " C  ")
+                                                           strange_exception = true; // 3.1 would be enough
+
+                                                     if (strange_exception)
+                                                        dist_min = 2.7;
+                                                  }
+                                               }
+                                               return dist_min;
+                                            };
 
    for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
 
@@ -549,8 +667,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
       for (it=n_set.begin(); it!=n_set.end(); it++) {
 
          const unsigned int &j = *it;
+         if (j < i) /* only add NBC one way round */
+            continue;
 
-         if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end()) 
+         if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
          continue;
 
          // for updating non-bonded contacts
@@ -559,7 +679,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
          mmdb::Atom *at_2 = atom[j];
          std::string alt_conf_2(at_2->altLoc);
-
 
          {
             bool at_1_is_fixed_flag = false;
@@ -583,13 +702,13 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
             if (fixed_atom_indices.find(j) != fixed_atom_indices.end())
                continue;
 
-         if (j < i) /* only add NBC one way round */
-            continue;
-
          std::string res_name_1 = at_1->GetResName();
          std::string res_name_2 = at_2->GetResName();
          int res_no_1 = at_1->GetSeqNum();
          int res_no_2 = at_2->GetSeqNum();
+         bool second_is_pro = false;
+         if (res_name_2 == "PRO") second_is_pro = true; // residues are sorted and j > i
+         if (res_name_2 == "HYP") second_is_pro = true;
 
          const std::string &type_1 = energy_type_for_atom[i];
          const std::string &type_2 = energy_type_for_atom[j];
@@ -613,15 +732,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          std::string atom_name_1(at_1->GetAtomName());
          std::string atom_name_2(at_2->GetAtomName());
 
-         if (in_same_ring_flag) {
-
-            // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
-            //                                                                       atom_name_2);
-
-            in_same_ring_flag = is_in_same_ring(imol, at_2->residue,
-                                                residue_ring_map_cache,
+         if (in_same_ring_flag)
+            in_same_ring_flag = is_in_same_ring(imol, at_2->residue, residue_ring_map_cache,
                                                 atom_name_1, atom_name_2, geom);
-         }
 
          // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
          // because the non-moving atom doesn't have angle restraints.
@@ -630,7 +743,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          //
          bool is_1_4_related = raic.is_1_4(i, j, fixed_atom_flags);
 
-         if (false) {
+         if (false) { // debug 1-4s
             get_print_lock();
             std::cout << "make_non_bonded_contact_restraints_workpackage_ng() here with at_1 " << atom_spec_t(at_1)
                       << " at_2 " << atom_spec_t(at_2) << " is_1_4_related: " << is_1_4_related << std::endl;
@@ -650,6 +763,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
             if (atom_name_1 == " N  ")
                if (atom_name_2 == " N  ")
                   if (at_2->residue->index - at_1->residue->index == -1)
+                     mc_atoms_tandem = true;
+            // down-weight CA-CA in cis-peptide bonds
+            if (atom_name_1 == " CA ")
+               if (atom_name_2 == " CA ")
+                  if (true) // cis-peptide test
                      mc_atoms_tandem = true;
          }
 
@@ -690,8 +808,19 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                bool is_O_C_1_5_related = check_for_O_C_1_5_relation(at_1, at_2);
 
                if (is_O_C_1_5_related) {
-                       dist_min = 2.84;
+                  dist_min = 2.84;
                } else {
+
+                  dist_min = nbc_dist.second;
+
+                  if (false) {
+                     std::cout << "Adding NBC: 0 " << std::setw(4) << i << " " << std::setw(4) << j << " "
+                               << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << " types: "
+                               << std::setw(4) << energy_type_for_atom[i] << " "
+                               << std::setw(4) << energy_type_for_atom[j]
+                               << " fixed-flags: " << fixed_atom_flags[0] << " " << fixed_atom_flags[1]
+                               << " dist-min: " << dist_min <<  "\n";
+                  }
 
                   // Perhaps we don't have angle restraints to both atoms because one
                   // of the atoms is fixed (and thus miss that these have a 1-4 relationship).
@@ -700,96 +829,18 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                   // (this test will fail on insertion codes)
                   //
 
-                  bool strange_exception = false;
                   int rn_diff = abs(res_no_2 - res_no_1);
+
                   if (rn_diff == 1) {
-                     std::string atom_name_1 = at_1->GetAtomName();
-                     std::string atom_name_2 = at_2->GetAtomName();
-                     if (fixed_atom_flags.size()) {
-                        if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
-                           if (atom_name_1 == " O  ")
-                              if (atom_name_2 == " CA ")
-                                 strange_exception = true;
-                           if (atom_name_1 == " CA ")
-                              if (atom_name_2 == " O  ")
-                                 strange_exception = true;
-                           if (atom_name_1 == " N  ")
-                              if (atom_name_2 == " CB ")
-                                 strange_exception = true;
-                           if (atom_name_1 == " CB ")
-                              if (atom_name_2 == " N  ")
-                                 strange_exception = true;
-                           if (atom_name_1 == " C  ")
-                              if (atom_name_2 == " CB ")
-                                 strange_exception = true;
-                        }
-                     }
-                     if (strange_exception)
-                        dist_min = 2.7;
-
-                     // Strange that these are not marked as 1-4 related.  Fix here...
-                     // HA-CA-N-C can be down to ~2.4A.
-                     // HA-CA-C-N can be down to ~2.41A.
-                     if (res_no_2 > res_no_1) {
-                        if (atom_name_1 == " C  ") {
-                           if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
-                              strange_exception = true;
-                              dist_min = 2.4;
-                           }
-                        }
-                        if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
-                           if (atom_name_2 == " N  ") {
-                              strange_exception = true;
-                              dist_min = 2.41;
-                           }
-                        }
-                        if (atom_name_1 == " N  ") {
-                           if (atom_name_2 == " H  ") {
-                              strange_exception = true;
-                              dist_min = 2.4;
-                           }
-                        }
-                     } else {
-                        if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
-                           if (atom_name_2 == " C  ") {
-                              strange_exception = true;
-                              dist_min = 2.4;
-                           }
-                        }
-                        if (atom_name_1 == " N  ") {
-                           if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
-                              strange_exception = true;
-                              dist_min = 2.41;
-                           }
-                        }
-                        if (atom_name_2 == " N  ") {
-                           if (atom_name_1 == " H  ") {
-                              strange_exception = true;
-                              dist_min = 2.4;
-                           }
-                        }
-                     }
+                     // tweak dist_min
+                     tweak_neighbours_for_rn_diff_is_1(fixed_atom_flags, atom_name_1, atom_name_2, res_no_1, res_no_2,
+                                                       second_is_pro, &dist_min);
                   }
+                  // this should be signed - not both ways, I think.
                   if (rn_diff == 2) {
-                     if (fixed_atom_flags.size()) {
-                        if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
-                           std::string atom_name_1 = at_1->GetAtomName();
-                           std::string atom_name_2 = at_2->GetAtomName();
-                           if (atom_name_1 == " C  ")
-                              if (atom_name_2 == " N  ")
-                                 strange_exception = true;
-                           if (atom_name_1 == " N  ")
-                              if (atom_name_2 == " C  ")
-                                 strange_exception = true; // 3.1 would be enough
-
-                           if (strange_exception)
-                              dist_min = 2.7;
-                        }
-                     }
+                     // tweak dist_min
+                     tweak_neighbours_for_rn_diff_is_2(fixed_atom_flags, atom_name_1, atom_name_2, &dist_min);
                   }
-
-                  if (! strange_exception)
-                     dist_min = nbc_dist.second;
 
                }
             } else {
@@ -799,6 +850,21 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
          }
 
+         auto debug_print = [energy_type_for_atom] (const std::string &remark,
+                                                    int i, int j, mmdb::Atom *at_1, mmdb::Atom *at_2,
+                                                    const std::vector<bool> &fixed_atom_flags, double dist_min) {
+
+                               get_print_lock();
+                               std::cout << "Adding NBC: " << remark << " " << std::setw(4) << i << " " << std::setw(4) << j << " "
+                                         << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << " types: "
+                                         << std::setw(4) << energy_type_for_atom[i] << " "
+                                         << std::setw(4) << energy_type_for_atom[j]
+                                         << " fixed-flags: " << fixed_atom_flags[0] << " " << fixed_atom_flags[1]
+                                         << " dist-min: " << dist_min <<  "\n";
+                               release_print_lock();
+                            };
+
+         if (false) debug_print("A", i, j, at_1, at_2, fixed_atom_flags, dist_min);
 
          bool is_H_non_bonded_contact = false;
 
@@ -808,12 +874,24 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                if (atom_is_acceptor_vec[j])
                   dist_min -= 0.7;
          }
+
+         if (false) debug_print("B", i, j, at_1, at_2, fixed_atom_flags, dist_min);
+
          if (atom_is_hydrogen[j]) {
             is_H_non_bonded_contact = true;
             if (H_atom_parent_atom_is_donor_vec[j])
                if (atom_is_acceptor_vec[i])
                   dist_min -= 0.7;
          }
+
+         if (false) debug_print("C", i, j, at_1, at_2, fixed_atom_flags, dist_min);
+
+         // if they are both hydrogens 1.2 + 1.2, the min dist for molprobity should be 2.1 <smiley face>
+         if (atom_is_hydrogen[i])
+            if (atom_is_hydrogen[j])
+               dist_min -= 0.2; // aim for 2.2 so that 2.1 is a bit energetically unfavourable
+
+         if (false) debug_print("D", i, j, at_1, at_2, fixed_atom_flags, dist_min);
 
          non_bonded_contacts_atom_indices[i].insert(j);
          simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
@@ -825,12 +903,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                             fixed_atom_flags, dist_min);
          nbc_restraints_fragment_p->push_back(r);
 
-         if (false) // debug
-            std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " "
-                      << energy_type_for_atom[*it] << " "
-                      << is_H_non_bonded_contact << " "
-                      << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
-                      << dist_min <<  "\n";
+         if (false) debug_print("--end--", i, j, at_1, at_2, fixed_atom_flags, dist_min);
       }
    }
 
@@ -1256,7 +1329,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
                         }
                      }
                   }
-                  if (rn_diff == 2) { 
+                  if (rn_diff == 2) {
                      if (fixed_atom_flags.size()) {
                         if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
                            std::string atom_name_1 = at_1->GetAtomName();
@@ -1307,7 +1380,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
                             is_H_non_bonded_contact,
                             fixed_atom_flags, dist_min);
          if (false) // debug
-            std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " " 
+            std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " "
                               << energy_type_for_atom[*it] << " "
                               << is_H_non_bonded_contact << " "
                               << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
@@ -2252,7 +2325,8 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
          std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                   << atom_spec_t(at_1) << " " << at_1->GetResName()
+                   << " to " << atom_spec_t(at_2) << " " << at_2->GetResName()
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
                    << " distortion " << std::get<3>(d) << "\n";

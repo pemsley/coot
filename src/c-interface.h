@@ -4195,7 +4195,23 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 /* \{ */
 /*! \brief display the sequence view dialog for molecule number imol */
 void do_sequence_view(int imol);
+
+/*!  \brief display the sequence view for molecule number imol */
+void nsv(int imol);
+/*!  \brief control where the sequence view is displayed
+
+in the main application or a new dialog */
+void set_sequence_view_is_docked(short int state);
+
+/*!  \brief set the pixel limit for sequence view windows */
+void set_nsv_canvas_pixel_limit(int cpl);
+
+/*!  \brief show old style sequence view */
+void sequence_view_old_style(int imol);
+
+/* this is a widget function, it shouldn't be here */
 void add_on_sequence_view_choices();
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -7119,20 +7135,8 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
-/*! \name Sequence View */
+/*! \name Experimental */
 /* \{ */
-
-/*!  \brief display the sequence view for molecule number imol */
-void nsv(int imol);
-/*!  \brief control where the sequence view is displayed
-
-in the main application or a new dialog */
-void set_sequence_view_is_docked(short int state);
-
-/*!  \brief set the pixel limit for sequence view windows */
-void set_nsv_canvas_pixel_limit(int cpl);
-
-void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
 

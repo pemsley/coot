@@ -603,8 +603,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       const simple_restraint &this_restraint = restraints->at(i);
 
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
-	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    d = coot::distortion_score_non_bonded_contact(restraints->at(i), restraints->lennard_jones_epsilon, v);
+	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    d = coot::distortion_score_non_bonded_contact(this_restraint, restraints->lennard_jones_epsilon, v);
 	    // std::cout << "dsm: nbc  single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -612,8 +612,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
-	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) {
-	    d = coot::distortion_score_bond((*restraints)[i], v);
+	 if (this_restraint.restraint_type == coot::BOND_RESTRAINT) {
+	    d = coot::distortion_score_bond(this_restraint, v);
 	    // std::cout << "dsm: bond  single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -621,8 +621,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & coot::ANGLES_MASK) { // 2: angles
-	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
-	    d = coot::distortion_score_angle((*restraints)[i], v);
+	 if (this_restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+	    d = coot::distortion_score_angle(this_restraint, v);
 	    // std::cout << "dsm: angle single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -630,8 +630,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
-	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	    double d =  coot::distortion_score_trans_peptide(i, restraints->at(i), v);
+	 if (this_restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	    double d =  coot::distortion_score_trans_peptide(i, this_restraint, v);
 	    *distortion += d;
 	    continue;
 	 }
@@ -640,7 +640,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
 	    try {
-	       double d =  coot::distortion_score_torsion(i, restraints->at(i), v);
+	       double d =  coot::distortion_score_torsion(i, this_restraint, v);
 	       // std::cout << "dsm: torsion single-thread " << d << std::endl;
 	       *distortion += d;
 	    }
@@ -652,8 +652,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & coot::PLANES_MASK) { // 8: planes
-	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
-	    d =  coot::distortion_score_plane((*restraints)[i], v);
+	 if (this_restraint.restraint_type == coot::PLANE_RESTRAINT) {
+	    d =  coot::distortion_score_plane(this_restraint, v);
 	    // std::cout << "dsm: plane single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -661,8 +661,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) { // 128
-	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
-	    d =  coot::distortion_score_parallel_planes((*restraints)[i], v);
+	 if (this_restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	    d =  coot::distortion_score_parallel_planes(this_restraint, v);
 	    // std::cout << "dsm: paralelplane single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -671,7 +671,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
 
       if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-   	    d = coot::distortion_score_chiral_volume( (*restraints)[i], v);
+   	    d = coot::distortion_score_chiral_volume(this_restraint, v);
    	    *distortion += d;
 	    // std::cout << "dsm: chiral single-trhead " << d << std::endl;
 	    continue;
@@ -681,9 +681,9 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
    	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
 	    if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-	       d = coot::distortion_score_rama( (*restraints)[i], v, restraints->ZO_Rama(), restraints->get_rama_plot_weight());
+	       d = coot::distortion_score_rama(this_restraint, v, restraints->ZO_Rama(), restraints->get_rama_plot_weight());
 	    } else {
-	       d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
+	       d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama());
 	    }
 	    // std::cout << "dsm: rama single-thread " << d << std::endl;
    	    *distortion += d; // positive is bad...  negative is good.
@@ -692,8 +692,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & coot::START_POS_RESTRAINT_MASK) {
-	 if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
-	    *distortion = coot::distortion_score_start_pos((*restraints)[i], params, v);
+	 if (this_restraint.restraint_type == coot::START_POS_RESTRAINT) {
+	    *distortion = coot::distortion_score_start_pos(this_restraint, params, v);
 	    // std::cout << "dsm: start-pos single-thread " << d << std::endl;
 	 }
       }
@@ -1442,11 +1442,12 @@ coot::distortion_score_torsion(unsigned int idx_restraint,
 
    if (theta < 0.0) theta += 360.0;
 
+   const double &w = torsion_restraint.torsion_restraint_weight;
    double V_jk = 11.0;
    double per = torsion_restraint.periodicity;
    double theta_0 = clipper::Util::d2rad(torsion_restraint.target_value);
    double theta_r = clipper::Util::d2rad(theta); // what a mess
-   double pen = 0.5 * V_jk * (1.0 - cos(per * (theta_r - theta_0)));
+   double pen = w * 0.5 * V_jk * (1.0 - cos(per * (theta_r - theta_0)));
 
    return pen;
 

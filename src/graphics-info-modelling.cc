@@ -1095,6 +1095,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
+   last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
+
    if (convert_dictionary_planes_to_improper_dihedrals_flag) {
       last_restraints->set_convert_plane_restraints_to_improper_dihedral_restraints(true);
    }

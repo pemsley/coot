@@ -9521,3 +9521,23 @@ Fri 26 Feb 15:42:29 GMT 2021
 
    fill_map_sections() in slurp_map uses set_coord() on a set of map sections.
    Use as a template for threaded map manipulation.  Can this be used in xmap_stats?
+
+
+---
+Sun 28 Feb 19:25:50 GMT 2021
+
+in ARG: CD-NE-CZ-NH1 should be cis:
+
+Geometry of guanidinium groups in arginines
+Maura Malinska
+Miroslawa Dauter
+Zbigniew Dauter
+First published: 21 June 2016
+https://doi.org/10.1002/pro.297
+
+  In several instances, the nomenclature of the terminal nitrogen
+  atoms in the deposited structures is wrong, but all cases were
+  inspected and the atomic names reverted, if necessary, to ensure that
+  the NH1 atoms are cis and NH2 atoms are trans with respect to the
+  CZ‐NE bond.
+

@@ -1281,13 +1281,14 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 
                     // ----------- untested ----------------------
 
+                     const double &w = this_restraint.torsion_restraint_weight;
                      double V_jk = 1.0;
                      double n_jk = this_restraint.periodicity;
                      double phi     = clipper::Util::d2rad(dtg.theta); // variable name change
                      double phi0_jk = clipper::Util::d2rad(this_restraint.target_value);
                      double dV_dphi = 0.5 * V_jk * (sin(n_jk*(phi - phi0_jk))) * n_jk;
                      double tt = dtg.tan_theta; // variable name change
-                     double scale = dV_dphi/(1.0 + tt*tt);
+                     double scale = w * dV_dphi/(1.0 + tt*tt);
 
                      double xP1_contrib = scale * dtg.dD_dxP1;
                      double xP2_contrib = scale * dtg.dD_dxP2;

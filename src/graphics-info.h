@@ -1791,6 +1791,7 @@ public:
    static float geometry_vs_map_weight;
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
+   static double torsion_restraints_weight;
    static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
    static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
    static int refine_params_dialog_rama_restraints_weight_combobox_position;

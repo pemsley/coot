@@ -333,6 +333,7 @@ namespace coot {
       bool is_user_defined_restraint;
       bool is_H_non_bonded_contact;
       bool is_single_Hydrogen_atom_angle_restraint;
+      double torsion_restraint_weight;
       //
       // for mouse pull on an atom: this is where the user wants the atom to be
       //
@@ -369,6 +370,7 @@ namespace coot {
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
 	 nbc_function = HARMONIC; // not used
+         torsion_restraint_weight = 1.0;
 
 	 // This finds a coding error
 	 if (rest_type != BOND_RESTRAINT) {
@@ -391,6 +393,7 @@ namespace coot {
 	 is_user_defined_restraint = true;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
+         torsion_restraint_weight = 1.0;
 
 	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) {
 	    std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
@@ -415,6 +418,7 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = is_single_Hydrogen_atom_angle_restraint_in;
+         torsion_restraint_weight = 1.0;
 	 if (rest_type != ANGLE_RESTRAINT) {
 	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl;
 	 }
@@ -424,7 +428,7 @@ namespace coot {
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3, int atom_4,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar,
-		       float sig, float obs, int periodicity_in) : fixed_atom_flags(fixed_atom_flags_in) {
+		       float sig, float weight, int periodicity_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
 	 restraint_type = rest_type;
          restraint_index = -1;
@@ -432,7 +436,8 @@ namespace coot {
 	 atom_index_2 = atom_2;
 	 atom_index_3 = atom_3;
 	 atom_index_4 = atom_4;
-	 observed_value = obs;
+	 observed_value = 0.0;
+         torsion_restraint_weight = weight;
 	 sigma = sig;
 	 target_value = tar;
 	 periodicity = periodicity_in;
@@ -461,6 +466,7 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
+         torsion_restraint_weight = 1.0;
 	 if (rest_type != RAMACHANDRAN_RESTRAINT) {
 	    std::cout << "ERROR:: RAMACHANDRAN_RESTRAINT ERROR" << std::endl;
 	 }
@@ -490,13 +496,16 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
+         torsion_restraint_weight = 1.0;
       }
 
       // modern (atoms individually weighted) Plane
       //
       simple_restraint(restraint_type_t restraint_type_in,
 		       const std::vector<std::pair<int, double> > &atom_index_sigma_in,
-		       const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in) {
+		       const std::vector<bool> &fixed_atom_flags_in) :
+         plane_atom_index(atom_index_sigma_in),
+         fixed_atom_flags(fixed_atom_flags_in) {
 
 	 //
 	 // Check restraint_type?
@@ -507,14 +516,12 @@ namespace coot {
 	 restraint_type = restraint_type_in;
          restraint_index = -1;
 
-	 plane_atom_index = atom_index_sigma_in;
-
 	 target_value = 0.0; // not needed for planes
 	 sigma = 0.02; // hack
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
-
+         torsion_restraint_weight = 1.0;
       }
 
 
@@ -544,6 +551,7 @@ namespace coot {
 	 is_user_defined_restraint = 1;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
+         torsion_restraint_weight = 1.0;
       }
 
      // improper dihedral (new-style 4 atom plane restraints)
@@ -563,6 +571,7 @@ namespace coot {
        is_user_defined_restraint = false;
        is_H_non_bonded_contact = false;
        is_single_Hydrogen_atom_angle_restraint = false;
+       torsion_restraint_weight = 1.0;
      }
 
       // Non-bonded - are you sure that this is the constructor that you want?
@@ -575,6 +584,7 @@ namespace coot {
 		       const protein_geometry &geom) {
 
          restraint_index = -1;
+         torsion_restraint_weight = 1.0;
 	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = index_1;
@@ -610,6 +620,7 @@ namespace coot {
 		       double dist_min) {
 
          restraint_index = -1;
+         torsion_restraint_weight = 1.0;
 	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = index_1;
@@ -641,6 +652,7 @@ namespace coot {
 		       int chiral_hydrogen_index_in) {
 
          restraint_index = -1;
+         torsion_restraint_weight = 1.0;
 	 if (restraint_type_in == CHIRAL_VOLUME_RESTRAINT) {
 	    restraint_type = restraint_type_in;
 	    atom_index_1 = atom_idx_1_in;
@@ -663,6 +675,7 @@ namespace coot {
 		       bool fixed_atom_flag_in,
 		       float sig, float obs){
 
+         torsion_restraint_weight = 1.0;
          restraint_index = -1;
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_1;
@@ -683,13 +696,14 @@ namespace coot {
       simple_restraint(restraint_type_t rest_type, int atom_idx,
 		       const atom_spec_t &spec_in,
 		       const clipper::Coord_orth &pos) :
-	 atom_spec(spec_in) {
+	 atom_spec(spec_in),
+         atom_pull_target_pos(pos) {
 
          restraint_index = -1;
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
-	 atom_pull_target_pos = pos;
          is_closed = false;
+         torsion_restraint_weight = 1.0;
 	 if (rest_type != TARGET_POS_RESTRAINT) {
 	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
 	 }
@@ -707,16 +721,19 @@ namespace coot {
       std::string type() const; // a string representation of the restraint type
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
       std::string format(mmdb::PAtom *atoms_vec, double distortion) const;
+      void set_torsion_restraint_weight(const double &tw) { torsion_restraint_weight = tw; }
    };
+
+   // ------------------------------ end of simple_restraint ----------------------------------------
+
+
    std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
    bool target_position_eraser(const simple_restraint &r); // this is static, I guess
 
    // a good example for erase... remove_if (another is the crankshaft eraser)
    class target_position_for_atom_eraser {
    public:
-      target_position_for_atom_eraser(const atom_spec_t &spec_in) {
-	 spec = spec_in;
-      }
+      explicit target_position_for_atom_eraser(const atom_spec_t &spec_in) : spec(spec_in) {}
       atom_spec_t spec;
       bool operator() (const simple_restraint &r) const {
 	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
@@ -735,11 +752,10 @@ namespace coot {
       atom_spec_t exclude_spec;
    public:
       turn_off_when_close_target_position_restraint_eraser(double close_dist_in, mmdb::PAtom *atoms_in, int n_atoms_in,
-							   const atom_spec_t &exclude_spec_in) {
+							   const atom_spec_t &exclude_spec_in) : exclude_spec(exclude_spec_in) {
 	 atoms = atoms_in;
 	 n_atoms = n_atoms_in;
 	 close_dist = close_dist_in; // 0.6; // was 0.5; // was 0.4
-	 exclude_spec = exclude_spec_in;
       }
       bool operator() (const simple_restraint &r) const {
 	 bool v = false;
@@ -1154,6 +1170,7 @@ namespace coot {
          do_neutron_refinement = false;
 
          refinement_results_add_details = true;
+         torsion_restraints_weight = 1.0;
 
 #ifndef __NVCC__
 	 restraints_lock = false; // not locked
@@ -1302,6 +1319,8 @@ namespace coot {
 
       double map_weight;
 
+      double torsion_restraints_weight;
+
       void add(restraint_type_t rest_type, int atom_1, int atom_2,
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar,
@@ -1331,14 +1350,14 @@ namespace coot {
       bool add(restraint_type_t rest_type, int atom_1, int atom_2,
 	       int atom_3, int atom_4,
 	       const std::vector<bool> &fixed_atom_flags,
-	       float tar, float sig, float obs, int periodicty) {
+	       float tar, float sig, float torsion_restraint_weight, int periodicty) {
 
 	 bool r = 0;
 	 if (sig > 0.0) {
 
 	    restraints_vec.push_back(simple_restraint(rest_type,
 						      atom_1, atom_2, atom_3, atom_4,
-						      fixed_atom_flags, tar, sig, obs, periodicty));
+						      fixed_atom_flags, tar, sig, torsion_restraint_weight, periodicty));
 	    r = 1;
 	 }
 	 return r;
@@ -1515,10 +1534,12 @@ namespace coot {
       int add_torsions(int idr, mmdb::PPAtom res_selection,
 		       int i_no_res_atoms,
 		       mmdb::PResidue SelRes,
-		       const protein_geometry &geom);
+		       const protein_geometry &geom,
+                       const double &torsion_restraints_weight);
 
       bool add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
-                                mmdb::PPAtom res_selection, int i_no_res_atoms);
+                                mmdb::PPAtom res_selection, int i_no_res_atoms,
+                                const double &torsion_restraints_weight);
 
       bool
       replace_torsion_restraint(const dict_torsion_restraint_t &new_torsion_restraint,
@@ -2289,6 +2310,10 @@ namespace coot {
 
       void set_map_weight(const double &mw) {
 	 map_weight = mw;
+      }
+
+      void set_torsion_restraints_weight(double w) {
+         torsion_restraints_weight = w;
       }
 
       void setup_multimin_func() {

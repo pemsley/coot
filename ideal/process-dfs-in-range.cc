@@ -612,7 +612,6 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 			  const gsl_vector *v,
 			  std::vector<double> &results) { // fill results
 
-   int n_torsion_restr = 0;
    int idx;
 
    idx = 3*(this_restraint.atom_index_1);
@@ -642,13 +641,15 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
       } else {
 
+         const double &w = this_restraint.torsion_restraint_weight;
          double V_jk = 11.0;
          double n_jk = this_restraint.periodicity;
          double phi     = clipper::Util::d2rad(dtg.theta); // variable name change
          double phi0_jk = clipper::Util::d2rad(this_restraint.target_value);
          double dV_dphi = 0.5 * V_jk * (sin(n_jk*(phi - phi0_jk))) * n_jk;
          double tt = dtg.tan_theta; // variable name change
-         double scale = dV_dphi/(1.0 + tt*tt);
+         double scale = w * dV_dphi/(1.0 + tt*tt);
+         // std::cout << w << " " << scale << std::endl;
 
 	 double xP1_contrib = scale * dtg.dD_dxP1;
 	 double xP2_contrib = scale * dtg.dD_dxP2;

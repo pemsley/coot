@@ -4087,7 +4087,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	       std::string residue_type = residue_p->GetResName();
 	       if (residue_type != "PRO")
 		  local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
-							residue_p, geom);
+							residue_p, geom, torsion_restraints_weight);
 	    }
 	 }
 
@@ -6523,6 +6523,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
+                              std::cout << "settings H_atom_parent route-A H_atom " << atom_spec_t(H_at) << " "
+                                        << atom_spec_t(parent_at) << " type " << hbt << std::endl;
 			   }
 			   if (is_hydrogen(atom[index2])) {
 			      mmdb::Atom *H_at = atom[index2];
@@ -6531,11 +6533,13 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
+                              std::cout << "settings H_atom_parent route-B H_atom " << atom_spec_t(H_at) << " "
+                                        << atom_spec_t(parent_at) << " type " << hbt << std::endl;
 			   }
 			}
 
 			catch (const std::runtime_error &rte) {
-			   
+
 			   // do nothing, it's not really an error if the dictionary
 			   // doesn't have target geometry (the bonding description came
 			   // from a Chemical Component Dictionary entry for example).
@@ -6691,7 +6695,7 @@ coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rot
                      std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() replaced flag " << replaced << " for "
                                << new_torsion_restraint << std::endl;
                   if (! replaced)
-                     status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms);
+                     status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms, torsion_restraints_weight);
                }
             }
          }
@@ -6776,7 +6780,8 @@ coot::restraints_container_t::replace_torsion_restraint(const coot::dict_torsion
 
 bool
 coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
-                                                   mmdb::PPAtom res_selection, int i_no_res_atoms) {
+                                                   mmdb::PPAtom res_selection, int i_no_res_atoms,
+                                                   const double &torsion_restraint_weight) {
 
    bool status = false;
 
@@ -6856,10 +6861,11 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 					   fixed_flags,
 					   torsion_angle,
 					   torsion_restraint.esd(),
-					   1.2,  // junk value
+					   torsion_restraint_weight,
 					   torsion_restraint.periodicity());
 
-				       if (false)
+				       if (false) {
+                                          get_print_lock();
 				          std::cout << "debug:: Adding monomer torsion restraint: "
 						    << index1 << " "
 						    << index2 << " "
@@ -6867,9 +6873,11 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 						    << index4 << " torsion "
 						    << torsion_restraint.angle() << " esd "
 						    << torsion_restraint.esd() << " period "
-						    << torsion_restraint.periodicity()
+						    << torsion_restraint.periodicity() << " "
+                                                    << " weight " << torsion_restraint_weight
 						    << std::endl;
-
+                                          release_print_lock();
+                                       }
 				       status = true;
 				    }
 				 }
@@ -6890,14 +6898,15 @@ int
 coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 					   int i_no_res_atoms,
 					   mmdb::PResidue SelRes,
-					   const coot::protein_geometry &geom) {
+					   const coot::protein_geometry &geom,
+                                           const double &torsion_restraints_weight) {
 
    int n_torsion_restr = 0;
    const std::vector<dict_torsion_restraint_t> &torsion_restraints = geom[idr].second.torsion_restraint;
 
    for (unsigned int ib=0; ib<torsion_restraints.size(); ib++) {
       const dict_torsion_restraint_t &torsion_restraint = torsion_restraints[ib];
-      bool status = add_torsion_internal(torsion_restraint, res_selection, i_no_res_atoms);
+      bool status = add_torsion_internal(torsion_restraint, res_selection, i_no_res_atoms, torsion_restraints_weight);
       if (status)
          n_torsion_restr++;
    }
