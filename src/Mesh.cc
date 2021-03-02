@@ -530,7 +530,7 @@ Mesh::setup_buffers() {
       // don't return before we set first_time = false at the end
    }
 
-   std::cout << "Mesh::setup_buffers() using vao " << vao << std::endl;
+   // std::cout << "Mesh::setup_buffers() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    GLenum err = glGetError();
    if (err) std::cout << "error setup_buffers() on binding vao " << vao << " error "
@@ -1234,7 +1234,7 @@ Mesh::draw_instanced(Shader *shader_p,
    if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: You forgot to setup this Mesh " << name << " " << shader_p->name << std::endl;
 
-   std::cout << "Mesh::draw_instanced() using vao " << vao << std::endl;
+   // std::cout << "Mesh::draw_instanced() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw_instanced() " << shader_name << " " << name
@@ -1445,7 +1445,7 @@ Mesh::draw(Shader *shader_p,
       std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
                 << shader_p->name << std::endl;
 
-   std::cout << "Mesh::draw() using vao " << vao << std::endl;
+   // std::cout << "Mesh::draw() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw() " << shader_name << " " << name
