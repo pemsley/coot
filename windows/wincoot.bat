@@ -1,4 +1,6 @@
 @set LANG=en
+@set LC_ALL=en
+@set LC_NUMERIC=en
 title WinCoot
 
 
