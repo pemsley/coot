@@ -3784,6 +3784,12 @@ def file_to_preferences(filename):
             home = os.getenv("HOME")
             if is_windows():
                 home = os.getenv("COOT_HOME")
+                if not home:
+                    # try HOME
+                    home = os.getenv("HOME")
+                else:
+                    # fallback
+                    home = os.getenv("USERPROFILE")
             if isinstance(home, str):
                 pref_dir = os.path.join(home, ".coot-preferences")
                 if not os.path.isdir(pref_dir):
