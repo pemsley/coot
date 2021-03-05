@@ -369,16 +369,29 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
    if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
-      pick_info nearest_atom_index_info = g.atom_pick_gtk3(false);
       double delta_x = g.GetMouseClickedX() - event->x;
       double delta_y = g.GetMouseClickedY() - event->y;
       if (std::abs(delta_x) < 10.0) {
          if (std::abs(delta_y) < 10.0) {
+            pick_info nearest_atom_index_info = g.atom_pick_gtk3(false);
             if (nearest_atom_index_info.success == GL_TRUE) {
                g.setRotationCentre(nearest_atom_index_info.atom_index,
                                    nearest_atom_index_info.imol);
                g.add_picked_atom_info_to_status_bar(nearest_atom_index_info.imol,
                                                     nearest_atom_index_info.atom_index);
+            } else {
+               if (g.show_symmetry) {
+                  coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_pick();
+                  if (sap.success) {
+                     std::cout << "sap success" << std::endl;
+                     coot::Cartesian pos = sap.hybrid_atom.pos;
+                     g.setRotationCentre(pos);
+                     g.add_picked_atom_info_to_status_bar(sap.imol, sap.atom_index);
+                     g.molecules[sap.imol].add_atom_to_labelled_symm_atom_list(sap.atom_index,
+                                                                               sap.symm_trans,
+                                                                               sap.pre_shift_to_origin);
+                  }
+               }
             }
          }
       }

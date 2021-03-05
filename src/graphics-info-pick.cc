@@ -69,11 +69,14 @@ void write_symm_search_point(std::ofstream&s , const coot::Cartesian &cart) {
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick() const { 
 
-   glm::vec4 front = unproject(0.0);
-   glm::vec4 back  = unproject(1.0);
-   coot::Cartesian f(front.x, front.y, front.z);
-   coot::Cartesian b(back.x,  back.y,  back.z);
-   return symmetry_atom_pick(f, b);
+   // glm::vec4 front = unproject(0.0);
+   // glm::vec4 back  = unproject(1.0);
+   // coot::Cartesian f(front.x, front.y, front.z);
+   // coot::Cartesian b(back.x,  back.y,  back.z);
+   // return symmetry_atom_pick(f, b);
+
+   std::pair<coot::Cartesian, coot::Cartesian> front_and_back = get_front_and_back_for_pick();
+   return symmetry_atom_pick(front_and_back.first, front_and_back.second);
 }
 
 // 

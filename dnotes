@@ -9743,5 +9743,18 @@ compile/installation time and so the env var would not be needed (that
 would be my preferred solution). But this is certainly good enough for
 now.
 
+----
+Sat 27 Feb 15:30:21 GMT 2021
+ 
+   convert gtk2 glade to gtk3 glade:
+
+   Seems that its easy enough - at least for one file that I have tried:
+   Replace the <glade-interface> tag with <interface> and replace all "widget
+   class=" statements with "object class=". Glade 3 seems to read the edited file
+   and even fix some discrepancies. Saving the file converts it to glade 3 format,
+   which should be compatible with GTK+-3, I hope. It will take a lot more work to
+   migrate the application source, before I find out ;-)
+
+   https://bbs.archlinux.org/viewtopic.php?id=145374
 
 

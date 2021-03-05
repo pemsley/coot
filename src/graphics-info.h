@@ -1687,6 +1687,8 @@ public:
    int intelligent_near_atom_centring(GtkWidget *widget, const std::string &direction);
 
    pick_info atom_pick_gtk3(bool intermediate_atoms_only_flag) const;
+   // this can be used for symmetry atom pick:
+   std::pair<coot::Cartesian, coot::Cartesian> get_front_and_back_for_pick() const;
 
    pick_info find_atom_index_from_goto_info(int imol);
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;

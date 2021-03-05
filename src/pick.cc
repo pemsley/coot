@@ -150,6 +150,32 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 
+std::pair<coot::Cartesian, coot::Cartesian>
+graphics_info_t::get_front_and_back_for_pick() const {
+
+   // modern version of getting front and back (the position in 3D space of the mouse on
+   // the front clipping plane and the back clipping plane)
+   GtkAllocation allocation = get_glarea_allocation();
+   int w = allocation.width;
+   int h = allocation.height;
+   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
+   float mouseX = GetMouseBeginX() / (w * 0.5f) - 1.0f;
+   float mouseY = GetMouseBeginY() / (h * 0.5f) - 1.0f;
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   float real_y = - mouseY; // in range -1 -> 1
+   glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, -1.0f, 1.0f);
+   glm::vec4 screenPos_b = glm::vec4(mouseX, real_y,  1.0f, 1.0f); // or other way round?
+   glm::vec4 worldPos_f = vp_inv * screenPos_f;
+   glm::vec4 worldPos_b = vp_inv * screenPos_b;
+   float w_scale_f = 1.0/worldPos_f.w;
+   float w_scale_b = 1.0/worldPos_b.w;
+   coot::Cartesian front(worldPos_f.x * w_scale_f, worldPos_f.y * w_scale_f, worldPos_f.z * w_scale_f);
+   coot::Cartesian  back(worldPos_b.x * w_scale_b, worldPos_b.y * w_scale_b, worldPos_b.z * w_scale_b);
+
+   return std::pair<coot::Cartesian, coot::Cartesian>(front, back);
+}
+
 // Put these in graphics_info_t. Move this function into graphics-info-pick.cc
 pick_info
 graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {

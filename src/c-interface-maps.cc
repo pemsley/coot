@@ -1412,6 +1412,8 @@ void map_histogram(int imol_map) {
    if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_map_molecule(imol_map)) {
 
+         bool map_histograms_are_revealers = false;
+
          bool ignore_pseudo_zeros = false;
 
          if (graphics_info_t::molecules[imol_map].is_EM_map())
@@ -1433,6 +1435,7 @@ void map_histogram(int imol_map) {
             }
 
             coot::goograph* g = new coot::goograph;
+            g->enable_dark_mode(true);
             int trace = g->trace_new();
 
             g->set_plot_title("Density Histogram");
