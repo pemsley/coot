@@ -116,6 +116,8 @@ namespace coot {
 
       GooCanvas *canvas;
       GtkWidget *dialog;
+      bool dark_mode; // means light text
+      bool use_dialog_for_graph_flag;
       int dialog_width_orig;
       int dialog_height_orig;
       int dialog_width; // variable
@@ -270,7 +272,7 @@ namespace coot {
       void clear();
       void draw_graph();
       void set_trace_type(int trace_id, int plot_type, bool dashed=false);
-      void set_trace_colour(int trace, const std::string colour);
+      void set_trace_colour(int trace, const std::string &colour);
       GtkWidget *get_canvas() const; // for embedding in other windows
       GtkWidget *show_dialog();            // for graph in dialog, return the close button so that we
                                            // can add a callback that NULLs the pointer to a goograph
@@ -280,6 +282,9 @@ namespace coot {
       void set_draw_axis(int axis, bool draw_state);
       void set_draw_ticks(int axis, bool draw_state);
       void set_plot_title(const std::string &title);
+
+      void set_use_dialog_for_graph(bool flag); // default true currently
+      void enable_dark_mode(bool flag);
 
       // if using auto-extents, then the first use of set_data() sets the extents
       // (they are not over-ridden by subsequent set_data() usage)

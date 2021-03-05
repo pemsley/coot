@@ -29,36 +29,40 @@ GtkWidget *
 coot::goograph::show_dialog() {
 
    GtkWidget *close_button = NULL;
-   if (! dialog) { 
 
-      draw_graph();
-      dialog = gtk_dialog_new();
-   
-      gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
-      gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
-      g_object_set_data(G_OBJECT(dialog), "goograph_dialog", dialog);
-      g_object_set_data(G_OBJECT(dialog), "goograph", this);
-      // GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
-      GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-      GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
-      GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					    GTK_WIDGET(vbox_inner));
-      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
-      gtk_widget_show(scrolled_window);
-      gtk_widget_show(vbox_inner);
-      gtk_container_add(GTK_CONTAINER(vbox_inner), GTK_WIDGET(canvas));
-      gtk_widget_show(GTK_WIDGET(canvas));
-      close_button = gtk_dialog_add_button(GTK_DIALOG(dialog), "Close", 2);
-      gtk_widget_show(close_button);
-      g_signal_connect(G_OBJECT(close_button), "clicked",
-		       G_CALLBACK(goograph_close_callback),
-		       (gpointer) dialog);
-      g_signal_connect(G_OBJECT(dialog), "configure_event",
-		       G_CALLBACK(reshape),
-		       (gpointer) dialog);
-   }
-   gtk_widget_show(dialog);
+   draw_graph();
+
+   if (! dialog)
+      if (use_dialog_for_graph_flag)
+         dialog = gtk_dialog_new();
+
+   gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
+   gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
+   g_object_set_data(G_OBJECT(dialog), "goograph_dialog", dialog);
+   g_object_set_data(G_OBJECT(dialog), "goograph", this);
+   // GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
+   GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+   GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+   GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+   // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(vbox_inner)); // gtk2
+   gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(vbox_inner)); // gtk3
+   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+   gtk_widget_show(scrolled_window);
+   gtk_widget_show(vbox_inner);
+   gtk_container_add(GTK_CONTAINER(vbox_inner), GTK_WIDGET(canvas));
+   gtk_widget_show(GTK_WIDGET(canvas));
+   close_button = gtk_dialog_add_button(GTK_DIALOG(dialog), "Close", 2);
+   gtk_widget_show(close_button);
+   g_signal_connect(G_OBJECT(close_button), "clicked",
+                    G_CALLBACK(goograph_close_callback),
+                    (gpointer) dialog);
+   g_signal_connect(G_OBJECT(dialog), "configure_event",
+                    G_CALLBACK(reshape),
+                    (gpointer) dialog);
+
+   if (use_dialog_for_graph_flag)
+      gtk_widget_show(dialog);
+
    return close_button;
 }
 
@@ -68,6 +72,8 @@ coot::goograph::init() {
    canvas = NULL;
    dialog = NULL;
 
+   dark_mode = false;
+   use_dialog_for_graph_flag = true;
    dialog_width_orig = 600;
    dialog_height_orig = 500;
 
@@ -121,7 +127,18 @@ coot::goograph::set_bounds(double right, double bottom) {
 GtkWidget *
 coot::goograph::get_canvas() const {
    return GTK_WIDGET(canvas);
-} 
+}
+
+void
+coot::goograph::set_use_dialog_for_graph(bool flag) {
+   use_dialog_for_graph_flag = flag;
+}
+
+void
+coot::goograph::enable_dark_mode(bool flag) {
+   dark_mode = flag;
+}
+
 
 // static
 void
@@ -459,12 +476,15 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 lig_build::pos_t wA = world_to_canvas(A_axis);
 	 lig_build::pos_t wB = world_to_canvas(B_axis);
       
+         std::string grey = "#333333";
+         if (dark_mode) grey = "#aaaaaa";
+
 	 GooCanvasItem *tick =
 	    goo_canvas_polyline_new_line(root,
 					 wA.x, wA.y,
 					 wB.x, wB.y,
 					 "line-width", 1.0,
-					 "stroke-color", dark.c_str(),
+					 "stroke-color", grey.c_str(),
 					 NULL);
 	 items.push_back(tick);
 
@@ -485,7 +505,6 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	    if (range < 2)
 	       n_dec_pl = 2;
 
-	    std::string grey = "#333333";
 	    std::string txt =
 	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
 	    if (tick_y_integers_only)
@@ -615,7 +634,8 @@ coot::goograph::draw_axis_label(int axis) {
    }
    if (do_it) {
       std::string grey = "#333333";
-      std::cout << "draw_axis_label() " << label << std::endl;
+      if (dark_mode) grey = "#aaaaaa";
+      // std::cout << "draw_axis_label() " << label << std::endl;
       lig_build::pos_t wA = world_to_canvas(A);
       GooCanvasAnchorType anchor_type = GOO_CANVAS_ANCHOR_NORTH_WEST;
       GooCanvasItem *text =
@@ -644,13 +664,15 @@ coot::goograph::draw_title() {
       lig_build::pos_t wA = world_to_canvas(A);
       GooCanvasItem *root = goo_canvas_get_root_item(canvas);
       GooCanvasAnchorType anchor_type = GOO_CANVAS_ANCHOR_CENTER;
+      std::string grey = "#333333";
+      if (dark_mode) grey = "#aaaaaa";
       GooCanvasItem *text =
 	 goo_canvas_text_new(root, title_string.c_str(),
 			     wA.x, wA.y,
 			     -1,
 			     anchor_type,
 			     "font", "Sans 11",
-			     "fill_color", dark.c_str(),
+			     "fill_color", grey.c_str(),
 			     NULL);
       items.push_back(text);
    }
@@ -780,7 +802,7 @@ coot::goograph::set_trace_type(int trace_id, int plot_type, bool dashed) {
 }
 
 void
-coot::goograph::set_trace_colour(int trace_id, const std::string colour) {
+coot::goograph::set_trace_colour(int trace_id, const std::string &colour) {
 
    if (is_valid_trace(trace_id))
       traces[trace_id].colour = colour;
