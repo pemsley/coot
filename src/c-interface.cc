@@ -7192,27 +7192,27 @@ void print_sequence_chain_general(int imol, const char *chain_id,
 void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      bool do_old_style = 0; 
+      bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
-	 do_old_style = 1;
+         do_old_style = 1;
       } else {
-	 // was it a big shelx molecule?
-	 if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
-	    std::pair<bool, int> max_resno =
-	       coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-	    if (max_resno.first)
-	       if (max_resno.second > 3200)
-		  do_old_style = 1;
-	 } 
-      } 
+         // was it a big shelx molecule?
+         if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
+            std::pair<bool, int> max_resno =
+               coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+            if (max_resno.first)
+               if (max_resno.second > 3200)
+                  do_old_style = 1;
+         }
+      }
 
 
-      if (do_old_style) { 
-	 sequence_view_old_style(imol);
+      if (do_old_style) {
+         sequence_view_old_style(imol);
       } else {
-	 nsv(imol);
+         nsv(imol);
       }
    }
 }
@@ -7225,7 +7225,7 @@ void do_sequence_view(int imol) {
 void change_peptide_carbonyl_by(double angle) { /* in degrees. */
    graphics_info_t g;
    g.change_peptide_carbonyl_by(angle);
-} 
+}
 
 void change_peptide_peptide_by(double angle) {   /* in degress */
    graphics_info_t g;
@@ -7237,16 +7237,20 @@ void execute_setup_backbone_torsion_edit(int imol, int atom_index) {
    g.execute_setup_backbone_torsion_edit(imol, atom_index);
 }
 
-void setup_backbone_torsion_edit(short int state) { 
+void setup_backbone_torsion_edit(short int state) {
 
    graphics_info_t g;
-   graphics_info_t::in_backbone_torsion_define = state;
-   if (state) { 
-      std::cout << "click on an atom in the peptide to change" << std::endl; 
-      g.pick_cursor_maybe();
-      g.pick_pending_flag = 1;
-   } else { 
-      g.normal_cursor();
+   if (g.moving_atoms_displayed_p()) {
+      g.add_status_bar_text("Edit Backbone is not available while moving atoms are active");
+   } else {
+      g.in_backbone_torsion_define = state;
+      if (state) {
+         std::cout << "click on an atom in the peptide to change" << std::endl;
+         g.pick_cursor_maybe();
+         g.pick_pending_flag = 1;
+      } else {
+         g.normal_cursor();
+      }
    }
 }
 
@@ -7263,7 +7267,7 @@ void set_refine_with_torsion_restraints(int istate) {
 
    graphics_info_t::do_torsion_restraints = istate;
 
-} 
+}
 
 
 int refine_with_torsion_restraints_state() {

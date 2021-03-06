@@ -72,10 +72,9 @@ public:
 
    std::vector<mmdb::Link> links;
 
-   atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) {
+   atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) : atom_selection(0) {
 
      mol = mol_in;
-     atom_selection = NULL;
      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
      SelectionHandle = selhnd;
      UDDAtomIndexHandle = -1;
@@ -84,9 +83,8 @@ public:
      fill_links();
    }
 
-   atom_selection_container_t(mmdb::PPAtom residue_atoms, int n_residue_atoms) {
+   atom_selection_container_t(mmdb::PPAtom residue_atoms, int n_residue_atoms) : atom_selection(residue_atoms) {
       mol = NULL;;
-      atom_selection = residue_atoms;
       n_selected_atoms = n_residue_atoms;
       SelectionHandle = -1;
       UDDAtomIndexHandle = -1;
@@ -94,9 +92,8 @@ public:
       read_success = 1;
    }
 
-   atom_selection_container_t() {
+   atom_selection_container_t() : mol(0), n_selected_atoms(0), atom_selection(0) {
       mol = NULL;
-      atom_selection = NULL;
       SelectionHandle = -1;
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
