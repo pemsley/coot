@@ -880,7 +880,8 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 					 std::string type,
 					 mmdb::realtype value_dist,
 					 mmdb::realtype value_dist_esd,
-					 dict_bond_restraint_t::aromaticity_t arom_in) {
+					 dict_bond_restraint_t::aromaticity_t arom_in,
+                                         dict_bond_restraint_t::bond_length_type_t type_in) {
 
    if (false)
       std::cout << "adding bond for " << comp_id << " " << atom_id_1
@@ -895,7 +896,8 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 							  type,
 							  value_dist,
 							  value_dist_esd,
-							  arom_in));
+							  arom_in,
+                                                          type_in));
 }
 
 void
@@ -1653,7 +1655,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
    int nbond = 0;
    int comp_id_index = -1; // not found initially
 
-   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
       int ierr;
       int ierr_tot = 0;
@@ -1664,6 +1666,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 			         // anyway (to get the bond orders for
 			         // drawing).
       dict_bond_restraint_t::aromaticity_t aromaticity(dict_bond_restraint_t::UNASSIGNED);
+      dict_bond_restraint_t::bond_length_type_t blt(dict_bond_restraint_t::UNKNOWN); // nuclear or electron
 
    
       // modify a reference (ierr)
@@ -1727,7 +1730,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	 // perhaps it was in the dictionary as "value_order"?
 	 if (ierr) {
 	    s = mmCIFLoop->GetString("value_order", j, ierr);
-	 }
+         }
 
 	 if (! ierr) {
 	    if (s) { // just in case (should not be needed).
@@ -1798,10 +1801,25 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	 ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
 	 ierr_tot += ierr;
 
+         mmdb::realtype value_dist_nucleus     = -1.0;
+         mmdb::realtype value_dist_nucleus_esd = -1.0;
+         int ierr_nuc     = mmCIFLoop->GetReal(value_dist_nucleus,     "value_dist_nucleus",     j);
+         int ierr_nuc_esd = mmCIFLoop->GetReal(value_dist_nucleus_esd, "value_dist_nucleus_esd", j);
+
+         // for now, instead of sending both to the dict_bond, let's preferentially send
+         // value_dist_nucleus if we can:
+         //
+         if (ierr_nuc == 0) {
+            if (ierr_nuc_esd == 0) {
+               value_dist     = value_dist_nucleus;
+               value_dist_esd = value_dist_nucleus_esd;
+            }
+         }
+
 	 if (ierr_tot == 0) {
 
 	    mon_lib_add_bond(comp_id, imol_enc, atom_id_1, atom_id_2,
-			     type, value_dist, value_dist_esd, aromaticity); 
+			     type, value_dist, value_dist_esd, aromaticity, blt);
 	    nbond++;
 	 } else {
 

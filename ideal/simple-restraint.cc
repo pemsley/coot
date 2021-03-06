@@ -6523,8 +6523,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
-                              std::cout << "settings H_atom_parent route-A H_atom " << atom_spec_t(H_at) << " "
-                                        << atom_spec_t(parent_at) << " type " << hbt << std::endl;
+                              // std::cout << "settings H_atom_parent route-A H_atom " << atom_spec_t(H_at) << " "
+                              //           << atom_spec_t(parent_at) << " type " << hbt << std::endl;
 			   }
 			   if (is_hydrogen(atom[index2])) {
 			      mmdb::Atom *H_at = atom[index2];
@@ -6533,9 +6533,27 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
-                              std::cout << "settings H_atom_parent route-B H_atom " << atom_spec_t(H_at) << " "
-                                        << atom_spec_t(parent_at) << " type " << hbt << std::endl;
-			   }
+                              // std::cout << "settings H_atom_parent route-B H_atom " << atom_spec_t(H_at) << " "
+                              //           << atom_spec_t(parent_at) << " type " << hbt << std::endl;
+
+                              // It seems to me that NR5 in the dictionary for HIS and TRP is wrong. It should
+                              // be a donor.
+                              // So kludge that in here
+                              if (dict.residue_info.comp_id == "HIS") {
+                                 mmdb::Atom *parent_at = atom[index1];
+                                 std::string parent_atom_name(parent_at->name);
+                                 if (parent_atom_name == "ND1 ") // PDBv3 fixme
+                                    H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
+                                 if (parent_atom_name == "NE2 ") // PDBv3 fixme
+                                    H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
+                              }
+                              if (dict.residue_info.comp_id == "TRP") {
+                                 mmdb::Atom *parent_at = atom[index1];
+                                 std::string parent_atom_name(parent_at->name);
+                                 if (parent_atom_name == "NE1 ") // PDBv3 fixme
+                                    H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
+                              }
+                           }
 			}
 
 			catch (const std::runtime_error &rte) {

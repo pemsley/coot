@@ -751,6 +751,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          }
 
          bool mc_atoms_tandem = false;
+         bool mc_CC_atoms_tandem = false;
          if (! is_1_4_related) {
             // hacky case for C in a helix. Also N.
             // (because fixed atoms don't have angle restraints - so raic.is_1_4_related()
@@ -758,8 +759,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
             if (atom_name_1 == " C  ")
                if (atom_name_2 == " C  ")
-                  if (at_2->residue->index - at_1->residue->index == 1)
+                  if (at_2->residue->index - at_1->residue->index == 1) {
                      mc_atoms_tandem = true;
+                     mc_CC_atoms_tandem = true;
+                  }
             if (atom_name_1 == " N  ")
                if (atom_name_2 == " N  ")
                   if (at_2->residue->index - at_1->residue->index == -1)
@@ -776,12 +779,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
          if (is_1_4_related) {
 
-            if (in_same_ring_flag)
-               dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
-            else
-               dist_min = 2.8;
-
             if (mc_atoms_tandem) dist_min = 2.99;
+
+            if (in_same_ring_flag) {
+               dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+            } else {
+               if (mc_CC_atoms_tandem) {
+                  dist_min = 3.05; // in a helix, more elsewhere.
+               } else {
+                  dist_min = 2.82; // N-N
+               }
+            }
 
             // Hydrogens are handled below this if() also - I am not sure
             // that this delta should be applied here
@@ -1670,7 +1678,7 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
          for (int iat_1=0; iat_1<n_residue_1_atoms; iat_1++) {
             mmdb::Atom *at_1 = residue_1_atoms[iat_1];
             std::string at_name_1(at_1->GetAtomName());
-            if (at_name_1 == " O3'") { // PDBv3 FIXE
+            if (at_name_1 == " O3'") { // PDBv3 FIXME
                std::string alt_conf_1(at_1->altLoc);
                for (int iat_2=0; iat_2<n_residue_2_atoms; iat_2++) {
                   mmdb::Atom *at_2 = residue_2_atoms[iat_2];
@@ -1682,7 +1690,7 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
                         if (use_distance_cut_off) {
                            int res_no_1 = res_1->GetSeqNum();
                            int res_no_2 = res_2->GetSeqNum();
-                           if ((res_2-res_1) > 1) {
+                           if ((res_no_2-res_no_1) > 1) {
                               clipper::Coord_orth pt_1 = coot::co(at_1);
                               clipper::Coord_orth pt_2 = coot::co(at_2);
                               if ((pt_2-pt_1).lengthsq() > distance_cut_off_srd)
@@ -2262,6 +2270,8 @@ coot::restraints_container_t::analyze_for_bad_restraints() {
 void
 coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit) {
 
+   unsigned int n_baddies = 10;
+
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
@@ -2291,7 +2301,6 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
      return (std::get<3>(p1) > std::get<3>(p2)); };
 
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
-   unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies)
       n_baddies = distortions.size();
    std::cout << std::setw(3);

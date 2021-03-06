@@ -186,27 +186,31 @@ namespace coot {
    };
 
    class dict_bond_restraint_t : public basic_dict_restraint_t {
-      std::string type_;
+      std::string type_;  // bond order
       double dist_;
       double dist_esd_;
       bool have_target_values;
 
    public:
+      enum bond_length_type_t { UNKNOWN, NUCLEAR_POSITION, ELECTONS_POSITION };
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       aromaticity_t aromaticity;
+      bond_length_type_t bond_length_type_;
       // dict_bond_restraint_t() {};
       dict_bond_restraint_t(const std::string &atom_id_1_in,
 			    const std::string &atom_id_2_in,
 			    const std::string &type,
 			    double dist_in,
 			    double dist_esd_in,
-			    aromaticity_t arom_in=UNASSIGNED) :
+			    aromaticity_t arom_in=UNASSIGNED,
+                            bond_length_type_t blt=UNKNOWN) :
          basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type) {
 
 	 dist_ = dist_in;
 	 dist_esd_ = dist_esd_in;
 	 have_target_values = 1;
 	 aromaticity = arom_in;
+         bond_length_type_ = blt;
       }
 
       dict_bond_restraint_t(const std::string &atom_id_1_in,
@@ -216,6 +220,7 @@ namespace coot {
 	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type), dist_(0.0), dist_esd_(0.0) {
 	 have_target_values = 0;
 	 aromaticity = arom_in;
+         bond_length_type_ = UNKNOWN;
       }
       dict_bond_restraint_t() {} // boost::python needs this
 
@@ -1381,7 +1386,8 @@ namespace coot {
 			    std::string atom_id_1, std::string atom_id_2,
 			    std::string type,
 			    mmdb::realtype value_dist, mmdb::realtype value_dist_esd,
-			    dict_bond_restraint_t::aromaticity_t arom_in);
+			    dict_bond_restraint_t::aromaticity_t arom_in,
+			    dict_bond_restraint_t::bond_length_type_t lbt_in);
 
       void mon_lib_add_bond_no_target_geom(std::string comp_id,
 					   int imol_enc,
