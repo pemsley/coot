@@ -3473,7 +3473,7 @@ void set_refine_ramachandran_restraints_weight(float w);
 float refine_ramachandran_restraints_weight();
 
 /* not ready yet \brief set the weight for torsion restraints (default 1.0)*/
-// void set_torsion_restraints_weight(double w);
+void set_torsion_restraints_weight(double w);
 
 /* \brief set the state for using rotamer restraints "drive" mode */
 void set_refine_rotamers(int state);

@@ -2756,7 +2756,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 
    bool success = false; // fail initially
    bool debug = false;
-   
+
    if (! is_valid_map_molecule(imol_ref_map)) {
       std::cout << "WARNING:: not a valid map: " << imol_ref_map << std::endl;
       return success;// false
