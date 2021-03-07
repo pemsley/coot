@@ -2365,78 +2365,90 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
 
+   auto render_scene = [] (GtkGLArea *gl_area) {
+                          
+                          //  ------------------- render scene ----------------------------
+                          const glm::vec3 &bg = graphics_info_t::background_colour;
+                          glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
+                          GLenum err = glGetError(); if (err) std::cout << "render() B err " << err << std::endl;
+                          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                          err = glGetError(); if (err) std::cout << "render() C err " << err << std::endl;
+
+                          draw_central_cube(gl_area);
+                          draw_origin_cube(gl_area);
+                          err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
+
+                          draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
+
+                          draw_hud_geometry_bars();
+
+                          draw_hud_geometry_tooltip(); // background and text
+
+                          draw_identification_pulse();
+
+                          draw_delete_item_pulse();
+
+                          draw_invalid_residue_pulse();
+
+                          draw_ligand_view();
+
+                          glBindVertexArray(0); // here is not the place to call this.
+                       };
+
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
-   GLenum err = glGetError();
-   if (err) std::cout << "render() start " << err << std::endl;
+   if (use_framebuffers) { // static class variable
 
-   // is this needed? - does the context ever change?
-   gtk_gl_area_make_current(gl_area);
-   err = glGetError();
-   if (err) std::cout << "render() post gtk_gl_area_make_current() err " << err << std::endl;
+      GLenum err = glGetError();
+      if (err) std::cout << "render() start " << err << std::endl;
 
-   glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
-   err = glGetError();
-   if (err) std::cout << "render() post glViewport() err " << err << std::endl;
-   screen_framebuffer.bind();
-   err = glGetError();
-   if (err) std::cout << "render() post screen_framebuffer bind() err " << err << std::endl;
+      // is this needed? - does the context ever change?
+      gtk_gl_area_make_current(gl_area);
+      err = glGetError();
+      if (err) std::cout << "render() post gtk_gl_area_make_current() err " << err << std::endl;
 
-   glEnable(GL_DEPTH_TEST);
+      glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
+      err = glGetError();
+      if (err) std::cout << "render() post glViewport() err " << err << std::endl;
+      screen_framebuffer.bind();
+      err = glGetError();
+      if (err) std::cout << "render() post screen_framebuffer bind() err " << err << std::endl;
 
-   { //  ------------------- render scene ----------------------------
-      const glm::vec3 &bg = graphics_info_t::background_colour;
-      glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
-      err = glGetError(); if (err) std::cout << "render() B err " << err << std::endl;
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      err = glGetError(); if (err) std::cout << "render() C err " << err << std::endl;
+      glEnable(GL_DEPTH_TEST);
 
-      draw_central_cube(gl_area);
-      draw_origin_cube(gl_area);
-      err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
+      render_scene(gl_area);
 
-      draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
+      if (to_screendump_framebuffer) {
 
-      draw_hud_geometry_bars();
+         glDisable(GL_DEPTH_TEST);
+         unsigned int sf = framebuffer_scale;
+         glViewport(0, 0, sf * w, sf * h);
+         framebuffer screendump_framebuffer;
+         unsigned int index_offset = 0;
+         screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
+         screendump_framebuffer.bind();
+         render_scene_to_base_framebuffer();
+         gtk_gl_area_attach_buffers(gl_area);
+         screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
-      draw_hud_geometry_tooltip(); // background and text
-
-      draw_identification_pulse();
-
-      draw_delete_item_pulse();
-
-      draw_invalid_residue_pulse();
-
-      draw_ligand_view();
-
-      glBindVertexArray(0); // here is not the place to call this.
-   }
-
-   if (to_screendump_framebuffer) {
-
-      glDisable(GL_DEPTH_TEST);
-      unsigned int sf = framebuffer_scale;
-      glViewport(0, 0, sf * w, sf * h);
-      framebuffer screendump_framebuffer;
-      unsigned int index_offset = 0;
-      screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
-      screendump_framebuffer.bind();
-      render_scene_to_base_framebuffer();
-      gtk_gl_area_attach_buffers(gl_area);
-      screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
-
+      } else {
+         glViewport(0, 0, w, h);
+         // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
+         gtk_gl_area_attach_buffers(gl_area);
+         render_scene_to_base_framebuffer(); // render current framebuffer to base framebuffer
+      }
    } else {
-      glViewport(0, 0, w, h);
-      // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
+      //  simple/direct - for debugging framebuffers
       gtk_gl_area_attach_buffers(gl_area);
-      render_scene_to_base_framebuffer();
+      glEnable(GL_DEPTH_TEST); // needed?
+      render_scene(gl_area);
    }
 
-   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_DEPTH_TEST); // what's this for?
 
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();

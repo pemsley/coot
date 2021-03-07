@@ -51,8 +51,12 @@ GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
 GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
 GLuint graphics_info_t::textureColorbuffer_screen = 0;
 GLuint graphics_info_t::textureColorbuffer_blur = 0;
+
+bool graphics_info_t::use_framebuffers = true;
 framebuffer graphics_info_t::screen_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer;
+unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
+
 bool graphics_info_t::perspective_projection_flag = false;
 
 
@@ -160,8 +164,6 @@ float graphics_info_t::contact_dots_density = 1.0;
 bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
-
-unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
 
 
 bool graphics_info_t::do_tick_particles = false;

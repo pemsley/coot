@@ -4154,6 +4154,7 @@ string   static std::string sessionid;
    static bool shader_do_depth_fog_flag;
    static bool shader_do_outline_flag;
    static bool draw_normals_flag;
+   static bool use_framebuffers;
    static framebuffer screen_framebuffer;
    static framebuffer blur_framebuffer;
    static unsigned int framebuffer_scale;
