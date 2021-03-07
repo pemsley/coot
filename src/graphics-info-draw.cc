@@ -2487,16 +2487,18 @@ graphics_info_t::render_scene_to_base_framebuffer() {
 void
 graphics_info_t::reset_frame_buffers(int width, int height) {
 
-   graphics_info_t g;
-   unsigned int sf = framebuffer_scale;
-   unsigned int index_offset = 0;
-   // std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
-   // << width << " x " << height << std::endl;
-   g.screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
-   GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
+   if (use_framebuffers) {
+      unsigned int sf = framebuffer_scale;
+      unsigned int index_offset = 0;
+      // std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
+      // << width << " x " << height << std::endl;
+      screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
+      GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
-   // index_offset = 0;
-   // g.blur_framebuffer.init(width, height, index_offset, "blur");
+      // index_offset = 0;
+      // g.blur_framebuffer.init(width, height, index_offset, "blur");
+   }
+
 }
 
 void
