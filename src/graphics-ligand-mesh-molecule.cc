@@ -37,6 +37,8 @@ graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+   std::cout << "graphics_ligand_mesh_molecule_t::setup_from() with ELT " << std::endl;
+
    imol = imol_in;
    if (residue_p) {
       try {

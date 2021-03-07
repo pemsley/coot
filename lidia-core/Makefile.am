@@ -27,16 +27,16 @@ pkgincludedir = $(includedir)/coot/lidia-core
 
 
 AM_CPPFLAGS = \
-	 -I$(top_srcdir) \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
+	 -I$(top_srcdir)                \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
-	$(SQLITE3_CFLAGS) \
+	$(SQLITE3_CFLAGS)               \
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
-	rdkit-interface.cc cod-types.cc bond-record-container-t.cc \
-	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc \
+	rdkit-interface.cc cod-types.cc bond-record-container-t.cc        \
+	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc       \
 	chemical-feature-clusters.cc atom-types.cc get-residue.cc
 
 # Are these needed?
@@ -44,9 +44,10 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 #   $(top_builddir)/utils/libcoot-utils.la             
 #
 # bond-record-container-t has sqlite3 code in it (to create the atoms database currently)
-libcoot_lidia_core_la_LIBADD =                        \
-   $(top_builddir)/geometry/libcoot-geometry.la       \
-   $(CLIPPER_LIBS) \
+libcoot_lidia_core_la_LIBADD =                    \
+   $(top_builddir)/geometry/libcoot-geometry.la   \
+   $(top_builddir)/utils/libcoot-utils.la         \
+   $(CLIPPER_LIBS)                                \
    $(RDKIT_LIBS) $(SQLITE3_LIBS)
 
 
