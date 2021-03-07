@@ -5090,7 +5090,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
 				  nbcf,
 				  i, filtered_non_bonded_atom_indices[i][j],
-				  type_1, type_2, is_H_non_bonded_contact,
+				  is_H_non_bonded_contact,
 				  fixed_atom_flags, dist_min);
 
 	       if (false)
@@ -7292,7 +7292,7 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
 
 
 void
-coot::restraints_container_t::convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_and_sigma,
+coot::restraints_container_t::convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > &atom_index_and_sigma,
 										       const std::vector<bool> &fixed_atom_flags) {
 
    if (atom_index_and_sigma.size() == 4) {

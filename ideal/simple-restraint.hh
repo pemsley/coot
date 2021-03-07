@@ -95,23 +95,23 @@ namespace coot {
       bool fixed_2;
       bool fixed_3;
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
-		    const std::string &link_type_in) : link_type(link_type_in) {
-	 r_1 = r1;
-	 r_2 = r2;
-	 r_3 = r3;
-	 fixed_1 = 0;
-	 fixed_2 = 0;
-	 fixed_3 = 0;
+                    const std::string &link_type_in) : link_type(link_type_in) {
+         r_1 = r1;
+         r_2 = r2;
+         r_3 = r3;
+         fixed_1 = 0;
+         fixed_2 = 0;
+         fixed_3 = 0;
       }
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
-		    const std::string &link_type_in,
-		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) : link_type(link_type_in) {
-	 r_1 = r1;
-	 r_2 = r2;
-	 r_3 = r3;
-	 fixed_1 = fixed_1_in;
-	 fixed_2 = fixed_2_in;
-	 fixed_3 = fixed_3_in;
+                    const std::string &link_type_in,
+                    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) : link_type(link_type_in) {
+         r_1 = r1;
+         r_2 = r2;
+         r_3 = r3;
+         fixed_1 = fixed_1_in;
+         fixed_2 = fixed_2_in;
+         fixed_3 = fixed_3_in;
       }
    };
 
@@ -151,12 +151,12 @@ namespace coot {
 
 // #include "Cartesian.h"
 #include "coot-utils/atom-selection-container.hh" // for atom_selection_container_t, this and
-			 // the interface that uses this can be
-			 // deleted, I think, when we move to clipper
-			 // (so that clipper does not get infected
-			 // with
-			 // MyMMDBManager/atom_selection_container_t
-			 // stuff).
+                         // the interface that uses this can be
+                         // deleted, I think, when we move to clipper
+                         // (so that clipper does not get infected
+                         // with
+                         // MyMMDBManager/atom_selection_container_t
+                         // stuff).
 
 // for map stuff
 #include "clipper/core/xmap.h"
@@ -192,17 +192,17 @@ namespace coot {
    // restraint types:
    //
    enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
-			  NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
-			  START_POS_RESTRAINT=128,
-			  TARGET_POS_RESTRAINT=256, // restraint to make an atom be at a position
-			  PARALLEL_PLANES_RESTRAINT=512,
+                          NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
+                          START_POS_RESTRAINT=128,
+                          TARGET_POS_RESTRAINT=256, // restraint to make an atom be at a position
+                          PARALLEL_PLANES_RESTRAINT=512,
                           GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
                           TRANS_PEPTIDE_RESTRAINT=2048,
                           IMPROPER_DIHEDRAL_RESTRAINT=4096
    };
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
-				    STRAND_PSEUDO_BONDS};
+                                    STRAND_PSEUDO_BONDS};
 
 
    // restraints_usage_flag
@@ -211,74 +211,74 @@ namespace coot {
    //          restraints_usage_flag & 2 for ANGLES etc.
    //
    enum restraint_usage_Flags { NO_GEOMETRY_RESTRAINTS = 0,
-				BONDS = 1,
-				ANGLES = 2,
-				BONDS_AND_ANGLES = 3,
-				TORSIONS = 4,
-				NON_BONDED = 16,
-				CHIRAL_VOLUMES = 32,
+                                BONDS = 1,
+                                ANGLES = 2,
+                                BONDS_AND_ANGLES = 3,
+                                TORSIONS = 4,
+                                NON_BONDED = 16,
+                                CHIRAL_VOLUMES = 32,
                                 //PLANES = 8,
-				RAMA = 64,
-				GEMAN_MCCLURE_DISTANCE_RESTRAINTS=1024,
-				TRANS_PEPTIDE_RESTRAINTS=2048,
-				BONDS_ANGLES_AND_TORSIONS = 7,
-				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
-				BONDS_AND_PLANES = 9,
-				BONDS_ANGLES_AND_PLANES = 11, // no torsions
-				BONDS_ANGLES_AND_CHIRALS = 35, // no torsions
-				BONDS_AND_NON_BONDED = 17,
-				BONDS_ANGLES_AND_NON_BONDED = 19,
-				BONDS_ANGLES_CHIRALS_AND_NON_BONDED = 19 + 32, // pre-sanitize
-				BONDS_ANGLES_TORSIONS_AND_NON_BONDED = 23,
-				BONDS_ANGLES_PLANES_AND_NON_BONDED = 27,
-				BONDS_ANGLES_PLANES_NON_BONDED_AND_TRANS_PEPTIDE_RESTRAINTS = 27 + 2048,
-				BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS = 59,
-				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 59+2048,
-				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
-				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
-				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
-				JUST_RAMAS = 64,
-				BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
-				BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+2048,
+                                RAMA = 64,
+                                GEMAN_MCCLURE_DISTANCE_RESTRAINTS=1024,
+                                TRANS_PEPTIDE_RESTRAINTS=2048,
+                                BONDS_ANGLES_AND_TORSIONS = 7,
+                                BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
+                                BONDS_AND_PLANES = 9,
+                                BONDS_ANGLES_AND_PLANES = 11, // no torsions
+                                BONDS_ANGLES_AND_CHIRALS = 35, // no torsions
+                                BONDS_AND_NON_BONDED = 17,
+                                BONDS_ANGLES_AND_NON_BONDED = 19,
+                                BONDS_ANGLES_CHIRALS_AND_NON_BONDED = 19 + 32, // pre-sanitize
+                                BONDS_ANGLES_TORSIONS_AND_NON_BONDED = 23,
+                                BONDS_ANGLES_PLANES_AND_NON_BONDED = 27,
+                                BONDS_ANGLES_PLANES_NON_BONDED_AND_TRANS_PEPTIDE_RESTRAINTS = 27 + 2048,
+                                BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS = 59,
+                                BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 59+2048,
+                                BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
+                                BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
+                                BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
+                                BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
+                                JUST_RAMAS = 64,
+                                BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
+                                BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+2048,
 
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
+                                BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
 
-				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
+                                BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
+                                BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
+                                BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
 
                                 // These become pushed along one slot to fit in target pos restraints
-				// GEMAN_MCCLURE_DISTANCE_RESTRAINTS = 512,
-				// BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512,
-				// TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512,
-				// typical restraints add trans-peptide restraints
-				// TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512+1024,
-				// TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024,
-				// TYPICAL_NO_PLANES = 1+2+4 +16+32+128+256+512+1024,
-				// ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
+                                // GEMAN_MCCLURE_DISTANCE_RESTRAINTS = 512,
+                                // BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512,
+                                // TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512,
+                                // typical restraints add trans-peptide restraints
+                                // TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512+1024,
+                                // TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024,
+                                // TYPICAL_NO_PLANES = 1+2+4 +16+32+128+256+512+1024,
+                                // ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
 
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
-				// typical restraints add trans peptide restraints and geman-mcclure
-				TYPICAL_RESTRAINTS                = 1+2+  8+16+32+128+256+512+1024+2048,
-				TYPICAL_RESTRAINTS_NO_PLANES      = 1+2+    16+32+128+256+512+1024+2048,
-				TYPICAL_RESTRAINTS_WITH_IMPROPERS = 1+2+  8+16+32+128+256+512+1024+2048+4096,  // for testing planes -> improper-dihedrals
-				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024+2048,
-				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024+2048+4096 // adds torsions and ramas
+                                BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
+                                // typical restraints add trans peptide restraints and geman-mcclure
+                                TYPICAL_RESTRAINTS                = 1+2+  8+16+32+128+256+512+1024+2048,
+                                TYPICAL_RESTRAINTS_NO_PLANES      = 1+2+    16+32+128+256+512+1024+2048,
+                                TYPICAL_RESTRAINTS_WITH_IMPROPERS = 1+2+  8+16+32+128+256+512+1024+2048+4096,  // for testing planes -> improper-dihedrals
+                                TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024+2048,
+                                ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024+2048+4096 // adds torsions and ramas
 
    };
 
    enum peptide_restraints_usage_Flags { OMEGA_TORSION = 1,
-					 OMEGA_PHI_PSI_TORSION = 3 };
+                                         OMEGA_PHI_PSI_TORSION = 3 };
 
    enum { BONDS_MASK = 1,  ANGLES_MASK = 2, TORSIONS_MASK = 4, PLANES_MASK = 8,
           NON_BONDED_MASK = 16,
-	  CHIRAL_VOLUME_MASK = 32,
-	  RAMA_PLOT_MASK = 64,
-	  START_POS_RESTRAINT_MASK = 128,
-	  PARALLEL_PLANES_MASK = 256,
-	  GEMAN_MCCLURE_DISTANCE_MASK = 1024,
-	  TRANS_PEPTIDE_MASK = 2048,
+          CHIRAL_VOLUME_MASK = 32,
+          RAMA_PLOT_MASK = 64,
+          START_POS_RESTRAINT_MASK = 128,
+          PARALLEL_PLANES_MASK = 256,
+          GEMAN_MCCLURE_DISTANCE_MASK = 1024,
+          TRANS_PEPTIDE_MASK = 2048,
      IMPROPER_DIHEDRALS_MASK = 4096
    };
 
@@ -289,14 +289,14 @@ namespace coot {
       int resno_third;
       std::vector<bool> is_fixed;
       ramachandran_restraint_flanking_residues_helper_t() {
-	 is_fixed.resize(3, false);
+         is_fixed.resize(3, false);
          resno_first = -1;
          resno_third = -1;
       }
    };
 
    bool residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
-		       const std::pair<bool, mmdb::Residue *> &r2);
+                       const std::pair<bool, mmdb::Residue *> &r2);
 
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
@@ -305,6 +305,33 @@ namespace coot {
    // ---------------------------------------------------------------
 
    class simple_restraint {
+
+      void init() {
+         restraint_type = BOND_RESTRAINT;
+         restraint_index = -1;
+         restraints_index = -1; // same thing?
+         atom_index_1 = -1;
+         atom_index_2 = -1;
+         observed_value = 0.0;
+         sigma = 0.0;
+         target_value = 0.0;
+         is_user_defined_restraint = false;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
+         nbc_function = HARMONIC; // not used
+         torsion_restraint_weight = 1.0;
+         target_chiral_volume = 0.0;
+         chiral_volume_sign = 1;
+         chiral_hydrogen_index = -1;
+         is_closed = false;
+         n_atoms_from_all_restraints = 0;
+         periodicity = 0;
+         atom_index_centre = -1;
+         atom_index_3 = -1;
+         atom_index_4 = -1;
+         atom_index_5 = -1;
+         atom_index_6 = -1;
+      }
 
    public:
 
@@ -327,7 +354,7 @@ namespace coot {
                                  // otherwise this is -1.
       atom_spec_t atom_spec; // for pull atoms (so that we can on the fly delete this restraints)
       int n_atoms_from_all_restraints; // for debugging GSL/atom index errors
-      int restraints_index;            // ditto
+      int restraints_index;            // ditto. Is this the same thing as restraints_index?
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
@@ -347,373 +374,381 @@ namespace coot {
 
       // allocator for geometry_distortion_info_t
       simple_restraint() {
-	 is_user_defined_restraint = 0;
-	 chiral_hydrogen_index = -1;
-         is_closed = true;
-         restraint_index = -1;
+         init();
       }
 
       // Bond
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       float tar,
-		       float sig, float obs) : fixed_atom_flags(fixed_atom_flags_in) {
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       float tar,
+                       float sig, float obs) : fixed_atom_flags(fixed_atom_flags_in) {
 
-	 restraint_type = rest_type;
+         init();
+         restraint_type = rest_type;
          restraint_index = -1;
-	 atom_index_1 = atom_1;
-	 atom_index_2 = atom_2;
-	 observed_value = obs;
-	 sigma = sig;
-	 target_value = tar;
-	 is_user_defined_restraint = false;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
-	 nbc_function = HARMONIC; // not used
+         atom_index_1 = atom_1;
+         atom_index_2 = atom_2;
+         observed_value = obs;
+         sigma = sig;
+         target_value = tar;
+         is_user_defined_restraint = false;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
+         nbc_function = HARMONIC; // not used
          torsion_restraint_weight = 1.0;
 
-	 // This finds a coding error
-	 if (rest_type != BOND_RESTRAINT) {
-	    std::cout << "BOND ERROR in simple_restraint()" << std::endl;
-	 }
+         // This finds a coding error
+         if (rest_type != BOND_RESTRAINT) {
+            std::cout << "BOND ERROR in simple_restraint()" << std::endl;
+         }
       };
 
       // Geman-McClure distance (no obs)
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       float tar, float sig) : fixed_atom_flags(fixed_atom_flags_in) {
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       float tar, float sig) : fixed_atom_flags(fixed_atom_flags_in) {
 
-	 restraint_type = rest_type;
+         init();
+         restraint_type = rest_type;
          restraint_index = -1;
-	 atom_index_1 = atom_1;
-	 atom_index_2 = atom_2;
-	 observed_value = -1;  // not given or used
-	 sigma = sig;
-	 target_value = tar;
-	 is_user_defined_restraint = true;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
+         atom_index_1 = atom_1;
+         atom_index_2 = atom_2;
+         observed_value = -1;  // not given or used
+         sigma = sig;
+         target_value = tar;
+         is_user_defined_restraint = true;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
          torsion_restraint_weight = 1.0;
 
-	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) {
-	    std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
-		      << std::endl;
-	 }
+         if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) {
+            std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
+                      << std::endl;
+         }
       };
 
       // Angle
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
-		       int atom_3,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       float tar,
-		       float sig, bool is_single_Hydrogen_atom_angle_restraint_in) : fixed_atom_flags(fixed_atom_flags_in) {
+                       int atom_3,
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       float tar,
+                       float sig, bool is_single_Hydrogen_atom_angle_restraint_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
-	 restraint_type = rest_type;
+         init();
+         restraint_type = rest_type;
          restraint_index = -1;
-	 atom_index_1 = atom_1;
-	 atom_index_2 = atom_2;
-	 atom_index_3 = atom_3;
-	 sigma = sig;
-	 target_value = tar;
-	 is_user_defined_restraint = 0;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = is_single_Hydrogen_atom_angle_restraint_in;
+         atom_index_1 = atom_1;
+         atom_index_2 = atom_2;
+         atom_index_3 = atom_3;
+         sigma = sig;
+         target_value = tar;
+         is_user_defined_restraint = 0;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = is_single_Hydrogen_atom_angle_restraint_in;
          torsion_restraint_weight = 1.0;
-	 if (rest_type != ANGLE_RESTRAINT) {
-	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl;
-	 }
+         if (rest_type != ANGLE_RESTRAINT) {
+            std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl;
+         }
       };
 
       // Torsion
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3, int atom_4,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       float tar,
-		       float sig, float weight, int periodicity_in) : fixed_atom_flags(fixed_atom_flags_in) {
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       float tar,
+                       float sig, float weight, int periodicity_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
-	 restraint_type = rest_type;
+         init();
+         restraint_type = rest_type;
          restraint_index = -1;
-	 atom_index_1 = atom_1;
-	 atom_index_2 = atom_2;
-	 atom_index_3 = atom_3;
-	 atom_index_4 = atom_4;
-	 observed_value = 0.0;
+         atom_index_1 = atom_1;
+         atom_index_2 = atom_2;
+         atom_index_3 = atom_3;
+         atom_index_4 = atom_4;
+         observed_value = 0.0;
          torsion_restraint_weight = weight;
-	 sigma = sig;
-	 target_value = tar;
-	 periodicity = periodicity_in;
-	 is_user_defined_restraint = 0;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
-	 if ((rest_type != TORSION_RESTRAINT) && (rest_type != TRANS_PEPTIDE_RESTRAINT)) {
-	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl;
-	 }
+         sigma = sig;
+         target_value = tar;
+         periodicity = periodicity_in;
+         is_user_defined_restraint = 0;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
+         if ((rest_type != TORSION_RESTRAINT) && (rest_type != TRANS_PEPTIDE_RESTRAINT)) {
+            std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl;
+         }
       }
 
       // Rama
       simple_restraint(restraint_type_t rest_type,
-		       const std::string &rama_plot_zo_residue_type,
-		       int atom_1, int atom_2, int atom_3, int atom_4, int atom_5,
-		       const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in)  {
+                       const std::string &rama_plot_zo_residue_type,
+                       int atom_1, int atom_2, int atom_3, int atom_4, int atom_5,
+                       const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in)  {
 
-	 restraint_type = rest_type;
+         init();
+         restraint_type = rest_type;
          restraint_index = -1;
-	 rama_plot_residue_type = rama_plot_zo_residue_type;
-	 atom_index_1 = atom_1;
-	 atom_index_2 = atom_2;
-	 atom_index_3 = atom_3;
-	 atom_index_4 = atom_4;
-	 atom_index_5 = atom_5;
-	 is_user_defined_restraint = 0;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
+         rama_plot_residue_type = rama_plot_zo_residue_type;
+         atom_index_1 = atom_1;
+         atom_index_2 = atom_2;
+         atom_index_3 = atom_3;
+         atom_index_4 = atom_4;
+         atom_index_5 = atom_5;
+         is_user_defined_restraint = 0;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
          torsion_restraint_weight = 1.0;
-	 if (rest_type != RAMACHANDRAN_RESTRAINT) {
-	    std::cout << "ERROR:: RAMACHANDRAN_RESTRAINT ERROR" << std::endl;
-	 }
+         if (rest_type != RAMACHANDRAN_RESTRAINT) {
+            std::cout << "ERROR:: RAMACHANDRAN_RESTRAINT ERROR" << std::endl;
+         }
       }
 
       // Old Plane
       simple_restraint(restraint_type_t restraint_type_in,
-		       const std::vector<int> &atom_index_in,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       float sig) {
+                       const std::vector<int> &atom_index_in,
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       float sig) {
 
-	 // Check restraint_type?
-	 // Currently the only thing with an std::vector <int>
-	 // atom_index_in is a plane restraint.  This could well
-	 // change in the future.
-	 //
+         // Check restraint_type?
+         // Currently the only thing with an std::vector <int>
+         // atom_index_in is a plane restraint.  This could well
+         // change in the future.
+         //
          restraint_index = -1;
-	 restraint_type = restraint_type_in;
+         restraint_type = restraint_type_in;
 
-	 plane_atom_index.resize(atom_index_in.size());
-	 for (unsigned int i=0; i<atom_index_in.size(); i++)
-	    plane_atom_index[i] = std::pair<int, double> (atom_index_in[i], sig);
+         plane_atom_index.resize(atom_index_in.size());
+         for (unsigned int i=0; i<atom_index_in.size(); i++)
+            plane_atom_index[i] = std::pair<int, double> (atom_index_in[i], sig);
 
-	 target_value = 0.0; // not needed for planes
-	 sigma = sig;
-	 fixed_atom_flags = fixed_atom_flags_in;
-	 is_user_defined_restraint = 0;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
+         target_value = 0.0; // not needed for planes
+         sigma = sig;
+         fixed_atom_flags = fixed_atom_flags_in;
+         is_user_defined_restraint = 0;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
          torsion_restraint_weight = 1.0;
       }
 
       // modern (atoms individually weighted) Plane
       //
       simple_restraint(restraint_type_t restraint_type_in,
-		       const std::vector<std::pair<int, double> > &atom_index_sigma_in,
-		       const std::vector<bool> &fixed_atom_flags_in) :
+                       const std::vector<std::pair<int, double> > &atom_index_sigma_in,
+                       const std::vector<bool> &fixed_atom_flags_in) :
          plane_atom_index(atom_index_sigma_in),
          fixed_atom_flags(fixed_atom_flags_in) {
 
-	 //
-	 // Check restraint_type?
-	 // Currently the only thing with an std::vector <int>
-	 // atom_index_in is a plane restraint.  This could well
-	 // change in the future.
-	 //
-	 restraint_type = restraint_type_in;
+         init();
+         //
+         // Check restraint_type?
+         // Currently the only thing with an std::vector <int>
+         // atom_index_in is a plane restraint.  This could well
+         // change in the future.
+         //
+         restraint_type = restraint_type_in;
          restraint_index = -1;
 
-	 target_value = 0.0; // not needed for planes
-	 sigma = 0.02; // hack
-	 is_user_defined_restraint = 0;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
+         target_value = 0.0; // not needed for planes
+         sigma = 0.02; // hack
+         is_user_defined_restraint = 0;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
          torsion_restraint_weight = 1.0;
       }
 
 
       // Parallel planes (actually angle-between-planes,typically-zero)
       simple_restraint(restraint_type_t restraint_type_in,
-		       const std::vector<int> &atom_index_plane_1_in,
-		       const std::vector<int> &atom_index_plane_2_in,
-		       const std::vector<bool> &fixed_atom_flags_plane_1_in,
-		       const std::vector<bool> &fixed_atom_flags_plane_2_in,
-		       double target_angle_in,
-		       double sigma_in) {
-	 restraint_type = restraint_type_in;
+                       const std::vector<int> &atom_index_plane_1_in,
+                       const std::vector<int> &atom_index_plane_2_in,
+                       const std::vector<bool> &fixed_atom_flags_plane_1_in,
+                       const std::vector<bool> &fixed_atom_flags_plane_2_in,
+                       double target_angle_in,
+                       double sigma_in) {
+         init();
+         restraint_type = restraint_type_in;
          restraint_index = -1;
-	 // atom_index = atom_index_plane_1_in;
-	 // atom_index_other_plane = atom_index_plane_2_in;
-	 plane_atom_index.resize(atom_index_plane_1_in.size());
-	 atom_index_other_plane.resize(atom_index_plane_2_in.size());
-	 for (unsigned int i=0; i<atom_index_plane_1_in.size(); i++)
-	    plane_atom_index[i] = std::pair<int, double> (atom_index_plane_1_in[i], sigma_in);
-	 for (unsigned int i=0; i<atom_index_plane_2_in.size(); i++)
-	    atom_index_other_plane[i] = std::pair<int, double> (atom_index_plane_2_in[i], sigma_in);
+         // atom_index = atom_index_plane_1_in;
+         // atom_index_other_plane = atom_index_plane_2_in;
+         plane_atom_index.resize(atom_index_plane_1_in.size());
+         atom_index_other_plane.resize(atom_index_plane_2_in.size());
+         for (unsigned int i=0; i<atom_index_plane_1_in.size(); i++)
+            plane_atom_index[i] = std::pair<int, double> (atom_index_plane_1_in[i], sigma_in);
+         for (unsigned int i=0; i<atom_index_plane_2_in.size(); i++)
+            atom_index_other_plane[i] = std::pair<int, double> (atom_index_plane_2_in[i], sigma_in);
 
-	 fixed_atom_flags             = fixed_atom_flags_plane_1_in;
-	 fixed_atom_flags_other_plane = fixed_atom_flags_plane_2_in;
-	 target_value = target_angle_in;
-	 sigma = sigma_in;
-	 is_user_defined_restraint = 1;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
+         fixed_atom_flags             = fixed_atom_flags_plane_1_in;
+         fixed_atom_flags_other_plane = fixed_atom_flags_plane_2_in;
+         target_value = target_angle_in;
+         sigma = sigma_in;
+         is_user_defined_restraint = 1;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
          torsion_restraint_weight = 1.0;
       }
 
      // improper dihedral (new-style 4 atom plane restraints)
      simple_restraint(restraint_type_t restraint_type_in,
-		      int index_1, int index_2, int index_3, int index_4,
-		      float sigma_in, const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in) {
+                      int index_1, int index_2, int index_3, int index_4,
+                      float sigma_in, const std::vector<bool> &fixed_atom_flags_in) : fixed_atom_flags(fixed_atom_flags_in) {
 
-       restraint_type = restraint_type_in;
-       restraint_index = -1;
+        init();
+        restraint_type = restraint_type_in;
+        restraint_index = -1;
 
-       atom_index_1 = index_1;
-       atom_index_2 = index_2;
-       atom_index_3 = index_3;
-       atom_index_4 = index_4;
+        atom_index_1 = index_1;
+        atom_index_2 = index_2;
+        atom_index_3 = index_3;
+        atom_index_4 = index_4;
 
-       sigma = sigma_in;
-       is_user_defined_restraint = false;
-       is_H_non_bonded_contact = false;
-       is_single_Hydrogen_atom_angle_restraint = false;
-       torsion_restraint_weight = 1.0;
+        sigma = sigma_in;
+        is_user_defined_restraint = false;
+        is_H_non_bonded_contact = false;
+        is_single_Hydrogen_atom_angle_restraint = false;
+        torsion_restraint_weight = 1.0;
      }
 
       // Non-bonded - are you sure that this is the constructor that you want?
       simple_restraint(restraint_type_t restraint_type_in,
-		       int index_1,
-		       int index_2,
-		       const std::string &atom_1_type,
-		       const std::string &atom_2_type,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       const protein_geometry &geom) {
+                       int index_1,
+                       int index_2,
+                       const std::string &atom_1_type,
+                       const std::string &atom_2_type,
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       const protein_geometry &geom) {
 
+         init();
          restraint_index = -1;
          torsion_restraint_weight = 1.0;
-	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
-	    restraint_type = restraint_type_in;
-	    atom_index_1 = index_1;
-	    atom_index_2 = index_2;
-	    // Enable shortening if there might be an H-bond between them.
-	    std::pair<bool, double> nbc_dist = get_nbc_dist(atom_1_type, atom_2_type, geom);
-	    if (nbc_dist.first) {
-	       target_value = nbc_dist.second;
-	    } else {
-	       // short/standard value
-	       target_value = 2.5;
-	    }
-	    sigma = 0.02;
-	    fixed_atom_flags = fixed_atom_flags_in;
-	    is_user_defined_restraint = 0;
-	    is_H_non_bonded_contact = false;
-	    is_single_Hydrogen_atom_angle_restraint = false;
-	 } else {
-	    std::cout << "ERROR:: bad simple_restraint constructor usage "
-		      << "- should be non-bonded\n";
-	 }
+         if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
+            restraint_type = restraint_type_in;
+            atom_index_1 = index_1;
+            atom_index_2 = index_2;
+            // Enable shortening if there might be an H-bond between them.
+            std::pair<bool, double> nbc_dist = get_nbc_dist(atom_1_type, atom_2_type, geom);
+            if (nbc_dist.first) {
+               target_value = nbc_dist.second;
+            } else {
+               // short/standard value
+               target_value = 2.5;
+            }
+            sigma = 0.02;
+            fixed_atom_flags = fixed_atom_flags_in;
+            is_user_defined_restraint = 0;
+            is_H_non_bonded_contact = false;
+            is_single_Hydrogen_atom_angle_restraint = false;
+         } else {
+            std::cout << "ERROR:: bad simple_restraint constructor usage "
+                      << "- should be non-bonded\n";
+         }
       }
 
       // Non-bonded v2
       simple_restraint(restraint_type_t restraint_type_in,
-		       const nbc_function_t &nbc_func_type,
-		       int index_1,
-		       int index_2,
-		       const std::string &atom_1_type,
-		       const std::string &atom_2_type,
-		       bool is_H_non_bonded_contact_in,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       double dist_min) {
+                       const nbc_function_t &nbc_func_type,
+                       int index_1,
+                       int index_2,
+                       bool is_H_non_bonded_contact_in,
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       double dist_min) {
 
+         init();
          restraint_index = -1;
          torsion_restraint_weight = 1.0;
-	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
-	    restraint_type = restraint_type_in;
-	    atom_index_1 = index_1;
-	    atom_index_2 = index_2;
-	    target_value = dist_min;
-	    // nbc_function = HARMONIC;
-	    nbc_function = nbc_func_type;
-	    sigma = 0.02;
-	    fixed_atom_flags = fixed_atom_flags_in;
-	    is_user_defined_restraint = 0;
-	    is_single_Hydrogen_atom_angle_restraint = false;
-	    is_H_non_bonded_contact = is_H_non_bonded_contact_in;
-	 } else {
-	    std::cout << "ERROR:: bad simple_restraint constructor usage "
-		      << "- should be non-bonded\n";
-	 }
+         if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) {
+            restraint_type = restraint_type_in;
+            atom_index_1 = index_1;
+            atom_index_2 = index_2;
+            target_value = dist_min;
+            // nbc_function = HARMONIC;
+            nbc_function = nbc_func_type;
+            sigma = 0.02;
+            fixed_atom_flags = fixed_atom_flags_in;
+            is_user_defined_restraint = 0;
+            is_single_Hydrogen_atom_angle_restraint = false;
+            is_H_non_bonded_contact = is_H_non_bonded_contact_in;
+         } else {
+            std::cout << "ERROR:: bad simple_restraint constructor usage "
+                      << "- should be non-bonded\n";
+         }
       }
 
       // Chiral
       simple_restraint(restraint_type_t restraint_type_in,
-		       int atom_centre_idx_in,
-		       int atom_idx_1_in,
-		       int atom_idx_2_in,
-		       int atom_idx_3_in,
-		       int volume_sign_in,
-		       double target_volume_in,
-		       double target_volume_sigma_in,
-		       const std::vector<bool> &fixed_atom_flags_in,
-		       int chiral_hydrogen_index_in) {
+                       int atom_centre_idx_in,
+                       int atom_idx_1_in,
+                       int atom_idx_2_in,
+                       int atom_idx_3_in,
+                       int volume_sign_in,
+                       double target_volume_in,
+                       double target_volume_sigma_in,
+                       const std::vector<bool> &fixed_atom_flags_in,
+                       int chiral_hydrogen_index_in) {
 
+         init();
          restraint_index = -1;
          torsion_restraint_weight = 1.0;
-	 if (restraint_type_in == CHIRAL_VOLUME_RESTRAINT) {
-	    restraint_type = restraint_type_in;
-	    atom_index_1 = atom_idx_1_in;
-	    atom_index_2 = atom_idx_2_in;
-	    atom_index_3 = atom_idx_3_in;
-	    atom_index_centre = atom_centre_idx_in;
-	    chiral_volume_sign = volume_sign_in;
-	    target_chiral_volume = target_volume_in;
-	    sigma = target_volume_sigma_in;
-	    fixed_atom_flags = fixed_atom_flags_in;
-	    chiral_hydrogen_index = chiral_hydrogen_index_in;
-	    is_user_defined_restraint = 0;
-	    is_H_non_bonded_contact = false;
-	    is_single_Hydrogen_atom_angle_restraint = false;
-	 }
+         if (restraint_type_in == CHIRAL_VOLUME_RESTRAINT) {
+            restraint_type = restraint_type_in;
+            atom_index_1 = atom_idx_1_in;
+            atom_index_2 = atom_idx_2_in;
+            atom_index_3 = atom_idx_3_in;
+            atom_index_centre = atom_centre_idx_in;
+            chiral_volume_sign = volume_sign_in;
+            target_chiral_volume = target_volume_in;
+            sigma = target_volume_sigma_in;
+            fixed_atom_flags = fixed_atom_flags_in;
+            chiral_hydrogen_index = chiral_hydrogen_index_in;
+            is_user_defined_restraint = 0;
+            is_H_non_bonded_contact = false;
+            is_single_Hydrogen_atom_angle_restraint = false;
+         }
       }
 
       // start pos
       simple_restraint(restraint_type_t rest_type, int atom_1,
-		       bool fixed_atom_flag_in,
-		       float sig, float obs){
+                       bool fixed_atom_flag_in,
+                       float sig, float obs){
 
+         init();
          torsion_restraint_weight = 1.0;
          restraint_index = -1;
-	 restraint_type = rest_type;
-	 atom_index_1 = atom_1;
-	 observed_value = obs;
-	 sigma = sig;
-	 fixed_atom_flags = std::vector<bool> (1,fixed_atom_flag_in);
-	 is_user_defined_restraint = 0;
-	 is_H_non_bonded_contact = false;
-	 is_single_Hydrogen_atom_angle_restraint = false;
+         restraint_type = rest_type;
+         atom_index_1 = atom_1;
+         observed_value = obs;
+         sigma = sig;
+         fixed_atom_flags = std::vector<bool> (1,fixed_atom_flag_in);
+         is_user_defined_restraint = 0;
+         is_H_non_bonded_contact = false;
+         is_single_Hydrogen_atom_angle_restraint = false;
          is_closed = false;
 
-	 if (rest_type != START_POS_RESTRAINT) {
-	    std::cout << "ERROR:: START POS ERROR" << std::endl;
-	 }
+         if (rest_type != START_POS_RESTRAINT) {
+            std::cout << "ERROR:: START POS ERROR" << std::endl;
+         }
       }
 
       // target_position, including pull_atoms
       simple_restraint(restraint_type_t rest_type, int atom_idx,
-		       const atom_spec_t &spec_in,
-		       const clipper::Coord_orth &pos) :
-	 atom_spec(spec_in),
+                       const atom_spec_t &spec_in,
+                       const clipper::Coord_orth &pos) :
+         atom_spec(spec_in),
          atom_pull_target_pos(pos) {
 
+         init();
          restraint_index = -1;
-	 restraint_type = rest_type;
-	 atom_index_1 = atom_idx;
+         restraint_type = rest_type;
+         atom_index_1 = atom_idx;
          is_closed = false;
          torsion_restraint_weight = 1.0;
-	 if (rest_type != TARGET_POS_RESTRAINT) {
-	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
-	 }
+         if (rest_type != TARGET_POS_RESTRAINT) {
+            std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
+         }
       }
 
       void close() { is_closed = true; }
 
       std::pair<bool, double> get_nbc_dist(const std::string &atom_1_type,
-					   const std::string &atom_2_type,
-					   const protein_geometry &geom);
+                                           const std::string &atom_2_type,
+                                           const protein_geometry &geom);
 
       double torsion_distortion(double model_torsion) const;
       // distortion (penalty score) and bond length delta from target value
@@ -736,12 +771,12 @@ namespace coot {
       explicit target_position_for_atom_eraser(const atom_spec_t &spec_in) : spec(spec_in) {}
       atom_spec_t spec;
       bool operator() (const simple_restraint &r) const {
-	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
-	    if (r.atom_spec == spec) {
-	       return true;
-	    }
-	 }
-	 return false;
+         if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+            if (r.atom_spec == spec) {
+               return true;
+            }
+         }
+         return false;
       }
    };
 
@@ -752,23 +787,23 @@ namespace coot {
       atom_spec_t exclude_spec;
    public:
       turn_off_when_close_target_position_restraint_eraser(double close_dist_in, mmdb::PAtom *atoms_in, int n_atoms_in,
-							   const atom_spec_t &exclude_spec_in) : exclude_spec(exclude_spec_in) {
-	 atoms = atoms_in;
-	 n_atoms = n_atoms_in;
-	 close_dist = close_dist_in; // 0.6; // was 0.5; // was 0.4
+                                                           const atom_spec_t &exclude_spec_in) : exclude_spec(exclude_spec_in) {
+         atoms = atoms_in;
+         n_atoms = n_atoms_in;
+         close_dist = close_dist_in; // 0.6; // was 0.5; // was 0.4
       }
       bool operator() (const simple_restraint &r) const {
-	 bool v = false;
-	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
-	    clipper::Coord_orth p_1 = co(atoms[r.atom_index_1]);
-	    double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
-	    if (d < close_dist) {
-	       atom_spec_t t(atoms[r.atom_index_1]);
-	       if (t != exclude_spec)
-		  v = true;
-	    }
-	 }
-	 return v;
+         bool v = false;
+         if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+            clipper::Coord_orth p_1 = co(atoms[r.atom_index_1]);
+            double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
+            if (d < close_dist) {
+               atom_spec_t t(atoms[r.atom_index_1]);
+               if (t != exclude_spec)
+                  v = true;
+            }
+         }
+         return v;
       }
    };
 
@@ -792,7 +827,7 @@ namespace coot {
       clipper::Coord_orth centre_1;
       clipper::Coord_orth centre_2;
       plane_distortion_info_t() {
-	 distortion_score = 0.0;
+         distortion_score = 0.0;
       }
       double distortion_score;
    };
@@ -800,15 +835,15 @@ namespace coot {
    class geometry_distortion_info_t {
    public:
       geometry_distortion_info_t(double distortion_in,
-				 const simple_restraint &rest_in,
-				 residue_spec_t &residue_spec_in) {
-	 distortion_score = distortion_in;
-	 restraint = rest_in;
-	 residue_spec = residue_spec_in;
-	 set = 1;
+                                 const simple_restraint &rest_in,
+                                 residue_spec_t &residue_spec_in) {
+         distortion_score = distortion_in;
+         restraint = rest_in;
+         residue_spec = residue_spec_in;
+         set = 1;
       }
       geometry_distortion_info_t() {
-	 set = 0;
+         set = 0;
       }
       bool set;
       double distortion_score;
@@ -821,18 +856,18 @@ namespace coot {
       // arguments is not initialised)
       //
       bool operator<(const geometry_distortion_info_t &gdi) const {
-	 if (! gdi.initialised_p())
-	    throw std::runtime_error("unitialised passed geometry_distortion_info_t");
-	 if (! initialised_p())
-	    throw std::runtime_error("unitialised this geometry_distortion_info_t");
-	 return (distortion_score < gdi.distortion_score);
+         if (! gdi.initialised_p())
+            throw std::runtime_error("unitialised passed geometry_distortion_info_t");
+         if (! initialised_p())
+            throw std::runtime_error("unitialised this geometry_distortion_info_t");
+         return (distortion_score < gdi.distortion_score);
       }
       bool operator>(const geometry_distortion_info_t &gdi) const {
-	 if (! gdi.initialised_p())
-	    throw std::runtime_error("unitialised passed geometry_distortion_info_t");
-	 if (! initialised_p())
-	    throw std::runtime_error("unitialised this geometry_distortion_info_t");
-	 return (distortion_score > gdi.distortion_score);
+         if (! gdi.initialised_p())
+            throw std::runtime_error("unitialised passed geometry_distortion_info_t");
+         if (! initialised_p())
+            throw std::runtime_error("unitialised this geometry_distortion_info_t");
+         return (distortion_score > gdi.distortion_score);
 
       }
       bool initialised_p() const { return set; }
@@ -848,21 +883,21 @@ namespace coot {
       int min_resno;
       int max_resno;
       geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in,
-					   mmdb::PAtom *atom_in,
-					   const std::string &chain_id_in) {
-	 geometry_distortion = geometry_distortion_in;
-	 atom = atom_in;
-	 chain_id = chain_id_in;
+                                           mmdb::PAtom *atom_in,
+                                           const std::string &chain_id_in) {
+         geometry_distortion = geometry_distortion_in;
+         atom = atom_in;
+         chain_id = chain_id_in;
       }
       geometry_distortion_info_container_t(mmdb::PAtom *atom_in, int n_atoms_in,
-					   const std::string &chain_id_in) {
-	 atom = atom_in;
-	 n_atoms = n_atoms_in;
-	 chain_id = chain_id_in;
+                                           const std::string &chain_id_in) {
+         atom = atom_in;
+         n_atoms = n_atoms_in;
+         chain_id = chain_id_in;
       }
       void set_min_max(int min_resno_in, int max_resno_in) {
-	 min_resno = min_resno_in;
-	 max_resno = max_resno_in;
+         min_resno = min_resno_in;
+         max_resno = max_resno_in;
       }
       int size () const { return geometry_distortion.size(); }
       double print() const;  // return the total distortion
@@ -877,9 +912,9 @@ namespace coot {
       double distortion;
       std::string info_string;
       omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) {
-	 resno = resno_in;
-	 distortion = distortion_in;
-	 info_string = s;
+         resno = resno_in;
+         distortion = distortion_in;
+         info_string = s;
       }
    };
 
@@ -890,9 +925,9 @@ namespace coot {
       int min_resno;
       int max_resno;
       omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) {
-	 chain_id = chain_id_in;
-	 min_resno = min_resno_in;
-	 max_resno = max_resno_in;
+         chain_id = chain_id_in;
+         min_resno = min_resno_in;
+         max_resno = max_resno_in;
       }
    };
 
@@ -916,72 +951,72 @@ namespace coot {
 #endif // __NVCC__
 #endif // HAVE_CXX_THREAD
    void distortion_score_single_thread(const gsl_vector *v, void *params,
-				       int idx_start, int idx_end, double *distortion);
+                                       int idx_start, int idx_end, double *distortion);
    double distortion_score_bond(const simple_restraint &bond_restraint,
-				const gsl_vector *v);
+                                const gsl_vector *v);
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
-						  const gsl_vector *v,
-						  const double &alpha);
+                                                  const gsl_vector *v,
+                                                  const double &alpha);
    double distortion_score_angle(const simple_restraint &angle_restraint,
-				 const gsl_vector *v);
+                                 const gsl_vector *v);
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
 
    double distortion_score_torsion(unsigned int idx_restraint,
-				   const simple_restraint &torsion_restraint,
-				   const gsl_vector *v);
+                                   const simple_restraint &torsion_restraint,
+                                   const gsl_vector *v);
    double distortion_score_torsion_fourier_series(const simple_restraint &torsion_restraint,
-						  const gsl_vector *v);
+                                                  const gsl_vector *v);
    double distortion_score_trans_peptide(const int &restraint_index,
-					 const simple_restraint &trans_peptide_restraint,
-					 const gsl_vector *v);
+                                         const simple_restraint &trans_peptide_restraint,
+                                         const gsl_vector *v);
    double distortion_score_plane(const simple_restraint &plane_restraint,
-				  const gsl_vector *v);
+                                  const gsl_vector *v);
    double distortion_score_improper_dihedral(const simple_restraint &id_restraint,
-				  const gsl_vector *v);
+                                  const gsl_vector *v);
    double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
-					 const gsl_vector *v);
+                                         const gsl_vector *v);
    double distortion_score_rama(const simple_restraint &chiral_restraint,
-				const gsl_vector *v,
-				const LogRamachandran &lograma);
+                                const gsl_vector *v,
+                                const LogRamachandran &lograma);
    double distortion_score_rama(const simple_restraint &chiral_restraint,
-				const gsl_vector *v,
-				const zo::rama_table_set &rama,
-				float rama_plot_weight);
+                                const gsl_vector *v,
+                                const zo::rama_table_set &rama,
+                                float rama_plot_weight);
    double distortion_score_start_pos(const simple_restraint &start_pos_restraint,
-			    void *params,
-			    const gsl_vector *v);
+                            void *params,
+                            const gsl_vector *v);
    double distortion_score_target_pos(const simple_restraint &start_pos_restraint,
-				      double scale_factor,
-				      const gsl_vector *v);
+                                      double scale_factor,
+                                      const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
-					      const double &lennard_jones_epsilon,
-					      const gsl_vector *v);
+                                              const double &lennard_jones_epsilon,
+                                              const gsl_vector *v);
    double distortion_score_non_bonded_contact_lennard_jones(const simple_restraint &plane_restraint,
-							    const double &lennard_jones_epsilon,
-							    const gsl_vector *v);
+                                                            const double &lennard_jones_epsilon,
+                                                            const gsl_vector *v);
    double distortion_score_parallel_planes(const simple_restraint &plane_restraint,
-					   const gsl_vector *v);
+                                           const gsl_vector *v);
    void fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
-			       gsl_vector *v);
+                               gsl_vector *v);
    void fix_chiral_atom_internal (const simple_restraint &chiral_restraint,
-				  gsl_vector *v);
+                                  gsl_vector *v);
 
    plane_distortion_info_t
    distortion_score_plane_internal(const simple_restraint &plane_restraint,
-				   const gsl_vector *v,
-				   bool calculate_distortion_flag);
+                                   const gsl_vector *v,
+                                   bool calculate_distortion_flag);
    plane_distortion_info_t
    distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom_index_set_1,
-			     const std::vector<std::pair<int, double> > &atom_index_set_2,
-			     const double &restraint_sigma,
-			     const gsl_vector *v);
+                             const std::vector<std::pair<int, double> > &atom_index_set_2,
+                             const double &restraint_sigma,
+                             const gsl_vector *v);
 
 
    distortion_torsion_gradients_t
    fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
-				     const clipper::Coord_orth &P2,
-				     const clipper::Coord_orth &P3,
-				     const clipper::Coord_orth &P4);
+                                     const clipper::Coord_orth &P2,
+                                     const clipper::Coord_orth &P3,
+                                     const clipper::Coord_orth &P4);
    /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
    void my_df (const gsl_vector *v, void *params, gsl_vector *df);
 
@@ -1039,11 +1074,11 @@ namespace coot {
    //
    std::vector<std::pair<short int, atom_spec_t> >
    is_inverted_chiral_atom_p(const dict_chiral_restraint_t &chiral_restraint,
-			mmdb::Residue *res);
+                        mmdb::Residue *res);
 
    std::pair<std::vector<std::string> , std::vector <atom_spec_t> >
    inverted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *geom_p,
-			   int cif_dictionary_read_number);
+                           int cif_dictionary_read_number);
 
 
 
@@ -1061,37 +1096,37 @@ namespace coot {
 
       class restraint_counts_t {
       public:
-	 int n_bond_restraints;
-	 int n_angle_restraints;
-	 int n_plane_restraints;
-	 int n_chiral_restr;
-	 int n_torsion_restr;
-	 int n_improper_dihedral_restr;
-	 restraint_counts_t() {
-	    n_bond_restraints = 0;
-	    n_angle_restraints = 0;
-	    n_plane_restraints =0;
-	    n_chiral_restr = 0;
-	    n_torsion_restr = 0;
+         int n_bond_restraints;
+         int n_angle_restraints;
+         int n_plane_restraints;
+         int n_chiral_restr;
+         int n_torsion_restr;
+         int n_improper_dihedral_restr;
+         restraint_counts_t() {
+            n_bond_restraints = 0;
+            n_angle_restraints = 0;
+            n_plane_restraints =0;
+            n_chiral_restr = 0;
+            n_torsion_restr = 0;
             n_improper_dihedral_restr = 0;
-	 }
-	 void operator+=(const restraint_counts_t &r) {
-	    n_bond_restraints += r.n_bond_restraints;
-	    n_angle_restraints += r.n_angle_restraints;
-	    n_plane_restraints += r.n_plane_restraints;
-	    n_chiral_restr += r.n_chiral_restr;
-	    n_torsion_restr += r.n_torsion_restr;
+         }
+         void operator+=(const restraint_counts_t &r) {
+            n_bond_restraints += r.n_bond_restraints;
+            n_angle_restraints += r.n_angle_restraints;
+            n_plane_restraints += r.n_plane_restraints;
+            n_chiral_restr += r.n_chiral_restr;
+            n_torsion_restr += r.n_torsion_restr;
             n_improper_dihedral_restr += r.n_improper_dihedral_restr;
-	 }
-	 void report(bool do_residue_internal_torsions) {
-	    std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
-	    std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
-	    std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
-	    std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
-	    std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
-	    if (do_residue_internal_torsions)
-	       std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
-	 }
+         }
+         void report(bool do_residue_internal_torsions) {
+            std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
+            std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
+            std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
+            std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
+            std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
+            if (do_residue_internal_torsions)
+               std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
+         }
       };
 
    private:
@@ -1108,9 +1143,9 @@ namespace coot {
       void fill_old_to_new_index_vector(); // for fast extra bond (GM) restraints
       bool from_residue_vector;
       int SelHnd_atom; // the selection handle for the atom array.
-		       // Note to self: when restraints_container_t
-		       // goes out of scope, we should do a
-		       // mol->DeleteSelection(SelHnd_atom).
+                       // Note to self: when restraints_container_t
+                       // goes out of scope, we should do a
+                       // mol->DeleteSelection(SelHnd_atom).
 
 
       gsl_multimin_fdfminimizer *m_s;
@@ -1141,31 +1176,31 @@ namespace coot {
       bool apply_H_non_bonded_contacts;
 
       void init() {
-      	 verbose_geometry_reporting = NORMAL;
+               verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
-	 n_atoms = 0;
-	 n_atoms_limit_for_nbc = 0; // needs to be set in every constructor.
-	 x = 0;
-	 mol = 0;
-	 n_atoms = 0;
-	 atom = 0;
-	 model_has_hydrogen_atoms = true;
-	 include_map_terms_flag = 0;
-	 have_oxt_flag = 0;
-	 do_numerical_gradients_flag = 0;
-	 n_threads = 0;
-	 apply_H_non_bonded_contacts = true;
-	 lograma.init(LogRamachandran::All, 2.0, true);
-	 // when zo_rama is a static, this is already done
-// 	 try {
-// 	    zo_rama.init();
-// 	 }
-// 	 catch (const std::runtime_error &rte) {
-// 	    std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
-// 	 }
-	 from_residue_vector = 0;
-	 rama_type = RAMA_TYPE_LOGRAMA;
-	 rama_plot_weight = 40.0;
+         n_atoms = 0;
+         n_atoms_limit_for_nbc = 0; // needs to be set in every constructor.
+         x = 0;
+         mol = 0;
+         n_atoms = 0;
+         atom = 0;
+         model_has_hydrogen_atoms = true;
+         include_map_terms_flag = 0;
+         have_oxt_flag = 0;
+         do_numerical_gradients_flag = 0;
+         n_threads = 0;
+         apply_H_non_bonded_contacts = true;
+         lograma.init(LogRamachandran::All, 2.0, true);
+         // when zo_rama is a static, this is already done
+//          try {
+//             zo_rama.init();
+//          }
+//          catch (const std::runtime_error &rte) {
+//             std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
+//          }
+         from_residue_vector = 0;
+         rama_type = RAMA_TYPE_LOGRAMA;
+         rama_plot_weight = 40.0;
          do_hydrogen_atom_refinement = false;
          do_neutron_refinement = false;
 
@@ -1173,8 +1208,8 @@ namespace coot {
          torsion_restraints_weight = 1.0;
 
 #ifndef __NVCC__
-	 restraints_lock = false; // not locked
-	 thread_pool_p = 0; // null pointer
+         restraints_lock = false; // not locked
+         thread_pool_p = 0; // null pointer
 #endif // __NVCC__
       }
 
@@ -1185,10 +1220,10 @@ namespace coot {
       void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist);
       // don't include bonds which are make to flanking atoms/residues
       void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc,
-					     const protein_geometry &geom); // fills filtered_non_bonded_atom_indices;
+                                             const protein_geometry &geom); // fills filtered_non_bonded_atom_indices;
       // which uses
       void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc,
-							const protein_geometry &geom);
+                                                        const protein_geometry &geom);
       // and
       void construct_nbc_for_moving_non_moving_bonded(unsigned int i, unsigned int j, const std::string &link_type, const protein_geometry &geom);
       // (which modifies (adds to) filtered_non_bonded_atom_indices).
@@ -1234,25 +1269,25 @@ namespace coot {
       // all the alt confs should either be the same as each other or ""
       //
       short int check_altconfs_for_plane_restraint(const std::vector<std::string> &altconfs) const {
-	 short int stat = 1;
-	 std::string A("");
+         short int stat = 1;
+         std::string A("");
 
-	 for (unsigned int iat=0; iat<altconfs.size(); iat++) {
-	    if (altconfs[iat] != A) {
-	       A = altconfs[iat];
-	       break;
-	    }
-	 }
-	 if (A == "") // there are no alt confs
-	    return 1;  // OK
+         for (unsigned int iat=0; iat<altconfs.size(); iat++) {
+            if (altconfs[iat] != A) {
+               A = altconfs[iat];
+               break;
+            }
+         }
+         if (A == "") // there are no alt confs
+            return 1;  // OK
 
-	 for (unsigned int iat=0; iat<altconfs.size(); iat++) {
-	    if ((altconfs[iat] != "") && (altconfs[iat] != A)) {
-	       stat = 0;  // mixed altconfs, badness.
-	       break;
-	    }
-	 }
-	 return stat;
+         for (unsigned int iat=0; iat<altconfs.size(); iat++) {
+            if ((altconfs[iat] != "") && (altconfs[iat] != A)) {
+               stat = 0;  // mixed altconfs, badness.
+               break;
+            }
+         }
+         return stat;
       }
 
       // because we may want to refine just the bonds at the beginning
@@ -1274,18 +1309,18 @@ namespace coot {
 
       // internal function, most of the job of the constructor:
       void init_from_mol(int istart_res_in, int iend_res_in,
-			 bool have_flanking_residue_at_start,
-			 bool have_flanking_residue_at_end,
-			 short int have_disulfide_residues,
-			 const std::string &altloc,
-			 const std::string &chain_id,
-			 mmdb::Manager *mol_in,
-			 const std::vector<atom_spec_t> &fixed_atom_specs);
+                         bool have_flanking_residue_at_start,
+                         bool have_flanking_residue_at_end,
+                         short int have_disulfide_residues,
+                         const std::string &altloc,
+                         const std::string &chain_id,
+                         mmdb::Manager *mol_in,
+                         const std::vector<atom_spec_t> &fixed_atom_specs);
 
       void init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
-				 const protein_geometry &geom,
-				 mmdb::Manager *mol_in,
-				 const std::vector<atom_spec_t> &fixed_atom_specs);
+                                 const protein_geometry &geom,
+                                 mmdb::Manager *mol_in,
+                                 const std::vector<atom_spec_t> &fixed_atom_specs);
 
       void set_has_hydrogen_atoms_state(); // unset has hydrogens if there are none in the atoms.
       void init_shared_pre(mmdb::Manager *mol_in);
@@ -1300,8 +1335,8 @@ namespace coot {
       // atoms are in the atom list when we have a linear residue selection. So
       // set them with the function - called from init_from_mol().
       void add_fixed_atoms_from_flanking_residues(bool have_flanking_residue_at_start,
-						  bool have_flanking_residue_at_end,
-						  int iselection_start_res, int iselection_end_res);
+                                                  bool have_flanking_residue_at_end,
+                                                  int iselection_start_res, int iselection_end_res);
 
       // man this is tricky
       //
@@ -1322,111 +1357,111 @@ namespace coot {
       double torsion_restraints_weight;
 
       void add(restraint_type_t rest_type, int atom_1, int atom_2,
-	       const std::vector<bool> &fixed_atom_flags,
-	       float tar,
-	       float sig, float obs) {
+               const std::vector<bool> &fixed_atom_flags,
+               float tar,
+               float sig, float obs) {
 
-	 if (sig > 0.0) {
-	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
-	    restraints_vec.push_back(r);
-	 }
+         if (sig > 0.0) {
+            simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
+            restraints_vec.push_back(r);
+         }
       }
 
       bool add(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3,
-	       const std::vector<bool> &fixed_atom_flags,
-	       float tar,
-	       float sig, bool is_single_Hydrogen_atom_angle_restraint){
+               const std::vector<bool> &fixed_atom_flags,
+               float tar,
+               float sig, bool is_single_Hydrogen_atom_angle_restraint){
 
-	 bool r = 0;
-	 if (sig > 0.0) {
-	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, atom_3,
-						      fixed_atom_flags, tar, sig,
-						      is_single_Hydrogen_atom_angle_restraint));
-	    r = 1;
-	 }
-	 return r;
+         bool r = 0;
+         if (sig > 0.0) {
+            restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, atom_3,
+                                                      fixed_atom_flags, tar, sig,
+                                                      is_single_Hydrogen_atom_angle_restraint));
+            r = 1;
+         }
+         return r;
       }
 
       bool add(restraint_type_t rest_type, int atom_1, int atom_2,
-	       int atom_3, int atom_4,
-	       const std::vector<bool> &fixed_atom_flags,
-	       float tar, float sig, float torsion_restraint_weight, int periodicty) {
+               int atom_3, int atom_4,
+               const std::vector<bool> &fixed_atom_flags,
+               float tar, float sig, float torsion_restraint_weight, int periodicty) {
 
-	 bool r = 0;
-	 if (sig > 0.0) {
+         bool r = 0;
+         if (sig > 0.0) {
 
-	    restraints_vec.push_back(simple_restraint(rest_type,
-						      atom_1, atom_2, atom_3, atom_4,
-						      fixed_atom_flags, tar, sig, torsion_restraint_weight, periodicty));
-	    r = 1;
-	 }
-	 return r;
+            restraints_vec.push_back(simple_restraint(rest_type,
+                                                      atom_1, atom_2, atom_3, atom_4,
+                                                      fixed_atom_flags, tar, sig, torsion_restraint_weight, periodicty));
+            r = 1;
+         }
+         return r;
       }
 
       void add_user_defined_torsion_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
-					      int atom_3, int atom_4,
-					      const std::vector<bool> &fixed_atom_flags,
-					      float tar,
-					      float sig, float obs, int periodicty) {
-	 bool r = add(rest_type, atom_1, atom_2, atom_3, atom_4,
-		      fixed_atom_flags, tar, sig, obs, periodicty);
-	 if (r) {
-	    // bleugh.
-	    restraints_vec.back().is_user_defined_restraint = 1;
-	 }
+                                              int atom_3, int atom_4,
+                                              const std::vector<bool> &fixed_atom_flags,
+                                              float tar,
+                                              float sig, float obs, int periodicty) {
+         bool r = add(rest_type, atom_1, atom_2, atom_3, atom_4,
+                      fixed_atom_flags, tar, sig, obs, periodicty);
+         if (r) {
+            // bleugh.
+            restraints_vec.back().is_user_defined_restraint = 1;
+         }
       }
 
       void add_user_defined_angle_restraint(restraint_type_t rest_type, int atom_1, int atom_2,
-					    int atom_3,
-					    const std::vector<bool> &fixed_atom_flags,
-					    float tar,
-					    float sig, float obs) {
-	 bool r = add(rest_type, atom_1, atom_2, atom_3,
-		      fixed_atom_flags, tar, sig, obs);
-	 if (r) {
-	    // bleugh.
-	    restraints_vec.back().is_user_defined_restraint = 1;
-	 }
+                                            int atom_3,
+                                            const std::vector<bool> &fixed_atom_flags,
+                                            float tar,
+                                            float sig, float obs) {
+         bool r = add(rest_type, atom_1, atom_2, atom_3,
+                      fixed_atom_flags, tar, sig, obs);
+         if (r) {
+            // bleugh.
+            restraints_vec.back().is_user_defined_restraint = 1;
+         }
       }
 
 
       // used for Ramachandran restraint
       void add(restraint_type_t rest_type,
-	       const std::string &rama_plot_zo_residue_type,
-	       int atom_1, int atom_2, int atom_3,
-	       int atom_4, int atom_5,
-	       const std::vector<bool> &fixed_atom_flag){
+               const std::string &rama_plot_zo_residue_type,
+               int atom_1, int atom_2, int atom_3,
+               int atom_4, int atom_5,
+               const std::vector<bool> &fixed_atom_flag){
 
-	 restraints_vec.push_back(simple_restraint(rest_type,
-						   rama_plot_zo_residue_type,
-						   atom_1, atom_2, atom_3, atom_4, atom_5,
-						   fixed_atom_flag));
+         restraints_vec.push_back(simple_restraint(rest_type,
+                                                   rama_plot_zo_residue_type,
+                                                   atom_1, atom_2, atom_3, atom_4, atom_5,
+                                                   fixed_atom_flag));
       }
 
 
       void add_non_bonded(int index1, int index2,
-			  const std::string &atom_type_1,
-			  const std::string &atom_type_2,
-			  const std::vector<bool> &fixed_atom_flag,
-			  const protein_geometry &geom) {
-	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT,
-						   index1, index2,
-						   atom_type_1, atom_type_2,
-						   fixed_atom_flag, geom));
+                          const std::string &atom_type_1,
+                          const std::string &atom_type_2,
+                          const std::vector<bool> &fixed_atom_flag,
+                          const protein_geometry &geom) {
+         restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT,
+                                                   index1, index2,
+                                                   atom_type_1, atom_type_2,
+                                                   fixed_atom_flag, geom));
       }
 
       void add_non_bonded(int index1, int index2,
-			  const simple_restraint::nbc_function_t &nbcf,
-			  const std::string &atom_type_1,
-			  const std::string &atom_type_2,
-			  bool is_H_non_bonded_contact,
-			  const std::vector<bool> &fixed_atom_flag,
-			  double dist_min) {
+                          const simple_restraint::nbc_function_t &nbcf,
+                          const std::string &atom_type_1,
+                          const std::string &atom_type_2,
+                          bool is_H_non_bonded_contact,
+                          const std::vector<bool> &fixed_atom_flag,
+                          double dist_min) {
 
-	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, nbcf,
-						   index1, index2,
-						   atom_type_1, atom_type_2, is_H_non_bonded_contact,
-						   fixed_atom_flag, dist_min));
+         restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, nbcf,
+                                                   index1, index2,
+                                                   is_H_non_bonded_contact,
+                                                   fixed_atom_flag, dist_min));
       }
 
       void add_target_position_restraint(int idx, const atom_spec_t &spec, clipper::Coord_orth &target_pos);
@@ -1435,60 +1470,60 @@ namespace coot {
       //
       // this assumes the sigmas in atom_index_sigma_in are sensible - so the calling
       // routines needs to make sure that this is the case.
-      void add_plane(const std::vector<std::pair<int, double> > atom_index_sigma_in,
-		     const std::vector<bool> &fixed_atom_flags) {
-	 if (! convert_plane_restraints_to_improper_dihedral_restraints_flag)
-	    restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
-						      atom_index_sigma_in,
-						      fixed_atom_flags));
-	 else
-	    convert_plane_restraints_to_improper_dihedral_restraints(atom_index_sigma_in, fixed_atom_flags);
+      void add_plane(const std::vector<std::pair<int, double> > &atom_index_sigma_in,
+                     const std::vector<bool> &fixed_atom_flags) {
+         if (! convert_plane_restraints_to_improper_dihedral_restraints_flag)
+            restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
+                                                      atom_index_sigma_in,
+                                                      fixed_atom_flags));
+         else
+            convert_plane_restraints_to_improper_dihedral_restraints(atom_index_sigma_in, fixed_atom_flags);
       }
 
-      void convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_sigma_in,
-		     const std::vector<bool> &fixed_atom_flags);
+      void convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > &atom_index_sigma_in,
+                     const std::vector<bool> &fixed_atom_flags);
 
       //used for start pos restraints
       bool add(restraint_type_t rest_type, int atom_1,
-	       bool fixed_atom_flag,
-	       float sig, float obs){
+               bool fixed_atom_flag,
+               float sig, float obs){
 
-	 bool r = 0;
-	 if (sig > 0.0) {
-	    restraints_vec.push_back(simple_restraint(rest_type, atom_1,
-						      fixed_atom_flag,
-						      sig, obs));
-	    r = 1;
-	 }
-	 return r;
+         bool r = 0;
+         if (sig > 0.0) {
+            restraints_vec.push_back(simple_restraint(rest_type, atom_1,
+                                                      fixed_atom_flag,
+                                                      sig, obs));
+            r = 1;
+         }
+         return r;
       }
 
       void add_user_defined_start_pos_restraint(restraint_type_t rest_type, int atom_1,
-						bool fixed_atom_flag, float sig, float obs) {
-	 bool r = add(rest_type, atom_1, fixed_atom_flag, sig, obs);
-	 if (r) {
-	    restraints_vec.back().is_user_defined_restraint = 1;
-	 }
+                                                bool fixed_atom_flag, float sig, float obs) {
+         bool r = add(rest_type, atom_1, fixed_atom_flag, sig, obs);
+         if (r) {
+            restraints_vec.back().is_user_defined_restraint = 1;
+         }
       }
 
       void add_user_defined_target_position_restraint(restraint_type_t rest_type, int atom_idx,
-						      const atom_spec_t &spec,
-						      const clipper::Coord_orth &pos, float weight) {
-	 // weight not used yet
-	 simple_restraint r(rest_type, atom_idx, spec, pos);
-	 r.is_user_defined_restraint = 1;
-	 restraints_vec.push_back(r);
+                                                      const atom_spec_t &spec,
+                                                      const clipper::Coord_orth &pos, float weight) {
+         // weight not used yet
+         simple_restraint r(rest_type, atom_idx, spec, pos);
+         r.is_user_defined_restraint = 1;
+         restraints_vec.push_back(r);
       }
 
       void add_geman_mcclure_distance(restraint_type_t rest_type,
-				      int atom_1, int atom_2,
-				      const std::vector<bool> &fixed_atom_flags,
-				      float tar, float sig) {
+                                      int atom_1, int atom_2,
+                                      const std::vector<bool> &fixed_atom_flags,
+                                      float tar, float sig) {
 
-	 if (sig > 0.0) {
-	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig);
-	    restraints_vec.push_back(r);
-	 }
+         if (sig > 0.0) {
+            simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig);
+            restraints_vec.push_back(r);
+         }
       }
 
 
@@ -1497,29 +1532,29 @@ namespace coot {
       void setup_asc_indexing();
 
       int get_asc_index_old(const std::string &at_name,
-			int resno,
-			const char *chain_id) const;
+                        int resno,
+                        const char *chain_id) const;
 
       int get_asc_index_new(const char *at_name,
-			    const char *alt_loc,
-			    int resno,
-			    const char *ins_code,
-			    const char *chain_id) const;
+                            const char *alt_loc,
+                            int resno,
+                            const char *ins_code,
+                            const char *chain_id) const;
 
       int get_asc_index(const char *at_name,
-			const char *alt_loc,
-			int resno,
-			const char *ins_code,
-			const char *chain_id) const;
+                        const char *alt_loc,
+                        int resno,
+                        const char *ins_code,
+                        const char *chain_id) const;
 
       int get_asc_index(const atom_spec_t &spec) const;
 
       int get_asc_index(mmdb::Atom *at);
 
       int add_bonds(int idr, mmdb::PPAtom res_selection,
-		    int i_no_res_atoms,
-		    mmdb::PResidue SelRes,
-		    const protein_geometry &geom);
+                    int i_no_res_atoms,
+                    mmdb::PResidue SelRes,
+                    const protein_geometry &geom);
 
       restraint_counts_t add_N_terminal_residue_bonds_and_angles_to_hydrogens(mmdb::Residue *residue_p);
       int get_N_index(mmdb::Residue *residue_p) const;
@@ -1527,14 +1562,14 @@ namespace coot {
       int get_atom_index(const std::string &atom_name_in, mmdb::Residue *residue_p) const;
 
       int add_angles(int idr, mmdb::PPAtom res_selection,
-		     int i_no_res_atoms,
-		     mmdb::PResidue SelRes,
-		     const protein_geometry &geom);
+                     int i_no_res_atoms,
+                     mmdb::PResidue SelRes,
+                     const protein_geometry &geom);
 
       int add_torsions(int idr, mmdb::PPAtom res_selection,
-		       int i_no_res_atoms,
-		       mmdb::PResidue SelRes,
-		       const protein_geometry &geom,
+                       int i_no_res_atoms,
+                       mmdb::PResidue SelRes,
+                       const protein_geometry &geom,
                        const double &torsion_restraints_weight);
 
       bool add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
@@ -1556,22 +1591,22 @@ namespace coot {
 
 
       int add_chirals(int idr, mmdb::PPAtom res_selection,
-		      int i_no_res_atoms,
-		      mmdb::PResidue SelRes,
-		      const protein_geometry &geom);
+                      int i_no_res_atoms,
+                      mmdb::PResidue SelRes,
+                      const protein_geometry &geom);
 
       int add_planes  (int idr, mmdb::PPAtom res_selection,
-		       int i_no_res_atoms,
-		       mmdb::PResidue SelRes,
-		       const protein_geometry &geom);
+                       int i_no_res_atoms,
+                       mmdb::PResidue SelRes,
+                       const protein_geometry &geom);
 
       // called by above.
       //
       // this was the way planes were done 2004-2019
       int add_planes_multiatom_eigen(int idr, mmdb::PPAtom res_selection,
-				     int i_no_res_atoms,
-				     mmdb::PResidue SelRes,
-				     const protein_geometry &geom);
+                                     int i_no_res_atoms,
+                                     mmdb::PResidue SelRes,
+                                     const protein_geometry &geom);
 
       int add_planes_as_improper_dihedrals(int idr, mmdb::PPAtom res_selection,
                                            int i_no_res_atoms,
@@ -1580,103 +1615,103 @@ namespace coot {
 
       restraint_counts_t
       apply_mods(int idr, mmdb::PPAtom res_selection,
-		 int i_no_res_atoms,
-		 mmdb::PResidue SelRes,
-		 const protein_geometry &geom);
+                 int i_no_res_atoms,
+                 mmdb::PResidue SelRes,
+                 const protein_geometry &geom);
 
       void
       apply_mod(const std::string &mod_name,
-		const protein_geometry &geom,
-		int idr,
-		mmdb::PResidue residue_p);
+                const protein_geometry &geom,
+                int idr,
+                mmdb::PResidue residue_p);
 
       void apply_mod_bond(const chem_mod_bond &mod_bond,
-			  mmdb::PResidue residue_p);
+                          mmdb::PResidue residue_p);
 
       void apply_mod_angle(const chem_mod_angle &mod_angle,
-			  mmdb::PResidue residue_p);
+                          mmdb::PResidue residue_p);
 
       void apply_mod_plane(const chem_mod_plane &mod_plane,
-			   mmdb::PResidue residue_p);
+                           mmdb::PResidue residue_p);
 
       void mod_bond_add(const chem_mod_bond &mod_bond,
-			mmdb::PResidue residue_p);
+                        mmdb::PResidue residue_p);
 
       void mod_bond_change(const chem_mod_bond &mod_bond,
-			   mmdb::PResidue residue_p);
+                           mmdb::PResidue residue_p);
 
       void mod_bond_delete(const chem_mod_bond &mod_bond,
-			   mmdb::PResidue residue_p);
+                           mmdb::PResidue residue_p);
 
       void mod_angle_add(const chem_mod_angle &mod_angle,
-			mmdb::PResidue residue_p);
+                        mmdb::PResidue residue_p);
 
       void mod_angle_change(const chem_mod_angle &mod_angle,
-			   mmdb::PResidue residue_p);
+                           mmdb::PResidue residue_p);
 
       void mod_angle_delete(const chem_mod_angle &mod_angle,
-			   mmdb::PResidue residue_p);
+                           mmdb::PResidue residue_p);
 
       void mod_plane_add(const chem_mod_plane &mod_plane,
-			 mmdb::PResidue residue_p);
+                         mmdb::PResidue residue_p);
 
       void mod_plane_delete(const chem_mod_plane &mod_plane,
-			    mmdb::PResidue residue_p);
+                            mmdb::PResidue residue_p);
 
       bool dictionary_name_matches_coords_resname(const std::string &comp_id,
-						  const std::string &resname) const {
-	 std::string r = resname;
-	 if (r.length() > 2)
-	    if (r[2] == ' ')
-	       r = resname.substr(0,2);
-	 return (r == comp_id);
+                                                  const std::string &resname) const {
+         std::string r = resname;
+         if (r.length() > 2)
+            if (r[2] == ' ')
+               r = resname.substr(0,2);
+         return (r == comp_id);
       }
 
       int make_link_restraints          (const protein_geometry &geom,
-					 bool do_rama_plot_retraints,
-					 bool do_trans_peptide_restraints);
+                                         bool do_rama_plot_retraints,
+                                         bool do_trans_peptide_restraints);
 
       // which uses either:
       int make_link_restraints_by_linear(const protein_geometry &geom,
-					 bool do_rama_plot_retraints,
-					 bool do_trans_peptide_restraints);
+                                         bool do_rama_plot_retraints,
+                                         bool do_trans_peptide_restraints);
 
       bonded_pair_container_t
       make_link_restraints_from_res_vec(const protein_geometry &geom,
-					bool do_rama_plot_retraints,
-					bool do_trans_peptide_restraints);
+                                        bool do_rama_plot_retraints,
+                                        bool do_trans_peptide_restraints);
       // both of which use:
       int make_link_restraints_by_pairs(const protein_geometry &geom,
-					const bonded_pair_container_t &bonded_residue_pairs,
-					bool do_trans_peptide_restraints,
-					std::string link_or_flanking_link_string);
+                                        const bonded_pair_container_t &bonded_residue_pairs,
+                                        bool do_trans_peptide_restraints,
+                                        std::string link_or_flanking_link_string);
 
       void add_rama_links(int SelHnd, const protein_geometry &geom);
 
       void add_rama_links_from_res_vec(const bonded_pair_container_t &bonded_residue_pairs,
-				       const protein_geometry &geom);
+                                       const protein_geometry &geom);
 
 
       int make_monomer_restraints(int imol,
-				  const protein_geometry &geom,
-				  short int do_residue_internal_torsions);
+                                  const protein_geometry &geom,
+                                  short int do_residue_internal_torsions);
       //uses:
       int make_monomer_restraints_by_linear(int imol,
-					    const protein_geometry &geom,
-					    bool do_residue_internal_torsions);
+                                            const protein_geometry &geom,
+                                            bool do_residue_internal_torsions);
       int make_monomer_restraints_from_res_vec(int imol,
-					       const protein_geometry &geom,
-					       bool do_residue_internal_torsions);
+                                               const protein_geometry &geom,
+                                               bool do_residue_internal_torsions);
       // which use:
       restraint_counts_t make_monomer_restraints_by_residue(int imol,
-							    mmdb::Residue *residue_p,
-							    const protein_geometry &geom,
-							    bool do_residue_internal_torsions);
+                                                            mmdb::Residue *residue_p,
+                                                            const protein_geometry &geom,
+                                                            bool do_residue_internal_torsions);
 
       bonded_pair_container_t
       make_flanking_atoms_restraints(const protein_geometry &geom,
-				     bool do_rama_plot_retraints,
-				     bool do_trans_peptide_restraints); // no torsions
+                                     bool do_rama_plot_retraints,
+                                     bool do_trans_peptide_restraints); // no torsions
       // uses the following
       bonded_pair_container_t
       bonded_flanking_residues(const protein_geometry &geom) const;
@@ -1684,7 +1719,7 @@ namespace coot {
       bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const protein_geometry &geom) const;
       // new flanking residue search
       bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &resm,
-									 const protein_geometry &geom) const;
+                                                                         const protein_geometry &geom) const;
       // old style linear search (n +/- 1) selection for flanking residues
       bonded_pair_container_t bonded_flanking_residues_by_linear(const protein_geometry &geom) const;
       // find residues in the neighbourhood that are not in the refining set
@@ -1694,34 +1729,34 @@ namespace coot {
       // set by this function:
       // old version 20180224
       void set_non_bonded_neighbour_residues_by_residue_vector(const bonded_pair_container_t &bonded_flanking_pairs,
-							       const protein_geometry &geom);
+                                                               const protein_geometry &geom);
       // new version
       void set_non_bonded_neighbour_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &resm,
-							       const bonded_pair_container_t &bonded_flanking_pairs,
-							       const protein_geometry &geom);
+                                                               const bonded_pair_container_t &bonded_flanking_pairs,
+                                                               const protein_geometry &geom);
 
       int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
 
       // return a container of all the bonded residues (as pairs) from
       // the given atom selection
       bonded_pair_container_t bonded_residues_conventional(int SelResHnd,
-							    const protein_geometry &geom) const;
+                                                            const protein_geometry &geom) const;
 
       // this is to make the make_link_restraints work as it used to,
       // simply by bonding residues that are next to each other by
       // seqNum or residue index.
       bonded_pair_container_t bonded_residues_by_linear(int SelResHnd,
-							 const protein_geometry &geom) const;
+                                                         const protein_geometry &geom) const;
       std::vector<rama_triple_t> make_rama_triples(int SelResHnd,
-						   const protein_geometry &geom) const;
+                                                   const protein_geometry &geom) const;
       std::pair<bool,float> closest_approach(mmdb::Residue *r1, mmdb::Residue *r2) const;
 
       // find simple (tandem residue) links (based on residue-name and
       // restraints group type).
       //
       std::string find_link_type(mmdb::Residue *first,
-				 mmdb::Residue *second,
-				 const protein_geometry &geom) const;
+                                 mmdb::Residue *second,
+                                 const protein_geometry &geom) const;
 
       // a pair, first is if C and N are close and second if and order
       // switch is needed to make it so.
@@ -1747,14 +1782,14 @@ namespace coot {
       // return "" as first if no close link found.
       //
       std::pair<std::string, bool> general_link_find_close_link(const std::vector<std::pair<chem_link, bool> > &li,
-								mmdb::Residue *r1, mmdb::Residue *r2,
-								bool order_switch_flag,
-								const protein_geometry &geom) const;
+                                                                mmdb::Residue *r1, mmdb::Residue *r2,
+                                                                bool order_switch_flag,
+                                                                const protein_geometry &geom) const;
 
       std::string general_link_find_close_link_inner(const std::vector<std::pair<chem_link, bool> > &li,
-						     mmdb::Residue *r1, mmdb::Residue *r2,
-						     bool order_switch_flag,
-						     const protein_geometry &geom) const;
+                                                     mmdb::Residue *r1, mmdb::Residue *r2,
+                                                     bool order_switch_flag,
+                                                     const protein_geometry &geom) const;
 
 
 
@@ -1773,104 +1808,104 @@ namespace coot {
 
       // return "" on failure to find link
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
-					       const protein_geometry &geom,
-					       bool use_links_in_molecule) const;
+                                               const protein_geometry &geom,
+                                               bool use_links_in_molecule) const;
 
       // -------------------------- ng restraint generation ------------------------
 
       class link_restraints_counts {
-	 void init() {
-	    n_link_bond_restr = 0;
-	    n_link_angle_restr = 0;
-	    n_link_trans_peptide = 0;
-	    n_link_plane_restr = 0;
+         void init() {
+            n_link_bond_restr = 0;
+            n_link_angle_restr = 0;
+            n_link_trans_peptide = 0;
+            n_link_plane_restr = 0;
             n_link_improper_dihedral_restr = 0;
-	    link_type = "link";
-	 }
+            link_type = "link";
+         }
       public:
-	 link_restraints_counts() {
-	    init();
-	 }
-	 link_restraints_counts(const std::string &s) {
-	    init();
-	    link_type = s; // e.g. "flank"
-	 }
-	 std::string link_type;
-	 unsigned int n_link_bond_restr;
-	 unsigned int n_link_angle_restr;
-	 unsigned int n_link_plane_restr;
-	 unsigned int n_link_trans_peptide;
+         link_restraints_counts() {
+            init();
+         }
+         link_restraints_counts(const std::string &s) {
+            init();
+            link_type = s; // e.g. "flank"
+         }
+         std::string link_type;
+         unsigned int n_link_bond_restr;
+         unsigned int n_link_angle_restr;
+         unsigned int n_link_plane_restr;
+         unsigned int n_link_trans_peptide;
          unsigned int n_link_improper_dihedral_restr;
-	 void add(const link_restraints_counts &lrc) {
-	    n_link_bond_restr    += lrc.n_link_bond_restr;
-	    n_link_angle_restr   += lrc.n_link_angle_restr;
-	    n_link_plane_restr   += lrc.n_link_plane_restr;
-	    n_link_trans_peptide += lrc.n_link_trans_peptide;
-	    n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
-	 }
-	 void report() const {
-	    std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
-	    std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
-	    std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
-	    std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
-	 }
+         void add(const link_restraints_counts &lrc) {
+            n_link_bond_restr    += lrc.n_link_bond_restr;
+            n_link_angle_restr   += lrc.n_link_angle_restr;
+            n_link_plane_restr   += lrc.n_link_plane_restr;
+            n_link_trans_peptide += lrc.n_link_trans_peptide;
+            n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
+         }
+         void report() const {
+            std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
+            std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
+            std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
+            std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
+         }
       };
 
       class reduced_angle_info_container_t {
       public:
-	 reduced_angle_info_container_t() {}
-	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
-	 reduced_angle_info_container_t(const std::vector<std::vector<simple_restraint> > &rvv); // needs init() also?
-	 void init(const std::vector<simple_restraint> &r);
-	 std::map<int, std::set<int> > bonds;
-	 std::map<int, std::vector<std::pair<int, int> > > angles;
-	 bool is_1_4(int i, int j, const std::vector<bool> &fixed_atom_flags) const;
-	 void write_angles_map(const std::string &file_name) const;
+         reduced_angle_info_container_t() {}
+         reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+         reduced_angle_info_container_t(const std::vector<std::vector<simple_restraint> > &rvv); // needs init() also?
+         void init(const std::vector<simple_restraint> &r);
+         std::map<int, std::set<int> > bonds;
+         std::map<int, std::vector<std::pair<int, int> > > angles;
+         bool is_1_4(int i, int j, const std::vector<bool> &fixed_atom_flags) const;
+         void write_angles_map(const std::string &file_name) const;
       };
 
       reduced_angle_info_container_t raic;
       void
       make_link_restraints_ng(const protein_geometry &geom,
-			      bool do_rama_plot_retraints,
-			      bool do_trans_peptide_restraints,
-			      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
-			      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
+                              bool do_rama_plot_retraints,
+                              bool do_trans_peptide_restraints,
+                              std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+                              std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
       void make_polymer_links_ng(const protein_geometry &geom,
-				 bool do_rama_plot_restraints,
-				 bool do_trans_peptide_restraints,
-				 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
-				 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
+                                 bool do_rama_plot_restraints,
+                                 bool do_trans_peptide_restraints,
+                                 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
+                                 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
       bool N_and_C_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
 
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
-								       std::pair<bool, mmdb::Residue *> res_1,
-								       std::pair<bool, mmdb::Residue *> res_2,
-								       bool do_trans_peptide_restraints);
+                                                                       std::pair<bool, mmdb::Residue *> res_1,
+                                                                       std::pair<bool, mmdb::Residue *> res_2,
+                                                                       bool do_trans_peptide_restraints);
       std::pair<bool, link_restraints_counts> try_make_phosphodiester_link_ng(const coot::protein_geometry &geom,
-									      std::pair<bool, mmdb::Residue *> res_1,
-									      std::pair<bool, mmdb::Residue *> res_2);
+                                                                              std::pair<bool, mmdb::Residue *> res_1,
+                                                                              std::pair<bool, mmdb::Residue *> res_2);
       link_restraints_counts make_other_types_of_link(const coot::protein_geometry &geom,
-						      const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_count_map,
-						      const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set);
+                                                      const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_count_map,
+                                                      const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set);
       link_restraints_counts make_link_restraints_for_link_ng(const std::string &link_type,
-							      mmdb::Residue *res_1,
-							      mmdb::Residue *res_2,
-							      bool is_fixed_first_residue,
-							      bool is_fixed_second_residue,
-							      bool do_trans_peptide_restraints,
-							      const protein_geometry &geom);
+                                                              mmdb::Residue *res_1,
+                                                              mmdb::Residue *res_2,
+                                                              bool is_fixed_first_residue,
+                                                              bool is_fixed_second_residue,
+                                                              bool do_trans_peptide_restraints,
+                                                              const protein_geometry &geom);
 
       link_restraints_counts make_link_restraints_for_link_ng(const new_linked_residue_t &nlr,
-							      const protein_geometry &geom);
+                                                              const protein_geometry &geom);
       void make_header_metal_links_ng(const protein_geometry &geom);
       void add_header_metal_link_bond_ng(const atom_spec_t &atom_spec_1,
-					 const atom_spec_t &atom_spec_2,
-					 double  dist);
+                                         const atom_spec_t &atom_spec_2,
+                                         double  dist);
 
 
       std::string find_peptide_link_type_ng(mmdb::Residue *res_1,
-					    mmdb::Residue *res_2,
-					    const coot::protein_geometry &geom) const;
+                                            mmdb::Residue *res_2,
+                                            const coot::protein_geometry &geom) const;
 
       unsigned int  make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
       void make_non_bonded_contact_restraints_using_threads_ng(int imol, const protein_geometry &geom);
@@ -1884,98 +1919,98 @@ namespace coot {
       // threaded workpackage
       static
       void make_non_bonded_contact_restraints_workpackage_ng(int ithread,
-							     int imol,
-							     const coot::protein_geometry &geom,
-							     const std::vector<std::set<int> > &bonded_atom_indices,
-							     const reduced_angle_info_container_t &raic,
-							     const std::vector<std::set<unsigned int> > &vcontacts,
-							     std::pair<unsigned int, unsigned int> atom_index_range_pair,
-							     const std::set<int> &fixed_atom_indices,
-							     const std::vector<std::string> &energy_type_for_atom,
+                                                             int imol,
+                                                             const coot::protein_geometry &geom,
+                                                             const std::vector<std::set<int> > &bonded_atom_indices,
+                                                             const reduced_angle_info_container_t &raic,
+                                                             const std::vector<std::set<unsigned int> > &vcontacts,
+                                                             std::pair<unsigned int, unsigned int> atom_index_range_pair,
+                                                             const std::set<int> &fixed_atom_indices,
+                                                             const std::vector<std::string> &energy_type_for_atom,
                                                              bool use_extended_atom_mode,
-							     mmdb::PPAtom atom,
-							     const std::vector<bool> &atom_is_metal,
-							     const std::vector<bool> &atom_is_hydrogen,
-							     const std::vector<bool> &H_atom_parent_atom_is_donor_vec,
-							     const std::vector<bool> &atom_is_acceptor_vec,
-							     std::vector<std::set<int> > *non_bonded_contacts_atom_indices_p,
-							     std::vector<simple_restraint> *nbc_restraints_fragment_p,
-							     std::atomic<unsigned int> &done_count);
+                                                             mmdb::PPAtom atom,
+                                                             const std::vector<bool> &atom_is_metal,
+                                                             const std::vector<bool> &atom_is_hydrogen,
+                                                             const std::vector<bool> &H_atom_parent_atom_is_donor_vec,
+                                                             const std::vector<bool> &atom_is_acceptor_vec,
+                                                             std::vector<std::set<int> > *non_bonded_contacts_atom_indices_p,
+                                                             std::vector<simple_restraint> *nbc_restraints_fragment_p,
+                                                             std::atomic<unsigned int> &done_count);
 #endif
 
       // update residue_link_vector_map_p and residue_pair_link_set if new links are made
       //
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
-					     std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
-					     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p,
-					     bool do_rama_plot_restraints,
-					     bool do_trans_peptide_restraints);
+                                             std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+                                             std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p,
+                                             bool do_rama_plot_restraints,
+                                             bool do_trans_peptide_restraints);
 
       void make_base_pairing_and_stacking_restraints_ng(int imol, const protein_geometry &geom);
 
       void make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
-				     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
-				     const protein_geometry &geom);
+                                     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+                                     const protein_geometry &geom);
 
       void make_rama_plot_restraints_ng(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
                                         const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
                                         const protein_geometry &geom); // uses restraints_vec
 
       int add_link_bond(std::string link_type,
-			mmdb::PResidue first, mmdb::PResidue second,
-			short int is_fixed_first_res,
-			short int is_fixed_second_res,
-			const protein_geometry &geom);
+                        mmdb::PResidue first, mmdb::PResidue second,
+                        short int is_fixed_first_res,
+                        short int is_fixed_second_res,
+                        const protein_geometry &geom);
 
       int add_link_angle(std::string link_type,
-			 mmdb::PResidue first, mmdb::PResidue second,
-			 short int is_fixed_first_res,
-			 short int is_fixed_second_res,
-			 const protein_geometry &geom);
+                         mmdb::PResidue first, mmdb::PResidue second,
+                         short int is_fixed_first_res,
+                         short int is_fixed_second_res,
+                         const protein_geometry &geom);
 
       int add_link_torsion(std::string link_type,
-			   int phi_psi_restraints_type,
-			   mmdb::Residue *first,
-			   mmdb::Residue *second,
-			   short int is_fixed_first,
-			   short int is_fixed_second,
-			   const protein_geometry &geom);
+                           int phi_psi_restraints_type,
+                           mmdb::Residue *first,
+                           mmdb::Residue *second,
+                           short int is_fixed_first,
+                           short int is_fixed_second,
+                           const protein_geometry &geom);
 
       // a strong restraint on w to make it 180, period 1.
       //
       int add_link_trans_peptide(mmdb::Residue *first,
-				 mmdb::Residue *second,
-				 short int is_fixed_first,
-				 short int is_fixed_second,
-				 const protein_geometry &geom);
+                                 mmdb::Residue *second,
+                                 short int is_fixed_first,
+                                 short int is_fixed_second,
+                                 const protein_geometry &geom);
 
       int add_rama(std::string link_type,
-		   mmdb::PResidue prev,
-		   mmdb::PResidue this_res,
-		   mmdb::PResidue post,
-		   bool is_fixed_first_res,
-		   bool is_fixed_second_res,
-		   bool is_fixed_third_res,
-		   const protein_geometry &geom);
+                   mmdb::PResidue prev,
+                   mmdb::PResidue this_res,
+                   mmdb::PResidue post,
+                   bool is_fixed_first_res,
+                   bool is_fixed_second_res,
+                   bool is_fixed_third_res,
+                   const protein_geometry &geom);
 
       int add_rama(const rama_triple_t &rt, const coot::protein_geometry &geom);
 
       int add_link_plane(std::string link_type,
-			 mmdb::PResidue first, mmdb::PResidue second,
-			 short int is_fixed_first_res,
-			 short int is_fixed_second_res,
-			 const protein_geometry &geom);
+                         mmdb::PResidue first, mmdb::PResidue second,
+                         short int is_fixed_first_res,
+                         short int is_fixed_second_res,
+                         const protein_geometry &geom);
 
       int add_parallel_planes(mmdb::Residue *first, mmdb::Residue *second,
-			      short int is_fixed_first_res,
-			      short int is_fixed_second_res,
-			      const protein_geometry &geom);
+                              short int is_fixed_first_res,
+                              short int is_fixed_second_res,
+                              const protein_geometry &geom);
 
       int add_link_plane_tmp(std::string link_type,
-			 mmdb::PResidue first, mmdb::PResidue second,
-			 short int is_fixed_first_res,
-			 short int is_fixed_second_res,
-			 const protein_geometry &geom);
+                         mmdb::PResidue first, mmdb::PResidue second,
+                         short int is_fixed_first_res,
+                         short int is_fixed_second_res,
+                         const protein_geometry &geom);
       void symmetry_non_bonded_contacts(bool p);
       // bonded_atom_indices also contain 1-3 atoms of angles
       std::vector<std::set<int> > bonded_atom_indices;
@@ -1987,17 +2022,17 @@ namespace coot {
 
       int make_non_bonded_contact_restraints(int imol, const bonded_pair_container_t &bpc, const protein_geometry &geom);
       int make_non_bonded_contact_restraints(int imol,
-					     const bonded_pair_container_t &bpc,
-					     const reduced_angle_info_container_t &ai,
-					     const protein_geometry &geom);
+                                             const bonded_pair_container_t &bpc,
+                                             const reduced_angle_info_container_t &ai,
+                                             const protein_geometry &geom);
       static bool is_in_same_ring(int imol, mmdb::Residue *residue_p,
-				  std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
-				  const std::string &atom_name_1,
-				  const std::string &atom_name_2,
-				  const coot::protein_geometry &geom);
+                                  std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
+                                  const std::string &atom_name_1,
+                                  const std::string &atom_name_2,
+                                  const coot::protein_geometry &geom);
 
       bool is_acceptor(const std::string &energy_type,
-		       const coot::protein_geometry &geom) const;
+                       const coot::protein_geometry &geom) const;
 
 
       //! Set a flag that we have an OXT and we need to position it
@@ -2051,32 +2086,32 @@ namespace coot {
       int get_chiral_hydrogen_index(int indexc, int index1, int index2, int index3) const;
       int get_chiral_hydrogen_index(int indexc, int index1, int index_2, int index_3, const dict_chiral_restraint_t &dcr) const;
       bool has_inverted_chiral_centre(const simple_restraint &chiral_restraint,
-				      const gsl_vector *v) const;
+                                      const gsl_vector *v) const;
       bool has_tiny_chiral_centre_volume(const simple_restraint &chiral_restraint,
-					 const gsl_vector *v) const;
+                                         const gsl_vector *v) const;
       bool bond_is_very_long(const simple_restraint &bond_restraint,
-			     const gsl_vector *v) const;
+                             const gsl_vector *v) const;
 
       bool is_hydrogen(mmdb::Atom *at_p) const {
-	 std::string ele = at_p->element;
-	 if ((ele == "H") || (ele == " H"))
-	    return true;
-	 else
-	    return ((ele == "D") || (ele == " D"));
-	 }
+         std::string ele = at_p->element;
+         if ((ele == "H") || (ele == " H"))
+            return true;
+         else
+            return ((ele == "D") || (ele == " D"));
+         }
 
       // return "" on no type found
       std::string get_type_energy(int imol, mmdb::Atom *at, const protein_geometry &geom) const {
-	 std::string r;
-	 if (at) {
-	    std::string atom_name = at->name;
-	    const char *rn = at->GetResName();
-	    if (rn) {
-	       std::string residue_name = rn;
-	       r = geom.get_type_energy(atom_name, residue_name, imol);
-	    }
-	 }
-	 return r;
+         std::string r;
+         if (at) {
+            std::string atom_name = at->name;
+            const char *rn = at->GetResName();
+            if (rn) {
+               std::string residue_name = rn;
+               r = geom.get_type_energy(atom_name, residue_name, imol);
+            }
+         }
+         return r;
       }
 
       bonded_pair_container_t bonded_pairs_container;
@@ -2111,9 +2146,9 @@ namespace coot {
    public:
 
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0,
-					  LINK_TORSION_RAMACHANDRAN_GOODNESS = 1,
-					  LINK_TORSION_ALPHA_HELIX = 2,
-					  LINK_TORSION_BETA_STRAND = 3 };
+                                          LINK_TORSION_RAMACHANDRAN_GOODNESS = 1,
+                                          LINK_TORSION_ALPHA_HELIX = 2,
+                                          LINK_TORSION_BETA_STRAND = 3 };
 
       // my_df_electron_density and electron_density_score need access
       // to fixed_atom_indices.
@@ -2133,43 +2168,43 @@ namespace coot {
       // needs a MMDBManager rather than a mmdb::PPAtom.
       //
 //       restraints_container_t(mmdb::PPAtom atoms_in, int n_at) {
-// 	 verbose_geometry_reporting = 0;
-// 	 atom = atoms_in;
-// 	 n_atoms = n_at;
-// 	 asc.mol = NULL;
-// 	 include_map_terms_flag = 0;
-// 	 initial_position_params_vec.resize(3*n_at);
-// 	 for (int i=0; i<n_at; i++) {
-// 	    initial_position_params_vec[3*i  ] = atoms_in[i]->x;
-// 	    initial_position_params_vec[3*i+1] = atoms_in[i]->y;
-// 	    initial_position_params_vec[3*i+2] = atoms_in[i]->z;
-// 	 }
+//          verbose_geometry_reporting = 0;
+//          atom = atoms_in;
+//          n_atoms = n_at;
+//          asc.mol = NULL;
+//          include_map_terms_flag = 0;
+//          initial_position_params_vec.resize(3*n_at);
+//          for (int i=0; i<n_at; i++) {
+//             initial_position_params_vec[3*i  ] = atoms_in[i]->x;
+//             initial_position_params_vec[3*i+1] = atoms_in[i]->y;
+//             initial_position_params_vec[3*i+2] = atoms_in[i]->z;
+//          }
 //       }
 
       restraints_container_t(atom_selection_container_t asc_in, const clipper::Xmap<float> *xmap_p_in)
-	 : xmap_p(xmap_p_in) {
+         : xmap_p(xmap_p_in) {
 
-	 // xmap = xmap_in;
+         // xmap = xmap_in;
 
-	 init();
-	 n_atoms = asc_in.n_selected_atoms;
-	 mol = asc_in.mol;
-	 n_atoms = asc_in.n_selected_atoms;
-	 atom = asc_in.atom_selection;
-	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
-	 dist_crit_for_bonded_pairs = 3.0;
+         init();
+         n_atoms = asc_in.n_selected_atoms;
+         mol = asc_in.mol;
+         n_atoms = asc_in.n_selected_atoms;
+         atom = asc_in.atom_selection;
+         initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
+         dist_crit_for_bonded_pairs = 3.0;
 
-	 for (int i=0; i<asc_in.n_selected_atoms; i++) {
-	    initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x;
-	    initial_position_params_vec[3*i+1] = asc_in.atom_selection[i]->y;
-	    initial_position_params_vec[3*i+2] = asc_in.atom_selection[i]->z;
-	 }
+         for (int i=0; i<asc_in.n_selected_atoms; i++) {
+            initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x;
+            initial_position_params_vec[3*i+1] = asc_in.atom_selection[i]->y;
+            initial_position_params_vec[3*i+2] = asc_in.atom_selection[i]->z;
+         }
       }
 
       // for omega distortion info:
       restraints_container_t(atom_selection_container_t asc_in,
-			     const std::string &chain_id,
-			     const clipper::Xmap<float> *xmap_in);
+                             const std::string &chain_id,
+                             const clipper::Xmap<float> *xmap_in);
 
 
       // For validation.
@@ -2178,9 +2213,9 @@ namespace coot {
       // use geometry_distortion() function.
       //
       restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
-			     const std::string &chain_id,
-			     mmdb::Manager *mol,
-			     const clipper::Xmap<float> *xmap_p_in);
+                             const std::string &chain_id,
+                             mmdb::Manager *mol,
+                             const clipper::Xmap<float> *xmap_p_in);
 
       // 20081106 construct from a vector of residues, each of which
       // has a flag attached that denotes whether or not it is a fixed
@@ -2198,16 +2233,16 @@ namespace coot {
       // const &link_container &links
       //
       restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
-			     const std::vector<mmdb::Link> &links,
-			     const protein_geometry &geom,
-			     mmdb::Manager *mol,
-			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> *xmap_p_in);
+                             const std::vector<mmdb::Link> &links,
+                             const protein_geometry &geom,
+                             mmdb::Manager *mol,
+                             const std::vector<atom_spec_t> &fixed_atom_specs,
+                             const clipper::Xmap<float> *xmap_p_in);
 
       restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
-			     const protein_geometry &geom,
-			     mmdb::Manager *mol,
-			     const clipper::Xmap<float> *xmap_p_in);
+                             const protein_geometry &geom,
+                             mmdb::Manager *mol,
+                             const clipper::Xmap<float> *xmap_p_in);
 
       unsigned int df_by_thread_results_size() const;
 
@@ -2227,7 +2262,7 @@ namespace coot {
 
       omega_distortion_info_container_t
       omega_trans_distortions(const protein_geometry &geom,
-			      bool mark_cis_peptides_as_bad_flag);
+                              bool mark_cis_peptides_as_bad_flag);
 
 
       // So, we provide easy(?) access to the atoms of next and
@@ -2238,25 +2273,25 @@ namespace coot {
       // array to define those (lovely mixture of styles - heh).
       //
       restraints_container_t(mmdb::PPAtom moving_residue_atoms, // e.g. atom of residue 16,17,18
-			     int n_moving_residue_atoms, // e.g. 21
-			     mmdb::PResidue previous_residue, // e.g. residue 15
-			     mmdb::PResidue next_atom,
-			     const std::set<int> &fixed_atom_indices,
-			     clipper::Xmap<float> *map_p_in);
+                             int n_moving_residue_atoms, // e.g. 21
+                             mmdb::PResidue previous_residue, // e.g. residue 15
+                             mmdb::PResidue next_atom,
+                             const std::set<int> &fixed_atom_indices,
+                             clipper::Xmap<float> *map_p_in);
 
       restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
-	 from_residue_vector = 0;
-	 include_map_terms_flag = 0;
+         from_residue_vector = 0;
+         include_map_terms_flag = 0;
 
       };
 
       ~restraints_container_t();
 
       mmdb::Atom *get_atom(int i) const {
-	 if (atom)
-	    return atom[i];
-	 else
-	    return NULL;
+         if (atom)
+            return atom[i];
+         else
+            return NULL;
       }
 
       atom_spec_t get_atom_spec(int atom_index) const;
@@ -2264,29 +2299,29 @@ namespace coot {
       // rama_type_in is either RAMA_TYPE_ZO or RAMA_TYPE_LOGRAMA
       //
       void set_rama_type(int rama_type_in) {
-	 rama_type = rama_type_in;
+         rama_type = rama_type_in;
       }
 
       void set_rama_plot_weight(float w) {
-	 rama_plot_weight = w;
+         rama_plot_weight = w;
       }
 
       void set_verbose_geometry_reporting() {
-	 verbose_geometry_reporting = VERBOSE;
+         verbose_geometry_reporting = VERBOSE;
       }
 
       void set_quiet_reporting() {
-	 verbose_geometry_reporting = QUIET;
+         verbose_geometry_reporting = QUIET;
       }
 
       void assign_fixed_atom_indices(const std::vector<atom_spec_t> &fixed_atom_specs);
 
       double initial_position(int i) {
-	 return initial_position_params_vec[i];
+         return initial_position_params_vec[i];
       }
 
       int init_positions_size() {
-	 return initial_position_params_vec.size();
+         return initial_position_params_vec.size();
       }
 
       // Using this, we can mask out the restraints we don't want to
@@ -2301,15 +2336,15 @@ namespace coot {
       void set_apply_H_non_bonded_contacts(bool state) { apply_H_non_bonded_contacts = state; }
 
       short int include_map_terms() {
-	 return include_map_terms_flag;
+         return include_map_terms_flag;
       }
 
       double Map_weight() const {
-	 return map_weight;
+         return map_weight;
       }
 
       void set_map_weight(const double &mw) {
-	 map_weight = mw;
+         map_weight = mw;
       }
 
       void set_torsion_restraints_weight(double w) {
@@ -2318,11 +2353,11 @@ namespace coot {
 
       void setup_multimin_func() {
 
-	 multimin_func.f   = &distortion_score;
-	 multimin_func.df  = &my_df;
-	 multimin_func.fdf = &my_fdf;
-	 multimin_func.n = n_variables();
-	 multimin_func.params = (double *) this;
+         multimin_func.f   = &distortion_score;
+         multimin_func.df  = &my_df;
+         multimin_func.fdf = &my_fdf;
+         multimin_func.n = n_variables();
+         multimin_func.params = (double *) this;
       }
 
 #ifndef __NVCC__
@@ -2339,14 +2374,14 @@ namespace coot {
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
       unsigned int n_variables() const {
-	 // return 3 * the number of atoms
-	 return 3*n_atoms;
+         // return 3 * the number of atoms
+         return 3*n_atoms;
       }
 
       // no longer done in the constructor:
       void add_map(float map_weight_in) {
-	 map_weight = map_weight_in;
-	 include_map_terms_flag = true;
+         map_weight = map_weight_in;
+         include_map_terms_flag = true;
       }
 
       int size() const { return restraints_vec.size(); }
@@ -2359,8 +2394,8 @@ namespace coot {
       refinement_results_t minimize(restraint_usage_Flags);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       refinement_results_t minimize(int imol, restraint_usage_Flags usage_flags,
-				    int nsteps_max, short int print_initial_chi_sq_flag,
-				    const protein_geometry &geom);
+                                    int nsteps_max, short int print_initial_chi_sq_flag,
+                                    const protein_geometry &geom);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
 
       bool refinement_results_add_details;
@@ -2372,16 +2407,16 @@ namespace coot {
       find_the_worst(const std::vector<refinement_lights_info_t> &lights) const;
 
       simple_restraint& operator[] (unsigned int i) {
-	 return restraints_vec[i];
+         return restraints_vec[i];
       }
 
       // because chi_squareds is const:
       const simple_restraint& operator[] (const unsigned int &i) const {
-	 return restraints_vec[i];
+         return restraints_vec[i];
       }
 
       const simple_restraint& at(const unsigned int &i) const{
-	 return restraints_vec[i];
+         return restraints_vec[i];
       }
 
       void setup_gsl_vector_variables();
@@ -2397,41 +2432,41 @@ namespace coot {
       // simple_restraint) using the coordinates () and the dictionary of
       // restraints, protein_geometry geom.
       int make_restraints(int imol,
-			  const protein_geometry &geom,
-			  restraint_usage_Flags flags,
-			  bool do_residue_internal_torsions,
-			  bool do_trans_peptide_restraints,
-			  float rama_plot_target_weight,
-			  bool do_rama_plot_retraints,
-			  bool do_auto_helix_restraints,
-			  bool do_auto_strand_restraints,
-			  bool do_auto_h_bond_restraints,
-			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
-			  bool do_link_restraints=true,
-			  bool do_flank_restraints=true);
+                          const protein_geometry &geom,
+                          restraint_usage_Flags flags,
+                          bool do_residue_internal_torsions,
+                          bool do_trans_peptide_restraints,
+                          float rama_plot_target_weight,
+                          bool do_rama_plot_retraints,
+                          bool do_auto_helix_restraints,
+                          bool do_auto_strand_restraints,
+                          bool do_auto_h_bond_restraints,
+                          pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+                          bool do_link_restraints=true,
+                          bool do_flank_restraints=true);
 
       int make_restraints_ng(int imol,
-			  const protein_geometry &geom,
-			  restraint_usage_Flags flags,
-			  bool do_residue_internal_torsions,
-			  bool do_trans_peptide_restraints,
-			  float rama_plot_target_weight,
-			  bool do_rama_plot_retraints,
-			  bool do_auto_helix_restraints,
-			  bool do_auto_strand_restraints,
-			  bool do_auto_h_bond_restraints,
-			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
-			  bool do_link_restraints=true,
-			  bool do_flank_restraints=true);
+                          const protein_geometry &geom,
+                          restraint_usage_Flags flags,
+                          bool do_residue_internal_torsions,
+                          bool do_trans_peptide_restraints,
+                          float rama_plot_target_weight,
+                          bool do_rama_plot_retraints,
+                          bool do_auto_helix_restraints,
+                          bool do_auto_strand_restraints,
+                          bool do_auto_h_bond_restraints,
+                          pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+                          bool do_link_restraints=true,
+                          bool do_flank_restraints=true);
 
       bool add_or_replace_torsion_restraints_with_closest_rotamer_restraints(const std::vector<std::pair<mmdb::Residue *, std::vector<dict_torsion_restraint_t> > > &rotamer_torsions);
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
-	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size()
-		   << std::endl;
-	 std::cout << "    geom ref pointer " << &geom << std::endl;
-	 return geom.size();
+         std::cout << "----- inline_const_test_function() with geom of size : " << geom.size()
+                   << std::endl;
+         std::cout << "    geom ref pointer " << &geom << std::endl;
+         return geom.size();
       }
       unsigned int const_test_function(const protein_geometry &geom) const;
 
@@ -2442,8 +2477,8 @@ namespace coot {
 
       void add_extra_restraints(int imol,
                                 const std::string &description,
-				const extra_restraints_t &extra_restraints,
-				const protein_geometry &geom);
+                                const extra_restraints_t &extra_restraints,
+                                const protein_geometry &geom);
       // and that calls:
       void add_extra_geman_mcclure_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
@@ -2452,8 +2487,8 @@ namespace coot {
       void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_target_position_restraints(const extra_restraints_t &extra_restraints); // not pull-atoms
       void add_extra_parallel_plane_restraints(int imol,
-					       const extra_restraints_t &extra_restraints,
-					       const protein_geometry &geom);
+                                               const extra_restraints_t &extra_restraints,
+                                               const protein_geometry &geom);
       // can I find the atoms using the atom indices from the original molecule?
       bool try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr);
       // ditto
@@ -2495,24 +2530,24 @@ namespace coot {
 
       // here phi and psi are in clipper units (radians).
       double rama_prob(const double &phi_rads, const double &psi_rads) const {
-	 return lograma.interp(phi_rads, psi_rads);
+         return lograma.interp(phi_rads, psi_rads);
       }
       LogRamachandran::Lgrad rama_grad(const double &phir, const double &psir) const {
-	 return lograma.interp_grad(phir, psir);
+         return lograma.interp_grad(phir, psir);
       }
 
       // calling function should also provide the plot type
       // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
       //
       float zo_rama_prob(const std::string &residue_type, const double &phir, const double &psir) const {
-	 return zo_rama.value(residue_type, phir, psir);
+         return zo_rama.value(residue_type, phir, psir);
       }
 
       // calling function should now also provides the plot/residue type
       //
       std::pair<float, float> zo_rama_grad(const std::string &residue_type,
-					   const double &phir, const double &psir) const {
-	 return zo_rama.df(residue_type, phir, psir);
+                                           const double &phir, const double &psir) const {
+         return zo_rama.df(residue_type, phir, psir);
       }
 
 
@@ -2527,12 +2562,12 @@ namespace coot {
       // guessing (carbohydrates and disulfides):
       //
       std::pair<std::string, bool> find_link_type_complicado(mmdb::Residue *first,
-							     mmdb::Residue *second,
-							     const protein_geometry &geom) const;
+                                                             mmdb::Residue *second,
+                                                             const protein_geometry &geom) const;
 
       // which calls
       bool have_intermediate_residue_by_seqnum(mmdb::Residue *first,
-					       mmdb::Residue *second) const;
+                                               mmdb::Residue *second) const;
 
       // Allow public access to this - we need it to find the links
       // between residues when all we have to go on is the refmac
@@ -2602,7 +2637,7 @@ namespace coot {
       // plane restraint should be sets of 4-atom chiral-like restraints?
       bool convert_plane_restraints_to_improper_dihedral_restraints_flag;
       void set_convert_plane_restraints_to_improper_dihedral_restraints(bool state) {
-	 convert_plane_restraints_to_improper_dihedral_restraints_flag = state;
+         convert_plane_restraints_to_improper_dihedral_restraints_flag = state;
       }
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
@@ -2622,9 +2657,9 @@ namespace coot {
       ctpl::thread_pool *thread_pool_p;
       // std::atomic<unsigned int> &done_count_for_threads;
       void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
-	 thread_pool_p = tp_in;
-	 n_threads = n_threads_in;
-	 // std::cout << "##### thread_pool called with n_thread " << n_threads << std::endl;
+         thread_pool_p = tp_in;
+         n_threads = n_threads_in;
+         // std::cout << "##### thread_pool called with n_thread " << n_threads << std::endl;
       }
 
       // we can't have a non-pointer thread pool because restraints are copied in
@@ -2652,7 +2687,7 @@ namespace coot {
 
       double log_cosh_target_distance_scale_factor;
       void set_log_cosh_target_distance_scale_factor(double sf) {
-	 log_cosh_target_distance_scale_factor = sf;
+         log_cosh_target_distance_scale_factor = sf;
       }
 
       void copy_from(int i);
@@ -2674,23 +2709,23 @@ namespace coot {
 #ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
    void my_df_non_bonded_thread_dispatcher(int thread_idx,
-					   const gsl_vector *v,
-					   gsl_vector *df,
-					   restraints_container_t *restraints_p,
-					   int idx_start,
-					   int idx_end,
-					   std::atomic<unsigned int> &done_count);
+                                           const gsl_vector *v,
+                                           gsl_vector *df,
+                                           restraints_container_t *restraints_p,
+                                           int idx_start,
+                                           int idx_end,
+                                           std::atomic<unsigned int> &done_count);
 
    void my_df_geman_mcclure_distances_thread_dispatcher(int thread_index, const gsl_vector *v,
-							gsl_vector *df,
-							restraints_container_t *restraints_p,
-							int idx_start,
-							int idx_end,
-							std::atomic<unsigned int> &done_count);
+                                                        gsl_vector *df,
+                                                        restraints_container_t *restraints_p,
+                                                        int idx_start,
+                                                        int idx_end,
+                                                        std::atomic<unsigned int> &done_count);
    // parallel version of my_df()
    void split_the_gradients_with_threads(const gsl_vector *v,
-					 restraints_container_t *restraints_p,
-					 gsl_vector *df);
+                                         restraints_container_t *restraints_p,
+                                         gsl_vector *df);
 
    // this should be in process_df_in_range.hh perhaps? Anyway, splitting it up
    // doesn't seem to speed things up.
@@ -2726,8 +2761,8 @@ namespace coot {
    // ie. density values for atom indices 0 to 9 inclusive are added.
    void electron_density_score_from_restraints_using_atom_index_range(int thread_idx,
                                                  const gsl_vector *v,
-						 const std::pair<unsigned int, unsigned int> &atom_index_range,
-						 restraints_container_t *restraints_p,
+                                                 const std::pair<unsigned int, unsigned int> &atom_index_range,
+                                                 restraints_container_t *restraints_p,
                                                  double *result,
                                                  std::atomic<unsigned int> &done_count);
 #endif // __NVCC__
@@ -2742,45 +2777,45 @@ namespace coot {
 
 
    void my_df_non_bonded_single(const gsl_vector *v,
-				gsl_vector *df,
-				const simple_restraint &this_restraint
-				// const restraints_container_t &restraints // for debugging
-				);
+                                gsl_vector *df,
+                                const simple_restraint &this_restraint
+                                // const restraints_container_t &restraints // for debugging
+                                );
 
    void my_df_non_bonded_lennard_jones(const gsl_vector *v,
-				       gsl_vector *df,
-				       const simple_restraint &this_restraint,
-				       const double &lj_epsilon);
+                                       gsl_vector *df,
+                                       const simple_restraint &this_restraint,
+                                       const double &lj_epsilon);
 
    void my_df_geman_mcclure_distances_single(const gsl_vector *v,
-					     gsl_vector *df,
-					     const simple_restraint &this_restraint,
-					     const double &alpha);
+                                             gsl_vector *df,
+                                             const simple_restraint &this_restraint,
+                                             const double &alpha);
    void my_df_non_bonded_single(const gsl_vector *v,
-				gsl_vector *df,
-				const simple_restraint &this_restraint
-				// const restraints_container_t &restraints // for debugging
-				);
+                                gsl_vector *df,
+                                const simple_restraint &this_restraint
+                                // const restraints_container_t &restraints // for debugging
+                                );
 
    void my_df_electron_density_single(const gsl_vector *v,
-				      restraints_container_t *restraints,
-				      gsl_vector *df, int idx_start, int idx_end);
+                                      restraints_container_t *restraints,
+                                      gsl_vector *df, int idx_start, int idx_end);
 
 #ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
    // done_count_for_threads is modified
    //
    void my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
-					       restraints_container_t *restraints,
-					       gsl_vector *df,
-					       int atom_idx_start, int atom_idx_end,
-					       std::atomic<unsigned int> &done_count_for_threads);
+                                               restraints_container_t *restraints,
+                                               gsl_vector *df,
+                                               int atom_idx_start, int atom_idx_end,
+                                               std::atomic<unsigned int> &done_count_for_threads);
 #endif // __NVCC__
 #endif // HAVE_CXX_THREAD
 
    void simple_refine(mmdb::Residue *residue_p,
-		      mmdb::Manager *mol,
-		      const dictionary_residue_restraints_t &dict_restraints);
+                      mmdb::Manager *mol,
+                      const dictionary_residue_restraints_t &dict_restraints);
 
 } // namespace coot
 
