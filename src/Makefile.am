@@ -120,7 +120,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
                      instanced-objects.shader particles.shader lines.shader \
                      draw-map-cap.shader lines-pulse.shader rama-balls.shader \
 		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader \
-		     model-as-mesh.shader ligand-view.shader
+		     model-as-mesh.shader ligand-view.shader symmetry-atoms-lines.shader
 
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
