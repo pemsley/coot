@@ -1695,9 +1695,11 @@ void
 graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
    gtk_gl_area_make_current(glarea);
-   glLineWidth(2.0);  // GLv4 antialiasing - OpenGL implementations are not required to support this
    GLenum err = glGetError();
-   if (err) std::cout << "   error draw_central_cube() A err " << err << std::endl;
+   if (err) std::cout << "error draw_central_cube() A0 err " << err << std::endl;
+   glLineWidth(2.0);  // GLv4 antialiasing - OpenGL implementations are not required to support this
+   err = glGetError();
+   if (err) std::cout << "error draw_central_cube() A1 glLineWidth() err " << err << std::endl;
 
    // To see the possible values of the line width in aliased mode:
    // GLfloat line_width_max_min[2] = {0.0f, 0.0f};
@@ -2370,13 +2372,13 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
                           //  ------------------- render scene ----------------------------
                           const glm::vec3 &bg = graphics_info_t::background_colour;
                           glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
-                          GLenum err = glGetError(); if (err) std::cout << "render() B err " << err << std::endl;
+                          GLenum err = glGetError(); if (err) std::cout << "render_scene lambda B err " << err << std::endl;
                           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                          err = glGetError(); if (err) std::cout << "render() C err " << err << std::endl;
+                          err = glGetError(); if (err) std::cout << "render_scene lambda C err " << err << std::endl;
 
                           draw_central_cube(gl_area);
                           draw_origin_cube(gl_area);
-                          err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
+                          err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
                           draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
 
@@ -3047,6 +3049,8 @@ graphics_info_t::draw_invalid_residue_pulse() {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glLineWidth(3.0);
+      GLenum err = glGetError();
+      if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
       for (auto pulse_centre : delete_item_pulse_centres)
          lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
                                                   pulse_centre, mvp,
@@ -3062,6 +3066,8 @@ graphics_info_t::draw_identification_pulse() {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glLineWidth(2.0);
+      GLenum err = glGetError();
+      if (err) std::cout << "draw_identification_pulse() glLineWidth " << err << std::endl;
       lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
                                                identification_pulse_centre,
                                                mvp, view_rotation_matrix, true);
@@ -3075,6 +3081,8 @@ graphics_info_t::draw_delete_item_pulse() {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glLineWidth(2.0);
+      GLenum err = glGetError();
+      if (err) std::cout << "draw_delete_item_pulse() glLineWidth " << err << std::endl;
       for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {
          lines_mesh_for_delete_item_pulse.draw(&shader_for_lines_pulse,
                                                delete_item_pulse_centres[i],
