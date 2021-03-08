@@ -573,10 +573,13 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    }
 
+   GLenum err = glGetError();
+   if (err) std::cout << "gtk3_draw_map_molecules() A " << err << std::endl;
+
    if (!draw_transparent_maps || n_transparent_maps > 0) {
 
       glLineWidth(map_line_width * framebuffer_scale);
-      GLenum err = glGetError();
+      err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
       shader_for_maps.Use();
@@ -1697,9 +1700,17 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
    if (err) std::cout << "error draw_central_cube() A0 err " << err << std::endl;
+
+// wrap this if you use it again. myglLineWidth()
+#ifdef __APPLE__
+   // Shut up Mac OS X. This should not give an error
+#else
    glLineWidth(2.0);  // GLv4 antialiasing - OpenGL implementations are not required to support this
+                      // but they should not create an error. Mac does.
    err = glGetError();
    if (err) std::cout << "error draw_central_cube() A1 glLineWidth() err " << err << std::endl;
+#endif
+
 
    // To see the possible values of the line width in aliased mode:
    // GLfloat line_width_max_min[2] = {0.0f, 0.0f};

@@ -15,9 +15,11 @@
 //      |                      ^~~~~~~
 
 #include <epoxy/gl.h>
-#ifndef __APPLE__
-#include <epoxy/glx.h>
-#endif
+
+// #ifndef __APPLE__
+// #include <epoxy/glx.h>
+// #endif
+
 #include "Mesh.hh"
 #include "Shader.hh"
 #define GLM_ENABLE_EXPERIMENTAL

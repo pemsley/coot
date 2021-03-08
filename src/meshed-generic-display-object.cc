@@ -4,9 +4,6 @@
 
 // Perhaps this (needed to compile meshed-generic-display-object.hh) should go in Mesh.hh.
 #include <epoxy/gl.h>
-#ifndef __APPLE__
-#include <epoxy/glx.h>
-#endif
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()

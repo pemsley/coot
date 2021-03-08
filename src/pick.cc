@@ -42,11 +42,11 @@
 
 #include "graphics-info.h"
 
-#if __APPLE__
-#   include <OpenGL/glu.h>
-#else
-#   include <GL/glu.h>
-#endif
+// #if __APPLE__
+// #   include <OpenGL/glu.h>
+// #else
+// #   include <GL/glu.h>
+// #endif
 
 
 #include "molecule-class-info.h"
