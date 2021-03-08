@@ -1191,8 +1191,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       }
 
    } else {
-      GtkWidget *widget = create_no_restraints_info_dialog();
-      gtk_widget_show(widget);
+      continue_threaded_refinement_loop = false;
+      if (use_graphics_interface_flag) {
+         GtkWidget *widget = create_no_restraints_info_dialog();
+         gtk_widget_show(widget);
+      }
    }
 
    return found_restraints_flag;
