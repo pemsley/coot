@@ -192,6 +192,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    // This now wraps refine_residues_vec
 
+   // can this function be deleted now?
+
    if (false)
       std::cout << "DEBUG:: In copy_mol_and_refine() refine range: "
 		<< "chain  :" << chain_id_1 << ": "
@@ -1303,7 +1305,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       // Oops. Just give us a dialog and don't start the refinement
 	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
-	       
+
 	    } else { 
 
 	       moving_atoms_have_hydrogens_displayed = true;
@@ -2491,7 +2493,7 @@ graphics_info_t::refine_residue_range(int imol,
 		<< " " << ":" << altconf << ": " << is_water_like_flag << std::endl;
 
    coot::refinement_results_t rr;
-   
+
    int imol_map = Imol_Refinement_Map();
 
    if (imol_map == -1) { // magic number check,

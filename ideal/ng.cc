@@ -36,7 +36,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
    auto tp_0 = std::chrono::high_resolution_clock::now();
    restraints_usage_flag = flags_in;
    rama_plot_weight = rama_plot_target_weight;
-   if (n_atoms) {
+   if (n_atoms > 0) {
       mark_OXT(geom);
       make_monomer_restraints(imol, geom, do_residue_internal_torsions);
       auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -81,7 +81,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set;
 
-      if (residues_vec.size() > 1)
+      // make_link_restraints_ng makes flanking residues restraints also
+      if (residues_vec.size() > 0) // always true?
          make_link_restraints_ng(geom,
                                  do_rama_plot_restraints, do_trans_peptide_restraints,
                                  &residue_link_vector_map, // fill this
@@ -1800,7 +1801,7 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
                                                     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p) {
 
    // make_polymer_links_ng uses the residues_vec (which is sorted in initialization)
-   // so, only the passed active atoms are consider for polymer links
+   // so, only the passed active atoms are considered for polymer links
 
    // std::cout << "INFO:: making link polymer links " << std::endl;
 
@@ -2227,6 +2228,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
    bool for_beasty = false;
 
    if (! for_beasty) {
+
       make_flanking_atoms_restraints_ng(geom,
                                         residue_link_vector_map_p,
                                         residue_pair_link_set_p,

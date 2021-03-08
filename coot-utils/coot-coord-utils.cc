@@ -1619,6 +1619,40 @@ coot::util::max_min_max_residue_range(mmdb::Manager *mol) {
    return max_min_max;
 }
 
+// this can return an empty list if the residues for resno_start or resnoend  are not found
+std::vector<mmdb::Residue *>
+coot::util::get_residues_in_range(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end) {
+
+   std::vector<mmdb::Residue *> v;
+   if (resno_end < resno_start) return v;
+   residue_spec_t spec_1(chain_id, resno_start);
+   residue_spec_t spec_2(chain_id, resno_end);
+   mmdb::Residue *r1 = get_residue(spec_1, mol);
+   mmdb::Residue *r2 = get_residue(spec_2, mol);
+
+   if (r1) {
+      if (r2) {
+         v.push_back(r1);
+         if (r1 != r2) {
+            bool get_next = true;
+            mmdb::Residue *r = r1;
+            while (get_next) {
+               r = next_residue(r);
+               if (!r)
+                  get_next = false;
+               else
+                  v.push_back(r);
+               if (r == r2)
+                  get_next = false;
+            }
+         }
+      }
+   }
+   return v;
+}
+
+
+
 // Return a vector of residue that are in this fragment.
 // Fragments are marked by consecutively numbered residues.  A
 // gap in the sequence numbers marks the end/beginning of a
