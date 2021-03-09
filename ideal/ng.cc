@@ -647,6 +647,22 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                                                return dist_min;
                                             };
 
+   // note to self: this is the multi-threaded version
+
+   auto debug_print = [energy_type_for_atom] (const std::string &remark,
+                                              int i, int j, mmdb::Atom *at_1, mmdb::Atom *at_2,
+                                              const std::vector<bool> &fixed_atom_flags, double dist_min) {
+
+                         get_print_lock();
+                         std::cout << "Adding NBC: " << remark << " " << std::setw(4) << i << " " << std::setw(4) << j << " "
+                                   << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << " types: "
+                                   << std::setw(4) << energy_type_for_atom[i] << " "
+                                   << std::setw(4) << energy_type_for_atom[j]
+                                   << " fixed-flags: " << fixed_atom_flags[0] << " " << fixed_atom_flags[1]
+                                   << " dist-min: " << dist_min <<  "\n";
+                         release_print_lock();
+                      };
+
    for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
 
       mmdb::Atom *at_1 = atom[i];
@@ -801,8 +817,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
          } else {
 
-            // note to self: this is the multi-threaded version
-
             std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
                                                                     atom_is_metal[i],
                                                                     atom_is_metal[j],
@@ -822,14 +836,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
                   dist_min = nbc_dist.second;
 
-                  if (false) {
-                     std::cout << "Adding NBC: 0 " << std::setw(4) << i << " " << std::setw(4) << j << " "
-                               << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << " types: "
-                               << std::setw(4) << energy_type_for_atom[i] << " "
-                               << std::setw(4) << energy_type_for_atom[j]
-                               << " fixed-flags: " << fixed_atom_flags[0] << " " << fixed_atom_flags[1]
-                               << " dist-min: " << dist_min <<  "\n";
-                  }
+                  if (false) debug_print("0    ", i, j, at_1, at_2, fixed_atom_flags, dist_min);
 
                   // Perhaps we don't have angle restraints to both atoms because one
                   // of the atoms is fixed (and thus miss that these have a 1-4 relationship).
@@ -858,20 +865,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
             }
 
          }
-
-         auto debug_print = [energy_type_for_atom] (const std::string &remark,
-                                                    int i, int j, mmdb::Atom *at_1, mmdb::Atom *at_2,
-                                                    const std::vector<bool> &fixed_atom_flags, double dist_min) {
-
-                               get_print_lock();
-                               std::cout << "Adding NBC: " << remark << " " << std::setw(4) << i << " " << std::setw(4) << j << " "
-                                         << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << " types: "
-                                         << std::setw(4) << energy_type_for_atom[i] << " "
-                                         << std::setw(4) << energy_type_for_atom[j]
-                                         << " fixed-flags: " << fixed_atom_flags[0] << " " << fixed_atom_flags[1]
-                                         << " dist-min: " << dist_min <<  "\n";
-                               release_print_lock();
-                            };
 
          if (false) debug_print("A", i, j, at_1, at_2, fixed_atom_flags, dist_min);
 
@@ -910,7 +903,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                             fixed_atom_flags, dist_min);
          nbc_restraints_fragment_p->push_back(r);
 
-         if (false) debug_print("--end--", i, j, at_1, at_2, fixed_atom_flags, dist_min);
+         if (false) debug_print("-end-", i, j, at_1, at_2, fixed_atom_flags, dist_min);
       }
    }
 
