@@ -5994,4 +5994,6 @@ void set_auto_h_bond_restraints(int state) {
 
 }
 
-
+void set_refine_hydrogen_bonds(int state) {
+   set_auto_h_bond_restraints(state);
+}

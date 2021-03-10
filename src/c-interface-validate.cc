@@ -3024,3 +3024,20 @@ PyObject *add_cablam_markup_py(int imol, const std::string &cablam_log_file_name
 
 }
 #endif // USE_PYTHON
+
+
+float atom_overlap_score(int imol) {
+
+   float s = -1;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      graphics_info_t g;
+      bool ignore_waters_flag = false;
+      coot::atom_overlaps_container_t ao(mol, g.Geom_p(), ignore_waters_flag);
+      ao.make_all_atom_overlaps();
+      s = ao.score();
+   }
+
+
+   return s;
+}

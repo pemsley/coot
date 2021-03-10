@@ -7158,7 +7158,8 @@ Sat Jul 19 13:17:01 BST 2014
 
    std::setw() before strings
    std::cout.width() before numbers # this is nonsense I now think. Use setw() for both 
-                                      strings and ints
+                                      strings and ints.
+   std::setw(6) to set the min width for a floating point field -0.123 doesn't seem to work.
 
 	 // Formatted output:
 	 //

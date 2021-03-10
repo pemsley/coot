@@ -390,6 +390,7 @@ coot::atom_overlaps_container_t::make_overlaps() {
 
    mmdb::PAtom *central_residue_atoms = 0;
    int n_central_residue_atoms;
+   if (! res_central) return; // it isn't if we have all atom
    res_central->GetAtomTable(central_residue_atoms, n_central_residue_atoms);
 
    for (int j=0; j<n_central_residue_atoms; j++) {
@@ -425,17 +426,17 @@ coot::atom_overlaps_container_t::make_overlaps() {
 		  if (hbi.is_h_bond_H_and_acceptor) {
 		     h_bond_flag = true;
 		     if (hbi.H_is_first_atom_flag) { 
-			std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+			std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
 				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
 				  << " overlap " << o << " IS H-Bond (ligand donor)" << std::endl;
 		     } else {
-			   std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+			   std::cout << "INFO:: " << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
 				     << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
 				     << " overlap " << o << " IS H-Bond (ligand acceptor)" << std::endl;
 
 		     }
 		  } else { 
-		     std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+		     std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
 			       << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
 			       << " overlap " << o << std::endl;
 		  }
@@ -447,11 +448,11 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	       } else {
 		  if (hbi.is_h_bond_H_and_acceptor) { 
 		     if (d < (dist_crit + 0.5)) {
-			std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+			std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
 				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
 				  << " but might be h-bond anyway (is this strange?)"
 				  << std::endl;
-			double o = 0;
+			// double o = 0;
 			// atom_overlap_t ao(cr_at, n_at, r_1, r_2, o);
 			// ao.is_h_bond = true;
 			// overlaps.push_back(ao);
@@ -1249,7 +1250,7 @@ coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 						       bool make_vdw_surface) {
 
-   coot::atom_overlaps_dots_container_t ao;
+   atom_overlaps_dots_container_t ao;
 
    if (mol) {
       mmdb::realtype max_dist = 1.75 + 1.75 + 2 * probe_radius; // max distance for an interaction
@@ -1266,7 +1267,6 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 			"*"  // alt loc.
 			);
 
-#ifdef HAVE_CXX_THREAD
 
       unsigned int n_threads = get_max_number_of_threads();
 
@@ -1278,14 +1278,13 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 							  min_dist, max_dist, make_vdw_surface);
       }
 
-#else
-
+#if 0 // single thread
       // set ao using non-threaded version
       //
       ao = all_atom_contact_dots_internal_single_thread(dot_density_in, mol, i_sel_hnd, i_sel_hnd,
 							min_dist, max_dist, make_vdw_surface);
 
-#endif // HAVE_CXX_THREAD
+#endif //
 
       mol->DeleteSelection(i_sel_hnd);
    }
@@ -1535,7 +1534,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 									     bool make_vdw_surface) {
    
    coot::atom_overlaps_dots_container_t ao;
-#ifdef HAVE_CXX_THREAD
+
    bool exclude_mc_flag = true;
 
    long i_contact_group = 1;
@@ -1681,11 +1680,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	 }
       }
    }
-#endif // HAVE_CXX_THREAD
 
    return ao;
 }
-
 
 // put results in ao
 //
@@ -1710,6 +1707,23 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
 				probe_radius, dot_density_in, clash_spike_length, make_vdw_surface));
    }
 }
+
+
+float
+coot::atom_overlaps_container_t::score() {
+   float s = 0.0;
+   unsigned int nos = overlaps.size();
+   if (nos > 0) {
+      for (unsigned int i=0; i<overlaps.size(); i++) {
+         const atom_overlap_t &o(overlaps[i]);
+         s += o.overlap_volume;
+      }
+      s /= static_cast<float>(nos);
+      s *= 1000.0; // score per 1000 atoms
+   }
+   return s;
+}
+
 
 // static
 coot::atom_overlaps_dots_container_t

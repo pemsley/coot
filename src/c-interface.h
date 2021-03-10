@@ -3259,7 +3259,13 @@ void add_omega_torsion_restriants();
 void remove_omega_torsion_restriants();
 
 /*! \brief add or remove auto H-bond restraints */
-void set_auto_h_bond_restraints(int state);
+void set_auto_h_bonds(int state);
+
+/*! \brief add or remove auto H-bond restraints
+
+As above, buth this function has a more memorable name */
+void set_refine_hydrogen_bond_restraints(int state);
+
 
 /*! \brief set immediate replacement mode for refinement and
   regularization.  You need this (call with istate=1) if you are
@@ -4130,6 +4136,7 @@ void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
 void setup_multi_residue_torsion();  /* show the pick dialog */
 
 
+float atom_overlap_score(int imol);
 
 /* \} */
 
