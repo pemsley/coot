@@ -2314,19 +2314,22 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       }
 
       // How can I know if this was a Hydrogen bond restraint?
-      if (r_type == BOND_RESTRAINT)
+      if (r_type == BOND_RESTRAINT) {
          std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
                    << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
-                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::get<2>(d)
+                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
                    << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
                    << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
-                   << " distortion " << std::get<3>(d) << "\n";
+                   << " distortion " << std::setw(6) << std::get<3>(d);
+         if (rest.is_hydrogen_bond) std::cout << " H";
+         std::cout << "\n";
+      }
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
          std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
                    << atom_spec_t(at_1) << " " << at_1->GetResName()
-                   << " to " << atom_spec_t(at_2) << " " << at_2->GetResName()
+                   << " to " << atom_spec_t(at_2) << " " << std::setw(3) << at_2->GetResName()
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
                    << " distortion " << std::get<3>(d) << "\n";
@@ -2339,5 +2342,3 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::get<3>(d) << "\n";
    }
 }
-
-

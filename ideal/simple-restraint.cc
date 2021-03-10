@@ -1602,7 +1602,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 unlocked = false;
       }
 
-      std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
+      // std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
       gsl_multimin_fdfminimizer_free(m_s);
       gsl_vector_free(x);
       m_s = 0;
@@ -3883,19 +3883,18 @@ coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coo
             int udd_get_data_status_1 = hb.donor->GetUDData(   udd_atom_index_handle, index_1);
             int udd_get_data_status_2 = hb.acceptor->GetUDData(udd_atom_index_handle, index_2);
 
-
             if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
                 udd_get_data_status_2 == mmdb::UDDATA_Ok) {
 
+               double bl = sqrt(b.lengthsq()); // bond length
                std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-               add(BOND_RESTRAINT, index_1, index_2,
-                   fixed_flags,
-                   sqrt(b.lengthsq()), 0.1,
-                   1.2);  // junk value
 
-               add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
-                                          sqrt(b.lengthsq()), 0.1);
-                                          
+               bool as_bond = true;
+               if (as_bond) {
+                  add_h_bond(BOND_RESTRAINT, index_1, index_2, fixed_flags, bl, 0.1);
+               } else {
+                  add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags, bl, 0.1);
+               }
                n_bonds++;
             }
          }

@@ -317,6 +317,7 @@ namespace coot {
          target_value = 0.0;
          is_user_defined_restraint = false;
          is_H_non_bonded_contact = false;
+         is_hydrogen_bond = false;
          is_single_Hydrogen_atom_angle_restraint = false;
          nbc_function = HARMONIC; // not used
          torsion_restraint_weight = 1.0;
@@ -359,6 +360,7 @@ namespace coot {
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
       bool is_H_non_bonded_contact;
+      bool is_hydrogen_bond;
       bool is_single_Hydrogen_atom_angle_restraint;
       double torsion_restraint_weight;
       //
@@ -1356,10 +1358,20 @@ namespace coot {
 
       double torsion_restraints_weight;
 
+      void add_h_bond(restraint_type_t rest_type, int atom_1, int atom_2,
+                      const std::vector<bool> &fixed_atom_flags,
+                      float tar, float sig) {
+
+         if (sig > 0.0) {
+            float obs = -1; // dummy value
+            simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
+            r.is_hydrogen_bond = true;
+            restraints_vec.push_back(r);
+         }
+      }
       void add(restraint_type_t rest_type, int atom_1, int atom_2,
                const std::vector<bool> &fixed_atom_flags,
-               float tar,
-               float sig, float obs) {
+               float tar, float sig, float obs) {
 
          if (sig > 0.0) {
             simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);

@@ -119,8 +119,11 @@ input_data_t get_input_details(int argc, char **argv) {
    return d;
 }
 
+#include "coot-utils/atom-overlaps.hh"
+
 void
-validate_ligand(mmdb::Residue *residue_p, mmdb::Manager *mol, bool include_environment_contacts_flag,
+validate_ligand(const std::string &pdb_file_name,
+                mmdb::Residue *residue_p, mmdb::Manager *mol, bool include_environment_contacts_flag,
                 coot::protein_geometry  &geom) {
 
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
@@ -146,6 +149,9 @@ validate_ligand(mmdb::Residue *residue_p, mmdb::Manager *mol, bool include_envir
       }
    }
 
+   std::string monomer_type = residue_p->GetResName();
+   int res_no = residue_p->GetSeqNum();
+   const std::string chain_id = residue_p->GetChainID();
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<mmdb::Link> links;
    coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, 0);
@@ -167,8 +173,19 @@ validate_ligand(mmdb::Residue *residue_p, mmdb::Manager *mol, bool include_envir
       double d = gdic.distortion();
       const double k = 350;  // ratio derived from mon-lib analysis
       double ceu = d/(k);
-      std::cout << "Ligand distortion: " << ceu << " ceus" << std::endl;
+      std::cout << "INFO:: " << pdb_file_name << " " << chain_id << " " << res_no << " " << monomer_type
+                << " ligand distortion score:   " << ceu << " ceus" << std::endl;
    }
+
+   if (include_environment_contacts_flag) {
+      std::vector<mmdb::Residue *> neighbours = coot::residues_near_residue(residue_p, mol, 5);
+      coot::atom_overlaps_container_t ao(residue_p, neighbours, mol, &geom);
+      ao.make_overlaps();
+      float os = ao.score();
+      std::cout << "INFO:: " << pdb_file_name << " " << chain_id << " " << res_no << " " << monomer_type
+                << " ligand atom overlap score: " << os << " A^3 / 1000 atoms" << std::endl;
+   }
+
 }
 
 #include "coot-utils/atom-selection-container.hh"
@@ -185,7 +202,8 @@ read_data_validate_ligand(const input_data_t &input_data) {
       bool allow_dups = true;
       bool verbose = false;
       bool convert_flag = false;
-      atom_selection_container_t asc = get_atom_selection(input_data.pdb_file_name, allow_dups, verbose, convert_flag);
+      std::string pdb_file_name = input_data.pdb_file_name;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, allow_dups, verbose, convert_flag);
       mmdb::Manager *mol = asc.mol;
       
       try {
@@ -208,7 +226,13 @@ read_data_validate_ligand(const input_data_t &input_data) {
                   bool include_environment_contacts_flag = false;
                   if (input_data.use_pocket)
                      include_environment_contacts_flag = true;
-                  validate_ligand(residue_p, mol, include_environment_contacts_flag, geom);
+
+                  // load up the dictionaries for any non-standard residues
+                  std::vector<std::string> nsr = coot::util::non_standard_residue_types_in_molecule(mol);
+                  int read_number = 44;
+                  for (const auto &res_type : nsr)
+                     geom.try_dynamic_add(res_type, read_number++);
+                  validate_ligand(pdb_file_name, residue_p, mol, include_environment_contacts_flag, geom);
                } else {
                   std::cout << "Failed to find the restraints for " << monomer_type << std::endl;
                }
