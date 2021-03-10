@@ -17307,7 +17307,6 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (renumber_residue_range_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox95), renumber_residue_range_chain_combobox, FALSE, FALSE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_chain_combobox, 40, -1);
 
   hbox96 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox96);

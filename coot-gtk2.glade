@@ -35097,7 +35097,6 @@ search (this may not work well)</property>
 
 		  <child>
 		    <widget class="GtkComboBox" id="renumber_residue_range_chain_combobox">
-		      <property name="width_request">40</property>
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
