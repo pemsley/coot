@@ -1,4 +1,11 @@
 
+
+#ifndef ATOM_PULL_HH
+#define ATOM_PULL_HH
+
+#include <clipper/core/coords.h>
+#include "geometry/residue-and-atom-specs.hh"
+
 class atom_pull_info_t {
 
    bool status;
@@ -7,9 +14,8 @@ public:
    coot::atom_spec_t spec;
 
    atom_pull_info_t() { status = false; }
-   atom_pull_info_t(const coot::atom_spec_t &spec_in, const clipper::Coord_orth &pos_in) {
-      spec = spec_in;
-      pos = pos_in;
+   atom_pull_info_t(const coot::atom_spec_t &spec_in, const clipper::Coord_orth &pos_in) :
+      pos(pos_in), spec(spec_in) {
       status = true;
    }
 
@@ -36,3 +42,6 @@ public:
       return std::pair<bool, int> (local_status, idx);
    }
 };
+
+#endif // ATOM_PULL_HH
+

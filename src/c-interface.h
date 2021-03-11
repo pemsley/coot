@@ -3479,10 +3479,13 @@ void set_torsion_restraints_weight(double w);
 /* \brief set the state for using rotamer restraints "drive" mode */
 void set_refine_rotamers(int state);
 
-void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
-void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
-void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
+void set_refinement_geman_mcclure_alpha_from_text(int combobox_item_idx, const char *t);
+void set_refinement_lennard_jones_epsilon_from_text(int combobox_item_idx, const char *t);
+void set_refinement_ramachandran_restraints_weight_from_text(int combobox_item_idx, const char *t);
+void set_refinement_overall_weight_from_text(const char *t);
+void set_refinement_torsion_weight_from_text(int combobox_item_index, const char *t);
 void set_refine_params_dialog_more_control_frame_is_active(int state);
+
 
 int refine_ramachandran_angles_state();
 

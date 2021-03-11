@@ -1788,13 +1788,14 @@ public:
 		       bool mask_water_flag);
 
    static short int in_residue_info_define; // initially 0
-   static float geometry_vs_map_weight;
+   static float geometry_vs_map_weight; // actually it's the other way around, isn't it? rename this.
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
    static double torsion_restraints_weight;
    static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
    static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
    static int refine_params_dialog_rama_restraints_weight_combobox_position;
+   static int refine_params_dialog_torsions_weight_combox_position;
    static bool refine_params_dialog_extra_control_frame_is_visible;
 
    // similarly for distance and angles:
@@ -3996,6 +3997,8 @@ string   static std::string sessionid;
    static float pull_restraint_neighbour_displacement_max_radius;
    void pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down); // change above
    static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
+
+   static void poke_the_refinement();
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

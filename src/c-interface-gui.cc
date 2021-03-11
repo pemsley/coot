@@ -2404,11 +2404,29 @@ void set_refine_params_comboboxes(GtkWidget *button) {
    GtkWidget *cb1 = lookup_widget(button, "refine_params_geman_mcclure_alpha_combobox");
    GtkWidget *cb2 = lookup_widget(button, "refine_params_rama_restraints_weight_combobox");
    GtkWidget *cb3 = lookup_widget(button, "refine_params_lennard_jones_epsilon_combobox");
+   GtkWidget *cb4 = lookup_widget(button, "refine_params_torsions_weight_combobox");
+   GtkWidget *cb5 = lookup_widget(button, "refine_params_overall_weight_combobox");
    GtkWidget *tb  = lookup_widget(button, "refine_params_more_control_togglebutton");
 
    if (cb1) gtk_combo_box_set_active(GTK_COMBO_BOX(cb1), g.refine_params_dialog_geman_mcclure_alpha_combobox_position);
    if (cb2) gtk_combo_box_set_active(GTK_COMBO_BOX(cb2), g.refine_params_dialog_lennard_jones_epsilon_combobox_position);
    if (cb3) gtk_combo_box_set_active(GTK_COMBO_BOX(cb3), g.refine_params_dialog_rama_restraints_weight_combobox_position);
+
+   std::cout << "set torsion weight combobox to position "
+             << g.refine_params_dialog_torsions_weight_combox_position << std::endl;
+   if (cb4) gtk_combo_box_set_active(GTK_COMBO_BOX(cb4), g.refine_params_dialog_torsions_weight_combox_position);
+
+   // put items into the refinement overall weight combobox
+   if (cb5) {
+      std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
+      float w = g.geometry_vs_map_weight;
+      for (auto m : mv) {
+         std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
+         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(cb5), t.c_str());
+      }
+      gtk_combo_box_set_active(GTK_COMBO_BOX(cb5), 4);
+   }
+
    if (tb) {
       if (g.refine_params_dialog_extra_control_frame_is_visible) {
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tb), TRUE);

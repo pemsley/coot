@@ -534,6 +534,27 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 
 }
 
+void
+graphics_info_t::poke_the_refinement() {
+
+   if (moving_atoms_asc) {
+      continue_threaded_refinement_loop = false;
+      while (restraints_lock) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
+      }
+      if (last_restraints) {
+         double tw = last_restraints->get_torsion_restraints_weight();
+         std::cout << "changin torsions weight from " << tw << " to " << torsion_restraints_weight << std::endl;
+         last_restraints->set_map_weight(geometry_vs_map_weight);
+         last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
+         last_restraints->set_lennard_jones_epsilon(lennard_jones_epsilon);
+         last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
+         last_restraints->set_rama_plot_weight(rama_restraints_weight);
+         thread_for_refinement_loop_threaded(); // restart refinement if it's not running
+      }
+   }
+}
+
 // static
 void graphics_info_t::refinement_of_last_restraints_needs_reset() {
 

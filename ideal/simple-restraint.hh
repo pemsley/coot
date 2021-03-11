@@ -977,10 +977,11 @@ namespace coot {
                                   const gsl_vector *v);
    double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
                                          const gsl_vector *v);
-   double distortion_score_rama(const simple_restraint &chiral_restraint,
+   double distortion_score_rama(const simple_restraint &rama_restraint,
                                 const gsl_vector *v,
-                                const LogRamachandran &lograma);
-   double distortion_score_rama(const simple_restraint &chiral_restraint,
+                                const LogRamachandran &lograma,
+                                double rama_plot_weight);
+   double distortion_score_rama(const simple_restraint &rama_restraint,
                                 const gsl_vector *v,
                                 const zo::rama_table_set &rama,
                                 float rama_plot_weight);
@@ -2359,9 +2360,9 @@ namespace coot {
          map_weight = mw;
       }
 
-      void set_torsion_restraints_weight(double w) {
-         torsion_restraints_weight = w;
-      }
+      void set_torsion_restraints_weight(double w);
+
+      double get_torsion_restraints_weight() const { return torsion_restraints_weight; }
 
       void setup_multimin_func() {
 

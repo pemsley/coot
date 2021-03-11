@@ -1664,7 +1664,8 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                   rama_baddies[restraint.atom_index_1] += 0.5 * dd;
                }
             } else {
-               double dd = distortion_score_rama(restraint, v, LogRama());
+               double w = get_rama_plot_weight();
+               double dd = distortion_score_rama(restraint, v, LogRama(), w);
                rama_distortion_score_sum += dd;
                // std::cout << "rama " << dd << std::endl; mean is about -200
                // this cutoff should be relative to the rama weight
@@ -2190,12 +2191,14 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 #endif		  
 
 	       } else {
-		  double dd = distortion_score_rama(restraint, v, lograma);
+                  double w = get_rama_plot_weight();
+		  double dd = distortion_score_rama(restraint, v, lograma, w);
 		  rama_distortion += dd;
 		  baddies["Rama"].update_if_worse(dd, i);
 	       }
 	       if (false) {
-		  double d1 = distortion_score_rama(restraint, v, LogRama());
+                  double w = get_rama_plot_weight();
+		  double d1 = distortion_score_rama(restraint, v, LogRama(), w);
 		  double d2 = coot::distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
 		  std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
 	       }
@@ -6794,6 +6797,15 @@ coot::restraints_container_t::replace_torsion_restraint(const coot::dict_torsion
    return replaced;
 }
 
+
+void
+coot::restraints_container_t::set_torsion_restraints_weight(double w) {
+   // we make the changes as the refinement is running possibly. Might be dangerous.
+   torsion_restraints_weight = w;
+   for (auto &r : restraints_vec)
+      if (r.restraint_type == TORSION_RESTRAINT)
+         r.torsion_restraint_weight = w;
+}
 
 bool
 coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,

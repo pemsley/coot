@@ -6026,16 +6026,20 @@ void set_refine_rotamers(int state) {
 
 void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t) {
 
+   graphics_info_t g;
    float v = coot::util::string_to_float(t);
    set_refinement_geman_mcclure_alpha(v);
    graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position = idx;
+   // poke the refinement if there are moving atoms
 }
 
 void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t) {
 
+   graphics_info_t g;
    float v = coot::util::string_to_float(t);
    set_refinement_lennard_jones_epsilon(v);
    graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position = idx;
+   g.poke_the_refinement();
 }
 
 void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t) {
@@ -6043,7 +6047,34 @@ void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char
    float v = coot::util::string_to_float(t);
    set_refine_ramachandran_restraints_weight(v);
    graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = idx;
+   graphics_info_t g;
+   g.poke_the_refinement();
 }
+
+void set_refinement_overall_weight_from_text(const char *t) {
+
+   if (t) {
+      float v = coot::util::string_to_float(t);
+      graphics_info_t::geometry_vs_map_weight = v;
+      graphics_info_t g;
+      g.poke_the_refinement();
+      
+   } else {
+      std::cout << "in set_refinement_overall_weight_from_text() t null " << std::endl;
+   }
+
+}
+
+void set_refinement_torsion_weight_from_text(int idx, const char *t) {
+   
+   graphics_info_t g;
+   float v = coot::util::string_to_float(t);
+   graphics_info_t::refine_params_dialog_torsions_weight_combox_position = idx;
+   graphics_info_t::torsion_restraints_weight = v;
+   // poke the refinement if there are moving atoms
+   g.poke_the_refinement();
+}
+
 
 void set_refine_params_dialog_more_control_frame_is_active(int state) {
 
