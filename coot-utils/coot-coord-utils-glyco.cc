@@ -118,8 +118,8 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &comp_id_ref,
    if (coot::file_exists(full_path_pdb_filename)) {
    
       mmdb::Manager *t_mol = new mmdb::Manager;
-      int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (status != mmdb::Error_NoError) {
+      int read_status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
+      if (read_status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -179,8 +179,8 @@ coot::beam_in_linked_residue::setup_by_group_group(const std::string &group_ref,
 		<< " does not exist " << std::endl;
    } else { 
       mmdb::Manager *t_mol = new mmdb::Manager;
-      int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (status != mmdb::Error_NoError) {
+      int read_status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
+      if (read_status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -758,9 +758,8 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
    bool debug = false;
    linked_residue_t first_res(residue_p, "");
    tree<linked_residue_t> glyco_tree;
-   tree<linked_residue_t>::iterator top = glyco_tree.insert(glyco_tree.begin(), first_res);
+   glyco_tree.insert(glyco_tree.begin(), first_res);
    bool something_added = true; // initial value 
-   tree<linked_residue_t>::iterator this_iterator = top; // initial value
    std::vector<std::pair<bool, mmdb::Residue *> > done_residues(residues.size());
    for (unsigned int i=0; i<residues.size(); i++) {
       // Mark as not yet done, except if it is the first one, we have
@@ -780,7 +779,7 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 	    // iterate over the residues already placed in the tree
 	    // 
 	    tree<linked_residue_t>::iterator it;
-	    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+	    for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
 	       if (it->residue != done_residues[ires].second) {
 		  if (debug)
 		     std::cout << "      considering if "
@@ -892,7 +891,7 @@ void
 coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 
    tree<linked_residue_t>::iterator it, this_one;
-   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
       int n_space = 36;
       this_one = it;
       bool has_parent = true;
@@ -933,7 +932,7 @@ coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
 	    std::cout << "   " << specs[i] << std::endl;
       }
    }
-   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
       if (it->residue == residue_p) {
  	 if (it.node->parent) {
 	    tree<linked_residue_t>::iterator it_parent = it.node->parent;
@@ -957,13 +956,11 @@ coot::glyco_tree_t::get_level(mmdb::Residue *residue_p) const {
 
    int level = -1;
    tree<linked_residue_t>::iterator it;
-   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
       if (it->residue == residue_p) {
 	 level = 0;
 	 tree<linked_residue_t>::iterator this_one = it;
 	 bool has_parent = true;
-	 bool it_has_parent = true;
-	 tree<linked_residue_t>::iterator parent_node = it.node->parent;
 	 while (has_parent) {
 	    if (! this_one.node->parent) { 
 	       has_parent = false;
@@ -993,7 +990,7 @@ coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
    int base_level = -1; // unset
 
    tree<linked_residue_t>::iterator it;
-   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
       if (it->residue == residue_p) {
 	 level = 0;
 	 tree<linked_residue_t>::iterator this_one = it;
@@ -1025,7 +1022,7 @@ coot::glyco_tree_t::residues(const tree<linked_residue_t> &glyco_tree) const {
 
    tree<linked_residue_t>::iterator it;
    std::vector<mmdb::Residue *> v;
-   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
       v.push_back(it->residue);
    }
    return v;
@@ -1075,9 +1072,9 @@ coot::glyco_tree_t::internal_distances(double dist_lim, const std::string &file_
 	       std::vector<mmdb::Residue *> residues;
 	       std::cout << "DEBUG:: found tree with " << tr.size() << " nodes " << std::endl;
 	       tree<linked_residue_t>::iterator it, this_one;
-	       for (it=tr.begin(); it != tr.end(); it++)
+	       for (it=tr.begin(); it != tr.end(); ++it)
 		  residues.push_back(it->residue);
-	       for (it=tr.begin(); it != tr.end(); it++) {
+	       for (it=tr.begin(); it != tr.end(); ++it) {
 		  unsigned int level = 0;
 		  this_one = it;
 		  bool has_parent = true;
@@ -1133,7 +1130,7 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
 					      double dist_crit,
 					      std::ofstream &f) const {
 
-   double dist_min = 2.66; // A. Distances less than this are bonds or angles.
+   // double dist_min = 2.66; // A. Distances less than this are bonds or angles.
                            // No need to consider extra restraints for these.
                            //
                            // That's true, but here is not the place to filter it
@@ -1150,15 +1147,15 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at_i = residue_atoms[iat];
       if (! at_i->isTer()) {
-	 std::string ele(at_i->element);
-	 if (include_hydrogen_atoms || (ele != " H")) { // PDBv3 FIXME and below
+	 std::string ele_i(at_i->element);
+	 if (include_hydrogen_atoms || (ele_i != " H")) { // PDBv3 FIXME and below
 	    clipper::Coord_orth pos_atom_i = co(at_i);
 	    // don't do forwards and backwards distances
 	    for (int jat=iat; jat<n_residue_atoms; jat++) {
 	       if (iat != jat) {
 		  mmdb::Atom *at_j = residue_atoms[jat];
-		  std::string ele(at_j->element);
-		  if (include_hydrogen_atoms || (ele != " H")) {
+		  std::string ele_j(at_j->element);
+		  if (include_hydrogen_atoms || (ele_j != " H")) {
 		     if (! at_j->isTer()) {
 			clipper::Coord_orth pos_atom_j = co(at_j);
 			double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
@@ -1180,8 +1177,8 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at_i = residue_atoms[iat];
 	 if (! at_i->isTer()) {
-	    std::string ele(at_i->element);
-	    if (include_hydrogen_atoms || (ele != " H")) { // PDBv3 FIXME
+	    std::string ele_i(at_i->element);
+	    if (include_hydrogen_atoms || (ele_i != " H")) { // PDBv3 FIXME
 	       clipper::Coord_orth pos_atom_i = co(at_i);
 	       mmdb::Atom **parent_residue_atoms = 0;
 	       int n_parent_residue_atoms;
@@ -1190,8 +1187,8 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
 		  mmdb::Atom *at_j = parent_residue_atoms[jat];
 		  clipper::Coord_orth pos_atom_j = co(at_j);
 		  if (! at_j->isTer()) {
-		     std::string ele(at_j->element);
-		     if (include_hydrogen_atoms || (ele != " H")) { // PDBv3 FIXME
+		     std::string ele_j(at_j->element);
+		     if (include_hydrogen_atoms || (ele_j != " H")) { // PDBv3 FIXME
 			double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
 			if (! at_j->isTer()) {
 			   if (d < dist_crit)
@@ -1320,7 +1317,7 @@ coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tr_for_testing,
       // std::cout << "------ new leaf for testing --- Here 1 " << *it_leaf << std::endl;
       bool found_a_match = false;
       n_leaves++;
-      for (it_ref=ref_tree.begin(); it_ref != ref_tree.end(); it_ref++) {
+      for (it_ref=ref_tree.begin(); it_ref != ref_tree.end(); ++it_ref) {
 	 if (std::find(done_iterators.begin(), done_iterators.end(), it_ref) ==
 	     done_iterators.end()) {
 	    if (*it_leaf == *it_ref) {
@@ -1390,8 +1387,8 @@ coot::glyco_tree_t::matched_pairs(const tree<linked_residue_t> &t_in) const {
    //      if they are the same, add the pair
    //
 
-   for (it_leaf=tree_2.begin(); it_leaf != tree_2.end(); it_leaf++) {
-      for (it_ref=tree_1.begin(); it_ref != tree_1.end(); it_ref++) {
+   for (it_leaf=tree_2.begin(); it_leaf != tree_2.end(); ++it_leaf) {
+      for (it_ref=tree_1.begin(); it_ref != tree_1.end(); ++it_ref) {
 	 if (*it_leaf == *it_ref) { // test residue name and link type
 	    tree<linked_residue_t>::iterator it_p, it_p_ref;
 	    it_p = it_leaf;
