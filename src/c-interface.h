@@ -3259,12 +3259,7 @@ void add_omega_torsion_restriants();
 void remove_omega_torsion_restriants();
 
 /*! \brief add or remove auto H-bond restraints */
-void set_auto_h_bonds(int state);
-
-/*! \brief add or remove auto H-bond restraints
-
-As above, buth this function has a more memorable name */
-void set_refine_hydrogen_bond_restraints(int state);
+void set_refine_hydrogen_bonds(int state);
 
 
 /*! \brief set immediate replacement mode for refinement and
