@@ -388,10 +388,33 @@ coot::atom_overlaps_container_t::make_overlaps() {
    double dist_crit = 2.3; // Everything that is bonded is less than this
    double dist_crit_sqrd = (2*dist_crit) * (2*dist_crit);
 
+   // so that we can have a sorted list of baddies
+
+   class baddie_attribs_t {
+   public:
+      mmdb::Atom *cr_at;
+      mmdb::Atom *n_at;
+      float r_1;
+      float r_2;
+      float d;
+      float o;
+      bool is_hydrogen_bond;
+      bool hydrogen_atom_is_first_atom;
+      baddie_attribs_t(mmdb::Atom *cr_at, mmdb::Atom *n_at, float r_1, float r_2, float d, float o,
+                       bool is_hydrogen_bond, bool hydrogen_atom_is_first_atom) :
+         cr_at(cr_at), n_at(n_at), r_1(r_1), r_2(r_2), d(d), o(o),
+         is_hydrogen_bond(is_hydrogen_bond), hydrogen_atom_is_first_atom(hydrogen_atom_is_first_atom) {}
+      static bool sorter(const baddie_attribs_t &b1, const baddie_attribs_t &b2) {
+         return b2.o < b1.o;
+      }
+   };
+
    mmdb::PAtom *central_residue_atoms = 0;
    int n_central_residue_atoms;
    if (! res_central) return; // it isn't if we have all atom
    res_central->GetAtomTable(central_residue_atoms, n_central_residue_atoms);
+
+   std::vector<baddie_attribs_t> baddies; // and not so baddies
 
    for (int j=0; j<n_central_residue_atoms; j++) {
 
@@ -400,16 +423,18 @@ coot::atom_overlaps_container_t::make_overlaps() {
       clipper::Coord_orth co_cr_at = co(cr_at);
       double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
-      for (unsigned int i=0; i<neighbours.size(); i++) { 
+      for (unsigned int i=0; i<neighbours.size(); i++) {
 	 mmdb::PAtom *residue_atoms = 0;
 	 int n_residue_atoms;
 	 neighbours[i]->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (int iat=0; iat<n_residue_atoms; iat++) { 
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
 	    mmdb::Atom *n_at = residue_atoms[iat];
 	    clipper::Coord_orth co_n_at = co(n_at);
 
 	    double ds = (co_cr_at - co_n_at).lengthsq();
 	    if (ds < dist_crit_sqrd) {
+
+               if (is_linked(cr_at, n_at)) continue;
 
 	       double r_2 = get_vdw_radius_neighb_atom(n_at, i);
 	       double d = sqrt(ds);
@@ -420,25 +445,27 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	       // is_h_bond_H_and_acceptor(cr_at, n_at, udd_h_bond_type_handle);
 	       h_bond_info_t hbi(cr_at, n_at, udd_h_bond_type_handle);
 
-	       if (d < (r_1 + r_2 + probe_radius)) { 
+	       if (d < (r_1 + r_2 + probe_radius)) {
 		  double o = get_overlap_volume(d, r_2, r_1);
 		  bool h_bond_flag = false;
 		  if (hbi.is_h_bond_H_and_acceptor) {
 		     h_bond_flag = true;
-		     if (hbi.H_is_first_atom_flag) { 
-			std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
-				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
-				  << " overlap " << o << " IS H-Bond (ligand donor)" << std::endl;
+		     if (hbi.H_is_first_atom_flag) {
+                        baddies.push_back(baddie_attribs_t(cr_at, n_at, r_1, r_2, d, o, true, hbi.H_is_first_atom_flag));
+			// std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
+                        // << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                        // << " overlap " << o << " IS H-Bond (ligand donor)" << std::endl;
 		     } else {
-			   std::cout << "INFO:: " << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
-				     << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
-				     << " overlap " << o << " IS H-Bond (ligand acceptor)" << std::endl;
-
+                        baddies.push_back(baddie_attribs_t(cr_at, n_at, r_1, r_2, d, o, true, hbi.H_is_first_atom_flag));
+                        // std::cout << "INFO:: " << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+                        // << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                        // << " overlap " << o << " IS H-Bond (ligand acceptor)" << std::endl;
 		     }
 		  } else { 
-		     std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
-			       << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
-			       << " overlap " << o << std::endl;
+                     baddies.push_back(baddie_attribs_t(cr_at, n_at, r_1, r_2, d, o, false, false));
+		     // std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
+                     // << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                     // << " overlap " << o << std::endl;
 		  }
 		  atom_overlap_t ao(j, cr_at, n_at, r_1, r_2, o);
 		  // atom_overlap_t ao2(-1, n_at, cr_at, r_2, r_1, o);
@@ -462,6 +489,21 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	    }
 	 }
       }
+   }
+
+   std::sort(baddies.begin(), baddies.end(), baddie_attribs_t::sorter);
+   for(auto const &b : baddies) {
+      std::cout << "INFO:: " << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
+                << " r_1 " << b.r_1 << " and r_2 " << b.r_2  <<  " and d " << b.d
+                << " overlap " << b.o;
+      // << " IS H-Bond (ligand donor)" << std::endl;
+      if (b.is_hydrogen_bond) {
+         if (b.hydrogen_atom_is_first_atom)
+            std::cout << " is H-bond (ligand donor)";
+         else
+            std::cout << " is H-bond (ligand acceptor)";
+      }
+      std::cout << std::endl;
    }
 }
 
@@ -2405,8 +2447,6 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       } else {
          std::vector<std::pair<std::string, std::string> > bonds_for_at_1;
          std::vector<std::pair<std::string, std::string> > bonds_for_at_2;
-         std::string atom_name_1 = at_1->name;
-         std::string atom_name_2 = at_2->name;
          std::string res_name_1(at_1->GetResName());
          std::string res_name_2(at_2->GetResName());
          std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it_1;
