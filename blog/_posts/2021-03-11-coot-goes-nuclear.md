@@ -17,8 +17,12 @@ You can see here that the nuclear bond lengths are longer by 0.08 &#x212B; or so
 
 Additionally "Add Hydrogen Atoms" will add Hydrogen atoms using these bond lengths.
 
-The longer Hydrogen atom bond lengths means that after real space refinement, the resulting model
-is now typically more consistent with Molprobity clash analysis:
+The longer Hydrogen atom bond lengths means different non-bonded
+contacts interactions during real space refinement. But there were
+problems. An analysis of the anomolies highlighted a few problem with
+incorrect non-bonded contact (for example, those of some types of
+Hydrogen bond). These were fixed and now the resulting model is now
+overall typically more consistent with Molprobity clash analysis:
 
 `$ molprobity.clashscore test.pdb keep_hydrogens=True nuclear=True`
 
