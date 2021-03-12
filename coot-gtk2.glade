@@ -16737,7 +16737,7 @@ checks the value of this checkbutton</property>
 
 				  <child>
 				    <widget class="GtkEntry" id="refine_params_weight_matrix_entry">
-				      <property name="width_request">80</property>
+				      <property name="width_request">58</property>
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
