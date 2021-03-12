@@ -413,6 +413,9 @@ coot::atom_overlaps_container_t::make_overlaps() {
    int n_central_residue_atoms;
    if (! res_central) return; // it isn't if we have all atom
    res_central->GetAtomTable(central_residue_atoms, n_central_residue_atoms);
+   std::string res_central_name(res_central->GetResName());
+   std::vector<std::pair<std::string, std::string> > bonds_for_cr_at =
+      geom_p->get_bonded_and_1_3_angles(res_central_name, protein_geometry::IMOL_ENC_ANY);
 
    std::vector<baddie_attribs_t> baddies; // and not so baddies
 
@@ -424,8 +427,13 @@ coot::atom_overlaps_container_t::make_overlaps() {
       double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
       for (unsigned int i=0; i<neighbours.size(); i++) {
+
+         std::string res_name_nat(neighbours[i]->GetResName());
+         std::vector<std::pair<std::string, std::string> > bonds_for_n_at =
+            geom_p->get_bonded_and_1_3_angles(res_name_nat, protein_geometry::IMOL_ENC_ANY);
+
 	 mmdb::PAtom *residue_atoms = 0;
-	 int n_residue_atoms;
+	 int n_residue_atoms = 0;
 	 neighbours[i]->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int iat=0; iat<n_residue_atoms; iat++) {
 	    mmdb::Atom *n_at = residue_atoms[iat];
@@ -434,7 +442,12 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	    double ds = (co_cr_at - co_n_at).lengthsq();
 	    if (ds < dist_crit_sqrd) {
 
-               if (is_linked(cr_at, n_at)) continue;
+               // duck out if this is linked
+
+               if (is_linked(cr_at, n_at))
+                  continue;
+               if (is_angle_related_via_link(cr_at, n_at, bonds_for_cr_at, bonds_for_n_at))
+                  continue;
 
 	       double r_2 = get_vdw_radius_neighb_atom(n_at, i);
 	       double d = sqrt(ds);
@@ -611,8 +624,8 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 		     // also check links
 		     atom_interaction_type ait =
 			bonded_angle_or_ring_related(mol, at_1, at_2, exclude_mc_flag,
-						     &bonded_neighbours,   // updatedby fn.
-						     &ring_list_map        // updatedby fn.
+						     &bonded_neighbours,   // updated by fn.
+						     &ring_list_map        // updated by fn.
 						     );
 		     if (ait == CLASHABLE) {
                         if (false)
@@ -2475,6 +2488,17 @@ coot::atom_overlaps_container_t::is_angle_related_via_link(mmdb::Atom *at_1,
    mmdb::Model *model_p_2 = at_2->GetModel();
 
    if (model_p_2 != model_p_1) return false;
+
+   if (false) { // are you sure that bonds_for_at_1 and bonds_for_at_2 were created with the correct arguments?
+      for (auto const &b : bonds_for_at_1)
+         std::cout << std::string(at_1->GetAtomName()) << " "
+                   << std::string(at_2->GetAtomName()) << " "
+                   << " bonds for at_1 " << b.first << " " << b.second << std::endl;
+      for (auto const &b : bonds_for_at_2)
+         std::cout << std::string(at_1->GetAtomName()) << " "
+                   << std::string(at_2->GetAtomName()) << " "
+                   << " bonds for at_2 " << b.first << " " << b.second << std::endl;
+   }
 
    if (model_p_1) {
       int n_links = model_p_1->GetNumberOfLinks();
