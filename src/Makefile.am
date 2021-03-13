@@ -143,7 +143,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/validation.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
+	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
 # -proxy  exports the GOOPS wrapper definitions into module.scm
@@ -171,7 +171,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -py3 -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -py3 -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -221,7 +221,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
@@ -252,17 +252,25 @@ pkginclude_HEADERS = crunch-model.hh
 
 _coot_embedded_la_SOURCES = coot-embedded.cc
 _coot_extended_la_SOURCES = coot-extended.cc
+
 # use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
 _coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 _coot_embedded_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
-                       $(PYTHON_LIBS)
+                       $(PYTHON_LIBS) \
+                       $(MMDB_LIBS)
+
 _coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 _coot_extended_la_LIBADD = \
-                       $(top_builddir)/pli/libcoot-pli.la   \
-                       $(top_builddir)/geometry/libcoot-geometry.la   \
-                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
+                        $(top_builddir)/pli/libcoot-pli.la                 \
+                        $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+                        $(top_builddir)/geometry/libcoot-geometry.la       \
+                        $(top_builddir)/utils/libcoot-utils.la             \
+                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
+                        $(PYTHON_LIBS) \
+                        $(MMDB_LIBS)
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 

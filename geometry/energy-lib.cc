@@ -633,12 +633,19 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
    if (it_1 != energy_lib.atom_map.end()) {
       if (it_2 != energy_lib.atom_map.end()) {
 
+         const std::string &energy_type_1(it_1->first);
+         const std::string &energy_type_2(it_2->first);
+
 	 // Use vdwh_radius of called in "No hydrogens in the model" mode.
 	 float radius_1 = it_1->second.vdw_radius;
 	 float radius_2 = it_2->second.vdw_radius;
 
-         if (extended_atoms_mode) radius_1 = it_1->second.vdwh_radius;
-         if (extended_atoms_mode) radius_2 = it_2->second.vdwh_radius;
+         // std::cout << "debug get_nbc_dist_v2 " << energy_type_1 << " " << energy_type_2 << std::endl;
+
+         if (extended_atoms_mode) {
+            radius_1 = it_1->second.vdwh_radius;
+            radius_2 = it_2->second.vdwh_radius;
+         }
 
          if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
          if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
@@ -657,19 +664,19 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	    // ring atoms should not be NBCed to each other.  Not sure
 	    // that 5 atom rings need to be excluded in this manner.
 	    //
-	    if (it_1->first == "CR15" || it_1->first == "CR16" || it_1->first == "CR1"  ||
-		it_1->first == "CR6"  || it_1->first == "CR5"  || it_1->first == "CR5"  ||
-		it_1->first == "CR56" || it_1->first == "CR5"  || it_1->first == "CR66" ||
-		it_1->first == "NPA"  || it_1->first == "NPB"  || it_1->first == "NRD5" ||
-		it_1->first == "NRD6" || it_1->first == "NR15" || it_1->first == "NR16" ||
-		it_1->first == "NR6"  || it_1->first == "NR5") {
+	    if (energy_type_1 == "CR15" || energy_type_1 == "CR16" || energy_type_1 == "CR1"  ||
+		energy_type_1 == "CR6"  ||
+		energy_type_1 == "CR56" || energy_type_1 == "CR5"  || energy_type_1 == "CR66" ||
+		energy_type_1 == "NPA"  || energy_type_1 == "NPB"  || energy_type_1 == "NRD5" ||
+		energy_type_1 == "NRD6" || energy_type_1 == "NR15" || energy_type_1 == "NR16" ||
+		energy_type_1 == "NR6"  || energy_type_1 == "NR5") {
 
-	       if (it_2->first == "CR15" || it_2->first == "CR16" || it_2->first == "CR1"  ||
-		   it_2->first == "CR6"  || it_2->first == "CR5"  || it_2->first == "CR5"  ||
-		   it_2->first == "CR56" || it_2->first == "CR5"  || it_2->first == "CR66" ||
-		   it_2->first == "NPA"  || it_2->first == "NPB"  || it_2->first == "NRD5" ||
-		   it_2->first == "NRD6" || it_2->first == "NR15" || it_2->first == "NR16" ||
-		   it_2->first == "NR6"  || it_2->first == "NR5") {
+	       if (energy_type_2 == "CR15" || energy_type_2 == "CR16" || energy_type_2 == "CR1"  ||
+		   energy_type_2 == "CR6"  ||
+		   energy_type_2 == "CR56" || energy_type_2 == "CR5"  || energy_type_2 == "CR66" ||
+		   energy_type_2 == "NPA"  || energy_type_2 == "NPB"  || energy_type_2 == "NRD5" ||
+		   energy_type_2 == "NRD6" || energy_type_2 == "NR15" || energy_type_2 == "NR16" ||
+		   energy_type_2 == "NR6"  || energy_type_2 == "NR5") {
 		  r.second = 2.2;
 	       }
 	    }
@@ -690,7 +697,7 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
             } else {
                // actual hydrogens to acceptors can be shorter still
                if (it_1->second.hb_type == coot::HB_HYDROGEN)
-               r.second -= 0.38; // was 0.4
+                  r.second -= 0.38; // was 0.4
             }
             done_hb_shorten = true;
 	 } else {
@@ -712,7 +719,12 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
                   if (it_2->second.hb_type == coot::HB_HYDROGEN)
                      r.second -= 0.38; // was 0.4
                }
-	    }
+	    } else {
+               if (energy_type_1 == "H")
+                  if (energy_type_2 == "H")
+                     r.second = 2.48; // override 1.2 + 1.2 to match phenix/molprobity.
+                                      // Amber radius is 1.48 for H-C(sp3) and H-arom
+            }
 	 } else {
             if (it_2->second.hb_type == coot::HB_HYDROGEN)
                r.second += 0.08; //  experimental

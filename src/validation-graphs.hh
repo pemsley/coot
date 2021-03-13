@@ -28,9 +28,7 @@ namespace coot {
 	 sequence_view_is_displayed = NULL;
 	 geometry_graph             = NULL;
 	 b_factor_variance_graph    = NULL;
-////B B GRAPH
 	 b_factor_graph  	    = NULL;
-////E B GRAPH
 	 residue_density_fit_graph  = NULL;
 	 omega_distortion_graph     = NULL;
 	 rotamer_graph              = NULL;

@@ -177,7 +177,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
             // std::cout << "Delta: " << delta << std::endl;
 	    g.setRotationCentre(cc);
 	    for(int ii=0; ii<n_molecules(); ii++) {
-	       molecules[ii].update_map();
+	       molecules[ii].update_map(auto_recontour_map_flag);
 	       molecules[ii].update_symmetry();
 	    }
 	    g.make_pointer_distance_objects();

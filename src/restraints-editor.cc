@@ -76,30 +76,36 @@ void
 coot::restraints_editor::fill_atom_tree_data(GtkWidget *restraints_editor_dialog,
 					     const coot::dictionary_residue_restraints_t &restraints) { 
 
-   GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, 
-					     "atoms_treeview");
-   
+   GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, "atoms_treeview");
 
    GtkTreeView *tv_atoms = GTK_TREE_VIEW(atoms_treeview);
    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-							G_TYPE_FLOAT);
+							// G_TYPE_FLOAT  // for partial change
+                                                        G_TYPE_INT // for formal change
+                                                        );
+
    view_and_store_atoms.store = tree_store_atoms;
    view_and_store_atoms.view  = tv_atoms;
    
-   GtkTreeIter   toplevel;
+   GtkTreeIter toplevel;
    gtk_tree_view_set_model(tv_atoms, GTK_TREE_MODEL(tree_store_atoms));
 
    for (unsigned int i=0; i<restraints.atom_info.size(); i++) {
       gtk_tree_store_append(tree_store_atoms, &toplevel, NULL);
-      std::pair<bool, float> pcp = restraints.atom_info[i].partial_charge;
-      float pc = pcp.second;
-      if (! pcp.first)
-	 pc = -999.99;
+
+      // std::pair<bool, float> pcp = restraints.atom_info[i].partial_charge;
+      // float pc = pcp.second;
+      // if (! pcp.first) pc = -999.99;
+
+      std::pair<bool, int> fcp = restraints.atom_info[i].formal_charge;
+      int fc = 0;
+      if (fcp.first) fc = fcp.second;
+
       gtk_tree_store_set(tree_store_atoms, &toplevel,
 			 0, restraints.atom_info[i].atom_id_4c.c_str(),
 			 1, restraints.atom_info[i].type_symbol.c_str(),
 			 2, restraints.atom_info[i].type_energy.c_str(),
-			 3, pc, 
+			 3, fc,
 			 -1);
    }
 
@@ -107,7 +113,8 @@ coot::restraints_editor::fill_atom_tree_data(GtkWidget *restraints_editor_dialog
    add_cell_renderer(tv_atoms, tree_store_atoms, "Atom Name",      0, tree_type);
    add_cell_renderer(tv_atoms, tree_store_atoms, "Element",        1, tree_type);
    add_cell_renderer(tv_atoms, tree_store_atoms, "Energy Type",    2, tree_type);
-   add_cell_renderer(tv_atoms, tree_store_atoms, "Partial Charge", 3, tree_type);
+   // add_cell_renderer(tv_atoms, tree_store_atoms, "Partial Charge", 3, tree_type);  not today.
+   add_cell_renderer(tv_atoms, tree_store_atoms, "Formal Charge", 3, tree_type);
 }
 
 GtkCellRenderer *
@@ -217,7 +224,7 @@ coot::restraints_editor::get_column_type(int tree_type, int column_number, int m
    if (tree_type == coot::restraints_editor::TREE_TYPE_ATOMS) {
       switch(column_number) {
       case(3):
-	 r = G_TYPE_FLOAT;
+	 r = G_TYPE_INT; // now formal chage (was partial charge)
 	 break;
       default:
 	 r = G_TYPE_STRING;
@@ -1129,7 +1136,8 @@ coot::restraints_editor::get_atom_info() const {
       std::string atom_name("");
       std::string atom_element("");
       std::string energy_type("");
-      float partial_charge = -100.0;
+      float partial_charge = -100.0; // not used now
+      int formal_charge = 0;
       for (int col_no=0; col_no<4; col_no++) {
 	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_ATOMS, col_no, -1);
 	 if (col_type == G_TYPE_STRING) { 
@@ -1144,24 +1152,30 @@ coot::restraints_editor::get_atom_info() const {
 	       energy_type = place_string_here;
 	 }
 	 if (col_type == G_TYPE_FLOAT) {
-	    float f;
-	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_atoms.store), &iter, col_no, &f, -1);
-	    if (col_no == 3)
-	       partial_charge = f;
+	    // float f;
+	    // gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_atoms.store), &iter, col_no, &f, -1);
+            int i;
+	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_atoms.store), &iter, col_no, &i, -1);
+	    // if (col_no == 3)
+            // partial_charge = f;
+            if (col_no == 3)
+               formal_charge = i;
 	 }
       }
       v = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_atoms.store), &iter);
 
-      if ((atom_name.length() > 0)    &&
+      if ((atom_name.length()    > 0) &&
 	  (atom_element.length() > 0) &&
- 	  (energy_type.length() > 0)) {
-	 std::pair<bool, float> part_charge_pair(0, partial_charge); // invalid
-	 if (partial_charge > -99.9) { 
-	    part_charge_pair.first = 1; // valid
+ 	  (energy_type.length()  > 0)) {
+	 std::pair<bool, float> part_charge_pair(false, partial_charge); // invalid
+	 if (partial_charge > -99.9) {
+	    part_charge_pair.first = true; // make valid
 	    have_partial_charges_flag = 1;
 	 }
-	 
+
+         std::pair<bool, int> formal_charge_pair(true, formal_charge);
  	 coot::dict_atom info(atom_name, atom_name, atom_element, energy_type, part_charge_pair);
+         info.formal_charge = formal_charge_pair; // not part of a constructor. Maybe change that in future.
 //  	 std::cout << "added a atom info ";
 // 	 std::cout << ":" << atom_name << ": :" << atom_element << ": :" << energy_type << ": " << partial_charge
 // 		   << " " << part_charge_pair.first << std::endl;

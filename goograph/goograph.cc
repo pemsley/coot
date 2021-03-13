@@ -155,6 +155,8 @@ coot::goograph::reshape(GtkWidget *widget, GdkEventConfigure *event) {
    coot::goograph *g_p = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(widget), "goograph"));
 
    if (g_p) {
+
+      // std::cout << "###################### reshape() does a draw_graph" << std::endl;
       bool do_redraw = false;
       GtkAllocation allocation;
       gtk_widget_get_allocation(widget, &allocation);
@@ -524,8 +526,32 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
    }
 }
 
+// user function
 void
 coot::goograph::set_extents(int axis, double min, double max) {
+
+   if (axis == X_AXIS) {
+      extents_min_x = min;
+      extents_max_x = max;
+      double x_major_tick = calc_tick(x_range());
+      set_ticks(X_AXIS, x_major_tick, x_major_tick*0.2);
+      extents_x_are_set = true;
+   }
+
+   if (axis == Y_AXIS) {
+      extents_min_y = min;
+      extents_max_y = max;
+      double y_major_tick = calc_tick(y_range());
+      set_ticks(Y_AXIS, y_major_tick, y_major_tick*0.2);
+      extents_y_are_set = true;
+   }
+
+   set_data_scales(axis);
+}
+
+// auto/internal extents setting
+void
+coot::goograph::set_extents_internal(int axis, double min, double max) {
 
    if (! extents_x_are_set) {
       if (axis == X_AXIS) {
@@ -548,6 +574,7 @@ coot::goograph::set_extents(int axis, double min, double max) {
 
    set_data_scales(axis);
 }
+
 
 void
 coot::goograph::set_data_scales(int axis) {
@@ -717,8 +744,8 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
 	    std::cout << "   in set_data() setting Y exents "
 		      << min_y << " " << max_y << std::endl;
 	 }
-	 set_extents(X_AXIS, min_x, max_x);
-	 set_extents(Y_AXIS, min_y, max_y);
+	 set_extents_internal(X_AXIS, min_x, max_x);
+	 set_extents_internal(Y_AXIS, min_y, max_y);
 
 	 // std::cout << "in set_data: x_range() is " << x_range() << std::endl;
 	 double x_major_tick = calc_tick(x_range());
@@ -806,7 +833,7 @@ coot::goograph::set_trace_colour(int trace_id, const std::string &colour) {
 
    if (is_valid_trace(trace_id))
       traces[trace_id].colour = colour;
-} 
+}
 
 
 void
@@ -837,7 +864,6 @@ coot::goograph::plot_scatter_plot(int trace_id) {
       std::string colour = traces[trace_id].colour;
       if (colour.empty())
 	 colour = "#70e070";
-      double mbw = median_bin_width(trace_id);
       double line_width = 1.0;
       double radius = 3; 
 
@@ -862,7 +888,7 @@ coot::goograph::plot_scatter_plot(int trace_id) {
 	 goo_canvas_ellipse_new(root, wA.x, wA.y,
 				radius, radius,
 				"line_width", line_width,
-				// "fill-color-rgba", 0xffbb3350,
+				"fill-color", colour.c_str(),
 				NULL);
 	 
 	 items.push_back(ring);

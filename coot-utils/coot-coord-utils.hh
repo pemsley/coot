@@ -1098,6 +1098,9 @@ namespace coot {
       std::vector<mmdb::PResidue> get_residues_in_fragment(mmdb::Chain *clicked_residue_chain_p,
 						      residue_spec_t clicked_residue);
 
+      // this can return an empty list if the residues for resno_start or resnoend  are not found
+      std::vector<mmdb::Residue *> get_residues_in_range(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end);
+
       // deleted by calling process
       std::pair<mmdb::Manager *, std::vector<residue_spec_t> >
       get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);

@@ -197,7 +197,7 @@ Modelling and Building
 * Reversing Direction of Fragment::
 * C-alpha -> Mainchain::
 * Backbone Torsion Angles::
-* Docking Sidechains::
+* Assigning Residues to a Protein Model::
 * Rotamers::
 * Editing Chi Angles::
 * Torsion General::
@@ -2205,7 +2205,7 @@ endresno pdb-file-name})}
 * Reversing Direction of Fragment::  
 * C-alpha -> Mainchain::        
 * Backbone Torsion Angles ::    
-* Docking Sidechains::          
+* Assigning Residues to a Protein Model::
 * Rotamers::                    
 * Editing Chi Angles::          
 * Torsion General::             
@@ -2799,13 +2799,15 @@ that making these modifications alter the @math{\phi/\psi} angles of
 more than one residue.
 
 
-@node Docking Sidechains
-@section Docking Sidechains
+@node Assigning Residues to a Protein Model
+@section Assigning Residues to a Protein Model
 @cindex docking sidechains
 @cindex sidechains
 
-Docking sidechains means adding sidechains to a model or fragment that
-has currently only poly-Ala, where the sequence assignment is unknown.
+``Docking'' sidechains is sometimes mean to describe the addition of
+sidechains to a model or fragment that
+has currently only poly-Ala, where the sequence assignment at the time
+was unknown. This is also called ``Sequence Assignment''.
 The algorithm is basically the same as in Cowtan's Buccaneer, but with
 some corners cut to make things (more or less) interactive.  The
 algorithm uses the shape of the density around the C-beta position to

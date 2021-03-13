@@ -70,9 +70,10 @@ test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
 test_ccp4srs_LDADD = ./libcoot-geometry.la
 
-test_geometry_LDADD = ./libcoot-geometry.la
+test_geometry_LDADD = ./libcoot-geometry.la \
+		$(top_builddir)/mini-mol/libcoot-mini-mol.la
 
-test_read_components_LDADD = ./libcoot-geometry.la
+test_read_components_LDADD = ./libcoot-geometry.la $(MMDB_LIBS)
 
 coot_dictionary_bond_distributions_SOURCES = dictionary-bond-distributions.cc
 

@@ -956,7 +956,7 @@ graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
    std::cout << "INFO:: Moving back to old centre: " << c << std::endl;
    setRotationCentre(c);
    for(int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map();
+      molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
       molecules[ii].update_symmetry();
    }
    graphics_draw();

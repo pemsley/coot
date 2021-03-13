@@ -3972,6 +3972,7 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o make check
    o Run the damn tests - don't be lazy
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
@@ -3980,7 +3981,7 @@ INFO::
    o Artists acknowledged in glade/aboutdialog?
    o Use glade-2
         Change the splash screen
-        Fix the release name in the About dialog (aboutdialog) (not needed for bug fix)
+        Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
         To correct the transparency, duplicate layer, bucket fill with white
         the bottom layer, merge and bevel 6.
@@ -3990,22 +3991,31 @@ INFO::
      Use configure-it-for-release
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
-        all the files before commit.
+        all the files before commit: cd ../build-test-dist and untar it there, copy into
+        the new directory the script configure-it.
    o git commit -a
    o git tag Release-0.x.y
-   o git commit
-   o git push
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
-        OK, disable the build-latest cron-job
-   o on charybdis: md: check that it builds
-   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-for-tarball # version?
+   o on charybdis: md: check that it builds, the build will put the release in the
+                   pre-release directory. So move it to release (and remove the
+                   revision tag)
+                   cd ~/fuse/ftp/coot/source/pre-releases/
+                   mv coot-0.9.4.1-revision-10273.tar.gz coot-0.9.4.1.tar.gz
+                   mv coot-0.9.4.1.tar.gz ../releases/
+   o on charybdis: disable the build-latest cron-job
+   o on charybdis: clear out pre-releases
    o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
    o on charybdis: bash wrap-build-it-for-release.sh
-   o clear out pre-releases
-   o check for updates - needs consideration?
-   o Build binaries on some hosts
-   o Update latest version info on coot web page, Projects/coot/web/index.html
+                   that doesn't do the transfer to web server at the moment, so:
+                   cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
+                   cd ~/fuse/ftp/coot/binaries/release/
+                   give-read-permission to the new files
+
+   o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
+   o on charybdis: Update latest version info on coot web page, Projects/coot/web/index.html
+                   bash transfer-the-file.sh
+   o Blog post
    o Mail mailing list
 
 ---
@@ -7148,8 +7158,10 @@ Sat Jul 19 13:17:01 BST 2014
    longer than the minimum width, it just is wider.
 
    std::setw() before strings
-   std::cout.width() before numbers # this is nonsense I now think. Use setw() for both
-                                      strings and ints
+
+   std::cout.width() before numbers # this is nonsense I now think. Use setw() for both 
+                                      strings and ints.
+   std::setw(6) to set the min width for a floating point field -0.123 doesn't seem to work.
 
 	 // Formatted output:
 	 //
@@ -9714,7 +9726,7 @@ Fri 27 Nov 20:12:15 GMT 2020
 Tue  8 Dec 15:05:10 GMT 2020
 
 
-recordmydesktop -x 800 -y 10 '--width=1600' --height='1080'
+recordmydesktop -x 800 -y 30 '--width=1600' --height='1080'
 
 bluray resolution is 1920x1080
 
@@ -9757,4 +9769,51 @@ Sat 27 Feb 15:30:21 GMT 2021
 
    https://bbs.archlinux.org/viewtopic.php?id=145374
 
+Mon 18 Jan 19:08:12 GMT 2021
+
+Gtk-Message: 19:07:14.114: Failed to load module "appmenu-gtk-module"
+Gtk-Message: 19:07:14.119: Failed to load module "canberra-gtk-module"
+
+   $ sudo apt-get install appmenu-gtk2-module appmenu-gtk3-module
+
+---
+Wed 24 Feb 16:52:51 GMT 2021
+
+Paul Bourke:
+
+   "Standard" character ramp for grey scale pictures, black -> white.
+      "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'. "
+   A more convincing but shorter sequence for representing 10 levels of grey is
+      " .:-=+*#%@"
+
+
+----
+Fri 26 Feb 15:42:29 GMT 2021
+
+   fill_map_sections() in slurp_map uses set_coord() on a set of map sections.
+   Use as a template for threaded map manipulation.  Can this be used in xmap_stats?
+
+
+---
+Sun 28 Feb 19:25:50 GMT 2021
+
+in ARG: CD-NE-CZ-NH1 should be cis:
+
+Geometry of guanidinium groups in arginines
+Maura Malinska
+Miroslawa Dauter
+Zbigniew Dauter
+First published: 21 June 2016
+https://doi.org/10.1002/pro.297
+
+  In several instances, the nomenclature of the terminal nitrogen
+  atoms in the deposited structures is wrong, but all cases were
+  inspected and the atomic names reverted, if necessary, to ensure that
+  the NH1 atoms are cis and NH2 atoms are trans with respect to the
+  CZ‐NE bond.
+
+---
+Sun 28 Feb 2021 11:11:40 GMT
+
+   https://www.fluentcpp.com/2018/03/30/is-stdfor_each-obsolete/
 

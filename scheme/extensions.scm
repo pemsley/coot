@@ -46,20 +46,30 @@
 
 
 (if (defined? 'coot-main-menubar)
-    ;; --------------------------------------------------
-    ;;           coordinated water validation dialog
-    ;; --------------------------------------------------
     (let ((menu (coot-menubar-menu "Validate")))
+
+      (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps (Coot)"
+       (lambda ()
+         (using-active-atom
+          (coot-all-atom-contact-dots aa-imol))))
+
+      (add-simple-coot-menu-menuitem
+       menu "All-Atom Contact Dots (Molprobity)"
+       (lambda ()
+         (using-active-atom
+          (probe  aa-imol))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps Dialog"
+       (lambda ()
+         (using-active-atom
+          (molecule-atom-overlaps-gui aa-imol))))
+
       (add-simple-coot-menu-menuitem 
        menu "Highly coordinated waters..."
        (lambda ()
 	 (water-coordination-gui)))
-
-      (add-simple-coot-menu-menuitem
-       menu "Atom Overlaps"
-       (lambda ()
-         (using-active-atom
-          (molecule-atom-overlaps-gui aa-imol))))
 
       (add-simple-coot-menu-menuitem
        menu "Pepflips from Difference Map..."
@@ -465,7 +475,7 @@
 				     (lambda (imol)
 				       (format #t "setting map number ~s to be a difference map~%"
 					       imol)
-				       (set-map-is-difference-map imol)))))
+				       (set-map-is-difference-map imol 1)))))
 
 
 	(add-simple-coot-menu-menuitem
@@ -490,7 +500,7 @@
 	;; ---------------------------------------------------------------------
 
 	(add-simple-coot-menu-menuitem
-	 submenu-models "Add Hydrogens"
+	 submenu-models "Add Hydrogen Atoms"
 	 (lambda ()
 	   (using-active-atom
 	    (coot-reduce aa-imol))))
@@ -558,6 +568,12 @@
 	;; --- D ---
 
 	(add-simple-coot-menu-menuitem
+	 submenu-models "Delete Hydrogen Atoms"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-hydrogens aa-imol))))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-models "Delete Side-chains for Active Chain"
 	 (lambda ()
 	   (using-active-atom
@@ -567,28 +583,28 @@
 
 	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
-	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
+	      (menuitem2 (gtk-menu-item-new-with-label "Assign Sequence...")))
 
 	  (gtk-menu-item-set-submenu menuitem2 submenu)
 	  (gtk-menu-append (coot-menubar-menu "Calculate") menuitem2)
 	  (gtk-widget-show menuitem2)
 	  
-	  ;; 
-	  (if (coot-has-pygtk?)
-	      (add-simple-coot-menu-menuitem
-	       submenu "Dock Sequence (py)..."
-	       (lambda ()
-		 (run-python-command "cootaneer_gui_bl()"))))
-	  
 	  (add-simple-coot-menu-menuitem
-	   submenu "Associate Sequence...."
+	   submenu "1: Associate Sequence...."
 	   (lambda ()
 	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
 
+	  ;; 
+	  (if (coot-has-pygtk?)
+	      (add-simple-coot-menu-menuitem
+	       submenu "2: Assign Sequence (py)..."
+	       (lambda ()
+		 (run-python-command "cootaneer_gui_bl()"))))
+	  
 	  ;; only add this to the GUI if the python version is not available.
 	  (if (not (coot-has-pygtk?))
 	      (add-simple-coot-menu-menuitem
-	       submenu "Dock sequence on this fragment..."
+	       submenu "Assign the sequence to this fragment..."
 	       (lambda ()
 		 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
 				       (lambda (imol)

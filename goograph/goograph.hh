@@ -203,6 +203,7 @@ namespace coot {
       void draw_annotation_boxes();
       void draw_contour_level_bar();
       void set_data_scales(int axis);
+      void set_extents_internal(int axis, double min, double max);
    public:
       enum {X_AXIS, Y_AXIS};
       enum {MAJOR_TICK, MINOR_TICK};
@@ -276,7 +277,7 @@ namespace coot {
       GtkWidget *get_canvas() const; // for embedding in other windows
       GtkWidget *show_dialog();            // for graph in dialog, return the close button so that we
                                            // can add a callback that NULLs the pointer to a goograph
-      void set_extents(int axis, double min, double max); 
+      void set_extents(int axis, double min, double max);
       void set_ticks(int axis, double tick_major, double tick_minor);
       void set_axis_label(int axis, const std::string &label);
       void set_draw_axis(int axis, bool draw_state);

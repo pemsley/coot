@@ -401,7 +401,6 @@ class Bond_lines_container {
                           int atom_colour_type,
                           coot::my_atom_colour_map_t *atom_colour_map_p,
                           int draw_hydrogens_flag,
-                          bool draw_missing_loops_flag,
                           bool do_goodsell_colour_mode);
    void add_peptide_bonds(const atom_selection_container_t &asc,
                           int atom_colour_type,

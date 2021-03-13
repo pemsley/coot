@@ -42,6 +42,10 @@ p  So we need to have this function external for c++ linking.
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
+#include <gtk/gtk.h>
+#include "meshed-generic-display-object.hh"
+#include "old-generic-display-object.hh" // get rid of this one day
+
 /* I think that this should this be a .hh file */
 
 void add_ligand_builder_menu_item_maybe();
@@ -81,6 +85,21 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
 /* return a new object number (so that we can set it to be displayed). */
 int add_generic_display_object(const coot::old_generic_display_object_t &gdo);
 
+/*  ----------------------------------------------------------------------- */
+/*                        Skeleton                                          */
+/*  ----------------------------------------------------------------------- */
+/* section Skeleton Colour */
+/*! \name  Skeleton Colour */
+/* \{ */
+/* MOVE-ME to c-interface-gtk-widgets.h */
+void handle_skeleton_colour_change(int mol, gdouble* map_col);
+/*! \brief set the skeleton colour */
+void set_skeleton_colour(int imol, float r, float g, float b);
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
+gdouble* get_skeleton_colour();
+
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  GUIL Utility Functions                                  */

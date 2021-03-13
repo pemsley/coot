@@ -70,6 +70,11 @@ float matrix_state() {
    return graphics_info_t::geometry_vs_map_weight;
 }
 
+float get_map_weight() {
+   return graphics_info_t::geometry_vs_map_weight;
+}
+
+
 void set_refine_auto_range_step(int i) { 
    graphics_info_t::refine_auto_range_step = i;
 } 
@@ -118,8 +123,14 @@ void refine_zone(int imol, const char *chain_id,
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
 	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
-	 g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
-				is_water_like_flag);
+	 // g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
+         // is_water_like_flag);
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> residues = coot::util::get_residues_in_range(mol, chain_id, resno1, resno2);
+
+         std::string alt_conf("");
+         if (! residues.empty())
+            coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf, mol);
       }
    }
    g.conditionally_wait_for_refinement_to_finish();
@@ -196,7 +207,7 @@ void set_refinement_immediate_replacement(int istate) {
 }
 
 int  refinement_immediate_replacement_state() {
-   return graphics_info_t::refinement_immediate_replacement_flag; 
+   return graphics_info_t::refinement_immediate_replacement_flag;
 } 
 
 
@@ -1365,6 +1376,13 @@ void set_refinement_geman_mcclure_alpha(float alpha) {
    g.set_geman_mcclure_alpha(alpha);
 
 }
+
+//! \brief get the Geman-McClure distance alpha value (weight)
+float get_refinement_geman_mcclure_alpha() {
+
+   return graphics_info_t::geman_mcclure_alpha;
+}
+
 
 //! \brief set the Lennard Jones epsilon parameter
 void set_refinement_lennard_jones_epsilon(float epsilon) {

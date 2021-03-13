@@ -1480,10 +1480,6 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
    if (local_group_1 == "SACCHARIDE")   local_group_1 = "pyranose";  // CCD annotation for FUC
    if (local_group_2 == "SACCHARIDE")   local_group_2 = "pyranose";
 
-   if (false)
-      std::cout << "debug:: in make_hash_code " << group_1 << " " << group_2 << " -> "
-		<< local_group_1 << " " << local_group_2 << std::endl;
-
    for (unsigned int i = 0; i < comp_id_1.length(); i++) {
      unsigned int chr = comp_id_1[i];
      hash_c1  = ((hash_c1 << 5) - hash_c1) + chr;
@@ -1510,6 +1506,11 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
    hash = hash_g1 + 8 * hash_g2;
 
    // hash |= 0;
+
+   if (false)
+      std::cout << "debug:: in make_hash_code \"" << group_1 << "\" \"" << group_2 << "\" -> \""
+		<< local_group_1 << "\" \"" << local_group_2 << "\"" << " return hash " << hash
+                << std::endl;
 
    return hash;
 }
@@ -3655,8 +3656,10 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
 
    // volume_sigma_ = 0.2;  // seems reasonable give target voluemes of about 2.6
    // volume_sigma_ = 0.3; // test
-   volume_sigma_ = 0.18; // meh, 0.3 seemed to give "too many" chiral errors when
+   // volume_sigma_ = 0.18; // meh, 0.3 seemed to give "too many" chiral errors when
                          // refining large numbers of atoms in poor/EM maps.
+   // 20210228-PE OK, molprobity is giving "too many" CB outliers - let's tighten this up
+   volume_sigma_ = 0.13;
 
    if (false)
       std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "

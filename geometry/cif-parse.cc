@@ -880,7 +880,8 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 					 std::string type,
 					 mmdb::realtype value_dist,
 					 mmdb::realtype value_dist_esd,
-					 dict_bond_restraint_t::aromaticity_t arom_in) {
+					 dict_bond_restraint_t::aromaticity_t arom_in,
+                                         dict_bond_restraint_t::bond_length_type_t type_in) {
 
    if (false)
       std::cout << "adding bond for " << comp_id << " " << atom_id_1
@@ -895,7 +896,8 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 							  type,
 							  value_dist,
 							  value_dist_esd,
-							  arom_in));
+							  arom_in,
+                                                          type_in));
 }
 
 void
@@ -1653,7 +1655,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
    int nbond = 0;
    int comp_id_index = -1; // not found initially
 
-   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
       int ierr;
       int ierr_tot = 0;
@@ -1664,6 +1666,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 			         // anyway (to get the bond orders for
 			         // drawing).
       dict_bond_restraint_t::aromaticity_t aromaticity(dict_bond_restraint_t::UNASSIGNED);
+      dict_bond_restraint_t::bond_length_type_t blt(dict_bond_restraint_t::UNKNOWN); // nuclear or electron
 
    
       // modify a reference (ierr)
@@ -1727,7 +1730,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	 // perhaps it was in the dictionary as "value_order"?
 	 if (ierr) {
 	    s = mmCIFLoop->GetString("value_order", j, ierr);
-	 }
+         }
 
 	 if (! ierr) {
 	    if (s) { // just in case (should not be needed).
@@ -1798,10 +1801,25 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	 ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
 	 ierr_tot += ierr;
 
+         mmdb::realtype value_dist_nucleus     = -1.0;
+         mmdb::realtype value_dist_nucleus_esd = -1.0;
+         int ierr_nuc     = mmCIFLoop->GetReal(value_dist_nucleus,     "value_dist_nucleus",     j);
+         int ierr_nuc_esd = mmCIFLoop->GetReal(value_dist_nucleus_esd, "value_dist_nucleus_esd", j);
+
+         // for now, instead of sending both to the dict_bond, let's preferentially send
+         // value_dist_nucleus if we can:
+         //
+         if (ierr_nuc == 0) {
+            if (ierr_nuc_esd == 0) {
+               value_dist     = value_dist_nucleus;
+               value_dist_esd = value_dist_nucleus_esd;
+            }
+         }
+
 	 if (ierr_tot == 0) {
 
 	    mon_lib_add_bond(comp_id, imol_enc, atom_id_1, atom_id_2,
-			     type, value_dist, value_dist_esd, aromaticity); 
+			     type, value_dist, value_dist_esd, aromaticity, blt);
 	    nbond++;
 	 } else {
 
@@ -2870,7 +2888,8 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_1,
 					   const std::string &comp_id_2,
 					   const std::string &group_2) const {
-   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 1);
+   bool allow_peptide_link_flag = true;
+   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, allow_peptide_link_flag);
 }
 
 // throw an error on no chem links at all. (20100420, not sure why an
@@ -2887,14 +2906,14 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_2,
 					   bool allow_peptide_link_flag) const {
 
-   bool switch_order_flag = 0;
+   bool switch_order_flag = false;
    bool found = false;
    bool debug = false;
-   
+
    if (debug) {
       std::cout << "---------------------- Here are the chem_links: -----------------"
 		<< std::endl;
-      print_chem_links();
+      print_chem_links(); // prints the chem_link_map
    }
 
    // This needs to iterate to make the count now that we use a map
@@ -2904,7 +2923,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    unsigned int search_hash_code_b = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, group_1);
 
    if (debug)
-      std::cout << "here in matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
+      std::cout << "DEBUG:: matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
 		<< comp_id_1 << " " << comp_id_2 << " groups: " << group_1 << " " << group_2 << std::endl;
 
    // Is this link a TRANS peptide or a CIS?  Both have same group and
@@ -2916,8 +2935,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    // "gap" and "symmetry" have hash code 0 (blank strings)
 
    std::vector<std::pair<coot::chem_link, bool> > matching_chem_links;
-   std::map<unsigned int, std::vector<chem_link> >::const_iterator it =
-      chem_link_map.find(search_hash_code_f);
+   std::map<unsigned int, std::vector<chem_link> >::const_iterator it = chem_link_map.find(search_hash_code_f);
    if (it == chem_link_map.end()) {
       it = chem_link_map.find(search_hash_code_b);
       if (it != chem_link_map.end())
@@ -2925,11 +2943,19 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    }
 
    if (debug) {
-      if (it != chem_link_map.end())
-	 std::cout << "matching_chem_link() found the hash at least! " << std::endl;
-      else
-	 std::cout << "matching_chem_link() failed to find hash " << search_hash_code_f << " "
+      if (it != chem_link_map.end()) {
+	 std::cout << "DEBUG:: matching_chem_link() found the hash at least! " << std::endl;
+         std::cout << "DEBUG:: matching_chem_link() Here is the vector of chem links in the map:" << std::endl;
+         const std::vector<chem_link> &v = it->second;
+         std::vector<chem_link>::const_iterator itv;
+         for (itv=v.begin(); itv!=v.end(); itv++) {
+            const chem_link &cl = *itv;
+            std::cout << "                 " << cl << std::endl;
+         }
+      } else {
+	 std::cout << "DEBUG:: matching_chem_link() failed to find hash " << search_hash_code_f << " "
 		   << search_hash_code_b << std::endl;
+      }
    }
 
    if (it == chem_link_map.end()) {
@@ -2937,7 +2963,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       // NAG-ASN for example
 
       if (debug)
-	 std::cout << "iterator hit the chem_link_map end" << std::endl;
+	 std::cout << "DEBUG:: matching_chem_link() iterator hit the chem_link_map end" << std::endl;
 
       unsigned int search_bl_1_f  = chem_link::make_hash_code(comp_id_1, comp_id_2, "", group_2);
       unsigned int search_bl_1_b  = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, "");
@@ -2988,7 +3014,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       }
 
       if (debug) {
-	 std::cout << "-------- here with candidate_chem_links size ------- "
+	 std::cout << "DEBUG:: matching_chem_link() -------- here with candidate_chem_links size ------- "
 		   << candidate_chem_links.size() << std::endl;
 	 std::set<chem_link>::const_iterator it;
 	 for(it=candidate_chem_links.begin(); it!=candidate_chem_links.end(); it++)
@@ -3011,10 +3037,14 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 		  found = true;
 		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
 
-		  // std::cout << "::::::::: adding matching chem link " << cl << std::endl;
+                  if (debug)
+                     std::cout << "DEBUG:: matching_chem_link() ::::::::: pushing back matching chem link " << cl << std::endl;
 		  matching_chem_links.push_back(p);
 	       }
-	    }
+	    } else {
+               if (debug)
+                  std::cout << "DEBUG:: matching_chem_links() test for matches_comp_ids_and_groups failed " << std::endl;
+            }
 	 }
       }
 
@@ -3032,17 +3062,19 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       for (itv=v.begin(); itv!=v.end(); itv++) {
 	 const chem_link &cl = *itv;
 
+         // std::cout << ":::::::::::::::::::::::::: testing comp_id and group match for " << cl << std::endl;
+
 	 std::pair<bool, bool> match_res =
 	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug)
-	    std::cout << "... matching_chem_link: found matching link "
+	    std::cout << "DEBUG:: matching_chem_links() ... matching_chem_link: found matching link "
 		      << comp_id_1 << " " << comp_id_2 << " " 
 		      << cl << std::endl;
 
-	 if (debug)
-	    std::cout << "   checking chem link: " << cl << " -> "
-		      << match_res.first << " " << match_res.second << std::endl;
+	 if (false) // was debug but TMI ATM - we are looking for a bug in above code
+	    std::cout << "    checking chem link:                             " << cl << " -> matched: "
+		      << match_res.first << " need order-switch: " << match_res.second << std::endl;
 
 	 if (match_res.first) {
 	    if (cl.Id() != "gap" && cl.Id() != "symmetry") {
@@ -3050,18 +3082,24 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 		  switch_order_flag = match_res.second;
 		  found = true;
 		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+                  if (debug)
+                     std::cout << "DEBUG:: matching_chem_link(): pushing back chem link " << cl << " " << switch_order_flag
+                               << std::endl;
 		  matching_chem_links.push_back(p);
 
 	       } else {
 		  if (debug)
-		     std::cout << "reject link on peptide/allow-peptide test " << std::endl;
+		     std::cout << "    reject link " << cl.Id() << " on peptide/allow-peptide test " << std::endl;
 	       }
 	    } else {
 	       if (debug) {
-		  std::cout << "reject link \"" << cl.Id() << "\"" << std::endl;
+		  std::cout << "    reject link \"" << cl.Id() << "\"" << std::endl;
 	       }
 	    }
-	 }
+	 } else {
+            if (debug)
+               std::cout << "    reject link " << cl.Id() << " matches_comp_ids_and_groups() found no match" << std::endl;
+         }
       }
    }
 
@@ -3070,7 +3108,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    // do).
    // 
    if ( (!found) && (allow_peptide_link_flag)) {
-      std::string rte = "INFO:: No chem link for groups \"";
+      std::string rte = "INFO:: matching_chem_links() No chem link for groups \"";
       rte += group_1;
       rte += "\" \"";
       rte += group_2;
@@ -3082,7 +3120,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       throw std::runtime_error(rte);
    }
    if (debug)
-      std::cout << "matching_chem_link() returns " << matching_chem_links.size()
+      std::cout << "DEBUG:: matching_chem_link() returns " << matching_chem_links.size()
 		<< " matching chem links" << std::endl;
    return matching_chem_links;
 }
@@ -3170,8 +3208,9 @@ coot::protein_geometry::init_standard() {
 	    env_dir_fails = 1;
 	 } else {
 	    env_dir_fails = 0;
-	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
-		      << " CLIBD_MON: " << s << std::endl;
+            if (verbose_mode)
+               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
+                         << " CLIBD_MON: " << s << std::endl;
 	    mon_lib_dir = s;
 	    using_clibd_mon = true;
 	    // strip any trailing / from mon_lib_dir
@@ -3188,8 +3227,9 @@ coot::protein_geometry::init_standard() {
 
 	 s = getenv("CCP4_LIB");
 	 if (s) {
-	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
-		      << s << std::endl;
+            if (verbose_mode)
+               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
+                         << s << std::endl;
 	    mon_lib_dir = s;
 
 	 } else {

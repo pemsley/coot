@@ -131,7 +131,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
    std::cout << "Fix timer in post_recentre_update_and_redraw()\n";
    for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_clipper_skeleton();
-      molecules[ii].update_map();  // uses statics in graphics_info_t
+      molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);  // uses statics in graphics_info_t
                                    // and redraw the screen using the new map
    }
 
@@ -1461,8 +1461,10 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
-   while (continue_threaded_refinement_loop)
+   while (continue_threaded_refinement_loop) {
+      // std::cout << "waiting for continue_threaded_refinement_loop to be false..." << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
 
    if (false) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
@@ -3268,7 +3270,7 @@ graphics_info_t::set_imol_refinement_map(int imol) {
 void
 graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
    for (unsigned int i=0; i<mol_idxs.size(); i++)
-      graphics_info_t::molecules[mol_idxs[i]].update_map();
+      graphics_info_t::molecules[mol_idxs[i]].update_map(auto_recontour_map_flag);
 }
 
 #include <thread>
@@ -3285,55 +3287,55 @@ graphics_info_t::update_maps() {
       bool do_threaded_map_updates = false;
 
       if (! do_threaded_map_updates) {
-    for (int ii=0; ii<n_molecules(); ii++) {
-       if (molecules[ii].has_xmap()) {
-          molecules[ii].update_map(); // to take account
-          // of new rotation centre.
-       }
-    }
+         for (int ii=0; ii<n_molecules(); ii++) {
+            if (molecules[ii].has_xmap()) {
+               molecules[ii].update_map(auto_recontour_map_flag); // to take account
+                                                           // of new rotation centre.
+            }
+         }
 
       } else {
 
-    // unsigned int n_threads = 4;
-    unsigned int n_threads = coot::get_max_number_of_threads();
-    // std::cout << "got n_threads: " << n_threads << std::endl;
+         // unsigned int n_threads = 4;
+         unsigned int n_threads = coot::get_max_number_of_threads();
+         // std::cout << "got n_threads: " << n_threads << std::endl;
 
-    if (n_threads == 0) {
-       for (int ii=0; ii<n_molecules(); ii++) {
-          if (molecules[ii].has_xmap()) {
-     molecules[ii].update_map(); // to take account
-     // of new rotation centre.
-          }
-       }
-    } else {
-       std::vector<std::thread> threads;
-       std::vector<int> molecules_with_maps;
-       for (int ii=0; ii<n_molecules(); ii++) {
-          if (molecules[ii].has_xmap()) { // or nxmap
-     molecules_with_maps.push_back(ii);
-          }
-       }
+         if (n_threads == 0) {
+            for (int ii=0; ii<n_molecules(); ii++) {
+               if (molecules[ii].has_xmap()) {
+                  molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
+                                                                              // of new rotation centre.
+               }
+            }
+         } else {
+            std::vector<std::thread> threads;
+            std::vector<int> molecules_with_maps;
+            for (int ii=0; ii<n_molecules(); ii++) {
+               if (molecules[ii].has_xmap()) { // or nxmap
+                  molecules_with_maps.push_back(ii);
+               }
+            }
 
-       // we must make sure that the threads don't update the same map
-       //
+            // we must make sure that the threads don't update the same map
+            //
 
-       std::vector<std::vector<int> > maps_vec_vec(n_threads);
-       unsigned int thread_idx = 0;
-       // put the maps in maps_vec_vec
-       for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
-          maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
-          thread_idx++;
-          if (thread_idx == n_threads) thread_idx = 0;
-       }
+            std::vector<std::vector<int> > maps_vec_vec(n_threads);
+            unsigned int thread_idx = 0;
+            // put the maps in maps_vec_vec
+            for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
+               maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
+               thread_idx++;
+               if (thread_idx == n_threads) thread_idx = 0;
+            }
 
-       for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-          const std::vector<int> &mv = maps_vec_vec[i_thread];
-          threads.push_back(std::thread(update_maps_for_mols, mv));
-       }
-       for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-          threads.at(i_thread).join();
+            for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+               const std::vector<int> &mv = maps_vec_vec[i_thread];
+               threads.push_back(std::thread(update_maps_for_mols, mv));
+            }
+            for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+               threads.at(i_thread).join();
 
-    }
+         }
       }
    } // active map drag test
 }
@@ -3456,7 +3458,7 @@ void
 graphics_info_t::update_things_on_move() {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map();
+      molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
@@ -3538,20 +3540,20 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
          baton_build_direction_flag);
    }
 //    std::cout << "DEBUG: in graphics: cg_start: " << cg_start.format() << "  "
-// 	     << use_cg_start << std::endl;
-   *baton_next_ca_options = molecules[imol_for_skel].next_ca_by_skel(previous_ca_positions,
-        cg_start,
-        use_cg_start,
-        3.8,
-        skeleton_level,
-        max_skeleton_search_depth);
+//          << use_cg_start << std::endl;
+   baton_next_ca_options = molecules[imol_for_skel].next_ca_by_skel(previous_ca_positions,
+                                                                    cg_start,
+                                                                    use_cg_start,
+                                                                    3.8,
+                                                                    skeleton_level,
+                                                                    max_skeleton_search_depth);
 
    // Print out the baton_next_ca_options
    //
    std::cout << "-- baton_next_ca_options" << std::endl;
-   for(unsigned int i=0; i<baton_next_ca_options->size(); i++) {
-      std::cout << "   " << (*baton_next_ca_options)[i].score  << "  "
-   << (*baton_next_ca_options)[i].position.format() << std::endl;
+   for(unsigned int i=0; i<baton_next_ca_options.size(); i++) {
+      std::cout << "   " << baton_next_ca_options[i].score  << "  "
+                << baton_next_ca_options[i].position.format() << std::endl;
    }
    std::cout << "--" << std::endl;
 
@@ -3559,9 +3561,9 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    //
    std::string molname("Baton Atom Guide Points");
    if (baton_tmp_atoms_to_new_molecule) {
-      create_molecule_and_display(*baton_next_ca_options, molname);
+      create_molecule_and_display(baton_next_ca_options, molname);
    } else {
-      update_molecule_to(*baton_next_ca_options, molname);
+      update_molecule_to(baton_next_ca_options, molname);
    }
 }
 
@@ -3695,39 +3697,39 @@ graphics_info_t::accept_baton_position() {
    std::cout << "--------------------- in accept_baton_position() imol is " << imol << std::endl;
    if (imol >= 0) {
       baton_atom = molecules[imol].add_baton_atom(baton_tip,
-     baton_build_start_resno,
-     baton_build_chain_id,
-     baton_build_params_active,
-     baton_build_direction_flag);
+                                                  baton_build_start_resno,
+                                                  baton_build_chain_id,
+                                                  baton_build_params_active,
+                                                  baton_build_direction_flag);
 
       if (baton_atom == 0) {
-    // we didn't add one (because there were no chains?)
-    mmdb::Model *model_p = molecules[imol].atom_sel.mol->GetModel(1);
-    if (! model_p) {
-       std::cout << "in accept_baton_position fallback: no model " << std::endl;
-    } else {
-       mmdb::Chain *chain_p = new mmdb::Chain;
-       chain_p->SetChainID("A");
-       model_p->AddChain(chain_p);
-       baton_atom = molecules[imol].add_baton_atom(baton_tip,
-   baton_build_start_resno,
-   baton_build_chain_id,
-   baton_build_params_active,
-   baton_build_direction_flag);
-    }
+         // we didn't add one (because there were no chains?)
+         mmdb::Model *model_p = molecules[imol].atom_sel.mol->GetModel(1);
+         if (! model_p) {
+            std::cout << "in accept_baton_position fallback: no model " << std::endl;
+         } else {
+            mmdb::Chain *chain_p = new mmdb::Chain;
+            chain_p->SetChainID("A");
+            model_p->AddChain(chain_p);
+            baton_atom = molecules[imol].add_baton_atom(baton_tip,
+                                                        baton_build_start_resno,
+                                                        baton_build_chain_id,
+                                                        baton_build_params_active,
+                                                        baton_build_direction_flag);
+         }
       }
       baton_build_params_active = 0; // This flag was set after
-        // set_baton_build_params.  We
-        // clear it now so that we don't
-        // any more force the start resno -
-        // molecule_class_info_t::add_baton_atom
-        // can work it out.
+      // set_baton_build_params.  We
+      // clear it now so that we don't
+      // any more force the start resno -
+      // molecule_class_info_t::add_baton_atom
+      // can work it out.
    }
    std::cout << "setting screen rotation centre to " << baton_tip << std::endl;
    setRotationCentre(baton_tip);
    for(int ii=0; ii<n_molecules(); ii++) {
       // but not skeleton, lets do skeleton only on a middle-mouse recentre
-      molecules[ii].update_map();
+      molecules[ii].update_map(true);
       molecules[ii].update_symmetry();
    }
 
@@ -3746,15 +3748,15 @@ graphics_info_t::accept_baton_position() {
       std::cout << "Ooops:: must have a skeleton first" << std::endl;
    } else {
       short int use_cg = 1;
-      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options->size() << " "
-   << baton_next_ca_options_index << std::endl;
-      if (baton_next_ca_options->size() > 0) {
-    clipper::Coord_grid cg = (*baton_next_ca_options)[baton_next_ca_options_index].near_grid_pos;
-    baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
+      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options.size() << " "
+                << baton_next_ca_options_index << std::endl;
+      if (baton_next_ca_options.size() > 0) {
+         clipper::Coord_grid cg = baton_next_ca_options[baton_next_ca_options_index].near_grid_pos;
+         baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
       } else {
-    clipper::Coord_grid cg;
-    use_cg = 0;
-    baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg);
+         clipper::Coord_grid cg;
+         use_cg = 0;
+         baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg);
       }
    }
 
@@ -3778,33 +3780,27 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
    coot::Cartesian tip_pos(0.0, 0.0, 0.0);
    unsigned int uindex = index;
 
-   if (!baton_next_ca_options) {
-      std::cout << "ERROR: baton_next_ca_options is NULL\n";
-   } else {
-      if (uindex >= baton_next_ca_options->size()) {
-    if ((uindex == 0) && (baton_next_ca_options->size() == 0)) {
-       std::cout << "INFO:: no baton next positions from here\n";
-       tip_pos = non_skeleton_tip_pos();
-    } else {
-       std::cout << "ERROR: bad baton_next_ca_options index: "
-         << index << " size " << baton_next_ca_options->size()
-         << std::endl;
-    }
+   {
+      if (uindex >= baton_next_ca_options.size()) {
+         if ((uindex == 0) && (baton_next_ca_options.size() == 0)) {
+            std::cout << "INFO:: no baton next positions from here\n";
+            tip_pos = non_skeleton_tip_pos();
+         } else {
+            std::cout << "ERROR: bad baton_next_ca_options index: "
+                      << index << " size " << baton_next_ca_options.size()
+                      << std::endl;
+         }
       } else {
-    // now we want a vector baton_length in the direction starting
-    // at baton_root to baton_next_ca_options[index]
-    //
-    coot::Cartesian target_point = to_cartesian((*baton_next_ca_options)[index].position);
-    std::cout << "Ca option " << index << " score: "
-      << (*baton_next_ca_options)[index].score << std::endl;
-
-    coot::Cartesian target_dir = target_point - baton_root;
-
-    target_dir.unit_vector_yourself();
-
-    target_dir *= baton_length;
-
-    tip_pos = target_dir + baton_root;
+         // now we want a vector baton_length in the direction starting
+         // at baton_root to baton_next_ca_options[index]
+         //
+         coot::Cartesian target_point = to_cartesian(baton_next_ca_options[index].position);
+         std::cout << "Ca option " << index << " score: "
+                   << baton_next_ca_options[index].score << std::endl;
+         coot::Cartesian target_dir = target_point - baton_root;
+         target_dir.unit_vector_yourself();
+         target_dir *= baton_length;
+         tip_pos = target_dir + baton_root;
       }
    }
    return tip_pos;
@@ -3871,7 +3867,7 @@ graphics_info_t::baton_tip_try_another() {
    baton_next_ca_options_index++;
 
    // make baton_next_ca_options_index an unsigned int
-   if (baton_next_ca_options_index >= int(baton_next_ca_options->size())) {
+   if (baton_next_ca_options_index >= int(baton_next_ca_options.size())) {
       std::cout << "info: cycling back to start of ca options" << std::endl;
       baton_next_ca_options_index = 0;
    }
@@ -3885,7 +3881,7 @@ void
 graphics_info_t::baton_tip_previous() {
 
    if (baton_next_ca_options_index == 0) {
-      baton_next_ca_options_index = int(baton_next_ca_options->size()-1);
+      baton_next_ca_options_index = int(baton_next_ca_options.size()-1);
    } else {
       baton_next_ca_options_index--;
    }

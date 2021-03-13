@@ -1,4 +1,58 @@
 
+  Release 0.9.4.1
+
+  o BUG-FIX: Fix crash on reading some CCP4/MRC maps
+
+  o BUG-FIX: Colour-by-chain fixed again: now respects the draw-missing-residues-loops
+             setting
+
+  o BUG-FIX: Fix the installation of side-chain-data
+
+----
+
+  Release 0.9.4
+
+  o FEATURE: Add function for Backrub Rotamer for chain
+
+  o FEATURE: Faster reading of maps for cryo-EM reconstructions
+
+  o FEATURE: Add "no-recontour on panning" mode
+
+  o FEATURE: function add_hydrogens_atoms() added to the API
+
+  o FEATURE: function assign_sequence_to_active_fragment() added to the API
+
+  o FEATURE: Add "Atom Overlaps" to the Validation menu
+
+  o FEATURE: Add an entry for weight change in the active map selection dialog
+
+  o CHANGE:  Remove Prodrg-ify from the interface
+
+  o CHANGE:  Better application of Ramachandran restraints
+
+  o CHANGE:  Link with latest and greatest version of Python 2
+
+  o CHANGE:  Fill partial residues now faster as residues are now refined at the same time
+
+  o CHANGE:  API function change argument order for add_OXT_to_residue()
+
+  o CHANGE   N-linked glycosylation feature: weight change. Now more robust and useful
+             in cryo-EM
+
+  o CHANGE:  Represent formal charge in the restraints editor. Remove partial charge.
+
+  o BUG-FIX: globularize() now works for nucleic acid chains
+
+  o BUG-FIX: Fix up the "Dock Sequence" dialog - now is called "Assign Sequence"
+
+  o BUG-FIX: Colour-by-chain colours fixed again
+
+  o BUG-FIX: Conditionally delete OP3 when extending nucleotide chains
+
+  o BUG-FIX: Fix up hardware stereo
+
+----
+
   Release 0.9.3
 
   o BUG-FIX: Colour-by-chain colours no longer run out [Huw Jenkins]

@@ -1113,9 +1113,8 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
 
    push_the_buttons_on_fileselection(filter_button, sort_button,
 				     map_name_fileselection1);
-
-
 }
+
 
 
 void
@@ -1577,42 +1576,7 @@ void
 on_phs_cell_choice_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *window;
-   GtkWidget *info_window;
-   int i;
-
-   /* messing about with string variables */
-   gchar *widget_name;
-   gchar *tmp_name;
-
-   widget_name = (gchar *) malloc(25); /* freed */
-
-   window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
-
-   for (i=0; i< graphics_n_molecules(); i++) {
-
-      if (has_unit_cell_state(i)) {
-
-	 strcpy(widget_name, "phs_cell_radiobutton_");
-	 tmp_name = widget_name + strlen(widget_name);
-	 snprintf(tmp_name, 3, "%-d", i);
-
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), widget_name)))) {
-	    printf("proceeding with phs reading using cell from molecule %d.\n", i);
-
-	    read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(i);
-	    break;
-	 }
-      }
-   }
-   free(widget_name);
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "phs_cell_none_radiobutton")))) {
-      printf("special value for none for phs_cell radiobuton active\n");
-      info_window = create_phs_info_box();
-      gtk_widget_show(info_window);
-   }
-   gtk_widget_destroy(window);
+   handle_phs_cell_choice_ok_button_clicked(GTK_WIDGET(button));
 }
 
 
@@ -1647,13 +1611,6 @@ void
 on_scripting_window_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
-  /* What does this function do!? */
-
-#if (GTK_MAJOR_VERSION == 1)
-  post_scheme_scripting_window();
-#endif
-
 }
 
 
@@ -1994,18 +1951,6 @@ void
 on_save_coord_ok_button_clicked        (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if 0
-  GtkWidget *widget;
-  char *stuff;
-  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
-
-  widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
-  save_directory_for_saving_from_fileselection(fileselection);
-  stuff = g_object_get_data(G_OBJECT(widget), "stuff"); /* probably needs fixing GTK-FIXME */
-  save_coordinates_using_widget(widget);
-  free(stuff);
-  gtk_widget_destroy(widget);
-#endif
 }
 
 
@@ -2332,6 +2277,7 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
   int strand_length;
   float radius = 0.;
 
+
   dialog = lookup_widget(GTK_WIDGET(button), "fast_ss_search_dialog");
 
   helix_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_helix_checkbutton");
@@ -2358,6 +2304,7 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radius_checkbutton))) {
     radius = (gtk_combo_box_get_active(GTK_COMBO_BOX(radius_combobox)) + 1. ) * 10.;
   }
+
 
 
   //g_print("INFO:: run fast secondary structure search with params:\n");
@@ -4736,6 +4683,9 @@ on_select_map_for_fitting_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
+
+  // this doesn't do anything because gtk_dialog_run() is used
+
 //  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
 //				    "select_fitting_map_dialog");
 
@@ -10487,7 +10437,7 @@ on_map_name_filechooserdialog1_response
 						      when destroyed,
 						      scribbles over
 						      filename. */
-      handle_read_ccp4_map(sfile, is_diff_map_flag);
+      handle_read_ccp4_map_internal(sfile, is_diff_map_flag);
       free(sfile);
 
    } else {
@@ -12245,7 +12195,8 @@ on_weight_maxtrix_estimate_button_clicked
 {
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "refine_params_weight_matrix_entry");
-  estimate_map_weight(entry);
+  /*  and set geometry_vs_map_weight */
+  add_estimated_map_weight_to_entry(entry);
 
 }
 
@@ -12496,9 +12447,8 @@ on_refine_params_lennard_jones_epsilon_combobox_changed
                                         gpointer         user_data)
 {
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
-   printf("GTK3 FIXME on_refine_params_lennard_jones_epsilon_combobox_changed\n");
-   // int active_item_idx = gtk_combo_box_text_get_active(combobox);
-   // set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
+   int active_item_idx = gtk_combo_box_get_active(combobox); // save it for set active item next time
+   set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
 }
 
 
@@ -12509,9 +12459,32 @@ on_refine_params_rama_restraints_weight_combobox_changed
 {
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
    printf("GTK3 FIXME on_refine_params_rama_restraints_weight_combobox_changed\n");
-   // nint active_item_idx = gtk_combo_box_text_get_active(combobox);
-   // set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
 }
+
+
+void
+on_refine_params_torsions_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_torsion_weight_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_overall_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   set_refinement_overall_weight_from_text(t);
+}
+
+
 
 
 void
@@ -12781,6 +12754,13 @@ on_label_neighbours1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   label_neighbours();
+}
+
+void
+on_label_atoms_in_residue1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+
+  label_atoms_in_residue();
 }
 
 

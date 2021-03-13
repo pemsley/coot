@@ -27,7 +27,7 @@ AM_CPPFLAGS = \
         $(GTK_CFLAGS)   \
 	$(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) \
 	$(COOT_WINDOWS_CFLAGS) \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)      \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)  \
 	$(PYTHON_CPPFLAGS)
 
@@ -100,8 +100,10 @@ test_lbg_functions_LDADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(GOOCANVAS_LIBS) \
 	$(RDKIT_LIBS) \
-	$(PYTHON_LIBS)
+        $(GTK_LIBS) \
+        $(PYTHON_LIBS)
 
 test_srs_standalone_SOURCES = test-srs-standalone.cc
 test_srs_standalone_LDADD = $(CCP4SRS_LIBS) $(MMDB_LIBS)

@@ -17,7 +17,7 @@
 
 cootdatadir = $(pkgdatadir)/data/metal
 
-dist_cootdata_DATA = \
-	metal-O-distance.table \
+dist_cootdata_DATA =      \
+   metal-O-distance.table \
    metal-S-distance.table \
    metal-N-distance.table

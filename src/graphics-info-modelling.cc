@@ -217,6 +217,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    // This now wraps refine_residues_vec
 
+   // can this function be deleted now?
+
    if (false)
       std::cout << "DEBUG:: In copy_mol_and_refine() refine range: "
 		<< "chain  :" << chain_id_1 << ": "
@@ -642,6 +644,27 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
       r.detach();
    }
 
+}
+
+void
+graphics_info_t::poke_the_refinement() {
+
+   if (moving_atoms_asc) {
+      continue_threaded_refinement_loop = false;
+      while (restraints_lock) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
+      }
+      if (last_restraints) {
+         double tw = last_restraints->get_torsion_restraints_weight();
+         std::cout << "changin torsions weight from " << tw << " to " << torsion_restraints_weight << std::endl;
+         last_restraints->set_map_weight(geometry_vs_map_weight);
+         last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
+         last_restraints->set_lennard_jones_epsilon(lennard_jones_epsilon);
+         last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
+         last_restraints->set_rama_plot_weight(rama_restraints_weight);
+         thread_for_refinement_loop_threaded(); // restart refinement if it's not running
+      }
+   }
 }
 
 // static
@@ -1211,6 +1234,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
+   last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
+
    if (convert_dictionary_planes_to_improper_dihedrals_flag) {
       last_restraints->set_convert_plane_restraints_to_improper_dihedral_restraints(true);
    }
@@ -1312,8 +1337,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       }
 
    } else {
-      GtkWidget *widget = create_no_restraints_info_dialog();
-      gtk_widget_show(widget);
+      continue_threaded_refinement_loop = false;
+      if (use_graphics_interface_flag) {
+         GtkWidget *widget = create_no_restraints_info_dialog();
+         gtk_widget_show(widget);
+      }
    }
 
    return found_restraints_flag;
@@ -3170,8 +3198,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 //
 	 float masked_map_val = -1.0;
 	 addres.set_map_atom_mask_radius(1.2);
-	 if (terminus_type == "MC" || terminus_type == "MN" ||
-	     terminus_type == "singleton")
+	 if (terminus_type == "MC" || terminus_type == "MN" || terminus_type == "singleton")
 	    masked_map_val = 0.0;
 	 addres.set_masked_map_value(masked_map_val);
 
@@ -3193,8 +3220,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 int SelHndSphere = molecules[imol].atom_sel.mol->NewSelection();
 	 mmdb::Atom *terminal_at = NULL;
 	 std::string atom_name = "Unassigned";
-	 if (terminus_type == "MC" || terminus_type == "C" ||
-	     terminus_type == "singleton")
+	 if (terminus_type == "MC" || terminus_type == "C" || terminus_type == "singleton")
 	    atom_name = " C  ";
 	 if (terminus_type == "MN" || terminus_type == "N")
 	    atom_name = " N  ";
@@ -3523,6 +3549,31 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       // fix up the residue number and chain id to match the clicked atom
 	       int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
 	       interesting_residue_p->seqNum = new_resno;
+
+               // we always want to remove OP3 from the residue to which a new residue
+               // is added when we add to the "N-terminus"
+               //
+               if (term_type == "N" || term_type == "MN") {
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms = 0;
+                  bool deleted = false;
+                  res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                  for (int iat=0; iat<n_residue_atoms; iat++) {
+                     mmdb::Atom *at = residue_atoms[iat];
+                     if (at) {
+                        std::string at_name(at->name);
+                        if (at_name == " OP3") {  // PDBv3 FIXME
+                           delete at;
+                           at = NULL;
+                           deleted = true;
+                           break;
+                        }
+                     }
+                  }
+                  if (deleted)
+                     res_p->TrimAtomTable();
+               }
+
 	       coot::util::transform_mol(mol, rtop_pair.second);
 	       // byte gz = GZM_NONE;
 	       // mol->WritePDBASCII("overlapped.pdb", gz);

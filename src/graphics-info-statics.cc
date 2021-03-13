@@ -223,4 +223,11 @@ HUDTextureMesh graphics_info_t::mesh_for_hud_tooltip_background = HUDTextureMesh
 Instanced_Markup_Mesh graphics_info_t::rama_balls_mesh = Instanced_Markup_Mesh("rama-balls");
 bool graphics_info_t::draw_stick_mode_atoms_default = true;
 
+
 std::string graphics_info_t::label_for_hud_geometry_tooltip;
+
+bool graphics_info_t::auto_recontour_map_flag = true;
+
+bool graphics_info_t::mol_displayed_toggle_do_redraw = true; // normally true
+
+double graphics_info_t::torsion_restraints_weight = 1.0;

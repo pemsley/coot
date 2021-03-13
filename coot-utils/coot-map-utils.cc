@@ -639,6 +639,40 @@ coot::util::multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
    }
 }
 
+
+// sharpen/blur self
+void
+coot::util::sharpen_blur_map(clipper::Xmap<float> *xmap_p, float b_factor) {
+
+   clipper::Xmap<float> &xmap(*xmap_p);
+   float mg = coot::util::max_gridding(xmap);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   xmap.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   int count = 0;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+         float irs =  hri.invresolsq();
+         fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+         count++;
+      }
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   xmap.fft_from(fphis);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   std::cout << "INFO:: sharpen_blur self: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+}
+
+
+
 #include <gsl/gsl_fit.h>
 
 
@@ -3042,19 +3076,184 @@ coot::util::map_fragment_info_t::init(const clipper::Xmap<float> &ip_xmap,
    }
 }
 
+#include "utils/radix.hh"
+
+
+clipper::Grid_map
+coot::util::map_fragment_info_t::make_grid_map(const clipper::Xmap<float> &input_xmap,
+                                               const clipper::Coord_orth &centre_from_input) const {
+
+   clipper::Coord_frac centre_from_input_f    = centre_from_input.coord_frac(input_xmap.cell());
+   clipper::Coord_map  centre_from_input_m    = centre_from_input_f.coord_map(input_xmap.grid_sampling());
+   clipper::Coord_grid centre_from_input_g    = centre_from_input_m.coord_grid();
+   clipper::Coord_map  centre_at_grid_point_m = centre_from_input_g.coord_map();
+   clipper::Coord_frac centre_at_grid_point_f = centre_at_grid_point_m.coord_frac(input_xmap.grid_sampling());
+
+   clipper::Coord_frac box0(centre_at_grid_point_f.u() - box_radius_a_internal/input_xmap.cell().descr().a(),
+                            centre_at_grid_point_f.v() - box_radius_b_internal/input_xmap.cell().descr().b(),
+                            centre_at_grid_point_f.w() - box_radius_c_internal/input_xmap.cell().descr().c());
+   clipper::Coord_frac box1(centre_at_grid_point_f.u() + box_radius_a_internal/input_xmap.cell().descr().a(),
+                            centre_at_grid_point_f.v() + box_radius_b_internal/input_xmap.cell().descr().b(),
+                            centre_at_grid_point_f.w() + box_radius_c_internal/input_xmap.cell().descr().c());
+
+   clipper::Grid_sampling input_gs = input_xmap.grid_sampling();
+   clipper::Grid_map grid(box0.coord_grid(input_gs), box1.coord_grid(input_gs));
+
+   return grid;
+}
+
+
+void
+coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> &input_xmap,
+                                                     const clipper::Coord_orth &centre_from_input,
+                                                     float box_radius) {
+
+   // -----------------------------------------------------------------------------------------
+   // -----------------------------------------------------------------------------------------
+   //                                  currently broken
+   // -----------------------------------------------------------------------------------------
+   // -----------------------------------------------------------------------------------------
+   // and difficult to fix.
+
+   // I had intended to use this for interactive local map sharpening.
+   // i.e. move a small map fragment to the origin,
+   //      sharpen/blur that map
+   //      transfer those grid coordinates back to where they came from
+   // but the function crashes. Currently there is a test function (now disabled) in c-interface-test.cc
+   // To try this again, you should disable the current constructor (or create a new one that does nothing).
+
+
+   // the centre of the box should be a grid point, not the user value
+   clipper::Coord_frac centre_from_input_f = centre_from_input.coord_frac(input_xmap.cell());
+   clipper::Coord_map centre_from_input_m = centre_from_input_f.coord_map(input_xmap.grid_sampling());
+   clipper::Coord_grid centre_from_input_g = centre_from_input_m.coord_grid();
+   clipper::Coord_map centre_at_grid_point_m = centre_from_input_g.coord_map();
+   clipper::Coord_frac centre_at_grid_point_f = centre_at_grid_point_m.coord_frac(input_xmap.grid_sampling());
+   clipper::Coord_orth centre_at_grid_point = centre_at_grid_point_f.coord_orth(input_xmap.cell());
+
+   std::cout << "################## simple_origin_shift() " << centre_from_input_g.format() << "\n";
+   std::cout << "################## simple_origin_shift() " << centre_from_input.format() << " moved to "
+             << centre_at_grid_point.format() << std::endl;
+
+   clipper::Coord_orth centre = centre_at_grid_point;
+
+   clipper::Coord_frac centre_f = centre.coord_frac(input_xmap.cell());
+   clipper::Coord_frac input_box0(centre_f.u() - box_radius/input_xmap.cell().descr().a(),
+                                  centre_f.v() - box_radius/input_xmap.cell().descr().b(),
+                                  centre_f.w() - box_radius/input_xmap.cell().descr().c());
+   clipper::Coord_frac input_box1(centre_f.u() + box_radius/input_xmap.cell().descr().a(),
+                                  centre_f.v() + box_radius/input_xmap.cell().descr().b(),
+                                  centre_f.w() + box_radius/input_xmap.cell().descr().c());
+   clipper::Grid_sampling input_gs = input_xmap.grid_sampling();
+   clipper::Grid_map input_grid(input_box0.coord_grid(input_gs), input_box1.coord_grid(input_gs));
+
+   double alpha = M_PI_2;
+   double beta  = M_PI_2;
+   double gamma = M_PI_2;
+   clipper::Cell_descr cd(2.0 * box_radius, 2.0 * box_radius, 2.0 * box_radius, alpha, beta, gamma);
+   clipper::Cell_descr cd_input = input_xmap.cell();
+   int nnx = static_cast<int>(static_cast<float>(input_gs.nu()) * 2.0 * box_radius / cd_input.a());
+   int nny = static_cast<int>(static_cast<float>(input_gs.nv()) * 2.0 * box_radius / cd_input.b());
+   int nnz = static_cast<int>(static_cast<float>(input_gs.nw()) * 2.0 * box_radius / cd_input.c());
+
+   int nnx_radix = coot::suggest_radix(nnx);
+   int nny_radix = coot::suggest_radix(nny);
+   int nnz_radix = coot::suggest_radix(nnz);
+
+   std::cout << "debug orig  nnx nny nnz " << nnx << " " << nny << " " << nnz << std::endl;
+   std::cout << "debug radix nnx nny nnz " << nnx_radix << " " << nny_radix << " " << nnz_radix << std::endl;
+   double small = 1e-5;
+   clipper::Grid_sampling gs_new(nnx_radix, nny_radix, nnz_radix);
+   double new_box_a = box_radius * static_cast<double>(nnx_radix)/static_cast<double>(nnx) + small;
+   double new_box_b = box_radius * static_cast<double>(nny_radix)/static_cast<double>(nny) + small;
+   double new_box_c = box_radius * static_cast<double>(nnz_radix)/static_cast<double>(nnz) + small;
+   double new_a = 2.0 * new_box_a;
+   double new_b = 2.0 * new_box_b;
+   double new_c = 2.0 * new_box_c;
+   box_radius_a_internal = new_box_a;
+   box_radius_b_internal = new_box_b;
+   box_radius_c_internal = new_box_c;
+   clipper::Cell_descr cd_new(new_a, new_b, new_c, alpha, beta, gamma);
+   clipper::Cell new_xmap_cell(cd_new);
+   std::cout << "old grid sampling " << input_gs.format() << std::endl;
+   std::cout << "new grid sampling " << gs_new.format() << std::endl;
+   std::cout << "old cell " << input_xmap.cell().format() << std::endl;
+   std::cout << "new cell " << new_xmap_cell.format() << std::endl;
+   xmap.init(clipper::Spacegroup::p1(), new_xmap_cell, gs_new);
+   clipper::Xmap<float>::Map_reference_index inx;
+   for (inx = xmap.first(); !inx.last(); inx.next()) xmap[inx]= 0.0;
+
+   // offset brings the bottom left hand side of the grid in the input map to the origin
+   clipper::Coord_orth offset_o = centre - clipper::Coord_orth(new_box_a, new_box_b, new_box_c);
+   clipper::Coord_frac offset_f = offset_o.coord_frac(input_xmap.cell());
+   clipper::Coord_map offset_m = input_xmap.coord_map(offset_o);
+   offset = offset_m.coord_grid();
+   std::cout << "offset o " << offset_o.format() << std::endl;
+   std::cout << "offset f " << offset_f.format() << std::endl;
+   std::cout << "offset m " << offset.format() << std::endl;
+
+   clipper::Coord_frac box0(centre_at_grid_point_f.u() - new_box_a/input_xmap.cell().descr().a(),
+                            centre_at_grid_point_f.v() - new_box_b/input_xmap.cell().descr().b(),
+                            centre_at_grid_point_f.w() - new_box_c/input_xmap.cell().descr().c());
+   clipper::Coord_frac box1(centre_at_grid_point_f.u() + new_box_a/input_xmap.cell().descr().a(),
+                            centre_at_grid_point_f.v() + new_box_b/input_xmap.cell().descr().b(),
+                            centre_at_grid_point_f.w() + new_box_c/input_xmap.cell().descr().c());
+
+   clipper::Grid_map grid(box0.coord_grid(input_gs), box1.coord_grid(input_gs));
+   std::cout << "grid in reference map: " << grid.format() << std::endl;
+
+   clipper::Xmap_base::Map_reference_coord ix(input_xmap);
+   for (int u = grid.min().u(); u < grid.max().u(); u++) {
+      for (int v = grid.min().v(); v < grid.max().v(); v++) {
+         for (int w = grid.min().w(); w < grid.max().w(); w++) {
+            ix.set_coord(clipper::Coord_grid(u, v, w)); // don't copy this. using set_coord() is slow
+            float f = input_xmap[ix];
+            if (f != 11111111111111111111111111111111111110.0) {
+               clipper::Coord_grid cg = ix.coord() - offset;
+               xmap.set_data(cg, f);
+               if (true)
+                  std::cout << "set xmap: from " << ix.coord().format() << " " << cg.format() << " " << f << std::endl;
+            }
+         }
+      }
+   }
+
+   {
+      clipper::Xmap_base::Map_reference_coord ix(input_xmap);
+      for (int u = grid.min().u(); u < grid.max().u(); u++) {
+         for (int v = grid.min().v(); v < grid.max().v(); v++) {
+            for (int w = grid.min().w(); w < grid.max().w(); w++) {
+               ix.set_coord(clipper::Coord_grid(u, v, w));
+               clipper::Coord_grid cg = ix.coord() - offset;
+               float f1 = input_xmap[ix];
+               float f2 = xmap.get_data(cg);
+               std::cout << " test-get from " << ix.coord().format() << " to " << cg.format() << " "
+                         << f1 << " " << f2 << std::endl;
+            }
+         }
+      }
+   }
+
+}
+
 
 void
 coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper::Xmap<float> &ip_xmap,
-								   const clipper::Coord_orth &centre,
-								   float radius) {
+                                                                   const clipper::Coord_orth &centre,
+                                                                   float radius) {
 
    std::cout << "------------------------ centre returned map at origin ---------------------------"
-	     << std::endl;
+             << std::endl;
 
    clipper::Grid_sampling ip_xmap_grid_sampling = ip_xmap.grid_sampling();
    double gpa = ip_xmap.grid_sampling().nu()/ip_xmap.cell().a();
    int n = int(radius*gpa)+1;
+
+   // this needs to take into account that only a fraction of the cell is sampled. Otherwise
+   // we supersample the map. Calculate this after new_xmap_a,b,c have been calculated.
+   // (i.e. we have the sampe number of grid points in a much smaller box)
    clipper::Grid_sampling new_xmap_grid_sampling = ip_xmap.grid_sampling();
+
    double border = 10;
    double new_xmap_alpha = M_PI_2;
    double new_xmap_beta  = M_PI_2;
@@ -3063,7 +3262,7 @@ coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper
    double new_xmap_b = 2 * radius * double(new_xmap_grid_sampling.nv())/double(ip_xmap_grid_sampling.nv()) + border;
    double new_xmap_c = 2 * radius * double(new_xmap_grid_sampling.nw())/double(ip_xmap_grid_sampling.nw()) + border;
    clipper::Cell_descr new_cell_descr(new_xmap_a, new_xmap_b, new_xmap_c,
-				      new_xmap_alpha, new_xmap_beta, new_xmap_gamma);
+                                      new_xmap_alpha, new_xmap_beta, new_xmap_gamma);
    clipper::Cell new_xmap_cell(new_cell_descr);
 
    clipper::Coord_grid grid_min(-n,-n,-n);
@@ -3078,36 +3277,81 @@ coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper
    std::cout << "--------------- new_xmap map grid min " << grid_min.format() << std::endl;
    std::cout << "--------------- new_xmap map grid max " << grid_max.format() << std::endl;
    std::cout << "--------------- new_xmap map gr       " << gr.format() << std::endl;
+   std::cout << "--------------- input xmap sampling   " << ip_xmap_grid_sampling.format() << std::endl;
+   std::cout << "---------------   new xmap sampling   " << new_xmap_grid_sampling.format() << std::endl;
 
 
+   // why am I using a new_xmap here? Just use xmap and then I don't have to copy it when it's done.
+   //
    clipper::Xmap<float> new_xmap;
    clipper::Xmap<float>::Map_reference_index inx;
    new_xmap.init(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
-   for (inx = xmap.first(); !inx.last(); inx.next()) new_xmap[inx]= 0;
-
+   for (inx = new_xmap.first(); !inx.last(); inx.next()) new_xmap[inx]= 0;
 
    int u, v;
    clipper::Xmap_base::Map_reference_coord ix(new_xmap);
    for (u = gr.min().u(); u <= gr.max().u(); u++) {
       for (v = gr.min().v(); v <= gr.max().v(); v++) {
-	 for (ix.set_coord(clipper::Coord_grid(u,v,gr.min().w())); ix.coord().w() <= gr.max().w(); ix.next_w()) {
+         for (ix.set_coord(clipper::Coord_grid(u,v,gr.min().w())); ix.coord().w() <= gr.max().w(); ix.next_w()) {
 
-	    // " " << ix.coord().coord_frac(new_xmap_grid_sampling).format()
-	    // << std::endl;
+            // " " << ix.coord().coord_frac(new_xmap_grid_sampling).format()
+            // << std::endl;
 
-	    // << " " << p.format() << std::endl;
+            // << " " << p.format() << std::endl;
 
- 	    clipper::Coord_orth p = ix.coord().coord_frac(new_xmap_grid_sampling).coord_orth(new_xmap_cell);
-	    if (p.lengthsq() < radius*radius) {
+             clipper::Coord_orth p = ix.coord().coord_frac(new_xmap_grid_sampling).coord_orth(new_xmap_cell);
+            if (p.lengthsq() < radius*radius) {
 
-	       float dv = density_at_point(ip_xmap, p+centre);
-	       // std::cout << ix.coord().format() << " " << p.format() << std::endl;
-	       new_xmap[ix] = dv;
-	    }
-	 }
+               float dv = density_at_point(ip_xmap, p+centre);
+               // std::cout << ix.coord().format() << " " << p.format() << std::endl;
+               new_xmap[ix] = dv;
+            }
+         }
       }
    }
    xmap = new_xmap;
+}
+
+// transfer xmap (small) into xmap_p (big)
+void
+coot::util::map_fragment_info_t::unshift(clipper::Xmap<float> *xmap_p,
+                                         const clipper::Coord_orth &centre_from_input) {
+
+   // -----------------------------------------------------------------------------------------
+   // -----------------------------------------------------------------------------------------
+   //                                  currently broken
+   // -----------------------------------------------------------------------------------------
+   // -----------------------------------------------------------------------------------------
+   // and difficult to fix.
+
+   // do the opposite simple_origin_shift
+
+   std::cout << "----------------------- unshift -------------- "<< std::endl;
+
+   // first try, let's match how we transfer it in simple_origin_shift
+   clipper::Xmap<float> &input_xmap(*xmap_p);
+
+   clipper::Grid_map grid = make_grid_map(*xmap_p, centre_from_input);
+
+   clipper::Xmap_base::Map_reference_coord ix(*xmap_p);
+   for (int u = grid.min().u(); u < grid.max().u(); u++) {
+      for (int v = grid.min().v(); v < grid.max().v(); v++) {
+         for (int w = grid.min().w(); w < grid.max().w(); w++) {
+            ix.set_coord(clipper::Coord_grid(u, v, w)); // don't copy this. using set_coord() is slow
+            std::cout << " A " << ix.coord().format() << std::endl;
+            clipper::Coord_grid cg = ix.coord() - offset;
+            std::cout << " B " << cg.format() << std::endl;
+            float f = xmap.get_data(cg);
+            std::cout << " C " << f << std::endl;
+            std::cout << " put from " << cg.format() << " to " << ix.coord().format() << " " << f << std::endl;
+            input_xmap[ix] = f;
+            if (false)
+               std::cout << " put " << u << " " << v << " " << w << " "
+                         << ix.coord().format() << " " << cg.format() << " " << f << std::endl;
+            std::cout << "done " << u << " " << v << " " << w << std::endl;
+         }
+      }
+   }
 }
 
 

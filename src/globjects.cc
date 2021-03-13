@@ -357,8 +357,8 @@ short int graphics_info_t::draw_baton_flag = 0; // off initially
 short int graphics_info_t::baton_mode = 0;      // rotation mode
 coot::Cartesian graphics_info_t::baton_root = coot::Cartesian(0.0, 0.0, 0.0);
 coot::Cartesian graphics_info_t::baton_tip =  coot::Cartesian(0.0, 0.0, 3.8);
-std::vector<coot::scored_skel_coord> *graphics_info_t::baton_next_ca_options = NULL;
-std::vector<clipper::Coord_orth> *graphics_info_t::baton_previous_ca_positions = NULL;
+std::vector<coot::scored_skel_coord> graphics_info_t::baton_next_ca_options;
+std::vector<clipper::Coord_orth> graphics_info_t::baton_previous_ca_positions;
 short int graphics_info_t::baton_build_direction_flag = 1; // forwards by default
 int graphics_info_t::baton_build_start_resno = 1;
 short int graphics_info_t::baton_build_params_active = 0; // not active initially.
@@ -763,6 +763,7 @@ float graphics_info_t::geometry_vs_map_weight = 60.0;
 int graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position    = 3;
 int graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position  = 3;
 int graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = 3;
+int graphics_info_t::refine_params_dialog_torsions_weight_combox_position = 2;
 bool graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = false;
 
 int   graphics_info_t::rama_n_diffs = 50;
@@ -2498,7 +2499,7 @@ do_button_zoom(gdouble x, gdouble y) {
       if (iv != info.graphics_sample_step) {
 
          for (int imap=0; imap<info.n_molecules(); imap++) {
-            info.molecules[imap].update_map(); // uses g.zoom
+            info.molecules[imap].update_map(true); // uses g.zoom
          }
          info.graphics_sample_step = iv;
       }
@@ -3234,7 +3235,7 @@ void keypad_translate_xyz(short int axis, short int direction) {
                             y_diff * 0.1 * float(direction));
     if (g.GetActiveMapDrag() == 1) {
       for (int ii=0; ii<g.n_molecules(); ii++) {
-        g.molecules[ii].update_map(); // to take account
+        g.molecules[ii].update_map(true); // to take account
         // of new rotation centre.
       }
     }
@@ -3505,6 +3506,8 @@ gint idle_contour_function(gpointer data) {
    gint continue_status = 0;
    bool something_changed = false;
 
+   bool is_from_contour_level_change(GPOINTER_TO_INT(data));
+
    // when there's nothing else to do, update the contour levels
    //
    // then update maps
@@ -3530,7 +3533,9 @@ gint idle_contour_function(gpointer data) {
 	          }
 
            graphics_info_t g;
-	   g.molecules[imol].update_map();
+           bool really_change_the_map_contours = true;
+           if (! is_from_contour_level_change) really_change_the_map_contours = false;
+	   g.molecules[imol].update_map(really_change_the_map_contours);
 	   continue_status = 0;
            std::cout << "--- idle_contour_function() imol: " << imol << " contour level: "
                      << g.molecules[imol].contour_level << std::endl;
@@ -3966,7 +3971,7 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 			}
 			for (int ii=0; ii<g.n_molecules(); ii++) {
 			   g.molecules[ii].update_clipper_skeleton();
-			   g.molecules[ii].update_map();
+			   g.molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 			}
 			g.graphics_draw();
 

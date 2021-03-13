@@ -65,7 +65,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include <CXXClasses/MolecularRepresentationInstance.h>
 #endif
 
-#include "clipper/ccp4/ccp4_map_io.h"
+#include <clipper/ccp4/ccp4_map_io.h>
 
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
@@ -1241,6 +1241,7 @@ public:        //                      public
    int    add_atom_label(char *chain_id, int iresno, char *atom_id);
    int remove_atom_label(char *chain_id, int iresno, char *atom_id);
    void remove_atom_labels(); // and symm labels
+   int add_atom_labels_for_residue(mmdb::Residue *residue_p);
 
    // xmap information
    //
@@ -1254,6 +1255,7 @@ public:        //                      public
    bool xmap_is_diff_map;
    clipper::NXmap<float> nxmap;
    bool is_patterson;  // for (at least) contour level protection
+   std::string map_name;
 
 
    float contour_level;
@@ -1276,7 +1278,7 @@ public:        //                      public
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
-   void update_map();
+   void update_map(bool auto_recontour_map_flag);
    void compile_density_map_display_list(short int first_or_second);
 
    void draw_surface();
@@ -1832,7 +1834,7 @@ public:        //                      public
    // that is doing multiple mutations and therefore doesn't do a
    // backup.  However, backup should be done in the wrapping function
    //
-   int mutate_single_multipart(int ires, const std::string &chain_id,
+   int mutate_single_multipart(int ires_serial, const std::string &chain_id,
 			       const std::string &target_res_type);
 
    // mutate and autofit the residues
@@ -1943,7 +1945,7 @@ public:        //                      public
       return save_state_command_strings_;
    }
 
-   void set_map_colour(GdkRGBA col) { map_colour = col; update_map(); }
+   void set_map_colour(GdkRGBA col) { map_colour = col; update_map(true); /* for now */ }
    std::vector<std::string> set_map_colour_strings() const;
    std::pair<GdkRGBA, GdkRGBA> map_colours() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
@@ -2108,6 +2110,11 @@ public:        //                      public
 					 const std::string &ins_code,
 					 const std::string &alt_conf,
 					 const coot::protein_geometry &pg);
+
+   // calls above
+   void backrub_rotamer_residue_range(const std::string &chain_id, int resno_start, int resno_end, const coot::protein_geometry &pg);
+
+   // a chain-base version of the above would be useful (currently a scripting function)
 
 
    int set_residue_to_rotamer_number(coot::residue_spec_t res_spec,
@@ -2298,7 +2305,7 @@ public:        //                      public
 
 
    //
-   void set_map_is_difference_map();
+   void set_map_is_difference_map(bool flag);
    short int is_difference_map_p() const;
 
 
@@ -2329,7 +2336,7 @@ public:        //                      public
    // sequence [a -other function]
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
-   std::vector<std::pair<std::string, std::string> > sequence_info() { return input_sequence; };
+   std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
@@ -3271,6 +3278,8 @@ public:        //                      public
    // The length of the string is guaranteed to the the length of the vector.
    std::pair<std::string, std::vector<mmdb::Residue *> > sequence_from_chain(mmdb::Chain *chain_p) const;
 
+   std::string get_sequence_as_block(const std::string &chain_id) const;
+
    std::vector<coot::chain_mutation_info_container_t>
    sequence_comparison_to_chains(const std::string &sequence) const;
 
@@ -3498,7 +3507,7 @@ public:        //                      public
    void set_radial_map_colouring_do_radial_colouring(bool state) {
       if (state != radial_map_colouring_do_radial_colouring) {
          radial_map_colouring_do_radial_colouring = state;
-         update_map();
+         update_map(true);
       }
    }
    bool radial_map_colouring_do_radial_colouring;

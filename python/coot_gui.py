@@ -5215,6 +5215,25 @@ def refmac_multi_sharpen_gui():
     window.show_all()
 
 
+def auto_asign_sequence_from_map():
+
+    active_atom = active_residue()
+    # get these from the current fragment
+    imol  = active_atom[0]
+    ch_id = active_atom[1]
+    res_no = active_atom[2]
+    res_spec = [ch_id, res_no, ""]
+    imol_map = imol_refinement_map()
+    fragment_residues = linked_residues_py(res_spec, imol, 1.7)
+    residue_number_list = [spec[2] for spec in fragment_residues] # bleugh. Should be spec[1]
+    resno_start = min(residue_number_list)
+    resno_end   = max(residue_number_list)
+    new_sequence = sequence_from_map(imol, ch_id, resno_start, resno_end, imol_map)
+    set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+    mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
+    refine_residues(imol, fragment_residues)
+
+
 def add_module_cryo_em():
     if coot_gui_api.main_menubar():
         add_module_cryo_em_gui()

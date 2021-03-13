@@ -859,7 +859,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 					      const char *file_name) {
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
-      atom_selection_container_t asc = get_atom_selection(file_name, graphics_info_t::allow_duplseqnum, true);
+      atom_selection_container_t asc = get_atom_selection(file_name, graphics_info_t::allow_duplseqnum, true, false);
       mmdb::Manager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;
@@ -966,37 +966,7 @@ void hardware_stereo_mode() {
 		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  ||
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
-	       if (graphics_info_t::glareas.size() == 2) {
-		  gtk_widget_destroy(graphics_info_t::glareas[1]);
-		  graphics_info_t::glareas[1] = NULL;
-	       }
-	    }
-
-	    short int try_hardware_stereo_flag = 1;
-	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
-	    if (glarea) {
-	       // std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
-	       if (graphics_info_t::idle_function_spin_rock_token) {
-                  toggle_idle_spin_function(); // turn it off;
-               }
-// BL says:: maybe we should set the set_display_lists_for_maps here for
-// windows, actually Mac as well if I remember correctly
-// well, it seems actually to be a GTK2 (or gtkglext) thing!!
-// or not? So just for windows at the moment
-#ifdef WINDOWS_MINGW
-//	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-             set_display_lists_for_maps(0);
-#endif // WINDOWS_MINGW
-               gtk_widget_destroy(graphics_info_t::glareas[0]);
-               graphics_info_t::glareas[0] = glarea;
-               gtk_widget_show(glarea);
-               // antialiasing?
-               graphics_info_t g;
-               g.draw_anti_aliasing();
-               graphics_draw();
-            } else {
-               std::cout << "WARNING:: switch to hardware_stereo_mode failed\n";
-               graphics_info_t::display_mode = previous_mode;
+               std::cout << "Do some stereo stuff" << std::endl;
             }
          }
       } else {
@@ -1737,6 +1707,17 @@ int scroll_by_wheel_mouse_state() {
    return graphics_info_t::do_scroll_by_wheel_mouse_flag;
 }
 
+/*! \brief turn off (0) or on (1) auto recontouring (on screen centre change) (default it on) */
+void set_auto_recontour_map(int state) {
+   graphics_info_t::auto_recontour_map_flag = state;
+}
+
+/*! \brief turn off (0) or on (1) auto recontouring (on screen centre change) (default it on) */
+int get_auto_recontour_map() {
+   return graphics_info_t::auto_recontour_map_flag;
+}
+
+
 
 void add_symmetry_on_to_preferences_and_apply() {
 
@@ -1968,7 +1949,7 @@ void set_density_size_from_widget(const char *text) {
    //
    for (int ii=0; ii<g.n_molecules(); ii++) {
       if (is_valid_map_molecule(ii))
-         g.molecules[ii].update_map();
+	  g.molecules[ii].update_map(true);
    }
    graphics_draw();
 }
@@ -1982,7 +1963,7 @@ set_density_size_em_from_widget(const char *text) {
       g.box_radius_em = tmp;
       for (int ii=0; ii<g.n_molecules(); ii++)
 	 if (is_valid_map_molecule(ii))
-	    g.molecules[ii].update_map();
+	    g.molecules[ii].update_map(true);
    } else {
       std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
 		<< text << "\".  Assuming 55A" << std::endl;
@@ -1997,7 +1978,7 @@ void set_map_radius_em(float radius) {
    graphics_info_t g;
    g.box_radius_em = radius;
    for (int ii=0; ii<g.n_molecules(); ii++)
-      g.molecules[ii].update_map();
+      g.molecules[ii].update_map(true);
    graphics_draw();
    std::string cmd = "set-radius-em";
    std::vector<coot::command_arg_t> args;
@@ -2010,7 +1991,7 @@ void set_density_size(float f) {
    graphics_info_t g;
    g.box_radius_xray = f;
    for (int ii=0; ii<g.n_molecules(); ii++) {
-      g.molecules[ii].update_map();
+      g.molecules[ii].update_map(true);
    }
    graphics_draw();
    std::string cmd = "set-density-size";
@@ -2025,7 +2006,7 @@ void set_density_size_em(float f) {
    graphics_info_t g;
    g.box_radius_em = f;
    for (int ii=0; ii<g.n_molecules(); ii++) {
-      g.molecules[ii].update_map();
+      g.molecules[ii].update_map(true);
    }
    graphics_draw();
    std::string cmd = "set-density-size-em";
@@ -4128,7 +4109,7 @@ int reset_view() {
          g.setRotationCentre(new_centre);
       }
       for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	 graphics_info_t::molecules[ii].update_map();
+	 graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 graphics_info_t::molecules[ii].update_symmetry();
       }
       graphics_draw();
@@ -4240,8 +4221,8 @@ void screendump_image(const char *filename) {
    graphics_draw();
 
    int istatus = graphics_info_t::screendump_image(filename);
-   std::cout << "screendump_image status " << istatus << std::endl;
-   if (istatus) {
+   std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   if (istatus == 1) {
       std::string s = "Screendump image ";
       s += filename;
       s += " written";
@@ -4258,6 +4239,13 @@ void screendump_image(const char *filename) {
       safe_python_command(cmd);
 #endif // USE_PYTHON
 #endif // MINGW
+   }
+
+   if (istatus == 0) {
+      std::string s = "Failed to write screendump image ";
+      s += filename;
+      graphics_info_t g;
+      g.add_status_bar_text(s);
    }
 }
 
@@ -5808,7 +5796,8 @@ void set_mol_displayed(int imol, int state) {
       graphics_info_t::molecules[imol].set_mol_is_displayed(state);
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Displayed", state);
-      graphics_draw();
+      if (g.mol_displayed_toggle_do_redraw)
+         graphics_draw();
    } else {
       std::cout << "not valid molecule" << std::endl;
    }
@@ -5836,7 +5825,7 @@ void set_mol_active(int imol, int state) {
       graphics_info_t::molecules[imol].set_mol_is_active(state);
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Active", state);
-      graphics_draw();
+      // graphics_draw(); // was this needed?
    } else {
       std::cout << "not valid molecule" << std::endl;
    }
@@ -5874,6 +5863,7 @@ int map_is_displayed(int imol) {
 void set_all_maps_displayed(int on_or_off) {
 
    graphics_info_t g;
+   g.mol_displayed_toggle_do_redraw = false;
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_map_molecule(imol)) {
@@ -5882,6 +5872,7 @@ void set_all_maps_displayed(int on_or_off) {
 	    set_display_control_button_state(imol, "Displayed", on_or_off);
       }
    }
+   g.mol_displayed_toggle_do_redraw = true;
    graphics_draw();
 }
 
@@ -5890,6 +5881,7 @@ void set_all_maps_displayed(int on_or_off) {
 void set_all_models_displayed_and_active(int on_or_off) {
 
    graphics_info_t g;
+   g.mol_displayed_toggle_do_redraw = false;
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_model_molecule(imol)) {
@@ -5900,6 +5892,7 @@ void set_all_models_displayed_and_active(int on_or_off) {
 	    set_display_control_button_state(imol, "Displayed", on_or_off);
       }
    }
+   g.mol_displayed_toggle_do_redraw = true;
    graphics_draw();
 }
 
@@ -5944,6 +5937,8 @@ void set_only_last_model_molecule_displayed() {
       }
    }
 
+   g.mol_displayed_toggle_do_redraw = false;
+
    for (unsigned int j=0; j<turn_these_off.size(); j++) {
       if (turn_these_off[j] != imol_last) {
 
@@ -5975,6 +5970,7 @@ void set_only_last_model_molecule_displayed() {
 
       }
    }
+   g.mol_displayed_toggle_do_redraw = true; // back on again
    graphics_draw();
 
 }
@@ -6252,6 +6248,14 @@ int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }
 
+/* \brief set the weight for torsion restraints (default 1.0)*/
+void set_torsion_restraints_weight(double w) {
+
+   graphics_info_t::torsion_restraints_weight = w;
+}
+
+
+
 void set_refine_rotamers(int state) {
    graphics_info_t::do_rotamer_restraints = state;
 }
@@ -6262,16 +6266,22 @@ void set_refine_rotamers(int state) {
 
 void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t) {
 
+   graphics_info_t g;
    float v = coot::util::string_to_float(t);
    set_refinement_geman_mcclure_alpha(v);
    graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position = idx;
+   // poke the refinement if there are moving atoms
 }
 
 void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t) {
 
+   graphics_info_t g;
    float v = coot::util::string_to_float(t);
    set_refinement_lennard_jones_epsilon(v);
    graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position = idx;
+   std::cout << "############################ refine_params_dialog_lennard_jones_epsilon_combobox_position set "
+             << idx << std::endl;
+   g.poke_the_refinement();
 }
 
 void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t) {
@@ -6279,7 +6289,34 @@ void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char
    float v = coot::util::string_to_float(t);
    set_refine_ramachandran_restraints_weight(v);
    graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = idx;
+   graphics_info_t g;
+   g.poke_the_refinement();
 }
+
+void set_refinement_overall_weight_from_text(const char *t) {
+
+   if (t) {
+      float v = coot::util::string_to_float(t);
+      graphics_info_t::geometry_vs_map_weight = v;
+      graphics_info_t g;
+      g.poke_the_refinement();
+      
+   } else {
+      std::cout << "in set_refinement_overall_weight_from_text() t null " << std::endl;
+   }
+
+}
+
+void set_refinement_torsion_weight_from_text(int idx, const char *t) {
+   
+   graphics_info_t g;
+   float v = coot::util::string_to_float(t);
+   graphics_info_t::refine_params_dialog_torsions_weight_combox_position = idx;
+   graphics_info_t::torsion_restraints_weight = v;
+   // poke the refinement if there are moving atoms
+   g.poke_the_refinement();
+}
+
 
 void set_refine_params_dialog_more_control_frame_is_active(int state) {
 
@@ -6526,7 +6563,7 @@ PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
 
 //    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
-   Py_XINCREF(Py_True);
+   Py_XINCREF(Py_True); // warning: dereferencing type-punned pointer will break strict-aliasing rules
    PyList_SetItem(r, 0, Py_True);
    PyList_SetItem(r, 1, myPyString_FromString(res.chain_id.c_str()));
    PyList_SetItem(r, 2, PyLong_FromLong(res.res_no));
@@ -7358,7 +7395,7 @@ void do_sequence_view(int imol) {
       bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
-      if (! r.empty()) {
+      if (r.size() > 0) {
          do_old_style = true;
       } else {
          // was it a big shelx molecule?
@@ -7403,13 +7440,17 @@ void execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 void setup_backbone_torsion_edit(short int state) {
 
    graphics_info_t g;
-   graphics_info_t::in_backbone_torsion_define = state;
-   if (state) {
-      std::cout << "click on an atom in the peptide to change" << std::endl;
-      g.pick_cursor_maybe();
-      g.pick_pending_flag = 1;
+   if (g.moving_atoms_displayed_p()) {
+      g.add_status_bar_text("Edit Backbone is not available while moving atoms are active");
    } else {
-      g.normal_cursor();
+      g.in_backbone_torsion_define = state;
+      if (state) {
+         std::cout << "click on an atom in the peptide to change" << std::endl;
+         g.pick_cursor_maybe();
+         g.pick_pending_flag = 1;
+      } else {
+         g.normal_cursor();
+      }
    }
 }
 

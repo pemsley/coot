@@ -525,7 +525,7 @@ void set_refine_params_comboboxes(GtkWidget *button);
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
 void set_refinement_weight_from_entry(GtkWidget *entry);
 
-void estimate_map_weight(GtkWidget *entry);
+void add_estimated_map_weight_to_entry(GtkWidget *entry);
 
 
 void check_chiral_volumes_from_widget(GtkWidget *window);
@@ -887,6 +887,16 @@ void clear_atom_pull_restraint_on_accept_reject_destroy();
 /* Donna's request to do the counts in the Mutate Residue range dialog */
 void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
 					 GtkWidget *text_widget, GtkWidget *label_widget);
+
+
+/*  ----------------------------------------------------------------------- */
+/*                      clean up (reducing code in callbacks.c)             */
+/*  ----------------------------------------------------------------------- */
+void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button);
+
+
+/* handle_read_ccp4_map is now a .hh/c++ interface function, so give the callback an internal c function */
+int handle_read_ccp4_map_internal(const char *fn, int is_difference_map);
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 

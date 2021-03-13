@@ -387,6 +387,8 @@ int image_info::write(const char *filename, int quality) const {
   char *suffix;
   suffix = get_suffix(filename);
 
+  std::cout << "::write() suffix is " << suffix << std::endl;
+
   if(!pixels){
     printf("No pixel data in image_info object, will not write %s\n",filename);
     return 0;
@@ -402,7 +404,7 @@ int image_info::write(const char *filename, int quality) const {
     }
   }else if(!strcasecmp(suffix,"png")){
     try {
-      writepng(filename);
+       writepng(filename);
     }
     catch (...) {
       printf("Error writing PNG file\n");
@@ -479,6 +481,7 @@ int image_info::write(const char *filename, int quality) const {
     printf("* = 256 colours max\n");
     return 0;
   }
+
   return 1;
 }
 
@@ -2493,19 +2496,23 @@ void image_info::readpng(const char *filename){
   pixels = new unsigned char[width*height*colourspace];
 
 #if PNG_LIBPNG_VER_MAJOR >= 1 && PNG_LIBPNG_VER_MINOR >=4
-  png_colorp palette;
-  int num_trans;
-  png_bytep trans_alpha;
+  png_colorp palette = 0;
+  int num_trans = 0;
+  png_bytep trans_alpha = 0;
 #else
 #define palette png_ptr->palette
 #define num_trans png_ptr->num_trans
 #define trans_alpha png_ptr->trans
 #endif
 
+  if (! palette) {
+     std::cout << "Null palatte" << std::endl;
+     return;
+  }
   for (int i=0; i<height; i++){
     if(color_type==PNG_COLOR_TYPE_PALETTE){
       for (int j=0; j<width; j++){
-        pixels[i*width*colourspace+j*colourspace] = palette[row_pointers[i][j]].red;
+        pixels[i*width*colourspace+j*colourspace  ] = palette[row_pointers[i][j]].red;
         pixels[i*width*colourspace+j*colourspace+1] = palette[row_pointers[i][j]].green;
         pixels[i*width*colourspace+j*colourspace+2] = palette[row_pointers[i][j]].blue;
 
@@ -2594,7 +2601,7 @@ void image_info::writepng(const char *filename) const {
     printf("Please try writing to a supported format\n");
     return;
   }
-#endif  
+#endif
   FILE * outfile;
 
   if ((outfile = fopen(filename, "wb")) == NULL) {
@@ -2667,6 +2674,7 @@ void image_info::writepng(const char *filename) const {
     printf("Please install libpng (if not already done) and\n");
     printf("rebuild adding -DUSE_LIBPNG to C_DEFINES\n");
     printf("and CXX_DEFINES. Or write to a supported format.\n");
+    throw ImageInfoWritePNGExc();
 #endif 
 }
 
@@ -3219,8 +3227,9 @@ void image_info::writexbm(const char *filename) const {
         bw_pixels[i*(width+7)/8+ width/8] += 1<<k;
     }
   }
-  char *prefix = new char[strlen(filename)+1];
-  strncpy(prefix,filename,strlen(filename));
+  size_t n_chars = strlen(filename)+1;
+  char *prefix = new char[n_chars];
+  strncpy(prefix,filename, n_chars); 
   prefix[strlen(filename)-4] = '\0';
   fprintf(outfile,"#define %s_width %d\n",prefix,tmp.width);
   fprintf(outfile,"#define %s_height %d\n",prefix,tmp.height);

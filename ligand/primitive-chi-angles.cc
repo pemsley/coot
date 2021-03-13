@@ -79,7 +79,7 @@ coot::primitive_chi_angles::get_chi_angles() {
       }
    }
 
-   if (0) {  // debugging 
+   if (false) {  // debugging
       for (unsigned int inv=0; inv<nv.size(); inv++) {
 	 std::cout << "DEBUG:: primitive_chi_angles:: nv index: " << inv << " chi_angles.size() "
 		   << nv[inv].chi_angles.size() << std::endl;
@@ -245,6 +245,7 @@ std::vector<coot::atom_index_quad>
 coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads_in,
                                           const mmdb::PPAtom atoms, int nresatoms) const {
 
+   bool debug = false;
    std::vector<coot::atom_index_quad> v;
    for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
       int ifound = 0;

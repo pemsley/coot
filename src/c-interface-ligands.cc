@@ -1275,12 +1275,12 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       std::cout << "No model in molecule number " << map_mol_no << std::endl;
 	    } else {
 	       short int mask_waters_flag; // treat the waters like protein atoms?
-	       mask_waters_flag = graphics_info_t::find_ligand_mask_waters_flag;
+	       mask_waters_flag = g.find_ligand_mask_waters_flag;
 	       lig.import_map_from(g.molecules[map_mol_no].xmap);
 	       int selectionhandle = g.molecules[coord_mol_no].atom_sel.mol->NewSelection();
 
-	       if (graphics_info_t::map_mask_atom_radius > 0) {
-		  lig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	       if (g.map_mask_atom_radius > 0) {
+		  lig.set_map_atom_mask_radius(g.map_mask_atom_radius);
 	       }
 
 	       // make a selection:
@@ -1295,10 +1295,10 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 
 	       lig.mask_map(g.molecules[coord_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
-	       imol_new_map = graphics_info_t::create_molecule();
+	       imol_new_map = g.create_molecule();
 	       std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
-	       bool is_em_map_flag = graphics_info_t::molecules[map_mol_no].is_EM_map();
-	       std::string old_name = graphics_info_t::molecules[map_mol_no].name_; // use get_name()
+	       bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
+	       std::string old_name = g.molecules[map_mol_no].get_name();
 	       std::string new_name = "Masked Map from " + old_name;
 	       g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
 	       graphics_draw();
@@ -1320,18 +1320,17 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 	 coot::ligand lig;
 	 lig.import_map_from(g.molecules[map_mol_no].xmap);
 
-	 if (graphics_info_t::map_mask_atom_radius > 0) {
-	    lig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	 if (g.map_mask_atom_radius > 0) {
+	    lig.set_map_atom_mask_radius(g.map_mask_atom_radius);
 	 }
 	 int selectionhandle = g.molecules[coords_mol_no].atom_sel.mol->NewSelection();
 	 g.molecules[coords_mol_no].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM,
-							 (char *) mmdb_atom_selection,
-							 mmdb::SKEY_NEW);
+							 mmdb_atom_selection, mmdb::SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);
-	 imol_new_map = graphics_info_t::create_molecule();
-	 std::string name = graphics_info_t::molecules[map_mol_no].name_;
+	 imol_new_map = g.create_molecule();
+	 std::string name = g.molecules[map_mol_no].name_;
 	 std::string new_name = name + " Masked Map";
-	 bool is_em_map_flag = graphics_info_t::molecules[map_mol_no].is_EM_map();
+	 bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
 	 g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
 	 graphics_draw();
       } else {
@@ -1455,6 +1454,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
       int imol = 0; // dummy
       GtkWidget *wp = 0; // = get_image_widget_for_comp_id(v[i].first, imol);
+
+      wp = get_image_widget_for_comp_id(v[i].first, imol);
 
       // gtk_image_new_from_file("test.png");
 
@@ -2152,7 +2153,7 @@ int read_small_molecule_data_cif(const char *file_name) {
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
 	 g.molecules[imol_diff].install_new_map(maps.second, map_name, is_em_map_flag);
-	 g.molecules[imol_diff].set_map_is_difference_map();
+	 g.molecules[imol_diff].set_map_is_difference_map(true);
       }
       graphics_draw();
    }
@@ -2189,7 +2190,7 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
 	 g.molecules[imol_diff].install_new_map(maps.second, map_name, false);
-	 g.molecules[imol_diff].set_map_is_difference_map();
+	 g.molecules[imol_diff].set_map_is_difference_map(true);
       }
    }
    return imol_map;

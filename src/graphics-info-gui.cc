@@ -670,24 +670,6 @@ graphics_info_t::add_status_bar_text(const std::string &text) const {
 }
 
 
-#if 0 // so long fileslection!
-void
-graphics_info_t::save_directory_from_fileselection(const GtkWidget *fileselection) {
-
-   const gchar *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-   directory_for_fileselection = coot::util::file_name_directory(filename);
-}
-#endif
-
-
-#if 0 // so long fileslection!
-graphics_info_t::save_directory_for_saving_from_fileselection(const GtkWidget *fileselection) {
-
-   const gchar *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-   directory_for_saving_for_fileselection = coot::util::file_name_directory(filename);
-}
-#endif
-
 
 void
 graphics_info_t::set_directory_for_fileselection_string(std::string filename) {
@@ -695,53 +677,13 @@ graphics_info_t::set_directory_for_fileselection_string(std::string filename) {
    directory_for_fileselection = filename;
 }
 
-#if 0 // so long fileslection!
-void
-graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const {
-
-   if (fileselection) {
-      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-	 set_directory_for_filechooser(fileselection);
-      } else {
-	 if (! directory_for_fileselection.empty()) {
-
-	    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-					    directory_for_fileselection.c_str());
-	 } else {
-	    // std::cout << "not setting directory_for_fileselection" << std::endl;
-	 }
-      }
-   }
-}
-#endif
-
-#if 0 // so long fileslection!
-void
-graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const {
-
-   // just like set_directory_for_fileselection actually, but we give
-   // it the full filename, not just the directory.
-
-   int imol = save_imol;
-   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
-      std::string stripped_name =
-	 graphics_info_t::molecules[imol].stripped_save_name_suggestion();
-      std::string full_name = stripped_name;
-      if (! directory_for_saving_for_fileselection.empty())
-	 full_name = directory_for_saving_for_fileselection + stripped_name;
-
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-				      full_name.c_str());
-   }
-}
-#endif
 
 void
-graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection) {
+graphics_info_t::save_directory_from_filechooser(const GtkWidget *filechooser) {
 
-   if (fileselection) {
-      if (GTK_IS_FILE_CHOOSER(fileselection)) {
-	 gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+   if (filechooser) {
+      if (GTK_IS_FILE_CHOOSER(filechooser)) {
+	 gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser));
 	 if (filename) {
 	    directory_for_filechooser = coot::util::file_name_directory(filename);
 	    g_free(filename);
@@ -884,6 +826,43 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
    }
 }
 
+float
+graphics_info_t::get_estimated_map_weight(int imol_map) {
+
+   float v = -1.0; // invalid value (negative)
+
+   if (is_valid_map_molecule(imol_map)) {
+      float mean = graphics_info_t::molecules[imol_map].map_mean();
+      float sd   = graphics_info_t::molecules[imol_map].map_sigma();
+
+      v = 50*0.3/sd;
+      if (graphics_info_t::molecules[imol_map].is_EM_map())
+	 v *= 0.35;
+   }
+   return v;
+}
+
+void
+on_select_fitting_map_dialog_estimate_weight_button_clicked(GtkButton *button, gpointer user_data) {
+
+   GtkWidget *entry = GTK_WIDGET(user_data);
+   graphics_info_t g;
+   float e = g.get_estimated_map_weight(g.Imol_Refinement_Map());
+   std::string t = coot::util::float_to_string_using_dec_pl(e, 2);
+   g.geometry_vs_map_weight = e;
+
+   gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+}
+
+// static
+void
+graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.set_refinement_map(imol);
+
+}
 
 
 void
@@ -899,17 +878,28 @@ graphics_info_t::show_select_map_dialog() {
       // list (if there are maps in the list)
       //
       if (imol_map == -1) {
-	 for (int imol=0; imol<n_molecules(); imol++) {
-	    if (molecules[imol].has_xmap()) {
-	       imol_refinement_map = imol;
-	       break;
-	    }
-	 }
+         for (int imol=0; imol<n_molecules(); imol++) {
+            if (molecules[imol].has_xmap()) {
+               imol_refinement_map = imol;
+               break;
+            }
+         }
       }
 
       GtkWidget *combobox = lookup_widget(widget, "select_map_for_fitting_combobox");
       GCallback callback = G_CALLBACK(select_refinement_map_combobox_changed);
       fill_combobox_with_map_options(combobox, callback, imol_refinement_map);
+
+      // now fill the weight entry:
+      GtkWidget *weight_entry = lookup_widget(widget, "select_fitting_map_dialog_weight_entry");
+      std::string ws = std::to_string(geometry_vs_map_weight);
+      gtk_entry_set_text(GTK_ENTRY(weight_entry), ws.c_str());
+
+      // add a callback for the weight estimate button
+      GtkWidget *estimate_buton = lookup_widget(widget, "select_fitting_map_dialog_estimate_button");
+      g_signal_connect(G_OBJECT(estimate_buton), "clicked",
+                       G_CALLBACK(on_select_fitting_map_dialog_estimate_weight_button_clicked),
+                       weight_entry);
 
       gint resp = gtk_dialog_run(GTK_DIALOG(widget));
       if (resp == GTK_RESPONSE_DELETE_EVENT) {
@@ -918,7 +908,14 @@ graphics_info_t::show_select_map_dialog() {
               set_refinement_map(-1);
           }
       }
+      if (resp == GTK_RESPONSE_OK) {
+         std::string t = gtk_entry_get_text(GTK_ENTRY(weight_entry));
+         float f = coot::util::string_to_float(t);
+         geometry_vs_map_weight = f;
+      }
+
       gtk_widget_destroy (widget);
+
    }
 }
 
@@ -3249,10 +3246,10 @@ graphics_info_t::get_sequence_view(int imol) {
 
    if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
-	 // w = sequence_view_is_displayed[imol];
-	 w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-	 r = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
-	 // std::cout << "DEBUG:: user data from " << w << " is " << r << std::endl;
+         // w = sequence_view_is_displayed[imol];
+         w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+         r = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
+         // std::cout << "DEBUG:: user data from " << w << " is " << r << std::endl;
       }
    }
    return r;
@@ -3265,12 +3262,16 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    if (imol < n_molecules()) {
 
       // first delete the old sequence view if it exists
-      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-      if (w) {
-	 // coot::sequence_view *sv = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
-         // needs the set to be fixed also!
-	 coot::sequence_view *sv = static_cast<coot::sequence_view *>(g_object_get_data(G_OBJECT(w), "sequence_view"));
-	 delete sv;
+      if (false) {  // we don't need to do this because destroying the scrolled window will do it
+                    // for us by proxy
+         GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+         if (w) {
+            gpointer o = g_object_get_data(G_OBJECT(w), "nsv"); // w is the canvas
+            std::cout << "got o " << o << std::endl;
+            coot::sequence_view *sv = reinterpret_cast<coot::sequence_view *>(o);
+            std::cout << "in set_sequence_view_is_displayed() extracted sv " << sv << std::endl;
+            delete sv;
+         }
       }
 
 //       coot::sequence_view *sv = (coot::sequence_view *)
@@ -3278,6 +3279,7 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 //       std::cout << "DEBUG:: seting sequence_view_is_displayed[" << imol
 // 		<< "] " << widget << std::endl;
 //       sequence_view_is_displayed[imol] = widget; // ols style
+
 
       coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }

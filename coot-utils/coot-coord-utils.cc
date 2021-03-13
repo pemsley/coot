@@ -1619,6 +1619,40 @@ coot::util::max_min_max_residue_range(mmdb::Manager *mol) {
    return max_min_max;
 }
 
+// this can return an empty list if the residues for resno_start or resnoend  are not found
+std::vector<mmdb::Residue *>
+coot::util::get_residues_in_range(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end) {
+
+   std::vector<mmdb::Residue *> v;
+   if (resno_end < resno_start) return v;
+   residue_spec_t spec_1(chain_id, resno_start);
+   residue_spec_t spec_2(chain_id, resno_end);
+   mmdb::Residue *r1 = get_residue(spec_1, mol);
+   mmdb::Residue *r2 = get_residue(spec_2, mol);
+
+   if (r1) {
+      if (r2) {
+         v.push_back(r1);
+         if (r1 != r2) {
+            bool get_next = true;
+            mmdb::Residue *r = r1;
+            while (get_next) {
+               r = next_residue(r);
+               if (!r)
+                  get_next = false;
+               else
+                  v.push_back(r);
+               if (r == r2)
+                  get_next = false;
+            }
+         }
+      }
+   }
+   return v;
+}
+
+
+
 // Return a vector of residue that are in this fragment.
 // Fragments are marked by consecutively numbered residues.  A
 // gap in the sequence numbers marks the end/beginning of a
@@ -3722,18 +3756,18 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 		  // add this link to mol
 		  mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
-		  strncpy(link->atName1,  at_1->GetAtomName(), 19);
-		  strncpy(link->aloc1,    at_1->altLoc, 9);
-		  strncpy(link->resName1, at_1->GetResName(), 19);
-		  strncpy(link->chainID1, at_1->GetChainID(), 9);
-		  strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		  strcpy(link->atName1,  at_1->GetAtomName());
+		  strcpy(link->aloc1,    at_1->altLoc);
+		  strcpy(link->resName1, at_1->GetResName());
+		  strcpy(link->chainID1, at_1->GetChainID());
+		  strcpy(link->insCode1, at_1->GetInsCode());
 		  link->seqNum1         = at_1->GetSeqNum();
 
-		  strncpy(link->atName2,  at_2->GetAtomName(), 19);
-		  strncpy(link->aloc2,    at_2->altLoc, 9);
-		  strncpy(link->resName2, at_2->GetResName(), 19);
-		  strncpy(link->chainID2, at_2->GetChainID(), 9);
-		  strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		  strcpy(link->atName2,  at_2->GetAtomName());
+		  strcpy(link->aloc2,    at_2->altLoc);
+		  strcpy(link->resName2, at_2->GetResName());
+		  strcpy(link->chainID2, at_2->GetChainID());
+		  strcpy(link->insCode2, at_2->GetInsCode());
 		  link->seqNum2         = at_2->GetSeqNum();
 
 		  model_p->AddLink(link);
@@ -4317,18 +4351,18 @@ coot::util::transfer_links(mmdb::Manager *mol_orig, mmdb::Manager *mol_new) {
 		     // add this link to mol
 		     mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
-		     strncpy(link->atName1,  at_1->GetAtomName(), 19);
-		     strncpy(link->aloc1,    at_1->altLoc, 9);
-		     strncpy(link->resName1, at_1->GetResName(), 19);
-		     strncpy(link->chainID1, at_1->GetChainID(), 9);
-		     strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		     strncpy(link->atName1,  at_1->GetAtomName(), 20);
+		     strncpy(link->aloc1,    at_1->altLoc, 20);
+		     strcpy(link->resName1, at_1->GetResName());
+		     strcpy(link->chainID1, at_1->GetChainID());
+		     strcpy(link->insCode1, at_1->GetInsCode());
 		     link->seqNum1         = at_1->GetSeqNum();
 
-		     strncpy(link->atName2,  at_2->GetAtomName(), 19);
-		     strncpy(link->aloc2,    at_2->altLoc, 9);
-		     strncpy(link->resName2, at_2->GetResName(), 19);
-		     strncpy(link->chainID2, at_2->GetChainID(), 9);
-		     strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		     strncpy(link->atName2,  at_2->GetAtomName(), 20);
+		     strncpy(link->aloc2,    at_2->altLoc, 20);
+		     strcpy(link->resName2, at_2->GetResName());
+		     strcpy(link->chainID2, at_2->GetChainID());
+		     strcpy(link->insCode2, at_2->GetInsCode());
 		     link->seqNum2         = at_2->GetSeqNum();
 
 		     new_model_p->AddLink(link);
@@ -9565,7 +9599,7 @@ coot::util::get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p) {
 	 if (is_standard_amino_acid_name(res_name))
 	    n.first++;
 	 if (is_standard_nucleotide_name(res_name))
-	    n.first++;
+	    n.second++;
       }
    }
 

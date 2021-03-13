@@ -5,7 +5,7 @@
 # Copyright 2009, 2010, 2011, 2012 by The University of York
 # Copyright 2012 by Paul Emsley
 # Copyright 2012, 2013, 2014, 2015, 2016 by Medical Reserch Council
-# Copyright 2014, 2015, 2016 by Medical Research Council
+# Copyright 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 by Medical Research Council
 # Author: Paul Emsley
 #
 # This program is free software; you can redistribute it and/or modify
@@ -394,7 +394,15 @@
 # 5.37 20200514 redirect numpy output
 # 5.38 20200921 Add clustalw2
 # 5.39 20201203 Add use_system_gnomecanvas_if_possible, default no.
-script_version=5.39
+# 5.40 20210109 change the args to boost's build
+# 5.41 20210110 change the boost build log output
+# 5.42 20210110 Rework the build of numpy, boost and rdkit
+# 5.43 20210110 Add unzip to build dependencies
+# 5.44 20210110 Bump the python version, rework the readline configure command line
+# 5.45 20210110 Bump the python version again - no2 2.7.18
+# 5.46 20210110 Add a test for the version of cmake
+# 5.47 20210111 Use the correct name for the libtinfo dev package
+script_version=5.47
 
 
 
@@ -901,6 +909,9 @@ if [ "$use_proxy" = 1 ] ; then
   export http_proxy https_proxy ftp_proxy ssl_proxy no_proxy
 fi
 
+#intltool-update for libgnomecanvas is here /usr/share/intltool-debian/intltool-update on ubuntu
+# it's in /usr/bin on RHEL
+PATH=/usr/share/intltool-debian:$PATH
 
 # use the right (GNU) tar and provide the path to wget (needed
 # for downloads) and to GNU make - (which is necesary for python
@@ -1086,6 +1097,34 @@ if test $OS = Linux ; then
 fi
 
 
+
+
+a=$(cmake --version)
+have_new_enough_cmake=false
+case $a in
+
+   # old versions of cmake don't find Boost (FindBoost) when configuring the RDKit.
+
+   cmake?version?3.1[5-9].*)  # 3.15.x is inferred! 3.18 is new enough, 3.10 is not.
+                              # https://cmake.org/cmake/help/latest/release/3.15.html
+      have_new_enough_cmake=true
+      ;;
+
+   cmake?version?3.[2-9][0-9].*)
+      have_new_enough_cmake=true
+      ;;
+
+   *)
+      echo cmake version fallback: $a
+      ;;
+esac
+echo have_new_enough_cmake: $have_new_enough_cmake
+if [ $have_new_enough_cmake = false ] ; then
+   echo update your cmake and try again
+   my_exit 2
+fi
+
+
 if test $OS = IRIX64 ; then
    osversion=`uname -r`
    systype=${osversion}-sgi
@@ -1113,14 +1152,17 @@ case $dist_name in
 
       dep_list='
        patch
+       unzip
        m4
        g++
        libxext-dev
        libxmu-dev
        libxt-dev
        libc6-dev
+       libtinfo-dev
        libncurses5-dev
        libglu1-mesa-dev
+       libssl-dev
        libjpeg-dev
        mesa-common-dev
        libgtk2.0-dev
@@ -1151,9 +1193,9 @@ case $dist_name in
       ;;
 
     debian)
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev'
+      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
       for dep in $dep_list
-      do
+      do 
          echo $dep
          if dpkg-query --status $dep > /dev/null ; then
             echo system has $dep
@@ -2059,27 +2101,31 @@ fi
 #    ln -s /sw/bin/guile-1.6-snarf  $install_top_dir/bin/guile-snarf
 # fi
 
-echo atempting to run installed guile-config \(this may fail, that\'s OK\).
+if [ -e $install_top_dir/bin/guile-config ] ; then
+   if $install_top_dir/bin/guile-config --version ; then
 
-$install_top_dir/bin/guile-config --version
-
-if $install_top_dir/bin/guile-config --version ; then
-
-    # We have a seen a situation somehow where bin/guile-config is installed
-    # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
-    #
-    if test -e $install_top_dir/include/libguile.h ; then
-	echo installation has guile
-	build_guile=
-    else
-       echo no include/libguile.h. guile     should be built
-       echo no include/libguile.h. guile-gtk should be built
-       build_guile_gtk=1
-       build_guile=1
-    fi
+       # We have a seen a situation somehow where bin/guile-config is installed
+       # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
+       #
+       if test -e $install_top_dir/include/libguile.h ; then
+           echo installation has guile
+           build_guile=
+       else
+          echo no include/libguile.h. guile     should be built
+          echo no include/libguile.h. guile-gtk should be built
+          build_guile_gtk=1
+          build_guile=1
+       fi
+   else
+      echo guile-config failed. guile should be built
+      echo no include/libguile.h. guile-gtk should be built
+      build_guile=1
+      build_guile_gtk=1
+   fi
 else
-   echo guile-config failed. guile should be built
+   echo guile-config missing. guile should be built
    build_guile=1
+   build_guile_gtk=1
 fi
 
 # guile-gui
@@ -2106,15 +2152,18 @@ fi
 # do we have greg?
 
 # LD_LIBRARY_PATH has been set by now
-echo testing for greg using `which guile`
-$install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
-status=$?
-echo guile greg status $status
-if test $status = 0 ; then
-   echo installation has greg
-   build_greg=
+if [ -e $install_top_dir/bin/guile ] ; then
+   $install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
+   status=$?
+   echo guile greg status $status
+   if test $status = 0 ; then
+      echo installation has greg
+      build_greg=
+   else
+      echo greg should be built
+      build_greg=1
+   fi
 else
-   echo greg should be built
    build_greg=1
 fi
 
@@ -2126,7 +2175,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.15
+pver=2.7.18 # this is it - the final version of Python 2
 numpy_version=1.7.1
 numpy_version=1.16.6
 # for an upgrade of numpy to work, the old numpy must be deleted from site-packages
@@ -2236,7 +2285,6 @@ fi
 
 build_gtkglext=1
 if test -e ${install_top_dir}/include/gtkglext-1.0/gdk/glext/glext.h ; then
-   echo INFO:: found ${install_top_dir}/include/gtkglext-1.0/gdk/glext/glext.h
    build_gtkglext=
 fi
 if [ -n "$COOT_CCP4_PACKAGES" ] ; then
@@ -2390,9 +2438,7 @@ if [ -z "$build_mmdb" ] ; then
        echo INFO:: shall we build clipper: fftw not to be built
        # test for new ccp4-based clipper (for mtz and maps)
        if [ -e $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h ] ; then
-          echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h exist
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
-             echo $install_top_dir/include/clipper/contrib/sfscale.h exist
 	     build_clipper=
           else
             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
@@ -2457,8 +2503,8 @@ if test -n "$build_ccp4c" ; then
           $MAKE install
        fi
     fi
-    ) 2>&1 >  $HOSTLOGDIR/01-libccp4.txt
-else
+    ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
+else 
     echo not building libccp4:
 fi
 #
@@ -2911,27 +2957,35 @@ if [ "$build_libgnomecanvas" = 1 ] ; then
    # do both libart_lgpl and libgnomecanvas
 
    libart_lgpl_version=2.3.21
-   ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
-   (
-   tar xf ${AUTOBUILD_SOURCES}/libart_lgpl-2.3.21.tar.gz
-   cd libart_lgpl-$libart_lgpl_version
-   ./configure $generic_prefix
-   ${MAKE} && make install
-   cd -
-   ) > $HOSTLOGDIR/06-libart_lgpl.txt
+   if [ -e $install_top_dir/include/libart-2.0/libart_lgpl/libart.h ] ; then
+       echo not building libart_lgpl_version
+   else
+      (
+      ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
+      tar xf ${AUTOBUILD_SOURCES}/libart_lgpl-2.3.21.tar.gz
+      cd libart_lgpl-$libart_lgpl_version
+      ./configure $generic_prefix
+      ${MAKE} && make install
+      cd -
+      ) > $HOSTLOGDIR/06-libart_lgpl.txt 2>&1
+   fi
 
    # not to self: it seems, from my centos7 build that libgnomecanvas doesn't
    # correctly pick up the libart above - I did a system install of libart before I thought about it.
 
-   libgnomecanvas_version=2.30.3
-   ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$libgnomecanvas_version.tar.bz2
-   (
-   tar xf ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.tar.bz2
-   cd libgnomecanvas-$libgnomecanvas_version
-   ./configure $generic_prefix
-   ${MAKE} && make install
-   cd -
-   ) > $HOSTLOGDIR/06-libgnomecanvas.txt
+   if [ -e $install_top_dir/include/libgnomecanvas-2.0/libgnomecanvas/libgnomecanvas.h ] ; then
+      echo not building libgnomecanvas
+   else
+      libgnomecanvas_version=2.30.3
+      (
+      ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$libgnomecanvas_version.tar.bz2
+      tar xf ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.tar.bz2
+      cd libgnomecanvas-$libgnomecanvas_version
+      ./configure $generic_prefix
+      ${MAKE} && make install
+      cd -
+      ) > $HOSTLOGDIR/06-libgnomecanvas.txt 2>&1
+   fi
 fi
 
 
@@ -2967,6 +3021,52 @@ if [ "$build_goocanvas" != "no" ] ; then
      ) > $HOSTLOGDIR/06-pre-goocanvas.txt 2>&1
 fi
 
+
+##################### readline #####################################
+
+
+if test -n "$build_readline" ; then
+    echo BUILDING readline:
+    readline_version=6.2
+    readline_version=6.3
+    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} $extras_place/readline-5.1.patch
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
+    cd readline-$readline_version
+    if test -n "$need_readline_patch" ; then
+       echo patching readline...
+       # need a patch (for debian only) to add curses to the additional libs line
+       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
+    fi
+    apply_shared_lib_sed_fix=true
+
+    # when don't we want to apply the sed fix?
+    # ....
+    #
+
+    if [ $apply_shared_lib_sed_fix = true ] ; then
+       echo applying sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+    fi
+    echo ./configure $generic_prefix --with-curses --enable-shared
+    ./configure $generic_prefix --with-curses --enable-shared
+    # single thread
+    if make ; then
+       make install
+       # no more missing functions hopefully!
+       # undefined symbol: UP	(/home/paule/autobuild/Linux-penelope-gtk2-python/lib/libreadline.so)
+       ldd -r $install_top_dir/lib/libreadline.so
+    else
+       echo make of readline failed
+    fi
+    ) > $HOSTLOGDIR/06-pre-readline.txt 2>&1
+else
+    echo not building readline:
+fi
 
 ###############################################################################
 ##########         build python and friends                       #############
@@ -3168,11 +3268,9 @@ if test -n "$build_pygtk" ; then
    fi
    export DYLD_LIBRARY_PATH=$save_dllp
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
-else
-   echo not building pygtk
+else 
+   echo not building pygtk:
 fi
-
-echo done pygtk
 
 ###############################################################################
 ##########         build boost                                    #############
@@ -3181,18 +3279,22 @@ echo done pygtk
 build_boost=true
 test_for_already_installed_dependencies=true
 
-if [ "$build_boost" = true ] ; then
-   (
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
-         echo boost is found, skip
-         skip_this=true
-      fi
+if [ "$test_for_already_installed_dependencies" = true ] ; then
+   if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
+      echo not building boost:
+      build_boost=false
    fi
+fi
 
-   if [ $skip_this = false ] ; then
+if [ "$build_boost" = true ] ; then
+   echo building boost $boost_version # to build.log
+   echo building boost $boost_version 1>&2 # to the terminal
+   (
+
       echo building ========================= boost $boost_version =========================
+
+      address_model=64
+      python_version_extention=2.7 # extract this
 
       boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
       boost_version=1_71_0
@@ -3204,9 +3306,10 @@ if [ "$build_boost" = true ] ; then
       # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
       ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
       # bjam no longer exists
-      ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
+      ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      echo b2 install into $install_top_dir complete
       cd -
-   fi
+
    ) > $HOSTLOGDIR/16-boost.txt 2>&1
 fi
 
@@ -3217,7 +3320,7 @@ build_numpy=true
 #
 if [ "$build_numpy" = true ] ; then
    if gfortran --version > /dev/null ; then
-      echo found fortran compiler
+      :
    else
       echo fortran compiler not found.
       exit 2
@@ -3226,22 +3329,26 @@ fi
 
 if [ true = true ] ; then
    skip_this=false
-   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy/lib/info.py ] ;  then
-         echo numpy is found, skip
+   arch=linux
+   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy-$numpy_version-py2.7-$arch-x86_64.egg/numpy/core/include/numpy/halffloat.h ] ;  then
+         echo not building numpy:
          skip_this=true
    fi
    if [ $skip_this = false ] ;  then
+      echo building numpy
       (
       echo building ========================= numpy ==============================
+      pwd
       # this needs fortran compiler gfortran
 
       # maybe get numpy from github?
       # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
       # numpy needset setuptools
       # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
-      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      pythonhosted_magic_number=b7/6f/24647f014eef9b67a24adfcbcd4f4928349b4a0f8393b3d7fe648d4d2de3
+      ${WGET} https://files.pythonhosted.org/packages/$pythonhosted_magic_number/numpy-$numpy_version.zip
       #
-      tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
       cd numpy-$numpy_version/
       # we need to check that we have a fortran compiler, in this case gnu95
       #
@@ -3253,12 +3360,14 @@ if [ true = true ] ; then
       fi
       python setup.py build --fcompiler=gfortran
       python setup.py install
-      if [ ! $? ] ; then
+      if [ $? ] ; then
+         :
+      else
          echo something bad about numpy.
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/16-b-numpy.log 2>&1
+      ) > $HOSTLOGDIR/16-b-numpy.txt 2>&1
    fi
 fi
 
@@ -3268,7 +3377,7 @@ export PATH=$HOME/cmake/bin:$PATH
 build_rdkit=true
 rdkit_version=2017_09_3
 # rdkit_version=2019_09_1 # python 3
-rdkit_version=2018_09_2 # Atom pointers gone, needs coot patch
+rdkit_version=2018_09_3 # Atom pointers gone, needs coot update
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
@@ -3276,8 +3385,9 @@ rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/rdkit/DistGeom/TriangleSmooth.h ] ;  then
-         echo rdkit is found, skip
+      # this file is in 2018_09 but not in 2017_09
+      if [ -e $install_top_dir/include/rdkit//GraphMol/StereoGroup.h ] ;  then
+         echo not building rdkit:
          skip_this=true
       fi
    fi
@@ -3304,12 +3414,11 @@ if [ "$build_rdkit" = true ] ; then
 
       if [ $(uname) = Darwin ] ; then
          echo LD_LIBRARY_FALLBACK_PATH  $LD_LIBRARY_FALLBACK_PATH
-	 # what is unexport in bash?
+         # what is unexport in bash?
          export LD_LIBRARY_PATH=
       fi
 
       echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
-      echo ==================== PYTHONPATH is $PYTHONPATH
 
       if [ "$github_rdkit" = true ] ; then
          if [ ! -d rdkit-github/build ] ; then
@@ -3322,14 +3431,47 @@ if [ "$build_rdkit" = true ] ; then
          tree_from_build=../rdkit
       else
 
-         echo wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         get_the_rdkit_tar_file=true
+         echo testing for existance of ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size: $size
+            if [ "$size" = 54644917 ] ; then
+               get_the_rdkit_tar_file=false
+            fi
+         fi
+         echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
+
+         if [ $get_the_rdkit_tar_file = true ] ; then
+            # $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            do_rdkit_download=true
+            if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                if [ "$s" = $rdkit_tar_size ] ; then
+                   do_rdkit_download=false
+                fi
+            fi
+            if [ $do_rdkit_download = true ] ; then
+               echo $WGET $rdkit_home/$rdkit_tar_host_file_name
+               if ${WGET} $rdkit_home/$rdkit_tar_host_file_name ; then
+                  if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                     cp ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ${AUTOBUILD_SOURCES}/rdkit-$rdkit_tar_host_file_name
+                  else
+                     echo $rdkit_tar_host_file_name does not exist after download
+                  fi
+               fi
+            fi
+         fi
+
          echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          pwd
          ls
          if [ ! -e rdkit-Release_$rdkit_version ] ; then
-             echo RDKit untar dir not found: rdkit-Release_$rdkit_version
+             echo RDKit untar dir not find: rdkit-Release_$rdkit_version
              exit 2
          fi
          cd rdkit-Release_$rdkit_version
@@ -3365,7 +3507,7 @@ if [ "$build_rdkit" = true ] ; then
 
 
       # catches correctly (no need to specify)
-      # 	 -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
+      #     -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
 
       if [ $(uname) = Darwin ] ; then
          cmake_macosx_rpath=-DCMAKE_MACOSX_RPATH=ON
@@ -3398,11 +3540,11 @@ if [ "$build_rdkit" = true ] ; then
 
       echo will configure with cmake like this:
       echo cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
+         -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
          -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7 \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+         -DRDK_TEST_MULTITHREADED=OFF    \
          -DRDK_BUILD_THREADSAFE_SSS=OFF  \
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
@@ -3410,11 +3552,11 @@ if [ "$build_rdkit" = true ] ; then
 
 
       if cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
+         -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
          -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7 \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+         -DRDK_TEST_MULTITHREADED=OFF    \
          -DRDK_BUILD_THREADSAFE_SSS=OFF  \
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
@@ -3438,16 +3580,17 @@ fi
 
 # silicos-it's biscu-it
 if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
-   echo installation has biscu-it
+   echo not building biscu-it:
 else
-   ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+   echo building QED
    (date
+    ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
     pwd
     tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
     cd qed-1.0.1
-    $PYTHON setup.py install
+    python setup.py install
     cd -
-   ) > $HOSTLOGDIR/19-biscu-it.txt
+   ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
 fi
 
 # Now we need:
@@ -4266,11 +4409,11 @@ fi
 
 
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
-if finger ; then
+if /usr/bin/finger ; then
    cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
    coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
 else
-   coot_build_info_string="build-host: $HOST on: $cbis_d"
+   coot_build_info_string="build-host: $HOST on: $cbis_d by $USER"
 fi
 
 # We no longer need this because clipper is found using pkg-config
@@ -4311,7 +4454,6 @@ echo ./configure $coot_prefix \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
-      --with-modern-language-tools \
       --with-enhanced-ligand-tools \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4330,7 +4472,6 @@ echo ./configure $coot_prefix \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
-      --with-modern-language-tools \
       --with-enhanced-ligand-tools \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4385,10 +4526,12 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
+    echo coot build failed, exiting. 1>&2
     echo fail-build $coot_revision > $LOGS/build-status
     my_exit 2 $coot_revision
 else
     echo coot build was good.
+    echo coot build was good. 1>&2
     echo pass-build $coot_revision > $LOGS/build-status
 fi
 echo done coot build.
@@ -4420,6 +4563,7 @@ unset PKG_CONFIG_PATH
 # new style
 mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 refmac_mon_lib=refmac-monomer-library.tar.gz
+refmac_mon_lib=refmac-monomer-library-20210105.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library

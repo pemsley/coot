@@ -89,6 +89,13 @@ if $coot_with_glsl = true ; then
    AC_SUBST(COOT_USE_GLSL)
 fi
 
+# AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
+if test $HAVE_CXX11 = 1 ; then
+   CXXFLAGS="$CXXFLAGS -std=c++11"
+else
+   echo we can\'t compile coot then
+fi
+
 AC_LIB_PREPARE_MULTILIB
 
 AC_SUBST(COOT_STDTYPES)
@@ -119,6 +126,11 @@ fi
 # AM_PATH_LIBPNG
 # so try this:
 PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.2])
+if test -z "$LIBPNG_LIBS" ; then
+   :
+else
+   LIBPNG_CFLAGS="-DUSE_LIBPNG=1 $LIBPNG_CFLAGS"
+fi
 
 # and while we are thinking about images, let's check for Cairo also
 PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])
@@ -169,6 +181,7 @@ dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
 
+# 20210313-PE-merge-weirdness
 # we set default coot_guile to true
 coot_guile=true
 AM_WITH_GUILE(, [echo optional guile\?],,)
@@ -303,13 +316,24 @@ if $coot_enhanced_ligand_additions = true ; then
    fi
 fi
 
-if test x$coot_enhanced_ligand_additions = xtrue ; then
-   ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
+AC_ARG_WITH(rdkit-prefix, [location of the RDKit package], rdkit_prefix="$withval", rdkit_prefix="")
+
+if test x$rdkit_prefix = x ; then
+  :
 else
-   ENHANCED_LIGAND_TOOLS_CFLAGS=""
+   rdkit_install_dir="$withval"
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
+   rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_python27 -lpython2.7"
+   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 fi
 
-echo ENHANCED_LIGAND_TOOLS_CFLAGS $ENHANCED_LIGAND_TOOLS_CFLAGS
+if test x$coot_enhanced_ligand_additions = xtrue ; then
+   ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
+else
+   ENHANCED_LIGAND_TOOLS_CPPFLAGS=""
+fi
+
+echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
@@ -317,7 +341,7 @@ AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
-AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)
+AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
 
 AC_SUBST(RDKIT_CXXFLAGS)
 AC_SUBST(RDKIT_LIBS)

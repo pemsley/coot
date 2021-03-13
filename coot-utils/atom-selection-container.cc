@@ -58,6 +58,7 @@ atom_selection_container_t::get_previous(mmdb::Residue *residue_in) const {
 atom_selection_container_t
 get_atom_selection(std::string pdb_name,
 		   bool allow_duplseqnum,
+                   bool verbose_mode,
 		   bool convert_to_v2_name_flag) {
 
    mmdb::ERROR_CODE err;
@@ -127,7 +128,8 @@ get_atom_selection(std::string pdb_name,
 				    mmdb::MMDBF_IgnoreHash |
 				    mmdb::MMDBF_IgnoreRemarks);
 
-	  std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
+          if (verbose_mode)
+             std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
 	  err = MMDBManager->ReadCoorFile(pdb_name.c_str());
 
 	  if (err) {
@@ -184,7 +186,8 @@ get_atom_selection(std::string pdb_name,
 
 	     MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
-	     std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
+             if (verbose_mode)
+                std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
 	     asc.read_success = 1; // TRUE
 
 	     // atom_selection_container.read_error_message = NULL; // its a string

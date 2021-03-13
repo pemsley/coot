@@ -2,6 +2,10 @@
 #ifndef NEW_LINKED_RESIDUE_T_HH
 #define NEW_LINKED_RESIDUE_T_HH
 
+#include <string>
+#include <vector>
+#include <mmdb2/mmdb_manager.h>
+
 namespace coot {
 
    class new_linked_residue_t {
@@ -10,8 +14,8 @@ namespace coot {
 			   mmdb::Residue *res_1_in, mmdb::Residue *res_2_in,
 			   bool is_fixed_first_in, bool is_fixed_second_in,
 			   const std::string &link_type,
-			   bool order_switch_flag) : at_1(at_1), at_2(at_2), res_1(res_1_in), res_2(res_2_in),
-						     link_type(link_type), order_switch_flag(order_switch_flag) {
+			   bool order_switch_flag_in) : at_1(at_1), at_2(at_2), res_1(res_1_in), res_2(res_2_in),
+                                                        link_type(link_type), order_switch_flag(order_switch_flag_in) {
 
 	 is_fixed_first  = is_fixed_first_in;
 	 is_fixed_second = is_fixed_second_in;

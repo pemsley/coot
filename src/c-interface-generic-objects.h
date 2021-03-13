@@ -226,6 +226,8 @@ one might do this if the generic object is specific to a molecule.
  */
 void attach_generic_object_to_molecule(int obj_number, int imol);
 
+// This no longer maeks sense.
+// void set_display_generic_objects_as_solid(int state);
 
 
 /* \} */

@@ -261,7 +261,7 @@ int copy_molecule(int imol) {
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       graphics_info_t::molecules[new_mol_number].install_new_map(graphics_info_t::molecules[imol].xmap, label, is_em_flag);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
-         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
+         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map(true);
       }
       iret = new_mol_number;
    }
@@ -985,6 +985,11 @@ int delete_hydrogens(int imol) {
 	 graphics_draw();
    }
    return n_deleted;
+}
+
+/*! \brief delete all hydrogens in molecule */
+int delete_hydrogen_atoms(int imol) {
+   return delete_hydrogens(imol);
 }
 
 int delete_waters(int imol) {
@@ -2306,6 +2311,7 @@ int chain_n_residues(const char *chain_id, int imol) {
    } else {
       return -1;
    }
+
 }
 
 // Return "" on failure.
@@ -2952,7 +2958,7 @@ void set_write_conect_record_state(int state) {
 
 
 short int
-add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
+add_OXT_to_residue(int imol, const char *chain_id, int resno, const char *insertion_code) {
 
    short int istat = -1;
    if (is_valid_model_molecule(imol)) {
@@ -3546,8 +3552,8 @@ PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_
 }
 #endif
 
-#ifdef USE_PYTHON
 // and the multiple-atom version of that (so that they can be applied at the same time)
+#ifdef USE_PYTHON
 PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list) {
 
    PyObject *ret_val = Py_False; // not changed by function at the moment
@@ -5992,4 +5998,8 @@ void set_auto_h_bond_restraints(int state) {
    graphics_info_t g;
    g.make_auto_h_bond_restraints_flag = state;
 
+}
+
+void set_refine_hydrogen_bonds(int state) {
+   set_auto_h_bond_restraints(state);
 }

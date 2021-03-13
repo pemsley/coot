@@ -64,11 +64,12 @@ exptl::nsv::close_docked_sequence_view(GtkWidget *menu_item, GdkEventButton *eve
 
    // the scrolled window is the widget that is packed into the paned widget
 
-   GtkWidget *scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(menu_item), "scrolled_window"));
-   gtk_widget_destroy(scrolled_window);
 
+   GtkWidget *scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(menu_item), "scrolled_window"));
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(scrolled_window), "imol"));
    set_sequence_view_is_displayed(0, imol);
+   gtk_widget_destroy(scrolled_window);
+
    return TRUE;
 };
 
@@ -162,9 +163,9 @@ exptl::nsv::nsv(mmdb::Manager *mol,
       gtk_box_pack_start(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
       gtk_widget_set_size_request(top_lev, 120, 70);
    } else {
-      gtk_widget_set_size_request(scrolled_window, -1, 70);
-      // if the sequence view is docked then we use to use panes
+      // if the sequence view is docked then we use two use panes
       gtk_paned_add1(GTK_PANED(paned), scrolled_window);
+      gtk_widget_set_size_request(scrolled_window, -1, 70);
    }
 
    g_object_set_data(G_OBJECT(scrolled_window), "imol", GINT_TO_POINTER(molecule_number));
@@ -188,7 +189,8 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    }
 
    // used on destroy
-   g_object_set_data(G_OBJECT(top_lev), "molecule_number", GINT_TO_POINTER(molecule_number));
+   if (top_lev)
+      g_object_set_data(G_OBJECT(top_lev), "molecule_number", GINT_TO_POINTER(molecule_number));
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
@@ -196,7 +198,8 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    int y_size_initial = setup_canvas(mol);
 
    //  gtk_window_set_default_size(GTK_WINDOW(top_lev), 1700, y_size_initial + 100);
-   gtk_widget_set_size_request(top_lev, 799, y_size_initial + 100);
+   if (top_lev)
+      gtk_widget_set_size_request(top_lev, 799, y_size_initial + 100);
 
    if (use_graphics_interface_flag) { 
       gtk_widget_show(GTK_WIDGET(canvas));

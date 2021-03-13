@@ -263,7 +263,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       // update_map_colour_menu_manual(g.n_molecules, name_.c_str());
       // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
 
-      update_map();
+      update_map(graphics_info_t::auto_recontour_map_flag);
    }
 }
 
@@ -310,9 +310,11 @@ molecule_class_info_t::set_diff_map_draw_vecs(const coot::CartesianPair* c, int 
 
 
 void
-molecule_class_info_t::update_map() {
+molecule_class_info_t::update_map(bool do_it) {
 
-   update_map_internal();
+   if (has_xmap() || has_nxmap())
+      if (do_it)
+         update_map_internal();
 }
 
 
@@ -351,7 +353,7 @@ molecule_class_info_t::set_draw_solid_density_surface(bool state) {
    else
       draw_it_for_map_standard_lines = true;
 
-   update_map(); // gets solid triangles too.
+   update_map(true); // gets solid triangles too.
 }
 
 
@@ -1926,7 +1928,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str());
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
 
-	 update_map();
+	 update_map(true);
 	 long T5 = 0; // glutGet(GLUT_ELAPSED_TIME);
 	 //std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
 	 //std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
@@ -2104,7 +2106,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
       set_initial_contour_level();
 
-      update_map();
+      update_map(true);
       long T5 = 0; // glutGet(GLUT_ELAPSED_TIME);
       std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
       std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
@@ -2192,7 +2194,7 @@ molecule_class_info_t::restore_previous_map_colour() {
 
    if (has_xmap() || has_nxmap())
 	    map_colour = previous_map_colour;
-   update_map();
+   update_map(true);
 }
 
 
@@ -2451,14 +2453,36 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    bool bad_read = false; // so far
    bool em = false;
+   map_name = filename;
 
-   if ( map_file_type == CCP4 ) {
+   if (map_file_type == CCP4) {
 
       bool done = false;
       if (coot::util::is_basic_em_map_file(filename)) {
-         em = true;
          // fill xmap
-         // done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
+         auto tp_1 = std::chrono::high_resolution_clock::now();
+         bool check_only = false;
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
+         auto tp_2 = std::chrono::high_resolution_clock::now();
+         auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+         std::cout << "INFO:: map read " << d21 << " milliseconds" << std::endl;
+         try {
+            clipper_map_file_wrapper file;
+            file.open_read(filename);
+            set_is_em_map(file); // sets is_em_map_cached_flag
+            em = is_em_map_cached_flag;
+            if (imol_no == 0) {
+               clipper::Cell c = file.cell();
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+               graphics_info_t g;
+               g.setRotationCentre(m);
+            }
+
+         }
+         catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << filename << std::endl;
+            bad_read = true;
+         }
       }
 
       if (! done) {
@@ -2475,13 +2499,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
                clipper::Grid_sampling fgs = file.grid_sampling();
 
-               std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
-
                clipper::Cell fcell = file.cell();
                double vol = fcell.volume();
                if (vol < 1.0) {
                   std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
-                  << std::endl;
+                            << std::endl;
                   bad_read = true;
                } else {
                   try {
@@ -2489,7 +2511,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                   }
                   catch (const clipper::Message_generic &exc) {
                      std::cout << "WARNING:: failed to read " << filename
-                     << " Bad ASU (inconsistant gridding?)." << std::endl;
+                               << " Bad ASU (inconsistant gridding?)." << std::endl;
                      bad_read = true;
                   }
                }
@@ -2514,9 +2536,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             //
             if (imol_no == 0) {
                clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(),
-               0.5*c.descr().b(),
-               0.5*c.descr().c());
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                new_centre.first = true;
                new_centre.second = m;
                std::cout << "INFO:: map appears to be EM map."<< std::endl;
@@ -2531,17 +2551,17 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          }
       }
    } else {
-     std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
-     clipper::CNSMAPfile file;
-     file.open_read(filename);
-     try {
-       file.import_xmap( xmap );
-     }
-     catch (const clipper::Message_base &exc) {
-       std::cout << "WARNING:: failed to read " << filename << std::endl;
-       bad_read = true;
-     }
-     file.close_read();
+      std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
+      clipper::CNSMAPfile file;
+      file.open_read(filename);
+      try {
+         file.import_xmap( xmap );
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: failed to read " << filename << std::endl;
+         bad_read = true;
+      }
+      file.close_read();
    }
 
    if (! bad_read) {
@@ -2550,7 +2570,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, is_anomalous_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
+      auto tp_0 = std::chrono::high_resolution_clock::now();
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = chrono::duration_cast<chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
 
       float mean = mv.mean;
       float var = mv.variance;
@@ -2564,18 +2588,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       update_map_in_display_control_widget();
       contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
+      if (em)
+         contour_level = 4.5*sqrt(var);
 
-      bool em = is_EM_map();
-
-      if (em) {
-	 // make better defaults
-	 contour_level = mean + nearest_step(mean + 5.0*sqrt(var), 0.2);
-	 contour_sigma_step = 0.4;
-      } else {
-	 // "how it used to be" logic.  contour_level is set above and reset here
-	 // Hmm.
-	 set_initial_contour_level();
-      }
+      std::cout << "-------------------------  em " << em << " contour_level " << contour_level << std::endl;
 
       std::cout << "      Map extents: ..... "
 		<< xmap.grid_sampling().nu() << " "
@@ -2591,7 +2607,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
       save_state_command_strings_.push_back(graphics_info_t::int_to_string(is_diff_map_flag));
 
-      update_map();
+      update_map(true);
    }
 
    int stat = imol_no;
@@ -2679,7 +2695,7 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    map_mean_ = mv.mean;
    map_sigma_ = sqrt(mv.variance);
 
-   update_map();
+   update_map(true);
 }
 
 void
@@ -2708,7 +2724,7 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
    std::cout << "INFO:: Make a map from " << phs_filename << " using "
 	     << pdb_filename << " for the cell and symmetry information " << std::endl;
 
-   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, true, true);
+   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, true, false, false);
 
    if (SelAtom.read_success == 1) { // success
       try {
@@ -2809,7 +2825,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   contour_level = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
 
   std::cout << "updating map..." << std::endl;
-  update_map();
+  update_map(true);
   std::cout << "done updating map..." << std::endl;
 
   // as for 'normal' maps
@@ -3175,7 +3191,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
   set_initial_contour_level();
 
    int imol = imol_no_in;
-   update_map();
+   update_map(true);
    return imol;
 }
 
@@ -3355,7 +3371,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    set_initial_contour_level();
 
 	    int imol = imol_no_in;
-	    update_map();
+	    update_map(true);
 
 	    if (sigmaa_map_type != molecule_map_type::TYPE_DIFF_SIGMAA) {
 	       save_state_command_strings_.push_back("read-cif-data-with-phases-sigmaa");
@@ -3516,7 +3532,7 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 int imol = imol_no_in;
 	 update_map_in_display_control_widget();
 
-	 update_map();
+	 update_map(true);
 
 	 have_unsaved_changes_flag = 0;
 	 std::vector<std::string> strings;
@@ -3705,7 +3721,7 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
       update_map_in_display_control_widget();
 
       std::cout << "updating map..." << std::endl;
-      update_map();
+      update_map(true);
       std::cout << "done updating map..." << std::endl;
    }
 
@@ -3877,10 +3893,10 @@ molecule_class_info_t::change_contour(int direction) {
 
 //
 void
-molecule_class_info_t::set_map_is_difference_map() {
+molecule_class_info_t::set_map_is_difference_map(bool flag) {
 
    if (has_xmap() || has_nxmap()) {
-      xmap_is_diff_map = 1;
+      xmap_is_diff_map = flag;
       // we should update the contour level...
       set_initial_contour_level();
       // and set the right colors
@@ -3893,7 +3909,7 @@ molecule_class_info_t::set_map_is_difference_map() {
          map_colour.green = 0.2;
          map_colour.blue  = 0.2;
       }
-      update_map();
+      update_map(true);
    }
 }
 
@@ -4732,7 +4748,7 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap) {
 
   colour_map_using_other_map_flag = true;
   other_map_for_colouring_p = &xmap;
-  update_map();
+  update_map(true);
 
 }
 
@@ -4752,7 +4768,7 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
       other_map_for_colouring_min_value = table_bin_start;
       other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
       other_map_for_colouring_colour_table = colours;
-      update_map();
+      update_map(true);
    }
 }
 

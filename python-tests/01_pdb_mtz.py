@@ -1225,8 +1225,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(valid_model_molecule_qm(imol),
                         "Failed to read test-TER-OXT.pdb")
 
-        add_status_1 = add_OXT_to_residue(imol, 14, "", "A")
-        add_status_2 = add_OXT_to_residue(imol, 14, "", "A")
+        add_status_1 = add_OXT_to_residue(imol, "A", 14, "")
+        add_status_2 = add_OXT_to_residue(imol, "A", 14, "")
 
         # the second add should be ignored, only 1 OXT allowed
         # per residue.

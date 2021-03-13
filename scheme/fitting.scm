@@ -651,7 +651,7 @@
 (define (manual-refine-residues side-residue-offset)
 
   (let ((active-atom (active-residue)))
-    
+
     (if (not active-atom)
 	(format #t "No active atom~%")
 	(let ((imol      (list-ref active-atom 0))
@@ -665,7 +665,7 @@
 	    
 	    (if (= imol-map -1)
 		(info-dialog "Oops.  Must Select Map to fit to!")
-		
+
 		(refine-zone imol chain-id 
 			     (- res-no side-residue-offset)
 			     (+ res-no side-residue-offset)

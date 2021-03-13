@@ -35,7 +35,8 @@ create_window1 (void)
   GtkWidget *main_window_outer_vbox;
   GtkWidget *main_window_hbox;
   GtkWidget *main_window_model_fit_dialog_frame_left;
-  GtkWidget *vbox1;
+  GtkWidget *main_window_vbox;
+  //  GtkWidget *vbox1;
   GtkWidget *menubar1;
   GtkWidget *file1;
   GtkWidget *file1_menu;
@@ -188,6 +189,7 @@ create_window1 (void)
   GtkWidget *image14447;
   GtkWidget *go_to_atom1;
   GtkWidget *image14448;
+  GtkWidget *label_neighbours1;
   GtkWidget *draw_molecular_ribbons;
   GtkWidget *ncs_ghost_control1;
   GtkWidget *image14449;
@@ -336,8 +338,11 @@ create_window1 (void)
   GtkWidget *hbox277;
   GtkWidget *image6030;
   GtkWidget *label456;
+  GtkWidget *main_window_vpaned;
   GtkWidget *main_window_graphics_frame;
   GtkWidget *main_window_graphics_hbox;
+  GtkWidget *main_window_model_fit_dialog_frame;
+  GtkWidget *model_fit_refine_toolbar_handlebox;
   GtkWidget *model_toolbar;
   GtkWidget *toolitem4;
   GtkWidget *model_toolbar_refine_control_button;
@@ -413,13 +418,17 @@ create_window1 (void)
   main_window_model_fit_dialog_frame_left = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame_left, FALSE, FALSE, 0);
 
-  vbox1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  gtk_widget_show (vbox1);
-  gtk_box_pack_start (GTK_BOX (main_window_hbox), vbox1, TRUE, TRUE, 0);
+  main_window_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (main_window_vbox);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_vbox, TRUE, TRUE, 0);
+
+  // vbox1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  // gtk_widget_show (vbox1);
+  // gtk_box_pack_start (GTK_BOX (main_window_hbox), vbox1, TRUE, TRUE, 0);
 
   menubar1 = gtk_menu_bar_new ();
   gtk_widget_show (menubar1);
-  gtk_box_pack_start (GTK_BOX (vbox1), menubar1, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), menubar1, FALSE, FALSE, 0);
 
   file1 = gtk_menu_item_new_with_mnemonic ("_File");
   gtk_widget_show (file1);
@@ -1045,6 +1054,9 @@ create_window1 (void)
   draw_molecular_ribbons = gtk_menu_item_new_with_mnemonic ("Molecular Ribbons");
   gtk_widget_show (draw_molecular_ribbons);
   gtk_container_add (GTK_CONTAINER (draw1_menu), draw_molecular_ribbons);
+  label_neighbours1 = gtk_menu_item_new_with_mnemonic ("Label Neighbours");
+  gtk_widget_show (label_neighbours1);
+  gtk_container_add (GTK_CONTAINER (draw1_menu), label_neighbours1);
 
   ncs_ghost_control1 = gtk_image_menu_item_new_with_mnemonic ("NCS Ghost Control...");
   gtk_widget_show (ncs_ghost_control1);
@@ -1347,7 +1359,7 @@ create_window1 (void)
 
   main_toolbar = gtk_toolbar_new ();
   gtk_widget_show (main_toolbar);
-  gtk_box_pack_start (GTK_BOX (vbox1), main_toolbar, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), main_toolbar, FALSE, FALSE, 0);
   gtk_toolbar_set_style (GTK_TOOLBAR (main_toolbar), GTK_TOOLBAR_BOTH_HORIZ);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (main_toolbar));
 
@@ -1492,7 +1504,7 @@ create_window1 (void)
   gtk_box_pack_start (GTK_BOX (hbox404), label731, FALSE, FALSE, 0);
 
   accept_reject_dialog_frame_docked = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (vbox1), accept_reject_dialog_frame_docked, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), accept_reject_dialog_frame_docked, FALSE, TRUE, 0);
 
   hbox274 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_show (hbox274);
@@ -1702,15 +1714,30 @@ create_window1 (void)
   gtk_widget_show (label456);
   gtk_box_pack_start (GTK_BOX (hbox277), label456, FALSE, FALSE, 0);
 
+  main_window_vpaned = gtk_vpaned_new ();
+  gtk_widget_show (main_window_vpaned);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), main_window_vpaned, TRUE, TRUE, 0);
+
   main_window_graphics_frame = gtk_frame_new (NULL);
   gtk_widget_show (main_window_graphics_frame);
-  gtk_box_pack_start (GTK_BOX (vbox1), main_window_graphics_frame, TRUE, TRUE, 0);
+  gtk_paned_pack2 (GTK_PANED (main_window_vpaned), main_window_graphics_frame, TRUE, TRUE);
   gtk_frame_set_label_align (GTK_FRAME (main_window_graphics_frame), 0, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (main_window_graphics_frame), GTK_SHADOW_NONE);
 
-  main_window_graphics_hbox =  gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+  main_window_graphics_hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_show (main_window_graphics_hbox);
   gtk_container_add (GTK_CONTAINER (main_window_graphics_frame), main_window_graphics_hbox);
+
+  main_window_model_fit_dialog_frame = gtk_frame_new (NULL);
+  gtk_widget_show (main_window_model_fit_dialog_frame);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
+
+  model_fit_refine_toolbar_handlebox = gtk_handle_box_new ();
+  gtk_widget_show (model_fit_refine_toolbar_handlebox);
+  gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), model_fit_refine_toolbar_handlebox);
+  gtk_handle_box_set_shadow_type (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_SHADOW_NONE);
+  gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_POS_TOP);
+  gtk_handle_box_set_snap_edge (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_POS_RIGHT);
 
   model_toolbar = gtk_toolbar_new ();
   gtk_widget_show (model_toolbar);
@@ -1775,6 +1802,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
   // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, "Rigid Body Fit Zone (click on 2 atoms)", NULL);
 
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
   tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, "Rotate Translate");
@@ -1782,6 +1810,8 @@ create_window1 (void)
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
   // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, "Rotate Translate Zone/Chain/Molecule", NULL);
+#endif
+
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), "Auto Fit Rotamer");
@@ -1978,6 +2008,10 @@ create_window1 (void)
   alignment130 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_show (alignment130);
   gtk_container_add (GTK_CONTAINER (model_toolbar_style_toolitem), alignment130);
+
+  main_window_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (main_window_vbox);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_vbox, TRUE, TRUE, 0);
 
   model_toolbar_menubar1 = gtk_menu_bar_new ();
   gtk_widget_show (model_toolbar_menubar1);
@@ -2291,6 +2325,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) go_to_atom1, "activate",
                     G_CALLBACK (on_go_to_atom1_activate),
                     NULL);
+g_signal_connect ((gpointer) label_neighbours1, "activate",
+                    G_CALLBACK (on_label_neighbours1_activate),
+                    NULL);
   g_signal_connect ((gpointer) draw_molecular_ribbons, "activate",
                     G_CALLBACK (on_draw_molecular_ribbons_activate),
                     NULL);
@@ -2562,7 +2599,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, main_window_outer_vbox, "main_window_outer_vbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_hbox, "main_window_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame_left, "main_window_model_fit_dialog_frame_left");
-  GLADE_HOOKUP_OBJECT (window1, vbox1, "vbox1");
+  GLADE_HOOKUP_OBJECT (window1, main_window_vbox, "main_window_vbox");
   GLADE_HOOKUP_OBJECT (window1, menubar1, "menubar1");
   GLADE_HOOKUP_OBJECT (window1, file1, "file1");
   GLADE_HOOKUP_OBJECT (window1, file1_menu, "file1_menu");
@@ -2860,8 +2897,11 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, hbox277, "hbox277");
   GLADE_HOOKUP_OBJECT (window1, image6030, "image6030");
   GLADE_HOOKUP_OBJECT (window1, label456, "label456");
+  GLADE_HOOKUP_OBJECT (window1, main_window_vpaned, "main_window_vpaned");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_frame, "main_window_graphics_frame");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
+  GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");
+  GLADE_HOOKUP_OBJECT (window1, model_fit_refine_toolbar_handlebox, "model_fit_refine_toolbar_handlebox");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar, "model_toolbar");
   GLADE_HOOKUP_OBJECT (window1, toolitem4, "toolitem4");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_refine_control_button, "model_toolbar_refine_control_button");
@@ -8216,9 +8256,13 @@ create_refine_params_dialog (void)
   GtkWidget *label820;
   GtkWidget *label821;
   GtkWidget *label822;
-  GtkWidget *refine_params_geman_mcclure_alpha_combobox;
   GtkWidget *refine_params_lennard_jones_epsilon_combobox;
   GtkWidget *refine_params_rama_restraints_weight_combobox;
+  GtkWidget *label849;
+  GtkWidget *refine_params_torsions_weight_combobox;
+  GtkWidget *label848;
+  GtkWidget *refine_params_overall_weight_combobox;
+  GtkWidget *refine_params_geman_mcclure_alpha_combobox;
   GtkWidget *label819;
   GtkWidget *dialog_action_area8;
   GtkWidget *refine_params_dialog_ok_button;
@@ -8448,7 +8492,9 @@ create_refine_params_dialog (void)
   refine_params_weight_matrix_entry = gtk_entry_new ();
   gtk_widget_show (refine_params_weight_matrix_entry);
   gtk_box_pack_start (GTK_BOX (hbox407), refine_params_weight_matrix_entry, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (refine_params_weight_matrix_entry, 80, -1);
+  // gtk_widget_set_size_request (refine_params_weight_matrix_entry, 80, -1);
+  gtk_entry_set_max_length (GTK_ENTRY (refine_params_weight_matrix_entry), 7);
+  gtk_entry_set_width_chars (GTK_ENTRY (refine_params_weight_matrix_entry), 7);
   gtk_entry_set_invisible_char (GTK_ENTRY (refine_params_weight_matrix_entry), 9679);
 
   weight_maxtrix_estimate_button = gtk_button_new_with_mnemonic (" Estimate ");
@@ -8508,6 +8554,27 @@ create_refine_params_dialog (void)
                     (GtkAttachOptions) (0), 0, 0);
   gtk_misc_set_alignment (GTK_MISC (label822), 0, 0.5);
 
+
+  label849 = gtk_label_new ("Torsions weight");
+  gtk_widget_show (label849);
+  gtk_table_attach (GTK_TABLE (table9), label849, 0, 1, 4, 5,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label849), 0, 0.5);
+
+  label848 = gtk_label_new ("Overall weight");
+  gtk_widget_show (label848);
+  gtk_table_attach (GTK_TABLE (table9), label848, 0, 1, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label848), 0, 0.5);
+
+  refine_params_overall_weight_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (refine_params_overall_weight_combobox);
+  gtk_table_attach (GTK_TABLE (table9), refine_params_overall_weight_combobox, 1, 2, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+
   refine_params_geman_mcclure_alpha_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refine_params_geman_mcclure_alpha_combobox);
   gtk_table_attach (GTK_TABLE (table9), refine_params_geman_mcclure_alpha_combobox, 1, 2, 0, 1,
@@ -8553,6 +8620,43 @@ create_refine_params_dialog (void)
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "50.0");
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "100.0");
 
+  refine_params_torsions_weight_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (refine_params_torsions_weight_combobox);
+  gtk_table_attach (GTK_TABLE (table9), refine_params_torsions_weight_combobox, 1, 2, 4, 5,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_torsions_weight_combobox), "0.1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_torsions_weight_combobox), "0.3");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_torsions_weight_combobox), "1.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_torsions_weight_combobox), "3.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_torsions_weight_combobox), "10.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_torsions_weight_combobox), "30.0");
+
+#if 0 // duplicate
+  label820 = gtk_label_new ("Geman-McClure alpha ");
+  gtk_widget_show (label820);
+  gtk_table_attach (GTK_TABLE (table9), label820, 0, 1, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_label_set_use_markup (GTK_LABEL (label820), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label820), 0, 0.5);
+
+  refine_params_geman_mcclure_alpha_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (refine_params_geman_mcclure_alpha_combobox);
+  gtk_table_attach (GTK_TABLE (table9), refine_params_geman_mcclure_alpha_combobox, 1, 2, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.001");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.003");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.01");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.03");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.3");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "1.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "3.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "10.0");
+#endif
   label819 = gtk_label_new ("");
   gtk_widget_show (label819);
   gtk_frame_set_label_widget (GTK_FRAME (refine_params_more_control_frame), label819);
@@ -8631,14 +8735,20 @@ create_refine_params_dialog (void)
   g_signal_connect ((gpointer) refine_params_more_control_togglebutton, "toggled",
                     G_CALLBACK (on_refine_params_more_control_togglebutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) refine_params_geman_mcclure_alpha_combobox, "changed",
-                    G_CALLBACK (on_refine_params_geman_mcclure_alpha_combobox_changed),
-                    NULL);
   g_signal_connect ((gpointer) refine_params_lennard_jones_epsilon_combobox, "changed",
                     G_CALLBACK (on_refine_params_lennard_jones_epsilon_combobox_changed),
                     NULL);
   g_signal_connect ((gpointer) refine_params_rama_restraints_weight_combobox, "changed",
                     G_CALLBACK (on_refine_params_rama_restraints_weight_combobox_changed),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_torsions_weight_combobox, "changed",
+                    G_CALLBACK (on_refine_params_torsions_weight_combobox_changed),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_overall_weight_combobox, "changed",
+                    G_CALLBACK (on_refine_params_overall_weight_combobox_changed),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_geman_mcclure_alpha_combobox, "changed",
+                    G_CALLBACK (on_refine_params_geman_mcclure_alpha_combobox_changed),
                     NULL);
   g_signal_connect ((gpointer) refine_params_dialog_ok_button, "clicked",
                     G_CALLBACK (on_refine_params_dialog_ok_button_clicked),
@@ -8706,6 +8816,11 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_geman_mcclure_alpha_combobox, "refine_params_geman_mcclure_alpha_combobox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_lennard_jones_epsilon_combobox, "refine_params_lennard_jones_epsilon_combobox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_rama_restraints_weight_combobox, "refine_params_rama_restraints_weight_combobox");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label849, "label849");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_torsions_weight_combobox, "refine_params_torsions_weight_combobox");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label848, "label848");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_overall_weight_combobox, "refine_params_overall_weight_combobox");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label820, "label820");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label819, "label819");
   GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, dialog_action_area8, "dialog_action_area8");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_dialog_ok_button, "refine_params_dialog_ok_button");
@@ -12223,7 +12338,7 @@ create_single_map_properties_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_lines_radiobutton), displayed_map_style_as_lines_radiobutton_group);
   displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_lines_radiobutton));
 
-  displayed_map_style_as_transparent_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Solid");
+  displayed_map_style_as_transparent_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Solid/Transparent");
   gtk_widget_show (displayed_map_style_as_transparent_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox308), displayed_map_style_as_transparent_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_transparent_radiobutton), displayed_map_style_as_lines_radiobutton_group);

@@ -777,74 +777,74 @@ coot::merge_atom_selections(mmdb::Manager *mol) {
       int  merge_count = 0; // for debugging filename construction
       bool continue_merging = true;
       while (continue_merging) {
-	      continue_merging = false;
-	      int n_chains = model_p->GetNumberOfChains();
-	      std::vector<int> atom_selection_handles;
-	      std::vector<std::string> chain_ids; // for debugging
-	      std::vector<int> atom_selections_changed;
+         continue_merging = false;
+         int n_chains = model_p->GetNumberOfChains();
+         std::vector<int> atom_selection_handles;
+         std::vector<std::string> chain_ids; // for debugging
+         std::vector<int> atom_selections_changed;
 
          // do I need to clear these?
          atom_selection_handles.clear();
          chain_ids.clear();
          atom_selections_changed.clear();
 
-	      for (int ichain=0; ichain<n_chains; ichain++) {
-	         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	         int sel_hnd = mol->NewSelection();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int sel_hnd = mol->NewSelection();
 
-	         mol->Select(sel_hnd, mmdb::STYPE_ATOM, 0,
-			               chain_p->GetChainID(),
-			               mmdb::ANY_RES, "*",  // starting res
-			               mmdb::ANY_RES, "*",  // ending res
-			               "*",  // residue name
-			               "*",  // Residue must contain this atom name?
-               			"*",  // Residue must contain this Element?
-			               "*",  // altLocs
-			               mmdb::SKEY_NEW // selection key
-			               );
-                 atom_selection_handles.push_back(sel_hnd);
-                 chain_ids.push_back(chain_p->GetChainID());
-	      }
+            mol->Select(sel_hnd, mmdb::STYPE_ATOM, 0,
+                        chain_p->GetChainID(),
+                        mmdb::ANY_RES, "*",  // starting res
+                        mmdb::ANY_RES, "*",  // ending res
+                        "*",  // residue name
+                        "*",  // Residue must contain this atom name?
+                        "*",  // Residue must contain this Element?
+                        "*",  // altLocs
+                        mmdb::SKEY_NEW // selection key
+                        );
+            atom_selection_handles.push_back(sel_hnd);
+            chain_ids.push_back(chain_p->GetChainID());
+         }
 
-	      bool r = false;
-	      for (unsigned int i=0; i<atom_selection_handles.size(); i++) {
-	         for (unsigned int j=i; j<atom_selection_handles.size(); j++) {
-	            if (i != j) {
+         bool r = false;
+         for (unsigned int i=0; i<atom_selection_handles.size(); i++) {
+            for (unsigned int j=i; j<atom_selection_handles.size(); j++) {
+               if (i != j) {
 
-                       // tests for mergeability first, did we do a merge?
-                       r = merge_atom_selections(mol, atom_selection_handles[i], atom_selection_handles[j]);
+                  // tests for mergeability first, did we do a merge?
+                  r = merge_atom_selections(mol, atom_selection_handles[i], atom_selection_handles[j]);
 
-                       if (true) { // debugging
-                          if (r) {
-                             std::string debug_file_name = "debug-merge-" + util::int_to_string(merge_count) + ".pdb";
-                             mol->WritePDBASCII(debug_file_name.c_str());
-                             merge_count++;
-                          }
-                       }
-		            if (r) {
-		               continue_merging = true;
-		               atom_selections_changed.push_back(atom_selection_handles[i]);
-		               atom_selections_changed.push_back(atom_selection_handles[j]);
-		               break;
-		            }
-	            }
-	         }
-	         if (r)
-	            break;
-	      }
+                  if (true) { // debugging
+                     if (r) {
+                        std::string debug_file_name = "debug-merge-" + util::int_to_string(merge_count) + ".pdb";
+                        mol->WritePDBASCII(debug_file_name.c_str());
+                        merge_count++;
+                     }
+                  }
+                  if (r) {
+                     continue_merging = true;
+                     atom_selections_changed.push_back(atom_selection_handles[i]);
+                     atom_selections_changed.push_back(atom_selection_handles[j]);
+                     break;
+                  }
+               }
+            }
+            if (r)
+               break;
+         }
 
-	      if (true) // crashes because molecule was modified? (20190112-PE doesn't seem to crash)
-	         for (unsigned int i=0; i<atom_selection_handles.size(); i++)
-	            if (std::find(atom_selections_changed.begin(), atom_selections_changed.end(), atom_selection_handles[i]) ==
-                        atom_selections_changed.end())
-                          mol->DeleteSelection(atom_selection_handles[i]);
+         if (false) // crashes because molecule was modified? (20190112-PE doesn't seem to crash)
+            for (unsigned int i=0; i<atom_selection_handles.size(); i++)
+               if (std::find(atom_selections_changed.begin(), atom_selections_changed.end(), atom_selection_handles[i]) ==
+                   atom_selections_changed.end())
+                  mol->DeleteSelection(atom_selection_handles[i]);
 
 
-	      if (r) {
-	         mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-	         util::pdbcleanup_serial_residue_numbers(mol);  // TrimResidueTable() does this?
-	         mol->FinishStructEdit();
-	      }
+         if (r) {
+            mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+            util::pdbcleanup_serial_residue_numbers(mol);  // TrimResidueTable() does this?
+            mol->FinishStructEdit();
+         }
 
          // hacketty hack
          // continue_merging = false;

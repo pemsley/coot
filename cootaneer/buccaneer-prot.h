@@ -145,8 +145,8 @@ class ProteinTools {
   static bool chain_renumber( clipper::MPolymer& pol, const clipper::MMoleculeSequence& seq );
   static bool chain_tidy( clipper::MiniMol& target, const clipper::MiniMol& source );
   static bool copy_residue_types( clipper::MiniMol& target, const clipper::MiniMol& source );
-  static bool globularise( clipper::MiniMol& mol, const clipper::Coord_frac cent );
-  static bool globularise( clipper::MiniMol& mol );
+   static bool globularise( clipper::MiniMol& mol, const clipper::Coord_frac cent, bool nucleotides=false);
+   static bool globularise( clipper::MiniMol& mol, bool nucleotides=false);
  private:
   static const int ntype;
   static const char rtype1[21];

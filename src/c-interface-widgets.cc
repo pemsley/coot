@@ -648,3 +648,17 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
       }
    }
 }
+
+
+#include "cc-interface.hh"
+
+/* handle_read_ccp4_map is now a .hh/c++ interface function, so give the callback an internal c function */
+int handle_read_ccp4_map_internal(const char *fn, int is_difference_map) {
+
+   int status = 0;
+   if (fn) { 
+      std::string file_name(fn);
+      status = handle_read_ccp4_map(file_name, is_difference_map);
+   }
+   return status;
+}

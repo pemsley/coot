@@ -128,7 +128,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 
    make_backup();
    bool added = 0;
-   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, true, false);
+   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, true, true, false);
    if (asc.read_success) { 
       int imod = 1;
       mmdb::Model *new_model_p = asc.mol->GetModel(imod);
@@ -238,7 +238,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    mmdb::Manager *mol = atom_sel.mol;
 	 
-	    mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
+            mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
 	    strncpy(link->atName1,  at_1->GetAtomName(), 20);
 	    strncpy(link->aloc1,    at_1->altLoc, 20);
@@ -524,11 +524,30 @@ molecule_class_info_t::globularize() {
    if (mol) { 
       make_backup();
 
-      clipper::MiniMol mm;
+      bool nucleotides = false;
 
+      // now check if we have nucleotides
+      std::pair<unsigned int, unsigned int> number_of_typed_residues(0,0);
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (chain_p) {
+               std::pair<unsigned int, unsigned int> nric = coot::util::get_number_of_protein_or_nucleotides(chain_p);
+               number_of_typed_residues.first  = nric.first;
+               number_of_typed_residues.second = nric.second;
+            }
+         }
+      }
+      if (number_of_typed_residues.second > number_of_typed_residues.first)
+         nucleotides = true;
+
+      clipper::MiniMol mm;
       clipper::MMDBfile* mmdbfile = static_cast<clipper::MMDBfile*>(mol);
       mmdbfile->import_minimol(mm);
-      bool r = ProteinTools::globularise(mm);
+      bool r = ProteinTools::globularise(mm, nucleotides);
 
       mmdbfile->export_minimol(mm);
 

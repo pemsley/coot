@@ -32,10 +32,10 @@ pyexec_LTLIBRARIES =
 #
 # ENHANCED_LIGAND_TOOLS_CFLAGS is needed to compile with pli pi-stacking header
 AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) \
-                      $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
+                      $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
 
 SWIG_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CXXFLAGS) \
-                    $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
+                    $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(CAIRO_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
@@ -80,9 +80,13 @@ _pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
 
 _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
                           $(top_builddir)/ideal/libcoot-ideal.la             \
+                          $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+                          $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 			  $(top_builddir)/analysis/libcoot-analysis.la       \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
-                          $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(CLIPPER_LIBS) $(MMDB_LIBS) \
+			  $(top_builddir)/utils/libcoot-utils.la             \
+                          $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
+                          $(CLIPPER_LIBS) $(MMDB_LIBS) \
 			  $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # What does this do? If we add it, we don't get this message:
@@ -110,7 +114,10 @@ libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/geometry/libcoot-geometry.la \
-                                $(RDKIT_LIBS) $(PYTHON_LIBS)
+                                $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+                                $(top_builddir)/utils/libcoot-utils.la       \
+                                $(CLIPPER_LIBS) $(MMDB_LIBS) \
+                                $(RDKIT_LIBS) $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
 # libcoot_py_restraints_la_LDFLAGS = -no-undefined 
@@ -122,10 +129,11 @@ pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
 pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/pli/libcoot-pli.la                 \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
+                                $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
 			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                                $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+                                $(MMDB_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON)
 
 libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 

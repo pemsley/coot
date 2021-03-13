@@ -1,0 +1,50 @@
+#!/bin/sh
+# -*-shell-script-*-
+# coot wrapper script 
+# Copyright 2004, 2005, 2006 Paul Emsley, University of York
+# Copyright 2016 by Medical Research Council
+
+#
+current_exe_dir=$(dirname $0)
+
+if [ $current_exe_dir = . ] ; then 
+  COOT_PREFIX=$(dirname $PWD)
+else 
+  COOT_PREFIX=$(dirname "$current_exe_dir")
+fi
+
+# echo COOT_PREFIX is $COOT_PREFIX
+
+SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
+COOT_DATA_DIR=$COOT_PREFIX/share/coot
+
+systype=$(uname)
+
+if [ $systype = Linux ] ; then 
+   if [ -z "$LD_LIBRARY_PATH" ] ;  then
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
+   fi
+fi
+
+# some (Intel, I supose) Mac users may need to change
+# DYLD_LIBRARY_PATH to DYLD_FALLBACK_LIBRARY_PATH, if running into
+#  problems with Framwork jpeg libraries (don't forget the export 
+# at the end too).
+#
+if [ $systype = Darwin ] ; then 
+   if [ -z "$DYLD_LIBRARY_PATH" ] ;  then
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
+   fi
+fi
+
+export SYMINFO
+export DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+
+$COOT_PREFIX/libexec/coot-ligand-validation-bin $*
+
+

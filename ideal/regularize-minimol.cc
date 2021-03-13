@@ -36,41 +36,38 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
    // 
 
    coot::minimol::molecule m;
-   mmdb::PManager mol = molin.pcmmdbmanager(); 
-
-   int resno_1;
-   int resno_2;
-   short int have_flanking_residue_at_start = 0;
-   short int have_flanking_residue_at_end   = 0;
-   short int have_disulfide_residues        = 0;
-   std::string altconf("");
+   mmdb::Manager *mol = molin.pcmmdbmanager();
 
    // get resno_1 and resno_2 and chain_id
    // For now we presume that we have just the one chain.
    if (molin.fragments.size() > 0) {
       int ifrag = 0; // can make this a for loop variable if adventurous.
-      std::string chain_id = molin[ifrag].fragment_id;
-      resno_1 = molin[ifrag].min_res_no();
-      resno_2 = molin[ifrag].max_residue_number();
+      int resno_1 = molin[ifrag].min_res_no();
+      int resno_2 = molin[ifrag].max_residue_number();
 
-//       std::cout << "          DEBUG:: input minimol: " << std::endl;
-//       std::cout << "=========================================" << std::endl;
-//       molin.check();
-   
-      const char *chn = chain_id.c_str(); 
-      std::vector<coot::atom_spec_t> fixed_atom_specs;
       clipper::Xmap<float> dummy_xmap;
    
-      coot::restraints_container_t restraints(resno_1,
-					      resno_2,
-					      have_flanking_residue_at_start,
-					      have_flanking_residue_at_end,
-					      have_disulfide_residues,
-					      altconf,
-					      chn,
-					      mol,
-					      fixed_atom_specs,
-					      &dummy_xmap);
+      // coot::restraints_container_t restraints(resno_1,
+      //   				      resno_2,
+      //   				      have_flanking_residue_at_start,
+      //   				      have_flanking_residue_at_end,
+      //   				      have_disulfide_residues,
+      //   				      altconf,
+      //   				      chn,
+      //   				      mol,
+      //   				      fixed_atom_specs,
+      //   				      &dummy_xmap);
+
+      std::string chain_id = molin[ifrag].fragment_id;
+      std::vector<std::pair<bool,mmdb::Residue *> > residues;
+      for (int ires=resno_1; ires<=resno_2; ires++) {
+         mmdb::Residue *r = coot::util::get_residue(chain_id, ires, "", mol);
+         if (r) {
+            std::pair<bool, mmdb::Residue *> p(false, r);
+            residues.push_back(p);
+         }
+      }
+      coot::restraints_container_t restraints(residues, geom, mol, &dummy_xmap);
 
       int n_threads_max = get_max_number_of_threads();
       int n_threads = n_threads_max -1;

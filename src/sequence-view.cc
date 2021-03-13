@@ -111,8 +111,7 @@ coot::sequence_view::setup_internal(mmdb::Manager *mol_in) {
    fixed_font = "monospace";
    res_scale = 8;
 #endif   
-   GdkFont *font;
-   font = gdk_font_load(fixed_font.c_str());
+   GdkFont *font = gdk_font_load(fixed_font.c_str());
    gint res_width = gdk_string_width(font, "m");
    //std::cout <<"BL DEBUG:: font width calc "<<res_width <<" and set " << res_scale<< std::endl;
    res_scale = res_width + 2;

@@ -388,9 +388,36 @@ coot::atom_overlaps_container_t::make_overlaps() {
    double dist_crit = 2.3; // Everything that is bonded is less than this
    double dist_crit_sqrd = (2*dist_crit) * (2*dist_crit);
 
+   // so that we can have a sorted list of baddies
+
+   class baddie_attribs_t {
+   public:
+      mmdb::Atom *cr_at;
+      mmdb::Atom *n_at;
+      float r_1;
+      float r_2;
+      float d;
+      float o;
+      bool is_hydrogen_bond;
+      bool hydrogen_atom_is_first_atom;
+      baddie_attribs_t(mmdb::Atom *cr_at, mmdb::Atom *n_at, float r_1, float r_2, float d, float o,
+                       bool is_hydrogen_bond, bool hydrogen_atom_is_first_atom) :
+         cr_at(cr_at), n_at(n_at), r_1(r_1), r_2(r_2), d(d), o(o),
+         is_hydrogen_bond(is_hydrogen_bond), hydrogen_atom_is_first_atom(hydrogen_atom_is_first_atom) {}
+      static bool sorter(const baddie_attribs_t &b1, const baddie_attribs_t &b2) {
+         return b2.o < b1.o;
+      }
+   };
+
    mmdb::PAtom *central_residue_atoms = 0;
    int n_central_residue_atoms;
+   if (! res_central) return; // it isn't if we have all atom
    res_central->GetAtomTable(central_residue_atoms, n_central_residue_atoms);
+   std::string res_central_name(res_central->GetResName());
+   std::vector<std::pair<std::string, std::string> > bonds_for_cr_at =
+      geom_p->get_bonded_and_1_3_angles(res_central_name, protein_geometry::IMOL_ENC_ANY);
+
+   std::vector<baddie_attribs_t> baddies; // and not so baddies
 
    for (int j=0; j<n_central_residue_atoms; j++) {
 
@@ -399,16 +426,28 @@ coot::atom_overlaps_container_t::make_overlaps() {
       clipper::Coord_orth co_cr_at = co(cr_at);
       double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
-      for (unsigned int i=0; i<neighbours.size(); i++) { 
+      for (unsigned int i=0; i<neighbours.size(); i++) {
+
+         std::string res_name_nat(neighbours[i]->GetResName());
+         std::vector<std::pair<std::string, std::string> > bonds_for_n_at =
+            geom_p->get_bonded_and_1_3_angles(res_name_nat, protein_geometry::IMOL_ENC_ANY);
+
 	 mmdb::PAtom *residue_atoms = 0;
-	 int n_residue_atoms;
+	 int n_residue_atoms = 0;
 	 neighbours[i]->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (int iat=0; iat<n_residue_atoms; iat++) { 
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
 	    mmdb::Atom *n_at = residue_atoms[iat];
 	    clipper::Coord_orth co_n_at = co(n_at);
 
 	    double ds = (co_cr_at - co_n_at).lengthsq();
 	    if (ds < dist_crit_sqrd) {
+
+               // duck out if this is linked
+
+               if (is_linked(cr_at, n_at))
+                  continue;
+               if (is_angle_related_via_link(cr_at, n_at, bonds_for_cr_at, bonds_for_n_at))
+                  continue;
 
 	       double r_2 = get_vdw_radius_neighb_atom(n_at, i);
 	       double d = sqrt(ds);
@@ -419,25 +458,27 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	       // is_h_bond_H_and_acceptor(cr_at, n_at, udd_h_bond_type_handle);
 	       h_bond_info_t hbi(cr_at, n_at, udd_h_bond_type_handle);
 
-	       if (d < (r_1 + r_2 + probe_radius)) { 
+	       if (d < (r_1 + r_2 + probe_radius)) {
 		  double o = get_overlap_volume(d, r_2, r_1);
 		  bool h_bond_flag = false;
 		  if (hbi.is_h_bond_H_and_acceptor) {
 		     h_bond_flag = true;
-		     if (hbi.H_is_first_atom_flag) { 
-			std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
-				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
-				  << " overlap " << o << " IS H-Bond (ligand donor)" << std::endl;
+		     if (hbi.H_is_first_atom_flag) {
+                        baddies.push_back(baddie_attribs_t(cr_at, n_at, r_1, r_2, d, o, true, hbi.H_is_first_atom_flag));
+			// std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
+                        // << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                        // << " overlap " << o << " IS H-Bond (ligand donor)" << std::endl;
 		     } else {
-			   std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
-				     << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
-				     << " overlap " << o << " IS H-Bond (ligand acceptor)" << std::endl;
-
+                        baddies.push_back(baddie_attribs_t(cr_at, n_at, r_1, r_2, d, o, true, hbi.H_is_first_atom_flag));
+                        // std::cout << "INFO:: " << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+                        // << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                        // << " overlap " << o << " IS H-Bond (ligand acceptor)" << std::endl;
 		     }
 		  } else { 
-		     std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
-			       << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
-			       << " overlap " << o << std::endl;
+                     baddies.push_back(baddie_attribs_t(cr_at, n_at, r_1, r_2, d, o, false, false));
+		     // std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
+                     // << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                     // << " overlap " << o << std::endl;
 		  }
 		  atom_overlap_t ao(j, cr_at, n_at, r_1, r_2, o);
 		  // atom_overlap_t ao2(-1, n_at, cr_at, r_2, r_1, o);
@@ -447,11 +488,11 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	       } else {
 		  if (hbi.is_h_bond_H_and_acceptor) { 
 		     if (d < (dist_crit + 0.5)) {
-			std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
+			std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
 				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
 				  << " but might be h-bond anyway (is this strange?)"
 				  << std::endl;
-			double o = 0;
+			// double o = 0;
 			// atom_overlap_t ao(cr_at, n_at, r_1, r_2, o);
 			// ao.is_h_bond = true;
 			// overlaps.push_back(ao);
@@ -461,6 +502,21 @@ coot::atom_overlaps_container_t::make_overlaps() {
 	    }
 	 }
       }
+   }
+
+   std::sort(baddies.begin(), baddies.end(), baddie_attribs_t::sorter);
+   for(auto const &b : baddies) {
+      std::cout << "INFO:: " << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
+                << " r_1 " << b.r_1 << " and r_2 " << b.r_2  <<  " and d " << b.d
+                << " overlap " << b.o;
+      // << " IS H-Bond (ligand donor)" << std::endl;
+      if (b.is_hydrogen_bond) {
+         if (b.hydrogen_atom_is_first_atom)
+            std::cout << " is H-bond (ligand donor)";
+         else
+            std::cout << " is H-bond (ligand acceptor)";
+      }
+      std::cout << std::endl;
    }
 }
 
@@ -568,8 +624,8 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 		     // also check links
 		     atom_interaction_type ait =
 			bonded_angle_or_ring_related(mol, at_1, at_2, exclude_mc_flag,
-						     &bonded_neighbours,   // updatedby fn.
-						     &ring_list_map        // updatedby fn.
+						     &bonded_neighbours,   // updated by fn.
+						     &ring_list_map        // updated by fn.
 						     );
 		     if (ait == CLASHABLE) {
                         if (false)
@@ -1263,7 +1319,7 @@ coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 						       bool make_vdw_surface) {
 
-   coot::atom_overlaps_dots_container_t ao;
+   atom_overlaps_dots_container_t ao;
 
    if (mol) {
       mmdb::realtype max_dist = 1.75 + 1.75 + 2 * probe_radius; // max distance for an interaction
@@ -1280,7 +1336,6 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 			"*"  // alt loc.
 			);
 
-#ifdef HAVE_CXX_THREAD
 
       unsigned int n_threads = get_max_number_of_threads();
 
@@ -1292,14 +1347,13 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 							  min_dist, max_dist, make_vdw_surface);
       }
 
-#else
-
+#if 0 // single thread
       // set ao using non-threaded version
       //
       ao = all_atom_contact_dots_internal_single_thread(dot_density_in, mol, i_sel_hnd, i_sel_hnd,
 							min_dist, max_dist, make_vdw_surface);
 
-#endif // HAVE_CXX_THREAD
+#endif //
 
       mol->DeleteSelection(i_sel_hnd);
    }
@@ -1549,7 +1603,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 									     bool make_vdw_surface) {
    
    coot::atom_overlaps_dots_container_t ao;
-#ifdef HAVE_CXX_THREAD
+
    bool exclude_mc_flag = true;
 
    long i_contact_group = 1;
@@ -1695,11 +1749,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	 }
       }
    }
-#endif // HAVE_CXX_THREAD
 
    return ao;
 }
-
 
 // put results in ao
 //
@@ -1724,6 +1776,23 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
 				probe_radius, dot_density_in, clash_spike_length, make_vdw_surface));
    }
 }
+
+
+float
+coot::atom_overlaps_container_t::score() {
+   float s = 0.0;
+   unsigned int nos = overlaps.size();
+   if (nos > 0) {
+      for (unsigned int i=0; i<overlaps.size(); i++) {
+         const atom_overlap_t &o(overlaps[i]);
+         s += o.overlap_volume;
+      }
+      s /= static_cast<float>(nos);
+      s *= 1000.0; // score per 1000 atoms
+   }
+   return s;
+}
+
 
 // static
 coot::atom_overlaps_dots_container_t
@@ -2407,8 +2476,6 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       } else {
          std::vector<std::pair<std::string, std::string> > bonds_for_at_1;
          std::vector<std::pair<std::string, std::string> > bonds_for_at_2;
-         std::string atom_name_1 = at_1->name;
-         std::string atom_name_2 = at_2->name;
          std::string res_name_1(at_1->GetResName());
          std::string res_name_2(at_2->GetResName());
          std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it_1;
@@ -2437,6 +2504,17 @@ coot::atom_overlaps_container_t::is_angle_related_via_link(mmdb::Atom *at_1,
    mmdb::Model *model_p_2 = at_2->GetModel();
 
    if (model_p_2 != model_p_1) return false;
+
+   if (false) { // are you sure that bonds_for_at_1 and bonds_for_at_2 were created with the correct arguments?
+      for (auto const &b : bonds_for_at_1)
+         std::cout << std::string(at_1->GetAtomName()) << " "
+                   << std::string(at_2->GetAtomName()) << " "
+                   << " bonds for at_1 " << b.first << " " << b.second << std::endl;
+      for (auto const &b : bonds_for_at_2)
+         std::cout << std::string(at_1->GetAtomName()) << " "
+                   << std::string(at_2->GetAtomName()) << " "
+                   << " bonds for at_2 " << b.first << " " << b.second << std::endl;
+   }
 
    if (model_p_1) {
       int n_links = model_p_1->GetNumberOfLinks();

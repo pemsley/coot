@@ -27,17 +27,17 @@ pkgincludedir = $(includedir)/coot/lidia-core
 
 
 AM_CPPFLAGS = \
-	 -I$(top_srcdir)                \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
-	$(RDKIT_CXXFLAGS) 		\
-	$(BOOST_CPPFLAGS) 		\
-	$(SQLITE3_CFLAGS)               \
+	 -I$(top_srcdir) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
+	$(RDKIT_CXXFLAGS) 		  \
+	$(BOOST_CPPFLAGS) 	          \
+	$(SQLITE3_CFLAGS)                 \
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
-	rdkit-interface.cc cod-types.cc bond-record-container-t.cc        \
-	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc       \
-	chemical-feature-clusters.cc atom-types.cc get-residue.cc
+	rdkit-interface.cc cod-types.cc atom-types.cc bond-record-container-t.cc \
+	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc \
+	chemical-feature-clusters.cc get-residue.cc
 
 # Are these needed?
 #   $(top_builddir)/coot-utils/libcoot-coord-utils.la  

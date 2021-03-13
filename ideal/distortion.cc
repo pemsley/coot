@@ -320,6 +320,12 @@ coot::geometry_distortion_info_container_t::distortion() const {
    double total_distortion = 0.0;
    for (unsigned int i=0; i< geometry_distortion.size(); i++) {
       const coot::simple_restraint &rest = geometry_distortion[i].restraint;
+      const double &rest_distortion_score = geometry_distortion[i].distortion_score;
+
+      if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	 total_distortion += rest_distortion_score;
+      }
+
       if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
 	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
@@ -678,7 +684,8 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
                d = coot::distortion_score_rama(this_restraint, v, restraints->ZO_Rama(),
                                                restraints->get_rama_plot_weight());
             } else {
-               d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama());
+               double w = restraints->get_rama_plot_weight();
+               d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama(), w);
             }
             // std::cout << "dsm: rama single-thread " << d << std::endl;
                *distortion += d; // positive is bad...  negative is good.
@@ -846,7 +853,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	       d = coot::distortion_score_rama(this_restraint, v, restraints->ZO_Rama(), restraints->get_rama_plot_weight());
                // std::cout << "rama adding " << d << " to " << *distortion << " for rest " << i << std::endl;
 	    } else {
-	       d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama());
+               double w = restraints->get_rama_plot_weight();
+	       d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama(), w);
 	    }
    	    local_sum += d; // positive is bad...  negative is good.
 	    continue;
@@ -1136,6 +1144,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	       distortion = coot::distortion_score_parallel_planes(rest, v);
 	       atom_index = rest.plane_atom_index[0].first;
 	    }
+
 	 if (restraints_usage_flag & coot::NON_BONDED_MASK)
 	    if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	       distortion = coot::distortion_score_non_bonded_contact(rest, lennard_jones_epsilon, v);
@@ -1148,6 +1157,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	       // double dist = sqrt((pt_2-pt_1).lengthsq());
 	       // std::cout << " NBC i " << i << " dist " << dist << " distortion " << distortion << std::endl;
 	    }
+
 	 if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
 	    if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	       distortion = coot::distortion_score_geman_mcclure_distance(rest, v,
@@ -1172,7 +1182,8 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	       if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
 		  distortion = coot::distortion_score_rama(rest, v, ZO_Rama(), get_rama_plot_weight());
 	       } else {
-		  distortion = coot::distortion_score_rama(rest, v, lograma);
+                  double w = get_rama_plot_weight();
+		  distortion = coot::distortion_score_rama(rest, v, lograma, w);
 	       }
 	       atom_index = rest.atom_index_1;
 	       atom_indices.push_back(rest.atom_index_1);
@@ -1435,11 +1446,12 @@ coot::distortion_score_torsion(unsigned int idx_restraint,
 
    if (theta < 0.0) theta += 360.0;
 
+   const double &w = torsion_restraint.torsion_restraint_weight;
    double V_jk = 11.0;
    double per = torsion_restraint.periodicity;
    double theta_0 = clipper::Util::d2rad(torsion_restraint.target_value);
    double theta_r = clipper::Util::d2rad(theta); // what a mess
-   double pen = 0.5 * V_jk * (1.0 - cos(per * (theta_r - theta_0)));
+   double pen = w * 0.5 * V_jk * (1.0 - cos(per * (theta_r - theta_0)));
 
    return pen;
 
@@ -1644,9 +1656,9 @@ coot::distortion_score_improper_dihedral(const coot::simple_restraint &id_restra
 double
 coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 			    const gsl_vector *v,
-			    const LogRamachandran &lograma) {
+			    const LogRamachandran &lograma,
+                            double rama_plot_weight) {
 
-   double distortion = 0;
    // First calculate the torsions:
    // theta = arctan(E/G);
    // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
@@ -1729,7 +1741,7 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
       psi -= 360.0;
 
    double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
-   double R = 10.0 * lr;
+   double R = rama_plot_weight * lr;
    // std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
 
    if ( clipper::Util::isnan(phi) ) {
@@ -1786,7 +1798,6 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 			    float rama_plot_weight) {
 			    // const LogRamachandran &lograma) { // debugging
 
-   double distortion = 0;
    // First calculate the torsions:
    // theta = arctan(E/G);
    // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
@@ -2064,6 +2075,21 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
 
    }
+
+
+#if 0
+   bool debug_output = false;
+   if (nbc_restraint.restraint_index == 870)
+      debug_output = true;
+   if (nbc_restraint.restraint_index == 846)
+      debug_output = true;
+   if (debug_output) {
+      double dist = sqrt(dist_sq);
+      std::cout << "returning V_lj: for index " << nbc_restraint.restraint_index
+                << " atom indices " << nbc_restraint.atom_index_1 << "  " << nbc_restraint.atom_index_2
+                << " distance " << dist << " lj-epsilon " << lj_epsilon << " V_jl "<< V_lj << std::endl;
+   }
+#endif
 
    return V_lj;
 }

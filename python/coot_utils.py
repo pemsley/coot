@@ -1600,7 +1600,10 @@ def transform_map(*args):
     ret = None
 
     def tf(imol, mat, trans, about_pt, radius, space_group, cell):
-        return coot.transform_map_raw(imol,
+
+        print("here in tf with ", imol, mat, trans, about_pt, radius, space_group, cell)
+
+        return transform_map_raw(imol,
                                  mat[0], mat[1], mat[2],
                                  mat[3], mat[4], mat[5],
                                  mat[6], mat[7], mat[8],
@@ -1611,6 +1614,8 @@ def transform_map(*args):
                                  cell[0], cell[1], cell[2],
                                  cell[3], cell[4], cell[5])
 
+    print("len args is", len(args))
+
     # main line
     if (len(args) == 7):
         ret = tf(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
@@ -1620,9 +1625,11 @@ def transform_map(*args):
         ret = tf(imol, args[1], args[2], args[3], args[4],
                  space_group(imol), cell(imol))
     # no matrix specified:
-    elif (len(args) == 4):
+    elif len(args) == 4:
         imol = args[0]
-        ret = tf(imol, identity_matrix(), args[1], args[2], args[3],
+        print("calling tf with ", imol, identity_matrix(), args[1], args[2], args[3], space_group(imol), cell(imol))
+        r = 0.5 * cell(imol)[0]
+        ret = tf(imol, identity_matrix(), [args[1], args[2], args[3]], rotation_centre(), r,
                  space_group(imol), cell(imol))
     # no matrix or about point specified:
     elif (len(args) == 3):
@@ -2663,7 +2670,12 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             else:
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
-            if (not is_nucleotide(imol_ligand, "A", 1)):
+            # 20200412-PE-merge-complexity:
+            if is_nucleotide(imol, chain_id_in, resno):
+                if coot.residue_exists_qm(imol, chain_id_in, resno-1, ""):
+                    coot.delete_atom(imol_ligand, "A", 1, "", " OP3", "")
+
+            if not is_nucleotide(imol_ligand, "A", 1):
                 coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             coot.delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)

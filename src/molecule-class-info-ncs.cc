@@ -975,7 +975,7 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
    map_mean_  = mv.mean;
    map_sigma_ = sqrt(mv.variance);
    contour_level  = contour_level_in;
-   update_map();
+   update_map(true);
 
    std::cout << "Done install_ghost_map" << std::endl;
 }

@@ -28,6 +28,8 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
+// need gtk things
+#include <gtk/gtk.h>
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -639,10 +641,10 @@ class graphics_info_t {
    static coot::Cartesian baton_root;
    static coot::Cartesian baton_tip;
    static float baton_length;
-   static std::vector<coot::scored_skel_coord> *baton_next_ca_options;
+   static std::vector<coot::scored_skel_coord> baton_next_ca_options;
    // baton_previous_ca_positions->back() is the point closest to the new
    // baton tip (is the baton root)
-   static std::vector<clipper::Coord_orth> *baton_previous_ca_positions; // up to 3.
+   static std::vector<clipper::Coord_orth> baton_previous_ca_positions; // up to 3.
    coot::Cartesian non_skeleton_tip_pos() const;
    void baton_next_directions(int imol_for_skel, mmdb::Atom *atom, const coot::Cartesian& pos,
 			      const clipper::Coord_grid &cg_start,
@@ -936,6 +938,10 @@ public:
       }
    }
 
+   // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
+   // is displayed or undisplayed)
+   static bool mol_displayed_toggle_do_redraw; // normally true
+
 
    static bool is_valid_model_molecule(int imol) {
 
@@ -966,11 +972,11 @@ public:
 
    static bool display_mode_use_secondary_p() {
 
-     bool r = 0;
+     bool r = false;
      if ((display_mode == coot::SIDE_BY_SIDE_STEREO) ||
 	 (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
 	 (display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
-       r = 1;
+       r = true;
      }
      return r;
    }
@@ -1369,11 +1375,9 @@ public:
    float Y() { return rotation_centre_y; };
    float Z() { return rotation_centre_z; };
 
-   // why isn't this static? Make it static
-   coot::Cartesian RotationCentre() const
-      { return coot::Cartesian(rotation_centre_x,
-			       rotation_centre_y,
-			       rotation_centre_z);}
+   static coot::Cartesian RotationCentre() { return coot::Cartesian(rotation_centre_x,
+                                                                    rotation_centre_y,
+                                                                    rotation_centre_z);}
 
    // we need static, so that we don't need to instance a
    // graphics_info_t for every frame draw.
@@ -1422,6 +1426,7 @@ public:
    // Calling this turns it on.
    void set_last_map_contour_level(float f);
    void set_last_map_contour_level_by_sigma(float f);
+   static bool auto_recontour_map_flag;
 
    //
    static float rotation_centre_cube_size;
@@ -1530,7 +1535,7 @@ public:
 
    // 0: never run it
    // 1: ask to run it
-   // 2: alwasy run it
+   // 2: run it without asking
    static short int run_state_file_status;
    static bool state_file_was_run_flag;
    static bool run_startup_scripts_flag;
@@ -1864,12 +1869,14 @@ public:
 		       bool mask_water_flag);
 
    static short int in_residue_info_define; // initially 0
-   static float geometry_vs_map_weight;
+   static float geometry_vs_map_weight; // actually it's the other way around, isn't it? rename this.
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
+   static double torsion_restraints_weight;
    static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
    static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
    static int refine_params_dialog_rama_restraints_weight_combobox_position;
+   static int refine_params_dialog_torsions_weight_combox_position;
    static bool refine_params_dialog_extra_control_frame_is_visible;
 
    // similarly for distance and angles:
@@ -2350,6 +2357,7 @@ public:
    int Imol_Refinement_Map() const;
    //
    int set_imol_refinement_map(int imol);
+   float get_estimated_map_weight(int imol_map);
 
    void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type;
@@ -4262,6 +4270,8 @@ string   static std::string sessionid;
    static float pull_restraint_neighbour_displacement_max_radius;
    void pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down); // change above
    static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
+
+   static void poke_the_refinement();
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

@@ -38,7 +38,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh \
 	strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh arc-info.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh pepflip-using-difference-map.hh \
 	polar-atoms.hh 3d-texture.hh
 
@@ -48,7 +48,7 @@ pkgincludedir = $(includedir)/coot/coot-utils
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
@@ -71,7 +71,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
-	3d-texture.cc
+	3d-texture.cc merge-molecules.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -110,10 +110,11 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 
 # should libcoot-coord-utils link $CLIPPER_LIBS? Yes, I think so.
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la $(CLIPPER_LIBS) \
+   libcoot-coord-utils.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-   $(top_builddir)/utils/libcoot-utils.la
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS)
 
 libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -167,20 +168,27 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 
 test_coot_probe_SOURCES = test-coot-probe.cc
 test_coot_probe_LDADD =          \
-	./libcoot-coord-utils.la
+	./libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(MMDB_LIBS)
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =  ./libcoot-coord-utils.la
 
 test_emma_SOURCES = test-emma.cc
 test_emma_LDADD =  libcoot-map-utils.la \
-	$(top_builddir)/coords/libcoot-coords.la
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/coords/libcoot-coords.la \
+	$(CLIPPER_LIBS) $(FFTW2_LIBS)
 
 test_convolute_SOURCES = test-convolute.cc
 test_convolute_LDADD = \
+	./libcoot-coord-utils.la  \
         ./libcoot-map-utils.la \
 	./libcoot-map-heavy.la \
-	$(top_builddir)/coords/libcoot-coords.la
+	$(top_builddir)/coords/libcoot-coords.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)
 
 test_segmap_SOURCES = test-segmap.cc
 test_segmap_LDADD = \
@@ -205,35 +213,49 @@ test_coot_utils_LDADD = \
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
 	 ./libcoot-coord-utils.la \
-        $(GLOB_LIBS)
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(GLOB_LIBS) $(MMDB_LIBS)
 
 test_hole_SOURCES = test-hole.cc
-test_hole_LDADD = ./libcoot-coord-utils.la
+test_hole_LDADD = ./libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(MMDB_LIBS)
 
 test_tt_morph_SOURCES = test-morph.cc
-test_tt_morph_LDADD = 	./libcoot-map-heavy.la
+test_tt_morph_LDADD = 	./libcoot-map-heavy.la \
+        ./libcoot-map-utils.la \
+	./libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc
-test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
+test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS) $(MMDB_LIBS)
 
 test_spherical_SOURCES = test-spherical.cc
 test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(GSL_LIBS)
 
 glyco_torsions_SOURCES = test-glyco-torsions.cc
-glyco_torsions_LDADD   = ./libcoot-coord-utils.la
+glyco_torsions_LDADD   = ./libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(MMDB_LIBS)
 
-#    $(MMDB_LIBS)
 
 test_chem_feat_SOURCES = test-chem-feat.cc
 
 test_chem_feat_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(RDKIT_LIBS)
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+        $(MMDB_LIBS) $(RDKIT_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = \
 	libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(RDKIT_LIBS)
 
 cod_db_access_SOURCES = cod-db-access.cc
@@ -242,7 +264,11 @@ cod_db_access_LDADD = $(top_builddir)/lidia-core/libcoot-lidia-core.la $(RDKIT_L
 
 test_5_residue_fragments_SOURCES = test-5-residue-fragments.cc
 
-test_5_residue_fragments_LDADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la $(RDKIT_LIBS)
+test_5_residue_fragments_LDADD = \
+	libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(CLIPPER_LIBS) \
+	$(RDKIT_LIBS)
 
 dictionary_atom_types_SOURCES = dictionary-atom-types.cc
 

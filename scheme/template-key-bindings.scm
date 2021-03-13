@@ -145,7 +145,7 @@
             (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code
                       aa-atom-name aa-alt-conf 0))))))
 
-(add-key-binding "JED-flip" "G"
+(add-key-binding "Reverse JED-flip" "G"
    (lambda ()
 
      (let ((status (jed-flip-intermediate-atoms)))

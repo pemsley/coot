@@ -58,7 +58,7 @@
 #include "compat/coot-sysdep.h"
 
 zo::rama_table_set coot::restraints_container_t::zo_rama;
-
+std::atomic<bool> coot::restraints_container_t::print_lock(false);
 
 void
 coot::restraints_container_t::clear() {
@@ -86,6 +86,24 @@ coot::restraints_container_t::release_restraints_lock() {
 
    restraints_lock = false;
 }
+
+// static
+void
+coot::restraints_container_t::get_print_lock() {
+
+   bool unlocked = false;
+   while (! print_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(1));
+      unlocked = false;
+   }
+}
+
+// static
+void
+coot::restraints_container_t::release_print_lock() {
+   print_lock = false;
+}
+
 
 
 
@@ -126,29 +144,6 @@ coot::restraints_container_t::~restraints_container_t() {
    }
 }
 
-// iend_res is inclusive, so that 17,17 selects just residue 17.
-//   have_disulfide_residues: other residues are included in the
-//				residues_mol for disphide restraints.
-// 
-coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend_res_in,
-						     bool have_flanking_residue_at_start,
-						     bool have_flanking_residue_at_end,
-						     short int have_disulfide_residues,
-						     const std::string &altloc,
-						     const std::string &chain_id,
-						     mmdb::Manager *mol_in, 
-						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
-
-   init();
-   are_all_one_atom_residues = false;
-   init_from_mol(istart_res_in, iend_res_in, 
-		 have_flanking_residue_at_start, 
-		 have_flanking_residue_at_end,
-		 have_disulfide_residues,
-		 altloc,
-		 chain_id, mol_in, fixed_atom_specs);
-}
 
 // Used in omega distortion graph
 // 
@@ -258,29 +253,6 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
 
 }
 
-coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend_res_in,
-						     short int have_flanking_residue_at_start,
-						     short int have_flanking_residue_at_end,
-						     short int have_disulfide_residues,
-						     const std::string &altloc,
-						     const std::string &chain_id,
-						     mmdb::Manager *mol_in,
-						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> *map_p_in,
-						     float map_weight_in) : xmap_p(map_p_in) {
-
-   init();
-   init_from_mol(istart_res_in, iend_res_in, 		 
-		 have_flanking_residue_at_start, 
-		 have_flanking_residue_at_end,
-		 have_disulfide_residues,
-		 altloc,
-		 chain_id, mol_in, fixed_atom_specs);
-   are_all_one_atom_residues = false;
-   map_weight = map_weight_in;
-   include_map_terms_flag = 1;
-
-}
 
 bool
 coot::residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
@@ -345,6 +317,9 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
 
+   // int n_resiudes_in_mol = util::number_of_residues_in_molecule(mol_in);
+   // std::cout << "################## n_resiudes_in_mol " << n_resiudes_in_mol << std::endl;
+
    std::vector<std::pair<bool,mmdb::Residue *> > residues_local;
    residues_local.reserve(residues.size());
 
@@ -359,7 +334,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 
    if (false)
       for (std::size_t i=0; i<residues_local.size(); i++)
-	 std::cout << "    restraints_container_t() constructor: " << residue_spec_t(residues_local[i].second)
+	 std::cout << "DEBUG:: restraints_container_t() constructor: passed-residue-vec residue: "
+                   << residue_spec_t(residues_local[i].second)
 		   << " has index " << residues_local[i].second->index << std::endl;
 
    residues_vec = residues_local;
@@ -377,7 +353,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
 
-   std::vector<atom_spec_t> fixed_atom_specs;
+   std::vector<atom_spec_t> dummy_fixed_atom_specs;
    std::vector<std::pair<bool,mmdb::Residue *> > residues_local;
    residues_local.reserve(residues.size());
 
@@ -385,6 +361,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
       if (residues[i].second)
          residues_local.push_back(residues[i]);
 
+   std::sort(residues_local.begin(), residues_local.end(), residue_sorter);
    residues_vec = residues_local;
 
    if (false) {
@@ -398,7 +375,10 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
       }
    }
 
-   init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs); // sets mol
+
+   //std::cout << "##################################### constructor D  "
+
+   init_from_residue_vec(residues_local, geom, mol_in, dummy_fixed_atom_specs); // sets mol
    fill_links(mol_in);
 
 }
@@ -530,6 +510,9 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		<< " " << have_flanking_residue_at_end << std::endl;
    }
 
+   std::cout << "##################################### calling init_shared_post() A  "
+             << fixed_atom_specs.size() << std::endl;
+
    init_shared_post(fixed_atom_specs); // clears fixed_atom_indices
 
    add_fixed_atoms_from_flanking_residues(have_flanking_residue_at_start,
@@ -549,7 +532,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    // the smaller the alpha, the more like least squares
    geman_mcclure_alpha = 0.2; // Is this a good value? Talk to Rob.
    mol = mol_in;
-   lennard_jones_epsilon = 0.1;
+   lennard_jones_epsilon = 1.0; // close enough to 0.997 kJ/mol
    cryo_em_mode = true;
    n_times_called = 0;
    n_small_cycles_accumulator = 0;
@@ -656,6 +639,7 @@ coot::restraints_container_t::set_z_occ_weights() {
 void
 coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs) {
 
+   // std::cout << "##################################### init_shared_post() " << fixed_atom_specs.size() << std::endl;
 
    bonded_atom_indices.resize(n_atoms);
 
@@ -774,6 +758,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
+
+   // std::cout << "##################################### start of init_from_residue_vec() "
+   //              << fixed_atom_specs.size() << std::endl;
+   
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
    
@@ -845,22 +833,33 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
                           // This function is called by init but not make_restraints.
                           // init doesn't set bonded_pairs_container (make_restraints does that).
 
+   // dist_crit = 8.0
 
    // fill neighbour_set from rnr (excluding residues of residues_vec):
-   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr = residues_near_residues(residues_vec, mol, dist_crit);
+   
+   std::vector<std::pair<bool,mmdb::Residue *> > active_residues_vec;
+   active_residues_vec.reserve(residues_vec.size()/2 + 1);
+   for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+      if (!residues_vec[ir].first)
+         active_residues_vec.push_back(residues_vec[ir]);
+   }
+   
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr = residues_near_residues(active_residues_vec, mol, dist_crit);
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set;
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
 
-   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+   for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
       mmdb::Residue *r = it_map->first;
       const std::set<mmdb::Residue *> &s = it_map->second;
       std::set<mmdb::Residue *>::const_iterator it_set;
-      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+      for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
 	 bool found = false;
 	 for (std::size_t i=0; i<residues_vec.size(); i++) {
 	    if (*it_set == residues_vec[i].second) {
-	       found = true;
-	       break;
+               if (! residues_vec[i].first) { // moving residue
+                  found = true;
+                  break;
+               }
 	    }
 	 }
 	 if (! found) {
@@ -872,18 +871,31 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(neighbour_set, geom);
 
+   // std::cout << "bonded_pair_container_t bpc for flanking: " << std::endl;
+   // std::cout << bpc << std::endl;
+
    // internal variable non_bonded_neighbour_residues is set by this
    // function:
    set_non_bonded_neighbour_residues_by_residue_vector(neighbour_set, bpc, geom);
 
-   if (debug) { // debug
+   if (false) { // debug
+
+      std::cout << "############## rnr map set: " << std::endl;
+      for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
+	 const std::set<mmdb::Residue *> &s = it_map->second;
+	 std::cout << "::: rnr " << residue_spec_t(it_map->first) << std::endl;
+	 std::set<mmdb::Residue *>::const_iterator it_set;
+	 for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
+	    std::cout << "     rnr " << residue_spec_t(*it_set) << std::endl;
+	 }
+      }
 
       std::cout << "############## neighbour set: " << std::endl;
-      for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); it_map++) {
+      for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); ++it_map) {
 	 const std::set<mmdb::Residue *> &s = it_map->second;
 	 std::cout << "::: " << residue_spec_t(it_map->first) << std::endl;
 	 std::set<mmdb::Residue *>::const_iterator it_set;
-	 for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
 	    std::cout << "      " << residue_spec_t(*it_set) << std::endl;
 	 }
       }
@@ -1032,7 +1044,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       }
    }
 
-   
    for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
       mmdb::Residue *r = it_map->first;
       const std::set<mmdb::Residue *> &s = it_map->second;
@@ -1049,17 +1060,28 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    }
 
 
+   // std::cout << "##################################### init_from_residue_vec() calling init_shared_post() B  "
+   // << fixed_atom_specs.size() << std::endl;
+
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
-   if (true) {
+   if (false) { //debugging
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
-      std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
-	 std::cout << "    " << atom_spec_t(atom[*it]) << std::endl;
+      std::set<int>::const_iterator it_fixed;
+      for (it_fixed=fixed_atom_indices.begin(); it_fixed!=fixed_atom_indices.end(); ++it_fixed)
+	 std::cout << "    " << atom_spec_t(atom[*it_fixed]) << std::endl;
    }
 
    add_fixed_atoms_from_flanking_residues(bpc);
+
+   if (false) { // debug
+      std::cout << "in init_from_residue_vec() here are the non_bonded_neighbour_residues " << non_bonded_neighbour_residues.size() << std::endl;
+      for (unsigned int i=0; i<non_bonded_neighbour_residues.size(); i++) {
+         std::cout << "    " << residue_spec_t(non_bonded_neighbour_residues[i]) << std::endl;
+      }
+   }
+
    add_fixed_atoms_from_non_bonded_neighbours();
 
    set_fixed_during_refinement_udd(); // uses fixed_atom_indices
@@ -1084,13 +1106,18 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 void
 coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
+   // std::cout << "##################################### assign_fixed_atom_indices() " << fixed_atom_specs.size() << std::endl;
+
    fixed_atom_indices.clear();
 
    for (unsigned int i=0; i<fixed_atom_specs.size(); i++) {
       for (int iat=0; iat<n_atoms; iat++) {
-	 if (fixed_atom_specs[i].matches_spec(atom[iat])) {
-	    fixed_atom_indices.insert(iat);
-	 }
+         if (fixed_atom_indices.find(iat) == fixed_atom_indices.end()) { // hopefully a speed-up not a slow-down
+            if (fixed_atom_specs[i].matches_spec(atom[iat])) {
+               fixed_atom_indices.insert(iat); // hello grep: in assign_fixed_atom_indices()
+               break;
+            }
+         }
       }
    }
    //    std::cout << "Found indices for " << fixed_atom_indices.size()
@@ -1123,7 +1150,7 @@ coot::restraints_container_t::debug_atoms() const {
       bool is_fixed = false;
       // use fixed_atom_indices.find()
       std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++) {
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it) {
 	 if (*it == iat) {
 	    is_fixed = true;
 	    break;
@@ -1575,7 +1602,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 unlocked = false;
       }
 
-      std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
+      // std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
       gsl_multimin_fdfminimizer_free(m_s);
       gsl_vector_free(x);
       m_s = 0;
@@ -1686,6 +1713,11 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                rama_distortion_score_sum += dd;
                if (dd > -200.01) {
                   rama_baddies[restraint.atom_index_3] += dd;
+                  // 20200412-PE-merge-complexity: A bug?
+                  // mmdb::Atom *at = atom[restraint.atom_index_3];
+                  // std::string res_type(at->residue->GetResName());
+                  // std::cout << atom_spec_t(at) << " " << res_type << " zo-rama " << dd << std::endl;
+                  rama_baddies[restraint.atom_index_1] += 0.5 * dd;
                }
                refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
                                                 atom[restraint.atom_index_2],
@@ -1694,7 +1726,8 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                                                 atom[restraint.atom_index_5], dd);
                all_ramas.push_back(rp);
             } else {
-               double dd = distortion_score_rama(restraint, v, LogRama());  // mean is about -200
+               double w = get_rama_plot_weight();
+               double dd = distortion_score_rama(restraint, v, LogRama(), w);
                rama_distortion_score_sum += dd;
                if (false)
                   std::cout << "rama for restraint " << i << " distortion " << dd << " "
@@ -2279,12 +2312,14 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 #endif		  
 
 	       } else {
-		  double dd = distortion_score_rama(restraint, v, lograma);
+                  double w = get_rama_plot_weight();
+		  double dd = distortion_score_rama(restraint, v, lograma, w);
 		  rama_distortion += dd;
 		  baddies["Rama"].update_if_worse(dd, i);
 	       }
 	       if (false) {
-		  double d1 = distortion_score_rama(restraint, v, LogRama());
+                  double w = get_rama_plot_weight();
+		  double d1 = distortion_score_rama(restraint, v, LogRama(), w);
 		  double d2 = coot::distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
 		  std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
 	       }
@@ -3534,6 +3569,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_auto() {
 
+   bool console_output_for_restraints_generation_timings = false;
+
    float pseudo_bond_esd = 0.2; // 0.05 was too tight
    unsigned int n_helical_restraints = 0;
 
@@ -3697,11 +3734,14 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
       }
 
    }
-   std::cout << "INFO:: added " << n_helical_restraints << " helical restraints" << std::endl;
 
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   std::cout << "INFO:: Timing for auto-helix " << d10 << " microseconds" << std::endl;
+   if (verbose_geometry_reporting)
+      std::cout << "INFO:: added " << n_helical_restraints << " helical restraints" << std::endl;
+   if (console_output_for_restraints_generation_timings) {
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      std::cout << "INFO:: Timing for auto-helix " << d10 << " microseconds" << std::endl;
+   }
 
 }
 
@@ -3988,19 +4028,18 @@ coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coo
             int udd_get_data_status_1 = hb.donor->GetUDData(   udd_atom_index_handle, index_1);
             int udd_get_data_status_2 = hb.acceptor->GetUDData(udd_atom_index_handle, index_2);
 
-
             if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
                 udd_get_data_status_2 == mmdb::UDDATA_Ok) {
 
+               double bl = sqrt(b.lengthsq()); // bond length
                std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-               add(BOND_RESTRAINT, index_1, index_2,
-                   fixed_flags,
-                   sqrt(b.lengthsq()), 0.1,
-                   1.2);  // junk value
 
-               add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
-                                          sqrt(b.lengthsq()), 0.1);
-                                          
+               bool as_bond = true;
+               if (as_bond) {
+                  add_h_bond(BOND_RESTRAINT, index_1, index_2, fixed_flags, bl, 0.1);
+               } else {
+                  add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags, bl, 0.1);
+               }
                n_bonds++;
             }
          }
@@ -4027,9 +4066,6 @@ coot::restraints_container_t::make_monomer_restraints(int imol,
    // std::cout << "------------------------ in make_monomer_restraints() "
    // << do_residue_internal_torsions << std::endl;
 
-   std::cout << "------------------------ in make_monomer_restraints() "
-             << restraints_usage_flag << std::endl;
-   
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(imol, geom, do_residue_internal_torsions);
    else
@@ -4195,7 +4231,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	       std::string residue_type = residue_p->GetResName();
 	       if (residue_type != "PRO")
 		  local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
-							residue_p, geom);
+							residue_p, geom, torsion_restraints_weight);
 	    }
 	 }
 
@@ -4658,12 +4694,12 @@ coot::restraints_container_t::closest_approach(mmdb::Residue *r1, mmdb::Residue 
 // set the class variable non_bonded_neighbour_residues
 void
 coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &neighbour_set,
-										  const coot::bonded_pair_container_t &bonded_flanking_pairs, const coot::protein_geometry &geom) {
+										  const coot::bonded_pair_container_t &bonded_flanking_pairs,
+                                                                                  const coot::protein_geometry &geom) {
 
    // non_bonded_neighbour_residues becomes this:
    //
-   std::vector<mmdb::Residue *> nbr; // non-bonded residues 
-   float dist_crit = 3.0;
+   std::vector<mmdb::Residue *> nbr; // non-bonded residues
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
 
@@ -4672,12 +4708,12 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
    // std::vector<mmdb::Residue *> neighbours =
    // coot::residues_near_residue(residues_vec[ir].second, mol, dist_crit);
 
-   for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); it_map++) {
+   for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); ++it_map) {
 
       const std::set<mmdb::Residue *> &neighbours = it_map->second;
       std::set<mmdb::Residue *>::const_iterator it_set;
 
-      for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
+      for (it_set=neighbours.begin(); it_set!=neighbours.end(); ++it_set) {
 	 mmdb::Residue *test_res = *it_set;
 	 if (std::find(nbr.begin(), nbr.end(), test_res) == nbr.end()) {
 	    // not already there...
@@ -4688,8 +4724,10 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
 			 << residues_vec.size() << " refining residues " << std::endl;
 	    for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
 	       if (test_res == residues_vec[ires].second) {
-		  found = true;
-		  break;
+                  if (! residues_vec[ires].first) {
+                     found = true;
+                     break;
+                  }
 	       }
 	    }
 
@@ -4701,21 +4739,18 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
 	       // check that it is not a bonded flanking residue...
 	       for (unsigned int iflank=0; iflank<bonded_flanking_pairs.size(); iflank++) { 
 		  if (bonded_flanking_pairs[iflank].res_1 == test_res) {
-		     found = 1;
-		     // std::cout << "      oops bonded flanking residue res1 " << std::endl;
+		     found = true;
 		     break;
 		  } 
 		  if (bonded_flanking_pairs[iflank].res_2 == test_res) {
-		     found = 1;
-		     // std::cout << "   oops bonded flanking residue res2 " << std::endl;
+		     found = true;
 		     break;
 		  }
 	       }
 
 	       if (! found) {
-		  // std::cout << ".... adding non-bonded neighbour " << residue_spec_t(test_res) << std::endl;
 		  nbr.push_back(test_res);
-	       }
+               }
 	    }
 	 }
       }
@@ -4723,65 +4758,6 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
    non_bonded_neighbour_residues = nbr;
 }
 
-// 20180224 pre-Weizmann
-//
-// find residues in the neighbourhood that are not in the refining set
-// and are not already marked as bonded flankers.
-// 
-void
-coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vector(const coot::bonded_pair_container_t &bonded_flanking_pairs, const coot::protein_geometry &geom) {
-
-   std::vector<mmdb::Residue *> nbr; // non-bonded residues 
-   float dist_crit = 3.0;
-
-   for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-      std::vector<mmdb::Residue *> neighbours =
-	 coot::residues_near_residue(residues_vec[ir].second, mol, dist_crit);
-      for (unsigned int ineighb=0; ineighb<neighbours.size(); ineighb++) {
-	 mmdb::Residue *test_res = neighbours[ineighb];
-	 if (std::find(nbr.begin(), nbr.end(), test_res) == nbr.end()) {
-	    // not already there...
-	    bool found = 0;
-
-	    if (0)
-	       std::cout << ".... about to compare " << residue_spec_t(test_res) << " to "
-			 << residues_vec.size() << " refining residues " << std::endl;
-	    for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
-	       if (test_res == residues_vec[ires].second) {
-		  found = 1;
-		  break;
-	       }
-	    }
-
-	    if (! found) {
-	       // OK, so this neighbour was not in the passed set of
-	       // moving residues (and not already in nbr)... it can
-	       // be a flanking residue then...
-
-	       // check that it is not a bonded flanking residue...
-	       for (unsigned int iflank=0; iflank<bonded_flanking_pairs.size(); iflank++) { 
-		  if (bonded_flanking_pairs[iflank].res_1 == test_res) {
-		     found = 1;
-		     // std::cout << "      oops bonded flanking residue res1 " << std::endl;
-		     break;
-		  } 
-		  if (bonded_flanking_pairs[iflank].res_2 == test_res) {
-		     found = 1;
-		     // std::cout << "   oops bonded flanking residue res2 " << std::endl;
-		     break;
-		  }
-	       }
-
-	       if (! found) {
-		  // std::cout << ".... adding non-bonded neighbour " << residue_spec_t(test_res) << std::endl;
-		  nbr.push_back(test_res);
-	       } 
-	    }
-	 }
-      }
-   }
-   non_bonded_neighbour_residues = nbr;
-} 
 
 bool
 coot::restraints_container_t::H_parent_atom_is_donor(mmdb::Atom *at) {
@@ -4867,9 +4843,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 								 const coot::restraints_container_t::reduced_angle_info_container_t &ai,
 								 const coot::protein_geometry &geom) {
 
-
-#ifdef HAVE_CXX_THREAD
-
    std::cout << "------------------- timing" << std::endl;
    std::set<unsigned int> fixed_atom_flags_set; // fill this properly!
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -4891,7 +4864,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
    std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
 	     << " milliseconds for " << n_nbc << " nbcs " << std::endl;
 
-#endif // HAVE_CXX_THREAD
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
    construct_non_bonded_contact_list(bpc, geom);
@@ -4954,11 +4926,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
       energy_type_cache[at] = get_type_energy(imol, at, geom);
    }
 
+
    int n_nbc_r = 0;
-   for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
+   for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) {
+
+      mmdb::Atom *at_1 = atom[i];
+
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
 
-	 mmdb::Atom *at_1 = atom[i];
 	 mmdb::Atom *at_2 = atom[filtered_non_bonded_atom_indices[i][j]];
 
 	 std::vector<bool> fixed_atom_flags =
@@ -5089,11 +5064,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << " is_1_4_related " << is_1_4_related << std::endl;
 
 	       if (is_1_4_related) {
-		  dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+                  if (in_same_ring_flag)
+                     dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+                  else
+                     dist_min = 3.8;
 		  if (is_hydrogen(at_1))
 		      dist_min -= 0.7;
 		  if (is_hydrogen(at_2))
 		      dist_min -= 0.7;
+
 	       } else {
 
 		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
@@ -5255,7 +5234,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
 				  nbcf,
 				  i, filtered_non_bonded_atom_indices[i][j],
-				  type_1, type_2, is_H_non_bonded_contact,
+				  is_H_non_bonded_contact,
 				  fixed_atom_flags, dist_min);
 
 	       if (false)
@@ -6688,6 +6667,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
+                              // std::cout << "settings H_atom_parent route-A H_atom " << atom_spec_t(H_at) << " "
+                              //           << atom_spec_t(parent_at) << " type " << hbt << std::endl;
 			   }
 			   if (is_hydrogen(atom[index2])) {
 			      mmdb::Atom *H_at = atom[index2];
@@ -6696,11 +6677,31 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
-			   }
+                              // std::cout << "settings H_atom_parent route-B H_atom " << atom_spec_t(H_at) << " "
+                              //           << atom_spec_t(parent_at) << " type " << hbt << std::endl;
+
+                              // It seems to me that NR5 in the dictionary for HIS and TRP is wrong. It should
+                              // be a donor.
+                              // So kludge that in here
+                              if (dict.residue_info.comp_id == "HIS") {
+                                 mmdb::Atom *parent_at = atom[index1];
+                                 std::string parent_atom_name(parent_at->name);
+                                 if (parent_atom_name == "ND1 ") // PDBv3 fixme
+                                    H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
+                                 if (parent_atom_name == "NE2 ") // PDBv3 fixme
+                                    H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
+                              }
+                              if (dict.residue_info.comp_id == "TRP") {
+                                 mmdb::Atom *parent_at = atom[index1];
+                                 std::string parent_atom_name(parent_at->name);
+                                 if (parent_atom_name == "NE1 ") // PDBv3 fixme
+                                    H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
+                              }
+                           }
 			}
 
 			catch (const std::runtime_error &rte) {
-			   
+
 			   // do nothing, it's not really an error if the dictionary
 			   // doesn't have target geometry (the bonding description came
 			   // from a Chemical Component Dictionary entry for example).
@@ -6856,7 +6857,7 @@ coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rot
                      std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() replaced flag " << replaced << " for "
                                << new_torsion_restraint << std::endl;
                   if (! replaced)
-                     status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms);
+                     status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms, torsion_restraints_weight);
                }
             }
          }
@@ -6939,9 +6940,19 @@ coot::restraints_container_t::replace_torsion_restraint(const coot::dict_torsion
 }
 
 
+void
+coot::restraints_container_t::set_torsion_restraints_weight(double w) {
+   // we make the changes as the refinement is running possibly. Might be dangerous.
+   torsion_restraints_weight = w;
+   for (auto &r : restraints_vec)
+      if (r.restraint_type == TORSION_RESTRAINT)
+         r.torsion_restraint_weight = w;
+}
+
 bool
 coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
-                                                   mmdb::PPAtom res_selection, int i_no_res_atoms) {
+                                                   mmdb::PPAtom res_selection, int i_no_res_atoms,
+                                                   const double &torsion_restraint_weight) {
 
    bool status = false;
 
@@ -7021,10 +7032,11 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 					   fixed_flags,
 					   torsion_angle,
 					   torsion_restraint.esd(),
-					   1.2,  // junk value
+					   torsion_restraint_weight,
 					   torsion_restraint.periodicity());
 
-				       if (false)
+				       if (false) {
+                                          get_print_lock();
 				          std::cout << "debug:: Adding monomer torsion restraint: "
 						    << index1 << " "
 						    << index2 << " "
@@ -7032,9 +7044,11 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 						    << index4 << " torsion "
 						    << torsion_restraint.angle() << " esd "
 						    << torsion_restraint.esd() << " period "
-						    << torsion_restraint.periodicity()
+						    << torsion_restraint.periodicity() << " "
+                                                    << " weight " << torsion_restraint_weight
 						    << std::endl;
-
+                                          release_print_lock();
+                                       }
 				       status = true;
 				    }
 				 }
@@ -7055,14 +7069,15 @@ int
 coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 					   int i_no_res_atoms,
 					   mmdb::PResidue SelRes,
-					   const coot::protein_geometry &geom) {
+					   const coot::protein_geometry &geom,
+                                           const double &torsion_restraints_weight) {
 
    int n_torsion_restr = 0;
    const std::vector<dict_torsion_restraint_t> &torsion_restraints = geom[idr].second.torsion_restraint;
 
    for (unsigned int ib=0; ib<torsion_restraints.size(); ib++) {
       const dict_torsion_restraint_t &torsion_restraint = torsion_restraints[ib];
-      bool status = add_torsion_internal(torsion_restraint, res_selection, i_no_res_atoms);
+      bool status = add_torsion_internal(torsion_restraint, res_selection, i_no_res_atoms, torsion_restraints_weight);
       if (status)
          n_torsion_restr++;
    }
@@ -7430,7 +7445,7 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
 
 
 void
-coot::restraints_container_t::convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_and_sigma,
+coot::restraints_container_t::convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > &atom_index_and_sigma,
 										       const std::vector<bool> &fixed_atom_flags) {
 
    if (atom_index_and_sigma.size() == 4) {
@@ -7916,27 +7931,12 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 protein_geometry geom;
 	 geom.replace_monomer_restraints(residue_p->GetResName(), imol, dict_restraints);
    
-	 short int have_flanking_residue_at_start = 0;
-	 short int have_flanking_residue_at_end = 0;
-	 short int have_disulfide_residues = 0;
-	 std::string altloc("");
-	 std::vector<coot::atom_spec_t> fixed_atom_specs;
-
-	 char *chain_id = residue_p->GetChainID();
-	 int istart_res = residue_p->GetSeqNum();
-	 int iend_res   = istart_res;
 	 clipper::Xmap<float> dummy_xmap;
 
-	 coot::restraints_container_t restraints(istart_res,
-						 iend_res,
-						 have_flanking_residue_at_start,
-						 have_flanking_residue_at_end,
-						 have_disulfide_residues,
-						 altloc,
-						 chain_id,
-						 mol,
-						 fixed_atom_specs,
-						 &dummy_xmap);
+         std::vector<std::pair<bool,mmdb::Residue *> > residues;
+         residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_p));
+         mmdb::Manager *null_mol = 0;
+         coot::restraints_container_t restraints(residues, geom, null_mol, &dummy_xmap);
    
 	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;

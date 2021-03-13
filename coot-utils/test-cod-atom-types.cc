@@ -58,7 +58,7 @@ void write_types(RDKit::RWMol &rdkm) {
       for (unsigned int iat=0; iat<rdkm.getNumAtoms(); iat++) {
 	 try {
 	    std::string name;
-	    RDKit::ATOM_SPTR at_p = rdkm[iat];
+	    RDKit::Atom *at_p = rdkm[iat];
 	    at_p->getProp("name", name);
 	    std::cout << iat << "   \"" << name << "\"\n";
 	 }
@@ -75,7 +75,7 @@ void write_types(RDKit::RWMol &rdkm) {
    for (unsigned int iat=0; iat<v.size(); iat++) {
       std::string name;
       try {
-	 RDKit::ATOM_SPTR at_p = rdkm[iat];
+	 RDKit::Atom *at_p = rdkm[iat];
 	 at_p->getProp("name", name);
 
 	 int n = at_p->getAtomicNum();
@@ -303,7 +303,7 @@ validate(const std::string &comp_id,
    std::string dir = acedrg_install_dir + "/share/acedrg/tables/allOrgBondTables";
    brc.read_acedrg_table_dir(dir);
    
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
 
    coot::residue_spec_t residue_spec(chain_id, res_no, "");
 

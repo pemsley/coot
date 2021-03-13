@@ -136,7 +136,12 @@ handle_command_line_data(command_line_data cld) {
    // maps
 
    for (unsigned int i=0; i< cld.maps.size(); i++) { 
-      handle_read_ccp4_map(cld.maps[i].c_str(), 0); // not difference map
+      handle_read_ccp4_map(cld.maps[i], 0); // not difference map
+   }
+
+   // emdb codes
+   for (unsigned int i=0; i< cld.emdb_codes.size(); i++) { 
+      handle_read_emdb_data(cld.emdb_codes[i]); // not difference map
    }
 
    // cif dictionaries
@@ -161,7 +166,7 @@ handle_command_line_data(command_line_data cld) {
    // title
    if (cld.title.length() > 0)
       set_main_window_title(cld.title.c_str());
-   
+
    // --no-guano used?
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;

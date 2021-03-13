@@ -1,4 +1,7 @@
 
+#ifndef MERGE_ATOM_SELECTIONS_HH
+#define MERGE_ATOM_SELECTIONS_HH
+
 #include <utility>
 #include <vector>
 #include <mmdb2/mmdb_manager.h>
@@ -61,3 +64,6 @@ namespace coot {
    void renumber_chains_start_at_least_at_1(mmdb::Manager *mol);
 
 }
+
+#endif // MERGE_ATOM_SELECTIONS_HH
+

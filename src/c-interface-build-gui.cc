@@ -315,21 +315,23 @@ void set_refinement_weight_from_entry(GtkWidget *entry) {
    }
 }
 
-void estimate_map_weight(GtkWidget *entry) {
+void add_estimated_map_weight_to_entry(GtkWidget *entry) {
 
    int imol_map = imol_refinement_map();
    if (is_valid_map_molecule(imol_map)) {
-      float mean = graphics_info_t::molecules[imol_map].map_mean();
-      float sd   = graphics_info_t::molecules[imol_map].map_sigma();
-
-      float v = 50*0.3/sd;
-      if (graphics_info_t::molecules[imol_map].is_EM_map())
-	 v *= 0.35;
+      float v = estimate_map_weight(imol_map);
       graphics_info_t::geometry_vs_map_weight = v;
       std::string t = coot::util::float_to_string(v);
       gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
    }
 
+}
+
+float estimate_map_weight(int imol_map) {
+
+   graphics_info_t g;
+   float w = g.get_estimated_map_weight(imol_map);
+   return w;
 }
 
 
@@ -509,7 +511,7 @@ void apply_add_OXT_from_widget(GtkWidget *ok_button) {
 	    if (false)
 	       std::cout << "DEBUG:: adding OXT to " << imol << " "
 			 << chain_id << " " << resno << std::endl;
-	    add_OXT_to_residue(imol, resno, "", chain_id.c_str());
+	    add_OXT_to_residue(imol, chain_id.c_str(), resno, "");
 	 }
       }
    } else {

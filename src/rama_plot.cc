@@ -359,13 +359,14 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    if (! is_kleywegt_plot_flag_local) // extra space needed
       ysize = 535;
 
-   // GtkAllocation alloc = { 0, 0, 460, ysize };
-   // gtk_widget_size_allocate(dynawin, &alloc);
-   // if (dynawin) {
-   // gtk_widget_show(dynawin);
-   // } else {
-   // std::cout<<"ELLOR:: no window, should bail out"<<std::endl;
-   // }
+   // 20210111-PE-merge-weirdness. bug?
+   GtkAllocation alloc = { 0, 0, 400, ysize };
+   gtk_widget_size_allocate(dynawin, &alloc);
+   if (dynawin) {
+      gtk_widget_show(dynawin);
+   } else {
+      std::cout<<"ERROR:: no window, should bail out"<<std::endl;
+   }
 
    g_signal_connect(dynawin, "configure-event", G_CALLBACK(rama_configure_event), this);
 
@@ -1325,7 +1326,7 @@ coot::rama_plot::cell_border(int i, int j, int step_in) {
 
    item = goo_canvas_polyline_new(root,
                                   TRUE, 0,
-            "points", points,
+                                  "points", points,
                                   "line-width", 2,
                                   "fill-color", "grey50",
             NULL);

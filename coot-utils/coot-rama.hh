@@ -35,7 +35,7 @@
 namespace coot {
 
    namespace util { 
-   
+
       class phi_psi_t {
 
 	 //

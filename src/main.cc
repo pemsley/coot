@@ -194,12 +194,17 @@ void do_main_window(const command_line_data &cld) {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       main_title += " EL";
 #endif
+
+#ifdef COOT_MAIN_TITLE_EXTRA
+      main_title += COOT_MAIN_TITLE_EXTRA;
+#else
       // if this is a pre-release, stick in the revision number too
       if (version_string.find("-pre") != std::string::npos) {
 	 main_title += " (revision count ";
 	 main_title += coot::util::int_to_string(git_revision_count());
 	 main_title += ")";
       }
+#endif
 
 #ifdef WINDOWS_MINGW
       main_title = "Win" + main_title;

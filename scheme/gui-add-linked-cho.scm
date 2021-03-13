@@ -610,6 +610,18 @@
 	 (lambda ()
 	   (use-unimodal-pyranose-ring-torsions)))
 
+        (add-simple-coot-menu-menuitem
+         menu "Display Extra Restraints"
+         (lambda ()
+           (using-active-atom
+            (set-show-extra-restraints aa-imol 1))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Undisplay Extra Restraints"
+         (lambda ()
+           (using-active-atom
+            (set-show-extra-restraints aa-imol 0))))
+
 	(add-simple-coot-menu-menuitem
 	 menu "Extract this Tree"
 	 (lambda()

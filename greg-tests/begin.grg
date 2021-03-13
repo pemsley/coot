@@ -99,7 +99,7 @@
       (if (not atom-2)
 	  (throw 'missing-atom-2)
 	  (let ((b (bond-length-from-atoms atom-1 atom-2)))
-	    (format #t "bond-length-within-tolerance? bond-length ~s with target ~s and tolerance ~s for atom ~s is ~s~%~!" 
+	    (format #t "bond-length-within-tolerance? bond-length ~s with target ~s and tolerance ~s for atoms\n   ~s and\n   ~s~%~!"
 		    b ideal-length tolerance atom-1 atom-2)
 	    (< (abs (- b ideal-length)) tolerance)))))
 

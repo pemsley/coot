@@ -841,6 +841,12 @@ void set_scroll_by_wheel_mouse(int istate);
 /*! \brief return the internal state of the scroll-wheel map contouring */
 int scroll_by_wheel_mouse_state();
 
+/*! \brief turn off (0) or on (1) auto recontouring (on screen centre change) (default it on) */
+void  set_auto_recontour_map(int state);
+
+/*! \brief return the auto-recontour state */
+int get_auto_recontour_map();
+
 /*! \brief set the default inital contour for 2FoFc-style map
 
 in sigma */
@@ -1572,10 +1578,11 @@ int  esoteric_depth_cue_state();
    red is positive and green is negative. */
 void set_swap_difference_map_colours(int i);
 int swap_difference_map_colours_state();
+
 /*! \brief post-hoc set the map of molecule number imol to be a
   difference map
   @return success status, 0 -> failure (imol does not have a map) */
-int set_map_is_difference_map(int imol);
+int set_map_is_difference_map(int imol, short int bool_flag);
 
 /*! \brief map is difference map? */
 int map_is_difference_map(int imol);
@@ -2603,33 +2610,6 @@ void set_skeleton_box_size(float f);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                        Skeleton                                          */
-/*  ----------------------------------------------------------------------- */
-/* section Skeleton Colour */
-/*! \name  Skeleton Colour */
-/* \{ */
-/* MOVE-ME to c-interface-gtk-widgets.h */
-void handle_skeleton_colour_change(int mol, gdouble* map_col);
-/*! \brief set the skeleton colour */
-void set_skeleton_colour(int imol, float r, float g, float b);
-
-/* MOVE-ME to c-interface-gtk-widgets.h */
-gdouble* get_skeleton_colour();
-
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
-/*                         read a ccp4 map                                  */
-/*  ----------------------------------------------------------------------- */
-/* section Read Maps */
-/*! \name  Read Maps */
-/* \{ */
-
-/*! \brief read a CCP4 map or a CNS map (despite the name). */
-int handle_read_ccp4_map(const char* filename, int is_diff_map_flag);
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
 /*                        save coordinates                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Save Coordinates */
@@ -3288,7 +3268,8 @@ void add_omega_torsion_restriants();
 void remove_omega_torsion_restriants();
 
 /*! \brief add or remove auto H-bond restraints */
-void set_auto_h_bond_restraints(int state);
+void set_refine_hydrogen_bonds(int state);
+
 
 /*! \brief set immediate replacement mode for refinement and
   regularization.  You need this (call with istate=1) if you are
@@ -3399,6 +3380,13 @@ void set_matrix(float f);
 /*! \brief return the relative weight of the geometric terms to the map terms. */
 float matrix_state();
 
+/*! \brief return the relative weight of the geometric terms to the map terms.
+
+A more sensible name for the matrix_state() function) */
+float get_map_weight();
+
+float estimate_map_weight(int imol_map);
+
 
 /*! \brief change the +/- step for autoranging (default is 1)
 
@@ -3494,13 +3482,19 @@ void set_refine_ramachandran_restraints_weight(float w);
 @return weight as a float */
 float refine_ramachandran_restraints_weight();
 
+/* not ready yet \brief set the weight for torsion restraints (default 1.0)*/
+void set_torsion_restraints_weight(double w);
+
 /* \brief set the state for using rotamer restraints "drive" mode */
 void set_refine_rotamers(int state);
 
-void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
-void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
-void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
+void set_refinement_geman_mcclure_alpha_from_text(int combobox_item_idx, const char *t);
+void set_refinement_lennard_jones_epsilon_from_text(int combobox_item_idx, const char *t);
+void set_refinement_ramachandran_restraints_weight_from_text(int combobox_item_idx, const char *t);
+void set_refinement_overall_weight_from_text(const char *t);
+void set_refinement_torsion_weight_from_text(int combobox_item_index, const char *t);
 void set_refine_params_dialog_more_control_frame_is_active(int state);
+
 
 int refine_ramachandran_angles_state();
 
@@ -3848,6 +3842,9 @@ void set_environment_distances_label_atom(int state);
 /*! \brief Label the atoms in the residues around the central residue */
 void label_neighbours();
 
+/*! \brief Label the atoms in the central residue */
+void label_atoms_in_residue();
+
 
 
 /*! \brief Add a geometry distance between points in a given molecule
@@ -4146,6 +4143,7 @@ void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
 void setup_multi_residue_torsion();  /* show the pick dialog */
 
 
+float atom_overlap_score(int imol);
 
 /* \} */
 
@@ -4211,7 +4209,23 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 /* \{ */
 /*! \brief display the sequence view dialog for molecule number imol */
 void do_sequence_view(int imol);
+
+/*!  \brief display the sequence view for molecule number imol */
+void nsv(int imol);
+/*!  \brief control where the sequence view is displayed
+
+in the main application or a new dialog */
+void set_sequence_view_is_docked(short int state);
+
+/*!  \brief set the pixel limit for sequence view windows */
+void set_nsv_canvas_pixel_limit(int cpl);
+
+/*!  \brief show old style sequence view */
+void sequence_view_old_style(int imol);
+
+/* this is a widget function, it shouldn't be here */
 void add_on_sequence_view_choices();
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5139,6 +5153,11 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
 /*! \brief delete all hydrogens in molecule,
 
    @return number of hydrogens deleted. */
+int delete_hydrogen_atoms(int imol);
+
+/*! \brief delete all hydrogens in molecule,
+
+   @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
 
 /*! \brief delete all waters in molecule,
@@ -5623,7 +5642,7 @@ void setup_reverse_direction(short int i);
 /*! \name Terminal OXT Atom */
 /* c-interface-build */
 /*! \{ */
-short int add_OXT_to_residue(int imol, int reso, const char *insertion_code, const char *chain_id);
+short int add_OXT_to_residue(int imol, const char *chain_id, int reso, const char *insertion_code);
 
 /*! \} */
 
@@ -7134,18 +7153,8 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
-
-/*!  \brief display the sequence view for molecule number imol */
-void nsv(int imol);
-/*!  \brief control where the sequence view is displayed
-
-in the main application or a new dialog */
-void set_sequence_view_is_docked(short int state);
-
-/*!  \brief set the pixel limit for sequence view windows */
-void set_nsv_canvas_pixel_limit(int cpl);
-
-void sequence_view_old_style(int imol);
+/*! \name Experimental */
+/* \{ */
 
 void add_ligand_builder_menu_item_maybe();
 

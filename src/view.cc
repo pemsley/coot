@@ -77,7 +77,6 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	 // double frac = double(1.0)/double(n_steps);
 	 // for (double f=0; f<=1.0; f+=frac) {
 
-
          // replace the direct "updating of the positions and orientation, and redraw"
          // with a callback animation function
 
