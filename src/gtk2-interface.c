@@ -8659,7 +8659,7 @@ create_refine_params_dialog (void)
   refine_params_weight_matrix_entry = gtk_entry_new ();
   gtk_widget_show (refine_params_weight_matrix_entry);
   gtk_box_pack_start (GTK_BOX (hbox407), refine_params_weight_matrix_entry, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (refine_params_weight_matrix_entry, 80, -1);
+  gtk_widget_set_size_request (refine_params_weight_matrix_entry, 58, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (refine_params_weight_matrix_entry), 9679);
 
   weight_maxtrix_estimate_button = gtk_button_new_with_mnemonic (" Estimate ");
