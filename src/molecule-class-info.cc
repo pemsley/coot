@@ -6312,7 +6312,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
          }
       } else {
 
-           // Not water
+         // Not water
          std::string element = "";
 
          if (mol_chain_id.first || pre_existing_chain_flag) {
@@ -6337,24 +6337,24 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                   res_p->seqNum = previous_max + 1;
                } else {
 
-             // was an empty chain.  Handle the shelx case:
+                  // was an empty chain.  Handle the shelx case:
 
-             if (! is_from_shelx_ins_flag) {
-                res_p->seqNum = 1 ; // start of a new chain.
-             } else {
-               // in a shelx molecule, we can't make the residue
-               // number 1 because there are no chains.  We need to
-               // make the residue number bigger than the biggest
-               // residue number so far.
-               ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
-               if (ires_prev_pair.first) {
-                  res_p->seqNum = ires_prev_pair.second + 1;
-               } else {
-                  res_p->seqNum = 1;
+                  if (! is_from_shelx_ins_flag) {
+                     res_p->seqNum = 1 ; // start of a new chain.
+                  } else {
+                     // in a shelx molecule, we can't make the residue
+                     // number 1 because there are no chains.  We need to
+                     // make the residue number bigger than the biggest
+                     // residue number so far.
+                     ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
+                     if (ires_prev_pair.first) {
+                        res_p->seqNum = ires_prev_pair.second + 1;
+                     } else {
+                        res_p->seqNum = 1;
+                     }
+                  }
                }
             }
-         }
-      }
 
             // Add this element to the sfac (redundancy check in the addition function
             if (is_from_shelx_ins_flag) {

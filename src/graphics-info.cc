@@ -3560,8 +3560,8 @@ graphics_info_t::update_maps() {
       if (! do_threaded_map_updates) {
 	 for (int ii=0; ii<n_molecules(); ii++) {
 	    if (molecules[ii].has_xmap()) {
-	       molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
-                                                                                   // of new rotation centre.
+	       molecules[ii].update_map(auto_recontour_map_flag); // to take account
+                                                           // of new rotation centre.
 	    }
 	 }
 
@@ -3574,7 +3574,7 @@ graphics_info_t::update_maps() {
 	 if (n_threads == 0) {
 	    for (int ii=0; ii<n_molecules(); ii++) {
 	       if (molecules[ii].has_xmap()) {
-		  molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
+		  molecules[ii].update_map(auto_recontour_map_flag); // to take account
 		  // of new rotation centre.
 	       }
 	    }
