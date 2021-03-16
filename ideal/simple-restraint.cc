@@ -6779,7 +6779,7 @@ coot::restraints_container_t::replace_torsion_restraint(const coot::dict_torsion
 
                                  if (idx_4 != rest.atom_index_4)
                                     rest.atom_index_4 = idx_4;
-                                 rest.target_value = new_torsion_restraint.angle();
+                                 rest.target_value = new_torsion_restraint.angle(); // angle mean "torsion" - hmm!
                                  replaced = true;
                                  if (true)
                                     std::cout << "debug:: in replace_torsion_restraint() replacing restraints with " << new_torsion_restraint << std::endl;
