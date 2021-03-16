@@ -3659,8 +3659,9 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
    // volume_sigma_ = 0.3; // test
    // volume_sigma_ = 0.18; // meh, 0.3 seemed to give "too many" chiral errors when
                          // refining large numbers of atoms in poor/EM maps.
-   // 20210228-PE OK, molprobity is giving "too many" CB outliers - let's tighten this up
-   volume_sigma_ = 0.13;
+   // 20210228-PE OK, molprobity is giving "too many" CB outliers - let's tighten this up a bit.
+   // 20210315-PE OK, a bit more (was 0.13)
+   volume_sigma_ = 0.1;
 
    if (false)
       std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "
