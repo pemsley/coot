@@ -1,4 +1,44 @@
 
+  Release 0.9.5
+
+
+  o FEATURE: Search monomer library has images
+
+  o FEATURE: New comamnd-line program coot-ligand-validation
+
+  o FEATURE: Add "Label Atoms in Residue" menu item
+
+  o FEATURE: Add command line argument --run-state-script
+
+  o FEATURE: Add function set_torsion_restraints_weight() to the API
+
+  o FEATURE: Real space refinement now has dynamic weights (under More Control)
+
+  o CHANGE:  Fall-back to monomer atoms for the chemical diagram when there are missing
+             atoms in the model for hetgroups
+
+  o CHANGE:  Scheme interface to refmac is now non-blocking
+
+  o CHANGE:  set_map_is_difference_map() function now takes an argument (so that you can now
+             say that a map is not a difference map)
+
+  o CHANGE:  Map density histogram is now improved
+
+  o CHANGE:  1-4 Non-bonded contacts adjusted
+
+  o CHANGE:  Chiral volume sigma reduced to 0.1 A^3
+
+  o CHANGE:  Change the configuration of RDKit in configure
+             Now use --with-enhanced-ligand-tools and --with-rdkit-prefix=prfx
+
+  o BUG-FIX: fix up the use of residue-exists? in mutate-it
+
+  o BUG-FIX: installation of side-chain data [thanks John Bollinger]
+
+  o BUG-FIX: refine_zone() on a single residue works again
+
+----
+
   Release 0.9.4.1
 
   o BUG-FIX: Fix crash on reading some CCP4/MRC maps
