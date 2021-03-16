@@ -544,7 +544,6 @@ graphics_info_t::poke_the_refinement() {
       }
       if (last_restraints) {
          double tw = last_restraints->get_torsion_restraints_weight();
-         std::cout << "changin torsions weight from " << tw << " to " << torsion_restraints_weight << std::endl;
          last_restraints->set_map_weight(geometry_vs_map_weight);
          last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
          last_restraints->set_lennard_jones_epsilon(lennard_jones_epsilon);
@@ -1038,14 +1037,14 @@ graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::R
 
                if (cri.residue_chi_angles.size() != rotamer_atom_names.size()) {
 
-                  std::cout << "-------------- mismatch for " << coot::residue_spec_t(residue_p) << " " << cri.residue_chi_angles.size() << " "  << rotamer_atom_names.size()
+                  std::cout << "-------------- mismatch for " << coot::residue_spec_t(residue_p) << " "
+                            << cri.residue_chi_angles.size() << " "  << rotamer_atom_names.size()
                             << " ---------------" << std::endl;
-
                } else {
 
                   for (unsigned int ichi=0; ichi<cri.residue_chi_angles.size(); ichi++) {
                      // we have to convert chi angles to atom names
-                     double esd = 10.0;
+                     double esd = 3.0; // 20210315-PE was 10.0. I want them tighter than that.
                      int per = 1;
                      std::string id = "chi " + coot::util::int_to_string(cri.residue_chi_angles[ichi].first);
                      const std::string &atom_name_1 = rotamer_atom_names[ichi][0];
@@ -1053,7 +1052,8 @@ graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::R
                      const std::string &atom_name_3 = rotamer_atom_names[ichi][2];
                      const std::string &atom_name_4 = rotamer_atom_names[ichi][3];
                      double torsion = cri.residue_chi_angles[ichi].second;
-                     coot::dict_torsion_restraint_t dr(id, atom_name_1, atom_name_2, atom_name_3, atom_name_4, torsion, esd, per);
+                     coot::dict_torsion_restraint_t dr(id, atom_name_1, atom_name_2, atom_name_3, atom_name_4,
+                                                       torsion, esd, per);
                      dictionary_vec.push_back(dr);
                   }
 
