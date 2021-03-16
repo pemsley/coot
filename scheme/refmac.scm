@@ -121,9 +121,9 @@
   (if (file-exists? ".refmac-is-finished")
       (delete-file ".refmac-is-finished"))
 
-  (set! f-col        "FGMP18")
-  (set! sig-f-col "SIGFGMP18")
-  (set! r-free-col "FreeR_flag")
+  ;; (set! f-col        "FGMP18")
+  ;; (set! sig-f-col "SIGFGMP18")
+  ;; (set! r-free-col "FreeR_flag")
   (let ((thunk (lambda()
                  (run-refmac-by-filename-inner pdb-in-filename pdb-out-filename
                                                mtz-in-filename mtz-out-filename
