@@ -41,6 +41,10 @@
 #ifndef WMOLECULE_HH
 #define WMOLECULE_HH
 
+#include <string>
+#include <goocanvas.h>
+#include <clipper/core/coords.h>
+
 #include "lidia-core/lbg-shared.hh"
 
 // #define dark "#111111"

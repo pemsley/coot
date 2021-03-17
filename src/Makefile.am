@@ -63,6 +63,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
 #	
+#	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la   
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
@@ -70,7 +71,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/goograph/libcoot-goograph.la      	\
-	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/build/libcoot-cabuild.la		\
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\
@@ -80,8 +80,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/coot-surface/libcoot-surface.la  	\
-	$(top_builddir)/surface/libcoot-electrostatics.la 	\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
@@ -594,25 +592,26 @@ endif
 
 coot_fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/db-main/libcoot-db-main.la      	\
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
-        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+        $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-		$(CLIPPER_LIBS) 	\
-		$(MMDB_LIBS)		\
-		$(PYTHON_LIBS)		\
-		$(CURL_LIBS)		\
-	  	$(RDKIT_LIBS)	        \
-		$(BOOST_LDFLAGS)        \
-		$(L_BOOST_PYTHON)
+	$(CLIPPER_LIBS) 	\
+	$(MMDB_LIBS)		\
+	$(PYTHON_LIBS)		\
+	$(RDKIT_LIBS)	        \
+	$(BOOST_LDFLAGS)        \
+	$(L_BOOST_PYTHON)
 
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)		
@@ -698,13 +697,22 @@ test_coot_align_LDADD =	\
 
 coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
 coot_density_score_by_residue_bin_LDADD  =	\
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
+	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
+	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/db-main/libcoot-db-main.la     		\
+	$(top_builddir)/ideal/libcoot-ideal.la    		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
         $(GLOB_LIBS)  		 \
         $(RDKIT_LIBS) 		\
@@ -715,12 +723,21 @@ coot_density_score_by_residue_bin_LDADD  =	\
 dynarama_bin_SOURCES = dynarama-main.cc rama_plot.cc rama_mousey.cc
 dynarama_bin_LDADD = \
         $(top_builddir)/coords/libcoot-coords.la                \
-        $(top_builddir)/utils/libcoot-utils.la                  \
+	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
+	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+	$(top_builddir)/ideal/libcoot-ideal.la    		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
         $(top_builddir)/geometry/libcoot-geometry.la            \
-        $(top_builddir)/coot-surface/libcoot-surface.la         \
+	$(top_builddir)/db-main/libcoot-db-main.la     		\
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
         $(top_builddir)/compat/libcoot-compat.la                \
+        $(top_builddir)/utils/libcoot-utils.la                  \
         $(CLIPPER_LIBS)         \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \

@@ -108,7 +108,7 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 
 # should libcoot-coord-utils link $CLIPPER_LIBS? Yes, I think so.
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
@@ -124,7 +124,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
 libcoot_map_utils_la_LIBADD = \
-   libcoot-coord-utils.la \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
@@ -138,8 +138,8 @@ libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmon
 
 # and mini-mol (just one).
 libcoot_map_heavy_la_LIBADD = \
-   libcoot-map-utils.la \
-   libcoot-coord-utils.la \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread

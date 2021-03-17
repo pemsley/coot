@@ -2,6 +2,13 @@
 //                     widgeted_atom_t
 // ====================================================================
 
+#ifndef W_ATOM_HH
+#define W_ATOM_HH
+
+#include <goocanvas.h>
+#include "lidia-core/lig-build.hh"
+
+
 class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primitives {
    std::string font_colour;
    double solvent_accessibility;
@@ -48,6 +55,7 @@ public:
       font_colour = "hotpink";
       solvent_accessibility = -1;
    }
+   ~widgeted_atom_t() {}
    GooCanvasItem *get_canvas_item() const { return ci; }
    void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
       blank_text(root);
@@ -106,3 +114,8 @@ public:
 //    } 
    std::vector<coot::bash_distance_t> bash_distances;
 };
+
+
+
+#endif // W_ATOM_HH
+

@@ -50,7 +50,7 @@
 #include "coords/mmdb.h"
 #include <mmdb2/mmdb_manager.h>
 
-#include "coot-surface/rgbreps.h"
+// #include "coot-surface/rgbreps.h"
 
 
 // Dummy definitions for stand alone version
@@ -69,41 +69,6 @@ extern "C" {
 // void accept_phi_psi_moving_atoms() {}
 // void set_dynarama_is_displayed(GtkWidget *dynarama_widget, int imol) {}
 
-void setup_rgb_reps();
-
-// needed?
-void setup_rgb_reps() {
-
-   std::string colours_file = coot::package_data_dir() + "/";
-   std::string colours_def = "colours.def";
-   colours_file += colours_def;
-
-   struct stat buf;
-   int status = stat(colours_file.c_str(), &buf);
-   if (status == 0) { // colours file was found in default location
-      RGBReps r(colours_file);
-      if (1)
-         std::cout << "INFO:: Colours file: " << colours_file << " loaded"
-                   << std::endl;
-
-      // test:
-      //       std::vector<std::string> test_col;
-      //       test_col.push_back("blue");
-      //       test_col.push_back("orange");
-      //       test_col.push_back("magenta");
-      //       test_col.push_back("cyan");
-
-      //       std::vector<int> iv = r.GetColourNumbers(test_col);
-      //       for (int i=0; i<iv.size(); i++) {
-      // 	 std::cout << "Colour number: " << i << "  " << iv[i] << std::endl;
-      //       }
-
-
-   } else {
-      std::cout << "WARNING! Can't find file: colours.def at " << coot::package_data_dir()
-                << std::endl;
-   }
-}
 
 void
 print_help(std::string cmd) {
@@ -324,7 +289,6 @@ main(int argc, char *argv[]) {
       }
 
       gtk_init (&argc, &argv);
-      setup_rgb_reps();
 
       float level_prefered = 0.02;
       float level_allowed = 0.002;

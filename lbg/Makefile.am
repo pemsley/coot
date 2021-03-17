@@ -81,7 +81,11 @@ lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # (if that is annoying, then remove it and expand it by hand)
 #
 lidia_LDADD = ./libcoot-lidia.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la     \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
         $(MMDB_LIBS) $(GLOB_LIBS) $(GTK_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
 # not needed: linked by dependency libs

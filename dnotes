@@ -3983,6 +3983,7 @@ INFO::
         Change the splash screen
         Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
+        git commit pixmaps/coot-0.9.5.png
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
@@ -3991,6 +3992,7 @@ INFO::
         Use this to untar and make a build - this will test that the tarball has
         all the files before commit: cd ../build-test-dist and untar it there, copy into
         the new directory the script configure-it.
+   o git status # what did you forget to add?
    o git commit -a
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag

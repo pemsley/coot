@@ -3711,7 +3711,7 @@ ${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
 if [ "$dist_name" = "debian" ] ; then
    llp_save=$LD_LIBRARY_PATH
    unset LD_LIBRARY_PATH
-   extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save"
+   extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save --disable-error-on-warning"
 fi
 
 if [ $OS = Darwin ] ; then
@@ -3736,6 +3736,7 @@ else
    additional_unused_arg=
 fi
 
+export GUILE_ERROR_ON_WARNING=no
 # arg to guile's configure
 ./configure $generic_prefix \
      $extra_flags_for_darwin \

@@ -80,14 +80,20 @@ coot_dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 coot_compare_dictionaries_SOURCES = compare-dictionaries.cc
 
 coot_compare_dictionaries_LDADD = ./libcoot-geometry.la \
-        $(top_builddir)/utils/libcoot-utils.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la    \
+        $(top_builddir)/utils/libcoot-utils.la          \
         $(top_builddir)/compat/libcoot-compat.la $(MMDB_LIBS)
 
 coot_make_shelx_restraints_SOURCES = make-shelx-restraints.cc
 
-coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
+coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
+        $(top_builddir)/utils/libcoot-utils.la           \
+        $(CLIPPER_LIBS)
 
 coot_available_comp_id_SOURCES = available-comp-id.cc
 
-coot_available_comp_id_LDADD = ./libcoot-geometry.la 
+coot_available_comp_id_LDADD = ./libcoot-geometry.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+        $(top_builddir)/utils/libcoot-utils.la
 

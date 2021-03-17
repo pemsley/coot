@@ -106,7 +106,7 @@
 #include "cc-interface.hh"
 #include "c-interface-preferences.h"
 
-#include "coot-surface/rgbreps.h"
+// #include "coot-surface/rgbreps.h"
 
 #include "coot-database.hh"
 
@@ -786,6 +786,7 @@ void setup_symm_lib() {
 
 void setup_rgb_reps() {
 
+#if 0 // this is old surface stuff. Removed from the build
    // c.f. coot::package_data_dir() which now does this wrapping for us:
    
    // For binary installers, they use the environment variable:
@@ -826,6 +827,7 @@ void setup_rgb_reps() {
       std::cout << "WARNING! Can't find file: colours.def at " << standard_file_name
 		<< std::endl;
    }
+#endif
 }
 
 

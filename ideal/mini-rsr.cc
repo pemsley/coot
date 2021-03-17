@@ -71,7 +71,6 @@ map_from_mtz(std::string mtz_file_name,
 	     std::string phi_col,
 	     std::string weight_col,
 	     int use_weights,
-	     int is_diff_map,
 	     bool is_debug_mode);
 
 class input_data_t {
@@ -146,7 +145,6 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
       if (this_chain_id == chain_id) { 
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::Residue *residue_p;
-	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int this_res_no = residue_p->GetSeqNum();
@@ -334,7 +332,7 @@ main(int argc, char **argv) {
 	 if (! inputs.given_map_flag) {
 	    std::pair<bool, clipper::Xmap<float> > xmap_pair = 
 	    map_from_mtz(inputs.mtz_file_name, inputs.f_col,
-			 inputs.phi_col, "", 0, 0, inputs.is_debug_mode);
+			 inputs.phi_col, "", 0, inputs.is_debug_mode);
 	    xmap = xmap_pair.second;
 	    map_is_good = xmap_pair.first;
 	    if (inputs.is_debug_mode) { 
@@ -573,7 +571,6 @@ map_from_mtz(std::string mtz_file_name,
 	     std::string phi_col,
 	     std::string weight_col,
 	     int use_weights,
-	     int is_diff_map,
 	     bool is_debug_mode) {
 
 
@@ -603,7 +600,7 @@ map_from_mtz(std::string mtz_file_name,
 	 mol_name += weight_col; 
       } 
 
-      if ( use_weights ) {
+      if (use_weights) {
 	 clipper::String dataname = "/*/*/[" + f_col + " " + f_col + "]";
 	 std::cout << dataname << "\n";
 	 mtzin.import_hkl_data(  f_sigf_data, myset, myxtl, dataname ); 
@@ -647,7 +644,7 @@ map_from_mtz(std::string mtz_file_name,
       }
   
   
-      xmap.fft_from( fphidata );                  // generate map
+      xmap.fft_from(fphidata);                  // generate map
       std::cout << "done fft..." << std::endl;
       status = 1;
    }
@@ -669,7 +666,7 @@ get_input_details(int argc, char **argv) {
    d.given_map_flag = 0;
    d.resno_start = UNSET;
    d.resno_end   = UNSET;
-   d.map_weight  = UNSET;
+   d.map_weight  = -1.0; // unset
    d.use_rama_targets = 0;
    d.use_torsion_targets = 0;
    d.use_planar_peptide_restraints = true;

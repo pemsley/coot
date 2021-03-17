@@ -37,6 +37,7 @@ widgeted_molecule_t::~widgeted_molecule_t() {}
 
 template<class widgeted_atom_t, class widgeted_bond_t> lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t>::~molecule_t() {}
 
+
 // Don't forget that this function will be used in
 // render_from_molecule, which will add canvas item.
 //

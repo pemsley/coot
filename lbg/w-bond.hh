@@ -2,6 +2,14 @@
 //                     widgeted_bond_t
 // ====================================================================
 
+#ifndef W_BOND_HH
+#define W_BOND_HH
+
+#include <gtk/gtk.h>
+#include <goocanvas.h>
+#include "lidia-core/lig-build.hh"
+
+
 static gboolean
 on_wmolecule_key_press_event (GooCanvasItem *item,
 			      GooCanvasItem *target,
@@ -146,6 +154,8 @@ public:
    widgeted_bond_t() : lig_build::bond_t() {
       ci = NULL;
    }
+
+   ~widgeted_bond_t() {}
 
    // Now we use a constructor that does the creation of the canvas item too
    //
@@ -339,3 +349,8 @@ public:
 
 
 }; // end of widgeted_bond_t
+
+
+
+#endif // W_BOND_HH
+

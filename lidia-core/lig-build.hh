@@ -26,6 +26,7 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <iostream>
 #include <algorithm>
 #include <set>
 #include <stdexcept>
@@ -96,33 +97,32 @@ namespace lig_build {
 	 return pos_t(first.x + frac * d_x,
 				first.y + frac * d_y);
       }
-      static pos_t mid_point(const pos_t &first,
-				       const pos_t &second) {
+      static pos_t mid_point(const pos_t &first, const pos_t &second) {
 	 return fraction_point(first, second, 0.5);
       }
       // angle in degrees
       pos_t rotate(double angle) const {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = x * cos_theta - y * sin_theta;
 	 double new_y = x * sin_theta + y * cos_theta;
 	 return pos_t(new_x, new_y);
       }
 
       pos_t rotate_about(double x_cen, double y_cen, double angle) {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
       
       pos_t rotate_about(const pos_t &cen, double angle) {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = cen.x + (x - cen.x) * cos_theta - (y - cen.y) * sin_theta;
 	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
 	 return pos_t(new_x, new_y);
@@ -319,6 +319,7 @@ namespace lig_build {
 	 charge = charge_in;
 	 is_closed_ = 0;
       }
+      ~atom_t() {}
       bool over_atom(const double &x_in, const double &y_in) const {
 	 pos_t mouse(x_in, y_in);
 	 double d = pos_t::length(mouse, atom_position);
@@ -447,6 +448,7 @@ namespace lig_build {
 	 centre_pos_ = centre_pos_in;
 	 is_closed_ = 0;
       }
+      ~bond_t() {}
       // mouse is hovering over bond?
       bool over_bond(double x, double y,
 		     const atom_t &atom_1_at, const atom_t &atom_2_at) const;
