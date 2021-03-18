@@ -145,7 +145,6 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
 	    in_name = 1;
 	 }
 	 if (combined_string[i] == '\n') {
-	    in_name = 0;
 	    break;
 	 }
       }
