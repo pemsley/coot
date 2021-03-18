@@ -43,28 +43,24 @@ namespace coot {
       float float_user_data;
       std::string string_user_data;
       int model_number;
-      atom_spec_t() {
-	 chain_id = "unset";
+      atom_spec_t() : chain_id("unset") {
 	 res_no = mmdb::MinInt4;
-	 ins_code = "";
 	 model_number = -1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       atom_spec_t(const std::string &chain_in,
 		  int resno_in,
 		  const std::string &insertion_code_in,
 		  const std::string &atom_name_in,
-		  const std::string &alt_conf_in) {
-	 chain_id = chain_in;
+		  const std::string &alt_conf_in) : chain_id(chain_in), ins_code(insertion_code_in), atom_name(atom_name_in), alt_conf(alt_conf_in) {
 	 res_no = resno_in;
-	 ins_code = insertion_code_in;
-	 atom_name = atom_name_in;
-	 alt_conf = alt_conf_in;
 	 model_number = 1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
-      atom_spec_t(mmdb::Atom *at) {
+      explicit atom_spec_t(mmdb::Atom *at) {
 	 if (at) { 
 	    chain_id       = at->GetChainID();
 	    res_no         = at->GetSeqNum();
@@ -77,7 +73,6 @@ namespace coot {
 	    res_no = mmdb::MinInt4;
 	    ins_code = "";
 	    model_number = -1;
-	    int_user_data = -1;
 	 }
 	 int_user_data = -1; // mark as "unset" (better than not setting it)
       }
@@ -221,37 +216,29 @@ namespace coot {
       int res_no;
       std::string ins_code;
       int int_user_data;
-      residue_spec_t(int r) {
-	 res_no = r;
-	 chain_id = "";
-	 ins_code = "";
+      explicit residue_spec_t(int r) : res_no(r) {
+         model_number = -1;
 	 int_user_data = -1;
       }
-      residue_spec_t(const std::string &chain_in, int r) {
+      residue_spec_t(const std::string &chain_in, int r) : chain_id(chain_in) {
 	 model_number = mmdb::MinInt4;
 	 res_no = r;
-	 chain_id = chain_in;
-	 ins_code = "";
 	 int_user_data = -1;
       }
       residue_spec_t(int model_number_in,
 		     const std::string &chain_in, int r,
-		     const std::string &ins_code_in) {
+		     const std::string &ins_code_in) : chain_id(chain_in), ins_code(ins_code_in) {
 	 model_number = model_number_in;
 	 res_no = r;
-	 chain_id = chain_in;
-	 ins_code = ins_code_in;
 	 int_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r,
-		     const std::string &ins_code_in) {
+		     const std::string &ins_code_in) : chain_id(chain_in), ins_code(ins_code_in) {
 	 model_number = mmdb::MinInt4;
 	 res_no = r;
-	 chain_id = chain_in;
-	 ins_code = ins_code_in;
 	 int_user_data = -1;
       }
-      residue_spec_t(mmdb::Residue *res) {
+      explicit residue_spec_t(mmdb::Residue *res) {
 	 if (! res) {
 	    chain_id = "";
 	    model_number = mmdb::MinInt4;
@@ -265,19 +252,15 @@ namespace coot {
 	 }
 	 int_user_data = -1;
       } 
-      residue_spec_t(const atom_spec_t &atom_spec) { 
+      explicit residue_spec_t(const atom_spec_t &atom_spec) : chain_id(atom_spec.chain_id), ins_code(atom_spec.ins_code) { 
 	 model_number = atom_spec.model_number;
-         chain_id = atom_spec.chain_id;
          res_no = atom_spec.res_no;
-         ins_code = atom_spec.ins_code;
 	 int_user_data = -1;
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
 	 model_number = mmdb::MinInt4;
 	 res_no = mmdb::MinInt4;
-	 chain_id = "";
-	 ins_code = "";
 	 int_user_data = -1;
       }
       bool unset_p() const {
