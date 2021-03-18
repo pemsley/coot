@@ -315,7 +315,7 @@ coot::residues_near_residue(const coot::residue_spec_t &rs,
 	 std::vector<mmdb::Residue *> close_residues = residues_near_residue(res_p, mol, radius);
 	 
 	 for (unsigned int i=0; i<close_residues.size(); i++)
-	    r.push_back(close_residues[i]);
+	    r.push_back(residue_spec_t(close_residues[i]));
       }
    }
    return r;
@@ -2981,7 +2981,7 @@ coot::util::get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *
    mmdb::Residue *r2 = 0;
    mmdb::Residue *r1 = get_residue(rs, mol);
    if (r1) {
-      r2 = get_following_residue(r1, mol);
+      r2 = get_following_residue(residue_spec_t(r1), mol);
    }
    return std::pair<mmdb::Residue *, mmdb::Residue *> (r1, r2);
 }
@@ -3282,7 +3282,7 @@ mmdb::Atom *
 coot::util::get_atom(const atom_spec_t &spec, mmdb::Manager *mol) {
 
    mmdb::Atom *at = 0;
-   mmdb::Residue *res = coot::util::get_residue(spec, mol);
+   mmdb::Residue *res = get_residue(residue_spec_t(spec), mol);
 
    if (res) {
       mmdb::PPAtom residue_atoms = 0;

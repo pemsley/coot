@@ -1041,7 +1041,7 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 
             // add the atom
             mmdb::Chain *chain_p = get_chain(at->GetChainID());
-            mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(at));
+            mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(coot::atom_spec_t(at)));
 
             if (! chain_p) {
                int imod = 1;
@@ -1072,7 +1072,7 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 
                      int n_residues_before = chain_p->GetNumberOfResidues();
                      int n_chain_residues = chain_p->InsResidue(residue_p, sn.first);
-                     mmdb::Residue *res_after_p = get_residue(coot::residue_spec_t(at));
+                     mmdb::Residue *res_after_p = get_residue(coot::residue_spec_t(coot::atom_spec_t(at)));
 
                   } else {
                      chain_p->AddResidue(residue_p);
@@ -2247,7 +2247,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
                std::vector<coot::atom_spec_t> baddie_waters;
                if (clashing_waters_for_best_score.size() > 0) {
                   for (unsigned int ii=0; ii<clashing_waters_for_best_score.size(); ii++) {
-                     baddie_waters.push_back(clashing_waters_for_best_score[ii]);
+                     baddie_waters.push_back(coot::atom_spec_t(clashing_waters_for_best_score[ii]));
                   }
                   delete_atoms(baddie_waters);
                }

@@ -923,7 +923,7 @@ coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
       for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
 	 if (it->residue) {
 	    n_in_tree++;
-	    specs.push_back(it->residue);
+	    specs.push_back(residue_spec_t(it->residue));
 	 }
       }
       if (debug) {

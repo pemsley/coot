@@ -213,8 +213,8 @@ coot::lsq_improve::get_new_matches(int round_number, int round_max,
       for (int icon=0; icon<ncontacts; icon++) {
 	 mmdb::Atom *atom_ref = atom_sel_1[contact[icon].id1];
 	 mmdb::Atom *atom_mov = atom_sel_2[contact[icon].id2];
-	 coot::residue_spec_t r_1(atom_ref);
-	 coot::residue_spec_t r_2(atom_mov);
+	 coot::residue_spec_t r_1(atom_ref->GetResidue());
+	 coot::residue_spec_t r_2(atom_mov->GetResidue());
 	 contact_residues[r_1].push_back(r_2);
 	 // include an "already matched" flag with the same key
       }
@@ -224,7 +224,7 @@ coot::lsq_improve::get_new_matches(int round_number, int round_max,
    if (0) { 
       std::cout << "residue specs after contacts " << std::endl;
       std::map<coot::residue_spec_t, std::vector<coot::residue_spec_t> >::iterator iter;
-      for (iter=contact_residues.begin(); iter!=contact_residues.end(); iter++) {
+      for (iter=contact_residues.begin(); iter!=contact_residues.end(); ++iter) {
 	 std::cout << " " << iter->first << std::endl;
 	 for (unsigned int ispec=0; ispec<iter->second.size(); ispec++) { 
 	    std::cout << "      " << iter->second[ispec] << std::endl;

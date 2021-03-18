@@ -6525,10 +6525,10 @@ SCM twisted_trans_peptides(int imol) {
       for (unsigned int i=0; i<v.size(); i++) {
 	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
 	    try {
-	       coot::residue_spec_t r1(v[i].quad.atom_1);
-	       coot::residue_spec_t r2(v[i].quad.atom_4);
-	       SCM scm_r1 = residue_spec_to_scm(r1);
-	       SCM scm_r2 = residue_spec_to_scm(r2);
+	       coot::residue_spec_t r1(v[i].quad.atom_1->GetResidue());
+	       coot::residue_spec_t r2(v[i].quad.atom_4->GetResidue());
+	       SCM scm_r1 = residue_spec_to_scm(coot::residue_spec_t(r1));
+	       SCM scm_r2 = residue_spec_to_scm(coot::residue_spec_t(r2));
 	       double omega = v[i].quad.torsion();
 	       SCM scm_omega = scm_double2num(omega);
 	       SCM scm_residue_info = scm_list_3(scm_r1, scm_r2, scm_omega);
@@ -6622,10 +6622,10 @@ PyObject *twisted_trans_peptides_py(int imol) {
 	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
 	    try {
 	       PyObject *py_r1, *py_r2, *py_residue_info;
-	       coot::residue_spec_t r1(v[i].quad.atom_1);
-	       coot::residue_spec_t r2(v[i].quad.atom_4);
-	       py_r1 = residue_spec_to_py(r1);
-	       py_r2 = residue_spec_to_py(r2);
+	       coot::residue_spec_t r1(v[i].quad.atom_1->GetResidue());
+               coot::residue_spec_t r2(v[i].quad.atom_4->GetResidue());
+               py_r1 = residue_spec_to_py(coot::residue_spec_t(r1));
+	       py_r2 = residue_spec_to_py(coot::residue_spec_t(r2));
 	       py_residue_info = PyList_New(3);
 	       PyObject *py_omega = PyFloat_FromDouble(v[i].quad.torsion());
 	       PyList_SetItem(py_residue_info, 0, py_r1);

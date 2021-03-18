@@ -2601,7 +2601,7 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
 
 
       for (int iat=0; iat<n_atoms; iat++) {
-	 residue_spec_t res_spec(atom_selection[iat]);
+	 residue_spec_t res_spec(atom_selection[iat]->GetResidue());
 	 clipper::Coord_orth co(atom_selection[iat]->x,
 				atom_selection[iat]->y,
 				atom_selection[iat]->z);
@@ -2773,7 +2773,7 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 
 
       for (int iat=0; iat<n_atoms; iat++) {
-         residue_spec_t res_spec(atom_selection[iat]);
+         residue_spec_t res_spec(atom_selection[iat]->GetResidue());
          clipper::Coord_orth co(atom_selection[iat]->x,
             atom_selection[iat]->y,
             atom_selection[iat]->z);

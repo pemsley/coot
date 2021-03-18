@@ -3255,7 +3255,7 @@ public:        //                      public
    std::vector<coot::chain_mutation_info_container_t>
    sequence_comparison_to_chains(const std::string &sequence) const;
 
-   void rotate_residue(coot::residue_spec_t rs,
+   void rotate_residue(const coot::residue_spec_t &rs,
 		       const clipper::Coord_orth &around_vec,
 		       const clipper::Coord_orth &origin_offset,
 		       double angle);

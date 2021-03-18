@@ -3712,10 +3712,10 @@ graphics_info_t::execute_torsion_general() {
 				    make_moving_atoms_graphics_object(im, residue_asc);
 
 				    std::vector<coot::atom_spec_t> as;
-				    as.push_back(atom_1);
-				    as.push_back(atom_2);
-				    as.push_back(atom_3);
-				    as.push_back(atom_4);
+				    as.push_back(coot::atom_spec_t(atom_1));
+				    as.push_back(coot::atom_spec_t(atom_2));
+				    as.push_back(coot::atom_spec_t(atom_3));
+				    as.push_back(coot::atom_spec_t(atom_4));
 				    torsion_general_atom_specs = as;
 				    graphics_draw();
 				    torsion_general_reverse_flag = 0;
@@ -4026,7 +4026,8 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
       coot::Cartesian  back_centre = unproject(1.0);
       coot::Cartesian ftb = back_centre - front_centre;
       clipper::Coord_orth around_vec(ftb.x(), ftb.y(), ftb.z());
-     g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
+      coot::residue_spec_t rs(active_atom.second.second);
+      g.molecules[imol].rotate_residue(rs, around_vec, origin_offset, angle);
       graphics_draw();
    }
 }
@@ -4052,7 +4053,7 @@ graphics_info_t::execute_db_main() {
    // std::string direction_string("forwards"); // forwards
    // execute_db_main(imol, chain_id, iresno_start, iresno_end, direction_string);
 
-   coot::residue_spec_t residue_spec(at_1);
+   coot::residue_spec_t residue_spec(at_1->GetResidue());
    std::pair<int, int> r = execute_db_main_fragment(imol, residue_spec);
 }
 
