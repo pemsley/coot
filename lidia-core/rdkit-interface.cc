@@ -207,7 +207,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << "!!!! Problem? atom name \"" << atom_name
 		      << "\" was already added" << std::endl;
 
-	 } else { 
+	 } else {
 	    RDKit::Atom *rdkit_at = new RDKit::Atom;
 	    try {
 	       std::string ele_capped =
@@ -373,7 +373,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       // Or increment the read number.
 	       //
 	       //
-	       m.addBond(bond); // worry about ownership or memory leak.
+	       m.addBond(bond); // by default, this does a copy of bond. It can take the ownership
 
 	    } else {
 	       if (ele_2 != " H") {
@@ -428,6 +428,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       throw std::runtime_error(message);
 	    }
 	 }
+         delete bond;
       }
  
       if (debug) { 
@@ -467,11 +468,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       try {
 		  std::string name;
 #if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
-        RDKit::Atom* at_p = m[iat];
+                  RDKit::Atom* at_p = m[iat];
 #else
-        RDKit::Atom *at_p = m[iat];
+                  RDKit::Atom *at_p = m[iat];
 #endif
-        at_p->getProp("name", name);
+                  at_p->getProp("name", name);
 		  if (name == atom_name_1)
 		     idx_1 = iat;
 		  if (name == atom_name_2)
@@ -1246,13 +1247,14 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		     m[idx_1]->setIsAromatic(true);
 		     m[idx_2]->setIsAromatic(true);
 		  }
-		  m.addBond(bond); // worry about ownership or memory leak.
+		  m.addBond(bond); // does a copy (it can take ownership with extra arg)
 	       } else {
 		  std::cout << "ERROR:: atom indexing problem " << idx_2 << " " << n_atoms << std::endl;
 	       }
 	    } else {
 	       std::cout << "ERROR:: atom indexing problem " << idx_1 << " " << n_atoms << std::endl;
 	    }
+            delete bond;
 	 }
       }
    }
@@ -1810,7 +1812,8 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 	 RDKit::Bond *bond = new RDKit::Bond(RDKit::Bond::SINGLE);
 	 bond->setBeginAtomIdx(idx);
 	 bond->setEndAtomIdx(idx_for_H);
-	 mol->addBond(bond);
+         bool take_ownership = true;
+	 mol->addBond(bond, take_ownership);
       }
    }
    return r;
