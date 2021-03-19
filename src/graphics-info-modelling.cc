@@ -664,8 +664,10 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
                if (moving_atoms_asc->atom_selection) {
 		  // check that moving_atoms_currently_dragged_atom_index is set before using it
 		  if (moving_atoms_currently_dragged_atom_index > -1) {
-		     at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-		     except_dragged_atom = coot::atom_spec_t(at_except);
+                     if (moving_atoms_currently_dragged_atom_index < moving_atoms_asc->n_selected_atoms) {
+                        at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+                        except_dragged_atom = coot::atom_spec_t(at_except);
+                     }
 		  }
                } else {
                   std::cout << "WARNING:: attempted use moving_atoms_asc->atom_selection, but NULL"
@@ -767,8 +769,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
    }
 
    if (moving_atoms_asc->atom_selection == NULL) {
-      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc->atom_selection"
-      // << std::endl;
+      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no
+      // oving_atoms_asc->atom_selection" << std::endl;
       threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
       continue_status = 0;
       return continue_status;
