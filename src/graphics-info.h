@@ -699,8 +699,6 @@ class graphics_info_t {
 			     const clipper::Xmap<float> *xmap_p);
 #endif // HAVE_GSL
 
-   // the mode flag is public:
-   void run_post_manipulation_hook(int imol, int mode);
    // which uses the following...
 #ifdef USE_GUILE
    void run_post_manipulation_hook_scm(int imol, int mode);
@@ -1297,6 +1295,8 @@ public:
    // old style: soon to be redundent
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
+
+   void run_post_manipulation_hook(int imol, int mode);
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
