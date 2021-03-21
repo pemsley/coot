@@ -414,8 +414,6 @@ script_version=6.00
 # is the same thing.
 #
 
-build_type=gtk3 # python is implicit - we will do guile when we can.
-
 # Set the host and the OS.
 # Fairly fundamental.
 #
@@ -444,6 +442,7 @@ run_second_test=${run_second_test:=true}
 # Note that the directory name must NOT end in a /
 #
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
+
 # or perhaps, for the adventurous:
 #AUTOBUILD_INSTALLED=$CCP4_MASTER
 
@@ -860,6 +859,9 @@ function fixup_libcurl {
     mv lib/libcurl.la.tmp lib/libcurl.la
 }
 
+# now we can set the gtk version
+gtk_version=${gtk_version:=3}
+build_type=gtk$gtk_version # python is implicit - we will do guile when we can
 
 
 # now on to some code!
@@ -881,6 +883,7 @@ if [ "$use_proxy" = 1 ] ; then
 fi
 
 
+
 # use the right (GNU) tar and provide the path to wget (needed
 # for downloads) and to GNU make - (which is necesary for python
 # at least).
@@ -890,9 +893,9 @@ fi
 # It's a logical mess.
 #
 if test "$build_coot_prerelease" = 1 ; then
-   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk3/bin:$PATH
+   PATH=${AUTOBUILD_INSTALLED}-pre-release-$build_type/bin:$PATH
 else
-   PATH=$AUTOBUILD_INSTALLED-gtk3/bin:$PATH
+   PATH=$AUTOBUILD_INSTALLED-$build_type/bin:$PATH
 fi
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
@@ -1471,6 +1474,20 @@ if [ $? -ne 0 ] ; then
 fi
 build_dir=`pwd`
 
+
+# test for pkg-config
+if type pkg-config ; then
+   if pkg-config --atleast-pkgconfig-version 0.16 ; then
+      build_pkg_config=
+      echo pkg-config is new enough `pkg-config --version`
+   else
+      build_pkg_config=1
+      echo pkg-config should be built \(but won\'t be\).
+   fi
+else
+   echo pkg-config doesn\'t exist.
+fi
+
 echo checking wget
 echo which wget
 which wget
@@ -1603,6 +1620,7 @@ echo coot_version_pre is $coot_version_pre
 echo build_coot_prerelease: $build_coot_prerelease
 echo release_server_dir $release_server_dir
 echo coot_version $coot_version
+echo build_type $build_type
 
 
 
@@ -1660,9 +1678,71 @@ else
    fi
 fi
 
+echo install_top_dir $install_top_dir
+
 
 # this should not be needed
 export PATH=$install_top_dir/bin:$PATH
+
+# Hmmm... I am not sure that I want to mess with pkg-config in the
+# simple version.  But we do...
+#
+# This allows standard pkg-config to find gtkglext and several other
+# things.
+#
+# override STD_PKGCONFIG_DIR to lib64 dir if we are in 64 bit.
+#
+STD_PKGCONFIG_DIR=/usr/lib/pkgconfig
+case "$architecture" in
+   x86_64*)
+     STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
+     ;;
+esac
+if [ -z "$PKG_CONFIG_PATH" ] ; then
+  # I think that the standard dir is not needed.
+  # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
+  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+else
+   os_arch=x86_64-linux-gnu
+   if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
+      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+   else
+      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+   fi
+fi
+
+if [ -e /opt/X11/lib/pkgconfig ] ; then
+    PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
+fi
+
+
+echo "COOT_CCP4_PACKAGES" "$COOT_CCP4_PACKAGES"
+if [ -n "$COOT_CCP4_PACKAGES" ] ; then
+    # PKG_CONFIG_PATH=$COOT_CCP4_PACKAGES/lib/pkgconfig:$PKG_CONFIG_PATH
+    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$COOT_CCP4_PACKAGES/lib/pkgconfig
+fi
+
+export PKG_CONFIG_PATH
+echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
+
+
+# Do we have freetype2?  cairo depends on it.
+if pkg-config freetype2 ; then
+   build_freetype2=
+   echo system/installation has freetype2
+else
+   echo freetype2 should be built
+   build_freetype2=1
+fi
+
+if pkg-config --atleast-version=2.14.5 glib ; then
+   # have glib
+   echo glib is up to date
+   build_glib=
+else
+   echo glib is not up to date, rebuild glib - maybe.
+   build_glib=1
+fi
 
 
 # we need to export this for net-http, because it doesn't set
@@ -1781,7 +1861,7 @@ build_clipper=
 build_guile=0
 build_guile_www=0
 build_guile_gui=0
-build_libtool=0
+build_libtool=1
 build_net_http=0
 build_gsl=0
 # build_libungif=0
@@ -1835,104 +1915,18 @@ else
    build_curl=1
 fi
 
-# ---- test system libidn -------------------------------
-if [ -e /usr/lib/libidn.so ] ; then
-   if [ -e /usr/lib/libidn.la ] ; then
-      echo system has libidn devel
-   else
-      if [ -e $install_top_dir/lib/libidn.la ] ; then
-         echo installation has libidn.la
-      else
-         echo neither system nor installation has libidn.la, libcurl should be built also
-         build_libidn=1
-         build_curl=1
-      fi
-   fi
-else
-   # ---- test installation libidn -------------------------------
-   if [ -e $install_top_dir/include/idna.h ] ; then
-      echo installation has libidn2 devel
-   else
-      # set it up for building then
-      echo system does not have libidn
-      if [ -e $install_top_dir/include/idna.h ] ; then
-         echo installation has libidn2
-      else
-         echo installation does not have libidn2, libcurl should be built also
-         build_libidn=1
-         build_curl=1
-      fi
-   fi
-fi
-
-
-# test for pkg-config
-if type pkg-config ; then
-   if pkg-config --atleast-pkgconfig-version 0.16 ; then
-      build_pkg_config=
-      echo pkg-config is new enough `pkg-config --version`
-   else
-      build_pkg_config=1
-      echo pkg-config should be built \(but won\'t be\).
-   fi
-else
-   echo pkg-config doesn\'t exist.
-fi
-
-# Hmmm... I am not sure that I want to mess with pkg-config in the
-# simple version.  But we do...
+# ---------- test installation libidn ------------------
 #
-# This allows standard pkg-config to find gtkglext and several other
-# things.
-#
-# override STD_PKGCONFIG_DIR to lib64 dir if we are in 64 bit.
-#
-STD_PKGCONFIG_DIR=/usr/lib/pkgconfig
-case "$architecture" in
-   x86_64*)
-     STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
-     ;;
-esac
-if [ -z "$PKG_CONFIG_PATH" ] ; then
-  # I think that the standard dir is not needed.
-  # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+if [ -e $install_top_dir/include/idn2.h ] ; then
+   echo installation has libidn2 devel
+   build_libidn=
 else
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+   echo installation does not have libidn2, libcurl should be built also
+   build_libidn=1
+   build_curl=1
 fi
 
-if [ -e /opt/X11/lib/pkgconfig ] ; then
-    PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
-fi
 
-
-echo "COOT_CCP4_PACKAGES" "$COOT_CCP4_PACKAGES"
-if [ -n "$COOT_CCP4_PACKAGES" ] ; then
-    # PKG_CONFIG_PATH=$COOT_CCP4_PACKAGES/lib/pkgconfig:$PKG_CONFIG_PATH
-    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$COOT_CCP4_PACKAGES/lib/pkgconfig
-fi
-
-export PKG_CONFIG_PATH
-echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
-
-
-# Do we have freetype2?  cairo depends on it.
-if pkg-config freetype2 ; then
-   build_freetype2=
-   echo system/installation has freetype2
-else
-   echo freetype2 should be built
-   build_freetype2=1
-fi
-
-if pkg-config --atleast-version=2.14.5 glib ; then
-   # have glib
-   echo glib is up to date
-   build_glib=
-else
-   echo glib is not up to date, rebuild glib - maybe.
-   build_glib=1
-fi
 
 # Test the output of pkg-config gtk+-2.0 for recent enough gtk.
 # If not, then build it yourself.
@@ -1940,8 +1934,9 @@ fi
 # Experiment, to force bragg3 to compile gtk+2
 #
 # was 2.8
-needed_gtk_version=2.10
-#
+needed_gtk_version=3.94
+
+# what a mess. Needs cleaning
 pkg-config --atleast-version=$needed_gtk_version gtk+-2.0
 gtk_pkg_config_status=$?
 if [ "$gtk_pkg_config_status" = 0 ] ; then
@@ -1949,28 +1944,10 @@ if [ "$gtk_pkg_config_status" = 0 ] ; then
    echo :::::::: gtk version is `pkg-config --modversion gtk+-2.0`
 fi
 
-# guilegtk2.1 need version 2.8 of gtk to compile out of the box.  If
-# we have less than that then we need to apply a fix
-#
-gtk_version=`pkg-config --modversion gtk+-2.0`
-if pkg-config --atleast-version=2.8 gtk+-2.0 ; then
-    echo gtk is new enough for guile-gtk
-    gtk_new_enough_for_guilegtk=true
-else
-    echo guile-gtk needs fixing up
-    gtk_new_enough_for_guilegtk=false
-fi
 
-
-build_libtool=1
-if test -e ${install_top_dir}/lib/libltdl.so.3 ; then
-    build_libtool=
-fi
-if test -e ${install_top_dir}/lib/libltdl.la ; then
-    build_libtool=
-fi
-if test -z "$build_libtool" ; then
+if test -e ${install_top_dir}/include/ltld.h ; then
     echo installation has libtool
+    build_libtool=
 else
     echo libtool should be built
 fi
@@ -2475,6 +2452,41 @@ else
 fi
 
 
+if test -n "$build_readline" ; then
+    echo BUILDING readline:
+    readline_version=6.2
+    readline_version=6.3
+    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} $extras_place/readline-5.1.patch
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
+    cd readline-$readline_version
+    if test -n "$need_readline_patch" ; then
+       echo patching readline...
+       # need a patch (for debian only) to add curses to the additional libs line
+       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
+    fi
+    if [ "$dist_name" = debian ] ; then
+       echo applying debian sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+       extra_args_for_debian="--with-curses --enable-shared"
+    fi
+    echo ./configure $generic_prefix $extra_args_for_debian
+    ./configure $generic_prefix $extra_args_for_debian
+    # single thread
+    if make ; then
+       make install
+    else
+       echo make of readline failed
+    fi
+    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
+else
+    echo not building readline:
+fi
+
 
 ###############################################################################
 ##########         build python and friends                       #############
@@ -2531,23 +2543,70 @@ else
 fi
 
 
+###############################################################################
+##########         gobject-introspection before python            #############
+###############################################################################
+# this needs to be reconsidered because gobejct-intropsection needs python3
+# to build.
+
 test_for_already_installed_dependencies=true
 
 
-if test -n "$build_pygobject" ; then
+build_gobject_introspection=true
+ls $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h
+if [ -e $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h ] ; then
+   build_gobject_introspection=false
+   echo installation has gobject-introspection
+fi
 
-   sources_dir=${AUTOBUILD_SOURCES}
-
-   # gobject-introspection needs libffi:
-
-   skip_build=false
-   echo BUILDING libffi:
-   libffi_version=3.2.1
+if test "$build_gobject_introspection" = true ; then
+   echo BUILDING gobject-introspection:
    (
    date
+   echo BUILDING gobject-introspection:
+
+   gobject_introspection_version=1.50.0
+   gobject_introspection_version=1.68.0
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
+
+   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
+   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
+   cd gobject-introspection-$gobject_introspection_version
+   # 1.68 (probably earlier) has moved on from configure. meson baby
+   # echo ./configure --prefix=$install_top_dir PYTHON=python3
+   # ./configure --prefix=$install_top_dir PYTHON=python3
+   # if $MAKE ; then
+   #   $MAKE install
+   # fi
+
+   if meson -Dprefix=$install_top_dir build ; then
+      echo meson passed
+      cd build
+      ninja
+      ninja install
+   else
+      echo meson failed
+   fi
+   ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
+fi
+
+
+sources_dir=${AUTOBUILD_SOURCES}
+
+
+# gobject-introspection needs libffi:
+
+skip_build=false
+echo BUILDING libffi:
+libffi_version=3.2.1
+(
+   date
    if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/lib/libffi-$libffi_version/include ] ; then
+      echo ffi build - testing existance $install_top_dir/lib/libffi-$libffi_version/include/fffi.h
+      if [ -e $install_top_dir/lib/libffi-$libffi_version/include/ffi.h ] ; then
          skip_build=true
+         echo skip build
       else
          echo $install_top_dir/lib/libffi-$libffi_version/include does not exist
       fi
@@ -2562,8 +2621,7 @@ if test -n "$build_pygobject" ; then
          $MAKE install
       fi
    fi
-   ) > $HOSTLOGDIR/07a-libffi.txt 2>&1
-fi
+) > $HOSTLOGDIR/07a-libffi.txt 2>&1
 
 pip3 install meson
 
@@ -2582,46 +2640,20 @@ else
    exit 2
 fi
 
-build_gobject_introspection=true
-ls $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h
-if [ -e $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h ] ; then
-   build_gobject_introspection=false
-   echo installation has gobject-introspection
-fi
-
-if test "$build_gobject_introspection" = true ; then
-   echo BUILDING gobject-introspection:
-   (
-   date
-   echo BUILDING gobject-introspection:
-
-   gobject_introspection_version=1.50.0
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
-
-   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
-   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
-   cd gobject-introspection-$gobject_introspection_version
-   echo ./configure --prefix=$install_top_dir PYTHON=python3
-   ./configure --prefix=$install_top_dir PYTHON=python3
-   if $MAKE ; then
-      $MAKE install
+# pycairo is a dependency of pygobject.  Is this gtk2 stuff?
+pycairo_version=1.17.0 #  check for a more recent version.
+skip_build=true
+if [ $test_for_already_installed_dependencies = true ] ; then
+   # check this file name.
+   #  $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py
+   if [ -e $install_top_dir/lib/include/pycairo/py3cairo.h ] ; then
+      skip_build=true
    fi
-   ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
 fi
-
-   # pycairo is a dependency of pygobject.  Is this gtk2 stuff?
-   pycairo_version=1.17.0 #  check for a more recent version.
-   ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
-   skip_build=true
-   if [ $test_for_already_installed_dependencies = true ] ; then
-      # check this file name.
-      if [ -e $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py ] ; then
-         skip_build=true
-      fi
-   fi
 
 if [ true ] ; then
    if [ $skip_build = false ] ; then
+      ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
       (
       if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
 	 date
@@ -2660,6 +2692,7 @@ if [ true ] ; then
 
    if [ $skip_build = false ] ; then
 
+      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
       echo trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
       if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
@@ -2733,7 +2766,8 @@ fi
 
 if test -n "$build_libtool" ; then
     echo BUILDING libtool:
-    libtool_version=1.5.24
+    # libtool_version=1.5.24
+    libtool_version=2.4.6
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libtool/libtool-$libtool_version.tar.gz
     (date
      pwd
@@ -2753,42 +2787,6 @@ else
 fi
 
 
-if test -n "$build_readline" ; then
-    echo BUILDING readline:
-    readline_version=6.2
-    readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    ${WGET} $extras_place/readline-5.1.patch
-    (
-    date
-    pwd
-    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
-    cd readline-$readline_version
-    if test -n "$need_readline_patch" ; then
-       echo patching readline...
-       # need a patch (for debian only) to add curses to the additional libs line
-       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
-    fi
-    if [ "$dist_name" = debian ] ; then
-       echo applying debian sed patch for shared-lib libreadline
-       # thanks for the quoting help tony duan @ stackoverflow
-       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
-       extra_args_for_debian="--with-curses --enable-shared"
-    fi
-    echo ./configure $generic_prefix $extra_args_for_debian
-    ./configure $generic_prefix $extra_args_for_debian
-    # single thread
-    if make ; then
-       make install
-    else
-       echo make of readline failed
-    fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
-else
-    echo not building readline:
-fi
-
-
 ###############################################################################
 ##########         build idn                                      #############
 ###############################################################################
@@ -2805,7 +2803,7 @@ if test -n "$build_libidn" ; then
    libidn_version=1.15
    libidn_version=2.2.0
    # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
-   ${WGET}    https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
+   ${WGET} https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
    cd libidn2-$libidn_version
@@ -3476,7 +3474,7 @@ fi
 
 
 # silicos-it's biscu-it
-if [ -e $install_top_dir/lib/$pthon_version/site-packages/silicos_it/descriptors/qed.py ] ; then
+if [ -e $install_top_dir/lib/$python_version/site-packages/silicos_it/descriptors/qed.py ] ; then
    echo not building biscu-it:
 else
    echo building QED
@@ -3492,6 +3490,336 @@ else
    ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
 fi
 
+
+
+
+###############################################################################
+##################### guile and friends #######################################
+###############################################################################
+
+libffi_version=3.2.1
+guile_version=3.0.5 # no g-wrap for this
+guile_version=2.2.7
+g_wrap_version=1.9.15
+libtool_version=2.4.6
+gmp_version=6.1.1
+gmp_version=6.2.1
+unistring_version=0.9.6
+unistring_version=0.9.10
+guile_gnome_platform_version=2.16.5
+readline_version=6.3
+gc_version=8.0.4
+guile_cairo_version=1.9.91
+
+# wget http://ftp.gnu.org/pub/gnu/guile-gnome/guile-gnome-platform/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
+# wget http://savannah.nongnu.org/download/g-wrap/g-wrap-$g_wrap_version.tar.gz
+# wget sourceware.org:/pub/libffi/libffi-$libffi_version.tar.gz
+# wget ftp://ftp.gnu.org/pub/gnu/guile/guile-2.0.12.tar.gz
+# wget ftp://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-2.0.12.tar.gz
+# wget http://ftp.heanet.ie/mirrors/gnu/libtool/libtool-$libtool_version.tar.gz
+# wget http://mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.xz
+# wget http://mirrorservice.org/sites/ftp.gnu.org/gnu/libunistring/libunistring-$unistring_version.tar.gz
+# wget http://www.hboehm.info/gc/gc_source/gc-7.2g.tar.gz
+# wget http://mirrorservice.org/sites/ftp.gnu.org/gnu/readline/readline-6.3.tar.gz
+# wget http://download.savannah.gnu.org/releases/guile-cairo/guile-cairo-$guile_cairo_version.tar.gz
+
+build_libffi=true
+build_guile=true
+build_g_wrap=true
+build_libtool=true
+build_gmp=true
+build_unistring=true
+build_guile_gnome_platform=true
+build_readline=true
+build_guile_cairo=true
+
+
+if [ "$build_libffi" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/lib/pkgconfig/libffi.pc ] ; then
+         skip_this=true
+      fi
+   fi
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build libffi =================================
+      if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
+         tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
+      else
+         exit
+      fi
+      cd libffi-$libffi_version
+      if ./configure --prefix=$install_top_dir ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/18-ffi.txt 2>&1
+   fi
+fi
+
+if [ "$build_unistring" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/unistr.h ] ; then
+         skip_this=true
+      fi
+   fi
+
+   echo libunistring skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build unistring =================================
+      if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
+      else
+         echo missing file $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
+         exit
+      fi
+      cd libunistring-$unistring_version
+      echo ./configure --prefix=$install_top_dir
+      if ./configure --prefix=$install_top_dir  ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/20-lubunistring.txt 2>&1
+   fi
+fi
+
+
+build_gc=true
+
+if [ "$build_gc" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/gc.h ] ; then # use the right file
+         skip_this=true
+      fi
+   fi
+
+   echo gc skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build gc =================================
+      if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+      else
+         echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         exit
+      fi
+      cd gc-$gc_version
+      echo ./configure --prefix=$install_top_dir
+      if ./configure --prefix=$install_top_dir  ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/21-gc.txt 2>&1
+   fi
+fi
+
+if [ "$build_gmp" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/gmp.h ] ; then # use the right file
+         skip_this=true
+      fi
+   fi
+
+   echo gmp skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build gmp =================================
+      if [ -e $AUTOBUILD_SOURCES/gmp-$gmp_version.tar.xz ] ; then
+         tar xf $AUTOBUILD_SOURCES/gmp-$gmp_version.tar.xz
+      else
+         exit
+      fi
+      cd gmp-$gmp_version
+      echo ./configure --prefix=$install_top_dir
+      if ./configure --prefix=$install_top_dir  ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/22-gmp.txt 2>&1
+   fi
+fi
+
+if [ "$build_guile" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/guile/2.2/libguile.h ] ; then # use the right file
+         skip_this=true
+      fi
+   fi
+
+   echo guile skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build guile =================================
+      if [ -e $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
+         tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
+      else
+         echo no file $AUTOBUILD_SOURCES/guile-$guile_version.tar.z
+         exit
+      fi
+      cd guile-$guile_version
+      # LIBFFI_LIBS=-L$install_top_dir/lib
+      # LIBFFI_CFLAGS=-I$install_top_dir/include
+      if ./configure --prefix=$install_top_dir      \
+         --with-libltdl-prefix=$install_top_dir     \
+         --with-libreadline-prefix=$install_top_dir \
+         LIBS=-L$install_top_dir/lib CFLAGS=-I$install_top_dir/include ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/24-guile.txt 2>&1
+   fi
+fi
+
+# ------------------------------------  template -------------------------------------
+if [ "$build_template" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/template.h ] ; then # use the right file
+         skip_this=true
+      fi
+   fi
+
+   echo template skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      echo ========================= build template =================================
+      if [ -e $AUTOBUILD_SOURCES/template-$template_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/template-$template_version.tar.gz
+      else
+         exit
+      fi
+      if [ ! -e $install_top_dir/bin/guile ] ; then
+         echo no guile
+         exit
+      fi
+      cd template-$template_version
+      if ./configure --prefix=$install_top_dir ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+   fi
+fi
+# ------------------------------------  template -------------------------------------
+
+
+if [ "$build_g_wrap" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/g-wrap/guile-runtime.h ] ; then # use the right file
+         skip_this=true
+      fi
+   fi
+
+   echo g-wrap skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build g-wrap =================================
+      if [ -e $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
+      else
+         exit
+      fi
+      if [ ! -e $install_top_dir/bin/guile ] ; then
+         echo no guile
+         exit
+      fi
+      cd g-wrap-$g_wrap_version
+      # if ./configure --prefix=$install_top_dir LIBFFI_LIBS=-L$install_top_dir/lib LIBFFI_CFLAGS=-I$install_top_dir/include; then
+      if ./configure --prefix=$install_top_dir --disable-Werror ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      ) > $HOSTLOGDIR/25-g-wrap.txt 2>&1
+   fi
+fi
+
+if [ "$build_guile_cairo" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/guile-cairo/guile-cairo.h ] ; then
+         skip_this=true
+      fi
+   fi
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build guile-cairo =================================
+      if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
+      else
+         exit
+      fi
+      if [ ! -e $install_top_dir/bin/guile ] ; then
+         echo no guile
+         exit
+      fi
+      cd guile-cairo-$guile_cairo_version
+      if ./configure --prefix=$install_top_dir ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/26-guile-cairo.txt 2>&1
+   fi
+fi
+
+
+
+
+if [ "$build_guile_gnome_platform" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/guile-gnome-2/guile-gnome-gobject.h ] ; then
+         skip_this=true
+      fi
+   fi
+
+   echo guile-gnome-platform skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      (
+      echo ========================= build guile-gnome-platform =================================
+      if [ -e $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
+      else
+         echo no file $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
+         exit
+      fi
+      cd guile-gnome-platform-$guile_gnome_platform_version
+      if ./configure --prefix=$install_top_dir ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      ) > $HOSTLOGDIR/27-guile-gnome-platform.txt 2>&1
+   fi
+fi
 
 
 ###############################################################################
@@ -3510,11 +3838,11 @@ if [ -e coot ] ; then
    echo now in this dir:
    pwd
    echo 33333333333333333333333 and about to fetch and merge...
-   if [ -e ltmain.sh ] ; then
-      rm ltmain.sh
-   fi
    git fetch
    git merge
+   # if [ -e ltmain.sh ] ; then
+   #   rm ltmain.sh
+   # fi
    echo 44444444444444444444444 done fetch and merge
    rm -rf autom4te.cache
    echo 5555555555555555555555 bash autogen.sh
@@ -3591,47 +3919,39 @@ echo PKG_CONFIG_PATH: $PKG_CONFIG_PATH
 # the gtk3 branch, have run autogen.sh
 # and have placed that directory somewhere sensible relative to here
 
-rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python36 -lpython3.6m"
+rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python39 -lpython3.9"
 rdkit_install_dir=$install_top_dir
 
-echo ../coot/configure $coot_prefix \
+echo bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       SHELL=/bin/bash \
       PYTHON=python3 \
-      --with-modern-language-tools   \
       --with-enhanced-ligand-tools   \
       --with-boost=$install_top_dir  \
-      --with-python=$install_top_dir \
-      --with-goocanvas-prefix=$install_top_dir \
       $guile_scripting    \
-      $python_scripting   \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
       $extra_args_for_darwin \
-   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT" \
    RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 
-   ../coot/configure $coot_prefix \
+   bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       SHELL=/bin/bash \
       PYTHON=python3 \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
-      --with-modern-language-tools   \
       --with-enhanced-ligand-tools   \
       --with-boost=$install_top_dir  \
-      --with-python=$install_top_dir \
-      --with-goocanvas-prefix=$install_top_dir \
       $guile_scripting    \
-      $python_scripting   \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
       $extra_args_for_darwin \
-   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT" \
    RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 
 
@@ -3646,12 +3966,12 @@ else
    echo '                                ' make install
    echo 1 ----------------------------------------------------------------
    $MAKE install
-   if [ "$python_scripting" = '--with-python' ] ; then
-      echo copying src/coot.py $install_top_dir/share/coot/python
-      cp src/coot.py $install_top_dir/share/coot/python
-   fi
+   # if [ "$python_scripting" = '--with-python' ] ; then
+      # echo copying src/coot.py $install_top_dir/share/coot/python
+      # cp src/coot.py $install_top_dir/share/coot/python
+   # fi
 fi
-) > $HOSTLOGDIR/20-coot.txt 2>&1
+) > $HOSTLOGDIR/30-coot.txt 2>&1
 
 #         --with-gsl-prefix=$install_top_dir \
 #        --with-glib-prefix=$install_top_dir \
@@ -3736,9 +4056,9 @@ fi
 
 if [ $clear_up_type != "" ] ; then
    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then
-      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk3-python
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-${build_type}-python
    else
-      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk3
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-$build_type
    fi
    echo post-install slim... >&2
    post_install_slim $install_top_dir $slim_dir $clear_up_type
@@ -3772,7 +4092,6 @@ if [ "$run_tests" = true ] ; then
    fi
 
    # all gtk3 versions have python. No need for the python tag then
-   gtk_version=-gtk3
    if ( [ $r = 0 ] && [ $rp = 0 ] ); then
       echo ========================
       echo '   ' first coot test passed
