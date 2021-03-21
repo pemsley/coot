@@ -1,6 +1,8 @@
 
+#ifndef QED_INTERFACE_HH
+#define QED_INTERFACE_HH
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON
 
 #include "lbg.hh"
 
@@ -18,5 +20,8 @@ get_qed_ads(const std::vector<double> &properties, PyObject *pads, long idx);
 
 
 #endif
-#endif
+
+
+
+#endif // QED_INTERFACE_HH
 

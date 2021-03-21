@@ -1,5 +1,6 @@
 #
 AM_CPPFLAGS = \
+	-DUSE_PYTHON \
 	-I$(top_srcdir) \
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(COOT_GSL_FLAGS)		\

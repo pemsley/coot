@@ -21,6 +21,7 @@
 lib_LTLIBRARIES=libcoot-lidia.la
 
 AM_CPPFLAGS = \
+	-DUSE_PYTHON \
 	-I$(top_srcdir) \
         $(GSL_CFLAGS)   \
         $(GOOCANVAS_CFLAGS) \

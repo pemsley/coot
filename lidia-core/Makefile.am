@@ -48,7 +48,9 @@ libcoot_lidia_core_la_LIBADD =                    \
    $(top_builddir)/geometry/libcoot-geometry.la   \
    $(top_builddir)/utils/libcoot-utils.la         \
    $(CLIPPER_LIBS)                                \
-   $(RDKIT_LIBS) $(SQLITE3_LIBS)
+   $(RDKIT_LIBS) \
+   -lRDKitmaeparser \
+   $(SQLITE3_LIBS)
 
 
 # interesting link failure when using -no-undefined.

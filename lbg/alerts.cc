@@ -22,14 +22,12 @@
 
 #include "lbg.hh"
 
-#ifdef USE_PYTHON
 void
 lbg_info_t::setup_user_defined_alert_smarts() {
 
    PyObject *m = PyImport_AddModule("__main__");
    user_defined_alerts_smarts_py = PyObject_GetAttrString(m,"user_defined_alert_smarts");
 }
-#endif
 
 
 // return a vector of alert matches
@@ -73,8 +71,6 @@ lbg_info_t::user_defined_alert_smarts() const {
 
    std::vector<std::pair<std::string, std::string> > v;
 
-#ifdef USE_PYTHON
-
    if (user_defined_alerts_smarts_py) {
       if (PyList_Check(user_defined_alerts_smarts_py)) {
 	 Py_ssize_t len = PyList_Size(user_defined_alerts_smarts_py);
@@ -98,7 +94,6 @@ lbg_info_t::user_defined_alert_smarts() const {
 	 }
       }
    }
-#endif
    return v;
 }
 

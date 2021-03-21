@@ -24,14 +24,7 @@ n * This program is distributed in the hope that it will be useful, but
 
 // Don't compile any of this if we don't have the canvas.
 
-
-#ifdef USE_PYTHON
-#   ifndef HAVE_INCLUDED_PYTHON
-#      define HAVE_INCLUDED_PYTHON
-#      include <Python.h>
-#   endif
-#endif 
-
+#include <Python.h>
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
@@ -68,7 +61,6 @@ n * This program is distributed in the hope that it will be useful, but
 // static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double LIGAND_TO_CANVAS_SCALE_FACTOR = 17;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
-
 
 bool save_togglebutton_widgets(GtkBuilder *builder);
 
@@ -784,11 +776,9 @@ private:
       show_alerts_user_control = false;
       bond_pick_pending = false;
       atom_pick_pending = false;
-#ifdef USE_PYTHON
       user_defined_alerts_smarts_py = NULL;
       setup_silicos_it_qed_default_func();
       setup_user_defined_alert_smarts();
-#endif      
 #endif      
    }
    
@@ -944,7 +934,6 @@ private:
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
    void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name, unsigned int iconf=0);
-#ifdef USE_PYTHON   
    PyObject *silicos_it_qed_default_func;
    PyObject *silicos_it_qed_properties_func;
    PyObject *silicos_it_qed_pads;
@@ -953,7 +942,6 @@ private:
    PyObject *user_defined_alerts_smarts_py;
    void setup_user_defined_alert_smarts();
    void setup_silicos_it_qed_default_func(); // try to get the python function, or set it to null.
-#endif    
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;
 

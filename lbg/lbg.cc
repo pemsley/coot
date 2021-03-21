@@ -3415,8 +3415,6 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 
    // see setup_silicos_it_qed_default_func()
 
-#ifdef USE_PYTHON
-
    if (rdkm.getNumAtoms() == 0) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
@@ -3454,7 +3452,6 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
       }
    }
-#endif
 }
 #endif
 
@@ -5095,7 +5092,6 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON
 PyObject *
 lbg_info_t::get_callable_python_func(const std::string &module_name,
 				     const std::string &function_name) const {
@@ -5133,7 +5129,6 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
    }
    return extracted_func;
 }
-#endif
 #endif
 
 // std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >

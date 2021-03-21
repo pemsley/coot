@@ -19,10 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef USE_PYTHON
-#include <Python.h> // this is here get round header warnings
-#endif
-
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>

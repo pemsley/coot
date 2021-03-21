@@ -20,9 +20,7 @@
  */
 
 
-#ifdef USE_PYTHON
 #include <Python.h>
-#endif
 
 #include <iostream>
 #include "utils/win-compat.hh"

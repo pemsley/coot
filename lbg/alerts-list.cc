@@ -3,10 +3,6 @@
 // alerts from SilOS-it's biscu-it.
 //
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
-
 #include "lbg.hh"
 
 typedef std::pair<std::string, std::string> p;
@@ -156,4 +152,6 @@ lbg_info_t::alert_smarts() const {
       vv[i] = v[i];
    return vv;
 }
+
 #endif
+
