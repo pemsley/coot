@@ -1,6 +1,5 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON
 
 #include <boost/python.hpp>
 
@@ -121,7 +120,5 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
    return r;
 }
 
-
-#endif
 #endif
 

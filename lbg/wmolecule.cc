@@ -20,10 +20,6 @@
  * 02110-1301, USA
  */
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
-
 #include <stdexcept>
 #include <fstream>
 #include <iomanip>

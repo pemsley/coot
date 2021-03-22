@@ -21,7 +21,6 @@
  */
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON
 
 #include <boost/python.hpp>
 
@@ -160,5 +159,4 @@ get_qed_ads(const std::vector<double> &properties, PyObject *pads, long idx) {
 }
 
 
-#endif // USE_PYTHON
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
