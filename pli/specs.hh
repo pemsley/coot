@@ -2,8 +2,6 @@
 #ifndef PY_SPECS_HH
 #define PY_SPECS_HH
 
-#ifdef USE_PYTHON
-
 #include <Python.h>
 
 #include "geometry/residue-and-atom-specs.hh"
@@ -26,5 +24,4 @@ namespace coot {
 
 }
 
-#endif // USE_PYTHON
 #endif // PY_SPECS_HH

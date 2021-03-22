@@ -1,8 +1,5 @@
 
-#ifdef USE_PYTHON
-
 #include<iostream>
-
 #include "specs.hh"
 
 coot::py_atom_spec_t::py_atom_spec_t(PyObject *obj) {
@@ -80,6 +77,4 @@ coot::py_residue_spec_t::pyobject() const {
 #endif
    return r;
 }
-
-#endif //USE_PYTHON
 
