@@ -247,6 +247,12 @@ AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 # FIXME Later.
 AX_BOOST_PYTHON
 
+
+if test -z "$BOOST_PYTHON_LIB" ; then
+   echo BOOST_PYTHON_LIB has not been set. Did you pass --with-boost-libdir\?
+   exit
+fi
+
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
 # How do we use that?  At the moment we want to only use 
 # -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
@@ -305,7 +311,7 @@ echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
- lidia_only=="no")
+ lidia_only="no")
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
