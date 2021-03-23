@@ -2948,7 +2948,7 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
       set_display_generic_object(idx_cablam, 0); // don't display while we are adding
       if (v.size() > 0) {
          for (it=v.begin(); it!=v.end(); it++) {
-            std::pair<coot::residue_spec_t, double> p(it->residue, it->score);
+            std::pair<coot::residue_spec_t, double> p(coot::residue_spec_t(it->residue), it->score);
             residues_vec.push_back(p);
          }
       }
