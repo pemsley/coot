@@ -68,13 +68,13 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
    float max_x, max_y, max_z, min_x, min_y, min_z;
    expansion_size_ = expansion_size;
 
-   max_x = -99999999;
-   max_y = -99999999;
-   max_z = -99999999;
+   max_x = -99999999.9;
+   max_y = -99999999.9;
+   max_z = -99999999.9;
    
-   min_x = 99999999;
-   min_y = 99999999;
-   min_z = 99999999;
+   min_x = 99999999.9;
+   min_y = 99999999.9;
+   min_z = 99999999.9;
    
    if (selection.n_selected_atoms > 0 ) {
 
