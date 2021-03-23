@@ -144,14 +144,14 @@ libcoot_map_heavy_la_LIBADD = \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
-
 libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # lidia-core functions moved here because they use coot-utils functions
 #
-check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-elastic test-spherical glyco-torsions \
-	test-tt-morph test-coot-probe test-chem-feat test-cod-atom-types dictionary-atom-types cod-db-access \
-	test-emma test-convolute test-segmap test-5-residue-fragments
+check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-elastic \
+		 test-spherical glyco-torsions test-tt-morph test-coot-probe test-chem-feat \
+		 test-cod-atom-types dictionary-atom-types cod-db-access \
+		 test-emma test-convolute test-segmap test-5-residue-fragments
 
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
@@ -222,10 +222,10 @@ test_hole_LDADD = ./libcoot-coord-utils.la \
         $(MMDB_LIBS)
 
 test_tt_morph_SOURCES = test-morph.cc
-test_tt_morph_LDADD = 	./libcoot-map-heavy.la \
+test_tt_morph_LDADD = ./libcoot-map-heavy.la \
         ./libcoot-map-utils.la \
 	./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+	./libcoot-utils.la \
         $(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc
