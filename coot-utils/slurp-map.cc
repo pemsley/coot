@@ -74,6 +74,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
 
 #include "utils/split-indices.hh"
 
+// return value (status) means "is_basic_EM_map" (that's slurpable)
 bool
 coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                   bool check_only) {
@@ -197,6 +198,14 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
          std::string s(label, 0, 80);
          std::cout << "   " << s << std::endl;
       }
+   }
+
+   for(int i=0; i<number_of_labels; i++) {
+      char *label = labels + i * 80;
+      std::string s(label, 0, 80);
+      if (s.length() >= 8)
+         if (s.substr(0,8) == "PANDDA::")
+            return false;
    }
 
    char *map_data = data + size_extended_header + 1024; // points to the start of the grid (of 4 byte floats)
