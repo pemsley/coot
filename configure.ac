@@ -421,7 +421,6 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-libgtkgraph/Makefile
 goograph/Makefile
 lbg/Makefile
 doc/Makefile
