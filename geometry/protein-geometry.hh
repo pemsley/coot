@@ -2074,12 +2074,14 @@ namespace coot {
 
       // faster, when the caller has cached the metal state
       std::pair<bool, double> get_nbc_dist_v2(const std::string &energy_type_1,
-						const std::string &energy_type_2,
-						bool is_metal_atom_1,
-						bool is_metal_atom_2,
-						bool extended_atoms_mode, // if the model does not have Hydrogen atoms
-						bool in_same_residue_flag = true,
-						bool in_same_ring_flag = true) const;
+                                              const std::string &energy_type_2,
+                                              const std::string &element_1,
+                                              const std::string &element_2,
+                                              bool is_metal_atom_1,
+                                              bool is_metal_atom_2,
+                                              bool extended_atoms_mode, // if the model does not have Hydrogen atoms
+                                              bool in_same_residue_flag = true,
+                                              bool in_same_ring_flag = true) const;
 
       energy_lib_atom get_energy_lib_atom(const std::string &ener_type) const;
       

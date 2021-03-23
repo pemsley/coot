@@ -727,6 +727,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          if (res_name_2 == "PRO") second_is_pro = true; // residues are sorted and j > i
          if (res_name_2 == "HYP") second_is_pro = true;
 
+         std::string element_1 = at_1->element;
+         std::string element_2 = at_2->element;
          const std::string &type_1 = energy_type_for_atom[i];
          const std::string &type_2 = energy_type_for_atom[j];
 
@@ -804,20 +806,23 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                if (mc_CC_atoms_tandem) {
                   dist_min = 3.05; // in a helix, more elsewhere.
                } else {
-                  dist_min = 2.82; // N-N
+                  dist_min = 2.82; // N-N, but captures all others, including H-H
                }
             }
 
-            // Hydrogens are handled below this if() also - I am not sure
-            // that this delta should be applied here
-
-            // Yeah... I don't think that it should be added here.
-            // if (atom_is_hydrogen[i]) dist_min -= 0.7;
-            // if (atom_is_hydrogen[j]) dist_min -= 0.7;
+            if (atom_is_hydrogen[i] && atom_is_hydrogen[j]) {
+               dist_min = 2.42; // depends on energy type
+            } else {
+               if (atom_is_hydrogen[i])
+                  dist_min -= 0.4;
+               if (atom_is_hydrogen[j])
+                  dist_min -= 0.4;
+            }
 
          } else {
-
+            // not 1-4 related
             std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
+                                                                    element_1, element_2,
                                                                     atom_is_metal[i],
                                                                     atom_is_metal[j],
                                                                     extended_atom_mode,
@@ -836,7 +841,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
                   dist_min = nbc_dist.second;
 
-                  if (false) debug_print("0    ", i, j, at_1, at_2, fixed_atom_flags, dist_min);
+                  if (false) debug_print("0", i, j, at_1, at_2, fixed_atom_flags, dist_min);
 
                   // Perhaps we don't have angle restraints to both atoms because one
                   // of the atoms is fixed (and thus miss that these have a 1-4 relationship).
@@ -860,7 +865,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
                }
             } else {
-               // short/standard value
+               // missing NBC distance so use this fallback. short/standard value
                dist_min = 2.8;
             }
 
@@ -898,7 +903,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          non_bonded_contacts_atom_indices[i].insert(j);
          simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
          simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
-                            nbcf, i, *it,
+                            nbcf, i, j,
                             is_H_non_bonded_contact,
                             fixed_atom_flags, dist_min);
          nbc_restraints_fragment_p->push_back(r);
@@ -1178,6 +1183,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
          std::string atom_name_1 = at_1->GetAtomName();
          std::string atom_name_2 = at_2->GetAtomName();
+         std::string element_1   = at_1->element;
+         std::string element_2   = at_2->element;
 
          if (in_same_ring_flag) {
 
@@ -1236,6 +1243,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
          } else {
 
             std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
+                                                                    element_1, element_2,
                                                                     atom_is_metal[i],
                                                                     atom_is_metal[j],
                                                                     extended_atom_mode,
