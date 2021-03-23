@@ -197,7 +197,9 @@ void
 lbg_info_t::new_lbg_window() {
 
    lig_build::molfile_molecule_t blank_mol;
-   std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, 0);
+   mmdb::Residue *null_residue = 0;
+   coot::residue_spec_t null_spec(null_residue);
+   std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, null_spec);
    mmdb::Manager *mol = NULL;
    std::string view_name;
    std::string molecule_file_name;
