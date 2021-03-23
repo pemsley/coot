@@ -3585,6 +3585,7 @@ if [ $build_enhanced_ligand = 1 ] ; then
                   -DBUILD_SHARED_LIBS=ON \
                   -DRDK_INSTALL_STATIC_LIBS=OFF \
                   -DPYTHON_INSTDIR=$install_top_dir/${python_version}/lib/site-packages \
+                  -DRDK_BUILD_CAIRO_SUPPORT=ON \
                   -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
 #                   -DCMAKE_CXX_FLAGS="-g -O -std=gnu++11 -Wno-deprecated -Wno-unused-function -fno-strict-aliasing -Wall -Wextra -DWIN32" \
             $MAKE

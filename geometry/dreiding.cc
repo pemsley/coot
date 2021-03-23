@@ -21,6 +21,9 @@
 
 #include "protein-geometry.hh"
 
+#ifndef M_PI
+#define M_PI       3.141592653589793238466
+#endif
 
 // can thow a std::runtime_error
 double

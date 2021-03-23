@@ -2988,6 +2988,7 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
    glPopMatrix();
 }
 
+
 void
 graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_point,
 						const coot::Cartesian &end_point,
@@ -3033,10 +3034,17 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
 	 glScalef(0.95, 0.95, 0.48);
       else
 	 glScalef(1.1, 1.1, 0.55);
+      // BL says:: somehow glutSolid objects dont work in WinCoot
+      // they cause segfault. So a workaround until it does...
+#ifdef WINDOWS_MINGW
+      glutWireTorus(radius_1, radius_2, 60, 90);
+#else
       glutSolidTorus(radius_1, radius_2, 20, 32);
+#endif
       glPopMatrix();
    }
 }
+
 
 void
 graphics_info_t::graphics_object_internal_arc(float start_angle,
