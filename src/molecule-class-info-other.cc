@@ -226,7 +226,7 @@ coot::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref
       std::vector<std::pair<mmdb::Atom *, float> > se = solvent_exposure(SelHnd, mol.second);
       v.resize(se.size());
       for (unsigned int i=0; i<se.size(); i++) {
-         v[i] = std::pair<coot::atom_spec_t, float> (se[i].first, se[i].second);
+         v[i] = std::pair<coot::atom_spec_t, float> (coot::atom_spec_t(se[i].first), se[i].second);
       }
 
       mol.second->DeleteSelection(SelHnd);

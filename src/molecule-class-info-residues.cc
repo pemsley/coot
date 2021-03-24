@@ -1100,8 +1100,8 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 		  if (is_het) {
 		     std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
 		     if (res_centre.first) {
-			std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, residue_p);
-			ligand_centres.push_back(p);
+              std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, coot::residue_spec_t(residue_p));
+              ligand_centres.push_back(p);
 		     }
 		  }
 	       }
