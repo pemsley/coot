@@ -235,13 +235,13 @@ public:
       std::string ligand_atom_name;
       double bond_length;
       int bond_type; // acceptor or donor
-      bond_to_ligand_t(const std::string &n, double b) {
-	 ligand_atom_name = n;
+      bond_to_ligand_t(const std::string &n, double b) : ligand_atom_name(n) {
 	 bond_length = b;
+         bond_type = 1;
 	 is_set_ = 1;
       }
-      bond_to_ligand_t() { is_set_ = 0;}
-      bool is_set() const { return is_set_; } 
+      bond_to_ligand_t() { is_set_ = 0; bond_type = 0; bond_length = 0.0; }
+      bool is_set() const { return is_set_; }
    };
 
    class residue_circle_t {
@@ -277,12 +277,12 @@ public:
 		       const clipper::Coord_orth &click_pos_in,
 		       coot::residue_spec_t spec_in,
 		       const std::string &type_in,
-		       const std::string &label_in) {
-	 trans_rel_pos_3d = pos_in;
-	 residue_centre_real = click_pos_in;
-	 spec = spec_in;
-	 residue_type = type_in;
-	 residue_label = label_in;
+		       const std::string &label_in) :
+         trans_rel_pos_3d(pos_in),
+         residue_centre_real(click_pos_in),
+         spec(spec_in),
+         residue_type(type_in),
+         residue_label(label_in) {
 	 se_holo = 0.0;
 	 se_apo  = 0.0;
 	 se_diff_set_ = 0;
@@ -491,13 +491,13 @@ public:
 	 bool x_y_axis;
 	 
       public:
-	 coordinates() { frac_x = 0; frac_y = 0; i_ax = 0; }
+	 coordinates() { frac_x = 0; frac_y = 0; i_ax = 0; x_y_axis = true; }
 	 coordinates(float f, int i) {
+            x_y_axis = true;
 	    if (f>1.0)
 	       std::cout << "-----> Bad frac " << f << std::endl;
 	    if (f<0.0)
 	       std::cout << "-----> Bad frac " << f << std::endl;
-	    frac_y = 11; // should not be used
 	    frac_x = f;
 	    i_ax = i;
 	    if (i == X_AXIS_LOW)
@@ -510,11 +510,11 @@ public:
 			    << f << "  i: " << i << std::endl;
 	 } 
 	 coordinates(int i, float f) {
+            x_y_axis = true;
 	    if (f>1.0)
 	       std::cout << "----->  Bad frac " << f << std::endl;
 	    if (f<0.0)
 	       std::cout << "----->  Bad frac " << f << std::endl;
-	    frac_x = 11; // should not be used
 	    frac_y = f;
 	    i_ax = i;
 	    if (i == Y_AXIS_LOW)
@@ -625,11 +625,8 @@ public:
       RDKit::MatchVectType matches;
       alert_info_t(const std::string &smarts_in,
 		   const std::string &smarts_name_in,
-		   const RDKit::MatchVectType &matches_in) {
-	 smarts = smarts_in;
-	 smarts_name = smarts_name_in;
-	 matches = matches_in;
-      } 
+		   const RDKit::MatchVectType &matches_in) :
+         smarts(smarts_in), smarts_name(smarts_name_in), matches(matches_in) {}
    };
 #endif
 
@@ -723,79 +720,8 @@ private:
    bool make_saves_mutex;
    double canvas_scale;
    bool use_graphics_interface_flag;
-   void init_internal() {
-      in_delete_mode_ = 0;
-      key_group = NULL;      
-      save_molecule_index = UNASSIGNED_INDEX;
-      make_saves_mutex = 1; // allow saves initially
-      search_similarity = 0.95;
-      coot_mdl_ready_time = 0;
-      canvas_scale = 1.0;
-      canvas_drag_offset =  lig_build::pos_t(0,0);
-      top_left_correction = lig_build::pos_t(0,0);
-      most_recent_bond_made_new_atom_flag = false;
-      standard_residue_circle_radius = 19;
-      button_down_bond_addition = false;
-      latest_bond_canvas_item = 0;
-      penultimate_atom_index = UNASSIGNED_INDEX;
-      ultimate_atom_index = UNASSIGNED_INDEX;
-      latest_bond_was_extended = 0;
-      atom_index_of_atom_to_which_the_latest_bond_was_added = UNASSIGNED_INDEX;
-      stand_alone_flag = 0;
-      ligand_spec_pair.first = 0; // unset ligand_spec
-      use_graphics_interface_flag = 1; // default: show gui windows and widgets.
-      mdl_file_name = "coot.mol";
-      atom_X = "H";
-      comp_id = "LIG";
-      lbg_atom_x_dialog = NULL;
-      lbg_atom_x_entry = NULL;
-      get_url_func_ptr_flag = false;
-      prodrg_import_func_ptr = NULL;
-      sbase_import_func_ptr = NULL;
-      get_drug_mdl_file_function_pointer = NULL;
+   void init_internal();
 
-      orient_view_func                               = NULL;
-      set_rotation_centre_func                       = NULL;
-      set_show_additional_representation_func        = NULL;
-      all_additional_representations_off_except_func = NULL;
-      
-      draw_flev_annotations_flag = false;
-//       lbg_nitrogen_toggle_toolbutton = NULL;
-//       lbg_carbon_toggle_toolbutton   = NULL;
-//       lbg_oxygen_toggle_toolbutton   = NULL;
-//       lbg_sulfur_toggle_toolbutton   = NULL;
-//       lbg_phos_toggle_toolbutton     = NULL;
-//       lbg_fluorine_toggle_toolbutton = NULL;
-//       lbg_chlorine_toggle_toolbutton = NULL;
-//       lbg_bromine_toggle_toolbutton  = NULL;
-//       lbg_single_bond_toggle_toolbutton  = NULL;
-//       lbg_double_bond_toggle_toolbutton  = NULL;
-//       lbg_ring_8_toggle_toolbutton = NULL;
-//       lbg_ring_7_toggle_toolbutton = NULL;
-//       lbg_ring_6_toggle_toolbutton = NULL;
-//       lbg_ring_6_arom_toggle_toolbutton = NULL;
-//       lbg_ring_5_toggle_toolbutton = NULL;
-//       lbg_ring_4_toggle_toolbutton = NULL;
-//       lbg_ring_3_toggle_toolbutton = NULL;
-      lbg_show_alerts_checkbutton    = NULL;
-      lbg_alert_hbox_outer = NULL;
-      alert_group = NULL; // group for alert annotations
-      show_alerts_user_control = false; // no pattern matching available
-      geom_p = NULL; // no (const) geometry passed/set
-      display_atom_names   = false;
-      display_atom_numbers = false;
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
-      show_alerts_user_control = false;
-      bond_pick_pending = false;
-      atom_pick_pending = false;
-#ifdef USE_PYTHON
-      user_defined_alerts_smarts_py = NULL;
-      setup_silicos_it_qed_default_func();
-      setup_user_defined_alert_smarts();
-#endif      
-#endif      
-   }
-   
    // return a status and a vector of atoms (bonded to atom_index) having
    // only one bond.
    // 
@@ -983,17 +909,16 @@ private:
    coot::protein_geometry *geom_p;
 
 public:
-   lbg_info_t(GtkWidget *canvas_in, coot::protein_geometry *geom_p_in) {
-      canvas = canvas_in;
+   lbg_info_t(GtkWidget *canvas_in, coot::protein_geometry *geom_p_in) : geom_p(geom_p_in) {
       init_internal();
+      canvas = canvas_in;
       geom_p = geom_p_in;
    }
    lbg_info_t() { init_internal(); }
-   lbg_info_t(int imol_in, coot::protein_geometry *geom_p_in) {
+   lbg_info_t(int imol_in, coot::protein_geometry *geom_p_in) : geom_p(geom_p_in) {
       init_internal();
-      geom_p = geom_p_in;
       imol = imol_in;
-      if (0)
+      if (false)
 	 std::cout << "in lbg_info_t(imol) mdl_file_name is now :"
 		   << mdl_file_name << ":" << std::endl;
    }

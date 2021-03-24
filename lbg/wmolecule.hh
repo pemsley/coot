@@ -356,7 +356,6 @@ public:
    //    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
    // make_other_connections_to_second_atom_info(unsigned int bond_index) const;
    
-
    // can throw an exception (no atoms)
    // 
    // lig_build::pos_t get_ligand_centre() const; // 20111229 base class now

@@ -212,20 +212,18 @@ namespace lig_build {
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
-   
+
    class atom_id_info_t {
    public:
 
       // simple case
-      atom_id_info_t(const std::string &atom_id_in) {
-	 atom_id = atom_id_in;
+      atom_id_info_t(const std::string &atom_id_in) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 size_hint = 0;
       }
 
       // make a superscript for the formal charge
-      atom_id_info_t(const std::string &atom_id_in, int formal_charge) {
-	 atom_id = atom_id_in;
+      atom_id_info_t(const std::string &atom_id_in, int formal_charge) : atom_id(atom_id_in){
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
@@ -307,17 +305,15 @@ namespace lig_build {
 		       // the atom indexes in the bonds descriptions.
    public:
       pos_t atom_position;
-      std::string element;
       std::string atom_id;
+      std::string element;
       std::string atom_name; // PDB atom names typically
       int charge;
       bool aromatic;
-      atom_t(pos_t pos_in, std::string ele_in, int charge_in) {
-	 atom_position = pos_in;
-	 atom_id = ele_in;
-	 element = ele_in;
-	 charge = charge_in;
+      atom_t(const pos_t &pos_in, const std::string &ele_in, int charge_in) :
+         atom_position(pos_in), atom_id(ele_in), element(ele_in), charge(charge_in) {
 	 is_closed_ = 0;
+         aromatic = false;
       }
       ~atom_t() {}
       bool over_atom(const double &x_in, const double &y_in) const {
@@ -993,7 +989,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_internal(start_atom_index,
 						     atom_index_other,
