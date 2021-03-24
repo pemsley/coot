@@ -698,7 +698,6 @@ test_coot_align_LDADD =	\
 coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
 coot_density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
-	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
