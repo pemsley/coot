@@ -1258,7 +1258,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
                 break # pass (have TER after OXT)
             if (line[13:16] == "OXT"):
                 self.failIf(ter_line)  # fail because TER has already happened
-                    # should never happen
+                self.failIf(oxt_line, "   Encountered another OXT! - fail")
                 oxt_line = True
 
 

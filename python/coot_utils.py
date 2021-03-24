@@ -1469,8 +1469,8 @@ def transform_map(*args):
     elif (len(args)==4):
         imol = args[0]
         print("calling tf with ", imol, identity_matrix(), args[1], args[2], args[3], space_group(imol), cell(imol))
-        r = 0.5 * cell(imol)[0]
-        ret = tf(imol, identity_matrix(), [args[1], args[2], args[3]], rotation_centre(), r,
+        ret = tf(imol, identity_matrix(), [args[1], args[2], args[3]],
+                 rotation_centre(), cell(imol)[0],
                  space_group(imol), cell(imol))
     # no matrix or about point specified:
     elif (len(args)==3):
@@ -1514,10 +1514,11 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
     cell_params = cell(imol_ref)
 
     if not (space_group and cell):
-        message = "Bad cell or symmetry for molecule" + str(cell) + str(space_group) + str(imol_ref)
+        message = "Bad cell or symmetry for molecule" + str(cell_params) + \
+            str(space_group) + str(imol_ref)
         print "Bad cell or symmetry for molecule", message
         ret = -1           # invalid mol! or return message!?
-        
+
     else:
         rtop = apply_lsq_matches(imol_ref, imol_mov)
         ret = transform_map(imol_map, rtop[0], rtop[1], about_pt, radius,
@@ -2421,7 +2422,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
             if is_nucleotide(imol, chain_id_in, resno):
-                if residue_exists_qm(imol, chain_id_in, resno-1, ""):
+                if residue_exists_qm(imol, chain_id_in, (resno - 1), ""):
                     delete_atom(imol_ligand, "A", 1, "", " OP3", "")
 
             if not is_nucleotide(imol_ligand, "A", 1):
@@ -2430,6 +2431,9 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             print "BL DEBUG:: new_chain_id_info: ", new_chain_id_info
             merge_status = new_chain_id_info[0]
+            # merge_status is sometimes a spec, sometimes a chain-id pair
+            # BL says:: the rest of it is, merge_status should be 1
+            print "BL DEBUG:: merge status: ", merge_status
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
                 new_chain_id = residue_spec_to_chain_id(new_res_spec)

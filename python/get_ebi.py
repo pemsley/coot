@@ -217,7 +217,7 @@ def get_eds_pdb_and_mtz(id):
     # eds_site = "http://eds.bmc.uu.se/eds"
     # eds_core = "http://eds.bmc.uu.se"
     eds_site = "https://www.ebi.ac.uk/pdbe/coordinates"
-    eds_core = "https://www.ebi.ac.uk/pdbe" # for web pages
+    eds_core = "https://www.ebi.ac.uk/pdbe/entry/pdb" # for web pages
     # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
     eds_coords_site = "https://www.ebi.ac.uk/pdbe/entry-files/download"
 
@@ -253,7 +253,7 @@ def get_eds_pdb_and_mtz(id):
             # mtz_url = eds_site  + "/files/" + target_mtz_file
             mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + \
                       down_id + "/" + down_id + "_map.mtz"
-            eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
+            eds_info_page = eds_core + "/" + down_id
 
             print "model_url:", model_url
             print "  mtz_url:", mtz_url
