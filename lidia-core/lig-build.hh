@@ -190,17 +190,13 @@ namespace lig_build {
    class offset_text_t {
    public:
       enum text_pos_offset_t { HERE=0, UP=-1, DOWN=1};
-      offset_text_t(const std::string &text_in) {
-	 text = text_in;
+      explicit offset_text_t(const std::string &text_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = HERE;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
-      offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
-	 text = text_in;
+      offset_text_t(const std::string &text_in, const text_pos_offset_t &text_pos_offset_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = text_pos_offset_in;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
@@ -217,7 +213,7 @@ namespace lig_build {
    public:
 
       // simple case
-      atom_id_info_t(const std::string &atom_id_in) : atom_id(atom_id_in) {
+      explicit atom_id_info_t(const std::string &atom_id_in) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 size_hint = 0;
       }
@@ -308,14 +304,14 @@ namespace lig_build {
       std::string atom_id;
       std::string element;
       std::string atom_name; // PDB atom names typically
-      int charge;
+      int charge;  // formal
       bool aromatic;
       atom_t(const pos_t &pos_in, const std::string &ele_in, int charge_in) :
          atom_position(pos_in), atom_id(ele_in), element(ele_in), charge(charge_in) {
 	 is_closed_ = 0;
          aromatic = false;
       }
-      ~atom_t() {}
+      virtual ~atom_t() {}
       bool over_atom(const double &x_in, const double &y_in) const {
 	 pos_t mouse(x_in, y_in);
 	 double d = pos_t::length(mouse, atom_position);
@@ -444,7 +440,7 @@ namespace lig_build {
 	 centre_pos_ = centre_pos_in;
 	 is_closed_ = 0;
       }
-      ~bond_t() {}
+      virtual ~bond_t() {}
       // mouse is hovering over bond?
       bool over_bond(double x, double y,
 		     const atom_t &atom_1_at, const atom_t &atom_2_at) const;
@@ -1057,7 +1053,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_simple_internal(start_atom_index, *it,
 							    local_no_pass_atoms, depth-1);
@@ -1089,7 +1085,7 @@ namespace lig_build {
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
 
-      virtual ~molecule_t() = 0;
+      virtual ~molecule_t() {};
 
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).
