@@ -8220,7 +8220,7 @@ molecule_class_info_t::set_mmdb_symm(const std::string &spg) {
 std::pair<float, int>
 molecule_class_info_t::nearest_atom(const coot::Cartesian &pos) const {
 
-   float min_dist = 999999999;
+   float min_dist = 999999999.9;
    float d;
    int atom_index = -1;
 
