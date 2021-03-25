@@ -193,6 +193,125 @@ lbg(lig_build::molfile_molecule_t mm,
 }
 #endif // GTK_VERSION
 
+void lbg_info_t::init_internal() {
+   imol = -1;
+   in_delete_mode_ = 0;
+   key_group = NULL;
+   save_molecule_index = UNASSIGNED_INDEX;
+   make_saves_mutex = 1; // allow saves initially
+   search_similarity = 0.95;
+   coot_mdl_ready_time = 0;
+   canvas_scale = 1.0;
+   canvas_drag_offset =  lig_build::pos_t(0,0);
+   top_left_correction = lig_build::pos_t(0,0);
+   most_recent_bond_made_new_atom_flag = false;
+   most_recent_bond_is_being_dragged_flag = false;
+   standard_residue_circle_radius = 19;
+   button_down_bond_addition = false;
+   latest_bond_canvas_item = 0;
+   penultimate_atom_index = UNASSIGNED_INDEX;
+   ultimate_atom_index = UNASSIGNED_INDEX;
+   latest_bond_was_extended = 0;
+   atom_index_of_atom_to_which_the_latest_bond_was_added = UNASSIGNED_INDEX;
+   stand_alone_flag = 0;
+   ligand_spec_pair.first = 0; // unset ligand_spec
+   use_graphics_interface_flag = 1; // default: show gui windows and widgets.
+   mdl_file_name = "coot.mol";
+   atom_X = "H";
+   comp_id = "LIG";
+   lbg_atom_x_dialog = NULL;
+   lbg_atom_x_entry = NULL;
+   get_url_func_ptr = 0;
+   get_url_func_ptr_flag = false;
+   prodrg_import_func_ptr = NULL;
+   sbase_import_func_ptr = NULL;
+   get_drug_mdl_file_function_pointer = NULL;
+
+   orient_view_func                               = NULL;
+   set_rotation_centre_func                       = NULL;
+   set_show_additional_representation_func        = NULL;
+   all_additional_representations_off_except_func = NULL;
+
+   canvas = NULL;
+   canvas_addition_mode = 0;
+   lbg_srs_search_results_vbox = NULL;
+   lbg_srs_search_results_scrolledwindow = NULL;
+   // lbg_qed_properties_progressbars = NULL;
+   lbg_qed_properties_vbox = NULL;
+   pending_action_data_picked_bond_index = -1;
+   lbg_view_rotate_entry = NULL;
+   lbg_scale_spinbutton = NULL;
+   lbg_search_combobox = NULL;
+   lbg_search_database_frame = NULL;
+   lbg_clean_up_2d_toolbutton = NULL;
+   lbg_flip_rotate_hbox = NULL;
+   lbg_get_drug_menuitem = NULL;
+   lbg_get_drug_entry =  NULL;
+   lbg_get_drug_dialog = NULL;
+   lbg_alert_name_label = NULL;
+   lbg_alert_hbox = NULL;
+   lbg_qed_progressbar = NULL;
+   lbg_qed_text_label = NULL;
+   lbg_qed_hbox = NULL;
+   lbg_statusbar = NULL;
+   lbg_import_from_comp_id_hydrogens_checkbutton = NULL;
+   lbg_import_from_comp_id_entry = NULL;
+   lbg_toolbar_layout_info_label = NULL;
+   lbg_import_from_comp_id_entry = NULL;;
+   lbg_import_from_smiles_entry = NULL;
+   lbg_import_from_smiles_dialog = NULL;
+   lbg_import_from_comp_id_dialog = NULL;
+   lbg_smiles_entry = NULL;
+   lbg_smiles_dialog = NULL;
+   lbg_sbase_search_results_vbox = NULL;
+   lbg_sbase_search_results_dialog = NULL;
+   lbg_export_as_svg_dialog = NULL;
+   lbg_export_as_pdf_dialog = NULL;
+   lbg_export_as_png_dialog = NULL;
+   save_as_dialog = NULL;
+   open_dialog = NULL;
+   about_dialog = NULL;
+   lbg_apply_button = NULL;
+   about_dialog = NULL;
+   lbg_window = NULL;
+
+   draw_flev_annotations_flag = false;
+   //       lbg_nitrogen_toggle_toolbutton = NULL;
+   //       lbg_carbon_toggle_toolbutton   = NULL;
+   //       lbg_oxygen_toggle_toolbutton   = NULL;
+   //       lbg_sulfur_toggle_toolbutton   = NULL;
+   //       lbg_phos_toggle_toolbutton     = NULL;
+   //       lbg_fluorine_toggle_toolbutton = NULL;
+   //       lbg_chlorine_toggle_toolbutton = NULL;
+   //       lbg_bromine_toggle_toolbutton  = NULL;
+   //       lbg_single_bond_toggle_toolbutton  = NULL;
+   //       lbg_double_bond_toggle_toolbutton  = NULL;
+   //       lbg_ring_8_toggle_toolbutton = NULL;
+   //       lbg_ring_7_toggle_toolbutton = NULL;
+   //       lbg_ring_6_toggle_toolbutton = NULL;
+   //       lbg_ring_6_arom_toggle_toolbutton = NULL;
+   //       lbg_ring_5_toggle_toolbutton = NULL;
+   //       lbg_ring_4_toggle_toolbutton = NULL;
+   //       lbg_ring_3_toggle_toolbutton = NULL;
+   lbg_show_alerts_checkbutton    = NULL;
+   lbg_alert_hbox_outer = NULL;
+   alert_group = NULL; // group for alert annotations
+   show_alerts_user_control = false; // no pattern matching available
+   geom_p = NULL; // no (const) geometry passed/set
+   display_atom_names   = false;
+   display_atom_numbers = false;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   bond_pick_pending = false;
+   atom_pick_pending = false;
+#ifdef USE_PYTHON
+   user_defined_alerts_smarts_py = NULL;
+   setup_silicos_it_qed_default_func();
+   setup_user_defined_alert_smarts();
+#endif
+#endif
+}
+
+
 void
 lbg_info_t::new_lbg_window() {
 
@@ -3949,9 +4068,11 @@ lbg_info_t::render() {
 
       if (display_atom_names || display_atom_numbers) {
 
-	 lig_build::atom_id_info_t atom_id_info = mol.atoms[iat].atom_name;
-	 if (display_atom_numbers)
-	    atom_id_info = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1); // mol file numbering, 1-indexed
+	 lig_build::atom_id_info_t atom_id_info(mol.atoms[iat].atom_name);
+	 if (display_atom_numbers) {
+            std::string id = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1);
+	    atom_id_info = lig_build::atom_id_info_t(id); // mol file numbering, 1-indexed
+         }
 	 atom_id_info.size_hint = -1;
 	 const std::string &ele = mol.atoms[iat].element;
 	 std::string fc = font_colour(ele);
