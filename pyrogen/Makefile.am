@@ -140,7 +140,7 @@ libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 
 if OS_WIN32
 # need to dist pyrogen.bat too
-dist_bin_SCRIPTS = pyrogen.bat
+dist_bin_SCRIPTS = pyrogen.bat pyrogen
 else
 dist_bin_SCRIPTS = pyrogen
 endif
