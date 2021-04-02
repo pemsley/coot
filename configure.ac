@@ -213,8 +213,15 @@ AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(GLM headers are required.))
 AC_LANG_POP
 
 
-# AM_PATH_GTK(2.4.14)
-PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
+
+AC_ARG_WITH(gtk4, [  --gtk4 build coot with gtk4 ], with_gtk4="yes", with_gtk4="no")
+
+if test $with_gtk4 = yes ; then
+  PKG_CHECK_MODULES(GTK, gtk+-4.0 >= 3.94)
+else
+  PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
+fi
+
 PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0])
 
 
@@ -337,7 +344,7 @@ echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
- lidia_only=="no")
+ lidia_only="no")
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
