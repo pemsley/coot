@@ -81,11 +81,11 @@ def make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name)
 #
 def execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    f = make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name)
-   if f: 
+   if f:
       # print 'now run mogul using ins file %s' % mogul_ins_file_name
       if run_mogul:
           state = call(['mogul', '-ins', mogul_ins_file_name])
-	  return (state == 0)
+          return (state == 0)
       else:
           return False
    else:
@@ -106,7 +106,7 @@ def add_atom_names(mol):
        except KeyError:
 
           # we want to generate a name that is not already in the atom_names list
-          
+
           z = atom.GetAtomicNum()
           if z in nz:
              nz[z]  = nz[z] + 1
@@ -114,7 +114,7 @@ def add_atom_names(mol):
              nz[z] = 1;
           ele = atom.GetSymbol().upper()
           # we add inc argument, which gets added to count (nz[z]) in case that we
-          # already have a name that matches (previous) return from call to 
+          # already have a name that matches (previous) return from call to
           # atom_name_from_atomic_number_and_count()
           #
           inc = 0
@@ -239,7 +239,7 @@ def MolFromFetchedCode(code):
 def make_restraints_for_bond_orders(mol):
     restraints = {}
     bond_list = []
-    for bond in mol.GetBonds(): 
+    for bond in mol.GetBonds():
         type = bond.GetBondType()
         coot_bond_type = convert_to_coot_bond_type(type)
         at_1 = bond.GetBeginAtom()
@@ -304,19 +304,19 @@ def read_smiles_tab(file_name):
 #
 def get_smiles_from_file(file_name):
     if not os.path.exists(file_name):
-	return False,False
+       return False,False
     else:
-	f = open(file_name)
-	smi_line = f.readline()
-	parts = smi_line.split()
-        f.close()
-	return parts[0], ' '.join(parts[1:])
+       f = open(file_name)
+       smi_line = f.readline()
+       parts = smi_line.split()
+       f.close()
+       return parts[0], ' '.join(parts[1:])
 
 def make_picture(mol, conf_id, comp_id, output_postfix):
 
    output_file_name = comp_id + "-" + output_postfix + '.png'
    make_picture_to_file(mol, conf_id, output_file_name)
-      
+
 def make_picture_to_file(mol, conf_id, output_file_name):
 
    try:
@@ -339,7 +339,6 @@ def make_picture_to_file(mol, conf_id, output_file_name):
          drawer.DrawMolecule(mol, confId=conf_id)
          drawer.FinishDrawing()
          # c = drawer.GetDrawingText()
-      
    except ImportError as e:
       print('ImportError:', e)
    except ValueError as e:
@@ -370,7 +369,7 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
    return m, make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-			     quartet_planes, quartet_hydrogen_planes, use_mmff,
+                             quartet_planes, quartet_hydrogen_planes, use_mmff,
                              match_atom_names_to_dict_flag, comp_id_list_for_names_match,
                              dict_files_for_names_match)
 
@@ -380,7 +379,7 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 #
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
                                     output_dir, output_postfix,
-				    quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                    quartet_planes, quartet_hydrogen_planes, use_mmff,
                                     pdb_out_file_name, mmcif_restraints_out_file_name):
 
    if not test_for_mogul():
@@ -394,7 +393,7 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
          file_name_stub = r_type + "-" + output_postfix
          if options.output_dir != ".":
             file_name_stub = os.path.join(options.output_dir, file_name_stub)
-            
+
          pdb_out_file_name_local              = file_name_stub + ".pdb"
          mmcif_restraints_out_file_name_local = file_name_stub + ".cif"
          #
@@ -409,7 +408,7 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
    else:
        # just the one
        m = make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-						  quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                                  quartet_planes, quartet_hydrogen_planes, use_mmff,
                                                   pdb_out_file_name, mmcif_restraints_out_file_name)
        return [(m, comp_id)]
 
@@ -418,7 +417,7 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
 # Return None on failure
 #
 def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-					   quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                           quartet_planes, quartet_hydrogen_planes, use_mmff,
                                            pdb_out_file_name, mmcif_restraints_out_file_name):
 
    # print 'in make_restraints_from_mmcif_dict_single() comp_id is ', comp_id
@@ -426,7 +425,7 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 
    if not test_for_mogul():
        return [(None, None)]
-    
+
    mogul_file_name_stub = comp_id + '-' + output_postfix # file component of files within mogul_dir
 
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
@@ -469,8 +468,8 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 def n_hydrogens(mol):
     n_H = 0
     for atom in mol.GetAtoms():
-	if atom.GetAtomicNum() == 1:
-	    n_H += 1
+       if atom.GetAtomicNum() == 1:
+          n_H += 1
     return n_H
 
 def checked_mkdir(dirname):
@@ -484,7 +483,7 @@ def checked_mkdir(dirname):
 
 
 # return sane_H_mol
-# 
+#
 def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_name, mmcif_dict_name,
                     quartet_planes, quartet_hydrogen_planes, use_mmff,
                     match_atom_names_to_dict_flag,
@@ -532,26 +531,26 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
-      
+
       if False:  # debugging output
          ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule
-	 n_bonds = ba.bonds_size()
-	 if n_bonds > 0:
-	    for i_bond in range(n_bonds):
-	       bond = ba.get_bond(i_bond)
-	       print(bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
-		     bond.get_resting_bond_length(), bond.get_sigma())
+         n_bonds = ba.bonds_size()
+         if n_bonds > 0:
+            for i_bond in range(n_bonds):
+               bond = ba.get_bond(i_bond)
+               print(bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
+                     bond.get_resting_bond_length(), bond.get_sigma())
          n_angles = ba.angles_size()
-	 if n_angles > 0:
-	     for i_angle in range(n_angles):
-		 angle = ba.get_angle(i_angle)
-		 print(angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
-		       angle.get_resting_angle(), angle.get_sigma())
+         if n_angles > 0:
+             for i_angle in range(n_angles):
+                 angle = ba.get_angle(i_angle)
+                 print(angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
+                       angle.get_resting_angle(), angle.get_sigma())
 
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
 
-   atom_names = add_atom_names(sane_H_mol) 
+   atom_names = add_atom_names(sane_H_mol)
    all_set = atom_types.set_atom_types(sane_H_mol)  # has deloc bonds now, potentially
 
    # debug sane_H_mol
@@ -566,7 +565,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
       sane_H_mol.SetProp('comp_id', comp_id)
       sane_H_mol.SetProp('name', compound_name)
-      
+
       sd_local = mogul_file_name_stub + ".sdf"
       sdf_file_name       = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.sdf')
       mogul_ins_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.ins')
@@ -576,22 +575,22 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       moguled_mol = pyrogen_boost.mogulify(sane_H_mol) # Nitro bond orders (and other things?)
       if not os.path.isdir(mogul_dir):
           checked_mkdir(mogul_dir)
-	  if os.path.isdir(mogul_dir):
-	      mb = Chem.MolToMolBlock(moguled_mol)
-	      # print >> file(sdf_file_name,'w'), mb
+          if os.path.isdir(mogul_dir):
+              mb = Chem.MolToMolBlock(moguled_mol)
+              # print >> file(sdf_file_name,'w'), mb
               print(m, file=file(sdf_file_name,'w'))
       else:
-	  mb = Chem.MolToMolBlock(moguled_mol)
-	  # print >> file(sdf_file_name,'w'), mb
-	  print(mb, file=file(sdf_file_name,'w'))
+         mb = Chem.MolToMolBlock(moguled_mol)
+         # print >> file(sdf_file_name,'w'), mb
+         print(mb, file=file(sdf_file_name,'w'))
 
-      
+
       bor = make_restraints_for_bond_orders(sane_H_mol)
 
       # print out the set types:
       print_atom_props = False
       if print_atom_props:
-	  print('--- Atom Props ---')
+         print('--- Atom Props ---')
       for atom in sane_H_mol.GetAtoms():
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
@@ -600,19 +599,19 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
             is_aromatic = atom.GetIsAromatic()
             hybrid      = atom.GetHybridization()
             f_charge    = float(charge)
-	    if print_atom_props:
-		print("  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
-										    atom_type.ljust(4),
-										    str(is_aromatic).ljust(5),
-										    str(hybrid).rjust(3),
-										    f_charge))
+            if print_atom_props:
+                print("  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
+                                                                                    atom_type.ljust(4),
+                                                                                    str(is_aromatic).ljust(5),
+                                                                                    str(hybrid).rjust(3),
+                                                                                    f_charge))
          except KeyError:
             print("miss", name, atom.GetSymbol(), charge)
 
       #
       replace_with_mmff_b_a_restraints = False
       if use_mmff:
-	  replace_with_mmff_b_a_restraints = True
+          replace_with_mmff_b_a_restraints = True
 
       # execute_mogul() tests if mogul is executable
       #
@@ -626,10 +625,10 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
          #
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, sane_H_mol, bor,
-							  mmcif_dict_name, # not used
+                                                          mmcif_dict_name, # not used
                                                           quartet_planes,
-							  quartet_hydrogen_planes,
-							  replace_with_mmff_b_a_restraints)
+                                                          quartet_hydrogen_planes,
+                                                          replace_with_mmff_b_a_restraints)
 
 
          # match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match
@@ -644,11 +643,11 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
       else:
 
-	  # mogul failed or was not in the path:
-	  
-	  if run_mogul == False:
+          # mogul failed or was not in the path:
 
-	      # ... but that's OK if we told pyrogen to run without mogul
+          if run_mogul == False:
+
+              # ... but that's OK if we told pyrogen to run without mogul
 
               # sane_H_mol:
               print(Chem.MolToMolBlock(sane_H_mol), file=file('debug_sane_H.mol','w+'))
@@ -660,31 +659,31 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                     print(atom, "DEBUG:: pyrogen.py::make_restraints(): atom cip rank", r)
                  except KeyError as e:
                     print('DEBUG:: pyrogen.py::make_restraints() atom', atom, "has no _CIPRank")
-             
 
-	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
-						    mmcif_dict_name,
-						    quartet_planes, quartet_hydrogen_planes,
-						    replace_with_mmff_b_a_restraints)
-              
-	      if restraints == None:
-		  print("No restraints")
-		  return True # hacked in value
+
+              restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
+                                                    mmcif_dict_name,
+                                                    quartet_planes, quartet_hydrogen_planes,
+                                                    replace_with_mmff_b_a_restraints)
+
+              if restraints == None:
+                  print("No restraints")
+                  return True # hacked in value
 
               if match_atom_names_to_dict_flag:
-                  
+
                   restraints = atom_match_dictionary(restraints, sane_H_mol,
                                                      comp_id_list_for_names_match,
                                                      dict_files_for_names_match)
                   pysw.write_restraints(restraints, mmcif_dict_name)
-                  
-	      pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
 
-	  else:
-	      # ... but not if we wanted to use mogul.
-	      # (We get here if there is a licence error for mogul)
-	      exit(1)
-	  
+              pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
+
+          else:
+              # ... but not if we wanted to use mogul.
+              # (We get here if there is a licence error for mogul)
+              exit(1)
+
       return sane_H_mol
 
 def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, dict_files_for_names_match):
@@ -714,9 +713,9 @@ def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, 
             restraints = new_restraints
             for iat in range(n):
                 name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
-		if name != restraints['_chem_comp_atom'][iat][0]:
-		    # print "   changing name from", name, "to", restraints['_chem_comp_atom'][iat][0]
-		    sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
+                if name != restraints['_chem_comp_atom'][iat][0]:
+                    # print "   changing name from", name, "to", restraints['_chem_comp_atom'][iat][0]
+                    sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
 
     return restraints
 
@@ -771,7 +770,7 @@ def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, hig
     try:
        n_confs = mol.GetNumConformers()
        if n_confs == 0:
-	   iconf = mol.Compute2DCoords()
+           iconf = mol.Compute2DCoords()
        s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, npx)
        if len(s) > 0:
           sio = io.BytesIO(s)
@@ -782,8 +781,8 @@ def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, hig
        else:
           print('Null image')
     except AttributeError as e:
-	# maybe mol was not a RDKit molecule
-	print('ERROR::', e)
+        # maybe mol was not a RDKit molecule
+        print('ERROR::', e)
 
 def coot_depict_to_png_string(mol, iconf=-1, n_px=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
        s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, n_px)
@@ -844,8 +843,8 @@ def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None
             s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, None, None, None, None, sub_image_size[0])
             sio = io.BytesIO(s)
             im = Image.open(sio)
-	    # add label if possible
-	    try:
+            # add label if possible
+            try:
                if font:
                   lab = legends[count]
                   text_x_pos = sub_image_size[0]/2 - 10
@@ -863,8 +862,8 @@ def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None
             except TypeError as e:
                # labels was not a list
                pass
-	    except NameError as e:
-		print(e, "in legends", legends)
+            except NameError as e:
+                print(e, "in legends", legends)
             except IOError as e:
                print("something label-related:", e)
             region = im.crop((0,0,sub_image_size[0], sub_image_size[0]))
@@ -897,23 +896,23 @@ def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
 
     results = tautomer.enumerate_tautomers(mol)
     for i in range(len(results)):
-	m = results[i]
-	s = Chem.MolToSmiles(m)
-	print("comp_id :", comp_id, ": SMILES", s, 'score:', tautomer.tautomer_score(m))
-	if do_drawings:
-	    file_name = comp_id + '-tautomer-' + str(i)
-	    file_name += '-' + options.output_postfix + '.png'
-	    n = m.GetNumConformers()
-	    conf_id = 0
-	    if n == 0:
-		conf_id = AllChem.Compute2DCoords(m)
-	    conf = m.GetConformer(conf_id)
-	    if conf.Is3D():
-		mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
-		conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-		make_picture_to_file(mol_for_drawing, conf2D_id, file_name)
-	    else:
-		make_picture_to_file(m, -1, file_name)
+        m = results[i]
+        s = Chem.MolToSmiles(m)
+        print("comp_id :", comp_id, ": SMILES", s, 'score:', tautomer.tautomer_score(m))
+        if do_drawings:
+            file_name = comp_id + '-tautomer-' + str(i)
+            file_name += '-' + options.output_postfix + '.png'
+            n = m.GetNumConformers()
+            conf_id = 0
+            if n == 0:
+                conf_id = AllChem.Compute2DCoords(m)
+            conf = m.GetConformer(conf_id)
+            if conf.Is3D():
+                mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
+                conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+                make_picture_to_file(mol_for_drawing, conf2D_id, file_name)
+            else:
+                make_picture_to_file(m, -1, file_name)
 
 
 if __name__ == "__main__":
@@ -923,11 +922,11 @@ if __name__ == "__main__":
        smiles_string = ''
        name=''
        if extension == '.smi' or extension == '.smiles':
-	   if not os.path.exists(smi_raw):
-	       print("File not found:", smi_raw)
-	       exit(1)
-	   else: 
-	       smiles_string,name = get_smiles_from_file(smi_raw)
+           if not os.path.exists(smi_raw):
+               print("File not found:", smi_raw)
+               exit(1)
+           else:
+               smiles_string,name = get_smiles_from_file(smi_raw)
        else:
          smiles_string = smi_raw
        return smiles_string,name
@@ -936,28 +935,28 @@ if __name__ == "__main__":
                           '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
                           'then it is treated as a file')
     parser.add_option("-c", "--mmcif", dest="mmcif_file_name",
-		      help="Make restraints from input mmcif FILE", metavar="FILE")
+                      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-m", "--mol", dest="sdf_file",
-		      help="Make restraints from input sdf/mol FILE", metavar="FILE")
+                      help="Make restraints from input sdf/mol FILE", metavar="FILE")
     parser.add_option("-r", "--residue-type", dest="comp_id", default='default',
-		      help="Create restraints for this type. Default is LIG")
+                      help="Create restraints for this type. Default is LIG")
     parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
-		      default=False,
-		      help="Use 4-atom plane restraints,\n                    " +
+                      default=False,
+                      help="Use 4-atom plane restraints,\n                    " +
                       "forces --quartet-hydrogens", action="store_true")
     parser.add_option("-H", "--quartet-hydrogens", dest="quartet_hydrogen_planes",
-		      default=False,
-		      help="Use 4-atom hydrogen plane restraints",
+                      default=False,
+                      help="Use 4-atom hydrogen plane restraints",
                       action="store_true")
     parser.add_option("-n", "--no-mogul", dest="use_mogul",
-		      default=True, action="store_false",
+                      default=True, action="store_false",
                       help='Don\'t run CSD Mogul to update bond and angle restraints')
     parser.add_option("-N", '--name', dest='compound_name', default=False,
-		      help='Compound name')
+                      help='Compound name')
     parser.add_option('-S', '--smiles', dest="show_smiles",
                       default=False, action="store_true", help="Write the SMILES for the input molecule")
     parser.add_option("-t", "--tautomers", dest="show_tautomers",
-		      default=False, action="store_true",
+                      default=False, action="store_true",
                       help='Show SMILES for tautomers, don\'t generate restraints')
     parser.add_option("-T", '--tmp-directory', dest='mogul_dir',
                       help='Directory into which the tmp files (e.g. for mogul) are written',
@@ -988,7 +987,7 @@ if __name__ == "__main__":
     parser.add_option('-w', '--wwPDB', default=False, dest="wwPDB", action="store_true",
                       help='Fetch the wwPDB ligand definition and use that')
     parser.add_option('-f', dest="fetch", default=False,
-		      help='(Just) fetch from the PDBe the CCD entry for the given compound-id')
+                      help='(Just) fetch from the PDBe the CCD entry for the given compound-id')
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="print less messages")
@@ -1004,17 +1003,17 @@ if __name__ == "__main__":
        print('pyrogen-' + pyrogen_version, "revision", coot_git.revision_count())
 
     if options.fetch:
-	fetch(options.fetch)
+        fetch(options.fetch)
 
     comp_id = options.comp_id
     if options.comp_id == 'default':
-	comp_id = 'LIG'
+        comp_id = 'LIG'
     if options.mmcif_file_name != None:
-	if options.comp_id == 'default':
-	    comp_id = 'TRY_ALL_COMP_IDS'
+        if options.comp_id == 'default':
+            comp_id = 'TRY_ALL_COMP_IDS'
 
     file_name_stub           = comp_id + '-' + options.output_postfix
-    
+
     if options.output_dir != ".":
        file_name_stub = os.path.join(options.output_dir, file_name_stub)
 
@@ -1037,23 +1036,23 @@ if __name__ == "__main__":
 
         # ------------------------ Tautomers and SMILES  ---------------------------------------------
 
-	mol = False
-	if len(args) > 0:
-	    smi_raw = args[0]
-	    smiles,compound_name = smiles_and_name_from(smi_raw)
-	    mol = Chem.MolFromSmiles(smiles)
-	else:
-	    if options.sdf_file != None:
-		mol = Chem.MolFromMolFile(options.sdf_file)
-	    else:
-		if options.mmcif_file_name != None:
-		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file_name)
-		    print('-- tautomer mode: mmcif file types:', types)
-		    for type in types:
-			mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file_name, type)
-			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
+        mol = False
+        if len(args) > 0:
+            smi_raw = args[0]
+            smiles,compound_name = smiles_and_name_from(smi_raw)
+            mol = Chem.MolFromSmiles(smiles)
+        else:
+            if options.sdf_file != None:
+                mol = Chem.MolFromMolFile(options.sdf_file)
+            else:
+                if options.mmcif_file_name != None:
+                    types = pysw.types_from_mmcif_dictionary(options.mmcif_file_name)
+                    print('-- tautomer mode: mmcif file types:', types)
+                    for type in types:
+                        mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file_name, type)
+                        score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
 
-	if mol:
+        if mol:
            if options.show_tautomers:
               score_and_print_tautomers(mol, comp_id, options.output_postfix, options.drawing)
            if options.show_smiles:
@@ -1085,73 +1084,73 @@ if __name__ == "__main__":
             match_names_flag = False
 
 
-	if mmcif_file_name:
-	    mol_pairs = make_restraints_from_mmcif_dict(mmcif_file_name,
+        if mmcif_file_name:
+            mol_pairs = make_restraints_from_mmcif_dict(mmcif_file_name,
                                                         comp_id,
                                                         options.mogul_dir,
                                                         options.output_dir,
-							options.output_postfix,
-							options.quartet_planes,
-							quartet_hydrogen_planes,
-							options.use_mmff,
+                                                        options.output_postfix,
+                                                        options.quartet_planes,
+                                                        quartet_hydrogen_planes,
+                                                        options.use_mmff,
                                                         pdb_out_file_name,
                                                         mmcif_restraints_out_file_name)
 
-	    # this needs to be in a try block, I suppose, for example if the mmcif file
-	    # does not exist.
-	    
-	    for mol_info in mol_pairs:
-		(mol, comp_id) = mol_info
-		if not mol:
-		    print('No molecule')
-		else:
-		    # Happy path
-		    if options.drawing:
-			# make_picture() by default draws the first conformer in the given molecule.
-			# For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
-			#
-			mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
-			conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+            # this needs to be in a try block, I suppose, for example if the mmcif file
+            # does not exist.
+
+            for mol_info in mol_pairs:
+                (mol, comp_id) = mol_info
+                if not mol:
+                    print('No molecule')
+                else:
+                    # Happy path
+                    if options.drawing:
+                        # make_picture() by default draws the first conformer in the given molecule.
+                        # For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
+                        #
+                        mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
+                        conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
                         conf = mol.GetConformer(conf2D_id)
                         Chem.WedgeMolBonds(mol_for_drawing, conf)
-			make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
+                        make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
 
-	else:
+        else:
 
-	    if options.sdf_file != None:
-		(mol, results) = make_restraints_from_mdl(options.sdf_file, comp_id,
-							  options.mogul_dir, file_name_stub,
-							  pdb_out_file_name,
+            if options.sdf_file != None:
+                (mol, results) = make_restraints_from_mdl(options.sdf_file, comp_id,
+                                                          options.mogul_dir, file_name_stub,
+                                                          pdb_out_file_name,
                                                           mmcif_restraints_out_file_name,
-							  options.quartet_planes,
-							  quartet_hydrogen_planes,
-							  options.use_mmff,
+                                                          options.quartet_planes,
+                                                          quartet_hydrogen_planes,
+                                                          options.use_mmff,
                                                           match_names_flag,
                                                           options.comp_id_list_for_names_match,
                                                           options.dict_files_for_names_match)
-		if options.drawing:
-		    make_picture(mol, -1, comp_id, options.output_postfix)
+                if options.drawing:
+                    make_picture(mol, -1, comp_id, options.output_postfix)
 
-	    else:
+            else:
 
-		if len(args) > 0:
-		    smi_raw = args[0]
-		    smiles,compound_name_from_file = smiles_and_name_from(smi_raw)
+                if len(args) > 0:
+                    smi_raw = args[0]
+                    smiles,compound_name_from_file = smiles_and_name_from(smi_raw)
                     compound_name=False
                     if len(compound_name_from_file) > 0:
                        compound_name = compound_name_from_file
                     if isinstance(options.compound_name, basestring):
                        compound_name = options.compound_name
-		    status = make_restraints_from_smiles(smiles, comp_id, compound_name,
-							 options.mogul_dir, file_name_stub,
-							 pdb_out_file_name,
-							 mmcif_restraints_out_file_name,
-							 options.quartet_planes,
-							 quartet_hydrogen_planes,
-							 options.use_mmff,
+                    status = make_restraints_from_smiles(smiles, comp_id, compound_name,
+                                                         options.mogul_dir, file_name_stub,
+                                                         pdb_out_file_name,
+                                                         mmcif_restraints_out_file_name,
+                                                         options.quartet_planes,
+                                                         quartet_hydrogen_planes,
+                                                         options.use_mmff,
                                                          match_names_flag,
                                                          options.comp_id_list_for_names_match,
                                                          options.dict_files_for_names_match)
-		    if options.drawing:
-			mol = Chem.MolFromSmiles(smiles)
-			make_picture(mol, -1, comp_id, options.output_postfix)
+                    if options.drawing:
+                        mol = Chem.MolFromSmiles(smiles)
+                        make_picture(mol, -1, comp_id, options.output_postfix)
