@@ -1704,6 +1704,7 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
   PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
 else
    os_arch=x86_64-linux-gnu
+   echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
    if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
       PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
    else
@@ -1945,7 +1946,9 @@ if [ "$gtk_pkg_config_status" = 0 ] ; then
 fi
 
 
-if test -e ${install_top_dir}/include/ltld.h ; then
+echo libtool test: looking for  ${install_top_dir}/include/ltdl.h
+ls  ${install_top_dir}/include/ltdl.h
+if test -e ${install_top_dir}/include/ltdl.h ; then
     echo installation has libtool
     build_libtool=
 else
@@ -2024,35 +2027,6 @@ else
 fi
 
 
-
-
-# ##############################################################
-#   test for guile-gtk
-# ##############################################################
-
-# guile-gtk, only look in installation, not system.
-
-# if we are not building gtk, perhaps we should not build
-# guile-gtk also?
-if test -e "${install_top_dir}/include/guile-gtk.h" ; then
-   echo installation has guile-gtk
-   if [ "$build_guile" != 1 ] ; then
-      build_guile_gtk=
-   else
-      echo guile needs building, so guile-gtk needs building.
-      build_guile_gtk=1
-   fi
-else
-   echo installation does not have guile-gtk
-   build_guile_gtk=1
-fi
-
-if test -n "${build_guile_gtk}" ; then
-   echo guile-gtk.h not found, guile-gtk should be built
-   build_guile_gtk=1
-else
-   echo guile-gtk should not be built
-fi
 
 # ##############################################################
 #   test for gnomecanvas
@@ -2203,7 +2177,7 @@ if test -n "$build_ccp4c" ; then
           $MAKE install
        fi
     fi
-    ) 2>&1 >  $HOSTLOGDIR/01-libccp4.txt
+    ) >  $HOSTLOGDIR/01-libccp4.txt 2>&1
 else
     echo not building libccp4:
 fi
@@ -2597,12 +2571,10 @@ sources_dir=${AUTOBUILD_SOURCES}
 
 # gobject-introspection needs libffi:
 
-skip_build=false
 echo BUILDING libffi:
 libffi_version=3.2.1
-(
-   date
-   if [ $test_for_already_installed_dependencies = true ] ; then
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
       echo ffi build - testing existance $install_top_dir/lib/libffi-$libffi_version/include/fffi.h
       if [ -e $install_top_dir/lib/libffi-$libffi_version/include/ffi.h ] ; then
          skip_build=true
@@ -2613,6 +2585,7 @@ libffi_version=3.2.1
    fi
 
    if [ $skip_build = false ] ; then
+      (
       ${WGET} ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
@@ -2620,9 +2593,12 @@ libffi_version=3.2.1
       if $MAKE ; then
          $MAKE install
       fi
-   fi
-) > $HOSTLOGDIR/07a-libffi.txt 2>&1
+      ) > $HOSTLOGDIR/07a-libffi.txt 2>&1
+fi
 
+
+## --------------- meson ---------------------------------
+##
 pip3 install meson
 
 # we should have meson for pygobject, need version 0.46 or later
@@ -2679,7 +2655,6 @@ if [ true ] ; then
    pygobject_version=3.30.5
    pygobject_version=3.36.1
 
-   (
    date
    pwd
    skip_build=false
@@ -2692,6 +2667,7 @@ if [ true ] ; then
 
    if [ $skip_build = false ] ; then
 
+      (
       echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
       echo trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
@@ -2716,10 +2692,10 @@ if [ true ] ; then
          export LD_LIBRARY_PATH=$x
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
-      fi
+      fi ) > $HOSTLOGDIR/07d-pygobject.txt 2>&1
    else
       echo skip build of gobject
-   fi ) > $HOSTLOGDIR/07d-pygobject.txt 2>&1
+   fi
 else
    echo not building pygobject:
 fi
@@ -3052,15 +3028,12 @@ else
       (
        date
        pwd
+
+       #
        # build libgd
        #
-       system_has_libgd=false
-       if [ -e /usr/include/gd.h ] ; then
-          system_has_libgd=true
-       fi
-       echo system_has_libgd: $system_has_libgd
 
-       if [ "$system_has_libgd" = false ] ; then
+       if [ true ] ; then
           echo checking for existance of $install_top_dir/include/gd.h
           if [ ! -e $install_top_dir/include/gd.h ] ; then
               echo get and build libgd...
@@ -3081,7 +3054,7 @@ else
           echo /usr/include/gd.h exists - skip libgd build
        fi
 
-      ) > $HOSTLOGDIR/15-libgd.txt
+      ) > $HOSTLOGDIR/15-libgd.txt 2>&1
 
       (
        date
@@ -3526,7 +3499,6 @@ guile_cairo_version=1.9.91
 build_libffi=true
 build_guile=true
 build_g_wrap=true
-build_libtool=true
 build_gmp=true
 build_unistring=true
 build_guile_gnome_platform=true
