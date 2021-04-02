@@ -189,8 +189,9 @@ if test x$coot_guile = xtrue ; then
    GUILE_FLAGS
    AM_GUILE_LIB
    # guile-gui depends on a gui interface being present.  If it is, force check for guile-gui
-   if test x$with_guile_gtk != x ; then
-      AM_GUILE_GUI
+   if test x$with_gnome != x ; then
+      # AM_GUILE_GNOME
+      :
    fi
    GUILE_VERSION=$($ac_cv_path_GUILE_CONFIG --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}')
    echo checking GUILE_VERSION: $GUILE_VERSION
