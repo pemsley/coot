@@ -47,6 +47,7 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 libcoot_lidia_core_la_LIBADD =                    \
    $(top_builddir)/geometry/libcoot-geometry.la   \
    $(top_builddir)/utils/libcoot-utils.la         \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la   \
    $(CLIPPER_LIBS)                                \
    $(RDKIT_LIBS) \
    -lRDKitmaeparser \
