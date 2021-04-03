@@ -68,9 +68,9 @@ void inner_main(void *closure, int argc, char **argv) {
 #endif	/* USE_GUILE_GTK */
 
   /* debugging voodoo */
-  SCM_DEVAL_P = 1;
-  SCM_BACKTRACE_P = 1;
-  SCM_RECORD_POSITIONS_P = 1;
+  // SCM_DEVAL_P = 1;                 // not in guile 2.2
+  // SCM_BACKTRACE_P = 1;             // not in guile 2.2
+  // SCM_RECORD_POSITIONS_P = 1;      // not in guile 2.2
 
   // this is not the right place.  We need to be in
   std::string d1 = coot::util::append_dir_dir(PKGDATADIR, "scheme");
@@ -153,7 +153,7 @@ void inner_main(void *closure, int argc, char **argv) {
   } else {
      short int python_at_prompt_flag = python_at_prompt_at_startup_state();
      if (python_at_prompt_flag)
-        start_command_line_python_maybe(argv);
+        start_command_line_python_maybe(true, argc, argv);
      else
         scm_shell(0, argv);		/* can't pass command line args such
                                            as --pdb --no-graphics etc. (guile
