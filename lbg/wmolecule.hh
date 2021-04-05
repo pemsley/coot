@@ -41,6 +41,10 @@
 #ifndef WMOLECULE_HH
 #define WMOLECULE_HH
 
+#include <string>
+#include <goocanvas.h>
+#include <clipper/core/coords.h>
+
 #include "lidia-core/lbg-shared.hh"
 
 // #define dark "#111111"
@@ -295,7 +299,7 @@ private:
 public:
    widgeted_molecule_t() { init(); }
    widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in, mmdb::Manager *pdb_mol);
-   ~widgeted_molecule_t();
+   virtual ~widgeted_molecule_t();
 
    // return 0 as first if not highlighting a bond
    std::pair<bool, widgeted_bond_t> highlighted_bond_p(int x, int y) const;
@@ -352,7 +356,6 @@ public:
    //    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
    // make_other_connections_to_second_atom_info(unsigned int bond_index) const;
    
-
    // can throw an exception (no atoms)
    // 
    // lig_build::pos_t get_ligand_centre() const; // 20111229 base class now

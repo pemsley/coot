@@ -109,7 +109,8 @@ graphics_info_t::setup_graphics_ligand_view_using_active_atom() {
    if (show_graphics_ligand_view_flag) { // user control
       std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
       if (active_atom.first) {
-	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+         coot::atom_spec_t spec(active_atom.second.second);
+	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(coot::residue_spec_t(spec));
 	 if (0)
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
@@ -127,7 +128,8 @@ graphics_info_t::setup_graphics_ligand_view_using_active_atom(int only_in_imol) 
    if (show_graphics_ligand_view_flag) { // user control
       std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec(only_in_imol);
       if (active_atom.first) {
-	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+         coot::atom_spec_t spec(active_atom.second.second);
+	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(coot::residue_spec_t(spec));
 	 if (0)
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first

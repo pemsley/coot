@@ -656,7 +656,6 @@ graphics_info_t::poke_the_refinement() {
       }
       if (last_restraints) {
          double tw = last_restraints->get_torsion_restraints_weight();
-         std::cout << "changin torsions weight from " << tw << " to " << torsion_restraints_weight << std::endl;
          last_restraints->set_map_weight(geometry_vs_map_weight);
          last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
          last_restraints->set_lennard_jones_epsilon(lennard_jones_epsilon);
@@ -777,8 +776,10 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
                if (moving_atoms_asc->atom_selection) {
 		  // check that moving_atoms_currently_dragged_atom_index is set before using it
 		  if (moving_atoms_currently_dragged_atom_index > -1) {
-		     at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-		     except_dragged_atom = coot::atom_spec_t(at_except);
+                     if (moving_atoms_currently_dragged_atom_index < moving_atoms_asc->n_selected_atoms) {
+                        at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+                        except_dragged_atom = coot::atom_spec_t(at_except);
+                     }
 		  }
                } else {
                   std::cout << "WARNING:: attempted use moving_atoms_asc->atom_selection, but NULL"
@@ -884,8 +885,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
    }
 
    if (moving_atoms_asc->atom_selection == NULL) {
-      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc->atom_selection"
-      // << std::endl;
+      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no
+      // oving_atoms_asc->atom_selection" << std::endl;
       threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
       continue_status = 0;
       return continue_status;
@@ -1154,14 +1155,14 @@ graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::R
 
                if (cri.residue_chi_angles.size() != rotamer_atom_names.size()) {
 
-                  std::cout << "-------------- mismatch for " << coot::residue_spec_t(residue_p) << " " << cri.residue_chi_angles.size() << " "  << rotamer_atom_names.size()
+                  std::cout << "-------------- mismatch for " << coot::residue_spec_t(residue_p) << " "
+                            << cri.residue_chi_angles.size() << " "  << rotamer_atom_names.size()
                             << " ---------------" << std::endl;
-
                } else {
 
                   for (unsigned int ichi=0; ichi<cri.residue_chi_angles.size(); ichi++) {
                      // we have to convert chi angles to atom names
-                     double esd = 10.0;
+                     double esd = 3.0; // 20210315-PE was 10.0. I want them tighter than that.
                      int per = 1;
                      std::string id = "chi " + coot::util::int_to_string(cri.residue_chi_angles[ichi].first);
                      const std::string &atom_name_1 = rotamer_atom_names[ichi][0];
@@ -1169,7 +1170,8 @@ graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::R
                      const std::string &atom_name_3 = rotamer_atom_names[ichi][2];
                      const std::string &atom_name_4 = rotamer_atom_names[ichi][3];
                      double torsion = cri.residue_chi_angles[ichi].second;
-                     coot::dict_torsion_restraint_t dr(id, atom_name_1, atom_name_2, atom_name_3, atom_name_4, torsion, esd, per);
+                     coot::dict_torsion_restraint_t dr(id, atom_name_1, atom_name_2, atom_name_3, atom_name_4,
+                                                       torsion, esd, per);
                      dictionary_vec.push_back(dr);
                   }
 
@@ -3838,10 +3840,10 @@ graphics_info_t::execute_torsion_general() {
 				    make_moving_atoms_graphics_object(im, residue_asc);
 
 				    std::vector<coot::atom_spec_t> as;
-				    as.push_back(atom_1);
-				    as.push_back(atom_2);
-				    as.push_back(atom_3);
-				    as.push_back(atom_4);
+				    as.push_back(coot::atom_spec_t(atom_1));
+				    as.push_back(coot::atom_spec_t(atom_2));
+				    as.push_back(coot::atom_spec_t(atom_3));
+				    as.push_back(coot::atom_spec_t(atom_4));
 				    torsion_general_atom_specs = as;
 				    graphics_draw();
 				    torsion_general_reverse_flag = 0;
@@ -4160,7 +4162,8 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
       glm::vec4  back_centre = unproject(1.0);
       glm::vec4 ftb = back_centre - front_centre;
       clipper::Coord_orth around_vec(ftb.x, ftb.y, ftb.z);
-      g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
+      coot::residue_spec_t res_spec(coot::atom_spec_t(active_atom.second.second));
+      g.molecules[imol].rotate_residue(res_spec, around_vec, origin_offset, angle);
       graphics_draw();
    }
 }
@@ -4186,7 +4189,7 @@ graphics_info_t::execute_db_main() {
    // std::string direction_string("forwards"); // forwards
    // execute_db_main(imol, chain_id, iresno_start, iresno_end, direction_string);
 
-   coot::residue_spec_t residue_spec(at_1);
+   coot::residue_spec_t residue_spec(at_1->GetResidue());
    std::pair<int, int> r = execute_db_main_fragment(imol, residue_spec);
 }
 

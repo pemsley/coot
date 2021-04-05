@@ -172,7 +172,9 @@ void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_ort
 
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-   
+   // change this to goocanvas usage, because clang doesn't link libcoot-gtkgraph properly/in a way that I understand
+
+#if 0
    GtkWidget *d = gtk_dialog_new();
    g_object_set_data(G_OBJECT(d), "probe_radius_graph", d);
    gtk_window_set_title (GTK_WINDOW(d), "Probe Radius Graph");
@@ -232,6 +234,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
    gtk_graph_axis_set_tick(GTK_GRAPH(graph), GTK_GRAPH_AXIS_INDEPENDANT, 5.0, 1.0);
    gtk_graph_trace_format_title(GTK_GRAPH(graph), trace, "Hole Radius");
 */
+#endif
 }
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {

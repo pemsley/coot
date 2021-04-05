@@ -112,11 +112,11 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 		     std::cout << "Residue for Atom 2 was not the same Residue as for Atom 1 "
 			       << "and not the next or previous residues either  " << std::endl;
 
-		     mmdb::Residue *residue_p = coot::util::get_residue(atom_2_spec, mol);
-		     mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, residue_p);
+		     mmdb::Residue *residue_p = coot::util::get_residue(coot::residue_spec_t(atom_2_spec), mol);
+		     mmdb::Atom *atom_2_l = coot::util::get_atom(atom_2_spec, residue_p);
 		     done = true;
-		     if (atom_2) {
-			std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
+		     if (atom_2_l) {
+			std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2_l);
 			bonded_atom_pairs.push_back(ap);
 		     } else {
 			std::cout << "Null atom 2 - [D path] this should not happen " << std::endl;
@@ -168,7 +168,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       } else { // res of this atom_1 was not the same as the the res of the previous atom_1
 
 	 atom_1 = coot::util::get_atom(atom_1_spec, mol);
-	 res_1_spec = coot::residue_spec_t(atom_1);
+	 res_1_spec = coot::residue_spec_t(atom_1->GetResidue());
 
 	 if (atom_1) {
 

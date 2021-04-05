@@ -785,7 +785,7 @@ graphics_info_t::get_closest_atom() const {
    // int index, int imol
 
    std::pair <float, int> dist_info;
-   float dist_min = 999999999;
+   float dist_min = 999999999.0;
    coot::Cartesian rc = RotationCentre();
    int imol_close = -1;
    int index_close = -1;

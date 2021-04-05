@@ -46,6 +46,7 @@
 void
 molecule_class_info_t::draw_surface() {
 
+#if 0
    if (draw_it == 1) { 
       if (cootsurface) {
 	 glEnable(GL_LIGHTING);
@@ -58,15 +59,17 @@ molecule_class_info_t::draw_surface() {
 	 glDisable(GL_LIGHTING);
       }
    }
+#endif
 }
 
 void
 molecule_class_info_t::draw_transparent_molecular_surface() {
-
+#if 0
    float opacity = 0.4; // pass this 
    if (cootsurface) {
       cootsurface->transparent_draw(opacity);
-   } 
+   }
+#endif
 } 
 
 
@@ -75,6 +78,7 @@ molecule_class_info_t::make_surface(int on_off_flag,
 				    const coot::protein_geometry &geom,
 				    float col_scale) {
 
+#if 0 // I'm giving up with surfaces for now in 0.9.x
    if (atom_sel.n_selected_atoms > 0) {
 
       bool charges_applied_flag = apply_charges(geom);
@@ -103,6 +107,7 @@ molecule_class_info_t::make_surface(int on_off_flag,
 	 glEndList();
       }
    }
+#endif
 }
 
 // a generic function to convert from a residue_spec_vec to a selection handle.
@@ -139,7 +144,7 @@ void
 molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res_specs_vec,
 				    const coot::protein_geometry &geom,
 				    float col_scale) {
-
+#if 0
    // res_specs_vec must not contain waters or bad things might
    // happen.
 
@@ -163,6 +168,8 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
    
    atom_sel.mol->DeleteSelection(SelHnd_selection);
    atom_sel.mol->DeleteSelection(SelHnd_protein);
+
+#endif
 }
 
 
@@ -173,6 +180,7 @@ molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
 				    const coot::protein_geometry &geom,
 				    float col_scale) {
 
+#if 0
    glDeleteLists(theSurface, 1);
    theSurface = glGenLists(1);
    glNewList(theSurface, GL_COMPILE);
@@ -183,6 +191,7 @@ molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
    if (cootsurface) 
       cootsurface->draw(0, 0);
    glEndList();
+#endif
 }
 
 

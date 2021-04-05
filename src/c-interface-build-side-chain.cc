@@ -252,10 +252,10 @@ auto_fit_best_rotamer(int resno,
 
       std::string ins(insertion_code);
       std::string chain(chain_id);
+      graphics_info_t g;
       int mode = graphics_info_t::rotamer_search_mode;
       if (! is_valid_map_molecule(imol_map)) {
 	 std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
-	 graphics_info_t g;
 	 f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
 									   resno, altloc, ins,
 									   chain, imol_map,
@@ -263,7 +263,6 @@ auto_fit_best_rotamer(int resno,
 									   lowest_probability,
 									   *g.Geom_p());
       } else {
-	 graphics_info_t g;
 	 f = g.molecules[imol_coords].auto_fit_best_rotamer(mode,
 							    resno, altloc, ins,
 							    chain, imol_map,
@@ -287,6 +286,7 @@ auto_fit_best_rotamer(int resno,
 	 }
 	 std::cout << "Fitting score for best rotamer: " << f << std::endl;
       }
+      g.run_post_manipulation_hook(imol_coords, 0);
       graphics_draw();
    }
    std::string cmd = "auto-fit-best-rotamer";

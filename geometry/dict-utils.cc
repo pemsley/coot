@@ -689,7 +689,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       std::cout << "Bad graph build result_1" << std::endl;
    } else {
       int build_result_2 = g_2->Build(use_bond_order);
-      if (build_result_1 != 0) {
+      if (build_result_2 != 0) {
 	 std::cout << "Bad graph build result_2" << std::endl;
       } else {
 	 if (debug)
@@ -725,7 +725,6 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       int nv;
 	       match.GetMatch(imatch_best, FV1, FV2, nv, p1, p2); // n p1 p2 set
 
-	       int n_type_match = 0;
 	       for (int ipair=1; ipair<=nv; ipair++) {
 		  mmdb::math::Vertex *V1 = g_1->GetVertex ( FV1[ipair] );
 		  mmdb::math::Vertex *V2 = g_2->GetVertex ( FV2[ipair] );

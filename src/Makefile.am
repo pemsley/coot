@@ -80,8 +80,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/coot-surface/libcoot-surface.la  	\
-	$(top_builddir)/surface/libcoot-electrostatics.la 	\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
@@ -675,6 +673,31 @@ dist_python_PYTHON = coot.py coot.pth
 
 # graphics_crash_test_LDADD = @GTK_LIBS@ $(GTKGL_CONTEXT_LIBS) $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
 
+# merge problems I think. fix another time.
+#
+# coot_fix_nomenclature_errors_LDADD = \
+# 	$(top_builddir)/ligand/libcoot-ligand.la      		\
+# 	$(top_builddir)/cootaneer/libcootaneer.la 		\
+# 	$(top_builddir)/db-main/libcoot-db-main.la      	\
+# 	$(top_builddir)/ideal/libcoot-ideal.la    		\
+#         $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
+# 	$(top_builddir)/geometry/libcoot-geometry.la    	\
+# 	$(top_builddir)/coords/libcoot-coords.la      		\
+# 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
+# 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
+# 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
+# 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
+#         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+# 	$(top_builddir)/analysis/libcoot-analysis.la 		\
+# 	$(top_builddir)/utils/libcoot-utils.la	  	        \
+# 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
+# 	$(CLIPPER_LIBS) 	\
+# 	$(MMDB_LIBS)		\
+# 	$(PYTHON_LIBS)		\
+# 	$(RDKIT_LIBS)	        \
+# 	$(BOOST_LDFLAGS)        \
+# 	$(L_BOOST_PYTHON)
+
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)
 #        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
@@ -770,12 +793,19 @@ coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
 coot_density_score_by_residue_bin_LDADD  =	\
         libcootsumo.la                                          \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
+	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/db-main/libcoot-db-main.la     		\
+	$(top_builddir)/ideal/libcoot-ideal.la    		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
         $(GLOB_LIBS)  		 \
         $(RDKIT_LIBS) 		\
@@ -787,12 +817,21 @@ dynarama_bin_SOURCES = dynarama-main.cc
 dynarama_bin_LDADD = \
         libcootsumo.la                                          \
         $(top_builddir)/coords/libcoot-coords.la                \
-        $(top_builddir)/utils/libcoot-utils.la                  \
+	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
+	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+	$(top_builddir)/ideal/libcoot-ideal.la    		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
         $(top_builddir)/geometry/libcoot-geometry.la            \
-        $(top_builddir)/coot-surface/libcoot-surface.la         \
+	$(top_builddir)/db-main/libcoot-db-main.la     		\
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
         $(top_builddir)/compat/libcoot-compat.la                \
+        $(top_builddir)/utils/libcoot-utils.la                  \
         $(CLIPPER_LIBS)         \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \

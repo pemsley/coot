@@ -4539,7 +4539,7 @@ molecule_class_info_t::atom_to_atom_index(mmdb::Atom *at) const {
       iatom_index_udd = ic;
    }
    if (iatom_index_udd == -1)
-      iatom_index_udd=full_atom_spec_to_atom_index(at);
+      iatom_index_udd=full_atom_spec_to_atom_index(coot::atom_spec_t(at));
    return iatom_index_udd;
 }
 
@@ -6012,7 +6012,7 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
                // the residue after the gap.
                //
 
-               next_residue = next_residue_missing_residue(this_residue);
+               next_residue = next_residue_missing_residue(coot::residue_spec_t(this_residue));
                if (next_residue) {
                   i_atom_index = intelligent_this_residue_atom(next_residue);
                } else {
@@ -8516,7 +8516,7 @@ molecule_class_info_t::set_mmdb_symm(const std::string &spg) {
 std::pair<float, int>
 molecule_class_info_t::nearest_atom(const coot::Cartesian &pos) const {
 
-   float min_dist = 999999999;
+   float min_dist = 999999999.9;
    float d;
    int atom_index = -1;
 

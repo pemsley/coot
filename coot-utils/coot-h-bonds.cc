@@ -196,8 +196,8 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 			double angle_1 = coot::angle(nm_1[ii].first, at_1, at_2);
 
 			if (angle_1_0 < 0) {  // as yet unset
-			   coot::residue_spec_t donor_res_spec(at_1);
-			   coot::residue_spec_t neigh_res_spec(nm_1[ii].first);
+			   coot::residue_spec_t donor_res_spec(at_1->GetResidue());
+			   coot::residue_spec_t neigh_res_spec(nm_1[ii].first->GetResidue());
 			   if (donor_res_spec == neigh_res_spec)
 			      angle_1_0 = angle_1; 
 			}

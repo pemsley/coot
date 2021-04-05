@@ -1,3 +1,5 @@
+#ifndef CAIRO_MOLECULE_HH
+#define CAIRO_MOLECULE_HH
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "Python.h"
@@ -149,3 +151,8 @@ namespace coot {
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 }
+
+
+
+
+#endif // CAIRO_MOLECULE_HH

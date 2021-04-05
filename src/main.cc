@@ -106,7 +106,7 @@
 #include "cc-interface.hh"
 #include "c-interface-preferences.h"
 
-#include "coot-surface/rgbreps.h"
+// #include "coot-surface/rgbreps.h"
 
 #include "coot-database.hh"
 
@@ -132,7 +132,6 @@ void desensitive_scripting_menu_item_maybe(GtkWidget *window);
 int setup_screen_size_settings();
 void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
-void setup_rgb_reps();
 void check_reference_structures_dir();
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1);
 #include "boot-python.hh"
@@ -395,7 +394,6 @@ main (int argc, char *argv[]) {
    GtkWidget *splash = do_splash_screen(cld);
 
    setup_symm_lib();
-   setup_rgb_reps();
    check_reference_structures_dir();
 #ifdef USE_MYSQL_DATABASE
    setup_database();

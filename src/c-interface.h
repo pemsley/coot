@@ -3485,7 +3485,9 @@ float refine_ramachandran_restraints_weight();
 /* not ready yet \brief set the weight for torsion restraints (default 1.0)*/
 void set_torsion_restraints_weight(double w);
 
-/* \brief set the state for using rotamer restraints "drive" mode */
+/*! \brief set the state for using rotamer restraints "drive" mode
+
+1 in on, 0 is off (off by default) */
 void set_refine_rotamers(int state);
 
 void set_refinement_geman_mcclure_alpha_from_text(int combobox_item_idx, const char *t);

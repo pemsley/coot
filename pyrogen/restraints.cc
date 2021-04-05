@@ -1476,7 +1476,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    // Martin's pattern, these should be weaker (than standard 0.02) though, I think
    patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*;X1;^2]", 0.04));
    // patterns.push_back(d_pat("[a^2]:[a^2]-[*^2]=[*;X1;^2]", 0.04)); // no. bad match for OAC,CBG in 0BU
-   
+
    int n_planes = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
       RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);

@@ -226,7 +226,7 @@ coot::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref
       std::vector<std::pair<mmdb::Atom *, float> > se = solvent_exposure(SelHnd, mol.second);
       v.resize(se.size());
       for (unsigned int i=0; i<se.size(); i++) {
-         v[i] = std::pair<coot::atom_spec_t, float> (se[i].first, se[i].second);
+         v[i] = std::pair<coot::atom_spec_t, float> (coot::atom_spec_t(se[i].first), se[i].second);
       }
 
       mol.second->DeleteSelection(SelHnd);
@@ -1069,7 +1069,7 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 
             // add the atom
             mmdb::Chain *chain_p = get_chain(at->GetChainID());
-            mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(at));
+            mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(coot::atom_spec_t(at)));
 
             if (! chain_p) {
                int imod = 1;
@@ -1100,7 +1100,7 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 
                      int n_residues_before = chain_p->GetNumberOfResidues();
                      int n_chain_residues = chain_p->InsResidue(residue_p, sn.first);
-                     mmdb::Residue *res_after_p = get_residue(coot::residue_spec_t(at));
+                     mmdb::Residue *res_after_p = get_residue(coot::residue_spec_t(coot::atom_spec_t(at)));
 
                   } else {
                      chain_p->AddResidue(residue_p);
@@ -2288,7 +2288,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
                std::vector<coot::atom_spec_t> baddie_waters;
                if (clashing_waters_for_best_score.size() > 0) {
                   for (unsigned int ii=0; ii<clashing_waters_for_best_score.size(); ii++) {
-                     baddie_waters.push_back(clashing_waters_for_best_score[ii]);
+                     baddie_waters.push_back(coot::atom_spec_t(clashing_waters_for_best_score[ii]));
                   }
                   delete_atoms(baddie_waters);
                }
@@ -7593,10 +7593,11 @@ molecule_class_info_t::set_occupancy_residue_range(const std::string &chain_id, 
                 <<  imol_no << ") " << name_ << std::endl;
    } else {
       for (int i=0; i<nSelAtoms; i++) {
-         SelAtoms[i]->occupancy = occ_val;
-         if (SelAtoms[i]->WhatIsSet | mmdb::ASET_Occupancy) {
+         mmdb::Atom *at = SelAtoms[i];
+         at->occupancy = occ_val;
+         if (at->WhatIsSet & mmdb::ASET_Occupancy) {
             // mmdb::ASET_Occupancy not set in mmdb yet
-            SelAtoms[i]->WhatIsSet |= mmdb::ASET_Occupancy;
+            at->WhatIsSet |= mmdb::ASET_Occupancy;
          }
       }
       atom_sel.mol->DeleteSelection(SelHnd);
@@ -7636,7 +7637,7 @@ molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
    } else {
       for (int i=0; i<nSelAtoms; i++) {
          SelAtoms[i]->tempFactor = b_val;
-         if (SelAtoms[i]->WhatIsSet | mmdb::ASET_tempFactor) {
+         if (SelAtoms[i]->WhatIsSet & mmdb::ASET_tempFactor) {
             // mmdb::ASET_tempFactor not set in mmdb yet
             SelAtoms[i]->WhatIsSet |= mmdb::ASET_tempFactor;
          }

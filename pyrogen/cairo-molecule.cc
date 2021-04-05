@@ -4,7 +4,7 @@
 // this needs to be here (also).  It is in wmolecule.cc and hence the library also.
 // But if this is not here I get unresovled symbol for this destructor when compiling
 // this exectuable on the mac (clang).
-template<class cairo_atom_t, class cairo_bond_t> lig_build::molecule_t<cairo_atom_t, cairo_bond_t>::~molecule_t() {}
+// template<class cairo_atom_t, class cairo_bond_t> lig_build::molecule_t<cairo_atom_t, cairo_bond_t>::~molecule_t() {}
 
 // coot::cairo_molecule_t::~cairo_molecule_t() { }
 

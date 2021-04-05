@@ -619,6 +619,8 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 std::pair<bool, double>
 coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 					const std::string &energy_type_2,
+                                        const std::string &element_1,
+                                        const std::string &element_2,
 					bool is_metal_atom_1,
 					bool is_metal_atom_2,
 					bool extended_atoms_mode, // turn this on when model has no Hydrogen atoms
@@ -626,6 +628,7 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 					bool in_same_ring_flag) const {
 
    std::pair<bool, double> r(false, 0);
+   const std::string H(" H");
 
    std::map<std::string, coot::energy_lib_atom>::const_iterator it_1 = energy_lib.atom_map.find(energy_type_1);
    std::map<std::string, coot::energy_lib_atom>::const_iterator it_2 = energy_lib.atom_map.find(energy_type_2);
@@ -633,6 +636,7 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
    if (it_1 != energy_lib.atom_map.end()) {
       if (it_2 != energy_lib.atom_map.end()) {
 
+         // What am I trying to do here? - this is worrying.
          const std::string &energy_type_1(it_1->first);
          const std::string &energy_type_2(it_2->first);
 
@@ -720,8 +724,9 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
                      r.second -= 0.38; // was 0.4
                }
 	    } else {
-               if (energy_type_1 == "H")
-                  if (energy_type_2 == "H")
+
+               if (element_1 == H)
+                  if (element_2 == H)
                      r.second = 2.48; // override 1.2 + 1.2 to match phenix/molprobity.
                                       // Amber radius is 1.48 for H-C(sp3) and H-arom
             }

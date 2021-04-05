@@ -29,7 +29,7 @@
 
 widgeted_molecule_t::~widgeted_molecule_t() {}
 
-template<class widgeted_atom_t, class widgeted_bond_t> lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t>::~molecule_t() {}
+//  template<class widgeted_atom_t, class widgeted_bond_t> lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t>::~molecule_t() {}
 
 // Don't forget that this function will be used in
 // render_from_molecule, which will add canvas item.
@@ -45,8 +45,6 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    // the input coordinates are not necessarily centred on (0,0), so
    // let's find the centre of the input molecule first.
    //
-   double centre_x = 0;
-   double centre_y = 0;
    double sum_x = 0;
    double sum_y = 0;
    mol_in_min_y =  9999999;
@@ -70,9 +68,8 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    scale_correction = get_scale_correction(mol_in);
    
    if (mol_in.atoms.size() > 0) {
-      centre_x = sum_x/double(mol_in.atoms.size());
-      centre_y = sum_y/double(mol_in.atoms.size());
-
+      double centre_x = sum_x/double(mol_in.atoms.size());
+      double centre_y = sum_y/double(mol_in.atoms.size());
       centre_correction = lig_build::pos_t(centre_x, centre_y);
 
       if (debug_local)

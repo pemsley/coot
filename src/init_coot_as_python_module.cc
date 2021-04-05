@@ -15,51 +15,6 @@
 
 #include "coot-surface/rgbreps.h"
 
-void setup_rgb_reps() {
-
-   // c.f. coot::package_data_dir() which now does this wrapping for us:
-
-   // For binary installers, they use the environment variable:
-   char *env = getenv("COOT_DATA_DIR");
-
-   // Fall-back:
-   std::string standard_file_name = PKGDATADIR; // xxx/share/coot
-
-   if (env)
-      standard_file_name = env;
-
-   std::string colours_file = standard_file_name + "/";
-   std::string colours_def = "colours.def";
-   colours_file += colours_def;
-
-   struct stat buf;
-   int status = stat(colours_file.c_str(), &buf);
-   if (status == 0) { // colours file was found in default location
-      RGBReps r(colours_file);
-      if (0)
-	 std::cout << "INFO:: Colours file: " << colours_file << " loaded"
-		   << std::endl;
-
-      // test:
-//       std::vector<std::string> test_col;
-//       test_col.push_back("blue");
-//       test_col.push_back("orange");
-//       test_col.push_back("magenta");
-//       test_col.push_back("cyan");
-
-//       std::vector<int> iv = r.GetColourNumbers(test_col);
-//       for (int i=0; i<iv.size(); i++) {
-// 	 std::cout << "Colour number: " << i << "  " << iv[i] << std::endl;
-//       }
-
-
-   } else {
-      std::cout << "WARNING! Can't find file: colours.def at " << standard_file_name
-		<< std::endl;
-   }
-}
-
-
 void check_reference_structures_dir() {
 
    char *coot_reference_structures = getenv("COOT_REF_STRUCTS");
@@ -159,7 +114,6 @@ init_coot_as_python_module() {
 #endif
 
    setup_symm_lib();
-   setup_rgb_reps();
    check_reference_structures_dir();
    graphics_info_t g;
    g.use_graphics_interface_flag = 0;

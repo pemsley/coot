@@ -15,7 +15,7 @@ coot::get_fixed_font() {
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
    fixed_font_str = "monospace";
 #else
-   fixed_font_str = "fixed";
+   // fixed_font_str = "fixed";
    fixed_font_str = "Sans 9";
 #endif
    return fixed_font_str;
@@ -26,7 +26,7 @@ coot::is_dir_or_link(const std::string & file_name) {
 
    bool r = false;
    struct stat buf;
-   int istat = stat(file_name.c_str(), &buf);
+   stat(file_name.c_str(), &buf);
    if (S_ISDIR(buf.st_mode))
        r = true;
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
@@ -41,7 +41,7 @@ bool
 coot::is_regular_file(const std::string & file_name) {
 
    struct stat buf;
-   int istat = stat(file_name.c_str(), &buf);
+   stat(file_name.c_str(), &buf);
    bool r = false;
    if (S_ISREG(buf.st_mode))
        r = true;

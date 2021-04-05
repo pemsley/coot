@@ -2556,7 +2556,7 @@ SCM new_molecule_sans_biggest_ligand_scm(int imol) {
    SCM r = SCM_BOOL_F;
    std::pair<mmdb::Residue *, int> res = new_molecule_sans_biggest_ligand(imol);
    if (res.first) {
-      r = scm_list_2(SCM_MAKINUM(res.second), residue_spec_to_scm(res.first));
+      r = scm_list_2(SCM_MAKINUM(res.second), residue_spec_to_scm(coot::residue_spec_t(res.first)));
    }
    return r;
 }
@@ -2570,7 +2570,7 @@ PyObject *new_molecule_sans_biggest_ligand_py(int imol) {
    if (res.first) {
       r = PyList_New(2);
       PyList_SetItem(r, 0, PyLong_FromLong(res.second));
-      PyList_SetItem(r, 1, residue_spec_to_py(res.first));
+      PyList_SetItem(r, 1, residue_spec_to_py(coot::residue_spec_t(res.first)));
    }
    if (PyBool_Check(r)) {
       Py_INCREF(r);

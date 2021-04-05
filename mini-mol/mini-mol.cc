@@ -237,11 +237,9 @@ coot::minimol::molecule::setup(mmdb::Manager *mol, bool udd_atom_index_to_user_d
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 
-		  // int ifrag = fragment_for_chain(chain_p->GetChainID()); old
-		  int ifrag = ichain;
 		  std::string fragment_id = chain_p->GetChainID();
 		  fragments.push_back(coot::minimol::fragment(fragment_id));
-		  ifrag = fragments.size() -1;
+		  int ifrag = fragments.size() -1;
 	       
 		  if (chain_p == NULL) {  
 		     // This should not be necessary. It seem to be a

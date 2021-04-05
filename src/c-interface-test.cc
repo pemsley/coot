@@ -297,7 +297,8 @@ int test_function(int i, int j) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       graphics_info_t g;
       if (pp.first) {
-	 mmdb::Residue *residue = g.molecules[pp.second.first].get_residue(pp.second.second);
+         coot::residue_spec_t rs(coot::atom_spec_t(pp.second.second));
+	 mmdb::Residue *residue = g.molecules[pp.second.first].get_residue(rs);
 	 mmdb::Manager *mol = g.molecules[pp.second.first].atom_sel.mol;
 	 if (residue) {
 	    int imol = 0;
@@ -1226,7 +1227,8 @@ void glyco_tree_test() {
    if (pp.first) {
       int imol = pp.second.first;
       graphics_info_t g;
-      mmdb::Residue *residue_p = g.molecules[imol].get_residue(pp.second.second);
+      coot::residue_spec_t rs(coot::atom_spec_t(pp.second.second));
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(rs);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
       std::vector<std::string> types_with_no_dictionary =

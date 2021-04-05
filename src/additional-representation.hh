@@ -22,6 +22,10 @@
 #ifndef ADDITIONAL_REPRESENTATION_HH
 #define ADDITIONAL_REPRESENTATION_HH
 
+#include "coot-utils/atom-selection-container.hh"
+#include "coords/Bond_lines.h"
+#include "atom-selection.hh"
+
 namespace coot {
 
    // representation_types
@@ -42,7 +46,7 @@ namespace coot {
       mmdb::Manager *mol;
       int display_list_handle;
       void update_self() {
-	 if (representation_type != BALL_AND_STICK || representation_type != LIQUORICE) {
+	 if (representation_type == BALL_AND_STICK || representation_type == LIQUORICE) {
 	    fill_bonds_box();
 	 }
       }
@@ -97,5 +101,4 @@ namespace coot {
 
 }
 
-#endif // ADDITIONAL_REPRESENTATION_HH
-
+#endif

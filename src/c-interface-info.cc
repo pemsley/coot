@@ -940,7 +940,7 @@ SCM residues_near_residues_scm(int imol, SCM residues_in_scm, float radius) {
 	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
 	 for(it=rnrs.begin(); it!=rnrs.end(); it++) {
 	    mmdb::Residue *res_key = it->first;
-	    SCM key_scm = residue_spec_to_scm(res_key);
+	    SCM key_scm = residue_spec_to_scm(coot::residue_spec_t(res_key));
 	    SCM value_scm = SCM_EOL;
 	    const std::set<mmdb::Residue *> &s = it->second;
 	    std::set<mmdb::Residue *>::const_iterator it_s;
@@ -1204,8 +1204,9 @@ void hydrogenate_region(float radius) {
       coot::residue_spec_t central_residue(pp.second.second);
       std::cout << "----------- hydrogenating " << central_residue
 		<< " in " << imol << std::endl;
+      coot::residue_spec_t res_spec(pp.second.second);
       std::vector<coot::residue_spec_t> v =
-	 graphics_info_t::molecules[imol].residues_near_residue(pp.second.second, radius);
+	 graphics_info_t::molecules[imol].residues_near_residue(res_spec, radius);
       v.push_back(central_residue);
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
@@ -1881,7 +1882,7 @@ PyObject *active_atom_spec_py() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
       PyObject *state_py = Py_True;
       PyObject *mol_no = PyLong_FromLong(r.second.first);
-      PyObject *spec = residue_spec_to_py(r.second.second);
+      PyObject *spec = residue_spec_to_py(coot::residue_spec_t(r.second.second));
       PyObject *tuple_inner = PyTuple_New(2);
    if (! r.first) {
       state_py = Py_False;

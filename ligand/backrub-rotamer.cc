@@ -566,7 +566,7 @@ coot::backrub::waters_for_deletion() const {
 
    std::vector<atom_spec_t> baddies;
    for (unsigned int i=0; i<clashing_waters.size(); i++) {
-      baddies.push_back(clashing_waters[i]);
+      baddies.push_back(atom_spec_t(clashing_waters[i]));
    }
    return baddies;
 }

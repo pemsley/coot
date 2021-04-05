@@ -3482,8 +3482,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
 	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
-	       ss = bond_restraint[i].type().c_str();
-	       mmCIFLoop->PutString(ss, "type", i);
+               std::string bond_type = bond_restraint[i].type();
+	       mmCIFLoop->PutString(bond_type.c_str(), "type", i);
 	       try {
 	          float v = bond_restraint[i].value_dist();
 		  mmCIFLoop->PutReal(v, "value_dist", i, 5);
@@ -3541,6 +3541,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	    for (unsigned int i=0; i<torsion_restraint.size(); i++) {
 	       // std::cout << "ading torsion number " << i << std::endl;
+
+               // note strange string usage is due to static analysis use-after-free error report
+               // don't reuse ss
 	       std::string id_1 = util::remove_whitespace(torsion_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(torsion_restraint[i].atom_id_2_4c());
 	       std::string id_3 = util::remove_whitespace(torsion_restraint[i].atom_id_3_4c());
@@ -3549,18 +3552,23 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string qan_2 = quoted_atom_name(id_2);
 	       std::string qan_3 = quoted_atom_name(id_3);
 	       std::string qan_4 = quoted_atom_name(id_4);
-	       const char *ss = residue_info.comp_id.c_str();
-	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = torsion_restraint[i].id().c_str();
-	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = id_1.c_str();
-	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = id_2.c_str();
-	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
-	       ss = id_3.c_str();
-	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
-	       ss = id_4.c_str();
-	       mmCIFLoop->PutString(id_4.c_str(), "atom_id_4", i);
+               std::string residue_id = residue_info.comp_id;
+	       mmCIFLoop->PutString(residue_id.c_str(), "comp_id", i);
+	       // ss = torsion_restraint[i].id().c_str();
+               std::string torsion_id = torsion_restraint[i].id();
+	       mmCIFLoop->PutString(torsion_id.c_str(), "id", i);
+	       // ss = id_1.c_str();
+               std::string torsion_atom_id_1 = id_1;
+	       mmCIFLoop->PutString(torsion_atom_id_1.c_str(), "atom_id_1", i);
+	       // ss = id_2.c_str();
+               std::string torsion_atom_id_2 = id_2;
+	       mmCIFLoop->PutString(torsion_atom_id_2.c_str(), "atom_id_2", i);
+	       // ss = id_3.c_str();
+               std::string torsion_atom_id_3 = id_3;
+	       mmCIFLoop->PutString(torsion_atom_id_3.c_str(), "atom_id_3", i);
+	       // ss = id_4.c_str();
+               std::string torsion_atom_id_4 = id_4;
+	       mmCIFLoop->PutString(torsion_atom_id_4.c_str(), "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
 	       v = torsion_restraint[i].esd();
@@ -3579,7 +3587,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	    for (unsigned int i=0; i<chiral_restraint.size(); i++) {
 	       // std::cout << "ading chiral number " << i << std::endl;
-	       const char *ss = residue_info.comp_id.c_str();
+	       // const char *ss = residue_info.comp_id.c_str();
 	       std::string id_c = util::remove_whitespace(chiral_restraint[i].atom_id_c_4c());
 	       std::string id_1 = util::remove_whitespace(chiral_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(chiral_restraint[i].atom_id_2_4c());
@@ -3588,24 +3596,23 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string qan_1 = quoted_atom_name(id_1);
 	       std::string qan_2 = quoted_atom_name(id_2);
 	       std::string qan_3 = quoted_atom_name(id_3);
-	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = chiral_restraint[i].Chiral_Id().c_str();
-	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = id_c.c_str();
+               std::string residue_id = residue_info.comp_id;
+	       mmCIFLoop->PutString(residue_id.c_str(), "comp_id", i);
+	       // ss = chiral_restraint[i].Chiral_Id().c_str();
+               std::string chiral_id = chiral_restraint[i].Chiral_Id();
+	       mmCIFLoop->PutString(chiral_id.c_str(), "id", i);
+	       // ss = id_c.c_str();
 	       mmCIFLoop->PutString(id_c.c_str(), "atom_id_centre", i);
-	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
-	       ss = id_3.c_str();
 	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
 	       int sign = chiral_restraint[i].volume_sign;
-	       ss = "both";
+               std::string sign_string = "both";
 	       if (sign == 1)
-		  ss = "positiv";
+		  sign_string = "positiv";
 	       if (sign == -1)
-		  ss = "negativ";
-	       mmCIFLoop->PutString(ss, "volume_sign", i);
+		  sign_string = "negativ";
+	       mmCIFLoop->PutString(sign_string.c_str(), "volume_sign", i);
 	    }
 	 }
       }

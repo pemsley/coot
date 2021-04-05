@@ -249,16 +249,16 @@ dnl Check for GLUT
 dnl AM_PATH_GLUT(, [echo You need the GLUT utility library; exit 1], AC_MSG_ERROR([Cannot find proper GLUT version]))
 
 
-dnl =========================== Python and Guile ======================
+dnl =========================== Python ======================
+
+# AM_WITH_GUILE_GTK
+# AM_PATH_GUILE_GTK
 
 # AM_WITH_PYTHON
 # AM_PATH_PYTHON
 
 AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
-
-AM_WITH_GUILE_GTK
-AM_PATH_GUILE_GTK
 
 AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 
@@ -268,7 +268,13 @@ AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 # AX_BOOST_PYTHON(,,[AC_MSG_ERROR([No boost-python found])]) because it is required.
 # FIXME Later.
 #
-# AX_BOOST_PYTHON
+AX_BOOST_PYTHON
+
+
+if test -z "$BOOST_PYTHON_LIB" ; then
+   echo BOOST_PYTHON_LIB has not been set. Did you pass --with-boost-libdir\?
+   exit
+fi
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
 # How do we use that?  At the moment we want to only use
@@ -331,8 +337,7 @@ if test x$rdkit_prefix = x ; then
 else
    rdkit_install_dir="$withval"
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-   rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_python27 -lpython2.7"
-   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
+   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_serialization -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
 fi
 
 if test x$coot_enhanced_ligand_additions = xtrue ; then
@@ -445,7 +450,6 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-libgtkgraph/Makefile
 goograph/Makefile
 lbg/Makefile
 doc/Makefile

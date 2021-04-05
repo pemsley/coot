@@ -196,7 +196,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++)
       if (std::string(residue_atoms[i]->element) != " H")
-	 fixed_atoms.push_back(residue_atoms[i]);
+	 fixed_atoms.push_back(coot::atom_spec_t(residue_atoms[i]));
 
    if (residue_p) {
       std::string residue_type = residue_p->GetResName();
@@ -1103,8 +1103,8 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 		  if (is_het) {
 		     std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
 		     if (res_centre.first) {
-			std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, residue_p);
-			ligand_centres.push_back(p);
+              std::pair<clipper::Coord_orth, coot::residue_spec_t> p(res_centre.second, coot::residue_spec_t(residue_p));
+              ligand_centres.push_back(p);
 		     }
 		  }
 	       }
@@ -1696,7 +1696,7 @@ molecule_class_info_t::het_groups() const {
 	       mmdb::Atom *at = residue_p->GetAtom(iat);
 	       if (at->Het) {
 		  if (rn != "HOH") {
-		     r.push_back(residue_p);
+		     r.push_back(coot::residue_spec_t(residue_p));
 		     break;
 		  }
 	       }
@@ -1823,7 +1823,7 @@ molecule_class_info_t::get_centre_atom_from_sequence_triplet(const std::string &
 	       if (iat != -1) {
 		  // std::cout << "adding spec " << coot::residue_spec_t(atom_sel.atom_selection[iat])
 		  // << std::endl;
-		  triplet_map[chain_p].push_back(coot::residue_spec_t(atom_sel.atom_selection[iat]));
+		  triplet_map[chain_p].push_back(coot::residue_spec_t(coot::atom_spec_t(atom_sel.atom_selection[iat])));
 		  if (at == 0)
 		     at = atom_sel.atom_selection[iat];
 	       }
@@ -1869,7 +1869,7 @@ molecule_class_info_t::get_centre_atom_from_sequence_triplet(const std::string &
 
 
 void
-molecule_class_info_t::rotate_residue(coot::residue_spec_t rs,
+molecule_class_info_t::rotate_residue(const coot::residue_spec_t &rs,
 				      const clipper::Coord_orth &around_vec,
 				      const clipper::Coord_orth &origin_offset,
 				      double angle) {
@@ -1910,8 +1910,10 @@ molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
 	    // if this was the second residue or further along...
 	    if (residue_p_prev) {
 	       if ((residue_p_prev->GetSeqNum() + 1) != residue_p_this->GetSeqNum()) {
-		  coot::fragment_info_t::fragment_range_t r(residue_p_start, residue_p_prev);
-		  fi.add_range(r);
+                  coot::residue_spec_t spec_1(residue_p_start);
+                  coot::residue_spec_t spec_2(residue_p_prev);
+		  coot::fragment_info_t::fragment_range_t fr(spec_1, spec_2);
+		  fi.add_range(fr);
 		  residue_p_start = residue_p_this; // start a new fragment (part-way through a chain)
 	       }
 	    } else {
@@ -1923,7 +1925,9 @@ molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
 
 	 // and the last fragment of the chain
 	 if (residue_p_start) {
-	    coot::fragment_info_t::fragment_range_t r(residue_p_start, residue_p_this);
+            coot::residue_spec_t spec_1(residue_p_start);
+            coot::residue_spec_t spec_2(residue_p_this);
+	    coot::fragment_info_t::fragment_range_t r(spec_1, spec_2);
 	    fi.add_range(r);
 	 }
 

@@ -723,8 +723,6 @@ class graphics_info_t {
 			     const clipper::Xmap<float> *xmap_p);
 #endif // HAVE_GSL
 
-   // the mode flag is public:
-   void run_post_manipulation_hook(int imol, int mode);
    // which uses the following...
 #ifdef USE_GUILE
    void run_post_manipulation_hook_scm(int imol, int mode);
@@ -1361,6 +1359,7 @@ public:
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 
    static void set_rotation_centre(const clipper::Coord_orth &pt);
+   void run_post_manipulation_hook(int imol, int mode);
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
