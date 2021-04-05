@@ -1210,12 +1210,18 @@ SCM get_map_colour_scm(int imol) {
 
    SCM r = SCM_BOOL_F;
    if (is_valid_map_molecule(imol)) {
-      std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
+      // std::pair<GdkRGBA, GdkRGBA> colours map_colours();
+      // std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
+      std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
+
+      std::cout << "get_map_colour_scm() needs fixing " << std::endl; // FIXME
+#if 0
       if (colour_v.size() > 2) {
-    r = scm_list_3(scm_float2num(colour_v[0]),
-   scm_float2num(colour_v[1]),
-   scm_float2num(colour_v[2]));
+         r = scm_list_3(scm_from_double(colour_v[0]),
+                        scm_from_double(colour_v[1]),
+                        scm_from_double(colour_v[2]));
       }
+#endif
    }
    return r;
 }
@@ -1224,25 +1230,25 @@ SCM get_map_colour_scm(int imol) {
 #ifdef USE_PYTHON
 PyObject *get_map_colour_py(int imol) {
 
-  PyObject *r = Py_False;
-  if (is_valid_map_molecule(imol)) {
-    std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
-    r = PyList_New(2);
-    PyObject *col_1 = PyList_New(3);
-    PyObject *col_2 = PyList_New(3);
-    PyList_SetItem(col_1, 0, PyFloat_FromDouble(colours.first.red));
-    PyList_SetItem(col_1, 1, PyFloat_FromDouble(colours.first.green));
-    PyList_SetItem(col_1, 2, PyFloat_FromDouble(colours.first.blue));
-    PyList_SetItem(col_2, 0, PyFloat_FromDouble(colours.second.red));
-    PyList_SetItem(col_2, 1, PyFloat_FromDouble(colours.second.green));
-    PyList_SetItem(col_2, 2, PyFloat_FromDouble(colours.second.blue));
-    PyList_SetItem(r, 0, col_1);
-    PyList_SetItem(r, 1, col_2);
-  }
-  if (PyBool_Check(r)) {
-    Py_XINCREF(r);
-  }
-  return r;
+   PyObject *r = Py_False;
+   if (is_valid_map_molecule(imol)) {
+      std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
+      r = PyList_New(2);
+      PyObject *col_1 = PyList_New(3);
+      PyObject *col_2 = PyList_New(3);
+      PyList_SetItem(col_1, 0, PyFloat_FromDouble(colours.first.red));
+      PyList_SetItem(col_1, 1, PyFloat_FromDouble(colours.first.green));
+      PyList_SetItem(col_1, 2, PyFloat_FromDouble(colours.first.blue));
+      PyList_SetItem(col_2, 0, PyFloat_FromDouble(colours.second.red));
+      PyList_SetItem(col_2, 1, PyFloat_FromDouble(colours.second.green));
+      PyList_SetItem(col_2, 2, PyFloat_FromDouble(colours.second.blue));
+      PyList_SetItem(r, 0, col_1);
+      PyList_SetItem(r, 1, col_2);
+   }
+   if (PyBool_Check(r)) {
+      Py_XINCREF(r);
+   }
+   return r;
 }
 #endif
 
@@ -1710,12 +1716,12 @@ int average_map_scm(SCM map_number_and_scales) {
    bool is_em_flag = false;
    std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
    for (int i=0; i<n; i++) {
-      SCM number_and_scale = scm_list_ref(map_number_and_scales, SCM_MAKINUM(i));
+      SCM number_and_scale = scm_list_ref(map_number_and_scales, scm_from_int(i));
       SCM ns_scm = scm_length(number_and_scale);
       int ns = scm_to_int(ns_scm);
       if (ns == 2) {
-	 SCM map_number_scm = scm_list_ref(number_and_scale, SCM_MAKINUM(0));
-	 SCM map_scale_scm  = scm_list_ref(number_and_scale, SCM_MAKINUM(1));
+	 SCM map_number_scm = scm_list_ref(number_and_scale, scm_from_int(0));
+	 SCM map_scale_scm  = scm_list_ref(number_and_scale, scm_from_int(1));
 	 if (scm_is_true(scm_integer_p(map_number_scm))) {
 	    if (scm_is_true(scm_number_p(map_scale_scm))) {
 	       int map_number = scm_to_int(map_number_scm);
@@ -1849,7 +1855,7 @@ int make_variance_map_scm(SCM map_molecule_number_list) {
    SCM n_scm = scm_length(map_molecule_number_list);
    int n = scm_to_int(n_scm);
    for (int i=0; i<n; i++) {
-      SCM mol_number_scm = scm_list_ref(map_molecule_number_list, SCM_MAKINUM(i));
+      SCM mol_number_scm = scm_list_ref(map_molecule_number_list, scm_from_int(i));
       if (scm_is_true(scm_integer_p(mol_number_scm))) {
          int map_number = scm_to_int(mol_number_scm);
          if (is_valid_map_molecule(map_number))
@@ -1947,7 +1953,7 @@ SCM map_to_model_correlation_scm(int imol,
    std::vector<coot::residue_spec_t> residues    = scm_to_residue_specs(residue_specs);
    std::vector<coot::residue_spec_t> nb_residues = scm_to_residue_specs(neighb_residue_specs);
    float c = map_to_model_correlation(imol, residues, nb_residues, atom_mask_mode, imol_map);
-   SCM ret_val = scm_double2num(c);
+   SCM ret_val = scm_from_double(c);
    return ret_val;
 }
 #endif
@@ -1982,18 +1988,18 @@ SCM map_to_model_correlation_stats_scm(int imol,
    double D2 = coot::stats::get_kolmogorov_smirnov_vs_normal(dcs.density_values,
         map_mean_at_ligand, map_sd_at_ligand);
 
-   SCM ret_val = scm_list_n(scm_double2num(dcs.correlation()),
-       scm_double2num(dcs.var_x()),
-       scm_double2num(dcs.var_y()),
-       SCM_MAKINUM(dcs.n),
-       scm_double2num(dcs.sum_x),
-       scm_double2num(dcs.sum_y),
-       scm_double2num(D),
-       scm_double2num(D2),
-       scm_double2num(map_mean),
-       scm_double2num(map_mean_at_ligand),
-       scm_double2num(map_sd),
-       scm_double2num(map_sd_at_ligand),
+   SCM ret_val = scm_list_n(scm_from_double(dcs.correlation()),
+       scm_from_double(dcs.var_x()),
+       scm_from_double(dcs.var_y()),
+       scm_from_int(dcs.n),
+       scm_from_double(dcs.sum_x),
+       scm_from_double(dcs.sum_y),
+       scm_from_double(D),
+       scm_from_double(D2),
+       scm_from_double(map_mean),
+       scm_from_double(map_mean_at_ligand),
+       scm_from_double(map_sd),
+       scm_from_double(map_sd_at_ligand),
        SCM_UNDEFINED);
 
    return ret_val;
@@ -2089,7 +2095,7 @@ map_to_model_correlation_per_residue_scm(int imol, SCM specs_scm, unsigned short
       v = map_to_model_correlation_per_residue(imol, specs, atom_mask_mode, imol_map);
    for (unsigned int i=0; i<v.size(); i++) {
       SCM p1 = residue_spec_to_scm(v[i].first);
-      SCM p2 = scm_double2num(v[i].second);
+      SCM p2 = scm_from_double(v[i].second);
       SCM item = scm_list_2(p1, p2);
       r = scm_cons(item, r);
    }
@@ -2125,8 +2131,8 @@ map_to_model_correlation_stats_per_residue_scm(int imol,
             std::pair<double, double> mv = dcs.mean_and_variance();
             mean = mv.first;
             var = mv.second;
-            SCM mean_scm = scm_double2num(mean);
-            SCM variance_scm = scm_double2num(var);
+            SCM mean_scm = scm_from_double(mean);
+            SCM variance_scm = scm_from_double(var);
             SCM dcs_scm = scm_list_2(mean_scm, variance_scm);
 
             SCM item_scm = scm_list_2(residue_spec_scm, dcs_scm);
@@ -2358,7 +2364,7 @@ void multi_sharpen_blur_map_scm(int imol_map, SCM b_factors_list_scm) {
       SCM l_scm = scm_length(b_factors_list_scm);
       int l = scm_to_int(l_scm);
       for (int i=0; i<l; i++) {
-         float f = scm_to_double(scm_list_ref(b_factors_list_scm, SCM_MAKINUM(i)));
+         float f = scm_to_double(scm_list_ref(b_factors_list_scm, scm_from_int(i)));
          b_factors.push_back(f);
       }
 
@@ -2448,9 +2454,9 @@ SCM amplitude_vs_resolution_scm(int imol_map) {
       std::vector<coot::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
       std::cout << "amplitude_vs_resolution_scm() with data.size() " << data.size() << std::endl;
       for (std::size_t i=0; i<data.size(); i++) {
-         SCM n = scm_list_3(scm_double2num(data[i].get_average_fsqrd()),
-                            SCM_MAKINUM(data[i].count),
-                            scm_double2num(data[i].get_invresolsq()));
+         SCM n = scm_list_3(scm_from_double(data[i].get_average_fsqrd()),
+                            scm_from_int(data[i].count),
+                            scm_from_double(data[i].get_invresolsq()));
          r = scm_cons(n, r);
       }
 

@@ -82,13 +82,13 @@ SCM score_rotamers_scm(int imol,
 		     imol_map, clash_flag, lowest_probability);
    for (unsigned int i=0; i<v.size(); i++) {
       SCM name_scm  = scm_from_locale_string(v[i].name.c_str());
-      SCM prob_scm  = scm_double2num(v[i].rotamer_probability_score);
-      SCM fit_scm   = scm_double2num(v[i].density_fit_score);
-      SCM clash_scm = scm_double2num(v[i].clash_score);
+      SCM prob_scm  = scm_from_double(v[i].rotamer_probability_score);
+      SCM fit_scm   = scm_from_double(v[i].density_fit_score);
+      SCM clash_scm = scm_from_double(v[i].clash_score);
       SCM atom_list_scm = SCM_EOL;
       for (unsigned int iat=0; iat<v[i].density_score_for_atoms.size(); iat++) {
 	 SCM p1 = scm_from_locale_string(v[i].density_score_for_atoms[iat].first.c_str());
-	 SCM p2 = scm_double2num(v[i].density_score_for_atoms[iat].second);
+	 SCM p2 = scm_from_double(v[i].density_score_for_atoms[iat].second);
 	 SCM atom_item = scm_list_2(p1,p2);
 	 atom_list_scm = scm_cons(atom_item, atom_list_scm);
       }
@@ -182,7 +182,7 @@ void register_interesting_positions_list_scm(SCM pos_list) {
    if (scm_is_true(scm_list_p(pos_list))) {
       unsigned int pos_length = scm_to_int(scm_length(pos_list));
       for (unsigned int i=0; i<pos_length; i++) { 
-	 SCM item = scm_list_ref(pos_list, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(pos_list, scm_from_int(i));
 	 if (scm_is_true(scm_list_p(item))) {
 	    // pos, label pair
 	    unsigned int item_length = scm_to_int(scm_length(item));
@@ -193,9 +193,9 @@ void register_interesting_positions_list_scm(SCM pos_list) {
 	       if (scm_is_true(scm_list_p(item_item_0))) {
 		  unsigned int l_p = scm_to_int(scm_length(item_item_0));
 		  if (l_p == 3) {
-		     SCM x = scm_list_ref(item_item_0, SCM_MAKINUM(0));
-		     SCM y = scm_list_ref(item_item_0, SCM_MAKINUM(1));
-		     SCM z = scm_list_ref(item_item_0, SCM_MAKINUM(2));
+		     SCM x = scm_list_ref(item_item_0, scm_from_int(0));
+		     SCM y = scm_list_ref(item_item_0, scm_from_int(1));
+		     SCM z = scm_list_ref(item_item_0, scm_from_int(2));
 		     if (scm_number_p(x)) { 
 			if (scm_number_p(y)) { 
 			   if (scm_number_p(z)) {
@@ -355,13 +355,13 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 		   << id.res_type << std::endl;
       if (! id.res_type.empty()) {
 	 SCM parent_spec_scm = residue_spec_to_scm(id.parent_res_spec);
-	 SCM prime_flag_sym = scm_str2symbol("unset");
+	 SCM prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("unset"));
 	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
-	    prime_flag_sym = scm_str2symbol("prime");
+	    prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("prime"));
 	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
-	    prime_flag_sym = scm_str2symbol("non-prime");
+	    prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("non-prime"));
 
-	 r = SCM_LIST6(SCM_MAKINUM(id.level),
+	 r = SCM_LIST6(scm_from_int(id.level),
 		       prime_flag_sym,
 		       scm_from_locale_string(id.res_type.c_str()),
 		       scm_from_locale_string(id.link_type.c_str()),

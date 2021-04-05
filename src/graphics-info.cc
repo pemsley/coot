@@ -1573,7 +1573,7 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
       ss += ")";
       SCM res = safe_scheme_command(ss);
       SCM dest = SCM_BOOL_F;
-      SCM mess =  scm_makfrom0str("result: ~s\n");
+      SCM mess =  scm_from_locale_string("result: ~s\n");
       SCM p = scm_simple_format(dest, mess, scm_list_1(res));
       std::cout << scm_to_locale_string(p);
    }
@@ -1646,7 +1646,7 @@ graphics_info_t::run_post_set_rotation_centre_hook_scm() {
       SCM res = safe_scheme_command(ss);
       if (false) {  // too noisy
     SCM dest = SCM_BOOL_F;
-    SCM mess = scm_makfrom0str("result: ~s\n");
+    SCM mess = scm_from_locale_string("result: ~s\n");
     SCM p = scm_simple_format(dest, mess, scm_list_1(res));
     std::cout << scm_to_locale_string(p);
       }
@@ -5794,7 +5794,7 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
 
    SCM dest = SCM_BOOL_F;
-   SCM mess = scm_makfrom0str("scm_catch returns: ~s\n");
+   SCM mess = scm_from_locale_string("scm_catch returns: ~s\n");
    SCM sf = scm_simple_format(dest, mess, scm_list_1(v));
    std::string bad_str = scm_to_locale_string(sf);
 
@@ -5810,7 +5810,7 @@ void graphics_info_t::run_user_defined_click_func() {
       SCM arg_list = SCM_EOL;
       for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
     SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
-    SCM spec_with_model_num = scm_cons(SCM_MAKINUM(user_defined_atom_pick_specs[i].model_number),
+    SCM spec_with_model_num = scm_cons(scm_from_int(user_defined_atom_pick_specs[i].model_number),
        spec_scm);
     arg_list = scm_cons(spec_with_model_num, arg_list);
       }
@@ -5818,7 +5818,7 @@ void graphics_info_t::run_user_defined_click_func() {
 
       // what are we running? Print it out.
       SCM dest = SCM_BOOL_F;
-      SCM mess = scm_makfrom0str("~s");
+      SCM mess = scm_from_locale_string("~s");
       SCM ds = scm_simple_format(dest, mess, scm_list_1(user_defined_click_scm_func));
       SCM da = scm_simple_format(dest, mess, scm_list_1(arg_list));
       std::cout << "INFO applying " << scm_to_locale_string(ds) << " on "
@@ -5887,12 +5887,12 @@ SCM
 graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
 
    SCM r = SCM_EOL;
-   r = scm_cons(scm_makfrom0str(spec.alt_conf.c_str()), r);
-   r = scm_cons(scm_makfrom0str(spec.atom_name.c_str()), r);
-   r = scm_cons(scm_makfrom0str(spec.ins_code.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(spec.res_no), r);
-   r = scm_cons(scm_makfrom0str(spec.chain_id.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(spec.int_user_data), r); // not the model number? Urgh (unexpected).
+   r = scm_cons(scm_from_locale_string(spec.alt_conf.c_str()), r);
+   r = scm_cons(scm_from_locale_string(spec.atom_name.c_str()), r);
+   r = scm_cons(scm_from_locale_string(spec.ins_code.c_str()), r);
+   r = scm_cons(scm_from_int(spec.res_no), r);
+   r = scm_cons(scm_from_locale_string(spec.chain_id.c_str()), r);
+   r = scm_cons(scm_from_int(spec.int_user_data), r); // not the model number? Urgh (unexpected).
                                                      // Where is this user_data used?
 
    return r;
@@ -5954,7 +5954,7 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
 
       // try internal evaluation:
       if (1) {
-    SCM ss_scm = scm_makfrom0str(ss.c_str());
+    SCM ss_scm = scm_from_locale_string(ss.c_str());
 
     std::cout << "DEBUG: evaluting :" << ss << ":" << std::endl;
     // SCM r = safe_scheme_command(ss);

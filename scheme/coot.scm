@@ -45,7 +45,7 @@
 	  (format #t "Error finding ~s~%" file)))))
 
 ;; set the prompt to be coot, not guile.
-(set-repl-prompt! "coot> ")
+;; (set-repl-prompt! "coot> ")
 
 ;; Note the position of coot-gui is important.  It seem that if there
 ;; are too many files in front of it (even blank ones!) coot barfs

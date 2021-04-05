@@ -927,7 +927,7 @@ void user_defined_click_scm(int n_clicks, SCM func) {
     g.user_defined_atom_pick_specs.clear();
     g.in_user_defined_define = n_clicks;
     SCM dest = SCM_BOOL_F;
-    SCM mess = scm_makfrom0str("~s");
+    SCM mess = scm_from_locale_string("~s");
     SCM v = scm_simple_format(dest, mess, scm_list_1(func));
     std::string func_string = scm_to_locale_string(v);
     g.user_defined_click_scm_func = func;
@@ -972,7 +972,7 @@ SCM save_state_file_name_scm() {
 //    return f;
 
    std::string f = graphics_info_t::save_state_file_name;
-   return scm_makfrom0str(f.c_str());
+   return scm_from_locale_string(f.c_str());
 }
 #endif // USE_GUILE
 
@@ -1280,7 +1280,7 @@ void set_movie_frame_number(int frame_number) {
 
 #ifdef USE_GUILE
 SCM movie_file_name_prefix() {
-   SCM r = scm_makfrom0str(graphics_info_t::movie_file_prefix.c_str());
+   SCM r = scm_from_locale_string(graphics_info_t::movie_file_prefix.c_str());
    return r;
 }
 #endif

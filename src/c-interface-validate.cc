@@ -726,15 +726,15 @@ SCM rotamer_graphs(int imol) {
       r = SCM_EOL;
       for (int ir=int(results.info.size()-1); ir>=0; ir--) {
 	 SCM ele = SCM_EOL;
-	 SCM name = scm_makfrom0str(results.info[ir].rotamer_name.c_str());
+	 SCM name = scm_from_locale_string(results.info[ir].rotamer_name.c_str());
 	 ele = scm_cons(name, ele);
-	 SCM pr = scm_double2num(results.info[ir].probability);
+	 SCM pr = scm_from_double(results.info[ir].probability);
 	 ele = scm_cons(pr, ele);
-	 SCM inscode = scm_makfrom0str(results.info[ir].inscode.c_str());
+	 SCM inscode = scm_from_locale_string(results.info[ir].inscode.c_str());
 	 ele = scm_cons(inscode, ele);
-	 SCM resno = scm_int2num(results.info[ir].resno);
+	 SCM resno = scm_from_int(results.info[ir].resno);
 	 ele = scm_cons(resno, ele);
-	 SCM chainid = scm_makfrom0str(results.info[ir].chain_id.c_str());
+	 SCM chainid = scm_from_locale_string(results.info[ir].chain_id.c_str());
 	 ele = scm_cons(chainid, ele);
 
 	 r = scm_cons(ele, r);
@@ -1412,9 +1412,9 @@ SCM map_peaks_scm(int imol_map, float n_sigma) {
 	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
       for (unsigned int i=0; i<peaks.size(); i++) {
 	 SCM pt = SCM_EOL;
-	 SCM x_scm = scm_double2num(peaks[i].first.x());
-	 SCM y_scm = scm_double2num(peaks[i].first.y());
-	 SCM z_scm = scm_double2num(peaks[i].first.z());
+	 SCM x_scm = scm_from_double(peaks[i].first.x());
+	 SCM y_scm = scm_from_double(peaks[i].first.y());
+	 SCM z_scm = scm_from_double(peaks[i].first.z());
 	 pt = scm_cons(x_scm, pt);
 	 pt = scm_cons(y_scm, pt);
 	 pt = scm_cons(z_scm, pt);
@@ -1467,10 +1467,10 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
 
       for (unsigned int i=0; i<close_peaks.size(); i++) {
 	 SCM pt = SCM_EOL;
-	 SCM d     = scm_double2num(close_peaks[i].second);
-	 SCM x_scm = scm_double2num(close_peaks[i].first.x());
-	 SCM y_scm = scm_double2num(close_peaks[i].first.y());
-	 SCM z_scm = scm_double2num(close_peaks[i].first.z());
+	 SCM d     = scm_from_double(close_peaks[i].second);
+	 SCM x_scm = scm_from_double(close_peaks[i].first.x());
+	 SCM y_scm = scm_from_double(close_peaks[i].first.y());
+	 SCM z_scm = scm_from_double(close_peaks[i].first.z());
 	 pt = scm_cons(d, pt);
 	 pt = scm_cons(x_scm, pt);
 	 pt = scm_cons(y_scm, pt);
@@ -2001,7 +2001,7 @@ SCM alignment_mismatches_scm(int imol) {
 	 SCM mutations_scm = SCM_EOL;
 	 for (unsigned int i=0; i<mutations.size(); i++) {
 	    SCM rs_scm = residue_spec_to_scm(mutations[i].first);
-	    SCM str = scm_makfrom0str(mutations[i].second.c_str());
+	    SCM str = scm_from_locale_string(mutations[i].second.c_str());
 	    SCM c = SCM_EOL;
 	    c = scm_cons(str, c);
 	    c = scm_cons(str, rs_scm);
@@ -2009,7 +2009,7 @@ SCM alignment_mismatches_scm(int imol) {
 	 }
 	 for (unsigned int i=0; i<insertions.size(); i++) {
 	    SCM rs_scm = residue_spec_to_scm(insertions[i].first);
-	    SCM str = scm_makfrom0str(insertions[i].second.c_str());
+	    SCM str = scm_from_locale_string(insertions[i].second.c_str());
 	    SCM c = SCM_EOL;
 	    c = scm_cons(str, c);
 	    c = scm_cons(str, rs_scm);
@@ -2017,7 +2017,7 @@ SCM alignment_mismatches_scm(int imol) {
 	 }
 	 for (unsigned int i=0; i<deletions.size(); i++) {
 	    SCM rs_scm = residue_spec_to_scm(deletions[i].first);
-	    SCM str = scm_makfrom0str(deletions[i].second.c_str());
+	    SCM str = scm_from_locale_string(deletions[i].second.c_str());
 	    SCM c = SCM_EOL;
 	    c = scm_cons(str, c);
 	    c = scm_cons(str, rs_scm);
@@ -2040,7 +2040,7 @@ SCM alignment_mismatches_scm(int imol) {
 	    std::cout << ":::::::::::::: Here with alignment_string: " << mic.alignment_string
 		      << std::endl;
 
-	    SCM alignment_as_text_scm = scm_makfrom0str(mic.alignment_string.c_str());
+	    SCM alignment_as_text_scm = scm_from_locale_string(mic.alignment_string.c_str());
 
 	    list_of_alignments_as_text = scm_cons(alignment_as_text_scm, list_of_alignments_as_text);
 	 }
@@ -2350,7 +2350,7 @@ SCM get_torsion_scm(int imol, SCM atom_spec_1, SCM atom_spec_2, SCM atom_spec_3,
 							     // the coordinates).
       if (suc) {
 	 double tors = g.get_geometry_torsion();
-	 r = scm_double2num(tors);
+	 r = scm_from_double(tors);
       } else {
 	 std::cout << "   WARNING:: (some) atoms not found in molecule #"
 		   << imol << " "
@@ -2417,7 +2417,7 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 						      atom_name_3,
 						      atom_name_4, tors,
 						      *g.Geom_p());
-      r = scm_double2num(new_tors);
+      r = scm_from_double(new_tors);
    }
    return r;
 }
@@ -2482,8 +2482,8 @@ SCM all_molecule_rotamer_score(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       coot::rotamer_score_t rs = g.all_molecule_rotamer_score(imol);
-      SCM a_scm = scm_double2num(rs.score);
-      SCM b_scm = SCM_MAKINUM(rs.n_rotamer_residues());
+      SCM a_scm = scm_from_double(rs.score);
+      SCM b_scm = scm_from_int(rs.n_rotamer_residues());
       r = SCM_LIST2(a_scm, b_scm);
    }
    return r;
@@ -2516,17 +2516,17 @@ SCM all_molecule_ramachandran_score(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
-      SCM a_scm = scm_double2num(rs.score);
-      SCM b_scm = SCM_MAKINUM(rs.n_residues());
-      SCM c_scm = scm_double2num(rs.score_non_sec_str);
-      SCM d_scm = SCM_MAKINUM(rs.n_residues_non_sec_str());
-      SCM e_scm = SCM_MAKINUM(rs.n_zeros);
+      SCM a_scm = scm_from_double(rs.score);
+      SCM b_scm = scm_from_int(rs.n_residues());
+      SCM c_scm = scm_from_double(rs.score_non_sec_str);
+      SCM d_scm = scm_from_int(rs.n_residues_non_sec_str());
+      SCM e_scm = scm_from_int(rs.n_zeros);
       SCM by_residue_scm = SCM_EOL;
       for (std::size_t ii=0; ii<rs.scores.size(); ii++) {
 	 SCM residue_spec_scm = residue_spec_to_scm(rs.scores[ii].res_spec);
-	 SCM d_scm = scm_double2num(rs.scores[ii].score);
-	 SCM phi_scm = scm_double2num(rs.scores[ii].phi_psi.phi());
-	 SCM psi_scm = scm_double2num(rs.scores[ii].phi_psi.psi());
+	 SCM d_scm = scm_from_double(rs.scores[ii].score);
+	 SCM phi_scm = scm_from_double(rs.scores[ii].phi_psi.phi());
+	 SCM psi_scm = scm_from_double(rs.scores[ii].phi_psi.psi());
 	 SCM phi_psi_scm = SCM_LIST2(phi_scm, psi_scm);
 	 if (false)
 	    std::cout << "here with residue pointers "
@@ -2537,9 +2537,9 @@ SCM all_molecule_ramachandran_score(int imol) {
 	 if (rs.scores[ii].residue_prev &&
 	     rs.scores[ii].residue_this &&
 	     rs.scores[ii].residue_next) {
-	    SCM res_names_scm = SCM_LIST3(scm_makfrom0str(rs.scores[ii].residue_prev->GetResName()),
-					  scm_makfrom0str(rs.scores[ii].residue_this->GetResName()),
-					  scm_makfrom0str(rs.scores[ii].residue_next->GetResName()));
+	    SCM res_names_scm = SCM_LIST3(scm_from_locale_string(rs.scores[ii].residue_prev->GetResName()),
+					  scm_from_locale_string(rs.scores[ii].residue_this->GetResName()),
+					  scm_from_locale_string(rs.scores[ii].residue_next->GetResName()));
 	    SCM residue_results_scm = SCM_LIST4(phi_psi_scm, residue_spec_scm, d_scm, res_names_scm);
 	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
 	 } else {
@@ -2971,7 +2971,7 @@ SCM add_cablam_markup_scm(int imol, const std::string &cablam_log_file_name) {
    SCM r = SCM_EOL;
    std::vector<std::pair<coot::residue_spec_t, double> >::const_iterator it;
    for (it=v.begin(); it!=v.end(); it++) {
-      SCM item_scm = SCM_LIST2(residue_spec_to_scm(it->first), scm_double2num(it->second));
+      SCM item_scm = SCM_LIST2(residue_spec_to_scm(it->first), scm_from_double(it->second));
       r = scm_cons(item_scm, r);
    }
    r = scm_reverse(r);

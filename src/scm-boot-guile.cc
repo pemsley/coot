@@ -58,107 +58,22 @@
 
 void inner_main(void *closure, int argc, char **argv) {
 
-  short int use_graphics_flag = use_graphics_interface_state();
+   short int use_graphics_flag = use_graphics_interface_state();
 
-  SWIG_init();   
-  
-#ifdef USE_GUILE_GTK
-  if (use_graphics_flag)
-    coot_init_glue();
-#endif	/* USE_GUILE_GTK */
+   SWIG_init();
 
-  /* debugging voodoo */
-  // SCM_DEVAL_P = 1;                 // not in guile 2.2
-  // SCM_BACKTRACE_P = 1;             // not in guile 2.2
-  // SCM_RECORD_POSITIONS_P = 1;      // not in guile 2.2
+   std::string handler_string = "(lambda (key . args) ";
+   handler_string += "(display (list \"Error in proc:\" key \" args: \" args)) (newline))";
+   SCM handler = scm_c_eval_string(handler_string.c_str());
 
-  // this is not the right place.  We need to be in
-  std::string d1 = coot::util::append_dir_dir(PKGDATADIR, "scheme");
-  std::string d2;
-  std::string scheme_dir = d1;
-  char *e = getenv(COOT_SCHEME_DIR);
-  if (e) {
-     d2 = e;
-     scheme_dir = d2;
-  }
+   std::string thunk_str = "(use-modules (test-embedding))\n";
+   // thunk_str = "(lambda() (display (list 444444444444444444 (enhanced-ligand-coot-p))) (newline))\n";
+   SCM thunk = scm_c_eval_string(thunk_str.c_str());
 
-  struct stat buf;
-  int istat = stat(d2.c_str(), &buf);
-  if (istat) {
-     // fail
-     scheme_dir = d1;
-  }
-
-  if (coot::is_directory_p(scheme_dir)) {
-
-     // We should put our scheme files in $prefix/share/guile/{coot} and put a loader in
-     // $prefix/share/guile/coot.scm
-
-     std::string full_extra_load_path_cmd =  "(set! %load-path (cons \"";
-     full_extra_load_path_cmd += scheme_dir;
-     full_extra_load_path_cmd +=  "\" %load-path))";
-     scm_c_eval_string(full_extra_load_path_cmd.c_str());
-
-     std::string ee = "(lambda (key . args) ";
-     ee += "(display (list \"Error in proc:\" key \" args: \" args)) (newline))";
-     SCM handler = scm_c_eval_string(ee.c_str());
-     std::string thunk_str = "(lambda ()";
-     thunk_str += "(let ((f (%search-load-path \"coot.scm\")))";
-     thunk_str += "   (if (eq? f #f)";
-     thunk_str += "       (begin";
-     thunk_str += "         (display ";
-     thunk_str += "            (list \"Error finding coot.scm in %load-path\" %load-path))";
-     thunk_str +="             (newline))";
-     thunk_str += "      (load f)))) ; if we found it in the path";
-
-
-     SCM thunk = scm_c_eval_string(thunk_str.c_str());
-
-     /*  We need to get the value out of this, did the thunk fail or not?
-    We want to be able to pass the value back to
-    graphics_info_t::guile_gui_loaded_flag used in
-    do_scripting_window_activate().  We now do that by setting a flag
-    in graphics_info_t by calling the scheme function
-    (set-found-coot-gui).
- */
-     scm_catch(SCM_BOOL_T, thunk, handler);
-
-     std::string flag = "#f";
-#ifdef USE_GUILE_GTK
-     flag = "#t";
-#endif
-
-     if (! use_graphics_flag)
-        flag = "#f";
-
-     std::string l = "(lambda () (load-all-scheme " + flag + "))";
-     thunk = scm_c_eval_string(l.c_str());
-     scm_catch(SCM_BOOL_T, thunk, handler);
-  }
-
-  if (run_startup_scripts_state()) {
-     try_load_scheme_extras_dir();
-     try_load_dot_coot_and_preferences();
-  }
-
-  /* now handle the command line data */
-   handle_command_line_data_argc_argv(argc, argv);
-
-   run_command_line_scripts(); // i.e. -c '(do-something)'
-   run_state_file_maybe();
-   pre_load_rotamer_tables();
-
-   if (use_graphics_interface_state()) {
-     gtk_main();
-  } else {
-     short int python_at_prompt_flag = python_at_prompt_at_startup_state();
-     if (python_at_prompt_flag)
-        start_command_line_python_maybe(true, argc, argv);
-     else
-        scm_shell(0, argv);		/* can't pass command line args such
-                                           as --pdb --no-graphics etc. (guile
-                                           doesn't understand them). */
-  }
+   scm_catch(SCM_BOOL_T, thunk, handler);
+   
+   if (use_graphics_flag)
+      gtk_main();
 
 }
 
@@ -171,10 +86,12 @@ void my_wrap_scm_boot_guile(int argc, char** argv) {
 /*                                                int argc, */
 /*                                                char **argv), */
 /*                             void *closure); */
-  
-  scm_boot_guile(argc, argv, inner_main, NULL);
 
-  printf("you should not see this, c_inner_main should have called exit(0)\n"); 
+   std::cout << "============================================================ my_wrap_scm_boot_guile() " << std::endl;
+  
+   scm_boot_guile(argc, argv, inner_main, NULL);
+
+   printf("you should not see this, c_inner_main should have called exit(0)\n"); 
 
 }
 

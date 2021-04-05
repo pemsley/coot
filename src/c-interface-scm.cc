@@ -48,7 +48,7 @@
 SCM display_scm(SCM o) {
 
    SCM dest = SCM_BOOL_F;
-   SCM mess = scm_makfrom0str("object: ~s");
+   SCM mess = scm_from_locale_string("object: ~s");
    return scm_simple_format(dest, mess, scm_list_1(o));
 }
 
@@ -69,11 +69,11 @@ make_atom_spec(SCM spec) {
    int spec_length = scm_to_int(spec_length_scm);
 
    if (spec_length == 5) {
-      SCM  chain_id_scm = scm_list_ref(spec, SCM_MAKINUM(0));
-      SCM     resno_scm = scm_list_ref(spec, SCM_MAKINUM(1));
-      SCM  ins_code_scm = scm_list_ref(spec, SCM_MAKINUM(2));
-      SCM atom_name_scm = scm_list_ref(spec, SCM_MAKINUM(3));
-      SCM  alt_conf_scm = scm_list_ref(spec, SCM_MAKINUM(4));
+      SCM  chain_id_scm = scm_list_ref(spec, scm_from_int(0));
+      SCM     resno_scm = scm_list_ref(spec, scm_from_int(1));
+      SCM  ins_code_scm = scm_list_ref(spec, scm_from_int(2));
+      SCM atom_name_scm = scm_list_ref(spec, scm_from_int(3));
+      SCM  alt_conf_scm = scm_list_ref(spec, scm_from_int(4));
       std::string chain_id = scm_to_locale_string(chain_id_scm);
       int resno = scm_to_int(resno_scm);
       std::string ins_code  = scm_to_locale_string(ins_code_scm);
@@ -98,9 +98,9 @@ make_residue_spec(SCM spec) {
    int offset = 0;
    if (spec_length == 4) offset = 1;
    if (spec_length >= 3) {
-      SCM chain_id_scm = scm_list_ref(spec, SCM_MAKINUM(0+offset));
-      SCM resno_scm    = scm_list_ref(spec, SCM_MAKINUM(1+offset));
-      SCM ins_code_scm = scm_list_ref(spec, SCM_MAKINUM(2+offset));
+      SCM chain_id_scm = scm_list_ref(spec, scm_from_int(0+offset));
+      SCM resno_scm    = scm_list_ref(spec, scm_from_int(1+offset));
+      SCM ins_code_scm = scm_list_ref(spec, scm_from_int(2+offset));
       std::string chain_id = scm_to_locale_string(chain_id_scm);
       int resno = scm_to_int(resno_scm);
       std::string ins_code  = scm_to_locale_string(ins_code_scm);
@@ -134,7 +134,7 @@ scm_symop_strings_to_space_group(SCM symop_string_list) {
       int n = scm_to_int(n_scm);
       std::string sgo;
       for (int i=0; i<n; i++) {
-	 SCM s = scm_list_ref(symop_string_list, SCM_MAKINUM(i));
+	 SCM s = scm_list_ref(symop_string_list, scm_from_int(i));
 	 std::string se = scm_to_locale_string(s);
 	 sgo += se;
 	 sgo += " ; ";

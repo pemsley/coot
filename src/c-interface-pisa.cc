@@ -136,7 +136,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
    int imol_2 = -1;
    
    for (unsigned int i=0; i<interfaces_description_length; i++) {
-      SCM interface_scm = scm_list_ref(interfaces_description_scm, SCM_MAKINUM(i));
+      SCM interface_scm = scm_list_ref(interfaces_description_scm, scm_from_int(i));
       SCM interface_length_scm = scm_length(interface_scm);
       int interface_length = scm_to_int(interface_length_scm);
       // interfaces contain a molecule pair pair.  a molecule pair is
@@ -144,10 +144,10 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
       // and the second is the molecule record.
       if (interface_length == 6) {
 
-	 SCM interface_area_scm    = scm_list_ref(interface_scm, SCM_MAKINUM(2));
-	 SCM interface_solv_en_scm = scm_list_ref(interface_scm, SCM_MAKINUM(3));
-	 SCM interface_pvalue_scm  = scm_list_ref(interface_scm, SCM_MAKINUM(4));
-	 SCM interface_stab_en_scm = scm_list_ref(interface_scm, SCM_MAKINUM(5));
+	 SCM interface_area_scm    = scm_list_ref(interface_scm, scm_from_int(2));
+	 SCM interface_solv_en_scm = scm_list_ref(interface_scm, scm_from_int(3));
+	 SCM interface_pvalue_scm  = scm_list_ref(interface_scm, scm_from_int(4));
+	 SCM interface_stab_en_scm = scm_list_ref(interface_scm, scm_from_int(5));
 
 	 double interface_area    = -9999.9;
 	 double interface_solv_en = -9999.9;
@@ -179,27 +179,27 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 		      << std::endl;
 
 	 
-	 SCM molecule_pair_pair = scm_list_ref(interface_scm, SCM_MAKINUM(0));
+	 SCM molecule_pair_pair = scm_list_ref(interface_scm, scm_from_int(0));
 	 SCM molecule_pair_pair_length_scm = scm_length(molecule_pair_pair);
 	 int molecule_pair_pair_length = scm_to_int(molecule_pair_pair_length_scm);
 
 	 if (molecule_pair_pair_length == 2) {
 	    // 2 molecules in an interface (good) :-)
 
-	    SCM molecule_pair_1 =  scm_list_ref(molecule_pair_pair, SCM_MAKINUM(0));
-	    SCM molecule_pair_2 =  scm_list_ref(molecule_pair_pair, SCM_MAKINUM(1));
+	    SCM molecule_pair_1 =  scm_list_ref(molecule_pair_pair, scm_from_int(0));
+	    SCM molecule_pair_2 =  scm_list_ref(molecule_pair_pair, scm_from_int(1));
 
-	    SCM molecule_number_and_symop_1_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(0));
-	    SCM molecule_number_and_symop_2_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(0));
+	    SCM molecule_number_and_symop_1_scm = scm_list_ref(molecule_pair_1, scm_from_int(0));
+	    SCM molecule_number_and_symop_2_scm = scm_list_ref(molecule_pair_2, scm_from_int(0));
 
-	    SCM molecule_number_1_scm = scm_list_ref(molecule_number_and_symop_1_scm, SCM_MAKINUM(0));
-	    SCM molecule_number_2_scm = scm_list_ref(molecule_number_and_symop_2_scm, SCM_MAKINUM(0));
+	    SCM molecule_number_1_scm = scm_list_ref(molecule_number_and_symop_1_scm, scm_from_int(0));
+	    SCM molecule_number_2_scm = scm_list_ref(molecule_number_and_symop_2_scm, scm_from_int(0));
 
-	    SCM molecule_1_symop_scm = scm_list_ref(molecule_number_and_symop_1_scm, SCM_MAKINUM(1));
-	    SCM molecule_2_symop_scm = scm_list_ref(molecule_number_and_symop_2_scm, SCM_MAKINUM(1));
+	    SCM molecule_1_symop_scm = scm_list_ref(molecule_number_and_symop_1_scm, scm_from_int(1));
+	    SCM molecule_2_symop_scm = scm_list_ref(molecule_number_and_symop_2_scm, scm_from_int(1));
 
-	    SCM molecule_1_record_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(1));
-	    SCM molecule_2_record_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(1));
+	    SCM molecule_1_record_scm = scm_list_ref(molecule_pair_1, scm_from_int(1));
+	    SCM molecule_2_record_scm = scm_list_ref(molecule_pair_2, scm_from_int(1));
 	    
 	    SCM mol_1_residue_records = pisa_molecule_record_residues(molecule_1_record_scm);
 	    SCM mol_2_residue_records = pisa_molecule_record_residues(molecule_2_record_scm);
@@ -210,12 +210,12 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	    imol_1 = scm_to_int(molecule_number_1_scm);
 	    imol_2 = scm_to_int(molecule_number_2_scm);
 
-	    SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+	    SCM bonds_info_scm = scm_list_ref(interface_scm, scm_from_int(1));
 	    if (scm_is_true(scm_list_p(bonds_info_scm))) {
 	       SCM bonds_info_length_scm = scm_length(bonds_info_scm);
 	       int bonds_info_length = scm_to_int(bonds_info_length_scm);
 	       for (int ibond=0; ibond<bonds_info_length; ibond++) {
-		  SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ibond));
+		  SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, scm_from_int(ibond));
 		  add_pisa_interface_bond_scm(imol_1, imol_2, pisa_bond_scm, i);
 	       }
 	    }
@@ -244,7 +244,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 						  mol_2_residue_specs);
 
 	       
-	       SCM bonds_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+	       SCM bonds_scm = scm_list_ref(interface_scm, scm_from_int(1));
 
 	       coot::pisa_interface_bond_info_t pibi =
 		  coot::get_pisa_interface_bond_info_scm(bonds_scm);
@@ -280,7 +280,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
    if (pisa_treeview_info.size() > 0)
       coot::pisa_interfaces_gui(pisa_treeview_info);
       
-   return SCM_MAKINUM(-1);
+   return scm_from_int(-1);
 }
 #endif /* USE_GUILE */
 
@@ -492,11 +492,11 @@ coot::get_pisa_interface_bond_info_scm(SCM bonds_info_scm) {
    SCM bonds_info_length_scm = scm_length(bonds_info_scm);
    int bonds_info_length = scm_to_int(bonds_info_length_scm);
    for (int ib=0; ib<bonds_info_length; ib++) {
-      SCM bond_info_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ib));
+      SCM bond_info_scm = scm_list_ref(bonds_info_scm, scm_from_int(ib));
       SCM bond_info_scm_length_scm = scm_length(bond_info_scm);
       int bond_info_scm_length = scm_to_int(bond_info_scm_length_scm);
       if (bond_info_scm_length == 3) {
-	 SCM bond_type_scm = scm_list_ref(bond_info_scm, SCM_MAKINUM(0));
+	 SCM bond_type_scm = scm_list_ref(bond_info_scm, scm_from_int(0));
 	 std::string bond_str = scm_to_locale_string(scm_symbol_to_string(bond_type_scm));
 	 // 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds
 	 if (bond_str == "h-bonds") { 
@@ -564,13 +564,13 @@ residue_records_list_scm_to_residue_specs(SCM mol_1_residues, const std::string 
       SCM record_type_descriptor_func = scm_variable_ref(scm_c_lookup("record-type-descriptor"));
       SCM record_accessor_func = scm_variable_ref(scm_c_lookup("record-accessor"));
       // 
-      SCM symbol_seq_num_scm = scm_str2symbol("seq-num");
+      SCM symbol_seq_num_scm = scm_string_to_symbol(scm_from_locale_string("seq-num"));
       // 
-      SCM symbol_ins_code_scm = scm_str2symbol("ins-code");
+      SCM symbol_ins_code_scm = scm_string_to_symbol(scm_from_locale_string("ins-code"));
       // 
       
       for (int ires=0; ires<residues_length; ires++) {
-	 SCM residue_record_scm = scm_list_ref(mol_1_residues, SCM_MAKINUM(ires));
+	 SCM residue_record_scm = scm_list_ref(mol_1_residues, scm_from_int(ires));
 	 SCM rec_type_scm = scm_call_1(record_type_descriptor_func, residue_record_scm);
 	 SCM get_seq_num_func = scm_call_2(record_accessor_func, rec_type_scm, symbol_seq_num_scm);
 	 SCM get_ins_code_func = scm_call_2(record_accessor_func, rec_type_scm, symbol_ins_code_scm);
@@ -638,7 +638,7 @@ SCM symbol_value_from_record(SCM record_1, const std::string &symbol) {
    SCM rec_type_scm = scm_call_1(record_type_descriptor_func, record_1);
 
    SCM record_accessor_func = scm_variable_ref(scm_c_lookup("record-accessor"));
-   SCM symbol_residues_scm = scm_str2symbol(symbol.c_str());
+   SCM symbol_residues_scm = scm_string_to_symbol(scm_from_locale_string(symbol.c_str()));
    SCM get_residues_func = scm_call_2(record_accessor_func, rec_type_scm, symbol_residues_scm);
 
    SCM record_residues_scm = scm_call_1(get_residues_func, record_1);
@@ -727,28 +727,28 @@ void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm,
       SCM pisa_bond_length_scm = scm_length(pisa_bond_scm);
       int pisa_bond_length = scm_to_int(pisa_bond_length_scm);
       if (pisa_bond_length == 3) {
-	 SCM bond_type_scm = scm_list_ref(pisa_bond_scm, SCM_MAKINUM(0));
-	 SCM atom_spec_1 = scm_list_ref(pisa_bond_scm, SCM_MAKINUM(1));
-	 SCM atom_spec_2 = scm_list_ref(pisa_bond_scm, SCM_MAKINUM(2));
+	 SCM bond_type_scm = scm_list_ref(pisa_bond_scm, scm_from_int(0));
+	 SCM atom_spec_1 = scm_list_ref(pisa_bond_scm, scm_from_int(1));
+	 SCM atom_spec_2 = scm_list_ref(pisa_bond_scm, scm_from_int(2));
 	 int generic_object_number = -1;
 	 string bond_type = "";
 	 std::string colour = "grey";
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("h-bonds")))) { 
+	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("h-bonds"))))) { 
 	    bond_type = "h-bond";
 	    generic_object_number = h_bonds_generic_objects_number;
 	    colour = "orange";
 	 }
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("salt-bridges")))) {
+	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("salt-bridges"))))) {
 	    bond_type = "salt-bridge";
 	    generic_object_number = salt_bridges_generic_objects_number;
 	    colour = "green";
 	 }
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("cov-bonds")))) {
+	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("cov-bonds"))))) {
 	    bond_type = "cov-bond";
 	    generic_object_number = cov_bonds_generic_objects_number;
 	    colour = "red";
 	 }
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("ss-bonds")))) {
+         if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("ss-bonds"))))) {
 	    bond_type = "ss-bond";
 	    generic_object_number = ss_bonds_generic_objects_number;
 	    colour = "yellow";

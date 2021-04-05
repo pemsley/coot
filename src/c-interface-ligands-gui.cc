@@ -831,11 +831,11 @@ void gui_ligand_metrics_scm(SCM ligand_spec, SCM ligand_metrics, double percenti
       int lm_len     = scm_to_int(lm_len_scm);
 
       if (lm_len == 3) {  // currently 3
-	 double d = scm_to_double(scm_list_ref(ligand_metrics, SCM_MAKINUM(0)));
-	 double m = scm_to_double(scm_list_ref(ligand_metrics, SCM_MAKINUM(1)));
-	 int n_bumps = scm_to_int(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+	 double d = scm_to_double(scm_list_ref(ligand_metrics, scm_from_int(0)));
+	 double m = scm_to_double(scm_list_ref(ligand_metrics, scm_from_int(1)));
+	 int n_bumps = scm_to_int(scm_list_ref(ligand_metrics, scm_from_int(2)));
 	 // coot::probe_clash_score_t cs =
-	 //    probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+	 //    probe_clash_score_from_scm(scm_list_ref(ligand_metrics, scm_from_int(2)));
 	 coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
 	 coot::ligand_report_absolute_t lr(d, m, cs);
 
@@ -860,7 +860,7 @@ void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, doub
          double d = PyFloat_AsDouble(PyList_GetItem(ligand_metrics, 0));
          double m = PyFloat_AsDouble(PyList_GetItem(ligand_metrics, 1));
          int n_bumps = PyLong_AsLong(PyList_GetItem(ligand_metrics, 2));
-         // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+         // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, scm_from_int(2)));
          coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
          coot::ligand_report_absolute_t lr(d, m, cs);
 

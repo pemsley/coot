@@ -825,7 +825,7 @@ SCM CG_spin_search_scm(int imol_model, int imol_map) {
 	    const coot::residue_spec_t &spec = rv[i].first;
 	    double delta_angle = rv[i].second;
 	    SCM res_spec_scm = residue_spec_to_scm(spec);
-	    SCM item_scm = scm_list_2(res_spec_scm, scm_float2num(delta_angle));
+	    SCM item_scm = scm_list_2(res_spec_scm, scm_from_double(delta_angle));
 	    r = scm_cons(item_scm, r);
 	 }
 	 r = scm_reverse(r);
@@ -1135,7 +1135,7 @@ int set_atom_attributes(SCM attribute_expression_list) {
 
    if (list_length > 0) {
       for (int iattr=0; iattr<list_length; iattr++) {
-	 SCM iattr_scm = SCM_MAKINUM(iattr);
+	 SCM iattr_scm = scm_from_int(iattr);
 	 SCM attribute_expression = scm_list_ref(attribute_expression_list, iattr_scm);
 	 if (scm_is_true(scm_list_p(attribute_expression))) {
 	    SCM attr_expression_length_scm = scm_length(attribute_expression);
@@ -1145,14 +1145,14 @@ int set_atom_attributes(SCM attribute_expression_list) {
 			 << scm_to_locale_string(display_scm(attribute_expression))
 			 << std::endl;
 	    } else {
-	       SCM imol_scm            = scm_list_ref(attribute_expression, SCM_MAKINUM(0));
-	       SCM chain_id_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(1));
-	       SCM resno_scm           = scm_list_ref(attribute_expression, SCM_MAKINUM(2));
-	       SCM ins_code_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(3));
-	       SCM atom_name_scm       = scm_list_ref(attribute_expression, SCM_MAKINUM(4));
-	       SCM alt_conf_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(5));
-	       SCM attribute_name_scm  = scm_list_ref(attribute_expression, SCM_MAKINUM(6));
-	       SCM attribute_value_scm = scm_list_ref(attribute_expression, SCM_MAKINUM(7));
+	       SCM imol_scm            = scm_list_ref(attribute_expression, scm_from_int(0));
+	       SCM chain_id_scm        = scm_list_ref(attribute_expression, scm_from_int(1));
+	       SCM resno_scm           = scm_list_ref(attribute_expression, scm_from_int(2));
+	       SCM ins_code_scm        = scm_list_ref(attribute_expression, scm_from_int(3));
+	       SCM atom_name_scm       = scm_list_ref(attribute_expression, scm_from_int(4));
+	       SCM alt_conf_scm        = scm_list_ref(attribute_expression, scm_from_int(5));
+	       SCM attribute_name_scm  = scm_list_ref(attribute_expression, scm_from_int(6));
+	       SCM attribute_value_scm = scm_list_ref(attribute_expression, scm_from_int(7));
 	       int imol = scm_to_int(imol_scm);
 	       if (is_valid_model_molecule(imol)) {
 		  std::string chain_id = scm_to_locale_string(chain_id_scm);
@@ -1352,7 +1352,7 @@ SCM all_residues_with_serial_numbers_scm(int imol) {
       for (std::size_t i=0; i<specs.size(); i++) {
 	 SCM spec_scm = residue_spec_to_scm(specs[i]);
 	 int iserial = specs[i].int_user_data;
-	 spec_scm = scm_cons(SCM_MAKINUM(iserial), spec_scm);
+	 spec_scm = scm_cons(scm_from_int(iserial), spec_scm);
 	 r = scm_cons(spec_scm, r);
       }
       r = scm_reverse(r);
@@ -1546,7 +1546,7 @@ std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM r) {
    SCM r_length_scm = scm_length(r);
    int r_length = scm_to_int(r_length_scm);
    for (int i=0; i<r_length; i++) {
-      SCM res_spec_scm = scm_list_ref(r, SCM_MAKINUM(i));
+      SCM res_spec_scm = scm_list_ref(r, scm_from_int(i));
       std::pair<bool, coot::residue_spec_t> res_spec =
 	 make_residue_spec(res_spec_scm);
       if (res_spec.first) {
@@ -3180,13 +3180,13 @@ void set_b_factor_residues_scm(int imol, SCM residue_specs_b_value_tuple_list_sc
 	    std::vector<std::pair<coot::residue_spec_t, double> > rbs;
 	    for (unsigned int i=0; i<l; i++) {
 	       SCM item_scm = scm_list_ref(residue_specs_b_value_tuple_list_scm,
-					   SCM_MAKINUM(l));
+					   scm_from_int(l));
 	       if (scm_is_true(scm_list_p(item_scm))) {
 		  SCM l2_scm = scm_length(item_scm);
 		  unsigned int l2 = scm_to_int(l2_scm);
 		  if (l2 == 2) {
-		     SCM spec_scm = scm_list_ref(item_scm, SCM_MAKINUM(0));
-		     SCM    b_scm = scm_list_ref(item_scm, SCM_MAKINUM(1));
+		     SCM spec_scm = scm_list_ref(item_scm, scm_from_int(0));
+		     SCM    b_scm = scm_list_ref(item_scm, scm_from_int(1));
 		     coot::residue_spec_t spec = residue_spec_from_scm(spec_scm);
 		     double b = scm_to_double(b_scm);
 		     std::pair<coot::residue_spec_t, double> p(spec, b);
@@ -3455,9 +3455,9 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position) {
       SCM pos_length_scm = scm_length(position);
       int pos_length = scm_to_int(pos_length_scm);
       if (pos_length == 3) {
-	 SCM x_scm = scm_list_ref(position, SCM_MAKINUM(0));
-	 SCM y_scm = scm_list_ref(position, SCM_MAKINUM(1));
-	 SCM z_scm = scm_list_ref(position, SCM_MAKINUM(2));
+	 SCM x_scm = scm_list_ref(position, scm_from_int(0));
+	 SCM y_scm = scm_list_ref(position, scm_from_int(1));
+	 SCM z_scm = scm_list_ref(position, scm_from_int(2));
 	 double x = scm_to_double(x_scm);
 	 double y = scm_to_double(y_scm);
 	 double z = scm_to_double(z_scm);
@@ -3675,7 +3675,7 @@ SCM merge_molecules(SCM add_molecules, int imol) {
 
    int l_length = scm_to_int(l_length_scm);
    for (int i=0; i<l_length; i++) {
-      SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
+      SCM le = scm_list_ref(add_molecules, scm_from_int(i));
       int ii = scm_to_int(le);
       vam.push_back(ii);
    }
@@ -3697,7 +3697,7 @@ SCM merge_molecules(SCM add_molecules, int imol) {
 
    r = SCM_EOL;
    r = scm_cons(v_scm, r);
-   r = scm_cons(SCM_MAKINUM(v.first), r);
+   r = scm_cons(scm_from_int(v.first), r);
 
    return r;
 }
@@ -3924,8 +3924,8 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
       g.update_go_to_atom_window_on_changed_mol(imol);
       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
       r = SCM_EOL;
-      r = scm_cons(scm_makfrom0str(p.second.c_str()), r);
-      r = scm_cons(SCM_MAKINUM(p.first), r);
+      r = scm_cons(scm_from_locale_string(p.second.c_str()), r);
+      r = scm_cons(scm_from_int(p.first), r);
    }
    return r;
 }
@@ -4065,9 +4065,9 @@ SCM missing_atom_info_scm(int imol) {
 	 std::string inscode      = residue_p->GetInsCode();
 	 std::string altconf("");
 	 SCM l = SCM_EOL;
-	 l = scm_cons(scm_makfrom0str(inscode.c_str()), l);
-	 l = scm_cons(SCM_MAKINUM(resno), l);
-	 l = scm_cons(scm_makfrom0str(chain_id.c_str()), l);
+	 l = scm_cons(scm_from_locale_string(inscode.c_str()), l);
+	 l = scm_cons(scm_from_int(resno), l);
+	 l = scm_cons(scm_from_locale_string(chain_id.c_str()), l);
 	 r = scm_cons(l, r);
       }
       r = scm_reverse(r);
@@ -4631,14 +4631,14 @@ rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
       int rr_length = scm_to_int(rr_length_scm);
       if (rr_length > 0) {
 	 for (int irange=0; irange<rr_length; irange++) {
-	    SCM range_scm = scm_list_ref(residue_ranges, SCM_MAKINUM(irange));
+	    SCM range_scm = scm_list_ref(residue_ranges, scm_from_int(irange));
 	    if (scm_is_true(scm_list_p(range_scm))) {
 	       SCM range_length_scm = scm_length(range_scm);
 	       int range_length = scm_to_int(range_length_scm);
 	       if (range_length == 3) {
-		  SCM chain_id_scm    = scm_list_ref(range_scm, SCM_MAKINUM(0));
-		  SCM resno_start_scm = scm_list_ref(range_scm, SCM_MAKINUM(1));
-		  SCM resno_end_scm   = scm_list_ref(range_scm, SCM_MAKINUM(2));
+		  SCM chain_id_scm    = scm_list_ref(range_scm, scm_from_int(0));
+		  SCM resno_start_scm = scm_list_ref(range_scm, scm_from_int(1));
+		  SCM resno_end_scm   = scm_list_ref(range_scm, scm_from_int(2));
 		  if (scm_is_string(chain_id_scm)) {
 		     std::string chain_id = scm_to_locale_string(chain_id_scm);
 		     if (scm_is_true(scm_number_p(resno_start_scm))) {
@@ -5141,7 +5141,7 @@ int new_molecule_by_residue_specs_scm(int imol, SCM residue_spec_list_scm) {
 	 if (len > 0) {
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    for (int i=0; i<len; i++) {
-	       SCM spec_scm = scm_list_ref(residue_spec_list_scm, SCM_MAKINUM(i));
+	       SCM spec_scm = scm_list_ref(residue_spec_list_scm, scm_from_int(i));
 	       coot::residue_spec_t spec = residue_spec_from_scm(spec_scm);
 	       if (! spec.empty()) {
 		  residue_specs.push_back(spec);
@@ -5293,7 +5293,7 @@ SCM chain_id_for_shelxl_residue_number(int imol, int resno) {
       std::pair<bool, std::string> ch =
 	 graphics_info_t::molecules[imol].chain_id_for_shelxl_residue_number(resno);
       if (ch.first)
-	 r = scm_makfrom0str(ch.second.c_str());
+	 r = scm_from_locale_string(ch.second.c_str());
    }
    return r;
 }
@@ -5635,7 +5635,7 @@ SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_
 			 std::string(ins_code), std::string(alt_conf));
       std::cout << "debug:: split_residue() returned " << p.first << " \"" << p.second << "\"" << std::endl;
       if (p.first) {
-	 r = scm_makfrom0str(p.second.c_str());
+	 r = scm_from_locale_string(p.second.c_str());
       }
    }
    return r;

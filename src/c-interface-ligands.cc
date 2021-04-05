@@ -190,8 +190,8 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
       overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, 1);
 
    if (rtop_info.success) {
-      SCM match_info = scm_cons(scm_int2num(rtop_info.n_match), SCM_EOL);
-      match_info = scm_cons(scm_double2num(rtop_info.dist_score), match_info);
+      SCM match_info = scm_cons(scm_from_int(rtop_info.n_match), SCM_EOL);
+      match_info = scm_cons(scm_from_double(rtop_info.dist_score), match_info);
       SCM s = scm_cons(match_info, SCM_EOL);
       scm_status = scm_cons(rtop_to_scm(rtop_info.rtop), s);
    }
@@ -288,8 +288,8 @@ analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_r
    std::cout << "analyse_ligand_differences: rtop: \n" << rtop_info.rtop.format() << std::endl;
 
    if (rtop_info.success) {
-      SCM match_info = scm_cons(scm_int2num(rtop_info.n_match), SCM_EOL);
-      match_info = scm_cons(scm_double2num(rtop_info.dist_score), match_info);
+      SCM match_info = scm_cons(scm_from_int(rtop_info.n_match), SCM_EOL);
+      match_info = scm_cons(scm_from_double(rtop_info.dist_score), match_info);
       SCM s = scm_cons(match_info, SCM_EOL);
       scm_status = scm_cons(rtop_to_scm(rtop_info.rtop), s);
    }
@@ -390,7 +390,7 @@ compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_i
 			std::cout << std::endl;
 		     }
 		  }
-		  scm_status = SCM_MAKINUM(n_fail);
+		  scm_status = scm_from_int(n_fail);
 	       }
 	    }
 	 }
@@ -1608,11 +1608,11 @@ SCM dipole_to_scm(std::pair<coot::dipole, int> dp) {
 
    clipper::Coord_orth co = dp.first.get_dipole();
    SCM co_scm = SCM_EOL;
-   co_scm = scm_cons(scm_double2num(co.z()), co_scm);
-   co_scm = scm_cons(scm_double2num(co.y()), co_scm);
-   co_scm = scm_cons(scm_double2num(co.x()), co_scm);
+   co_scm = scm_cons(scm_from_double(co.z()), co_scm);
+   co_scm = scm_cons(scm_from_double(co.y()), co_scm);
+   co_scm = scm_cons(scm_from_double(co.x()), co_scm);
    r = scm_cons(co_scm, r);
-   r = scm_cons(SCM_MAKINUM(dp.second), r);
+   r = scm_cons(scm_from_int(dp.second), r);
    return r;
 }
 #endif
@@ -1629,7 +1629,7 @@ SCM add_dipole_for_residues_scm(int imol, SCM residue_specs) {
       SCM residue_spec_length = scm_length(residue_specs);
       int l = scm_to_int(residue_spec_length);
       for (int ispec=0; ispec<l; ispec++) {
-	 SCM residue_spec_scm = scm_list_ref(residue_specs, SCM_MAKINUM(ispec));
+	 SCM residue_spec_scm = scm_list_ref(residue_specs, scm_from_int(ispec));
 	 coot::residue_spec_t rs = residue_spec_from_scm(residue_spec_scm);
 	 res_specs.push_back(rs);
       }
@@ -1948,7 +1948,7 @@ SCM comp_id_to_name_scm(const char *comp_id) {
       name = g.Geom_p()->get_monomer_name(comp_id, imol);
    }
    if (name.first) {
-      r = scm_makfrom0str(name.second.c_str());
+      r = scm_from_locale_string(name.second.c_str());
    }
    return r;
 }
@@ -2230,7 +2230,7 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 // 	 SCM specs_length_scm = scm_length(torsion_residues_specs_scm);
 // 	 unsigned int specs_length = scm_to_int(specs_length_scm);
 // 	 for (unsigned int i=0; i<specs_length; i++) {
-// 	    SCM torsion_spec_scm = scm_list_ref(torsion_residues_specs_scm, SCM_MAKINUM(i));
+// 	    SCM torsion_spec_scm = scm_list_ref(torsion_residues_specs_scm, scm_from_int(i));
 // 	    if (! scm_is_true(scm_list_p(torsion_spec_scm))) {
 // 	       break;
 // 	    } else {
@@ -2241,10 +2241,10 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 // 		  SCM torsion_angle_scm = scm_car(torsion_spec_scm);
 // 		  if (scm_is_true(scm_number_p(torsion_angle_scm))) {
 // 		     double ta = scm_to_double(torsion_angle_scm);
-// 		     SCM atom_spec_1_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(1));
-// 		     SCM atom_spec_2_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(2));
-// 		     SCM atom_spec_3_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(3));
-// 		     SCM atom_spec_4_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(4));
+// 		     SCM atom_spec_1_scm = scm_list_ref(torsion_spec_scm, scm_from_int(1));
+// 		     SCM atom_spec_2_scm = scm_list_ref(torsion_spec_scm, scm_from_int(2));
+// 		     SCM atom_spec_3_scm = scm_list_ref(torsion_spec_scm, scm_from_int(3));
+// 		     SCM atom_spec_4_scm = scm_list_ref(torsion_spec_scm, scm_from_int(4));
 // 		     coot::atom_spec_t atom_spec_1 = atom_spec_from_scm_expression(atom_spec_1_scm);
 // 		     coot::atom_spec_t atom_spec_2 = atom_spec_from_scm_expression(atom_spec_2_scm);
 // 		     coot::atom_spec_t atom_spec_3 = atom_spec_from_scm_expression(atom_spec_3_scm);
@@ -2556,7 +2556,7 @@ SCM new_molecule_sans_biggest_ligand_scm(int imol) {
    SCM r = SCM_BOOL_F;
    std::pair<mmdb::Residue *, int> res = new_molecule_sans_biggest_ligand(imol);
    if (res.first) {
-      r = scm_list_2(SCM_MAKINUM(res.second), residue_spec_to_scm(res.first));
+      r = scm_list_2(scm_from_int(res.second), residue_spec_to_scm(res.first));
    }
    return r;
 }
@@ -2690,12 +2690,12 @@ double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
       std::vector<double> v1;
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
-	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(l1, scm_from_int(i));
 	 if (scm_is_true(scm_number_p(item)))
 	    v1.push_back(scm_to_double(item));
       }
       for (unsigned int i=0; i<len_l2; i++) {
-	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(l2, scm_from_int(i));
 	 if (scm_is_true(scm_number_p(item)))
 	    v2.push_back(scm_to_double(item));
       }
@@ -2717,7 +2717,7 @@ double kolmogorov_smirnov_vs_normal_scm(SCM l1, double mean, double std_dev) {
       unsigned int len_l1 = scm_to_int(length_scm_1);
       std::vector<double> v1;
       for (unsigned int i=0; i<len_l1; i++) {
-	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(l1, scm_from_int(i));
 	 if (scm_is_true(scm_number_p(item)))
 	    v1.push_back(scm_to_double(item));
       }
@@ -2740,17 +2740,17 @@ SCM kullback_liebler_scm(SCM l1, SCM l2) {
       std::vector<double> v1;
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
-	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(l1, scm_from_int(i));
 	 if (scm_is_true(scm_number_p(item)))
 	    v1.push_back(scm_to_double(item));
       }
       for (unsigned int i=0; i<len_l2; i++) {
-	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(l2, scm_from_int(i));
 	 if (scm_is_true(scm_number_p(item)))
 	    v2.push_back(scm_to_double(item));
       }
       std::pair<double, double> result = nicholls::get_KL(v1, v2);
-      SCM r = scm_list_2(scm_double2num(result.first), scm_double2num(result.second));
+      SCM r = scm_list_2(scm_from_double(result.first), scm_from_double(result.second));
    }
    return result_scm;
 }

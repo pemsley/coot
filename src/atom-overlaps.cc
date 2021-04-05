@@ -71,7 +71,7 @@ SCM ligand_atom_overlaps_scm(int imol, SCM ligand_spec, double neighb_radius) {
 	       if (ol.overlaps[i].is_h_bond) sb = SCM_BOOL_T;
 	       SCM l = scm_list_4(spec_1_scm,
 				  spec_2_scm,
-				  scm_double2num(ol.overlaps[i].overlap_volume),
+				  scm_from_double(ol.overlaps[i].overlap_volume),
 				  sb);
 	       r = scm_cons(l, r);
 	    }
@@ -135,9 +135,9 @@ SCM molecule_atom_overlaps_scm(int imol) {
 	 coot::atom_spec_t spec_2(o.atom_2);
 	 SCM spec_1_scm = atom_spec_to_scm(spec_1);
 	 SCM spec_2_scm = atom_spec_to_scm(spec_2);
-	 SCM r_1_scm = scm_double2num(o.r_1);
-	 SCM r_2_scm = scm_double2num(o.r_2);
-	 SCM ov_scm  = scm_double2num(o.overlap_volume);
+	 SCM r_1_scm = scm_from_double(o.r_1);
+	 SCM r_2_scm = scm_from_double(o.r_2);
+	 SCM ov_scm  = scm_from_double(o.overlap_volume);
 	 SCM item_scm = scm_list_5(spec_1_scm, spec_2_scm, r_1_scm, r_2_scm, ov_scm);
 	 r = scm_cons(item_scm, r);
       }

@@ -73,8 +73,8 @@ SCM c_beta_deviations_scm(int imol) {
 	    for (it_inner=value_map.begin(); it_inner!=value_map.end(); it_inner++) {
 	       const std::string alt_conf_key = it_inner->first;
 	       const coot::c_beta_deviation_t &cbd = it_inner->second;
-	       SCM item_scm = scm_list_2(scm_makfrom0str(alt_conf_key.c_str()),
-					 scm_double2num(cbd.dist));
+	       SCM item_scm = scm_list_2(scm_from_locale_string(alt_conf_key.c_str()),
+					 scm_from_double(cbd.dist));
 	       map_dict_scm = scm_cons(item_scm, map_dict_scm);
 	    }
 	    SCM l_scm = scm_list_2(residue_spec_scm, scm_reverse(map_dict_scm));

@@ -211,7 +211,7 @@ SCM coot_sys_build_type_scm() {
 
    std::string sb = COOT_SYS_BUILD_TYPE;
    std::cout << sb << std::endl;
-   SCM r = scm_makfrom0str(sb.c_str());
+   SCM r = scm_from_locale_string(sb.c_str());
    return r;
 }
 #endif
@@ -342,7 +342,7 @@ SCM molecule_name_stub_scm(int imol, int include_path_flag) {
    std::string r;
    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].name_sans_extension(include_path_flag);
-   return scm_makfrom0str(r.c_str());
+   return scm_from_locale_string(r.c_str());
 }
 #endif
 
@@ -1845,7 +1845,7 @@ SCM map_mean_scm(int imol) {
   SCM r = SCM_BOOL_F;
   if (is_valid_map_molecule(imol)) {
     float s = graphics_info_t::molecules[imol].map_mean();
-    r = scm_double2num(s);
+    r = scm_from_double(s);
   }
   return r;
 }
@@ -1857,7 +1857,7 @@ SCM map_sigma_scm(int imol) {
   SCM r = SCM_BOOL_F;
   if (is_valid_map_molecule(imol)) {
     float s = graphics_info_t::molecules[imol].map_sigma();
-    r = scm_double2num(s);
+    r = scm_from_double(s);
   }
   return r;
 }
@@ -1902,10 +1902,10 @@ SCM map_statistics_scm(int imol) {
   SCM r = SCM_BOOL_F;
   if (is_valid_map_molecule(imol)) {
      map_statistics_t ms = graphics_info_t::molecules[imol].map_statistics();
-     r = scm_list_4(scm_double2num(ms.mean),
-                    scm_double2num(ms.sd),
-                    scm_double2num(ms.skew),
-                    scm_double2num(ms.kurtosis));
+     r = scm_list_4(scm_from_double(ms.mean),
+                    scm_from_double(ms.sd),
+                    scm_from_double(ms.skew),
+                    scm_from_double(ms.kurtosis));
   }
   return r;
 }
@@ -2398,14 +2398,14 @@ SCM map_colour_components(int imol) {
 
    SCM r = SCM_BOOL(0);
    if (is_valid_map_molecule(imol)) {
-      double rc = graphics_info_t::molecules[imol].map_colour[0][0];
-      double gc = graphics_info_t::molecules[imol].map_colour[0][1];
-      double bc = graphics_info_t::molecules[imol].map_colour[0][2];
-      r = SCM_CAR(scm_listofnull);
+      double rc = graphics_info_t::molecules[imol].map_colour.red;
+      double gc = graphics_info_t::molecules[imol].map_colour.green;
+      double bc = graphics_info_t::molecules[imol].map_colour.blue;
+      r = SCM_EOL;
       // put red at the front of the resulting list
-      r = scm_cons(scm_double2num(bc), r);
-      r = scm_cons(scm_double2num(gc), r);
-      r = scm_cons(scm_double2num(rc), r);
+      r = scm_cons(scm_from_double(bc), r);
+      r = scm_cons(scm_from_double(gc), r);
+      r = scm_cons(scm_from_double(rc), r);
    }
    std::string cmd = "map-colour-components";
    std::vector<coot::command_arg_t> args;
@@ -3343,7 +3343,7 @@ SCM additional_representation_info_scm(int imol) {
 	 if (graphics_info_t::molecules[imol].add_reps[ir].show_it)
 	    is_show_flag_scm = SCM_BOOL_T;
 	 float bw = graphics_info_t::molecules[imol].add_reps[ir].bond_width;
-	 SCM bond_width_scm = scm_double2num(bw);
+	 SCM bond_width_scm = scm_from_double(bw);
 	 SCM atom_spec_scm = SCM_BOOL_F;
 	 // lines too long, make a rep
 	 coot::additional_representations_t rep =
@@ -3351,14 +3351,14 @@ SCM additional_representation_info_scm(int imol) {
 	 int type = rep.atom_sel_info.type;
 	 if (type == coot::atom_selection_info_t::BY_STRING)
 	    atom_spec_scm
-	       = scm_makfrom0str(rep.atom_sel_info.atom_selection_str.c_str());
+	       = scm_from_locale_string(rep.atom_sel_info.atom_selection_str.c_str());
 	 else
 	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
 	       atom_spec_scm = SCM_EOL;
-	       SCM ins_code_scm = scm_makfrom0str(rep.atom_sel_info.ins_code.c_str());
-	       SCM resno_end_scm = SCM_MAKINUM(rep.atom_sel_info.resno_end);
-	       SCM resno_start_scm   = SCM_MAKINUM(rep.atom_sel_info.resno_start);
-	       SCM chain_id_scm    = scm_makfrom0str(rep.atom_sel_info.chain_id.c_str());
+	       SCM ins_code_scm = scm_from_locale_string(rep.atom_sel_info.ins_code.c_str());
+	       SCM resno_end_scm = scm_from_int(rep.atom_sel_info.resno_end);
+	       SCM resno_start_scm   = scm_from_int(rep.atom_sel_info.resno_start);
+	       SCM chain_id_scm    = scm_from_locale_string(rep.atom_sel_info.chain_id.c_str());
 	       atom_spec_scm = scm_cons(ins_code_scm, atom_spec_scm);
 	       atom_spec_scm = scm_cons(resno_end_scm, atom_spec_scm);
 	       atom_spec_scm = scm_cons(resno_start_scm, atom_spec_scm);
@@ -3367,8 +3367,8 @@ SCM additional_representation_info_scm(int imol) {
 
 	 l = scm_cons(bond_width_scm, l);
 	 l = scm_cons(is_show_flag_scm, l);
-	 l = scm_cons(scm_makfrom0str(s.c_str()), l);
-	 l = scm_cons(SCM_MAKINUM(ir), l);
+	 l = scm_cons(scm_from_locale_string(s.c_str()), l);
+	 l = scm_cons(scm_from_int(ir), l);
 	 r = scm_cons(l, r);
       }
    }
@@ -5678,7 +5678,7 @@ void display_maps_scm(SCM maps_list_scm) {
       SCM n_scm = scm_length(maps_list_scm);
       int n = scm_to_int(n_scm);
       for (int i=0; i<n; i++) {
-	 SCM item_scm = scm_list_ref(maps_list_scm, SCM_MAKINUM(i));
+	 SCM item_scm = scm_list_ref(maps_list_scm, scm_from_int(i));
 	 if (scm_is_true(scm_integer_p(item_scm))) {
 	    int imol = scm_to_int(item_scm);
 	    if (is_valid_map_molecule(imol)) {
@@ -6543,9 +6543,9 @@ SCM residue_spec_to_scm(const coot::residue_spec_t &res) {
 
 //    std::cout <<  "residue_spec_to_scm on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
-   r = scm_cons(scm_makfrom0str(res.ins_code.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(res.res_no), r);
-   r = scm_cons(scm_makfrom0str(res.chain_id.c_str()), r);
+   r = scm_cons(scm_from_locale_string(res.ins_code.c_str()), r);
+   r = scm_cons(scm_from_int(res.res_no), r);
+   r = scm_cons(scm_from_locale_string(res.chain_id.c_str()), r);
    r = scm_cons(SCM_BOOL_T, r);
    return r;
 }
@@ -6582,7 +6582,7 @@ int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state) {
    int n = scm_to_int(list_length_scm);
 
    for (int ispec = 0; ispec<n; ispec++) {
-      SCM atom_spec_scm = scm_list_ref(atom_spec_list, SCM_MAKINUM(ispec));
+      SCM atom_spec_scm = scm_list_ref(atom_spec_list, scm_from_int(ispec));
       coot::atom_spec_t spec = atom_spec_from_scm_expression(atom_spec_scm);
       graphics_info_t::mark_atom_as_fixed(imol, spec, state);
    }
@@ -6653,8 +6653,8 @@ SCM cis_peptides(int imol) {
 // 		   << v[i].omega_torsion_angle
 // 		   << std::endl;
 // 	 SCM scm_omega =
-// 	    scm_double2num(clipper::Util::rad2d(v[1].omega_torsion_angle));
-	 SCM scm_omega = scm_double2num(v[i].omega_torsion_angle);
+// 	    scm_from_double(clipper::Util::rad2d(v[1].omega_torsion_angle));
+	 SCM scm_omega = scm_from_double(v[i].omega_torsion_angle);
 	 scm_residue_info = scm_cons(scm_omega, scm_residue_info);
 	 scm_residue_info = scm_cons(scm_r2, scm_residue_info);
 	 scm_residue_info = scm_cons(scm_r1, scm_residue_info);
@@ -6689,7 +6689,7 @@ SCM twisted_trans_peptides(int imol) {
 	       SCM scm_r1 = residue_spec_to_scm(r1);
 	       SCM scm_r2 = residue_spec_to_scm(r2);
 	       double omega = v[i].quad.torsion();
-	       SCM scm_omega = scm_double2num(omega);
+	       SCM scm_omega = scm_from_double(omega);
 	       SCM scm_residue_info = scm_list_3(scm_r1, scm_r2, scm_omega);
 
 	       // add scm_residue_info to r
@@ -6735,7 +6735,7 @@ PyObject *cis_peptides_py(int imol) {
 // 		   << v[i].omega_torsion_angle
 // 		   << std::endl;
 // 	 SCM scm_omega =
-// 	    scm_double2num(clipper::Util::rad2d(v[1].omega_torsion_angle));
+// 	    scm_from_double(clipper::Util::rad2d(v[1].omega_torsion_angle));
 	 PyObject *py_omega;
 	 py_omega = PyFloat_FromDouble(v[i].omega_torsion_angle);
 	 PyList_SetItem(py_residue_info, 2, py_omega);
@@ -8759,7 +8759,7 @@ SCM view_name(int view_number) {
    if (view_number < n_view)
       if (view_number >= 0) {
 	 std::string name = graphics_info_t::views[view_number].view_name;
-	 r = scm_makfrom0str(name.c_str());
+	 r = scm_from_locale_string(name.c_str());
       }
    return r;
 }
@@ -8791,7 +8791,7 @@ SCM view_description(int view_number) {
       if (view_number < int(graphics_info_t::views.size())) {
 	 std::string d = graphics_info_t::views[view_number].description;
 	 if (d != "") {
-	    r = scm_makfrom0str(d.c_str());
+	    r = scm_from_locale_string(d.c_str());
 	 }
       }
    return r;
@@ -8894,82 +8894,8 @@ void add_view_description(int view_number, const char *descr) {
 #ifdef USE_GUILE
 void go_to_view(SCM view) {
 
-   SCM len_view_scm = scm_length(view);
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-   int len_view = scm_to_int(len_view_scm);
-#else
-   int len_view = gh_scm2int(len_view_scm);
-#endif
+   std::cout << "FIXME go_to_view()" << std::endl;
 
-   if (len_view == 4) {
-
-      graphics_info_t g;
-      int nsteps = 2000;
-      if (graphics_info_t::views_play_speed > 0.000000001)
-	 nsteps = int(2000.0/graphics_info_t::views_play_speed);
-
-      // What is the current view:
-      //
-      std::string name("Current Position");
-#if 0
-      float quat[4];
-      for (int i=0; i<4; i++)
-	 quat[i] = graphics_info_t::quat[i];
-      coot::Cartesian rc = g.RotationCentre();
-      float zoom = graphics_info_t::zoom;
-      coot::view_info_t view_c(quat, rc, zoom, name);
-#endif
-
-      // view_target is where we want to go
-      float quat_target[4];
-      SCM quat_scm = scm_list_ref(view, SCM_MAKINUM(0));
-      SCM len_quat_scm = scm_length(quat_scm);
-      int len_quat = scm_to_int(len_quat_scm);
-
-      if (len_quat == 4) {
-	 SCM q0_scm = scm_list_ref(quat_scm, SCM_MAKINUM(0));
-	 SCM q1_scm = scm_list_ref(quat_scm, SCM_MAKINUM(1));
-	 SCM q2_scm = scm_list_ref(quat_scm, SCM_MAKINUM(2));
-	 SCM q3_scm = scm_list_ref(quat_scm, SCM_MAKINUM(3));
-
-	 quat_target[0] = scm_to_double(q0_scm);
-	 quat_target[1] = scm_to_double(q1_scm);
-	 quat_target[2] = scm_to_double(q2_scm);
-	 quat_target[3] = scm_to_double(q3_scm);
-
-	 SCM rc_target_scm = scm_list_ref(view, SCM_MAKINUM(1));
-	 SCM len_rc_target_scm = scm_length(rc_target_scm);
-
-	 int len_rc_target = scm_to_int(len_rc_target_scm);
-
-	 if (len_rc_target == 3) {
-
-	    SCM centre_x = scm_list_ref(rc_target_scm, SCM_MAKINUM(0));
-	    SCM centre_y = scm_list_ref(rc_target_scm, SCM_MAKINUM(1));
-	    SCM centre_z = scm_list_ref(rc_target_scm, SCM_MAKINUM(2));
-
-	    double x = scm_to_double(centre_x);
-	    double y = scm_to_double(centre_y);
-	    double z = scm_to_double(centre_z);
-
-	    coot::Cartesian rc_target(x,y,z);
-
-	    SCM target_zoom_scm = scm_list_ref(view, SCM_MAKINUM(2));
-	    double zoom_target = scm_to_double(target_zoom_scm);
-
-	    SCM name_target_scm = scm_list_ref(view, SCM_MAKINUM(3));
-	    std::string name_target = scm_to_locale_string(name_target_scm);
-	    coot::view_info_t view_target(quat_target, rc_target, zoom_target, name_target);
-
-	    // do the animation
-	    coot::view_info_t::interpolate(view_c, view_target, nsteps);
-	 } else {
-	    std::cout << "WARNING:: bad centre in view" << std::endl;
-	 }
-      } else {
-	 std::cout << "WARNING:: bad quat in view" << std::endl;
-      }
-   }
 }
 #endif // USE_GUILE
 

@@ -321,12 +321,12 @@ SCM graphics_info_t::restraint_to_scm(const coot::simple_restraint &rest) const 
 
    SCM fixed_atom_flags_list_scm = SCM_EOL;
    for (std::size_t i=0; i<rest.fixed_atom_flags.size(); i++)
-      fixed_atom_flags_list_scm = scm_cons(SCM_MAKINUM(rest.fixed_atom_flags[i]),
+      fixed_atom_flags_list_scm = scm_cons(scm_from_int(rest.fixed_atom_flags[i]),
 					   fixed_atom_flags_list_scm);
-   SCM it_1_scm = scm_cons(scm_makfrom0str("restraint-type"), scm_makfrom0str(rest.type().c_str()));
-   SCM it_2_scm = scm_cons(scm_makfrom0str("target-value"), scm_double2num(rest.target_value));
-   SCM it_3_scm = scm_cons(scm_makfrom0str("sigma"), scm_double2num(rest.sigma));
-   SCM it_4_scm = scm_cons(scm_makfrom0str("fixed-atom-flags"), fixed_atom_flags_list_scm);
+   SCM it_1_scm = scm_cons(scm_from_locale_string("restraint-type"), scm_from_locale_string(rest.type().c_str()));
+   SCM it_2_scm = scm_cons(scm_from_locale_string("target-value"), scm_from_double(rest.target_value));
+   SCM it_3_scm = scm_cons(scm_from_locale_string("sigma"), scm_from_double(rest.sigma));
+   SCM it_4_scm = scm_cons(scm_from_locale_string("fixed-atom-flags"), fixed_atom_flags_list_scm);
 
    return scm_list_4(it_1_scm, it_2_scm, it_3_scm, it_4_scm);
 }
@@ -364,11 +364,11 @@ SCM graphics_info_t::geometry_distortion_to_scm(const coot::geometry_distortion_
       r = SCM_EOL;
       SCM atom_list_scm = SCM_EOL;
       for (std::size_t i=0; i<gd.atom_indices.size(); i++)
-	 atom_list_scm = scm_cons(SCM_MAKINUM(gd.atom_indices[i]), atom_list_scm);
-      SCM it_1_scm = scm_cons(scm_makfrom0str("distortion-score"), scm_double2num(gd.distortion_score));
-      SCM it_2_scm = scm_cons(scm_makfrom0str("restraint"), restraint_to_scm(gd.restraint));
-      SCM it_3_scm = scm_cons(scm_makfrom0str("residue-spec"), residue_spec_to_scm(gd.residue_spec));
-      SCM it_4_scm = scm_cons(scm_makfrom0str("atom-indices"), atom_list_scm);
+	 atom_list_scm = scm_cons(scm_from_int(gd.atom_indices[i]), atom_list_scm);
+      SCM it_1_scm = scm_cons(scm_from_locale_string("distortion-score"), scm_from_double(gd.distortion_score));
+      SCM it_2_scm = scm_cons(scm_from_locale_string("restraint"), restraint_to_scm(gd.restraint));
+      SCM it_3_scm = scm_cons(scm_from_locale_string("residue-spec"), residue_spec_to_scm(gd.residue_spec));
+      SCM it_4_scm = scm_cons(scm_from_locale_string("atom-indices"), atom_list_scm);
       r = scm_list_4(it_1_scm, it_2_scm, it_3_scm, it_4_scm);
    }
    return r;

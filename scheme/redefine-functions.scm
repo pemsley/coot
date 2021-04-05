@@ -24,7 +24,6 @@
 (define cell cell-scm)
 (define map-cell cell)
 (define ccp4i-projects ccp4i-projects-scm)
-(define map-sigma map-sigma-scm)
 (define get-rotamer-name get-rotamer-name-scm)
 (define test-internal test-internal-scm)
 (define atom-info-string atom-info-string-scm)

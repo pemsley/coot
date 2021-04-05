@@ -52,7 +52,7 @@ key_bindings_t::run() const {
 #ifdef USE_GUILE
    if (type == SCHEME) {
       SCM handler = scm_c_eval_string("(lambda (key . args) (display (list \"(key_bindings_t run()) Error in proc: key: \" key \" args: \" args)) (newline))");
-      SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
+      // SCM v = scm_catch(SCM_BOOL_T, scm_thunk_p, handler); // FIXME.
    }
 #endif
    return return_value;

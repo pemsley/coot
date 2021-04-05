@@ -32,8 +32,7 @@
 ;; used in Extensions -> Representation -> Ball & Stick
 (define *default-ball-and-stick-selection* "//A/1-2")
 
-(load-by-search "redefine-functions.scm")
-
+(load "redefine-functions.scm")
 
 ;; documented functions
 
@@ -1667,7 +1666,8 @@
              (list-ref args 1)
              (list-ref args 2)
              (list-ref args 3))
-            (rotation-centre), (list-ref (cell imol) 0)
+            (rotation-centre)
+            (list-ref (cell imol) 0)
 	    (space-group imol)
 	    (cell imol))))
      ((= (length args) 3) ; no matrix or about point specified
@@ -4428,7 +4428,7 @@
         (clustalw2-output-file-name "clustalw2-output-file.log"))
 
     (if (file-exists? aligned-sequence-pir-file)
-        (delete-file aligned-sequence-pir-file)
+        (delete-file aligned-sequence-pir-file))
     (if (file-exists? "aligned-sequence.dnd")
         (delete-file "aligned-sequence.dnd"))
     (if (file-exists? "current-sequence.dnd")
@@ -4461,4 +4461,4 @@
     (apply-pir-alignment imol chain-id)
     (simple-fill-partial-residues imol)
     (resolve-clashing-sidechains-by-deletion imol)
-    )))
+    ))
