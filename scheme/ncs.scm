@@ -21,7 +21,7 @@
     
     (for-each 
      (lambda (molecule)
-       (if (valid-model-molecule? molecules)
+       (if (valid-model-molecule? molecule)
 	   (break molecule)))
      (molecule-number-list))))
 
