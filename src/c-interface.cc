@@ -7839,26 +7839,24 @@ void set_background_colour(double red, double green, double blue) {
 
    graphics_info_t g;
 
+   g.background_colour[0] = red; 
+   g.background_colour[1] = green; 
+   g.background_colour[2] = blue; 
+
    if (g.use_graphics_interface_flag) {
-     if(g.glarea_2) {
-       g.make_current_gl_context(g.glarea_2);
-       glClearColor(red,green,blue,1.0);
-       g.background_colour[0] = red; 
-       g.background_colour[1] = green; 
-       g.background_colour[2] = blue; 
-       glFogfv(GL_FOG_COLOR, g.background_colour);
-     }
-     g.make_current_gl_context(g.glarea);
-     glClearColor(red,green,blue,1.0);
-     g.background_colour[0] = red; 
-     g.background_colour[1] = green; 
-     g.background_colour[2] = blue; 
-     glFogfv(GL_FOG_COLOR, g.background_colour);
-     if (g.do_anti_aliasing_flag) {
-       // update the antialias?!
-       g.draw_anti_aliasing();
-     }
-     graphics_draw();
+      if(g.glarea_2) {
+         g.make_current_gl_context(g.glarea_2);
+         glClearColor(red,green,blue,1.0);
+         glFogfv(GL_FOG_COLOR, g.background_colour);
+      }
+      g.make_current_gl_context(g.glarea);
+      glClearColor(red,green,blue,1.0);
+      glFogfv(GL_FOG_COLOR, g.background_colour);
+      if (g.do_anti_aliasing_flag) {
+         // update the antialias?!
+         g.draw_anti_aliasing();
+      }
+      graphics_draw();
    }
 }
 
@@ -7870,16 +7868,17 @@ redraw_background() {
    double red   = g.background_colour[0];
    double green = g.background_colour[1]; 
    double blue  = g.background_colour[2]; 
+
    if (g.use_graphics_interface_flag && !background_is_black_p()) {
-     if(g.glarea_2) {
-       g.make_current_gl_context(g.glarea_2);
-       glClearColor(red,green,blue,1.0);
-       glFogfv(GL_FOG_COLOR, g.background_colour);
-     }
-     g.make_current_gl_context(g.glarea);
-     glClearColor(red,green,blue,1.0);
-     glFogfv(GL_FOG_COLOR, g.background_colour);
-     graphics_draw();
+      if(g.glarea_2) {
+         g.make_current_gl_context(g.glarea_2);
+         glClearColor(red,green,blue,1.0);
+         glFogfv(GL_FOG_COLOR, g.background_colour);
+      }
+      g.make_current_gl_context(g.glarea);
+      glClearColor(red,green,blue,1.0);
+      glFogfv(GL_FOG_COLOR, g.background_colour);
+      graphics_draw();
    }
 
 }
