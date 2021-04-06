@@ -433,13 +433,11 @@
 	    (string-append "acedrg-" tlc-str ".log")
 	    #t)))
 
-      (if (ok-goosh-status? status)
+      (if (ok-goosh-status? goosh-status)
 	  (begin
 	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
 	    (read-cif-dictionary cif-out-file-name))
 	  (info-dialog "Bad exit status for Acedrg\n - see acedrg log"))))))
-  
-
 
 
 
