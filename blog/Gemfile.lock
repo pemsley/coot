@@ -9,7 +9,7 @@ GEM
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.6.0)
     eventmachine (1.2.7)
-    ffi (1.9.24)
+    ffi (1.13.1)
     forwardable-extended (2.6.0)
     http_parser.rb (0.6.0)
     i18n (0.9.5)
@@ -21,7 +21,7 @@ GEM
       i18n (~> 0.7)
       jekyll-sass-converter (~> 1.0)
       jekyll-watch (~> 2.0)
-      kramdown (~> 1.14)
+      kramdown (~> 2.3.1)
       liquid (~> 4.0)
       mercenary (~> 0.3.3)
       pathutil (~> 0.9)
@@ -35,7 +35,9 @@ GEM
       jekyll (~> 3.3)
     jekyll-watch (2.0.0)
       listen (~> 3.0)
-    kramdown (1.16.2)
+    kramdown (2.3.0)
+    kramdown-parser-gfm (1.1.0)
+      kramdown (~> 2.0)
     liquid (4.0.0)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -50,8 +52,8 @@ GEM
       forwardable-extended (~> 2.6)
     public_suffix (3.0.2)
     rb-fsevent (0.10.3)
-    rb-inotify (0.9.10)
-      ffi (>= 1.9.24, < 2)
+    rb-inotify (0.10.1)
+      ffi (~> 1.0)
     rouge (3.1.1)
     ruby_dep (1.5.0)
     safe_yaml (1.0.4)
@@ -65,8 +67,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  jekyll (~> 3.8.2)
+  jekyll (~> 3.8.4)
   jekyll-feed (~> 0.6)
+  kramdown-parser-gfm
   minima (~> 2.0)
   tzinfo-data
 
