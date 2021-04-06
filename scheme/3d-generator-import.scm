@@ -421,14 +421,14 @@
 	(display tlc-str port)
 	(newline port)))
 	
-  (let* ((stub (string-append "acedrg-" comp-id))
+  (let* ((stub (string-append "acedrg-" tlc-str))
 	 (pdb-out-file-name (string-append stub ".pdb"))
 	 (cif-out-file-name (string-append stub ".cif")))
-    
+
     (let ((goosh-status
 	   (goosh-command 
 	    "acedrg" 
-	    (list "-i" smi-file "-r" tlc-str -o stub)
+	    (list "-i" smi-file "-r" tlc-str "-o" stub)
 	    '()
 	    (string-append "acedrg-" tlc-str ".log")
 	    #t)))
