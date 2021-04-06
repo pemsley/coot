@@ -1961,7 +1961,7 @@
           (if (null? results-inner)
               #f
               (let* ((nnb-list (no-non-bonded results-inner))
-                     (chi-squares (map (lambda (x) results-inner nnb-list)))
+                     (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
                      (n (length chi-squares))
                      (sum (apply + chi-squares)))
                 (if (= n 0)
