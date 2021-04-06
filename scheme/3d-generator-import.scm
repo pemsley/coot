@@ -352,39 +352,6 @@
 		  working-dir))))
     
 
-  (define (use-libcheck three-letter-code)
-
-    (let* ((smiles-file (string-append "coot-" three-letter-code ".smi"))
-	   (libcheck-data-lines
-	    (list "N"
-		  (string-append "MON " three-letter-code)
-		  (string-append "FILE_SMILE " smiles-file)
-		  ""))
-	   (log-file-name (string-append "libcheck-" three-letter-code))
-	   (pdb-file-name (string-append "libcheck_" three-letter-code ".pdb"))
-	   (cif-file-name (string-append "libcheck_" three-letter-code ".cif")))
-      
-      ;; write the smiles strings to a file
-      (call-with-output-file smiles-file
-	(lambda (port)
-	  (format port "~a~%" smiles-text)))
-      
-      (let ((status (goosh-command libcheck-exe '() libcheck-data-lines log-file-name #t)))
-	;; the output of libcheck goes to libcheck.lib, we want it in
-	;; (i.e. overwrite the minimal description in cif-file-name
-	(if (number? status)
-	    (if (= status 0)
-		(begin
-		  (if (file-exists? "libcheck.lib")
-		      (rename-file "libcheck.lib" cif-file-name))
-		  (let ((sc (rotation-centre))
-			(imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
-		    (if (valid-model-molecule? imol)
-			(let ((mc (molecule-centre imol)))
-			  (apply translate-molecule-by (cons imol (map - sc mc))))))
-		  (read-cif-dictionary cif-file-name)))
-	    (format #t "OOPs.. libcheck returned exit status ~s~%" status)))))
-
   (define (use-pyrogen three-letter-code)
 
     ;; OK, let's run pyrogen

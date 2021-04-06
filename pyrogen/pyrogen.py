@@ -1006,7 +1006,7 @@ if __name__ == "__main__":
     print('DEBUG:: options:', options)
     print('DEBUG:: args:', args)
 
-    if len(args) == 0:
+    if len(sys.argv) == 0:
        print("Usage: pyrogen --help")
 
     if options.show_version:

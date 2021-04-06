@@ -1,4 +1,4 @@
-
+//
 #ifndef REFINEMENT_LIGHTS_HH
 #define REFINEMENT_LIGHTS_HH
 
@@ -51,13 +51,12 @@ namespace coot {
       };
 
       std::string name;   // e.g. "Bonds" or "Angles"
-      std::string label;  // e.g. "Bonds:  6.543" 
+      std::string label;  // e.g. "Bonds:  6.543"
       float value;        // e.g. 6.543
       int rama_type;
       the_worst_t worst_baddie;
-      refinement_lights_info_t(const std::string &name_in, const std::string &label_in, float value_in) {
-         name = name_in;
-         label = label_in;
+      refinement_lights_info_t(const std::string &name_in, const std::string &label_in, float value_in) :
+         name(name_in), label(label_in) {
          value = value_in;
          rama_type = RAMA_TYPE_LOGRAMA;
       }

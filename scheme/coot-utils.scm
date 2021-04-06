@@ -614,7 +614,7 @@
   (cond 
    ((eq? type 'flat) (vt-surface 1))
    ((eq? type 'spherical-surface) (vt-surface 0))
-   (else 
+   (else
 					; usually not output anywhere
     (format #t "virtual trackball type ~s not understood~%" type))))
     
@@ -1954,15 +1954,19 @@
   ;; chi squareds will be about 1.0).
   ;; 
   (define (weight-scale-from-refinement-results rr)
+
     (if (not (list? rr))
 	#f
-	(let* ((nnb-list (no-non-bonded (list-ref rr 2)))
-	       (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
-	       (n (length chi-squares))
-	       (sum (apply + chi-squares)))
-	  (if (= n 0)
-	      #f
-	      (/ sum n)))))
+        (let ((results-inner (list-ref rr 2)))
+          (if (null? results-inner)
+              #f
+              (let* ((nnb-list (no-non-bonded results-inner))
+                     (chi-squares (map (lambda (x) results-inner nnb-list)))
+                     (n (length chi-squares))
+                     (sum (apply + chi-squares)))
+                (if (= n 0)
+                    #f
+                    (/ sum n)))))))
 
   
   ;; main body
