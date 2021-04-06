@@ -42,7 +42,7 @@
                                  "parse-pisa-xml.scm"
                                  "cns2coot.scm"
                                  "clear-backup.scm"
-                                 "tips.scm"
+                                 ;; "tips.scm"
                                  "3d-generator-import.scm"
                                  "dictionary-generators.scm"
                                  "cho-restraints-from-models.scm"
@@ -52,7 +52,7 @@
                                  ;;; "group-settings.scm"
                              ))
 
-                (gui-list (list "tips-gui.scm"
+                (gui-list (list ;; "tips-gui.scm"
                                 "gui-hole.scm"
                                 "gui-prosmart.scm"
                                 "gui-add-linked-cho.scm"
@@ -74,6 +74,6 @@
                           (let ((ff (%search-load-path f)))
                             (if ff
                                 (begin
-                                  (format #t "load ~s~%" ff) ;; remove verbose
+                                  ;; (format #t "load ~s~%" ff) ;; remove verbose
                                   (load ff)))))
                         list-for-loading))))))))

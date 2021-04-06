@@ -433,7 +433,7 @@
 	    (string-append "acedrg-" tlc-str ".log")
 	    #t)))
 
-      (if (ok-goosh-status? status)
+      (if (ok-goosh-status? goosh-status)
 	  (begin
 	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
 	    (read-cif-dictionary cif-out-file-name))
