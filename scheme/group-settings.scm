@@ -32,16 +32,5 @@
 	(set-display-lists-for-maps 0)
 	(set-browser-interface "open"))))
 
-(set! *probe-command* "probe")
-(set! *reduce-command* "reduce")
-    
-;; The rapper installation dir.  This is just a guess, that it is
-;; installed in the users home directory.
-;; 
-(define rapper-dir  
-  (let ((home (getenv "HOME")))
-    (if home
-	(append-dir-dir home "rappermc")
-	 #f)))
-
-
+;; (set! *probe-command* "probe")
+;; (set! *reduce-command* "reduce")

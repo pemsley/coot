@@ -217,8 +217,8 @@ SCM sequence_info(int imol) {
 // 	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
 // 	    std::cout << "debug scming" << seq[iv].first.c_str()
 // 		      << " and " << seq[iv].second.c_str() << std::endl;
-	    SCM a = scm_makfrom0str(seq[iv].first.c_str());
-	    SCM b = scm_makfrom0str(seq[iv].second.c_str());
+	    SCM a = scm_from_locale_string(seq[iv].first.c_str());
+	    SCM b = scm_from_locale_string(seq[iv].second.c_str());
 	    SCM ls = scm_cons(a, b);
 	    r = scm_cons(ls, r);
 	 }
@@ -682,12 +682,12 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 
 	 r = SCM_EOL;
 
-	 r = scm_cons(scm_double2num(atom->occupancy), r);
-	 r = scm_cons(scm_double2num(atom->tempFactor), r);
-	 r = scm_cons(scm_makfrom0str(atom->element), r);
-	 r = scm_cons(scm_double2num(atom->x), r);
-	 r = scm_cons(scm_double2num(atom->y), r);
-	 r = scm_cons(scm_double2num(atom->z), r);
+	 r = scm_cons(scm_from_double(atom->occupancy), r);
+	 r = scm_cons(scm_from_double(atom->tempFactor), r);
+	 r = scm_cons(scm_from_locale_string(atom->element), r);
+	 r = scm_cons(scm_from_double(atom->x), r);
+	 r = scm_cons(scm_from_double(atom->y), r);
+	 r = scm_cons(scm_from_double(atom->z), r);
 	 r = scm_reverse(r);
       }
    }
@@ -710,7 +710,7 @@ SCM molecule_to_pdb_string_scm(int imol) {
    SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol)) {
       std::string s = graphics_info_t::molecules[imol].pdb_string();
-      r = scm_makfrom0str(s.c_str());
+      r = scm_from_locale_string(s.c_str());
    }
    return r;
 }
@@ -791,7 +791,7 @@ PyObject *scm_to_py(SCM s) {
       int s_length = scm_to_int(s_length_scm);
       o = PyList_New(s_length);
       for (int item=0; item<s_length; item++) {
-	 SCM item_scm = scm_list_ref(s, SCM_MAKINUM(item));
+	 SCM item_scm = scm_list_ref(s, scm_from_int(item));
 	 PyList_SetItem(o, item, scm_to_py(item_scm));
       }
    } else {
@@ -856,15 +856,15 @@ SCM py_to_scm(PyObject *o) {
       } else {
 	 if (PyLong_Check(o)) {
 	    int i=PyLong_AsLong(o);
-	    s = SCM_MAKINUM(i);
+	    s = scm_from_int(i);
 	 } else {
 	    if (PyFloat_Check(o)) {
 	       double f = PyFloat_AsDouble(o);
-	       s = scm_float2num(f);
+	       s = scm_from_double(f);
 	    } else {
 	       if (PyUnicode_Check(o)) {
                   std::string str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
-		  s = scm_makfrom0str(str.c_str());
+		  s = scm_from_locale_string(str.c_str());
 	       } else {
 		  if (o == Py_None) {
 		     s = SCM_UNSPECIFIED;
@@ -889,9 +889,9 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 
    SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol)) {
-      SCM chain_id_scm = scm_list_ref(residue_in, SCM_MAKINUM(0));
-      SCM resno_scm    = scm_list_ref(residue_in, SCM_MAKINUM(1));
-      SCM ins_code_scm = scm_list_ref(residue_in, SCM_MAKINUM(2));
+      SCM chain_id_scm = scm_list_ref(residue_in, scm_from_int(0));
+      SCM resno_scm    = scm_list_ref(residue_in, scm_from_int(1));
+      SCM ins_code_scm = scm_list_ref(residue_in, scm_from_int(2));
       std::string chain_id = scm_to_locale_string(chain_id_scm);
       std::string ins_code = scm_to_locale_string(ins_code_scm);
       int resno            = scm_to_int(resno_scm);
@@ -900,9 +900,9 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
       for (unsigned int i=0; i<v.size(); i++) {
 	 SCM res_spec = SCM_EOL;
-	 res_spec = scm_cons(scm_makfrom0str(v[i].ins_code.c_str()), res_spec);
-	 res_spec = scm_cons(scm_int2num(v[i].res_no), res_spec);
-	 res_spec = scm_cons(scm_makfrom0str(v[i].chain_id.c_str()), res_spec);
+	 res_spec = scm_cons(scm_from_locale_string(v[i].ins_code.c_str()), res_spec);
+	 res_spec = scm_cons(scm_from_int(v[i].res_no), res_spec);
+	 res_spec = scm_cons(scm_from_locale_string(v[i].chain_id.c_str()), res_spec);
 	 r = scm_cons(res_spec, r);
       }
    }
@@ -927,7 +927,7 @@ SCM residues_near_residues_scm(int imol, SCM residues_in_scm, float radius) {
 	 int l = scm_to_int(l_scm);
 	 std::vector<std::pair<bool, mmdb::Residue *> > res_vec;
 	 for (int i=0; i<l; i++) {
-	    SCM item_py = scm_list_ref(residues_in_scm, SCM_MAKINUM(i));
+	    SCM item_py = scm_list_ref(residues_in_scm, scm_from_int(i));
 	    coot::residue_spec_t spec = residue_spec_from_scm(item_py);
 	    mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
 	    if (residue_p) {
@@ -1077,9 +1077,9 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
 		   << std::endl;
       } else {
 
-	 double x = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(0)));
-	 double y = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(1)));
-	 double z = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(2)));
+	 double x = scm_to_double(scm_list_ref(pt_in_scm, scm_from_int(0)));
+	 double y = scm_to_double(scm_list_ref(pt_in_scm, scm_from_int(1)));
+	 double z = scm_to_double(scm_list_ref(pt_in_scm, scm_from_int(2)));
 
 	 clipper::Coord_orth pt(x,y,z);
 
@@ -1284,9 +1284,9 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
       int offset = 0;
       if (len == 4)
 	 offset = 1;
-      SCM chain_id_scm = scm_list_ref(residue_in, SCM_MAKINUM(0+offset));
-      SCM resno_scm    = scm_list_ref(residue_in, SCM_MAKINUM(1+offset));
-      SCM ins_code_scm = scm_list_ref(residue_in, SCM_MAKINUM(2+offset));
+      SCM chain_id_scm = scm_list_ref(residue_in, scm_from_int(0+offset));
+      SCM resno_scm    = scm_list_ref(residue_in, scm_from_int(1+offset));
+      SCM ins_code_scm = scm_list_ref(residue_in, scm_from_int(2+offset));
       std::string chain_id = scm_to_locale_string(chain_id_scm);
       std::string ins_code = scm_to_locale_string(ins_code_scm);
       int resno            = scm_to_int(resno_scm);
@@ -1379,26 +1379,26 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			at = residue_p->GetAtom(iat);
                         if (at->Ter) continue; //ignore TER records
 
-			at_x  = scm_float2num(at->x);
-			at_y  = scm_float2num(at->y);
-			at_z  = scm_float2num(at->z);
+			at_x  = scm_from_double(at->x);
+			at_y  = scm_from_double(at->y);
+			at_z  = scm_from_double(at->z);
 			at_pos = scm_list_3(at_x, at_y, at_z);
-			at_occ = scm_float2num(at->occupancy);
-			at_biso= scm_float2num(at->tempFactor);
-			at_ele = scm_makfrom0str(at->element);
-			at_name = scm_makfrom0str(at->name);
-			at_segid = scm_makfrom0str(at->segID);
-			at_altconf = scm_makfrom0str(at->altLoc);
+			at_occ = scm_from_double(at->occupancy);
+			at_biso= scm_from_double(at->tempFactor);
+			at_ele = scm_from_locale_string(at->element);
+			at_name = scm_from_locale_string(at->name);
+			at_segid = scm_from_locale_string(at->segID);
+			at_altconf = scm_from_locale_string(at->altLoc);
 			SCM at_b = at_biso;
 			if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
 			   at_b = SCM_EOL;
 			   at_b = scm_cons(at_biso, at_b);
-			   at_b = scm_cons(scm_float2num(at->u11), at_b);
-			   at_b = scm_cons(scm_float2num(at->u22), at_b);
-			   at_b = scm_cons(scm_float2num(at->u33), at_b);
-			   at_b = scm_cons(scm_float2num(at->u12), at_b);
-			   at_b = scm_cons(scm_float2num(at->u13), at_b);
-			   at_b = scm_cons(scm_float2num(at->u23), at_b);
+			   at_b = scm_cons(scm_from_double(at->u11), at_b);
+			   at_b = scm_cons(scm_from_double(at->u22), at_b);
+			   at_b = scm_cons(scm_from_double(at->u33), at_b);
+			   at_b = scm_cons(scm_from_double(at->u12), at_b);
+			   at_b = scm_cons(scm_from_double(at->u13), at_b);
+			   at_b = scm_cons(scm_from_double(at->u23), at_b);
 			   at_b = scm_reverse(at_b);
 			}
 			SCM compound_name = scm_list_2(at_name, at_altconf);
@@ -1581,7 +1581,7 @@ SCM residue_name_scm(int imol, const char* chain_id, int resno, const char *ins_
    SCM r = SCM_BOOL(0);
    std::string res_name = residue_name(imol, chain_id, resno, ins_code);
    if (res_name.size() > 0) {
-      r = scm_makfrom0str(res_name.c_str());
+      r = scm_from_locale_string(res_name.c_str());
    }
    return r;
 }
@@ -1674,10 +1674,10 @@ SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_co
 	 std::string next_ins_code  = next_atom->GetInsCode();
 
 	 r = SCM_EOL;
-	 r = scm_cons(scm_makfrom0str(next_atom_name.c_str()), r);
-	 r = scm_cons(scm_makfrom0str(next_ins_code.c_str()), r);
-	 r = scm_cons(scm_int2num(next_residue_number) ,r);
-	 r = scm_cons(scm_makfrom0str(next_chain_id.c_str()), r);
+	 r = scm_cons(scm_from_locale_string(next_atom_name.c_str()), r);
+	 r = scm_cons(scm_from_locale_string(next_ins_code.c_str()), r);
+	 r = scm_cons(scm_from_int(next_residue_number) ,r);
+	 r = scm_cons(scm_from_locale_string(next_chain_id.c_str()), r);
       }
    }
    return r;
@@ -1707,10 +1707,10 @@ SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_co
 	 std::string next_ins_code  = next_atom->GetInsCode();
 
 	 r = SCM_EOL;
-	 r = scm_cons(scm_makfrom0str(next_atom_name.c_str()), r);
-	 r = scm_cons(scm_makfrom0str(next_ins_code.c_str()), r);
-	 r = scm_cons(scm_int2num(next_residue_number) ,r);
-	 r = scm_cons(scm_makfrom0str(next_chain_id.c_str()), r);
+	 r = scm_cons(scm_from_locale_string(next_atom_name.c_str()), r);
+	 r = scm_cons(scm_from_locale_string(next_ins_code.c_str()), r);
+	 r = scm_cons(scm_from_int(next_residue_number) ,r);
+	 r = scm_cons(scm_from_locale_string(next_chain_id.c_str()), r);
       }
    }
    return r;
@@ -1913,12 +1913,12 @@ SCM active_residue() {
 
    if (pp.first) {
       s = SCM_EOL;
-      s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()), s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()) , s);
-      s = scm_cons(scm_int2num(pp.second.second.res_no) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()) , s);
-      s = scm_cons(scm_int2num(pp.second.first) ,s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.alt_conf.c_str()) , s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.atom_name.c_str()), s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.ins_code.c_str()) , s);
+      s = scm_cons(scm_from_int(pp.second.second.res_no) , s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.chain_id.c_str()) , s);
+      s = scm_cons(scm_from_int(pp.second.first) ,s);
    }
    return s;
 }
@@ -1940,12 +1940,12 @@ SCM closest_atom_simple_scm() {
 
    if (pp.first) {
       s = SCM_EOL;
-      s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()), s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()), s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()), s);
-      s = scm_cons(scm_int2num(pp.second.second.res_no), s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()), s);
-      s = scm_cons(scm_int2num(pp.second.first), s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.alt_conf.c_str()), s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.atom_name.c_str()), s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.ins_code.c_str()), s);
+      s = scm_cons(scm_from_int(pp.second.second.res_no), s);
+      s = scm_cons(scm_from_locale_string(pp.second.second.chain_id.c_str()), s);
+      s = scm_cons(scm_from_int(pp.second.first), s);
    }
    return s;
 }
@@ -2015,15 +2015,15 @@ SCM closest_atom(int imol) {
 	 graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
       if (at_info.atom) {
 	 r = SCM_EOL;
-	 r = scm_cons(scm_double2num(at_info.atom->z), r);
-	 r = scm_cons(scm_double2num(at_info.atom->y), r);
-	 r = scm_cons(scm_double2num(at_info.atom->x), r);
-	 r = scm_cons(scm_makfrom0str(at_info.atom->altLoc), r);
-	 r = scm_cons(scm_makfrom0str(at_info.atom->name), r);
-	 r = scm_cons(scm_makfrom0str(at_info.atom->GetInsCode()), r);
-	 r = scm_cons(scm_int2num(at_info.atom->GetSeqNum()), r);
-	 r = scm_cons(scm_makfrom0str(at_info.atom->GetChainID()), r);
-	 r = scm_cons(scm_int2num(imol), r);
+	 r = scm_cons(scm_from_double(at_info.atom->z), r);
+	 r = scm_cons(scm_from_double(at_info.atom->y), r);
+	 r = scm_cons(scm_from_double(at_info.atom->x), r);
+	 r = scm_cons(scm_from_locale_string(at_info.atom->altLoc), r);
+	 r = scm_cons(scm_from_locale_string(at_info.atom->name), r);
+	 r = scm_cons(scm_from_locale_string(at_info.atom->GetInsCode()), r);
+	 r = scm_cons(scm_from_int(at_info.atom->GetSeqNum()), r);
+	 r = scm_cons(scm_from_locale_string(at_info.atom->GetChainID()), r);
+	 r = scm_cons(scm_from_int(imol), r);
       }
    }
    return r;
@@ -2072,15 +2072,15 @@ SCM closest_atom_raw_scm() {
       mmdb::Atom *at = g.molecules[imol].get_atom(ca_ii.first);
       if (at) {
 	 r = SCM_EOL;
-	 r = scm_cons(scm_double2num(at->z), r);
-	 r = scm_cons(scm_double2num(at->y), r);
-	 r = scm_cons(scm_double2num(at->x), r);
-	 r = scm_cons(scm_makfrom0str(at->altLoc), r);
-	 r = scm_cons(scm_makfrom0str(at->name), r);
-	 r = scm_cons(scm_makfrom0str(at->GetInsCode()), r);
-	 r = scm_cons(scm_int2num(at->GetSeqNum()), r);
-	 r = scm_cons(scm_makfrom0str(at->GetChainID()), r);
-	 r = scm_cons(scm_int2num(imol), r);
+	 r = scm_cons(scm_from_double(at->z), r);
+	 r = scm_cons(scm_from_double(at->y), r);
+	 r = scm_cons(scm_from_double(at->x), r);
+	 r = scm_cons(scm_from_locale_string(at->altLoc), r);
+	 r = scm_cons(scm_from_locale_string(at->name), r);
+	 r = scm_cons(scm_from_locale_string(at->GetInsCode()), r);
+	 r = scm_cons(scm_from_int(at->GetSeqNum()), r);
+	 r = scm_cons(scm_from_locale_string(at->GetChainID()), r);
+	 r = scm_cons(scm_from_int(imol), r);
       }
    }
    return r;
@@ -2139,9 +2139,9 @@ void update_go_to_atom_from_current_position() {
 #ifdef USE_GUILE
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
 
-   SCM r = SCM_CAR(scm_listofnull);
+   SCM r = SCM_EOL;
    for (int i=v.size()-1; i>=0; i--) {
-      r = scm_cons(scm_makfrom0str(v[i].c_str()), r);
+      r = scm_cons(scm_from_locale_string(v[i].c_str()), r);
    }
    return r;
 }
@@ -2172,7 +2172,7 @@ generic_list_to_string_vector_internal(SCM l) {
 
    int l_length = scm_to_int(l_length_scm);
    for (int i=0; i<l_length; i++) {
-      SCM le = scm_list_ref(l, SCM_MAKINUM(i));
+      SCM le = scm_list_ref(l, scm_from_int(i));
       std::string s = scm_to_locale_string(le);
       r.push_back(s);
    }
@@ -2181,7 +2181,7 @@ generic_list_to_string_vector_internal(SCM l) {
 
    int l_length = gh_scm2int(l_length_scm);
    for (int i=0; i<l_length; i++) {
-      SCM le = scm_list_ref(l, SCM_MAKINUM(i));
+      SCM le = scm_list_ref(l, scm_from_int(i));
       std::string s = SCM_STRING_CHARS(le);
       r.push_back(s);
    }
@@ -2214,7 +2214,7 @@ SCM generic_int_vector_to_list_internal(const std::vector<int> &v) {
 
    SCM r = SCM_EOL;
    for (int i=v.size()-1; i>=0; i--) {
-      r = scm_cons(scm_int2num(v[i]), r);
+      r = scm_cons(scm_from_int(v[i]), r);
    }
    return r;
 }
@@ -2243,19 +2243,19 @@ SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
    clipper::Mat33<double>  mat = rtop.rot();
    clipper::Vec3<double> trans = rtop.trn();
 
-   tr_list = scm_cons(scm_double2num(trans[2]), tr_list);
-   tr_list = scm_cons(scm_double2num(trans[1]), tr_list);
-   tr_list = scm_cons(scm_double2num(trans[0]), tr_list);
+   tr_list = scm_cons(scm_from_double(trans[2]), tr_list);
+   tr_list = scm_cons(scm_from_double(trans[1]), tr_list);
+   tr_list = scm_cons(scm_from_double(trans[0]), tr_list);
 
-   rot_list = scm_cons(scm_double2num(mat(2,2)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(2,1)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(2,0)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(1,2)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(1,1)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(1,0)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(0,2)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(0,1)), rot_list);
-   rot_list = scm_cons(scm_double2num(mat(0,0)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(2,2)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(2,1)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(2,0)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(1,2)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(1,1)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(1,0)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(0,2)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(0,1)), rot_list);
+   rot_list = scm_cons(scm_from_double(mat(0,0)), rot_list);
 
    r = scm_cons(tr_list, r);
    r = scm_cons(rot_list, r);
@@ -2271,21 +2271,21 @@ SCM inverse_rtop_scm(SCM rtop_scm) {
    SCM rtop_len_scm = scm_length(rtop_scm);
    int rtop_len = scm_to_int(rtop_len_scm);
    if (rtop_len == 2) {
-      SCM rot_scm = scm_list_ref(rtop_scm, SCM_MAKINUM(0));
+      SCM rot_scm = scm_list_ref(rtop_scm, scm_from_int(0));
       SCM rot_length_scm = scm_length(rot_scm);
       int rot_length = scm_to_int(rot_length_scm);
       if (rot_length == 9) {
-	 SCM trn_scm = scm_list_ref(rtop_scm, SCM_MAKINUM(1));
+	 SCM trn_scm = scm_list_ref(rtop_scm, scm_from_int(1));
 	 SCM trn_length_scm = scm_length(trn_scm);
 	 int trn_length = scm_to_int(trn_length_scm);
 	 double rot_arr[9];
 	 double trn_arr[3];
 	 if (trn_length == 3) {
 	    for (int i=0; i<9; i++) {
-	       rot_arr[i] = scm_to_double(scm_list_ref(rot_scm, SCM_MAKINUM(i)));
+	       rot_arr[i] = scm_to_double(scm_list_ref(rot_scm, scm_from_int(i)));
 	    }
 	    for (int i=0; i<3; i++) {
-	       trn_arr[i] = scm_to_double(scm_list_ref(trn_scm, SCM_MAKINUM(i)));
+	       trn_arr[i] = scm_to_double(scm_list_ref(trn_scm, scm_from_int(i)));
 	    }
 	    clipper::Mat33<double> rot(rot_arr[0], rot_arr[1], rot_arr[2],
 				       rot_arr[3], rot_arr[4], rot_arr[5],
@@ -2379,7 +2379,7 @@ PyObject *inverse_rtop_py(PyObject *rtop_py) {
 //
 SCM get_symmetry(int imol) {
 
-   SCM r = SCM_CAR(scm_listofnull);
+   SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
       std::vector<std::string> symop_list =
@@ -3722,10 +3722,10 @@ SCM map_parameters_scm(int imol) {
 	 r = scm_cons(SCM_BOOL_T, r);
       else
 	 r = scm_cons(SCM_BOOL_F, r);
-      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_weight_col.c_str()), r);
-      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_phi_col.c_str()), r);
-      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_f_col.c_str()), r);
-      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()), r);
+      r = scm_cons(scm_from_locale_string(graphics_info_t::molecules[imol].save_weight_col.c_str()), r);
+      r = scm_cons(scm_from_locale_string(graphics_info_t::molecules[imol].save_phi_col.c_str()), r);
+      r = scm_cons(scm_from_locale_string(graphics_info_t::molecules[imol].save_f_col.c_str()), r);
+      r = scm_cons(scm_from_locale_string(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()), r);
    }
    return r;
 }
@@ -3768,12 +3768,12 @@ SCM cell_scm(int imol) {
       std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
       if (cell.first) {
 	 r = SCM_EOL;
-	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().gamma())), r);
-	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().beta() )), r);
-	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().alpha())), r);
-	 r = scm_cons(scm_double2num(cell.second.descr().c()), r);
-	 r = scm_cons(scm_double2num(cell.second.descr().b()), r);
-	 r = scm_cons(scm_double2num(cell.second.descr().a()), r);
+	 r = scm_cons(scm_from_double(clipper::Util::rad2d(cell.second.descr().gamma())), r);
+	 r = scm_cons(scm_from_double(clipper::Util::rad2d(cell.second.descr().beta() )), r);
+	 r = scm_cons(scm_from_double(clipper::Util::rad2d(cell.second.descr().alpha())), r);
+	 r = scm_cons(scm_from_double(cell.second.descr().c()), r);
+	 r = scm_cons(scm_from_double(cell.second.descr().b()), r);
+	 r = scm_cons(scm_from_double(cell.second.descr().a()), r);
       }
    }
    return r;
@@ -3955,7 +3955,7 @@ SCM cif_file_for_comp_id_scm(const std::string &comp_id) {
    graphics_info_t g;
    int imol = 0; // dummy. Hmm.
    std::string f = g.Geom_p()->get_cif_file_name(comp_id, imol);
-   return scm_makfrom0str(f.c_str());
+   return scm_from_locale_string(f.c_str());
 }
 #endif // GUILE
 
@@ -3983,7 +3983,7 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id) {
    SCM r = SCM_BOOL_F;
    try {
       std::string s = SMILES_for_comp_id(comp_id);
-      r = scm_makfrom0str(s.c_str());
+      r = scm_from_locale_string(s.c_str());
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -4034,17 +4034,17 @@ SCM monomer_restraints(const char *monomer_type) {
       // ------------------ chem_comp -------------------------
       coot::dict_chem_comp_t info = restraints.residue_info;
       SCM chem_comp_scm = SCM_EOL;
-      chem_comp_scm = scm_cons(scm_makfrom0str(info.comp_id.c_str()),           chem_comp_scm);
-      chem_comp_scm = scm_cons(scm_makfrom0str(info.three_letter_code.c_str()), chem_comp_scm);
-      chem_comp_scm = scm_cons(scm_makfrom0str(info.name.c_str()),              chem_comp_scm);
-      chem_comp_scm = scm_cons(scm_makfrom0str(info.group.c_str()),             chem_comp_scm);
-      chem_comp_scm = scm_cons(scm_int2num(info.number_atoms_all),              chem_comp_scm);
-      chem_comp_scm = scm_cons(scm_int2num(info.number_atoms_nh),               chem_comp_scm);
-      chem_comp_scm = scm_cons(scm_makfrom0str(info.description_level.c_str()), chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_locale_string(info.comp_id.c_str()),           chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_locale_string(info.three_letter_code.c_str()), chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_locale_string(info.name.c_str()),              chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_locale_string(info.group.c_str()),             chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_int(info.number_atoms_all),              chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_int(info.number_atoms_nh),               chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_from_locale_string(info.description_level.c_str()), chem_comp_scm);
       chem_comp_scm = scm_reverse(chem_comp_scm);
       SCM chem_comp_container = SCM_EOL;
       // chem_comp_container = scm_cons(chem_comp_scm, chem_comp_container);
-      chem_comp_container = scm_cons(scm_makfrom0str("_chem_comp"), chem_comp_scm);
+      chem_comp_container = scm_cons(scm_from_locale_string("_chem_comp"), chem_comp_scm);
 
       // ------------------ chem_comp_atom -------------------------
       std::vector<coot::dict_atom> atom_info = restraints.atom_info;
@@ -4052,10 +4052,10 @@ SCM monomer_restraints(const char *monomer_type) {
       SCM atom_info_list = SCM_EOL;
       for (int iat=0; iat<n_atoms; iat++) {
 	 SCM atom_attributes_list = SCM_EOL;
-	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].atom_id_4c.c_str()),   atom_attributes_list);
-	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_symbol.c_str()),  atom_attributes_list);
-	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_energy.c_str()),  atom_attributes_list);
-	 atom_attributes_list = scm_cons(scm_double2num(atom_info[iat].partial_charge.second), atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_from_locale_string(atom_info[iat].atom_id_4c.c_str()),   atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_from_locale_string(atom_info[iat].type_symbol.c_str()),  atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_from_locale_string(atom_info[iat].type_energy.c_str()),  atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_from_double(atom_info[iat].partial_charge.second), atom_attributes_list);
 	 SCM partial_flag = SCM_BOOL_F;
 	 if (atom_info[iat].partial_charge.first)
 	    partial_flag = SCM_BOOL_T;
@@ -4066,7 +4066,7 @@ SCM monomer_restraints(const char *monomer_type) {
       atom_info_list = scm_reverse(atom_info_list);
       SCM atom_info_list_container = SCM_EOL;
       // atom_info_list_container = scm_cons(atom_info_list, atom_info_list_container);
-      atom_info_list_container = scm_cons(scm_makfrom0str("_chem_comp_atom"), atom_info_list);
+      atom_info_list_container = scm_cons(scm_from_locale_string("_chem_comp_atom"), atom_info_list);
 
 
       // ------------------ Bonds -------------------------
@@ -4083,22 +4083,22 @@ SCM monomer_restraints(const char *monomer_type) {
 	 try {
 	    double esd = bond_restraint.value_esd();
 	    double d   = bond_restraint.value_dist();
-	    esd_scm = scm_double2num(esd);
-	    d_scm   = scm_double2num(d);
+	    esd_scm = scm_from_double(esd);
+	    d_scm   = scm_from_double(d);
 	 }
 	 catch (const std::runtime_error &rte) {
 	    // we use the default values of #f, if the esd or dist is not set.
 	 }
 	 bond_restraint_scm = scm_cons(esd_scm, bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(d_scm,   bond_restraint_scm);
-	 bond_restraint_scm = scm_cons(scm_makfrom0str(type.c_str()), bond_restraint_scm);
-	 bond_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   bond_restraint_scm);
-	 bond_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_from_locale_string(type.c_str()), bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_from_locale_string(a2.c_str()),   bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_from_locale_string(a1.c_str()),   bond_restraint_scm);
 	 bond_restraint_list = scm_cons(bond_restraint_scm, bond_restraint_list);
       }
       SCM bond_restraints_container = SCM_EOL;
       // bond_restraints_container = scm_cons(bond_restraint_list, bond_restraints_container);
-      bond_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_bond"), bond_restraint_list);
+      bond_restraints_container = scm_cons(scm_from_locale_string("_chem_comp_bond"), bond_restraint_list);
 
       // ------------------ Angles -------------------------
       SCM angle_restraint_list = SCM_EOL;
@@ -4110,16 +4110,16 @@ SCM monomer_restraints(const char *monomer_type) {
 	 double d   = angle_restraint.angle();
 	 double esd = angle_restraint.esd();
 	 SCM angle_restraint_scm = SCM_EOL;
-	 angle_restraint_scm = scm_cons(scm_double2num(esd), angle_restraint_scm);
-	 angle_restraint_scm = scm_cons(scm_double2num(d),   angle_restraint_scm);
-	 angle_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()),   angle_restraint_scm);
-	 angle_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   angle_restraint_scm);
-	 angle_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_from_double(esd), angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_from_double(d),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_from_locale_string(a3.c_str()),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_from_locale_string(a2.c_str()),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_from_locale_string(a1.c_str()),   angle_restraint_scm);
 	 angle_restraint_list = scm_cons(angle_restraint_scm, angle_restraint_list);
       }
       SCM angle_restraints_container = SCM_EOL;
       // angle_restraints_container = scm_cons(angle_restraint_list, angle_restraints_container);
-      angle_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_angle"), angle_restraint_list);
+      angle_restraints_container = scm_cons(scm_from_locale_string("_chem_comp_angle"), angle_restraint_list);
 
       // ------------------ Torsions -------------------------
       SCM torsion_restraint_list = SCM_EOL;
@@ -4134,19 +4134,19 @@ SCM monomer_restraints(const char *monomer_type) {
 	 double esd = torsion_restraint.esd();
 	 int period = torsion_restraint.periodicity();
 	 SCM torsion_restraint_scm = SCM_EOL;
-	 torsion_restraint_scm = scm_cons(SCM_MAKINUM(period), torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_double2num(esd), torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_double2num(tor), torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a4.c_str()),   torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()),   torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   torsion_restraint_scm);
-	 torsion_restraint_scm = scm_cons(scm_makfrom0str(id.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_int(period), torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_double(esd), torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_double(tor), torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_locale_string(a4.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_locale_string(a3.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_locale_string(a2.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_locale_string(a1.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_from_locale_string(id.c_str()),   torsion_restraint_scm);
 	 torsion_restraint_list = scm_cons(torsion_restraint_scm, torsion_restraint_list);
       }
       SCM torsion_restraints_container = SCM_EOL;
       // torsion_restraints_container = scm_cons(torsion_restraint_list, torsion_restraints_container);
-      torsion_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_tor"), torsion_restraint_list);
+      torsion_restraints_container = scm_cons(scm_from_locale_string("_chem_comp_tor"), torsion_restraint_list);
 
 
       // ------------------ Planes -------------------------
@@ -4157,22 +4157,22 @@ SCM monomer_restraints(const char *monomer_type) {
 	 for (int iat=0; iat<plane_restraint.n_atoms(); iat++) {
 
 	    std::string at = plane_restraint[iat].first;
-	    atom_list = scm_cons(scm_makfrom0str(at.c_str()), atom_list);
+	    atom_list = scm_cons(scm_from_locale_string(at.c_str()), atom_list);
 	 }
 	 atom_list = scm_reverse(atom_list);
 
 	 double esd = plane_restraint.dist_esd(0); // fixme
-	 SCM plane_id_scm = scm_makfrom0str(plane_restraint.plane_id.c_str());
+	 SCM plane_id_scm = scm_from_locale_string(plane_restraint.plane_id.c_str());
 
 	 SCM plane_restraint_scm = SCM_EOL;
-	 plane_restraint_scm = scm_cons(scm_double2num(esd), plane_restraint_scm);
+	 plane_restraint_scm = scm_cons(scm_from_double(esd), plane_restraint_scm);
 	 plane_restraint_scm = scm_cons(atom_list, plane_restraint_scm);
 	 plane_restraint_scm = scm_cons(plane_id_scm, plane_restraint_scm);
 	 plane_restraint_list = scm_cons(plane_restraint_scm, plane_restraint_list);
       }
       SCM plane_restraints_container = SCM_EOL;
       // plane_restraints_container = scm_cons(plane_restraint_list, plane_restraints_container);
-      plane_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_plane_atom"),
+      plane_restraints_container = scm_cons(scm_from_locale_string("_chem_comp_plane_atom"),
 					    plane_restraint_list);
 
 
@@ -4191,18 +4191,18 @@ SCM monomer_restraints(const char *monomer_type) {
 	 double esd = chiral_restraint.volume_sigma();
 	 // int volume_sign = chiral_restraint.volume_sign;
 	 SCM chiral_restraint_scm = SCM_EOL;
-	 chiral_restraint_scm = scm_cons(scm_double2num(esd), chiral_restraint_scm);
-	 chiral_restraint_scm = scm_cons(scm_int2num(vol_sign), chiral_restraint_scm);
-	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()), chiral_restraint_scm);
-	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()), chiral_restraint_scm);
-	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()), chiral_restraint_scm);
-	 chiral_restraint_scm = scm_cons(scm_makfrom0str(ac.c_str()), chiral_restraint_scm);
-	 chiral_restraint_scm = scm_cons(scm_makfrom0str(chiral_id.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_double(esd), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_int(vol_sign), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_locale_string(a3.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_locale_string(a2.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_locale_string(a1.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_locale_string(ac.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_from_locale_string(chiral_id.c_str()), chiral_restraint_scm);
 	 chiral_restraint_list = scm_cons(chiral_restraint_scm, chiral_restraint_list);
       }
       SCM chiral_restraints_container = SCM_EOL;
       // chiral_restraints_container = scm_cons(chiral_restraint_list, chiral_restraints_container);
-      chiral_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_chir"), chiral_restraint_list);
+      chiral_restraints_container = scm_cons(scm_from_locale_string("_chem_comp_chir"), chiral_restraint_list);
 
 
       r = scm_cons( chiral_restraints_container, r);
@@ -4435,7 +4435,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       int restraints_length = scm_to_int(restraints_length_scm);
       if (restraints_length > 0) {
 	 for (int i_rest_type=0; i_rest_type<restraints_length; i_rest_type++) {
-	    SCM rest_container = scm_list_ref(restraints, SCM_MAKINUM(i_rest_type));
+	    SCM rest_container = scm_list_ref(restraints, scm_from_int(i_rest_type));
 	    if (scm_is_true(scm_list_p(rest_container))) {
 	       SCM rest_container_length_scm = scm_length(rest_container);
 	       int rest_container_length = scm_to_int(rest_container_length_scm);
@@ -4453,13 +4453,13 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   std::cout << "WARNING:: chem_comp_info length " << chem_comp_info_length
 				     << " should be " << 7 << std::endl;
 			} else {
-			   SCM  comp_id_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(0));
-			   SCM      tlc_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(1));
-			   SCM     name_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(2));
-			   SCM    group_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(3));
-			   SCM      noa_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(4));
-			   SCM    nonha_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(5));
-			   SCM desc_lev_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(6));
+			   SCM  comp_id_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(0));
+			   SCM      tlc_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(1));
+			   SCM     name_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(2));
+			   SCM    group_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(3));
+			   SCM      noa_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(4));
+			   SCM    nonha_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(5));
+			   SCM desc_lev_scm = scm_list_ref(chem_comp_info_scm, scm_from_int(6));
 			   if (scm_is_true(scm_string_p(comp_id_scm)) &&
 			       scm_is_true(scm_string_p(tlc_scm)) &&
 			       scm_is_true(scm_string_p(name_scm)) &&
@@ -4488,7 +4488,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			int chem_comp_atoms_length = scm_to_int(chem_comp_atoms_length_scm);
 
 			for (int iat=0; iat<chem_comp_atoms_length; iat++) {
-			   SCM chem_comp_atom_scm = scm_list_ref(chem_comp_atoms, SCM_MAKINUM(iat));
+			   SCM chem_comp_atom_scm = scm_list_ref(chem_comp_atoms, scm_from_int(iat));
 			   SCM chem_comp_atom_length_scm = scm_length(chem_comp_atom_scm);
 			   int chem_comp_atom_length = scm_to_int(chem_comp_atom_length_scm);
 
@@ -4496,11 +4496,11 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      std::cout << "WARNING:: chem_comp_atom length " << chem_comp_atom_length
 					<< " should be " << 5 << std::endl;
 			   } else {
-			      SCM atom_id_scm  = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(0));
-			      SCM element_scm  = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(1));
-			      SCM energy_scm   = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(2));
-			      SCM partial_charge_scm = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(3));
-			      SCM valid_pc_scm = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(4));
+			      SCM atom_id_scm  = scm_list_ref(chem_comp_atom_scm, scm_from_int(0));
+			      SCM element_scm  = scm_list_ref(chem_comp_atom_scm, scm_from_int(1));
+			      SCM energy_scm   = scm_list_ref(chem_comp_atom_scm, scm_from_int(2));
+			      SCM partial_charge_scm = scm_list_ref(chem_comp_atom_scm, scm_from_int(3));
+			      SCM valid_pc_scm = scm_list_ref(chem_comp_atom_scm, scm_from_int(4));
 
 			      if (scm_string_p(atom_id_scm) && scm_string_p(element_scm) &&
 				  scm_number_p(partial_charge_scm)) {
@@ -4529,7 +4529,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			int bond_restraints_list_length = scm_to_int(bond_restraints_list_length_scm);
 
 			for (int ibr=0; ibr<bond_restraints_list_length; ibr++) {
-			   SCM bond_restraint = scm_list_ref(bond_restraints_list_scm, SCM_MAKINUM(ibr));
+			   SCM bond_restraint = scm_list_ref(bond_restraints_list_scm, scm_from_int(ibr));
 			   SCM bond_restraint_length_scm = scm_length(bond_restraint);
 			   int bond_restraint_length = scm_to_int(bond_restraint_length_scm);
 
@@ -4537,11 +4537,11 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      std::cout << "WARNING:: bond_restraint_length " << bond_restraint_length
 					<< " should be " << 5 << std::endl;
 			   } else {
-			      SCM atom_1_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(0));
-			      SCM atom_2_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(1));
-			      SCM type_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(2));
-			      SCM dist_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(3));
-			      SCM esd_scm    = scm_list_ref(bond_restraint, SCM_MAKINUM(4));
+			      SCM atom_1_scm = scm_list_ref(bond_restraint, scm_from_int(0));
+			      SCM atom_2_scm = scm_list_ref(bond_restraint, scm_from_int(1));
+			      SCM type_scm   = scm_list_ref(bond_restraint, scm_from_int(2));
+			      SCM dist_scm   = scm_list_ref(bond_restraint, scm_from_int(3));
+			      SCM esd_scm    = scm_list_ref(bond_restraint, scm_from_int(4));
 			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
 				  scm_number_p(dist_scm) && scm_number_p(esd_scm)) {
 				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
@@ -4562,7 +4562,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			int angle_restraints_list_length = scm_to_int(angle_restraints_list_length_scm);
 
 			for (int iar=0; iar<angle_restraints_list_length; iar++) {
-			   SCM angle_restraint = scm_list_ref(angle_restraints_list, SCM_MAKINUM(iar));
+			   SCM angle_restraint = scm_list_ref(angle_restraints_list, scm_from_int(iar));
 			   SCM angle_restraint_length_scm = scm_length(angle_restraint);
 			   int angle_restraint_length = scm_to_int(angle_restraint_length_scm);
 
@@ -4570,11 +4570,11 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      std::cout << "WARNING:: angle_restraint_length length "
 					<< angle_restraint_length << " should be " << 5 << std::endl;
 			   } else {
-			      SCM atom_1_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(0));
-			      SCM atom_2_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(1));
-			      SCM atom_3_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(2));
-			      SCM angle_scm  = scm_list_ref(angle_restraint, SCM_MAKINUM(3));
-			      SCM esd_scm    = scm_list_ref(angle_restraint, SCM_MAKINUM(4));
+			      SCM atom_1_scm = scm_list_ref(angle_restraint, scm_from_int(0));
+			      SCM atom_2_scm = scm_list_ref(angle_restraint, scm_from_int(1));
+			      SCM atom_3_scm = scm_list_ref(angle_restraint, scm_from_int(2));
+			      SCM angle_scm  = scm_list_ref(angle_restraint, scm_from_int(3));
+			      SCM esd_scm    = scm_list_ref(angle_restraint, scm_from_int(4));
 			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
 				  scm_string_p(atom_3_scm) &&
 				  scm_number_p(angle_scm) && scm_number_p(esd_scm)) {
@@ -4597,19 +4597,19 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			int torsion_restraints_list_length = scm_to_int(torsion_restraints_list_length_scm);
 
 			for (int itr=0; itr<torsion_restraints_list_length; itr++) {
-			   SCM torsion_restraint = scm_list_ref(torsion_restraints_list, SCM_MAKINUM(itr));
+			   SCM torsion_restraint = scm_list_ref(torsion_restraints_list, scm_from_int(itr));
 			   SCM torsion_restraint_length_scm = scm_length(torsion_restraint);
 			   int torsion_restraint_length = scm_to_int(torsion_restraint_length_scm);
 
 			   if (torsion_restraint_length == 8) {
-			      SCM torsion_id_scm = scm_list_ref(torsion_restraint, SCM_MAKINUM(0));
-			      SCM atom_1_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(1));
-			      SCM atom_2_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(2));
-			      SCM atom_3_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(3));
-			      SCM atom_4_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(4));
-			      SCM torsion_scm    = scm_list_ref(torsion_restraint, SCM_MAKINUM(5));
-			      SCM esd_scm        = scm_list_ref(torsion_restraint, SCM_MAKINUM(6));
-			      SCM period_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(7));
+			      SCM torsion_id_scm = scm_list_ref(torsion_restraint, scm_from_int(0));
+			      SCM atom_1_scm     = scm_list_ref(torsion_restraint, scm_from_int(1));
+			      SCM atom_2_scm     = scm_list_ref(torsion_restraint, scm_from_int(2));
+			      SCM atom_3_scm     = scm_list_ref(torsion_restraint, scm_from_int(3));
+			      SCM atom_4_scm     = scm_list_ref(torsion_restraint, scm_from_int(4));
+			      SCM torsion_scm    = scm_list_ref(torsion_restraint, scm_from_int(5));
+			      SCM esd_scm        = scm_list_ref(torsion_restraint, scm_from_int(6));
+			      SCM period_scm     = scm_list_ref(torsion_restraint, scm_from_int(7));
 			      if (scm_is_true(scm_string_p(atom_1_scm)) &&
 				  scm_is_true(scm_string_p(atom_2_scm)) &&
 				  scm_is_true(scm_string_p(atom_3_scm)) &&
@@ -4640,21 +4640,21 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			int plane_restraints_list_length = scm_to_int(plane_restraints_list_length_scm);
 
 			for (int ipr=0; ipr<plane_restraints_list_length; ipr++) {
-			   SCM plane_restraint = scm_list_ref(plane_restraints_list, SCM_MAKINUM(ipr));
+			   SCM plane_restraint = scm_list_ref(plane_restraints_list, scm_from_int(ipr));
 			   SCM plane_restraint_length_scm = scm_length(plane_restraint);
 			   int plane_restraint_length = scm_to_int(plane_restraint_length_scm);
 
 			   if (plane_restraint_length == 3) {
 
 			      std::vector<SCM> plane_atoms;
-			      SCM plane_id_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
-			      SCM esd_scm        = scm_list_ref(plane_restraint, SCM_MAKINUM(2));
-			      SCM atom_list_scm  = scm_list_ref(plane_restraint, SCM_MAKINUM(1));
+			      SCM plane_id_scm   = scm_list_ref(plane_restraint, scm_from_int(0));
+			      SCM esd_scm        = scm_list_ref(plane_restraint, scm_from_int(2));
+			      SCM atom_list_scm  = scm_list_ref(plane_restraint, scm_from_int(1));
 			      SCM atom_list_length_scm = scm_length(atom_list_scm);
 			      int atom_list_length = scm_to_int(atom_list_length_scm);
 			      bool atoms_pass = 1;
 			      for (int iat=0; iat<atom_list_length; iat++) {
-				 SCM atom_scm   = scm_list_ref(atom_list_scm, SCM_MAKINUM(iat));
+				 SCM atom_scm   = scm_list_ref(atom_list_scm, scm_from_int(iat));
 				 plane_atoms.push_back(atom_scm);
 				 if (!scm_string_p(atom_scm))
 				    atoms_pass = 0;
@@ -4688,18 +4688,18 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			int chiral_restraints_list_length = scm_to_int(chiral_restraints_list_length_scm);
 
 			for (int icr=0; icr<chiral_restraints_list_length; icr++) {
-			   SCM chiral_restraint = scm_list_ref(chiral_restraints_list, SCM_MAKINUM(icr));
+			   SCM chiral_restraint = scm_list_ref(chiral_restraints_list, scm_from_int(icr));
 			   SCM chiral_restraint_length_scm = scm_length(chiral_restraint);
 			   int chiral_restraint_length = scm_to_int(chiral_restraint_length_scm);
 
 			   if (chiral_restraint_length == 7) {
-			      SCM chiral_id_scm= scm_list_ref(chiral_restraint, SCM_MAKINUM(0));
-			      SCM atom_c_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(1));
-			      SCM atom_1_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(2));
-			      SCM atom_2_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(3));
-			      SCM atom_3_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(4));
-			      SCM chiral_vol_sign_scm = scm_list_ref(chiral_restraint, SCM_MAKINUM(5));
-			      // SCM esd_scm      = scm_list_ref(chiral_restraint, SCM_MAKINUM(6));
+			      SCM chiral_id_scm= scm_list_ref(chiral_restraint, scm_from_int(0));
+			      SCM atom_c_scm   = scm_list_ref(chiral_restraint, scm_from_int(1));
+			      SCM atom_1_scm   = scm_list_ref(chiral_restraint, scm_from_int(2));
+			      SCM atom_2_scm   = scm_list_ref(chiral_restraint, scm_from_int(3));
+			      SCM atom_3_scm   = scm_list_ref(chiral_restraint, scm_from_int(4));
+			      SCM chiral_vol_sign_scm = scm_list_ref(chiral_restraint, scm_from_int(5));
+			      // SCM esd_scm      = scm_list_ref(chiral_restraint, scm_from_int(6));
 			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
 				  scm_string_p(atom_3_scm) && scm_string_p(atom_c_scm)) {
 				 std::string chiral_id = scm_to_locale_string(chiral_id_scm);
@@ -5303,8 +5303,8 @@ int refmac_runs_with_nolabels() {
 #ifdef USE_GUILE
   SCM refmac_version = safe_scheme_command("(get-refmac-version)");
   if (scm_is_true(scm_list_p(refmac_version))) {
-     int major = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(0)));
-     int minor = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(1)));
+     int major = scm_to_int(scm_list_ref(refmac_version, scm_from_int(0)));
+     int minor = scm_to_int(scm_list_ref(refmac_version, scm_from_int(1)));
      if ((major == 5 && minor >= 4) || (major > 5)) {
 	ret = 1;
 	if (minor >= 5 || major > 5) {
@@ -5356,8 +5356,8 @@ SCM ccp4i_projects_scm() {
       parse_ccp4i_defs(ccp4_defs_file_name);
    for (unsigned int i=0; i<project_pairs.size(); i++) {
       SCM p = SCM_EOL;
-      p = scm_cons(scm_makfrom0str(project_pairs[i].second.c_str()), p);
-      p = scm_cons(scm_makfrom0str(project_pairs[i].first.c_str()),  p);
+      p = scm_cons(scm_from_locale_string(project_pairs[i].second.c_str()), p);
+      p = scm_cons(scm_from_locale_string(project_pairs[i].first.c_str()),  p);
       r = scm_cons(p, r);
    }
    r = scm_reverse(r);
@@ -5395,8 +5395,8 @@ SCM remarks_scm(int imol) {
       int l = tc_p->Length();
       for (int i=0; i<l; i++) {
 	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
-	 SCM a_scm = SCM_MAKINUM(cr->remarkNum);
-	 SCM b_scm = scm_makfrom0str(cr->remark);
+	 SCM a_scm = scm_from_int(cr->remarkNum);
+	 SCM b_scm = scm_from_locale_string(cr->remark);
 	 SCM l2 = SCM_LIST2(a_scm, b_scm);
 	 r = scm_cons(l2, r);
       }
@@ -5443,9 +5443,9 @@ SCM residue_centre_scm(int imol, const char *chain_id, int resno, const char *in
       std::pair<bool, clipper::Coord_orth> rr =
 	 graphics_info_t::molecules[imol].residue_centre(chain_id, resno, ins_code);
       if (rr.first) {
-	 r = SCM_LIST3(scm_double2num(rr.second.x()),
-		       scm_double2num(rr.second.y()),
-		       scm_double2num(rr.second.z()));
+	 r = SCM_LIST3(scm_from_double(rr.second.x()),
+		       scm_from_double(rr.second.y()),
+		       scm_from_double(rr.second.z()));
       }
    }
    return r;
@@ -5523,7 +5523,7 @@ SCM link_info_scm(int imol) {
 		  mmdb::PLink link = model_p->GetLink(i_link);
 
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link, model_p);
-		  SCM l = scm_list_3(SCM_MAKINUM(imod),
+		  SCM l = scm_list_3(scm_from_int(imod),
 				     atom_spec_to_scm(atoms.first),
 				     atom_spec_to_scm(atoms.second));
 		  r = scm_cons(l,r);

@@ -301,6 +301,7 @@ coot_bin_LDADD = $(top_builddir)/coot-surface/libcoot-surface.la \
                  $(top_builddir)/utils/libcoot-utils.la \
                  libcootsumo.la $(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
 
+
 lib_LTLIBRARIES=libcootsumo.la
 
 libcootsumo_la_SOURCES = \

@@ -809,15 +809,15 @@ int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm) {
 	 SCM l_scm = scm_length(extra_bond_restraints_scm);
 	 int l = scm_to_int(l_scm);
 	 for (int i=0; i<l; i++) {
-	    SCM restr_descr_scm = scm_list_ref(extra_bond_restraints_scm, SCM_MAKINUM(i));
+	    SCM restr_descr_scm = scm_list_ref(extra_bond_restraints_scm, scm_from_int(i));
 	    if (scm_is_true(scm_list_p(restr_descr_scm))) {
 	       SCM r_l_scm = scm_length(restr_descr_scm);
 	       int r_l = scm_to_int(r_l_scm);
 	       if (r_l == 4) {
-		  coot::atom_spec_t atom_1_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, SCM_MAKINUM(0)));
-		  coot::atom_spec_t atom_2_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, SCM_MAKINUM(1)));
-		  SCM target_dist_scm = scm_list_ref(restr_descr_scm, SCM_MAKINUM(2));
-		  SCM dist_esd_scm    = scm_list_ref(restr_descr_scm, SCM_MAKINUM(3));
+		  coot::atom_spec_t atom_1_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, scm_from_int(0)));
+		  coot::atom_spec_t atom_2_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, scm_from_int(1)));
+		  SCM target_dist_scm = scm_list_ref(restr_descr_scm, scm_from_int(2));
+		  SCM dist_esd_scm    = scm_list_ref(restr_descr_scm, scm_from_int(3));
 		  double target_dist = scm_to_double(target_dist_scm);
 		  double dist_esd = scm_to_double(dist_esd_scm);
 		  coot::extra_restraints_t::extra_bond_restraint_t ebr(atom_1_spec, atom_2_spec, target_dist, dist_esd);
@@ -917,8 +917,8 @@ SCM list_extra_restraints_scm(int imol) {
 	    double esd = g.molecules[imol].extra_restraints.bond_restraints[ib].esd;
 	    SCM spec_1_scm = atom_spec_to_scm(spec_1);
 	    SCM spec_2_scm = atom_spec_to_scm(spec_2);
-	    SCM l = scm_list_4(spec_1_scm, spec_2_scm, scm_double2num(d), scm_double2num(esd));
-	    l = scm_cons(scm_str2symbol("bond"), l);
+	    SCM l = scm_list_4(spec_1_scm, spec_2_scm, scm_from_double(d), scm_from_double(esd));
+	    l = scm_cons(scm_string_to_symbol(scm_from_locale_string("bond")), l);
 	    r = scm_cons(l, r);
 	 }
          
@@ -928,11 +928,11 @@ SCM list_extra_restraints_scm(int imol) {
 	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_3;
 	    double a = g.molecules[imol].extra_restraints.angle_restraints[it].angle;
 	    double e = g.molecules[imol].extra_restraints.angle_restraints[it].esd;
-	    SCM l = scm_list_2(scm_double2num(a), scm_double2num(e));
+	    SCM l = scm_list_2(scm_from_double(a), scm_from_double(e));
 	    l = scm_cons(atom_spec_to_scm(spec_3), l);
 	    l = scm_cons(atom_spec_to_scm(spec_2), l);
 	    l = scm_cons(atom_spec_to_scm(spec_1), l);
-	    l = scm_cons(scm_str2symbol("angle"), l);
+	    l = scm_cons(scm_string_to_symbol(scm_from_locale_string("angle")), l);
 	    r = scm_cons(l, r);
 	 }
          
@@ -944,12 +944,12 @@ SCM list_extra_restraints_scm(int imol) {
 	    double t = g.molecules[imol].extra_restraints.torsion_restraints[it].torsion_angle;
 	    double e = g.molecules[imol].extra_restraints.torsion_restraints[it].esd;
 	    int    p = g.molecules[imol].extra_restraints.torsion_restraints[it].period;
-	    SCM l = scm_list_3(scm_double2num(t), scm_double2num(e), scm_int2num(p));
+	    SCM l = scm_list_3(scm_from_double(t), scm_from_double(e), scm_from_int(p));
 	    l = scm_cons(atom_spec_to_scm(spec_4), l);
 	    l = scm_cons(atom_spec_to_scm(spec_3), l);
 	    l = scm_cons(atom_spec_to_scm(spec_2), l);
 	    l = scm_cons(atom_spec_to_scm(spec_1), l);
-	    l = scm_cons(scm_str2symbol("torsion"), l);
+	    l = scm_cons(scm_string_to_symbol(scm_from_locale_string("torsion")), l);
 	    r = scm_cons(l, r);
 	 }
          
@@ -957,8 +957,8 @@ SCM list_extra_restraints_scm(int imol) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.start_pos_restraints[ib].atom_1;
 	    double esd = g.molecules[imol].extra_restraints.start_pos_restraints[ib].esd;
 	    SCM spec_1_scm = atom_spec_to_scm(spec_1);
-	    SCM l = scm_list_2(spec_1_scm, scm_double2num(esd));
-	    l = scm_cons(scm_str2symbol("start-pos"), l);
+	    SCM l = scm_list_2(spec_1_scm, scm_from_double(esd));
+	    l = scm_cons(scm_string_to_symbol(scm_from_locale_string("start-pos")), l);
 	    r = scm_cons(l, r);
 	 }
 	 
@@ -1073,8 +1073,8 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
       int restraint_spec_length = scm_to_int(restraint_spec_length_scm);
       if (restraint_spec_length == 2) {
 	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
-	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
-	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("start-pos")))) {
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, scm_from_int(1));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_string_to_symbol(scm_from_locale_string("start-pos"))))) {
 	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
 	    graphics_info_t::molecules[imol].remove_extra_start_pos_restraint(spec_1);
 	    //graphics_draw(); //there is currently no graphical representation for start_pos restraints
@@ -1082,9 +1082,9 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
          
       } else if (restraint_spec_length == 3) {
 	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
-	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
-	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
-	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("bond")))) {
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, scm_from_int(1));
+	 SCM spec_2_scm = scm_list_ref(restraint_spec, scm_from_int(2));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_string_to_symbol(scm_from_locale_string("bond"))))) {
 	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
 	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
 	    graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
@@ -1093,10 +1093,10 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
          
       } else if (restraint_spec_length == 4) {
 	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
-	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
-	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
-	 SCM spec_3_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(3));
-	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("angle")))) {
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, scm_from_int(1));
+	 SCM spec_2_scm = scm_list_ref(restraint_spec, scm_from_int(2));
+	 SCM spec_3_scm = scm_list_ref(restraint_spec, scm_from_int(3));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_string_to_symbol(scm_from_locale_string("angle"))))) {
 	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
 	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
 	    coot::atom_spec_t spec_3 = atom_spec_from_scm_expression(spec_3_scm);
@@ -1106,11 +1106,11 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
       
       } else if (restraint_spec_length == 5) {
 	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
-	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
-	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
-	 SCM spec_3_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(3));
-	 SCM spec_4_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(4));
-	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("torsion")))) {
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, scm_from_int(1));
+	 SCM spec_2_scm = scm_list_ref(restraint_spec, scm_from_int(2));
+	 SCM spec_3_scm = scm_list_ref(restraint_spec, scm_from_int(3));
+	 SCM spec_4_scm = scm_list_ref(restraint_spec, scm_from_int(4));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_string_to_symbol(scm_from_locale_string("torsion"))))) {
 	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
 	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
 	    coot::atom_spec_t spec_3 = atom_spec_from_scm_expression(spec_3_scm);

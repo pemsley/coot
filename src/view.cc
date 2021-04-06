@@ -211,15 +211,9 @@ coot::operator<<(std::ostream &f, const coot::view_info_t &view) {
       f << view.rotation_centre.z();
       f << ")\n";
 
-      f << "   (list ";
-      f << view.quat[0]; 
-      f << " ";
-      f << view.quat[1]; 
-      f << " ";
-      f << view.quat[2]; 
-      f << " ";
-      f << view.quat[3];
-      f << ")\n";
+      f << "   ";
+      f << glm::to_string(view.quaternion);
+      f << ",\n";
       
       f << "   ";
       f << view.zoom; 

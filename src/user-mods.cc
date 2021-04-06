@@ -253,7 +253,7 @@ coot::flips_container::user_mods() const {
       // (list atom_spec residue-type info-string set-string score)
       // 
       SCM flip_scm = SCM_EOL;
-      flip_scm = scm_cons(scm_double2num(flips[i].score), flip_scm);
+      flip_scm = scm_cons(scm_from_double(flips[i].score), flip_scm);
       flip_scm = scm_cons(scm_from_locale_string(flips[i].set_string.c_str()), flip_scm);
       flip_scm = scm_cons(scm_from_locale_string(flips[i].info_string.c_str()), flip_scm);
       flip_scm = scm_cons(scm_from_locale_string(flips[i].residue_type.c_str()), flip_scm);

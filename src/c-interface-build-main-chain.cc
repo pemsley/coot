@@ -597,8 +597,8 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
       }
 
       for (int i=(p.second.size()-1); i>=0; i--)
-	 mol_list_scm = scm_cons(SCM_MAKINUM(p.second[i]), mol_list_scm);
-      SCM first_pair_scm = scm_list_2(SCM_MAKINUM(p.first.first), SCM_MAKINUM(p.first.second));
+	 mol_list_scm = scm_cons(scm_from_int(p.second[i]), mol_list_scm);
+      SCM first_pair_scm = scm_list_2(scm_from_int(p.first.first), scm_from_int(p.first.second));
       r = scm_list_2(first_pair_scm, mol_list_scm);
    } 
    return r;

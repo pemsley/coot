@@ -1002,11 +1002,11 @@ SCM refmac_parameters_scm(int imol) {
 	 // values have to go in in reverse order, as usual.
 	 for (int i=(int(refmac_params.size())-1); i>=0; i--) {
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
-	       r = scm_cons(scm_makfrom0str(refmac_params[i].s.c_str()) ,r);
+	       r = scm_cons(scm_from_locale_string(refmac_params[i].s.c_str()) ,r);
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
-	       r = scm_cons(scm_double2num(refmac_params[i].val) ,r);
+	       r = scm_cons(scm_from_double(refmac_params[i].val) ,r);
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
-	       r = scm_cons(SCM_MAKINUM(refmac_params[i].i) ,r);
+	       r = scm_cons(scm_from_int(refmac_params[i].i) ,r);
 	 }
       }
    }
@@ -1349,21 +1349,21 @@ SCM get_refmac_sad_atom_info_scm() {
     float fp = sad_atoms[i].fp;
     float fpp = sad_atoms[i].fpp;
     float lambda = sad_atoms[i].lambda;
-    ls = scm_cons(scm_makfrom0str(atom_name.c_str()) ,ls);
+    ls = scm_cons(scm_from_locale_string(atom_name.c_str()) ,ls);
     if (fabs(fp + 9999) <= 0.1) {
       ls = scm_cons(SCM_BOOL_F, ls);
     } else {
-      ls = scm_cons(scm_double2num(fp), ls);
+      ls = scm_cons(scm_from_double(fp), ls);
     }
     if (fabs(fpp + 9999) <= 0.1) {
       ls = scm_cons(SCM_BOOL_F, ls);
     } else {
-      ls = scm_cons(scm_double2num(fpp), ls);
+      ls = scm_cons(scm_from_double(fpp), ls);
     }
     if (fabs(lambda + 9999) <= 0.1) {
       ls = scm_cons(SCM_BOOL_F, ls);
     } else {
-      ls = scm_cons(scm_double2num(lambda), ls);
+      ls = scm_cons(scm_from_double(lambda), ls);
     }
     r = scm_cons(scm_reverse(ls), r);
   }

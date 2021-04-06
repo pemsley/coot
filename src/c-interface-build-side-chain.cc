@@ -432,7 +432,7 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
 	 coot::richardson_rotamer d(res, alt_conf, mol, 0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
 	 std::cout << "INFO:: " << coot::residue_spec_t(res) << " " << prob << std::endl;
-	 r = scm_makfrom0str(prob.rotamer_name.c_str());
+	 r = scm_from_locale_string(prob.rotamer_name.c_str());
 #endif      
       }
    }

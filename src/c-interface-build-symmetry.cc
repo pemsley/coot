@@ -528,9 +528,9 @@ SCM origin_pre_shift_scm(int imol) {
       try { 
 	 clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
 	 r = SCM_EOL;
-	 r = scm_cons(SCM_MAKINUM(int(round(cf.w()))), r);
-	 r = scm_cons(SCM_MAKINUM(int(round(cf.v()))), r);
-	 r = scm_cons(SCM_MAKINUM(int(round(cf.u()))), r);
+	 r = scm_cons(scm_from_int(int(round(cf.w()))), r);
+	 r = scm_cons(scm_from_int(int(round(cf.v()))), r);
+	 r = scm_cons(scm_from_int(int(round(cf.u()))), r);
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;

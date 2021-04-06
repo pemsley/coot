@@ -80,10 +80,10 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		  try {
 		     double phosphate_d = pi.phosphate_distance(following_res);
 		     r = SCM_EOL;
-		     r = scm_cons(scm_double2num(pi.plane_distortion), r);
-		     r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
-		     r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
-		     r = scm_cons(scm_double2num(phosphate_d), r);
+		     r = scm_cons(scm_from_double(pi.plane_distortion), r);
+		     r = scm_cons(scm_from_double(pi.out_of_plane_distance), r);
+		     r = scm_cons(scm_from_locale_string(pi.puckered_atom().c_str()), r);
+		     r = scm_cons(scm_from_double(phosphate_d), r);
 
 		     // double dist_crit = xxx
 		     // If C2', phosphate oop dist should be > dist_crit
@@ -102,13 +102,13 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 	    } else {
 	       // no pucker check
 	       r = SCM_EOL;
-	       r = scm_cons(scm_double2num(pi.plane_distortion), r);
-	       r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
-	       r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
+	       r = scm_cons(scm_from_double(pi.plane_distortion), r);
+	       r = scm_cons(scm_from_double(pi.out_of_plane_distance), r);
+	       r = scm_cons(scm_from_locale_string(pi.puckered_atom().c_str()), r);
 	       if (following_res) {
 		  try {
 		     double phosphate_d = pi.phosphate_distance(following_res);
-		     r = scm_cons(scm_double2num(phosphate_d), r);
+		     r = scm_cons(scm_from_double(phosphate_d), r);
 		  }
 		  catch (const std::runtime_error &phos_mess) { }
 	       }

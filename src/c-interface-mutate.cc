@@ -71,23 +71,23 @@ atom_spec_from_scm_expression(SCM expr) {
    int len_view = scm_to_int(len_expr);
    if (len_view == 5) {
 
-      SCM idx_scm = SCM_MAKINUM(0);
+      SCM idx_scm = scm_from_int(0);
       SCM chain_id_scm = scm_list_ref(expr, idx_scm);
       std::string chain_id = scm_to_locale_string(chain_id_scm);
 
-      idx_scm = SCM_MAKINUM(1);
+      idx_scm = scm_from_int(1);
       SCM resno_scm = scm_list_ref(expr, idx_scm);
       int resno = scm_to_int(resno_scm);
 
-      idx_scm = SCM_MAKINUM(2);
+      idx_scm = scm_from_int(2);
       SCM ins_code_scm = scm_list_ref(expr, idx_scm);
       std::string ins_code = scm_to_locale_string(ins_code_scm);
       
-      idx_scm = SCM_MAKINUM(3);
+      idx_scm = scm_from_int(3);
       SCM atom_name_scm = scm_list_ref(expr, idx_scm);
       std::string atom_name = scm_to_locale_string(atom_name_scm);
       
-      idx_scm = SCM_MAKINUM(4);
+      idx_scm = scm_from_int(4);
       SCM alt_conf_scm = scm_list_ref(expr, idx_scm);
       std::string alt_conf = scm_to_locale_string(alt_conf_scm);
 
@@ -311,7 +311,7 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
 								     graphics_info_t::alignment_wgap,
 								     graphics_info_t::alignment_wspace);
       if (p.first) {
-	 r = scm_makfrom0str(p.second.c_str());
+	 r = scm_from_locale_string(p.second.c_str());
       }
    }
    return r;
@@ -440,8 +440,8 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction) {
    SCM r = SCM_BOOL_F;
    std::pair<int, std::string> result = align_to_closest_chain(target_seq, match_fraction);
    if (is_valid_model_molecule(result.first)) {
-      SCM a = SCM_MAKINUM(result.first);
-      SCM b = scm_makfrom0str(result.second.c_str());
+      SCM a = scm_from_int(result.first);
+      SCM b = scm_from_locale_string(result.second.c_str());
       r = scm_list_2(a,b);
    }
    return r;

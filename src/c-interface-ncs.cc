@@ -558,14 +558,14 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
 						  cd.residue_info[iresinf].target_resno,
 						  cd.residue_info[iresinf].target_inscode);
 		  SCM res_l = SCM_EOL;
-		  res_l = scm_cons(scm_double2num(cd.residue_info[iresinf].mean_diff), res_l);
+		  res_l = scm_cons(scm_from_double(cd.residue_info[iresinf].mean_diff), res_l);
 //		  res_l = scm_cons(scm_cdr(scm_residue(target_res)), res_l);
 //		  res_l = scm_cons(scm_cdr(scm_residue(this_res)), res_l);
 		  l_residue_data = scm_cons(res_l, l_residue_data);
 	       }
 	       r = scm_cons(l_residue_data, SCM_EOL);
-	       r = scm_cons(scm_makfrom0str(diffs.target_chain_id.c_str()), r);
-	       r = scm_cons(scm_makfrom0str(cd.peer_chain_id.c_str()), r);
+	       r = scm_cons(scm_from_locale_string(diffs.target_chain_id.c_str()), r);
+	       r = scm_cons(scm_from_locale_string(cd.peer_chain_id.c_str()), r);
 	    }
 	 }
       }
@@ -710,9 +710,9 @@ SCM ncs_ghosts_scm(int imol) {
 	 SCM rtop_scm = SCM_BOOL_F;
 	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p())
 	    rtop_scm = rtop_to_scm(ncs_ghosts[ighost].rtop);
-	 SCM target_chain_id_scm = scm_makfrom0str(ncs_ghosts[ighost].target_chain_id.c_str());
-	 SCM chain_id_scm = scm_makfrom0str(ncs_ghosts[ighost].chain_id.c_str());
-	 SCM name_scm = scm_makfrom0str(ncs_ghosts[ighost].name.c_str());
+	 SCM target_chain_id_scm = scm_from_locale_string(ncs_ghosts[ighost].target_chain_id.c_str());
+	 SCM chain_id_scm = scm_from_locale_string(ncs_ghosts[ighost].chain_id.c_str());
+	 SCM name_scm = scm_from_locale_string(ncs_ghosts[ighost].name.c_str());
 	 
 	 ghost_scm = scm_cons(display_it_flag_scm, ghost_scm);
 	 ghost_scm = scm_cons(rtop_scm,            ghost_scm);

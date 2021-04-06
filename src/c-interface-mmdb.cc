@@ -53,7 +53,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
       mol = new mmdb::Manager; 
       for(int imodel=0; imodel<inmodel; imodel++) {
 	 mmdb::Model *model_p = new mmdb::Model;
-	 SCM imodel_scm = SCM_MAKINUM(imodel);
+	 SCM imodel_scm = scm_from_int(imodel);
 	 SCM model_expression = scm_list_ref(molecule_expression, imodel_scm);
 	 SCM model_expression_length = scm_length(model_expression);
 	 int len_model_expression = scm_to_int(model_expression_length);
@@ -66,7 +66,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       
 	       SCM chain_expression = scm_list_ref(model_expression,
-						   SCM_MAKINUM(ichain));
+						   scm_from_int(ichain));
 	       SCM chain_is_list_scm = scm_list_p(chain_expression);
 	       if (scm_is_true(chain_is_list_scm)) {
 		  // printf("chain_expression is a list\n");
@@ -82,8 +82,8 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 	       } else {
 		  // normal case
 		  // std::cout << "good chain expression " << std::endl;
-		  SCM chain_id_scm = scm_list_ref(chain_expression, SCM_MAKINUM(0));
-		  SCM residues_list = scm_list_ref(chain_expression, SCM_MAKINUM(1));
+		  SCM chain_id_scm = scm_list_ref(chain_expression, scm_from_int(0));
+		  SCM residues_list = scm_list_ref(chain_expression, scm_from_int(1));
 		  if (scm_is_true(scm_list_p(residues_list))) {
 		     // printf("residues_list is a list\n");
 		  } else {
@@ -97,7 +97,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 		     std::string chain_id = scm_to_locale_string(chain_id_scm);
 		     chain_p->SetChainID(chain_id.c_str());
 		     for (int ires=0; ires<n_residues; ires++) {
-			SCM ires_scm = SCM_MAKINUM(ires);
+			SCM ires_scm = scm_from_int(ires);
 			SCM scm_residue = scm_list_ref(residues_list, ires_scm);
 			SCM scm_len_residue_expr = scm_length(scm_residue);
 			int len_residue_expr = scm_to_int(scm_len_residue_expr);
@@ -107,10 +107,10 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			} else {
 			   // normal case
 			   // std::cout << "good residue expression" << std::endl;
-			   SCM scm_residue_number = scm_list_ref(scm_residue, SCM_MAKINUM(0));
-			   SCM scm_residue_inscode = scm_list_ref(scm_residue, SCM_MAKINUM(1));
-			   SCM scm_residue_name = scm_list_ref(scm_residue, SCM_MAKINUM(2));
-			   SCM atoms_list = scm_list_ref(scm_residue, SCM_MAKINUM(3));
+			   SCM scm_residue_number = scm_list_ref(scm_residue, scm_from_int(0));
+			   SCM scm_residue_inscode = scm_list_ref(scm_residue, scm_from_int(1));
+			   SCM scm_residue_name = scm_list_ref(scm_residue, scm_from_int(2));
+			   SCM atoms_list = scm_list_ref(scm_residue, scm_from_int(3));
 
 			   if (scm_is_true(scm_list_p(atoms_list))) {
 			      // printf("atoms_list is a list\n");
@@ -131,7 +131,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			      residue_p->seqNum = resno;
 			      memcpy(residue_p->insCode, inscode.c_str(), sizeof(mmdb::InsCode));
 			      for (int iat=0; iat<n_atoms; iat++) {
-				 SCM iat_scm = SCM_MAKINUM(iat);
+				 SCM iat_scm = scm_from_int(iat);
 				 SCM atom_expression = scm_list_ref(atoms_list, iat_scm);
 				 SCM len_atom_expr_scm = scm_length(atom_expression);
 				 int len_atom_expr = scm_to_int(len_atom_expr_scm);
@@ -139,16 +139,16 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 				    std::cout << "bad atom expression, length "
 					      << len_residue_expr << std::endl;
 				    SCM dest = SCM_BOOL_F;
-				    SCM mess = scm_makfrom0str("object: ~S\n");
+				    SCM mess = scm_from_locale_string("object: ~S\n");
 				    SCM bad_scm = scm_simple_format(dest, mess, scm_list_1(atom_expression));
 				    std::string bad_str = scm_to_locale_string(bad_scm);
 				    std::cout << bad_str << std::endl;
 				 } else {
 				    // normal case
 				    // std::cout << "good atom expression " << std::endl;
-				    SCM name_alt_conf_pair = scm_list_ref(atom_expression, SCM_MAKINUM(0));
-				    SCM occ_b_ele = scm_list_ref(atom_expression, SCM_MAKINUM(1));
-				    SCM pos_expr =  scm_list_ref(atom_expression, SCM_MAKINUM(2));
+				    SCM name_alt_conf_pair = scm_list_ref(atom_expression, scm_from_int(0));
+				    SCM occ_b_ele = scm_list_ref(atom_expression, scm_from_int(1));
+				    SCM pos_expr =  scm_list_ref(atom_expression, scm_from_int(2));
 				    SCM len_name_alt_conf_scm = scm_length(name_alt_conf_pair);
 				    int len_name_alt_conf = scm_to_int(len_name_alt_conf_scm);
 				    SCM len_occ_b_ele_scm = scm_length(occ_b_ele);
@@ -163,13 +163,13 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     std::string atom_name = scm_to_locale_string(atom_name_scm);
 					     SCM alt_conf_scm = SCM_CAR(SCM_CDR(name_alt_conf_pair));
 					     std::string alt_conf = scm_to_locale_string(alt_conf_scm);
-					     SCM occ_scm = scm_list_ref(occ_b_ele, SCM_MAKINUM(0));
-					     SCM b_scm   = scm_list_ref(occ_b_ele, SCM_MAKINUM(1));
-					     SCM ele_scm = scm_list_ref(occ_b_ele, SCM_MAKINUM(2));
+					     SCM occ_scm = scm_list_ref(occ_b_ele, scm_from_int(0));
+					     SCM b_scm   = scm_list_ref(occ_b_ele, scm_from_int(1));
+					     SCM ele_scm = scm_list_ref(occ_b_ele, scm_from_int(2));
 					     std::string segid;
 					     bool have_segid = 0;
 					     if (len_occ_b_ele == 4) {
-						SCM segid_scm = scm_list_ref(occ_b_ele, SCM_MAKINUM(3));
+						SCM segid_scm = scm_list_ref(occ_b_ele, scm_from_int(3));
 						if (scm_is_string(segid_scm)) { 
 						   have_segid = 1;
 						   segid = scm_to_locale_string(segid_scm);
@@ -178,9 +178,9 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     float b = scm_to_double(b_scm);
 					     float occ = scm_to_double(occ_scm);
 					     std::string ele = scm_to_locale_string(ele_scm);
-					     float x = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(0)));
-					     float y = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(1)));
-					     float z = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(2)));
+					     float x = scm_to_double(scm_list_ref(pos_expr, scm_from_int(0)));
+					     float y = scm_to_double(scm_list_ref(pos_expr, scm_from_int(1)));
+					     float z = scm_to_double(scm_list_ref(pos_expr, scm_from_int(2)));
 					     mmdb::Atom *atom = new mmdb::Atom;
 					     atom->SetCoordinates(x, y, z, occ, b);
 					     if ( ! ((atom_name == "") && (ele == ""))) {

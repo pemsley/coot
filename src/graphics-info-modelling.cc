@@ -2338,11 +2338,11 @@ graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
 
    if (rr.found_restraints_flag) {
       SCM lights_scm = SCM_EOL;
-      SCM progress_scm = SCM_MAKINUM(rr.progress);
+      SCM progress_scm = scm_from_int(rr.progress);
       SCM info_scm = scm_from_locale_string(rr.info_text.c_str());
       for (int il=rr.lights.size()-1; il>=0; il--) {
 	 SCM light_scm = SCM_EOL;
-	 SCM value_scm = scm_double2num(rr.lights[il].value);
+	 SCM value_scm = scm_from_double(rr.lights[il].value);
 	 SCM label_scm = scm_from_locale_string(rr.lights[il].label.c_str());
  	 SCM  name_scm = scm_from_locale_string(rr.lights[il].name.c_str());
 

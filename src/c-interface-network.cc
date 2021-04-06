@@ -350,16 +350,16 @@ SCM curl_progress_info(const char *file_name) {
       info = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
       CURLcode status = curl_easy_getinfo(c, info, &dv);
       if (status == CURLE_OK) {
-	 SCM scm_v   = scm_double2num(dv);
-	 SCM scm_sym = scm_str2symbol("content-length-download");
+	 SCM scm_v   = scm_from_double(dv);
+	 SCM scm_sym = scm_string_to_symbol(scm_from_locale_string("content-length-download"));
 	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
       }
 
       info = CURLINFO_SIZE_DOWNLOAD;
       status = curl_easy_getinfo(c, info, &dv);
       if (status == CURLE_OK) {
-	 SCM scm_v   = scm_double2num(dv);
-	 SCM scm_sym = scm_str2symbol("size-download");
+	 SCM scm_v   = scm_from_double(dv);
+	 SCM scm_sym = scm_string_to_symbol(scm_from_locale_string("size-download"));
 	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
       }
    } else {

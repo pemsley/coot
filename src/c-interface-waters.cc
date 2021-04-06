@@ -165,7 +165,7 @@ SCM select_atom_under_pointer_scm() {
       pick_info pi = atom_pick(NULL);
       if (pi.success) {
 	 mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
-	 SCM v1 = SCM_MAKINUM(pi.imol);
+	 SCM v1 = scm_from_int(pi.imol);
 	 SCM v2 = atom_spec_to_scm(coot::atom_spec_t(at));
 	 r = scm_list_2(v1, v2);
 	 normal_cursor();
@@ -207,7 +207,7 @@ SCM water_chain_from_shelx_ins_scm(int imol) {
       mmdb::Chain *water_chain =
 	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
       if (water_chain) {
-	 r = scm_makfrom0str(water_chain->GetChainID());
+	 r = scm_from_locale_string(water_chain->GetChainID());
       } 
    }
    return r;
@@ -218,7 +218,7 @@ SCM water_chain_scm(int imol) {
    if (is_valid_model_molecule(imol)) {
       mmdb::Chain *water_chain = graphics_info_t::molecules[imol].water_chain();
       if (water_chain) {
-	 r = scm_makfrom0str(water_chain->GetChainID());
+	 r = scm_from_locale_string(water_chain->GetChainID());
       } 
    }
    return r;
@@ -614,10 +614,10 @@ SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_sigma) {
 	 r = SCM_EOL;
 	 v = find_blobs(imol_model, imol_map, cut_off_sigma);
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    SCM l = scm_list_4(scm_double2num(v[i].second),
-			       scm_double2num(v[i].first.x()),
-			       scm_double2num(v[i].first.y()),
-			       scm_double2num(v[i].first.z()));
+	    SCM l = scm_list_4(scm_from_double(v[i].second),
+			       scm_from_double(v[i].first.x()),
+			       scm_from_double(v[i].first.y()),
+			       scm_from_double(v[i].first.z()));
 	    r = scm_cons(l, r);
 	 }
 	 r = scm_reverse(r);

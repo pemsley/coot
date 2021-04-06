@@ -550,7 +550,7 @@ SCM generic_object_name_scm(int obj_number) {
    for (int i=(n_objs-1); i>=0; i--) {
       if (i == obj_number) {
 	 if (!g.generic_display_objects[i].mesh.this_mesh_is_closed) { 
-	    r = scm_makfrom0str(g.generic_display_objects[i].mesh.name.c_str());
+	    r = scm_from_locale_string(g.generic_display_objects[i].mesh.name.c_str());
 	 }
       }
    }

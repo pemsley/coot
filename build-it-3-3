@@ -3504,6 +3504,7 @@ build_unistring=true
 build_guile_gnome_platform=true
 build_readline=true
 build_guile_cairo=true
+build_guile_lib=true
 
 
 if [ "$build_libffi" = true ] ; then
@@ -3692,6 +3693,7 @@ if [ "$build_template" = true ] ; then
          fi
       fi
       cd -
+      ) > $HOSTLOGDIR/2x-xx.txt 2>&1
    fi
 fi
 # ------------------------------------  template -------------------------------------
@@ -3720,7 +3722,9 @@ if [ "$build_g_wrap" = true ] ; then
          exit
       fi
       cd g-wrap-$g_wrap_version
-      # if ./configure --prefix=$install_top_dir LIBFFI_LIBS=-L$install_top_dir/lib LIBFFI_CFLAGS=-I$install_top_dir/include; then
+      # if ./configure --prefix=$install_top_dir
+      # LIBFFI_LIBS=-L$install_top_dir/lib
+      # LIBFFI_CFLAGS=-I$install_top_dir/include; then
       if ./configure --prefix=$install_top_dir --disable-Werror ; then
          if $MAKE ; then
             make install
@@ -3761,6 +3765,56 @@ if [ "$build_guile_cairo" = true ] ; then
    fi
 fi
 
+# guile-lib
+if test -f $install_top_dir/share/guile/site/sxml/simple.scm ; then
+    echo installation has guile-lib
+    build_guile_lib=
+else
+    build_guile_lib=1
+    echo guile-lib needs to be installed
+fi
+
+guile_version=$(guile-config --version |& cut -f5 -d" ") # 2.2.7
+guile_major_minor=2.2
+guile_lib_version=0.2.7
+
+if [ "$build_guile_lib" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/share/guile/site/os/process.scm ] ; then
+         skip_this=true
+      fi
+   fi
+
+   # echo template skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      echo ========================= build guile-lib =================================
+      if [ -e $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/template-$template_version.tar.gz
+      else
+         exit
+      fi
+      if [ ! -e $install_top_dir/bin/guile ] ; then
+         echo no guile
+         exit
+      fi
+      cd guile-lib-$guile_lib_version
+
+      # sigh. I had to delete guile-3 installation, guile and guile-config being
+      # correct for 2.2.7 was not enough.
+      # (this uses PKG_CONFIG_PATH)
+      if ./configure --prefix=$install_top_dir --with-guile-site=yes ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/27-guile-lib.txt 2>&1
+   fi
+fi
+
+
 
 
 
@@ -3789,7 +3843,7 @@ if [ "$build_guile_gnome_platform" = true ] ; then
             make install
          fi
       fi
-      ) > $HOSTLOGDIR/27-guile-gnome-platform.txt 2>&1
+      ) > $HOSTLOGDIR/28-guile-gnome-platform.txt 2>&1
    fi
 fi
 
