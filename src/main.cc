@@ -428,16 +428,6 @@ main (int argc, char *argv[]) {
    // remove Curlew from the File menu with old compiler?
    remove_file_curlew_menu_item_maybe();
 
-#ifdef USE_GUILE
-
-   // Must be the last thing in this function, code after it does not get
-   // executed (if we are using guile)
-   //
-   my_wrap_scm_boot_guile(argc, argv);
-
-   //
-#endif
-
    // to start the graphics, we need to init glut and gtk with the
    // command line args.
 
@@ -449,11 +439,24 @@ main (int argc, char *argv[]) {
    handle_command_line_data(cld);
 #endif
 
+   // these scripts are stored by handle_command_line_data()
+   run_command_line_scripts();
+
+
+   // control goes into my_wrap_scm_boot_guile and doesn't return
+#ifdef USE_GUILE
+   // Must be the last thing in this function, code after it does not get
+   // executed (if we are using guile)
+   //
+   my_wrap_scm_boot_guile(argc, argv);
+#endif
+
+
+   // ==================== ususually not exectuted ========================
+
 #if ! defined (USE_GUILE)
 #ifdef USE_PYTHON
 
-   // these scripts are stored by handle_command_line_data()
-   run_command_line_scripts();
    if (graphics_info_t::use_graphics_interface_flag)
       gtk_main();
    else {

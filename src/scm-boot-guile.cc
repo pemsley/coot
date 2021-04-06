@@ -66,14 +66,21 @@ void inner_main(void *closure, int argc, char **argv) {
    handler_string += "(display (list \"Error in proc:\" key \" args: \" args)) (newline))";
    SCM handler = scm_c_eval_string(handler_string.c_str());
 
-   std::string thunk_str = "(use-modules (test-embedding))\n";
-   // thunk_str = "(lambda() (display (list 444444444444444444 (enhanced-ligand-coot-p))) (newline))\n";
+   std::string coot_scm;
+   coot_scm = coot::package_data_dir();
+   coot_scm = coot::util::append_dir_dir(coot_scm, "scheme");
+   coot_scm = coot::util::append_dir_file(coot_scm, "coot.scm");
+   std::cout << "debug:: coot_scm " << coot_scm << std::endl;
+
+   std::string thunk_str = "(lambda () (load \"" + coot_scm + "\"))";
    SCM thunk = scm_c_eval_string(thunk_str.c_str());
 
    scm_catch(SCM_BOOL_T, thunk, handler);
    
    if (use_graphics_flag)
       gtk_main();
+   else
+      scm_shell(argc, argv);
 
 }
 
@@ -87,11 +94,9 @@ void my_wrap_scm_boot_guile(int argc, char** argv) {
 /*                                                char **argv), */
 /*                             void *closure); */
 
-   std::cout << "============================================================ my_wrap_scm_boot_guile() " << std::endl;
-  
    scm_boot_guile(argc, argv, inner_main, NULL);
 
-   printf("you should not see this, c_inner_main should have called exit(0)\n"); 
+   std::cout << "you should not see this, inner_main should never return\n";
 
 }
 

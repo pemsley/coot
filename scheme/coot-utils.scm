@@ -32,7 +32,7 @@
 ;; used in Extensions -> Representation -> Ball & Stick
 (define *default-ball-and-stick-selection* "//A/1-2")
 
-(load "redefine-functions.scm")
+;; (load "redefine-functions.scm")
 
 ;; documented functions
 
@@ -616,7 +616,7 @@
    ((eq? type 'spherical-surface) (vt-surface 0))
    (else 
 					; usually not output anywhere
-    (format #t "virtual trackball type ~s not understood~%"))))
+    (format #t "virtual trackball type ~s not understood~%" type))))
     
 ;; Is @var{ls} a list of strings?  Return #t or #f
 ;; 
@@ -1466,7 +1466,7 @@
    ((eq? axis 'y) (list 0 length 0))
    ((eq? axis 'z) (list 0 0 length))
    (else 
-    (format #t "symbol axis: ~s incomprehensible~%")
+    (format #t "symbol axis: ~s incomprehensible~%" axis)
     #f)))
 
 ;; Rotate degrees about screen axis, where axis is either 'x, 'y or 'z.
@@ -1518,7 +1518,7 @@
    ((eq? axis 'y) (mult view-matrix (simple-rotation-y (deg-to-rad degrees))))
    ((eq? axis 'z) (mult view-matrix (simple-rotation-z (deg-to-rad degrees))))
    (else
-    (format #t "symbol axis: ~s incomprehensible~%")
+    (format #t "symbol axis: ~s incomprehensible~%" axis)
     #f)))
 
 ;; Support for old toggle functions.  (consider instead the raw
@@ -1609,7 +1609,7 @@
     (define tf
       (lambda (imol mat trans about-pt radius space-group cell)
 
-	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
+	(format #t "DEBUG:: tf was passed imol: ~s, mat: ~s trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
 		imol mat trans about-pt radius space-group cell)
 
 	(transform-map-raw imol 
@@ -1814,13 +1814,6 @@
 (define (valid-refinement-map?)
   (valid-map-molecule? (imol-refinement-map)))
 
-
-;; schemey interface to shelx molecule test
-;; 
-;; Return #t or #f.
-;; 
-(define (shelx-molecule? imol)
-  (= (is-shelx-molecule imol) 1))
 
 ;; schemey interface to the function that returns whether or not a map
 ;; is a difference map.  
@@ -3835,7 +3828,7 @@
 			      (let ((cs (drugbox->chemspider rev-string)))
 				(if (not (string? cs))
 				    (begin 
-				      (format #t "not a string ~s ~s~%~!" cs)
+				      (format #t "not a string ~s ~s~%~!" cs rev-string)
 				      #f)
 
 				    ;; chemspider extraction worked
