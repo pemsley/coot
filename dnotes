@@ -9549,3 +9549,106 @@ Sun 28 Feb 2021 11:11:40 GMT
 
    https://www.fluentcpp.com/2018/03/30/is-stdfor_each-obsolete/
 
+
+----
+Fri  2 Apr 18:43:26 BST 2021
+
+pip install oddt
+
+depends on:
+   oddt
+   scikit_learn
+   joblib
+   pandas
+   sphinx
+   Jinja2
+   Babel-2
+   alabaster
+   pytz
+   snowballstemmer
+   imagesize
+   docutils
+   requests
+   MarkupSafe
+   pyparsing
+   chardet
+   urllib3
+   idn
+   certifi
+
+/home/autobuild/Linux-penelope-pre-release-gtk2-python/bin/pip
+penelope coot-refinement/build/src> pip install oddt
+DEPRECATION: Python 2.7 reached the end of its life on January 1st, 2020. Please upgrade your Python as Python 2.7 is no longer maintained. pip 21.0 will drop support for Python 2.7 in January 2021. More details about Python 2 support in pip can be found at https://pip.pypa.io/en/latest/development/release-process/#python-2-support pip 21.0 will remove support for this functionality.
+Collecting oddt
+  Downloading oddt-0.7.tar.gz (2.3 MB)
+     |████████████████████████████████| 2.3 MB 202 kB/s 
+Collecting numpydoc
+  Downloading numpydoc-0.9.2.tar.gz (27 kB)
+Requirement already satisfied: six in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from oddt) (1.14.0)
+Requirement already satisfied: numpy>=1.11 in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages/numpy-1.16.6-py2.7-linux-x86_64.egg (from oddt) (1.16.6)
+Requirement already satisfied: scipy>=0.17 in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from oddt) (1.2.3)
+Collecting scikit-learn>=0.18
+  Downloading scikit_learn-0.20.4-cp27-cp27m-manylinux1_x86_64.whl (5.5 MB)
+     |████████████████████████████████| 5.5 MB 217 kB/s 
+Collecting joblib>=0.9.4
+  Downloading joblib-0.14.1-py2.py3-none-any.whl (294 kB)
+     |████████████████████████████████| 294 kB 206 kB/s 
+Collecting pandas>=0.19.2
+  Downloading pandas-0.24.2.tar.gz (11.8 MB)
+     |████████████████████████████████| 11.8 MB 203 kB/s 
+Collecting sphinx>=1.6.5
+  Downloading Sphinx-1.8.5-py2.py3-none-any.whl (3.1 MB)
+     |████████████████████████████████| 3.1 MB 209 kB/s 
+Collecting Jinja2>=2.3
+  Downloading Jinja2-2.11.3-py2.py3-none-any.whl (125 kB)
+     |████████████████████████████████| 125 kB 212 kB/s 
+Collecting python-dateutil>=2.5.0
+  Using cached python_dateutil-2.8.1-py2.py3-none-any.whl (227 kB)
+Collecting pytz>=2011k
+  Using cached pytz-2021.1-py2.py3-none-any.whl (510 kB)
+Collecting babel!=2.0,>=1.3
+  Downloading Babel-2.9.0-py2.py3-none-any.whl (8.8 MB)
+     |████████████████████████████████| 8.8 MB 353 kB/s 
+Collecting alabaster<0.8,>=0.7
+  Downloading alabaster-0.7.12-py2.py3-none-any.whl (14 kB)
+Collecting packaging
+  Downloading packaging-20.9-py2.py3-none-any.whl (40 kB)
+     |████████████████████████████████| 40 kB 241 kB/s 
+Collecting snowballstemmer>=1.1
+  Downloading snowballstemmer-2.1.0-py2.py3-none-any.whl (93 kB)
+     |████████████████████████████████| 93 kB 238 kB/s 
+Requirement already satisfied: Pygments>=2.0 in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from sphinx>=1.6.5->numpydoc->oddt) (2.5.2)
+Collecting sphinxcontrib-websupport
+  Downloading sphinxcontrib_websupport-1.1.2-py2.py3-none-any.whl (39 kB)
+Collecting typing; python_version < "3.5"
+  Downloading typing-3.7.4.3-py2-none-any.whl (26 kB)
+Requirement already satisfied: setuptools in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from sphinx>=1.6.5->numpydoc->oddt) (39.0.1)
+Collecting imagesize
+  Downloading imagesize-1.2.0-py2.py3-none-any.whl (4.8 kB)
+Collecting docutils>=0.11
+  Downloading docutils-0.16-py2.py3-none-any.whl (548 kB)
+     |████████████████████████████████| 548 kB 250 kB/s 
+Collecting requests>=2.0.0
+  Using cached requests-2.25.1-py2.py3-none-any.whl (61 kB)
+Collecting MarkupSafe>=0.23
+  Downloading MarkupSafe-1.1.1-cp27-cp27m-manylinux1_x86_64.whl (24 kB)
+Collecting pyparsing>=2.0.2
+  Using cached pyparsing-2.4.7-py2.py3-none-any.whl (67 kB)
+Collecting chardet<5,>=3.0.2
+  Using cached chardet-4.0.0-py2.py3-none-any.whl (178 kB)
+Collecting urllib3<1.27,>=1.21.1
+  Downloading urllib3-1.26.4-py2.py3-none-any.whl (153 kB)
+     |████████████████████████████████| 153 kB 219 kB/s 
+Collecting idna<3,>=2.5
+  Using cached idna-2.10-py2.py3-none-any.whl (58 kB)
+Collecting certifi>=2017.4.17
+  Using cached certifi-2020.12.5-py2.py3-none-any.whl (147 kB)
+Using legacy 'setup.py install' for oddt, since package 'wheel' is not installed.
+Using legacy 'setup.py install' for numpydoc, since package 'wheel' is not installed.
+Using legacy 'setup.py install' for pandas, since package 'wheel' is not installed.
+Installing collected packages: pytz, babel, alabaster, MarkupSafe, Jinja2, pyparsing, packaging, snowballstemmer, sphinxcontrib-websupport, typing, imagesize, docutils, chardet, urllib3, idna, certifi, requests, sphinx, numpydoc, scikit-learn, joblib, python-dateutil, pandas, oddt
+    Running setup.py install for numpydoc ... done
+    Running setup.py install for pandas ... done
+    Running setup.py install for oddt ... done
+Successfully installed Jinja2-2.11.3 MarkupSafe-1.1.1 alabaster-0.7.12 babel-2.9.0 certifi-2020.12.5 chardet-4.0.0 docutils-0.16 idna-2.10 imagesize-1.2.0 joblib-0.14.1 numpydoc-0.9.2 oddt-0.7 packaging-20.9 pandas-0.24.2 pyparsing-2.4.7 python-dateutil-2.8.1 pytz-2021.1 requests-2.25.1 scikit-learn-0.20.4 snowballstemmer-2.1.0 sphinx-1.8.5 sphinxcontrib-websupport-1.1.2 typing-3.7.4.3 urllib3-1.26.4
+366.639u 8.658s 8:51.26 70.6%	0+0k 166488+2907208io 562pf+0w

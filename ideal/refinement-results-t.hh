@@ -2,6 +2,8 @@
 #ifndef REFINEMENT_RESULTS_T_HH
 #define REFINEMENT_RESULTS_T_HH
 
+#include <vector>
+#include <iostream>
 #include "refinement-lights.hh"
 
 namespace coot {
@@ -43,7 +45,7 @@ namespace coot {
       refinement_results_t() {
          init();
       }
-      refinement_results_t(const std::string &s_in) {
+      explicit refinement_results_t(const std::string &s_in) {
          init();
          info_text = s_in;
          found_restraints_flag = false;
@@ -56,6 +58,14 @@ namespace coot {
          refinement_results_contain_overall_rama_plot_score = false;
          overall_nbc_score = 0.0;
          overall_rama_plot_score = 0.0;
+         progress = 27; // GSL_ENOPROG
+      }
+      void show() const {
+         std::cout << "Refinement Ressults " << info_text << " " << found_restraints_flag
+                   << " " << progress << std::endl;
+         for (const auto &l : lights) {
+            std::cout << " " << l.name << " " << l.label << " " << l.value << std::endl;
+         }
       }
    };
 

@@ -523,7 +523,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	    // note that we have to do ugly (char *) casting.  Hopefully 
 	    // that will go away in new version of mmdb..? (20 Aug 2002 - PE)
 	    // 
-	    std::pair<std::string, std::string> p = 
+	    std::pair<std::string, std::string> p =
 	       graphics_info_t::split_atom_name(go_to_atom_atom_name());
 
 	    // char altconf[3]; altconf[0] = 0; altconf[1] = 0; altconf[2] = 0;

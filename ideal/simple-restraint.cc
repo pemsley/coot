@@ -1521,8 +1521,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 		  std::cout << "INFO:: somehow the worst restraint was not set (no-progress)"
 			    << std::endl;
 	       }
-	    }
-	    if (status == GSL_ENOPROG) {
+
                // debugging/analysis
                std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
                gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
@@ -1546,9 +1545,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	       std::cout << "Minimum found (iteration number " << iter << ") at ";
 	       std::cout << m_s->f << "\n";
 	    }
-	 }
 
-	 if (status == GSL_SUCCESS) {
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
@@ -5831,8 +5828,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 	      for (int jat=0; jat<n_res_atoms_inner; jat++) { 
 	      
 		 // set atom_index_inner
-		 ierr =  res_selection_local_inner[jat]->GetUDData(udd_atom_index_handle, 
-								   atom_index_inner);
+		 ierr = res_selection_local_inner[jat]->GetUDData(udd_atom_index_handle,
+                                                                  atom_index_inner);
 
 		 if (atom_index == atom_index_inner) { 
 		    // std::cout << "skipping same index " << std::endl;
@@ -5855,7 +5852,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 
 		       std::set<int>::const_iterator it;
 		       for (it=bonded_atom_indices[atom_index].begin();
-			    it!=bonded_atom_indices[atom_index].end(); it++) {
+			    it!=bonded_atom_indices[atom_index].end(); ++it) {
 			  if (*it == atom_index_inner) {
 			     was_bonded_flag = true;
 			     break;

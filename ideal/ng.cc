@@ -2336,7 +2336,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
          std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
-                   << atom_spec_t(at_1) << " " << at_1->GetResName()
+                   << atom_spec_t(at_1) << " " << std::setw(3) << at_1->GetResName()
                    << " to " << atom_spec_t(at_2) << " " << std::setw(3) << at_2->GetResName()
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value

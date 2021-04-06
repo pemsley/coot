@@ -3,6 +3,7 @@
 #ifndef REFINEMENT_LIGHTS_HH
 #define REFINEMENT_LIGHTS_HH
 
+#include <string>
 #include "rama-types.hh"
 
 namespace coot {
@@ -15,7 +16,7 @@ namespace coot {
 	    is_set = true;
 	    restraints_index = -1;
 	 }
-	 the_worst_t() { is_set = false; value = -99999;}
+	 the_worst_t() { is_set = false; value = -99999; restraints_index = -1; }
 	 int restraints_index; // can be -1
 	 float value;
 	 bool is_set;
@@ -54,9 +55,8 @@ namespace coot {
       float value;        // e.g. 6.543
       int rama_type;
       the_worst_t worst_baddie;
-      refinement_lights_info_t(const std::string &name_in, const std::string label_in, float value_in) {
-	 name = name_in;
-	 label = label_in;
+      refinement_lights_info_t(const std::string &name_in, const std::string &label_in, float value_in) :
+         name(name_in), label(label_in) {
 	 value = value_in;
 	 rama_type = RAMA_TYPE_LOGRAMA;
       }
