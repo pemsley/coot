@@ -405,7 +405,8 @@
 # 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
 # 5.49 20210407 find mmdb libs in lib64 maybe for SSM.
 # 5.50 20210407 fix previous fix
-script_version=5.50
+# 5.51 20210407 adjust LIBS for clipper configure for lib64 usage
+script_version=5.51
 
 
 
@@ -2714,17 +2715,23 @@ if test -n "$build_clipper" ; then
     # if /usr/lib64/lib(r)fftw.so exists, clipper will link to them
     # despite our having build fftw for ourselves - I need to stop
     # that (because of clipper's m4/fftw.m4)
-    
+
     save_libs="$LIBS"
     export LIBS="-L$install_top_dir/lib:$LIBS"
     if [ -z "$LIBS" ] ; then
       save_libs=
       export LIBS=-L$install_top_dir/lib
+      if [ -e $install_top_dir/lib64 ] ; then
+          export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib"
+      fi
     else 
       save_libs="$LIBS"
       export LIBS=-L$install_top_dir/lib:$LIBS
+      if [ -e $install_top_dir/lib64 ] ; then
+         export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib $LIBS"
+      fi
     fi
-    echo now we have LIBS $LIBS
+    echo for clipper configure now we have LIBS $LIBS
 
     echo ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \
