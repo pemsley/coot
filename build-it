@@ -402,7 +402,8 @@
 # 5.45 20210110 Bump the python version again - no2 2.7.18
 # 5.46 20210110 Add a test for the version of cmake
 # 5.47 20210111 Use the correct name for the libtinfo dev package
-script_version=5.47
+# 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
+script_version=5.48
 
 
 
@@ -1916,11 +1917,21 @@ case "$architecture" in
      ;; 
 esac
 if [ -z "$PKG_CONFIG_PATH" ] ; then 
-  # I think that the standard dir is not needed.
-  # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
-else 
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+    # I think that the standard dir is not needed.
+    # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
+    PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+    case "$architecture" in
+        x86_64*) 
+           PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig
+           ;;
+    esac
+else
+    PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+    case "$architecture" in
+        x86_64*) 
+           PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+           ;;
+    esac
 fi
 
 if [ -e /opt/X11/lib/pkgconfig ] ; then
