@@ -404,7 +404,8 @@
 # 5.47 20210111 Use the correct name for the libtinfo dev package
 # 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
 # 5.49 20210407 find mmdb libs in lib64 maybe for SSM.
-script_version=5.49
+# 5.50 20210407 fix previous fix
+script_version=5.40
 
 
 
@@ -2598,7 +2599,7 @@ date
 tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
 cd ssm-$ssm_version
 mmdb_lib_dir=$install_top_dir/lib
-if [ -e $install_top_dir/lib64/libmmdb.so ] ; then
+if [ -e $install_top_dir/lib64/libmmdb2.so ] ; then
     mmdb_lib_dir=$install_top_dir/lib64
 fi
 ./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$mmdb_lib_dir
