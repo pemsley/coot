@@ -405,7 +405,7 @@
 # 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
 # 5.49 20210407 find mmdb libs in lib64 maybe for SSM.
 # 5.50 20210407 fix previous fix
-script_version=5.40
+script_version=5.50
 
 
 
