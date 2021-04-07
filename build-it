@@ -403,7 +403,8 @@
 # 5.46 20210110 Add a test for the version of cmake
 # 5.47 20210111 Use the correct name for the libtinfo dev package
 # 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
-script_version=5.48
+# 5.49 20210407 find mmdb libs in lib64 maybe for SSM.
+script_version=5.49
 
 
 
@@ -2426,7 +2427,7 @@ if [ -e $install_top_dir/include/$ssm_include_dir/ssm_align.h ] ; then
       if grep --silent "MINOR_VERSION = [4-9]" $install_top_dir/include/$ssm_include_dir/ssm_defs.h ; then
          echo SSM is found.
          build_ssmlib=
-      else       
+      else
          echo we need a newer SSM.
          build_ssmlib=1
       fi
@@ -2596,7 +2597,11 @@ date
 # gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
 tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
 cd ssm-$ssm_version
-./configure $generic_prefix  --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
+mmdb_lib_dir=$install_top_dir/lib
+if [ -e $install_top_dir/lib64/libmmdb.so ] ; then
+    mmdb_lib_dir=$install_top_dir/lib64
+fi
+./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$mmdb_lib_dir
 if $MAKE ; then 
    $MAKE install
 fi
