@@ -20,6 +20,11 @@
  * 02110-1301, USA
  */
 
+#ifndef C_INTERFACE_PREFERENCES_H
+#define C_INTERFACE_PREFERENCES_H
+
+#include <gtk/gtk.h>
+
 #ifndef BEGIN_C_DECLS
 
 #ifdef __cplusplus
@@ -27,7 +32,7 @@
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS     
 #endif
 #endif /* BEGIN_C_DECLS */
@@ -70,3 +75,5 @@ void update_toolbar_icons_menu(int toolbar_index);
 int preferences_internal_font_own_colour_flag();
 
 END_C_DECLS
+
+#endif /* C_INTERFACE_PREFERENCES_H */

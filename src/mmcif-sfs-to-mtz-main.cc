@@ -1,23 +1,7 @@
 
 #include <iostream>
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS extern
-#define END_C_DECLS     
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
-
 int mmcif_sfs_to_mtz(const char *cif_file_name, const char *mtz_out_file_name);
-
-END_C_DECLS
 
 int main(int argc, char **argv) {
 

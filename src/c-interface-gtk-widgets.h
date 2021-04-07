@@ -46,6 +46,8 @@
 #ifndef C_INTERFACE_GTK_WIDGETS_H
 #define C_INTERFACE_GTK_WIDGETS_H
 
+#include <gtk/gtk.h>
+
 /*
   The following extern stuff here because we want to return the
   filename from the file entry box.  That code (e.g.)
@@ -77,7 +79,7 @@
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS
 #endif
 #endif /* BEGIN_C_DECLS */
