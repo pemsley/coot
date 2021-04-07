@@ -1510,7 +1510,7 @@ graphics_info_t::set_refinement_map(int i) {
 // We want to put the moving parts back into the object that we were
 // regularizing (imol_moving_atoms).
 //
-void
+coot::refinement_results_t
 graphics_info_t::accept_moving_atoms() {
 
    while (continue_threaded_refinement_loop) {
@@ -1524,6 +1524,8 @@ graphics_info_t::accept_moving_atoms() {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
                 << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
    }
+
+   coot::refinement_results_t rr = get_refinement_results();
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
@@ -1595,6 +1597,8 @@ graphics_info_t::accept_moving_atoms() {
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
+
+   return rr;
 }
 
 void

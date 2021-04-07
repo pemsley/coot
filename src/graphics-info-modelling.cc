@@ -1120,6 +1120,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
+   std::cout << "debug:: on creation last_restraints is " << last_restraints << std::endl;
+
    last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
 
    if (convert_dictionary_planes_to_improper_dihedrals_flag) {
@@ -2207,7 +2209,7 @@ graphics_info_t::auto_range_residues(int atom_index, int imol) const {
 
 #ifdef USE_GUILE
 SCM
-graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
+graphics_info_t::refinement_results_to_scm(const coot::refinement_results_t &rr) const {
 
    SCM r = SCM_BOOL_F;
 
@@ -2238,7 +2240,7 @@ graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
 
 #ifdef USE_PYTHON
 PyObject *
-graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
+graphics_info_t::refinement_results_to_py(const coot::refinement_results_t &rr) const {
    PyObject *r = Py_False;
 
    if (rr.found_restraints_flag) {
@@ -2443,6 +2445,23 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
    }
    return rr;
 }
+
+coot::refinement_results_t
+graphics_info_t::get_refinement_results() const {
+
+   coot::refinement_results_t rr;
+
+   std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+   std::cout << "debug:: get_refinement_results() for the record last_restraints is "
+             << last_restraints << std::endl;
+
+   if (last_restraints)
+      rr = last_restraints->get_refinement_results();
+
+   return rr;
+}
+
 
 // I mean things like HOH, CL, BR etc
 bool

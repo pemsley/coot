@@ -174,9 +174,8 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
 	       );
    mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
-   int resno;
    for (int ires=0; ires<nSelResidues; ires++) {
-      resno = SelResidues[ires]->GetSeqNum();
+      int resno = SelResidues[ires]->GetSeqNum();
       if (resno < istart_res)
 	 istart_res = resno;
       if (resno > iend_res)
@@ -1582,8 +1581,11 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // (we don't get here unless restraints were found)
    bool found_restraints_flag = true;
    coot::refinement_results_t rr(found_restraints_flag, status, lights_vec);
-   if (refinement_results_add_details)
+   if (refinement_results_add_details) {
+      // this may be slowing thing down for big molecules. Needs investigation.
+      // std::cout << "mimize_inner() calling add_details_to_refinement_results() " << std::endl;
       add_details_to_refinement_results(&rr);
+   }
 
    // std::cout << "After rr" << std::endl;
 
@@ -1599,12 +1601,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 unlocked = false;
       }
 
-      // std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
-      gsl_multimin_fdfminimizer_free(m_s);
-      gsl_vector_free(x);
-      m_s = 0;
-      x = 0;
-      needs_reset = true;
+      free_delete_reset();
 
       // std::cout << "debug:: unlocking restraints in minimize_inner()"  << std::endl;
       restraints_lock = false; // unlock
@@ -1622,6 +1619,33 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 }
 
 void
+coot::restraints_container_t::free_delete_reset()  {
+
+   std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
+   gsl_multimin_fdfminimizer_free(m_s);
+   gsl_vector_free(x);
+   m_s = 0;
+   x = 0;
+   needs_reset = true;
+
+}
+
+coot::refinement_results_t
+coot::restraints_container_t::get_refinement_results() {
+
+   bool found_restraints_flag = true;
+   int status = GSL_SUCCESS;
+   setup_minimize();
+   std::vector<coot::refinement_lights_info_t> lights_vec =
+      chi_squareds("Final Estimated RMS Z Scores", m_s->x);
+   refinement_results_t rr(found_restraints_flag, status, lights_vec);
+   add_details_to_refinement_results(&rr);
+   free_delete_reset();
+   return rr;
+}
+
+
+void
 coot::restraints_container_t::add_details_to_refinement_results(refinement_results_t *rr) const {
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -1632,6 +1656,11 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    unsigned int n_rama_restraints = 0;
    double nbc_distortion_score_sum = 0;
    double rama_distortion_score_sum = 0;
+
+   if (! m_s) {
+      std::cout << "m_s is null - returning early from add_details_to_refinement_results() " << std::endl;
+      return;
+   }
    const gsl_vector *v = m_s->x;
 
    for (int i=0; i<n_restraints; i++) {
@@ -1694,7 +1723,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
 
    std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
    idx = 0;
-   for (it=rama_baddies.begin(); it!=rama_baddies.end(); it++)
+   for (it=rama_baddies.begin(); it!=rama_baddies.end(); ++it)
       rama_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
    std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
    if (rama_baddies_vec.size() > 20)
