@@ -2453,9 +2453,6 @@ graphics_info_t::get_refinement_results() const {
 
    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-   std::cout << "debug:: get_refinement_results() for the record last_restraints is "
-             << last_restraints << std::endl;
-
    if (last_restraints)
       rr = last_restraints->get_refinement_results();
 

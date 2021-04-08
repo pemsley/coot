@@ -1510,6 +1510,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
 	       // write out gradients here - with numerical gradients for comparison
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
+               analyze_for_bad_restraints();
+               
 	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
@@ -1543,11 +1545,14 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    if (verbose_geometry_reporting != QUIET) { 
 	       std::cout << "Minimum found (iteration number " << iter << ") at ";
 	       std::cout << m_s->f << "\n";
-	    }
-
+            }
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
+            if (verbose_geometry_reporting != QUIET) {
+               std::cout << "-------- Results ---------" << std::endl; // should this go into analyze_for_bad_restraints()?
+               analyze_for_bad_restraints();
+            }
 	    done_final_chi_squares = true;
 	 }
 
@@ -1561,6 +1566,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    if (! done_final_chi_squares) {
       if (status != GSL_CONTINUE) {
+
+         analyze_for_bad_restraints();
 	 lights = chi_squareds("Final Estimated RMS Z Scores:", m_s->x);
 	 refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights);
 	 if (worst_of_all.is_set) {

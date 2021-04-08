@@ -2258,7 +2258,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
-   double interesting_distortion_limit = 1.0;
+   double interesting_distortion_limit = 5.0;
    analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(              BOND_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT,     interesting_distortion_limit);
