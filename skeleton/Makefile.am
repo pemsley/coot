@@ -36,9 +36,10 @@ libcoot_skeleton_la_SOURCES =  \
 	BuildCas.cc
 
 libcoot_skeleton_la_LIBADD = \
-   $(top_builddir)/angles/libcoot-AngleInfo.la \
+   $(top_builddir)/angles/libcoot-AngleInfo.la  \
+   $(top_builddir)/ideal/libcoot-ideal.la       \
    $(top_builddir)/geometry/libcoot-geometry.la \
-   $(top_builddir)/coords/libcoot-coords.la \
+   $(top_builddir)/coords/libcoot-coords.la     \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 libcoot_skeleton_la_LDFLAGS = $(SHARED_LDFLAGS)

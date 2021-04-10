@@ -50,14 +50,18 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 rotamer-markup.cc \
 		 loop-path.cc
 
+#   $(top_builddir)/ideal/libcoot-ideal.la not needed here I think
+
+# we use rotamer probabilites, hence need libcoot-ligand
 libcoot_coords_la_LIBADD = \
-   $(top_builddir)/utils/libcoot-utils.la            \
+   $(top_builddir)/ligand/libcoot-ligand.la          \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
    $(top_builddir)/cootaneer/libcootaneer.la         \
-   $(top_builddir)/geometry/libcoot-geometry.la      \
-   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-   $(top_builddir)/ligand/libcoot-ligand.la $(CLIPPER_LIBS) -lpthread
+   $(top_builddir)/utils/libcoot-utils.la            \
+   $(CLIPPER_LIBS) -lpthread
 
 
 #   $(MMDB_LIBS) \

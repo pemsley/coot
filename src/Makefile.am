@@ -274,9 +274,12 @@ pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
 
-_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined \
-           $(top_builddir)/src/libcootsumo.la \
-           $(top_builddir)/utils/libcoot-utils.la  \
+_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
+           $(top_builddir)/src/libcootsumo.la                \
+           $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+           $(top_builddir)/coords/libcoot-coords.la          \
+	   $(top_builddir)/geometry/libcoot-geometry.la      \
+           $(top_builddir)/utils/libcoot-utils.la            \
            $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 
@@ -297,8 +300,7 @@ check_PROGRAMS = test-coot-align test-cholesky
 
 coot_bin_SOURCES = main.cc
 
-coot_bin_LDADD = $(top_builddir)/coot-surface/libcoot-surface.la \
-                 $(top_builddir)/utils/libcoot-utils.la \
+coot_bin_LDADD = $(top_builddir)/utils/libcoot-utils.la \
                  libcootsumo.la $(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
 
 

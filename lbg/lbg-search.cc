@@ -266,6 +266,15 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	 std::string lab = v[i].comp_id;
 	 lab += ":  ";
 	 lab += v[i].name;
+
+            // monomer search does it like this (it has left-aligned text)
+            //
+            // GtkWidget *button = gtk_button_new();
+            // GtkWidget *label  = gtk_label_new(l.c_str());
+            // GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+            // gtk_container_add(GTK_CONTAINER(button), button_hbox);
+            // gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+
 	 GtkWidget *button = gtk_button_new_with_label(lab.c_str());
 	 gtk_box_pack_start(GTK_BOX(lbg_sbase_search_results_vbox),
 			    GTK_WIDGET(button), FALSE, FALSE, 3);
@@ -273,7 +282,9 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	 g_signal_connect(GTK_WIDGET(button), "clicked",
 			  G_CALLBACK(on_sbase_search_result_button_clicked),
 			  (gpointer) (comp_id));
-	 gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
+
+	 // gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5); // deprecated  - but how to FIX-IT?
+
 	 g_object_set_data(G_OBJECT(button), "lbg", (gpointer) this);
 	 gtk_widget_show(button);
       }

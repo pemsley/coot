@@ -19,9 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
+#ifndef ENERGY_LIB_HH
+#define ENERGY_LIB_HH
 
-
+#include <string>
+#include <vector>
 #include "hb-types.hh"
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot {
 
@@ -331,6 +335,8 @@ namespace coot {
       void add_energy_lib_angles(mmdb::mmcif::PLoop mmCIFLoop);
       void add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop);
    };
-
-
 }
+
+
+#endif // ENERGY_LIB_HH
+
