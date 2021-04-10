@@ -3487,7 +3487,7 @@ coot::dictionary_residue_restraints_t::assign_chiral_volume_targets() {
 
    int ich = 0;
 
-   if (0) 
+   if (false)
       std::cout << "DEBUG:: in dictionary_residue_restraints_t::assign_chiral_volume_targets "
 		<< "there are " << chiral_restraint.size() << " chiral restraints for "
 		<< residue_info.comp_id << " \n";
@@ -4347,6 +4347,8 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
 				    bool idealised_flag,
 				    bool try_autoload_if_needed, float b_factor) {
 
+   // std::cout << "in get_residue() idealised_flag is " << idealised_flag << std::endl;
+
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
    
@@ -4356,8 +4358,9 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-	 if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
-	    residue_p = dict_res_restraints[i].second.GetResidue(idealised_flag, b_factor);
+         const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
+	 if (rest.residue_info.comp_id == comp_id) {
+	    residue_p = rest.GetResidue(idealised_flag, b_factor);
 	    break;
 	 }
       }
@@ -4502,6 +4505,8 @@ coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_t
 mmdb::Residue *
 coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_factor) const {
 
+   // std::cout << "in GetResidue() idealised_flag is " << idealised_flag << std::endl;
+
    mmdb::Residue *residue_p = NULL;
    std::vector<mmdb::Atom *> atoms;
 
@@ -4553,6 +4558,20 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
       residue_p->SetResID(residue_info.comp_id.c_str(), 1, "");
       for (unsigned int iat=0; iat<atoms.size(); iat++) 
 	 residue_p->AddAtom(atoms[iat]);
+
+      if (false) {  // debug
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for(int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               std::cout << "debug:: GetResidue() " << iat << " " << at->GetAtomName()
+                         << at->x << " " << at->y << " " << at->z << std::endl;
+            }
+         }
+
+      }
    } 
    return residue_p; 
 } 

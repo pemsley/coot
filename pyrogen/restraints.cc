@@ -31,9 +31,6 @@
 
 #include "mmff-restraints.hh" // needed?
 
-
-// for minimization
-#define HAVE_GSL
 #include <ideal/simple-restraint.hh>
 
 
@@ -235,7 +232,6 @@ coot::matching_dict_t
 coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_t &restraints,
 				      mmdb::Residue *residue_p) {
    
-   mmdb::Residue *returned_res = NULL;
    matching_dict_t dict;
 
    unsigned int n_comp_ids = 21;
@@ -376,6 +372,8 @@ coot::types_from_mmcif_dictionary(const std::string &file_name) {
    return l;
 } 
 
+// This is the function that give pyrogen its name
+//
 // write restraints and return restraints
 // 
 // replace_with_mmff_b_a_restraints is an optional arg, default true
@@ -384,45 +382,54 @@ PyObject *
 coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  const std::string &compound_name,
 			  PyObject *rdkit_mol_py,
+                          bool do_minimization,
 			  const std::string &mmcif_out_file_name,
 			  bool quartet_planes, bool quartet_hydrogen_planes,
 			  bool replace_with_mmff_b_a_restraints) {
 
-   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
+   std::pair<bool, coot::dictionary_residue_restraints_t> restraints_pair =
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					   quartet_planes, quartet_hydrogen_planes);
 
+   coot::dictionary_residue_restraints_t &restraints = restraints_pair.second;
 
    if (false)
       std::cout << "in mmcif_dict_from_mol, mmcif_dict_from_mol_using_energy_lib "
-		<< "returns with status " << restraints.first << std::endl;
+		<< "returns with status " << restraints_pair.first << std::endl;
 
-   if (restraints.first) { 
+   if (restraints_pair.first) { 
       if (replace_with_mmff_b_a_restraints) {
+
 	 RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
 	 RDKit::ROMol mol_for_mmff(mol);
 	 // bonds and angles 
 	 dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
-	 restraints.second.conservatively_replace_with(mmff_restraints);
+	 restraints.conservatively_replace_with(mmff_restraints);
       }
    } else {
       std::cout << "WARNING:: failure in calling mmcif_dict_from_mol_using_energy_lib() " << std::endl;
    }
 
-   bool success = restraints.first;
+   bool success = restraints_pair.first;
    if (success)
-      if (! restraints.second.is_filled()) {
+      if (! restraints.is_filled()) {
 	 std::cout << "WARNING:: restraints are not filled: "
-		   << restraints.second.atom_info.size() << " atoms "
-		   << restraints.second.bond_restraint.size() << " bonds "
+		   << restraints.atom_info.size() << " atoms "
+		   << restraints.bond_restraint.size() << " bonds "
 		   << std::endl;
 	 success = false;
       }
 
-   if (success) { 
-      restraints.second.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
+   if (success) {
+
+      if (do_minimization) {
+	 RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+	 RDKit::RWMol mol_for_mmff(mol);
+         regularize_and_update_mol_and_restraints(&mol_for_mmff, &restraints);
+      }
+      restraints.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
                                                          // matching is enabled.
-      return monomer_restraints_to_python(restraints.second);
+      return monomer_restraints_to_python(restraints);
    } else {
       std::cout << "no success in mmcif_dict_from_mol() " << std::endl;
       PyObject *o = new PyObject;
@@ -978,7 +985,38 @@ coot::is_const_torsion(const RDKit::ROMol &mol,
 
    return status;
 
-} 
+}
+
+void
+coot::update_chem_comp_atoms_from_residue(mmdb::Residue *residue_p,
+                                          coot::dictionary_residue_restraints_t *restraints) {
+
+   bool verbose = false;
+   if (verbose)
+      std::cout << "update_chem_comp_atoms_from_residue() ******************************" << std::endl;
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      mmdb::Atom *at = residue_atoms[iat];
+      if (! at->isTer()) {
+         std::string atom_name(at->GetAtomName());
+
+         std::vector<dict_atom> &atom_info = restraints->atom_info;;
+         for (unsigned int jat=0; jat<atom_info.size(); jat++) {
+            dict_atom &da = atom_info[jat];
+            if (da.atom_id_4c == atom_name) {
+               clipper::Coord_orth c = co(at);
+               const clipper::Coord_orth &old_c = da.model_Cartn.second;
+               if (verbose)
+                  std::cout << "debug:: updating " << atom_name << " from " << old_c.format()
+                            << " to " << c.format() << std::endl;
+               da.model_Cartn.second = c;
+            }
+         }
+      }
+   }
+}
 
 
 void
@@ -1371,7 +1409,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	       // OK quartet_indices should be 3 now.  Root atom and
 	       // its two neighbours.
 	       //
-	       if (0) { // debug
+	       if (false) { // debug
 		  std::cout << "debug quartet_indices.size() (should be 3): "
 			    << q_indices.size() << std::endl;
 		  for (unsigned int jj=0; jj<q_indices.size(); jj++) { 
@@ -1394,14 +1432,14 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 		     while(nbr_idx_2 != end_nbrs_2){
 
 			if (mol[*nbr_idx_2]->getAtomicNum() != 1) {
-			   std::vector<unsigned int> local_quartet = quartet_indices;
+                           std::vector<unsigned int> local_quartet(quartet_indices);
 
 			   // Add this atom if it's not already in the quartet
 			   if (std::find(local_quartet.begin(),
 					 local_quartet.end(),
 					 *nbr_idx_2) == local_quartet.end()) {
 			      local_quartet.push_back(*nbr_idx_2);
-			      quartet_sets_vec.push_back(local_quartet);
+			      quartet_sets_vec.push_back(quartet_set(local_quartet));
 			   }
 			}
 			++nbr_idx_2;
@@ -1705,24 +1743,54 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
 	 if (0)
 	    std::cout << "assign_chirals_mmcif_tags() strange - caught runtime_error "
 		      << rte.what() << std::endl;
-      } 
+      }
    }
    return n_chirals;
 }
- 
+
+
+// return -1 or +1
+int
+coot::get_volume_sign_from_coordinates(const RDKit::ROMol &mol,
+                                       unsigned int idx_chiral_centre_atom,
+                                       const std::vector<indexed_name_and_rank_t> &neighb_names_and_ranks) {
+
+   auto make_vector = [] (const RDGeom::Point3D &a, const RDGeom::Point3D &central) {
+                         return clipper::Coord_orth(a.x-central.x, a.y-central.y, a.z-central.z);
+                      };
+
+   int n_conf = mol.getNumConformers();
+   if (n_conf > 0) {
+      int id_conf = n_conf -1;
+      const RDKit::Conformer &conf = mol.getConformer(id_conf);
+      const RDGeom::Point3D &pos_central = conf.getAtomPos(idx_chiral_centre_atom);
+      const RDGeom::Point3D &pos_a = conf.getAtomPos(neighb_names_and_ranks[0].atom_index);
+      const RDGeom::Point3D &pos_b = conf.getAtomPos(neighb_names_and_ranks[1].atom_index);
+      const RDGeom::Point3D &pos_c = conf.getAtomPos(neighb_names_and_ranks[2].atom_index);
+      clipper::Coord_orth a = make_vector(pos_a, pos_central);
+      clipper::Coord_orth b = make_vector(pos_b, pos_central);
+      clipper::Coord_orth c = make_vector(pos_c, pos_central);
+      double vol = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+      // std::cout << "chiral vol " << vol << std::endl;
+      if (vol > 0)
+         return 1;
+      else
+         return -1;
+   }
+   return 1;
+}
+
 // alter restraints: RDKit/SMILES -> mmCIF chiral conversion
-int 
+int
 coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 				coot::dictionary_residue_restraints_t *restraints) {
 
-   // std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): " << std::endl;
-
    // debug_cip_ranks(mol);
-   
+
    int n_chirals = 0;
 
    unsigned int n_atoms = mol.getNumAtoms();
-   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
       int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
       const RDKit::Atom *at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
@@ -1742,7 +1810,8 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	    if (false)
 	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): considering chiral "
 			 << "for atom idx " << iat << std::endl;
-	    
+
+            unsigned int idx_central = iat;
 	    std::string chiral_centre;
 	    at_p->getProp("name", chiral_centre);
 	    std::string n1, n2, n3; // these need setting, c.f.
@@ -1751,7 +1820,8 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	    // What are the neighbours of at_p and what are their ranks?
 	    //
 
-	    std::vector<std::pair<unsigned int, std::string> > neighb_names_and_ranks;
+	    // std::vector<std::pair<unsigned int, std::string> > neighb_names_and_ranks;
+            std::vector<indexed_name_and_rank_t> neighb_names_and_ranks;
 	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
 	    while(nbr_idx_1 != end_nbrs_1){
@@ -1760,41 +1830,43 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	       std::string neighb_name;
 	       at_neighb->getProp(RDKit::common_properties::_CIPRank,cip_rank);
 	       at_neighb->getProp("name", neighb_name);
-	       std::pair<unsigned int, std::string> p(cip_rank, neighb_name);
+	       indexed_name_and_rank_t p(*nbr_idx_1, cip_rank, neighb_name);
 	       neighb_names_and_ranks.push_back(p);
 	       ++nbr_idx_1;
 	    }
 
-	    if (true) { // debug 
+	    if (false) { // debug
 	       std::sort(neighb_names_and_ranks.begin(),
 			 neighb_names_and_ranks.end());
-	    
+
 	       std::reverse(neighb_names_and_ranks.begin(),
 			    neighb_names_and_ranks.end());
 
 	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags() for atom "
 			 << chiral_centre << " found "
-			 << neighb_names_and_ranks.size() << "  neighboours: ";
+			 << neighb_names_and_ranks.size() << "  neighbours: ";
 	       for (unsigned int ii=0; ii<neighb_names_and_ranks.size(); ii++)
 		  std::cout << " "
-			    << coot::util::remove_whitespace(neighb_names_and_ranks[ii].second)
-		     	    << " (rank " << neighb_names_and_ranks[ii].first << ")";
+			    << coot::util::remove_whitespace(neighb_names_and_ranks[ii].atom_name)
+                            << " (rank " << neighb_names_and_ranks[ii].cip_rank << ")";
 	       std::cout << std::endl;
 	    }
 
 	    if (neighb_names_and_ranks.size() == 4) {
 
-	       std::sort(neighb_names_and_ranks.begin(),
-			 neighb_names_and_ranks.end());
+	       //std::sort(neighb_names_and_ranks.begin(),
+               // neighb_names_and_ranks.end());
 
-	       std::reverse(neighb_names_and_ranks.begin(),
-			    neighb_names_and_ranks.end());
-	       
+	       // std::reverse(neighb_names_and_ranks.begin(),
+               // neighb_names_and_ranks.end());
+
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
-	       std::string n1 = neighb_names_and_ranks[0].second;
-	       std::string n2 = neighb_names_and_ranks[1].second;
-	       std::string n3 = neighb_names_and_ranks[2].second;
-	       
+	       std::string n1 = neighb_names_and_ranks[0].atom_name;
+	       std::string n2 = neighb_names_and_ranks[1].atom_name;
+	       std::string n3 = neighb_names_and_ranks[2].atom_name;
+
+               vol_sign = get_volume_sign_from_coordinates(mol, idx_central, neighb_names_and_ranks);
+
 	       dict_chiral_restraint_t cr(chiral_id, chiral_centre, n1, n2, n3, vol_sign);
 	       restraints->chiral_restraint.push_back(cr);
 
@@ -1804,8 +1876,8 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 
 	 catch (KeyErrorException &kee) {
 	    std::cout << "assign_chirals_rdkit_tags(): no prop name " << iat << std::endl;
-	 } 
-      } 
+	 }
+      }
    }
    return n_chirals;
 }
@@ -1814,12 +1886,9 @@ void
 coot::debug_cip_ranks(const RDKit::ROMol &mol) {
 
    unsigned int n_atoms = mol.getNumAtoms();
-   for (unsigned int iat=0; iat<n_atoms; iat++) { 
-      int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
       const RDKit::Atom *at_p = mol[iat];
-      RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
-
-      try { 
+      try {
 	 unsigned int cip_rank;
 	 at_p->getProp(RDKit::common_properties::_CIPRank,cip_rank);
 	 std::cout << "DEBUG:: debug_cip_ranks() " << iat << " " << cip_rank << std::endl;
@@ -1882,7 +1951,6 @@ void
 coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
 
-   
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    
    std::pair<mmdb::Manager *, mmdb::Residue *> regular =
@@ -1892,10 +1960,39 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 
       // now create a new molecule, because the one we are given is a ROMol.
       RDKit::RWMol *rw_mol = new RDKit::RWMol(mol);
-      int iconf = 0; 
+
+      int iconf = 0;
+      // this shouldn't move the atoms if bypass_refinement is true in regularize_inner().
       update_coords(rw_mol, iconf, regular.second);
    }
-} 
+}
+
+
+// update mol and restraints_p
+void
+coot::regularize_and_update_mol_and_restraints(RDKit::RWMol *mol,
+                                               coot::dictionary_residue_restraints_t *restraints_p) {
+
+   int n_conf = mol->getNumConformers();
+   if (n_conf > 0) {
+      int i_conf = n_conf -1;
+      std::string res_name = restraints_p->residue_info.comp_id;
+      mmdb::Residue *residue_p = coot::make_residue(*mol, i_conf, res_name);
+      mmdb::Manager *mmdb_mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      mmdb::Residue *first_residue_p = coot::util::get_first_residue(mmdb_mol);
+
+      simple_refine(first_residue_p, mmdb_mol, *restraints_p);
+      update_coords(mol, i_conf, first_residue_p);
+      update_chem_comp_atoms_from_residue(first_residue_p, restraints_p);
+      delete mmdb_mol;
+      delete residue_p;
+   } else {
+      std::cout << "WARNING:: regularize_and_update_mol_and_restraints() no conformers means no minimization"
+                << std::endl;
+   }
+   
+}
+
 
 std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(PyObject *rdkit_mol_py,
@@ -1912,16 +2009,13 @@ coot::regularize_inner(RDKit::ROMol &mol,
 		       PyObject *restraints_py,
 		       const std::string &res_name) {
 
-   bool bypass_refinement = true; // usually false (true for debugging):
-
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
    mmdb::Residue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    mmdb::Manager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
 
-   if (! bypass_refinement) 
-      simple_refine(residue_p, cmmdbmanager, dict_restraints);
+   simple_refine(residue_p, cmmdbmanager, dict_restraints);
    
    return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
 } 

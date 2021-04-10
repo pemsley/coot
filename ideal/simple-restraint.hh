@@ -143,7 +143,6 @@ namespace coot {
 }
 
 // we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
 
 #include <map>
 
@@ -2836,5 +2835,4 @@ namespace coot {
 } // namespace coot
 
 
-#endif // HAVE_GSL
 #endif // HAVE_SIMPLE_RESTRAINT_HH

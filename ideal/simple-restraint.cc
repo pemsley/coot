@@ -737,11 +737,18 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 void
 coot::restraints_container_t::set_fixed_during_refinement_udd() {
 
+   if (! mol) {
+      std::cout << "ERROR:: in set_fixed_during_refinement_udd() mol is null" << std::endl;
+      return;
+   }
    int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "FixedDuringRefinement");
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atom[i];
-      // std::cout << "  setting fixed udd flag on atom " << atom_spec_t(at) << std::endl;
+
+      //std::cout << "  setting fixed udd flag on atom " << atom_spec_t(at) << " residue "
+      // << at->residue << " atom " << at << " mol " << mol << std::endl;
       // if (std::find(fixed_atom_indices.begin(), fixed_atom_indices.end(), i) == fixed_atom_indices.end())
+
       if (fixed_atom_indices.find(i) == fixed_atom_indices.end())
 	 at->PutUDData(uddHnd, 0);
       else
@@ -1551,6 +1558,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    lights_vec = results;
             if (verbose_geometry_reporting != QUIET) {
                std::cout << "-------- Results ---------" << std::endl; // should this go into analyze_for_bad_restraints()?
+               update_atoms(m_s->x); // needed for simple_refine() (maybe other times too to catch the last round)
                analyze_for_bad_restraints();
             }
 	    done_final_chi_squares = true;
@@ -1628,7 +1636,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 void
 coot::restraints_container_t::free_delete_reset()  {
 
-   std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
+   if (false)
+      std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl;
    gsl_multimin_fdfminimizer_free(m_s);
    gsl_vector_free(x);
    m_s = 0;
@@ -7826,16 +7835,20 @@ coot::simple_refine(mmdb::Residue *residue_p,
 
          std::vector<std::pair<bool,mmdb::Residue *> > residues;
          residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_p));
-         mmdb::Manager *null_mol = 0;
-         coot::restraints_container_t restraints(residues, geom, null_mol, &dummy_xmap);
+
+         coot::restraints_container_t restraints(residues, geom, mol, &dummy_xmap);
    
 	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 bool do_internal_torsions = true;
 	 bool do_trans_peptide_restraints = true;
+         int n_threads = coot::get_max_number_of_threads();
+         ctpl::thread_pool thread_pool(n_threads);
+         restraints.thread_pool(&thread_pool, n_threads);
 	 restraints.make_restraints(imol, geom, flags, do_internal_torsions,
 				    do_trans_peptide_restraints, 0, 0, true, true, false, pseudos);
+
 	 restraints.minimize(flags, 3000, 1);
       }
    }
