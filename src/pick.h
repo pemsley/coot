@@ -25,6 +25,14 @@ class pick_info {
    int atom_index;
    int imol;
    float min_dist;
+   pick_info() {
+      is_intermediate_atoms_molecule = false;
+      success = 0;
+      model_number = -1;
+      atom_index = -1;
+      imol = -1;
+      min_dist = -1;
+   }
 };
 
 // this is a class, because it contains a class (symm_trans_t)

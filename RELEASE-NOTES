@@ -1,6 +1,36 @@
 
-  Release 0.9.5
+  Release 0.9.5.1
 
+  o FEATURE: Middle-mouse and double-clicking on moving atoms is now enabled
+             (for recentre and label)
+
+  o FEATURE: -P mode added to pyrogen (no coordinates optimization)
+
+  o CHANGE:  Adjust the NBC model once more for 1-4 atoms invovling Hydrogen atoms
+
+  o CHANGE:  post-refinement restraints analysis added
+
+  o CHANGE:  Increase the initial step size for refinement
+
+  o CHANGE:  API accept_moving_atoms() can now return the refinement results
+
+  o CHANGE:  Remove libcheck as a restraints generator option
+
+  o CHANGE:  turn off EM-mode for PANDDA maps
+
+  o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
+
+  o BUG-FIX: Linking to the Coot executable now works (Marcin Wodjyr)
+
+  o BUG-FIX: rotamer-fit now runs the post-manipulation hook
+
+  o BUG-FIX: better crash-catcher diagnostics (thanks Kevin Cowtan)
+
+  o BUG-FIX: chiral restraints improved in pyrogen
+
+----
+
+  Release 0.9.5
 
   o FEATURE: Search monomer library has images
 

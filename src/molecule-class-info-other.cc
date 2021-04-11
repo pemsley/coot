@@ -8501,19 +8501,25 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 
 
 
-   // Return a vector of residues that have missing atoms by dictionary
-   // search.  missing_hydrogens_flag reflects if we want to count
-   // residues that have missing hydrogens as residues with missing
-   // atoms that should be part of the returned vector. Most of the
-   // time, we don't care about hydrogens and the flag is 0.
+// Return a vector of residues that have missing atoms by dictionary
+// search.  missing_hydrogens_flag reflects if we want to count
+// residues that have missing hydrogens as residues with missing
+// atoms that should be part of the returned vector. Most of the
+// time, we don't care about hydrogens and the flag is 0.
+//
 // We also return a vector of residue names for which we couldn't get
 // a geometry dictionary entry.
+//
 coot::util::missing_atom_info
 molecule_class_info_t::missing_atoms(short int missing_hydrogens_flag,
                                      coot::protein_geometry *geom_p) const {
 
+   bool ignore_missing_OXT = true;
+   bool ignore_missing_OP3 = true;
+
    std::vector<mmdb::Residue *> residues_with_missing_atoms;
    std::vector<std::string> residues_no_dictionary;
+   std::map<mmdb::Residue *, std::vector<std::string> > residue_missing_atom_names_map;
    // and these atoms will need to be deleted when we auto-complete the residue.
    std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > atoms_in_coords_but_not_in_dict;
 
@@ -8589,8 +8595,20 @@ molecule_class_info_t::missing_atoms(short int missing_hydrogens_flag,
                      // put it in the list and initially mark it as not found.
                      coot::util::dict_atom_info_t p(residue_dict_atoms[iat].name, 0);
                      // PDBv3 FIXME
-                     if (residue_dict_atoms[iat].name != " OXT")
+                     bool really_missing = true;
+
+                     if (ignore_missing_OXT) {
+                        if (residue_dict_atoms[iat].name == " OXT")
+                           really_missing = false;
+                     }
+                     if (ignore_missing_OP3) {
+                        if (residue_dict_atoms[iat].name == " OP3")
+                           really_missing = false;
+                     }
+
+                     if (really_missing) {
                         dict_atom_names_pairs.push_back(p);
+                     }
                   }
                }
 
@@ -8615,23 +8633,28 @@ molecule_class_info_t::missing_atoms(short int missing_hydrogens_flag,
                // this residue were not found? Counterintuitive: the
                // is_Hydrogen_flag is used as a marker of being found!
                //
-               int n_atoms_unfound = 0;
+               std::vector<std::string> missing_atom_names;
                for (unsigned int idictat=0; idictat<dict_atom_names_pairs.size(); idictat++) {
                   if (! dict_atom_names_pairs[idictat].is_Hydrogen_flag) {
-                     n_atoms_unfound++;
+                     missing_atom_names.push_back(dict_atom_names_pairs[idictat].name);
                   }
                }
 
-               if (n_atoms_unfound> 0) {
+               if (! missing_atom_names.empty()) {
                   residues_with_missing_atoms.push_back(residue_p);
+                  residue_missing_atom_names_map[residue_p] = missing_atom_names;
                }
             }
          }
       }
    }
-   return coot::util::missing_atom_info(residues_no_dictionary,
-                                        residues_with_missing_atoms,
-                                        atoms_in_coords_but_not_in_dict);
+
+   coot::util::missing_atom_info mai(residues_no_dictionary,
+                                     residues_with_missing_atoms,
+                                     atoms_in_coords_but_not_in_dict);
+   mai.residue_missing_atom_names_map = residue_missing_atom_names_map; // a bit kludgy.
+   return mai;
+
 }
 
 

@@ -2462,6 +2462,7 @@ graphics_info_t::pick_moving_atoms(const coot::Cartesian &front, const coot::Car
             mmdb::Atom *at = moving_atoms_asc->atom_selection[impi.atom_index];
             if (at) {
                p_i = impi;
+               p_i.is_intermediate_atoms_molecule = true;
             }
          }
       }
