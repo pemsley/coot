@@ -77,7 +77,7 @@ p  So we need to have this function external for c++ linking.
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS
 #endif
 #endif /* BEGIN_C_DECLS */
@@ -3290,7 +3290,7 @@ void set_residue_selection_flash_frames_number(int i);
 
     If you are scripting refinement and/or regularization, this is the
     function that you need to call after refine-zone or regularize-zone.  */
-void accept_moving_atoms();
+void c_accept_moving_atoms();
 
 /*! \brief a hideous alias for the above  */
 void accept_regularizement();

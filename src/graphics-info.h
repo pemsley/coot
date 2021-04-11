@@ -1492,10 +1492,10 @@ public:
                                                       // atoms move
 
 #ifdef USE_GUILE
-   SCM refinement_results_to_scm(coot::refinement_results_t &rr);
+   SCM refinement_results_to_scm(const coot::refinement_results_t &rr) const;
 #endif
 #ifdef USE_PYTHON
-   PyObject *refinement_results_to_py(coot::refinement_results_t &rr);
+   PyObject *refinement_results_to_py(const coot::refinement_results_t &rr) const;
 #endif
    static bool cryo_EM_refinement_flag;
 
@@ -1921,6 +1921,7 @@ public:
 						   const std::string &ins_code_2,
 						   const std::string &altconf,
 						   short int is_water_flag);
+   coot::refinement_results_t get_refinement_results() const;
 
    // used by above:
    void flash_selection(int imol, int resno_1,
@@ -2260,7 +2261,7 @@ public:
    void clear_moving_atoms_object();
    // copy the contents of moving_atoms_asc into the molecule being refined.
    //
-   void accept_moving_atoms();
+   coot::refinement_results_t accept_moving_atoms();
 
    void update_moving_atoms_from_molecule_atoms(const coot::minimol::molecule &mm);
 

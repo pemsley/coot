@@ -353,7 +353,9 @@ def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir
    if compound_name:
        m.SetProp('_Name', compound_name)
    do_hydrogen_atoms_shift = True
-   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match, do_hydrogen_atoms_shift)
+   do_minimization = True
+   embed_and_optimize = True
+   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization, embed_and_optimize, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match, do_hydrogen_atoms_shift)
 
 # return the molecule and return value from make_restraints
 #
@@ -370,8 +372,10 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
    do_hydrogen_atoms_shift = False
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
+   do_minimization = True
+   embed_and_optimize = True
    return m, make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-                             quartet_planes, quartet_hydrogen_planes, use_mmff,
+                             quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization, embed_and_optimize,
                              match_atom_names_to_dict_flag, comp_id_list_for_names_match,
                              dict_files_for_names_match, do_hydrogen_atoms_shift)
 
@@ -381,7 +385,7 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 #
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
                                     output_dir, output_postfix,
-                                    quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                    quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization,
                                     pdb_out_file_name, mmcif_restraints_out_file_name,
                                     do_hydrogen_atoms_shift):
 
@@ -403,7 +407,7 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
          t_mol = make_restraints_from_mmcif_dict_single(cif_file_name_in, r_type, mogul_dir,
                                                         output_postfix,
                                                         quartet_planes,
-                                                        quartet_hydrogen_planes, use_mmff,
+                                                        quartet_hydrogen_planes, use_mmff, do_minimization,
                                                         pdb_out_file_name_local,
                                                         mmcif_restraints_out_file_name_local,
                                                         do_hydrogen_atoms_shift)
@@ -412,7 +416,7 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
    else:
        # just the one
        m = make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-                                                  quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                                  quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization,
                                                   pdb_out_file_name, mmcif_restraints_out_file_name,
                                                   do_hydrogen_atoms_shift)
        return [(m, comp_id)]
@@ -422,12 +426,9 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
 # Return None on failure
 #
 def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-                                           quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                           quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization,
                                            pdb_out_file_name, mmcif_restraints_out_file_name,
                                            do_hydrogen_atoms_shift):
-
-   # print 'in make_restraints_from_mmcif_dict_single() comp_id is ', comp_id
-   # print 'in make_restraints_from_mmcif_dict_single() cif_file_name_in is ', cif_file_name_in
 
    if not test_for_mogul():
        return [(None, None)]
@@ -454,6 +455,18 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
                atom, "has no _CIPRank")
             pass
 
+   if False:  # debug
+      n = m.GetNumConformers()
+      print("debug in make_restraints_from_mmcif_dict_single() n conformers:", n)
+      if n == 1:
+         conf_id = 0
+         conf = m.GetConformer(conf_id)
+         print(dir(conf))
+         n_atoms = conf.GetNumAtoms()
+         positions = conf.GetPositions()
+         for pos in positions:
+            print("debug::   post-rdkit_mol_chem_comp_pdbx()", pos)
+
    # maybe user didn't select the correct comp_id for the given dictionary mmcif
    if m.GetNumAtoms() == 0:
       print('No atoms for comp_id', comp_id)
@@ -466,9 +479,14 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
       except KeyError:
          print('caught KeyError in make_restraints_from_mmcif_dict_single() trying GetProp _Name')
 
+      embed_and_optimize = False # start from the given coordinates
+      # print('############################ make_restraints_from_mmcif_dict_single() calling make_restraints()')
+      # print('############################ make_restraints_from_mmcif_dict_single() with args ',
+      #       use_mmff, do_minimization, embed_and_optimize)
       return make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub,
                              pdb_out_file_name, mmcif_restraints_out_file_name,
-                             quartet_planes, quartet_hydrogen_planes, use_mmff, False, False, False,
+                             quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization, embed_and_optimize,
+                             False, False, False,
                              do_hydrogen_atoms_shift)
 
 
@@ -492,7 +510,7 @@ def checked_mkdir(dirname):
 # return sane_H_mol
 #
 def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_name, mmcif_dict_name,
-                    quartet_planes, quartet_hydrogen_planes, use_mmff,
+                    quartet_planes, quartet_hydrogen_planes, use_mmff, do_minimization, embed_and_optimize,
                     match_atom_names_to_dict_flag,
                     comp_id_list_for_names_match,
                     dict_files_for_names_match, do_hydrogen_atoms_shift):
@@ -528,34 +546,43 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       # simple sane pH H-exchanges
       sane_H_mol = pyrogen_boost.hydrogen_transformations(m_H)
       # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+      AllChem.AssignStereochemistry(sane_H_mol, force=True, cleanIt=True)
    else:
       sane_H_mol = m_H
 
    AllChem.AssignStereochemistry(sane_H_mol);
 
+   n_confs = sane_H_mol.GetNumConformers()
+   # print("debug:: there are", n_confs, "conformers in sane_H_mol")
+
    # conf_id = AllChem.EmbedMolecule(sane_H_mol, maxAttempts=n_attempts)
-   conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG())
 
-   if use_mmff:
-      AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
+   if do_minimization:
 
-      if False:  # debugging output
-         ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule
-         n_bonds = ba.bonds_size()
-         if n_bonds > 0:
-            for i_bond in range(n_bonds):
-               bond = ba.get_bond(i_bond)
-               print(bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
-                     bond.get_resting_bond_length(), bond.get_sigma())
-         n_angles = ba.angles_size()
-         if n_angles > 0:
-             for i_angle in range(n_angles):
-                 angle = ba.get_angle(i_angle)
-                 print(angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
-                       angle.get_resting_angle(), angle.get_sigma())
+      if use_mmff:
 
-   else:
-      AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
+         if embed_and_optimize:
+
+            conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG())
+            AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
+
+         if False:  # debugging output
+            ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule
+            n_bonds = ba.bonds_size()
+            if n_bonds > 0:
+               for i_bond in range(n_bonds):
+                  bond = ba.get_bond(i_bond)
+                  print(bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
+                        bond.get_resting_bond_length(), bond.get_sigma())
+            n_angles = ba.angles_size()
+            if n_angles > 0:
+                for i_angle in range(n_angles):
+                    angle = ba.get_angle(i_angle)
+                    print(angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
+                          angle.get_resting_angle(), angle.get_sigma())
+
+      else:
+         AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
 
    atom_names = add_atom_names(sane_H_mol)
    all_set = atom_types.set_atom_types(sane_H_mol)  # has deloc bonds now, potentially
@@ -654,24 +681,32 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
           if run_mogul == False:
 
+              print('--- "no mogul" path ---')
+
               # ... but that's OK if we told pyrogen to run without mogul
 
               # sane_H_mol:
-              print(Chem.MolToMolBlock(sane_H_mol), file=file('debug_sane_H.mol','w+'))
+              # print(Chem.MolToMolBlock(sane_H_mol), file=file('debug_sane_H.mol','w+'))
 
               # debug
-              for atom in sane_H_mol.GetAtoms():
-                 try:
-                    r = atom.GetProp('_CIPRank')
-                    print(atom, "DEBUG:: pyrogen.py::make_restraints(): atom cip rank", r)
-                 except KeyError as e:
-                    print('DEBUG:: pyrogen.py::make_restraints() atom', atom, "has no _CIPRank")
+              if False:
+                 for atom in sane_H_mol.GetAtoms():
+                    try:
+                       r = atom.GetProp('_CIPRank')
+                       print(atom, "DEBUG:: pyrogen.py::make_restraints(): atom CIP rank", r)
+                    except KeyError as e:
+                       print('DEBUG:: pyrogen.py::make_restraints() atom', atom, "has no _CIPRank")
 
+              do_regularize = True
+              if not do_minimization:
+                 do_regularize = False
 
               restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
+                                                    do_minimization,
                                                     mmcif_dict_name,
                                                     quartet_planes, quartet_hydrogen_planes,
                                                     replace_with_mmff_b_a_restraints)
+
 
               if restraints == None:
                   print("No restraints")
@@ -688,7 +723,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
           else:
               # ... but not if we wanted to use mogul.
-              # (We get here if there is a licence error for mogul)
+              # (We get here if there is a license error for mogul)
               exit(1)
 
       return sane_H_mol
@@ -733,10 +768,11 @@ def simple_make(mmcif_file_name, comp_id):
    mmcif_restraints_out_file_name = comp_id + "-pyrogen.cif"
    pdb_fn = comp_id + "-pyrogen.pdb"
    do_hydrogen_atoms_shift = True
+   do_minimization = True
    mol_pairs = make_restraints_from_mmcif_dict(mmcif_file_name,
                                                comp_id,
-                                               ".', ",'.', 'postfix', False, True, True, pdb_fn,
-                                               mmcif_restraints_out_file_name, do_hydrogen_atoms_shift)
+                                               ".", ".", '.', 'postfix', False, True, True, do_minimization,
+                                               pdb_fn, mmcif_restraints_out_file_name, do_hydrogen_atoms_shift)
    for mol_info in mol_pairs:
       (mol, comp_id) = mol_info
    if not mol:
@@ -980,10 +1016,13 @@ if __name__ == "__main__":
     parser.add_option('-p', '--picture', dest='drawing',
                       help='Additionally output a chemical diagram PNG',
                       action='store_true', default=False)
+    parser.add_option('-P', '--preserve-input-coordinates', dest='preserve_input_coordinates',
+                      help="Preserve the inputput coordinates (if possible)",
+                      action='store_true', default=False)
     parser.add_option('-v', '--version', dest='show_version', default=False,
                       action='store_true', help='Print version information')
-    parser.add_option('-M', '--MMFF', dest='use_mmff', default=False,
-                      action='store_true', help='Use MMFF fallbacks for bonds and angles')
+    # parser.add_option('-M', '--MMFF', dest='use_mmff', default=False,                       # true now.
+    #                  action='store_true', help='Use MMFF fallbacks for bonds and angles')
     parser.add_option('-a', '--no-match-vs-reference-dictionaries', default=False,
                       action='store_true', dest='no_match_names_flag',
                       help="Don't match atom names vs. dictionary molecules (default False)")
@@ -1003,8 +1042,8 @@ if __name__ == "__main__":
                       help="print less messages")
 
     (options, args) = parser.parse_args()
-    print('DEBUG:: options:', options)
-    print('DEBUG:: args:', args)
+    # print('DEBUG:: options:', options)
+    # print('DEBUG:: args:', args)
 
     if len(sys.argv) == 0:
        print("Usage: pyrogen --help")
@@ -1074,6 +1113,10 @@ if __name__ == "__main__":
         # ------------------------ dict-build-mode ---------------------------------------------------
 
         mmcif_file_name = options.mmcif_file_name
+        use_mmff = True
+        do_minimization = True
+        if options.preserve_input_coordinates == True:
+           do_minimization = False
         # shall we go get the dictionary?
         if options.wwPDB:
            mmcif_file_name = get_pdbe_cif_for_comp_id(comp_id)
@@ -1102,7 +1145,7 @@ if __name__ == "__main__":
                                                         options.output_postfix,
                                                         options.quartet_planes,
                                                         quartet_hydrogen_planes,
-                                                        options.use_mmff,
+                                                        use_mmff, do_minimization,
                                                         pdb_out_file_name,
                                                         mmcif_restraints_out_file_name,
                                                         options.do_hydrogen_atoms_shift)
@@ -1135,7 +1178,7 @@ if __name__ == "__main__":
                                                           mmcif_restraints_out_file_name,
                                                           options.quartet_planes,
                                                           quartet_hydrogen_planes,
-                                                          options.use_mmff,
+                                                          use_mmff,
                                                           match_names_flag,
                                                           options.comp_id_list_for_names_match,
                                                           options.dict_files_for_names_match)
@@ -1158,7 +1201,7 @@ if __name__ == "__main__":
                                                          mmcif_restraints_out_file_name,
                                                          options.quartet_planes,
                                                          quartet_hydrogen_planes,
-                                                         options.use_mmff,
+                                                         use_mmff,
                                                          match_names_flag,
                                                          options.comp_id_list_for_names_match,
                                                          options.dict_files_for_names_match)

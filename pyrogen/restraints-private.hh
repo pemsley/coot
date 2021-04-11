@@ -20,7 +20,17 @@
  * 02110-1301, USA
  */
 
+#ifndef RESTRAINTS_PRIVATE_HH
+#define RESTRAINTS_PRIVATE_HH
+
+#include <Python.h>
+#include <string>
+#include <mmdb2/mmdb_manager.h>
 #include <GraphMol/Substruct/SubstructMatch.h>
+
+#include "geometry/protein-geometry.hh"
+
+#include <lidia-core/rdkit-interface.hh>
 
 namespace coot {
 
@@ -36,6 +46,9 @@ namespace coot {
    regularize_inner(RDKit::ROMol &mol,
 		    PyObject *restraints_py,
 		    const std::string &res_name);
+
+   void
+   regularize_and_update_mol_and_restraints(RDKit::RWMol *mol, dictionary_residue_restraints_t *restraints_p);
    
 
    bool is_const_torsion(const RDKit::ROMol &mol,
@@ -48,7 +61,11 @@ namespace coot {
    // 
    void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
 
-      // alter restraints
+   // after we have done minimization, we want to update the coordinates in the dictionary
+   void update_chem_comp_atoms_from_residue(mmdb::Residue *residue_p,
+                                            dictionary_residue_restraints_t *restraints);
+
+   // alter restraints
    int assign_chirals(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
    void add_chem_comp_atoms(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
@@ -130,9 +147,8 @@ namespace coot {
 	 residue = NULL;
 	 filled_flag = false;
       }
-      matching_dict_t(mmdb::Residue *res, const dictionary_residue_restraints_t &d) {
+      matching_dict_t(mmdb::Residue *res, const dictionary_residue_restraints_t &d) : dict(d) {
 	 residue = res;
-	 dict = d;
 	 filled_flag = true;
       }
       bool filled() const { return filled_flag; }
@@ -157,4 +173,7 @@ namespace coot {
 
 
 }
+
+
+#endif // RESTRAINTS_PRIVATE_HH
 

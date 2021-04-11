@@ -138,7 +138,6 @@ namespace coot {
 }
 
 // we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
 
 #include <map>
 
@@ -2409,6 +2408,9 @@ namespace coot {
                                     const protein_geometry &geom);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
 
+      refinement_results_t get_refinement_results(); // not const because setup_minimize()
+      void free_delete_reset();
+
       bool refinement_results_add_details;
       void add_details_to_refinement_results(refinement_results_t *rr) const;
 
@@ -2829,5 +2831,4 @@ namespace coot {
 } // namespace coot
 
 
-#endif // HAVE_GSL
 #endif // HAVE_SIMPLE_RESTRAINT_HH

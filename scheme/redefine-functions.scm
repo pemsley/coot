@@ -4,6 +4,7 @@
 (define enhanced-ligand-coot? enhanced-ligand-coot-p)
 (define drag-intermediate-atom drag-intermediate-atom-scm)
 (define mark-atom-as-fixed mark-atom-as-fixed-scm)
+(define accept-moving-atoms accept-moving-atoms-scm)
 (define ncs-chain-ids ncs-chain-ids-scm)
 (define ncs-chain-differences ncs-chain-differences-scm)
 (define refmac-parameters refmac-parameters-scm)

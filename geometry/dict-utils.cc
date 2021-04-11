@@ -19,6 +19,7 @@
  * 02110-1301, USA
  */
 
+#include <fstream>
 #include <map>
 #include <algorithm>
 #include <iomanip> // setw()
@@ -1119,3 +1120,313 @@ coot::comp_ids_in_dictionary_cif(const std::string &cif_dictionary_filename) {
    v = geom.monomer_restraints_comp_ids();
    return v;
 }
+
+
+
+bool
+coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &r) const {
+
+   bool status = true;
+   unsigned int n_found = 0;
+   if (atom_ids.size() != r.atom_ids.size())
+      return false;
+   if (atom_ids.size() > 0)
+      status = false; // initial setting.
+   
+   for (unsigned int i=0; i<atom_ids.size(); i++) {
+      const std::string &ref_atom = atom_ids[i].first;
+      for (unsigned int j=0; j<r.atom_ids.size(); j++) { 
+	 if (r.atom_ids[j].first == ref_atom) {
+	    n_found++;
+	    break;
+	 }
+      }
+   }
+   if (n_found == atom_ids.size())
+      status = true;
+   return status;
+}
+
+
+std::string
+coot::atom_id_mmdb_expand(const std::string &atomname) { 
+   std::string r;
+   int ilen = atomname.length();
+      
+   if (ilen == 4) return atomname;
+      
+   if (ilen == 1) {
+      r = " ";
+      r += atomname;
+      r += "  ";
+   } else {
+      if (ilen == 2) {
+
+	 // 20180512-PE we have to be more clever here for metals.
+	 // But what about CA! - argh! we shouldn't be using this function.
+	 // We need to know the residue name to pad correctly.
+	 //
+	 bool done = false;
+	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
+	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
+	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||
+	     atomname == "SE" || atomname == "BR" || atomname == "RB" || atomname == "SR" || atomname == "RE" || atomname == "OS" ||
+	     atomname == "IR" || atomname == "PT" || atomname == "AU" || atomname == "HG" || atomname == "PB" || atomname == "BI") {
+	    r += atomname;
+	    r += "  ";
+	 } else {
+	    r = " ";
+	    r += atomname;
+	    r += " ";
+	 }
+      } else {
+	 if (ilen == 3) {
+	    r = " ";
+	    r += atomname;
+	 } else {
+	    r = atomname;
+	 }
+      }
+   }
+   return r;
+}
+
+std::string
+coot::atom_id_mmdb_expand(const std::string &atomname, const std::string &element) {
+
+   std::string r = coot::atom_id_mmdb_expand(atomname);
+
+   if (element.length() == 2 && element[0] != ' ') {
+      if (atomname.length() == 1) { // unlikely
+	 r = " ";
+	 r += atomname;
+	 r += "  ";
+      } else {
+	 if (atomname.length() == 2) {
+	    r = atomname;
+	    r += "  ";
+	 } else {
+	    if (atomname.length() == 3) {
+	       r = atomname;
+	       r += " ";
+	    } else {
+	       r = atomname;
+	    }
+	 }
+      }
+   }
+   if (0)  // debug
+      std::cout << "Given :" << atomname << ": and element :" <<
+	 element << ": returning :" << r << ":" << std::endl;
+   return r;
+}
+
+
+bool
+coot::dict_torsion_restraint_t::is_pyranose_ring_torsion(const std::string &comp_id) const {
+
+   // Needs fixup for PDBv3
+   bool status = false;
+   std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+   if (comp_id == "XYP")
+      for (unsigned int i=0; i<6; i++)
+	 ring_atoms[i][3] = 'B'; // danger on PDBv3 fixup.
+
+   int n_matches = 0;
+   for (unsigned int i=0; i<6; i++) { 
+      if (atom_id_2_4c() == ring_atoms[i])
+	 n_matches++;
+      if (atom_id_3_4c() == ring_atoms[i])
+	 n_matches++;
+   }
+   if (n_matches == 2)
+      status = true;
+   return status;
+}
+
+bool
+coot::dict_link_torsion_restraint_t::is_pyranose_ring_torsion() const {
+
+   // Needs fixup for PDBv3
+   bool status = false;
+   std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+
+   int n_matches = 0;
+   for (unsigned int i=0; i<6; i++) { 
+      if (atom_id_2_4c() == ring_atoms[i])
+	 n_matches++;
+      if (atom_id_3_4c() == ring_atoms[i])
+	 n_matches++;
+   }
+   if (n_matches == 2)
+      status = true;
+   return status;
+} 
+
+bool
+coot::dict_torsion_restraint_t::is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const {
+
+   bool match = false; 
+   std::vector<std::string> torsion_restraint_atom_names(2);
+   torsion_restraint_atom_names[0] = atom_id_2_4c();
+   torsion_restraint_atom_names[1] = atom_id_3_4c();
+   
+   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) { 
+      const std::vector<std::string> &ring_atom_names = ring_atoms_sets[iring];
+
+      int n_match = 0;
+      for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
+	 for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++) { 
+	    if (ring_atom_names[iname_1] == torsion_restraint_atom_names[iname_2])
+	       n_match++;
+	 }
+      }
+      if (n_match == 2) {
+	 match = true;
+	 break;
+      }
+   }
+   return match;
+} 
+
+
+bool
+coot::dict_torsion_restraint_t::is_const() const {
+
+   bool const_flag = 0;
+   if (id_.length() > 5) {
+      std::string bit = id_.substr(0,5);
+      if (bit == "CONST")
+	 const_flag = 1;
+      if (bit == "const")
+	 const_flag = 1;
+   }
+   return const_flag;
+}
+
+
+
+bool
+coot::dict_atom::is_hydrogen() const {
+
+   bool r = false;
+   if (type_symbol == "H" ||
+       type_symbol == " H" ||
+       type_symbol == "D")
+      r = true;
+   return r;
+}
+
+
+
+void
+coot::dict_atom::add_pos(int pos_type,
+			 const std::pair<bool, clipper::Coord_orth> &model_pos) {
+
+   if (pos_type == coot::dict_atom::IDEAL_MODEL_POS)
+      pdbx_model_Cartn_ideal = model_pos;
+   if (pos_type == coot::dict_atom::REAL_MODEL_POS) {
+      model_Cartn = model_pos;
+   }
+
+}
+
+// quote atom name as needed - i.e. CA -> CA, CA' -> "CA'"
+std::string 
+coot::dictionary_residue_restraints_t::quoted_atom_name(const std::string &an) const {
+
+   std::string n = an;
+   bool has_quotes = false;
+
+   for (unsigned int i=0; i<an.size(); i++) {
+      if (an[i] == '\'') {
+	 has_quotes = true;
+	 break;
+      } 
+   }
+   if (has_quotes)
+      n = "\"" + an + "\"";
+
+   return n;
+}
+
+
+// make a connect file specifying the bonds to Hydrogens
+bool
+coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
+					       const std::string &filename) const {
+
+   bool r = 0;
+   std::pair<short int, dictionary_residue_restraints_t> p =
+      get_monomer_restraints(resname, IMOL_ENC_ANY);
+
+   if (p.first) {
+      std::vector<dict_bond_restraint_t> bv = p.second.bond_restraint;
+      if (bv.size() > 0) {
+	 // try to open the file then:
+	 std::ofstream connect_stream(filename.c_str());
+	 if (connect_stream) {
+	    int n_atoms = p.second.atom_info.size();
+	    connect_stream << "# Generated by Coot" << std::endl;
+	    connect_stream << "RESIDUE   " << resname << "   " << n_atoms << std::endl;
+	    std::vector<std::pair<std::string, std::vector<std::string> > > assoc; 
+	    for (unsigned int i=0; i<bv.size(); i++) {
+	       std::string atom1 = bv[i].atom_id_1();
+	       std::string atom2 = bv[i].atom_id_2();
+	       // find atom1
+	       bool found = 0;
+	       int index_1 = -1;
+	       int index_2 = -1;
+	       for (unsigned int j=0; j<assoc.size(); j++) {
+		  if (atom1 == assoc[j].first) {
+		     found = 1;
+		     index_1 = j;
+		     break;
+		  } 
+	       }
+	       if (found == 1) {
+		  assoc[index_1].second.push_back(atom2);
+	       } else {
+		  // we need to add a new atom:
+		  std::vector<std::string> vt;
+		  vt.push_back(atom2);
+		  std::pair<std::string, std::vector<std::string> > p(atom1, vt);
+		  assoc.push_back(p);
+	       }
+	       // find atom2
+	       found = 0;
+	       for (unsigned int j=0; j<assoc.size(); j++) {
+		  if (atom2 == assoc[j].first) {
+		     found = 1;
+		     index_2 = j;
+		     break;
+		  }
+	       }
+	       if (found == 1) {
+		  assoc[index_2].second.push_back(atom1);
+	       } else {
+		  // we need to add a new atom:
+		  std::vector<std::string> vt;
+		  vt.push_back(atom1);
+		  std::pair<std::string, std::vector<std::string> > p(atom2, vt);
+		  assoc.push_back(p);
+	       } 
+	    }
+
+	    r = 1;
+	    // for each atom in assoc
+	    for (unsigned int i=0; i<assoc.size(); i++) {
+	       
+	       connect_stream << "CONECT     " << assoc[i].first << "    "
+			      << assoc[i].second.size();
+	       for (unsigned int ii=0; ii<assoc[i].second.size(); ii++) {
+		  connect_stream << assoc[i].second[ii] << " ";
+	       }
+	       connect_stream << std::endl;
+	    }
+	 }
+      }
+   }
+   return r;
+} 
+      

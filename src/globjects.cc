@@ -1149,7 +1149,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 // smaller is smoother and less jerky - especially for big molecules
-int       graphics_info_t::dragged_refinement_steps_per_frame = 6;
+int       graphics_info_t::dragged_refinement_steps_per_frame = 10;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 

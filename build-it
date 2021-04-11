@@ -402,7 +402,11 @@
 # 5.45 20210110 Bump the python version again - no2 2.7.18
 # 5.46 20210110 Add a test for the version of cmake
 # 5.47 20210111 Use the correct name for the libtinfo dev package
-script_version=5.47
+# 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
+# 5.49 20210407 find mmdb libs in lib64 maybe for SSM.
+# 5.50 20210407 fix previous fix
+# 5.51 20210407 adjust LIBS for clipper configure for lib64 usage
+script_version=5.51
 
 
 
@@ -1915,12 +1919,22 @@ case "$architecture" in
      STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
      ;;
 esac
-if [ -z "$PKG_CONFIG_PATH" ] ; then
-  # I think that the standard dir is not needed.
-  # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+if [ -z "$PKG_CONFIG_PATH" ] ; then 
+    # I think that the standard dir is not needed.
+    # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
+    PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+    case "$architecture" in
+        x86_64*) 
+           PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig
+           ;;
+    esac
 else
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+    PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+    case "$architecture" in
+        x86_64*) 
+           PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+           ;;
+    esac
 fi
 
 if [ -e /opt/X11/lib/pkgconfig ] ; then
@@ -2586,8 +2600,12 @@ date
 # gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
 tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
 cd ssm-$ssm_version
-./configure $generic_prefix  --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
-if $MAKE ; then
+mmdb_lib_dir=$install_top_dir/lib
+if [ -e $install_top_dir/lib64/libmmdb2.so ] ; then
+    mmdb_lib_dir=$install_top_dir/lib64
+fi
+./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$mmdb_lib_dir
+if $MAKE ; then 
    $MAKE install
 fi
 ) >  $HOSTLOGDIR/02-ssm.txt 2>&1
@@ -2704,11 +2722,17 @@ if test -n "$build_clipper" ; then
     if [ -z "$LIBS" ] ; then
       save_libs=
       export LIBS=-L$install_top_dir/lib
-    else
+      if [ -e $install_top_dir/lib64 ] ; then
+          export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib"
+      fi
+    else 
       save_libs="$LIBS"
       export LIBS=-L$install_top_dir/lib:$LIBS
+      if [ -e $install_top_dir/lib64 ] ; then
+         export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib $LIBS"
+      fi
     fi
-    echo now we have LIBS $LIBS
+    echo for clipper configure now we have LIBS $LIBS
 
     echo ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \

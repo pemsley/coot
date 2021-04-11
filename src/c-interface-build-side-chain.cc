@@ -1082,7 +1082,7 @@ void fill_partial_residues(int imol) {
       	 }
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
-         accept_moving_atoms();
+         c_accept_moving_atoms();
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
 	 if (backup_mode)

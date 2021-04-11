@@ -811,12 +811,12 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
             }
 
             if (atom_is_hydrogen[i] && atom_is_hydrogen[j]) {
-               dist_min = 2.42; // depends on energy type
+               dist_min = 2.42; // shold depend on energy type
             } else {
                if (atom_is_hydrogen[i])
-                  dist_min -= 0.4;
+                  dist_min -= 0.6;  // was 0.4
                if (atom_is_hydrogen[j])
-                  dist_min -= 0.4;
+                  dist_min -= 0.6;  // was 0.4
             }
 
          } else {
@@ -1270,8 +1270,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
                   bool strange_exception = false;
                   int rn_diff = abs(res_no_2 - res_no_1);
                   if (rn_diff == 1) {
-                     std::string atom_name_1 = at_1->GetAtomName();
-                     std::string atom_name_2 = at_2->GetAtomName();
                      if (fixed_atom_flags.size()) {
                         if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
                            if (atom_name_1 == " O  ")
@@ -1340,8 +1338,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
                   if (rn_diff == 2) {
                      if (fixed_atom_flags.size()) {
                         if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
-                           std::string atom_name_1 = at_1->GetAtomName();
-                           std::string atom_name_2 = at_2->GetAtomName();
                            if (atom_name_1 == " C  ")
                               if (atom_name_2 == " N  ")
                                  strange_exception = true;
@@ -2258,7 +2254,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
-   double interesting_distortion_limit = 1.0;
+   double interesting_distortion_limit = 5.0;
    analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(              BOND_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT,     interesting_distortion_limit);
@@ -2314,11 +2310,11 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       if (r_type == CHIRAL_VOLUME_RESTRAINT) {
          mmdb::Atom *at_c = atom[rest.atom_index_centre];
          std::cout << "INFO:: Model: Bad Chiral Volume: "
-                   << atom_spec_t(at_c) << " " << std::setw(5)
-                   << " delta "      << std::get<2>(d)
-                   << " target "     << rest.target_chiral_volume
-                   << " sigma "      << rest.sigma
-                   << " distortion " << std::get<3>(d) << "\n";
+                   << atom_spec_t(at_c)
+                   << " delta "      << std::setw(6) << std::get<2>(d)
+                   << " target "     << std::setw(5) <<rest.target_chiral_volume
+                   << " sigma "      << std::setw(4) << rest.sigma
+                   << " distortion " << std::setw(4) << std::right << std::get<3>(d) << "\n";
       }
 
       // How can I know if this was a Hydrogen bond restraint?

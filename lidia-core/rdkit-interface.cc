@@ -478,11 +478,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    for (unsigned int iat=0; iat<m.getNumAtoms(); iat++) {
 	       try {
 		  std::string name;
-#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
-                  RDKit::Atom* at_p = m[iat];
-#else
                   RDKit::Atom *at_p = m[iat];
-#endif
                   at_p->getProp("name", name);
 		  if (name == atom_name_1)
 		     idx_1 = iat;
@@ -570,11 +566,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		   << std::endl;
 	 int n_mol_atoms = m.getNumAtoms();
 	 for (int iat=0; iat<n_mol_atoms; iat++) {
-#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
        RDKit::Atom* at_p = m[iat];
-#else
-       RDKit::Atom *at_p = m[iat];
-#endif
        std::string name = "";
 	    try {
 	       at_p->getProp("name", name);
@@ -685,8 +677,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			const RDKit::Atom *nbr=bond->getOtherAtom(rdkit_at);
 			unsigned int cip_rank = 0;
 			nbr->getProp(RDKit::common_properties::_CIPRank, cip_rank);
-                        std::cout << "debug:: in rdkit_mol(residue *version) iat bonded: "
-                                  << iat << " cip_rank neighb: " << cip_rank << std::endl;
+                        if (false)
+                           std::cout << "debug:: in rdkit_mol(residue *version) iat bonded: "
+                                     << iat << " cip_rank neighb: " << cip_rank << std::endl;
 			std::pair<const RDKit::Atom *, unsigned int> p(nbr, cip_rank);
 			neighbs.push_back(p);
 		     }

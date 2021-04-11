@@ -1063,3 +1063,19 @@ coot::energy_lib_t::get_torsion(const std::string &energy_type_2,
    }
    throw std::runtime_error("torsion for types not found in dictionary");
 }
+
+
+coot::energy_lib_atom
+coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const {
+
+   coot::energy_lib_atom at;
+   
+   std::map<std::string, energy_lib_atom>::const_iterator it =
+      energy_lib.atom_map.find(ener_type);
+
+   if (it != energy_lib.atom_map.end())
+      at = it->second;
+   
+   return at;
+   
+}

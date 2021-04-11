@@ -2103,7 +2103,7 @@ on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
   /* Pressing Return while focus is on the Accept/Reject dialog brings us here. */
 
   stop_refinement_internal();
-  accept_moving_atoms();
+  c_accept_moving_atoms();
   save_accept_reject_dialog_window_position(window);
   set_accept_reject_dialog(NULL);
   gtk_widget_destroy(window);
@@ -2129,6 +2129,7 @@ on_accept_reject_refinement_dialog_destroy
                                         (GtkWidget       *object,
                                         gpointer         user_data)
 {
+
 
   /* Pressing Escape while focus is on the Accept/Reject dialog brings us here. */
 

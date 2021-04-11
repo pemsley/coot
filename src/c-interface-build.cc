@@ -4835,20 +4835,46 @@ int secondary_structure_restraints_type() {
 
 void accept_regularizement() {
 
-   accept_moving_atoms();
+   c_accept_moving_atoms();
 }
 
-void accept_moving_atoms() {
+void c_accept_moving_atoms() {
 
    graphics_info_t g;
+   while (g.continue_threaded_refinement_loop)
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   g.accept_moving_atoms();
+   g.clear_moving_atoms_object();
 
+}
+
+#ifdef USE_GUILE
+SCM accept_moving_atoms_scm() {
+
+   graphics_info_t g;
    while (g.continue_threaded_refinement_loop) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
    }
-
-   g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
+   coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
+   rr.show();
    g.clear_moving_atoms_object();
+   return g.refinement_results_to_scm(rr);
 }
+#endif
+
+#ifdef USE_PYTHON
+PyObject *accept_moving_atoms_py() {
+
+   graphics_info_t g;
+   while (g.continue_threaded_refinement_loop) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
+   coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
+   rr.show();
+   g.clear_moving_atoms_object();
+   return g.refinement_results_to_py(rr);
+}
+#endif
 
 
 /* \brief Experimental interface for Ribosome People.

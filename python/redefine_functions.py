@@ -10,6 +10,7 @@ chain_id               = coot.chain_id_py
 remarks                = coot.remarks_py
 residue_centre         = coot.residue_centre_py
 coot_sys_build_type    = coot.coot_sys_build_type_py
+accept_moving_atoms    = coot.accept_moving_atoms_py
 molecule_name_stub     = coot.molecule_name_stub_py
 run_clear_backups      = coot.run_clear_backups_py
 het_group_residues     = coot.het_group_residues_py

@@ -69,7 +69,7 @@ Building Automatically
  I'd say that the easiest way to try to build coot is to use the
  auto-builder:
 
- https://raw.githubusercontent.com/pemsley/coot/master/build-it
+ https://raw.githubusercontent.com/pemsley/coot/refinement/build-it
 
  It checks for dependencies and builds them if needed.
 
@@ -81,7 +81,7 @@ Building Automatically
  libxext-dev
  libxt-dev
  libc6-dev
- libglu1-mesa-dev 
+ libglu1-mesa-dev
  mesa-common-dev
  swig
  libgtk2.0-dev

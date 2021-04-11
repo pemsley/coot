@@ -8018,7 +8018,9 @@ void set_background_colour(double red, double green, double blue) {
    g.background_colour[0] = red;
    g.background_colour[1] = green;
    g.background_colour[2] = blue;
-   graphics_draw();
+
+   if (g.use_graphics_interface_flag)
+      graphics_draw();
 }
 
 void

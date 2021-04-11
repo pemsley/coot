@@ -40,16 +40,11 @@ current_exe_dir=$(dirname $0)
 systype=$(uname)
 
 if [ $systype = Darwin ] ; then
-   COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
+    COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
 else
-   if [ $current_exe_dir = . ] ; then
-      COOT_PREFIX=$(readlink -f $(dirname $PWD))
-   else
-      COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
-   fi
-   if test "$COOT_PREFIX" = ""; then
-      COOT_PREFIX=$(dirname "$current_exe_dir")
-   fi
+    unlinked_exe=$(readlink -f $0)
+    unlinked_exe_dir=$(dirname $unlinked_exe)
+    COOT_PREFIX=$(dirname $unlinked_exe_dir)
 fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
@@ -85,7 +80,7 @@ PATH=$COOT_PREFIX/bin:$PATH
 SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
 COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
 if [ -z $CLIBD_MON ] ; then
- echo CLIBD_MON not set using COOT_REFMAC_LIB_DIR
+ # echo debug:: CLIBD_MON not set, using COOT_REFMAC_LIB_DIR
  COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
  export COOT_REFMAC_LIB_DIR
 fi

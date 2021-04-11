@@ -38,10 +38,10 @@ AM_CXXFLAGS = \
 
 
 libcoot_geometry_la_SOURCES = cif-parse.cc protein-geometry.cc protein-geometry-mmdb.cc \
-    read-sbase.cc energy-lib.cc mol-utils.cc  \
+    read-sbase.cc energy-lib.cc mol-utils.cc dictionary-residue.cc link.cc glyco-tools.cc dict-utils.cc \
     chem_mods.cc srs-interface.cc protein-donor-acceptors.cc protein-donor-acceptors.hh \
-    lbg-graph.cc  dreiding.cc dict-utils.cc main-chain.cc residue-and-atom-specs.cc \
-    mol-utils-2.cc hydrophobic.cc
+    lbg-graph.cc  dreiding.cc main-chain.cc residue-and-atom-specs.cc \
+    mol-utils-2.cc hydrophobic.cc cif-parse-link.cc cif-parse-mon-lib.cc
 
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
