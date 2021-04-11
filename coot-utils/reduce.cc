@@ -1112,12 +1112,15 @@ coot::reduce::add_SH_H(const std::string &H_name,
                        double tor_inital, // deg
                        mmdb::Residue *residue_p) {
 
+   std::vector<mmdb::Atom *> empty;
    if (is_ss_bonded(residue_p)) {
       // don't add an H on the S
-      std::vector<mmdb::Atom *> empty;
       return empty;
    } else {
-      return add_xH_H(H_name, at_name_1, at_name_2, at_name_3, bl, angle, tor_inital, residue_p);
+      if (is_linked(at_name_1, residue_p))
+         return empty;
+      else
+         return add_xH_H(H_name, at_name_1, at_name_2, at_name_3, bl, angle, tor_inital, residue_p);
    }
 
 }
