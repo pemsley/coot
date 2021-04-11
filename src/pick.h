@@ -3,8 +3,9 @@
 #ifndef PICK_H
 #define PICK_H
 
-
 #include <string>
+
+#include <gtk/gtk.h>
 
 #include <mmdb2/mmdb_manager.h> 
 #include "clipper/core/coords.h"
@@ -18,12 +19,13 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z);
 
 class pick_info { 
  public:
-  int success; 
-  int model_number;
-  int atom_index;
-  int imol;
-  float min_dist;
-}; 
+   bool is_intermediate_atoms_molecule;
+   int success;
+   int model_number;
+   int atom_index;
+   int imol;
+   float min_dist;
+};
 
 // this is a class, because it contains a class (symm_trans_t)
 //

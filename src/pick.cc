@@ -170,157 +170,161 @@ atom_pick(GdkEventButton *event) {
    p_i.atom_index = -1; // ditto
    p_i.imol = -1; // ditto
    p_i.model_number = mmdb::MinInt4; // unset
-   p_i.success = GL_FALSE; 
+   p_i.success = GL_FALSE;
 
-//     std::cout << "There are " << graphics_info_t::n_molecules << " molecules"
-// 	      << " to check in picking " << std::endl;
+   // 20210412 new style - let's check the intermediate atoms first
 
+   graphics_info_t g;
+   p_i = g.pick_moving_atoms(front, back); // will often/usually fail
 
-   // Consider this senario: 2 molecules that have (at least in one
-   // region) atom in the same place (a result of merging molecules,
-   // for example):
-   // 
-   // Note that we want to select the atom that is "on top" (that is
-   // the one the user is looking at) i.e. later on in the molecule
-   // list - so we run through the list backwards.  This is
-   // particularly important for deleting, because otherwise we often
-   // don't see anything happen when something is deleted.
-   //
+   if (! p_i.success) {
 
-   short int check_pick = 0;
-   if (graphics_info_t::control_key_for_rotate_flag == 0) {
-
-      if (event) {
-	 // i.e. control_key is for picking
-	 if (event->state & GDK_CONTROL_MASK) {
-	    check_pick = 1;
-	 }
-      }
-   } else {
-
-      if (event) {
-	 // control_key is for rotation
-	 if (! (event->state & GDK_CONTROL_MASK)) {
-	    check_pick = 1;
-	 }
-      }
-   }
-
-   if (check_pick) { 
-
-      if (graphics_info_t::debug_atom_picking) {
-	 std::cout << "   == Level 2 atom picking diagnostic (send to Paul) ==\n";
-      }
-      
-      int n_pickable = 0;
-      int max_mol_no = graphics_info_t::n_molecules() - 1;
-      for (int ii=max_mol_no; ii>=0; ii--) {
-
-	 if (graphics_info_t::molecules[ii].has_model()) { 
-	    if (graphics_info_t::molecules[ii].atom_selection_is_pickable()) {
-
-	       n_pickable++;
-
-	       atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel;
-	       short int pick_mode = PICK_ATOM_ALL_ATOM;
-	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS)
-		  pick_mode = PICK_ATOM_CA_ONLY;
-	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::BONDS_NO_HYDROGENS)
-		  pick_mode = PICK_ATOM_NON_HYDROGEN;
-	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)
-		  pick_mode = PICK_ATOM_CA_OR_LIGAND;
-	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS)
-		  pick_mode = PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND;
-	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)
-		  pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
-
-	       bool verbose_mode = graphics_info_t::debug_atom_picking;
-	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode, verbose_mode);
-	       if (mpi.success) {
-		  if (mpi.min_dist < dist_closest) {
-		     p_i = mpi;
-		     dist_closest = mpi.min_dist;
-		  }
-	       }
-	    }
-	 }
-      }
-
-      if (graphics_info_t::debug_atom_picking) {
-	 for (int ii=max_mol_no; ii>=0; ii--) {
-	    std::cout << "   MolNo " << ii << " of "
-		      << graphics_info_t::n_molecules() << ":  " 
-		      << graphics_info_t::molecules[ii].has_model() << " " 
-		      << graphics_info_t::molecules[ii].is_displayed_p() << " " 
-		      << graphics_info_t::molecules[ii].atom_selection_is_pickable() << "  "
-		      << graphics_info_t::molecules[ii].atom_sel.n_selected_atoms << "  "
-		      << graphics_info_t::molecules[ii].name_ << " "
-		      << "\n";
-	 }
-      }
-
-      // we don't want to do this now that we have middle mouse panning
-      //
-      if (false) {
-	 if (n_pickable == 0) {
-	    std::string s = "There were no pickable (\"Active\") molecules!";
-	    GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(s);
-	    gtk_widget_show(w);
-	 }
-      }
-
-      //cout << "There were " << i_outside_count << " atoms outside "
-      //	<< "the limits" << endl;
-
-      // still something strange going on here, because p_i.success = -1073747613
-      // on failure to find a (direct) hit (which is interpretted in glarea_button_press()
-      // as failure fortuneately(?)). 
+      // Consider this senario: 2 molecules that have (at least in one
+      // region) atom in the same place (a result of merging molecules,
+      // for example):
       // 
-      //    cout << "p_i.imol    = " << p_i.imol << endl;
-      //    cout << "p_i.success = " << p_i.success << endl;
-      //    cout << "GL_FALSE    = " << GL_FALSE    << endl;
+      // Note that we want to select the atom that is "on top" (that is
+      // the one the user is looking at) i.e. later on in the molecule
+      // list - so we run through the list backwards.  This is
+      // particularly important for deleting, because otherwise we often
+      // don't see anything happen when something is deleted.
+      //
 
-      if (p_i.success) {
-	 std::string ai;
-	 mmdb::Atom *at =
-	    graphics_info_t::molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
-	 std::string alt_conf_bit("");
-	 std::string segid = at->segID;
-	 if (strncmp(at->altLoc, "", 1))
-	    alt_conf_bit=std::string(",") + std::string(at->altLoc);
-	 atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
-	 nearest_atom_index = p_i.atom_index;
+      short int check_pick = 0;
+      if (graphics_info_t::control_key_for_rotate_flag == 0) {
+
+         if (event) {
+            // i.e. control_key is for picking
+            if (event->state & GDK_CONTROL_MASK) {
+               check_pick = 1;
+            }
+         }
+      } else {
+
+         if (event) {
+            // control_key is for rotation
+            if (! (event->state & GDK_CONTROL_MASK)) {
+               check_pick = 1;
+            }
+         }
+      }
+
+      if (check_pick) { 
+
+         if (graphics_info_t::debug_atom_picking) {
+            std::cout << "   == Level 2 atom picking diagnostic (send to Paul) ==\n";
+         }
+      
+         int n_pickable = 0;
+         int max_mol_no = graphics_info_t::n_molecules() - 1;
+         for (int ii=max_mol_no; ii>=0; ii--) {
+
+            if (graphics_info_t::molecules[ii].has_model()) { 
+               if (graphics_info_t::molecules[ii].atom_selection_is_pickable()) {
+
+                  n_pickable++;
+
+                  atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel;
+                  short int pick_mode = PICK_ATOM_ALL_ATOM;
+                  if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS)
+                     pick_mode = PICK_ATOM_CA_ONLY;
+                  if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::BONDS_NO_HYDROGENS)
+                     pick_mode = PICK_ATOM_NON_HYDROGEN;
+                  if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)
+                     pick_mode = PICK_ATOM_CA_OR_LIGAND;
+                  if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS)
+                     pick_mode = PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND;
+                  if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)
+                     pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
+
+                  bool verbose_mode = graphics_info_t::debug_atom_picking;
+                  pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode, verbose_mode);
+                  if (mpi.success) {
+                     if (mpi.min_dist < dist_closest) {
+                        p_i = mpi;
+                        dist_closest = mpi.min_dist;
+                     }
+                  }
+               }
+            }
+         }
+
+         if (graphics_info_t::debug_atom_picking) {
+            for (int ii=max_mol_no; ii>=0; ii--) {
+               std::cout << "   MolNo " << ii << " of "
+                         << graphics_info_t::n_molecules() << ":  " 
+                         << graphics_info_t::molecules[ii].has_model() << " " 
+                         << graphics_info_t::molecules[ii].is_displayed_p() << " " 
+                         << graphics_info_t::molecules[ii].atom_selection_is_pickable() << "  "
+                         << graphics_info_t::molecules[ii].atom_sel.n_selected_atoms << "  "
+                         << graphics_info_t::molecules[ii].name_ << " "
+                         << "\n";
+            }
+         }
+
+         // we don't want to do this now that we have middle mouse panning
+         //
+         if (false) {
+            if (n_pickable == 0) {
+               std::string s = "There were no pickable (\"Active\") molecules!";
+               GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(s);
+               gtk_widget_show(w);
+            }
+         }
+
+         //cout << "There were " << i_outside_count << " atoms outside "
+         //	<< "the limits" << endl;
+
+         // still something strange going on here, because p_i.success = -1073747613
+         // on failure to find a (direct) hit (which is interpretted in glarea_button_press()
+         // as failure fortuneately(?)). 
+         // 
+         //    cout << "p_i.imol    = " << p_i.imol << endl;
+         //    cout << "p_i.success = " << p_i.success << endl;
+         //    cout << "GL_FALSE    = " << GL_FALSE    << endl;
+
+         if (p_i.success) {
+            std::string ai;
+            mmdb::Atom *at =
+               graphics_info_t::molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
+            std::string alt_conf_bit("");
+            std::string segid = at->segID;
+            if (strncmp(at->altLoc, "", 1))
+               alt_conf_bit=std::string(",") + std::string(at->altLoc);
+            atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
+            nearest_atom_index = p_i.atom_index;
 		  
-	 cout << "(" << p_i.imol << ") \"" 
-	      << (SelAtom.atom_selection)[nearest_atom_index]->name 
-	      << alt_conf_bit << "\"/"
-	      << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
-	      << "/chainid=\""
-	      << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
-	      << "\"/"
-	      << (SelAtom.atom_selection)[nearest_atom_index]->GetSeqNum()
-	      << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
-	      << "/"
-	      << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
-	      << ", "
-	      << (SelAtom.atom_selection)[nearest_atom_index]->segID
-	      << " occ: " 
-	      << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
-	      << " with B-factor: "
-	      << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
-	      << " element: \""
-	      << (SelAtom.atom_selection)[nearest_atom_index]->element
-	      << "\" at " << "("
-	      << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
-	      << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
-	      << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
-	      << " : " << dist_closest << endl;
+            cout << "(" << p_i.imol << ") \"" 
+                 << (SelAtom.atom_selection)[nearest_atom_index]->name 
+                 << alt_conf_bit << "\"/"
+                 << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
+                 << "/chainid=\""
+                 << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
+                 << "\"/"
+                 << (SelAtom.atom_selection)[nearest_atom_index]->GetSeqNum()
+                 << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
+                 << "/"
+                 << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
+                 << ", "
+                 << (SelAtom.atom_selection)[nearest_atom_index]->segID
+                 << " occ: " 
+                 << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
+                 << " with B-factor: "
+                 << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
+                 << " element: \""
+                 << (SelAtom.atom_selection)[nearest_atom_index]->element
+                 << "\" at " << "("
+                 << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
+                 << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
+                 << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
+                 << " : " << dist_closest << endl;
 
-     ai = atom_info_as_text_for_statusbar(nearest_atom_index, p_i.imol);
+            ai = atom_info_as_text_for_statusbar(nearest_atom_index, p_i.imol);
 
-	 gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
-			    graphics_info_t::statusbar_context_id,
-			    ai.c_str());
+            gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
+                               graphics_info_t::statusbar_context_id,
+                               ai.c_str());
+         }
       }
    }
    

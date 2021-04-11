@@ -1618,6 +1618,9 @@ public:
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
    mmdb::Atom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
 
+   pick_info pick_moving_atoms(const coot::Cartesian &front, const coot::Cartesian &back) const;
+   mmdb::Atom *get_moving_atom(const pick_info &pi) const; // return 0 on lookup failure
+
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
 
