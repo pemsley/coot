@@ -1792,7 +1792,8 @@ graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
 GtkWidget *my_gtkglarea(GtkWidget *vbox) {
 
    GtkWidget *w = gtk_gl_area_new();
-   gtk_widget_set_size_request(w, 900, 900);
+   gtk_gl_area_set_required_version(GTK_GL_AREA(w), 3, 3);
+   gtk_widget_set_size_request(w, 400, 400);
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 2);
    return w;
 }
