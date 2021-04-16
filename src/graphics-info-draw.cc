@@ -1721,9 +1721,9 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
    glBindVertexArray(graphics_info_t::central_cube_vertexarray_id);
-   err = glGetError(); if (err) std::cout << "   error draw_central_cube() B err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "   error::draw_central_cube() B err " << err << std::endl;
    glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
-   err = glGetError(); if (err) std::cout << "   error draw_central_cube() C err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "   error::draw_central_cube() C err " << err << std::endl;
    glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    if (cube_type == VIEW_CENTRAL_CUBE) {
@@ -1748,10 +1748,10 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
       glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
       err = glGetError();
-      if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for mvp " << err << std::endl;
+      if (err) std::cout << "error::draw_central_cube() glUniformMatrix4fv() for mvp " << err << std::endl;
       glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
       err = glGetError();
-      if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for view_rotation " << err
+      if (err) std::cout << "error::draw_central_cube() glUniformMatrix4fv() for view_rotation " << err
                          << std::endl;
 
       GLuint line_colour_uniform_location = shader.line_colour_uniform_location;
@@ -1760,19 +1760,19 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
          lc = glm::vec4(0.6, 0.6, 0.4, 1.0);
       glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(lc));
       err = glGetError();
-      if (err) std::cout << "   error draw_central_cube() glUniform4fv() for line colour " << err << std::endl;
+      if (err) std::cout << "error::draw_central_cube() glUniform4fv() for line colour " << err << std::endl;
 
       GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
       glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
       glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
       err = glGetError();
-      if (err) std::cout << "   error draw_central_cube() glUniform4fv() for background " << err << std::endl;
+      if (err) std::cout << "error::draw_central_cube() glUniform4fv() for background " << err << std::endl;
 
    }
 
    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
    err = glGetError();
-   if (err) std::cout << "draw_central_cube() F glDrawElements() err " << err << std::endl;
+   if (err) std::cout << "error::draw_central_cube() F glDrawElements() err " << err << std::endl;
 
    glBindVertexArray(0); // unbind
    glUseProgram(0);
@@ -2615,13 +2615,13 @@ graphics_info_t::setup_draw_for_particles() {
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
       GLenum err = glGetError();
-      if (err) std::cout << "GL Error - setup_draw_for_particles() Post attach buffers err is "
+      if (err) std::cout << "Error:: setup_draw_for_particles() Post attach buffers err is "
                          << err << std::endl;
 
       shader_for_particles.Use();
 
       err = glGetError();
-      if (err) std::cout << "GL Error - setup_draw_for_particles() Post Use() err is "
+      if (err) std::cout << "Error::- setup_draw_for_particles() Post Use() err is "
                          << err << std::endl;
 
       std::vector<glm::vec3> positions = get_particle_centre_positions();
@@ -2653,7 +2653,7 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
    
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    GLenum err = glGetError();
-   if (err) std::cout << "GL Error - setup_draw_for_happy_face_residue_markers_init() "
+   if (err) std::cout << "Error::- setup_draw_for_happy_face_residue_markers_init() "
                       << "Post attach buffers err is " << err << std::endl;
 
    // If not found in this directory, then try default directory.
