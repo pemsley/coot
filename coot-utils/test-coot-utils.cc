@@ -1376,7 +1376,21 @@ test_polar_atom_analysis(int argc, char **argv) {
          coot::buried_unsatisfied_polar_atoms(asc.mol);
       }
    }
-   
+}
+
+#include "fragment-container.hh"
+
+void
+test_fragment_maker(int argc, char **argv) {
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1]; // 6lzg
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      if (asc.read_success) {
+         coot::fragment_container_t fragments = coot::make_fragments(asc.mol);
+         fragments.print_fragments();
+      }
+   }
 }
 
 
@@ -1474,8 +1488,11 @@ int main(int argc, char **argv) {
    if (false)
       test_fibonacci();
 
-   if (true)
+   if (false)
       test_polar_atom_analysis(argc, argv);
+
+   if (true)
+      test_fragment_maker(argc, argv);
 
    return 0;
 }

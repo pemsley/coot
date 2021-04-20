@@ -411,10 +411,10 @@ namespace coot {
 	 backrub_residue_triple_t(mmdb::Residue *this_residue_in,
 				  mmdb::Residue *prev_residue_in,
 				  mmdb::Residue *next_residue_in,
-				  std::string alt_conf_in) : residue_triple_t(this_residue_in,
-									      prev_residue_in,
-									      next_residue_in,
-									      alt_conf_in) {
+				  const std::string &alt_conf_in) : residue_triple_t(this_residue_in,
+                                                                                     prev_residue_in,
+                                                                                     next_residue_in,
+                                                                                     alt_conf_in) {
 	    trim_this_residue_atoms();
 	    trim_prev_residue_atoms();
 	    trim_next_residue_atoms();
