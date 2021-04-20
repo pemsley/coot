@@ -429,66 +429,76 @@ bool ProteinTools::globularise( clipper::MiniMol& mol, const clipper::Coord_frac
                                    return false; // I don't know what we are looking at
                                 };
 
-   typedef clipper::MMonomer Mm;
-  const clipper::Spacegroup& spgr = mol.spacegroup();
-  const clipper::Cell&       cell = mol.cell();
-  clipper::Coord_frac cf1, cf2, cf3, cfmin;
-  double dist_crit = 1.32 * 0.2;
-  std::string at_name_1 = " C  ";
-  std::string at_name_2 = " N  ";
-  if (nucleotides) {
-     dist_crit = 1.57 + 0.33;
-     at_name_1 = " O3'";
-     at_name_2 = " P  ";
-  }
+   const clipper::Spacegroup& spgr = mol.spacegroup();
+   const clipper::Cell&       cell = mol.cell();
+   if (cell.is_null()) {
+      std::cout << "WARNING:: no cell in globularise() " << std::endl;
+      return false;
+   }
 
-  for ( int chn = 0; chn < mol.size(); chn++ ) {
-    int res0 = 0;
-    for ( int res = 0; res < mol[chn].size(); res++ ) {
-      bool chnbrk;
-      if ( res == mol[chn].size()-1 )
-	chnbrk = true;
-      else
-         chnbrk = check_for_chain_break(mol[chn][res], mol[chn][res+1], at_name_1, at_name_2, dist_crit);
-      if ( chnbrk ) {
-	// process res0...res
-	// get COM of current chain
-	clipper::Coord_orth co( 0.0, 0.0, 0.0 );
-	double no = 0.0;
-	for ( int r1 = res0; r1 <= res; r1++ )
-	  for ( int a1 = 0; a1 < mol[chn][r1].size(); a1++ ) {
-	    co += mol[chn][r1][a1].coord_orth();
-	    no += 1.0;
-	  }
-	co = (1.0/no) * co;
-	cf1 = co.coord_frac( cell );
-	// find symop and lattice shift which brings it close to cent
-	double r2min = 1.0e9;
-	int symin = 0;
-	cfmin = clipper::Coord_frac( 0.0, 0.0, 0.0 );
-	for ( int s = 0; s < spgr.num_symops(); s++ ) {
-	  cf2 = spgr.symop(s) * cf1;
-	  cf3 = cf2.lattice_copy_near( cent );
-	  double r2 = (cf3-cent).lengthsq(cell);
-	  if ( r2 < r2min ) {
-	    r2min = r2;
-	    symin = s;
-	    cfmin = cf3 - cf2;
-	  }
-	}
-	// apply the shifts
-	for ( int r1 = res0; r1 <= res; r1++ )
-	  for ( int a1 = 0; a1 < mol[chn][r1].size(); a1++ ) {
-	    cf1 = mol[chn][r1][a1].coord_orth().coord_frac( cell );
-	    cf1 = spgr.symop(symin) * cf1 + cfmin;
-	    mol[chn][r1][a1].set_coord_orth( cf1.coord_orth( cell ) );
-	  }
-	// done processing
-	res0 = res+1;
+   clipper::Coord_frac cf1, cf2, cf3, cfmin;
+   double dist_crit = 1.32 * 0.2;
+   std::string at_name_1 = " C  ";
+   std::string at_name_2 = " N  ";
+   if (nucleotides) {
+      dist_crit = 1.57 + 0.33;
+      at_name_1 = " O3'";
+      at_name_2 = " P  ";
+   }
+
+   for ( int chn = 0; chn < mol.size(); chn++ ) {
+      int res0 = 0;
+      for ( int res = 0; res < mol[chn].size(); res++ ) {
+         bool chnbrk;
+         if ( res == mol[chn].size()-1 )
+            chnbrk = true;
+         else
+            chnbrk = check_for_chain_break(mol[chn][res], mol[chn][res+1], at_name_1, at_name_2, dist_crit);
+         if ( chnbrk ) {
+            // process res0...res
+            // get COM of current chain
+            clipper::Coord_orth co( 0.0, 0.0, 0.0 );
+            double no = 0.0;
+            for ( int r1 = res0; r1 <= res; r1++ )
+               for ( int a1 = 0; a1 < mol[chn][r1].size(); a1++ ) {
+                  co += mol[chn][r1][a1].coord_orth();
+                  no += 1.0;
+               }
+            co = (1.0/no) * co;
+            cf1 = co.coord_frac( cell );
+            // find symop and lattice shift which brings it close to cent
+            double r2min = 1.0e9;
+            int symin = 0;
+            cfmin = clipper::Coord_frac( 0.0, 0.0, 0.0 );
+            for ( int s = 0; s < spgr.num_symops(); s++ ) {
+               cf2 = spgr.symop(s) * cf1;
+               cf3 = cf2.lattice_copy_near( cent );
+               double r2 = (cf3-cent).lengthsq(cell);
+               if ( r2 < r2min ) {
+                  r2min = r2;
+                  symin = s;
+                  cfmin = cf3 - cf2;
+               }
+            }
+            // apply the shifts
+            std::cout << "apply the shifts with res " << res << std::endl;
+            for ( int r1 = res0; r1 <= res; r1++ ) {
+               std::cout << "r1 size " << mol[chn][r1].size() << std::endl;
+               for ( int a1 = 0; a1 < mol[chn][r1].size(); a1++ ) {
+                  clipper::MAtom mat = mol[chn][r1][a1];
+                  std::cout << "   " << mat.id_tidy("a") << std::endl;
+                  clipper::Coord_orth co_at = mat.coord_orth();
+                  cf1 = co_at.coord_frac( cell );
+                  cf1 = spgr.symop(symin) * cf1 + cfmin;
+                  mol[chn][r1][a1].set_coord_orth( cf1.coord_orth( cell ) );
+               }
+               // done processing
+               res0 = res+1;
+            }
+         }
       }
-    }
-  }
-  return true;
+   }
+   return true;
 }
 
 bool ProteinTools::globularise( clipper::MiniMol& mol, bool nucleotides)
