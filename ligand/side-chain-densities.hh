@@ -161,12 +161,6 @@ namespace coot {
       clipper::Coord_orth make_pt_in_grid(int ix, int iy, int iz, const float &step_size,
 					  const std::vector<clipper::Coord_orth> &axes) const;
 
-      std::map<std::string, double>
-      likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-						 const clipper::Xmap<float> &xmap,
-						 bool limit_to_correct_rotamers_only=false,
-                                                 bool verbose_output_mode = false);
-
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
 
@@ -288,6 +282,12 @@ namespace coot {
       // Confusing output if this is not called after constructor. So maybe
       // the data_dir should be an argument to the constructor.
       void set_data_dir(const std::string &dir) { data_dir = dir; }
+
+      std::map<std::string, double>
+      likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
+						 const clipper::Xmap<float> &xmap,
+						 bool limit_to_correct_rotamers_only=false,
+                                                 bool verbose_output_mode = false);
 
       void set_null_hypothesis_scale_and_sigma(double scale, double sigma) {
          null_hypothesis_scale = scale;

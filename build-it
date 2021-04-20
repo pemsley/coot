@@ -3394,6 +3394,24 @@ if [ true = true ] ; then
    fi
 fi
 
+# need to install Pillow (for depictions to work):
+# https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
+
+if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; then
+   echo not building Pillow:
+else
+    pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
+    $(WGET) $pillow_url
+    if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
+        tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
+        cd Pillow-6.2.2
+        python setup.py build
+        python setup.py install
+        cd -
+    fi
+fi
+
+
 # this is a hack for charybdis   - we need cmake version 3.1 or later
 export PATH=$HOME/cmake/bin:$PATH
 

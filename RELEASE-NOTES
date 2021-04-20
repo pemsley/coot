@@ -16,7 +16,10 @@
 
   o CHANGE:  Remove libcheck as a restraints generator option
 
-  o CHANGE:  turn off EM-mode for PANDDA maps
+  o CHANGE:  turn off EM-mode for PANDDA maps (Frank von Delft)
+
+  o CHANGE:  Residues with missing atoms no longer considers OP3. Also missing
+             atom names are written to the terminal (Lothar Essar)
 
   o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
 
@@ -24,9 +27,12 @@
 
   o BUG-FIX: rotamer-fit now runs the post-manipulation hook
 
-  o BUG-FIX: better crash-catcher diagnostics (thanks Kevin Cowtan)
+  o BUG-FIX: Better crash-catcher diagnostics (thanks Kevin Cowtan)
 
-  o BUG-FIX: chiral restraints improved in pyrogen
+  o BUG-FIX: chiral restraints improved in pyrogen (Rob Nicholls)
+
+  o BUG-FIX: add-hydrogen-atoms no longer adds a hydrogen atom to an CYS SG if
+             it is linked
 
 ----
 
