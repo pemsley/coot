@@ -6,7 +6,7 @@
 
   o FEATURE: -P mode added to pyrogen (no coordinates optimization)
 
-  o CHANGE:  Adjust the NBC model once more for 1-4 atoms invovling Hydrogen atoms
+  o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
 
   o CHANGE:  post-refinement restraints analysis added
 
@@ -23,7 +23,7 @@
 
   o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
 
-  o BUG-FIX: Linking to the Coot executable now works (Marcin Wodjyr)
+  o BUG-FIX: Linking (shell) to the Coot executable now works (Marcin Wodjyr)
 
   o BUG-FIX: rotamer-fit now runs the post-manipulation hook
 

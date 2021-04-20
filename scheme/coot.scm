@@ -106,6 +106,7 @@
 								      "ligand-check.scm"
 								      "acedrg-link.scm"
 								      "sharpen-blur.scm"
+                                                                      "dynamic-atom-overlaps-and-other-outliers.scm"
 								      "interactive-nudge-residues.scm"
 								      "gui-ligand-sliders.scm"
 								      "find-baddies.scm"
