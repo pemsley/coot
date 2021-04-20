@@ -20,6 +20,13 @@
  * 02110-1301, USA
  */
 
+#ifndef ATOM_NAME_BITS_HH
+#define ATOM_NAME_BITS_HH
+
+#include <string>
+#include <mmdb2/mmdb_manager.h>
+#include "utils/coot-utils.hh"
+
 namespace coot {
    // e.g.
    // "Mg" -> <"  MG", "MG">
@@ -81,6 +88,10 @@ namespace coot {
             std::string at_name = util::upcase(type);
             atom_name = at_name;
             res_name = at_name;
+            if (atom_name.length() == 2)
+               atom_name = atom_name + "  ";
+            if (atom_name.length() == 1)
+               atom_name = atom_name + "   ";
             element_name = at_name;
             if (type.length() > 4)
                atom_name = at_name.substr(0,4);
@@ -103,3 +114,6 @@ namespace coot {
       }
    };
 }
+
+#endif // ATOM_NAME_BITS_HH
+

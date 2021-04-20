@@ -4694,7 +4694,7 @@ graphics_info_t::place_dummy_atom_at_pointer() {
 }
 
 void 
-graphics_info_t::place_typed_atom_at_pointer(const std::string &type) { 
+graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 
    int imol = user_pointer_atom_molecule;
    graphics_info_t g;
