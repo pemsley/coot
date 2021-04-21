@@ -242,7 +242,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 // wait for thread pool to finish jobs.
          while (thread_count != n_threads) {
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            std::cout << "waiting... thread count " << thread_count << " vs " << n_threads << std::endl;
+            // std::cout << "waiting... thread count " << thread_count << " vs " << n_threads << std::endl;
          }
 	 auto tp_3 = std::chrono::high_resolution_clock::now();
 
@@ -381,7 +381,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 
    for (int itrial=itrial_start; itrial<itrial_end; itrial++) {
 
-      std::cout << "itrial " << itrial << " itrial_start " << itrial_start << " itrial_end " << itrial_end << std::endl;
+      // std::cout << "itrial " << itrial << " itrial_start " << itrial_start << " itrial_end " << itrial_end << std::endl;
 
       coot::minimol::fragment frag;
 
@@ -439,8 +439,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 	 current_best = s;
 	 std::pair<ligand_score_card, minimol::fragment> result(s, frag);
 
-         std::cout << "itrial " << itrial << " itrial_start " << itrial_start << " itrial_end " << itrial_end
-                   << " storing result with score " << s.get_score() << std::endl;
+         // std::cout << "itrial " << itrial << " itrial_start " << itrial_start << " itrial_end " << itrial_end
+         // << " storing result with score " << s.get_score() << std::endl;
+
 	 results->at(itrial) = result;
 
 	 if (debug_solutions)

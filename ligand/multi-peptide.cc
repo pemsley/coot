@@ -760,7 +760,7 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
 
    while (happy_fit) {
 
-      if (false) { // debug
+      if (true) { // debug
 	 std::string file_name = "while-new-";
 	 file_name += coot::util::int_to_string(res_p->GetSeqNum()) + std::string(".pdb");
 	 minimol::molecule mmm(many_residues);
