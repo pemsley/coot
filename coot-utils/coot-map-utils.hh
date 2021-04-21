@@ -236,6 +236,14 @@ namespace coot {
 						 float atom_radius, // for masking
 						 const clipper::Xmap<float> &xmap);
 
+      // n_residues_per_run should be an odd number more than 2 (say 11)
+      //
+      std::map<coot::residue_spec_t, density_correlation_stats_info_t>
+      map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
+                                                     const std::string &chain_id,
+                                                     const clipper::Xmap<float> &xmap,
+                                                     unsigned int n_residues_per_run);
+
       // helper
       std::pair<clipper::Coord_frac, clipper::Coord_frac>
       find_struct_fragment_coord_fracs_v2(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &selection_extents,

@@ -1393,6 +1393,58 @@ test_fragment_maker(int argc, char **argv) {
    }
 }
 
+#include <clipper/core/atomsf.h>
+
+void
+test_correlation_of_residue_runs(int argc, char **argv) {
+
+   bool is_cryo_em = true;
+   
+   if (argc > 2) {
+      std::string pdb_file_name = argv[1]; 
+      std::string map_file_name = argv[2];
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      if (asc.read_success) {
+
+         std::cout << "pdb read success " << pdb_file_name << std::endl;
+
+         clipper::CCP4MAPfile file;
+         clipper::Xmap<float> xmap;
+         std::cout << "# reading map" << std::endl;
+         file.open_read(map_file_name);
+         file.import_xmap(xmap);
+         file.close_read();
+
+         if (is_cryo_em)
+            clipper::ScatteringFactors::selectScattteringFactorsType(clipper::SF_ELECTRON);
+
+         unsigned int n_residue_per_residue_range = 11;
+         std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> residue_stats =
+            coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, "A", xmap,
+                                                                       n_residue_per_residue_range);
+
+         std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
+
+         std::cout << "We got " << residue_stats.size() << " residue correlations" << std::endl;
+
+         for (it=residue_stats.begin(); it!=residue_stats.end(); ++it) {
+            const coot::residue_spec_t &rs(it->first);
+            const coot::util::density_correlation_stats_info_t &stats(it->second);
+            std::cout << "   " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
+            // double top = stats.n * stats.sum_xy - stats.sum_x * stats.sum_y;
+            // double b1  = stats.n * stats.sum_sqrd_x - stats.sum_x * stats.sum_x;
+            // double b2  = stats.n * stats.sum_sqrd_y -  stats.sum_y * stats.sum_y;
+            // std::cout << " debug sum_xy " << stats.sum_xy << " sum_x " << stats.sum_x << " sum_y " << stats.sum_y;
+            // std::cout << " top " << top << " b1 " << b1 << " b2 " << b2 << std::endl;
+            std::cout << std::endl;
+         }
+      } else {
+         std::cout << "Failed to read " << pdb_file_name << std::endl;
+      }
+   }
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1491,8 +1543,11 @@ int main(int argc, char **argv) {
    if (false)
       test_polar_atom_analysis(argc, argv);
 
-   if (true)
+   if (false)
       test_fragment_maker(argc, argv);
+
+   if (true)
+      test_correlation_of_residue_runs(argc, argv);
 
    return 0;
 }

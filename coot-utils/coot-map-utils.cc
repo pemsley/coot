@@ -2405,8 +2405,8 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
                         }
 
                         stats = density_correlation_stats_info_t(double(n), sum_xy,
-                        sum_x_sqd, sum_y_sqd,
-                        sum_x, sum_y);
+                                                                 sum_x_sqd, sum_y_sqd,
+                                                                 sum_x, sum_y);
 
                         if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
                         stats.density_values = map_samples;
@@ -2667,9 +2667,9 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
       }
 
       std::map<residue_spec_t, map_stats_holder_helper_t>::const_iterator it;
-      for (it=map_stats.begin(); it!=map_stats.end(); it++) {
+      for (it=map_stats.begin(); it!=map_stats.end(); ++it) {
 
-	 if (0)
+	 if (false)
 	    std::cout << "   " << it->first << " n: " << it->second.n << " spec user-data: "
 		      << it->first.int_user_data << std::endl;
 
@@ -2842,6 +2842,212 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
    return res_map;
 
 }
+
+std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>
+coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
+                                                           const std::string &chain_id,
+                                                           const clipper::Xmap<float> &xmap,
+                                                           unsigned int n_residues_per_blob) {
+   
+   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> res_map;
+
+   // can be 5s also
+   class residue_run_t {
+   public:
+      unsigned int idx_mid;
+      explicit residue_run_t(unsigned int n_residues_per_blob) {
+         idx_mid = n_residues_per_blob/2;
+      }
+      explicit residue_run_t(const std::vector<mmdb::Residue *> &rr_in) : residues(rr_in) {
+         idx_mid = residues.size()/2;
+      }
+      std::vector<mmdb::Residue *> residues;
+      void print() const {
+         for (unsigned int i=0; i<residues.size(); i++) {
+            std::cout << " " << residue_spec_t(residues[i]);
+         }
+         std::cout << std::endl;
+      }
+      mmdb::Residue *residue_mid() const {
+         return residues[idx_mid];
+      }
+   };
+
+   // triples and 5s
+   auto make_residue_runs = [mol, chain_id, n_residues_per_blob] () {
+                               std::vector<residue_run_t> residues;
+                               mmdb::Model *model_p = mol->GetModel(1);
+                               if (model_p) {
+                                  int n_chains = model_p->GetNumberOfChains();
+                                  for (int ichain=0; ichain<n_chains; ichain++) {
+                                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                     std::string this_chain_id(chain_p->GetChainID());
+                                     if (this_chain_id == chain_id) {
+                                        int nres = chain_p->GetNumberOfResidues();
+                                        std::vector<mmdb::Residue *> running_residues;
+                                        unsigned int offset = n_residues_per_blob -1;
+                                        for (unsigned int ires=0; ires<(nres-offset); ires++) {
+                                           for (unsigned int i=0; i<n_residues_per_blob; i++) {
+                                              mmdb::Residue *residue_p = chain_p->GetResidue(ires+i);
+                                              std::string res_name(residue_p->GetResName());
+                                              if (res_name == "HOH")
+                                                 continue;
+                                              if (i == 0) {
+                                                 running_residues.push_back(residue_p);
+                                              } else {
+                                                 mmdb::Residue *previous_residue_p = chain_p->GetResidue(ires+i-1);
+                                                 int resno_this = residue_p->GetSeqNum();
+                                                 int resno_prev = previous_residue_p->GetSeqNum();
+                                                 if (resno_this == (resno_prev + 1)) {
+                                                    running_residues.push_back(residue_p);
+                                                 }
+                                              }
+                                           }
+                                           if (running_residues.size() == n_residues_per_blob) {
+                                              residue_run_t rr(running_residues);
+                                              residues.push_back(rr);
+                                              running_residues.clear();
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
+                               return residues;
+                            };
+
+   auto get_residue_run_stats = [] (const residue_run_t &residue_run,
+                                    const clipper::Xmap<float> &xmap,
+                                    const clipper::Xmap<float> &xmap_calc,
+                                    const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map) {
+
+                                   util::density_correlation_stats_info_t dcs;
+
+                                   float atom_radius = 3.0; // pass this
+                                   for (unsigned int ires=0; ires<residue_run.residues.size(); ires++) {
+                                      mmdb::Residue *residue_p = residue_run.residues[ires];
+                                      mmdb::Atom **residue_atoms = 0;
+                                      int n_residue_atoms = 0;
+                                      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                                      for (int iat=0; iat<n_residue_atoms; iat++) {
+                                         mmdb::Atom *at = residue_atoms[iat];
+                                         if (! at->isTer()) {
+
+                                            clipper::Coord_orth co(at->x, at->y, at->z);
+                                            clipper::Coord_frac cf = co.coord_frac(contributor_map.cell());
+                                            clipper::Coord_frac box0(cf.u() - atom_radius/contributor_map.cell().descr().a(),
+                                                                     cf.v() - atom_radius/contributor_map.cell().descr().b(),
+                                                                     cf.w() - atom_radius/contributor_map.cell().descr().c());
+                                            
+                                            clipper::Coord_frac box1(cf.u() + atom_radius/contributor_map.cell().descr().a(),
+                                                                     cf.v() + atom_radius/contributor_map.cell().descr().b(),
+                                                                     cf.w() + atom_radius/contributor_map.cell().descr().c());
+                                            
+                                            clipper::Grid_map grid(box0.coord_grid(contributor_map.grid_sampling()),
+                                                                   box1.coord_grid(contributor_map.grid_sampling()));
+                                            
+                                            float atom_radius_sq = atom_radius * atom_radius;
+                                            clipper::Xmap_base::Map_reference_coord ix(contributor_map, grid.min()), iu, iv, iw;
+                                            for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+                                               for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+                                                  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                                                     if ( (iw.coord().coord_frac(contributor_map.grid_sampling()).coord_orth(contributor_map.cell()) - co).lengthsq() < atom_radius_sq) {
+                                                        // only count this grid point if it is not contributed to by residues other than those
+                                                        // in the residue_run
+                                                        bool found_other_residue_flag = false; // other than those in the residue_run, I mean
+                                                        std::set<mmdb::Residue *>::const_iterator it;
+                                                        for (it=contributor_map[iw].begin(); it!=contributor_map[iw].end(); ++it) {
+                                                           mmdb::Residue *contributor_residue = *it;
+                                                           // is contributor_residue in the residue run?
+                                                           if (std::find(residue_run.residues.begin(), residue_run.residues.end(), contributor_residue) == residue_run.residues.end()) {
+                                                              // if it is, we can't count this grid point
+                                                              found_other_residue_flag = true;
+                                                              break;
+                                                           }
+                                                        }
+                                                        if (!found_other_residue_flag) {
+                                                           const float &xf = xmap[iw];
+                                                           const float &yf = xmap_calc[iw];
+                                                           if (! clipper::Util::is_nan(yf)) {
+                                                              double x = static_cast<double>(xf);
+                                                              double y = static_cast<double>(yf);
+                                                              dcs.add(x,y);
+                                                           } else {
+                                                              if (false)
+                                                                 std::cout << "Null calc map value " << atom_spec_t(at) << " " << iw.coord().format() << std::endl;
+                                                           }
+                                                        }
+                                                     }
+                                                  }
+                                               }
+                                            }
+                                         }
+                                      }
+                                   }
+                                   return dcs;
+                                };
+
+   auto fill_contributor_map = [] (clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map, // reference
+                                   mmdb::Manager *mol, int SelHnd) {
+                                  float atom_radius = 3.0; // pass this
+                                  mmdb::PPAtom atom_selection = 0;
+                                  int n_atoms;
+                                  mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+                                  for (int iat=0; iat<n_atoms; iat++) {
+                                     mmdb::Atom *at = atom_selection[iat];
+                                     mmdb::Residue *residue_p = at->residue;
+                                     residue_spec_t res_spec(at->GetResidue());
+                                     clipper::Coord_orth co(at->x, at->y, at->z);
+                                     clipper::Coord_frac cf = co.coord_frac(contributor_map.cell());
+                                     clipper::Coord_frac box0(cf.u() - atom_radius/contributor_map.cell().descr().a(),
+                                                              cf.v() - atom_radius/contributor_map.cell().descr().b(),
+                                                              cf.w() - atom_radius/contributor_map.cell().descr().c());
+                                     
+                                     clipper::Coord_frac box1(cf.u() + atom_radius/contributor_map.cell().descr().a(),
+                                                              cf.v() + atom_radius/contributor_map.cell().descr().b(),
+                                                              cf.w() + atom_radius/contributor_map.cell().descr().c());
+                                     
+                                     clipper::Grid_map grid(box0.coord_grid(contributor_map.grid_sampling()),
+                                                            box1.coord_grid(contributor_map.grid_sampling()));
+                                     
+                                     float atom_radius_sq = atom_radius * atom_radius;
+                                     clipper::Xmap_base::Map_reference_coord ix(contributor_map, grid.min()), iu, iv, iw;
+                                     for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+                                        for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+                                           for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                                              if ( (iw.coord().coord_frac(contributor_map.grid_sampling()).coord_orth(contributor_map.cell()) - co).lengthsq() < atom_radius_sq) {
+                                                 contributor_map[iw].insert(residue_p);
+                                              }
+                                           }
+                                        }
+                                     }
+                                  }
+                               };
+
+   std::vector<residue_run_t> residue_runs = make_residue_runs();
+
+   if (false) // debug
+      for (unsigned int i=0; i<residue_runs.size(); i++)
+         residue_runs[i].print();
+
+   int SelHnd = mol->NewSelection(); // d
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+   clipper::Xmap<float> calc_map = coot::util::calc_atom_map(mol, SelHnd, xmap.cell(), xmap.spacegroup(), xmap.grid_sampling());
+
+   if (not (calc_map.is_null())) {
+      clipper::Xmap<std::set<mmdb::Residue *> > contributor_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+      fill_contributor_map(std::ref(contributor_map), mol, SelHnd);
+      for (unsigned int i=0; i<residue_runs.size(); i++) {
+         const residue_run_t &residue_run = residue_runs[i];
+         util::density_correlation_stats_info_t stats = get_residue_run_stats(residue_run, xmap, calc_map, contributor_map);
+         if (stats.n > 1)
+            res_map[residue_spec_t(residue_run.residue_mid())] = stats;
+      }
+   }
+
+   mol->DeleteSelection(SelHnd);
+   return res_map;
+}
+
 
 
 
