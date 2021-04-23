@@ -1432,11 +1432,6 @@ test_correlation_of_residue_runs(int argc, char **argv) {
             const coot::residue_spec_t &rs(it->first);
             const coot::util::density_correlation_stats_info_t &stats(it->second);
             std::cout << "   " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
-            // double top = stats.n * stats.sum_xy - stats.sum_x * stats.sum_y;
-            // double b1  = stats.n * stats.sum_sqrd_x - stats.sum_x * stats.sum_x;
-            // double b2  = stats.n * stats.sum_sqrd_y -  stats.sum_y * stats.sum_y;
-            // std::cout << " debug sum_xy " << stats.sum_xy << " sum_x " << stats.sum_x << " sum_y " << stats.sum_y;
-            // std::cout << " top " << top << " b1 " << b1 << " b2 " << b2 << std::endl;
             std::cout << std::endl;
          }
       } else {

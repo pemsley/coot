@@ -1363,8 +1363,6 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap, float low_lev
 
       if (xmap_int[density_values[i].first] == UNASSIGNED) {
 
-	 float v = xmap[density_values[i].first];
-
 	 // Does this grid point have a neighbour which is already in
 	 // a segment?  If so, which one?  If there are many
 	 // neighbours (this is a watershed point) then we need to make
@@ -1458,12 +1456,11 @@ coot::util::segment_map::resegment_watershed_points(clipper::Xmap<int> *xmap_int
 	    // OK, we have a watershed point, we need to (potentially) change the segment to the
 	    // one which has the steepest gradient from this point.
 	    float v = xmap[ix];
-	    float vn;
 	    float best_vn = -1;
 	    clipper::Coord_grid best_n;
 	    for (int i_n=0; i_n<neighb.size(); i_n++) {
 	       c_g = ix.coord() + neighb[i_n];
-	       vn = xmap.get_data(c_g);
+               float vn = xmap.get_data(c_g);
 	       if (v > best_vn) {
 		  if (vn > v) {
 		     best_vn = vn;
@@ -1551,7 +1548,7 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
       debug_segment_id_map[segmented[ix].second]++;
    }
    std::map<int, int>::const_iterator dit;
-   for (dit=debug_segment_id_map.begin(); dit!=debug_segment_id_map.end(); dit++)
+   for (dit=debug_segment_id_map.begin(); dit!=debug_segment_id_map.end(); ++dit)
       std::cout << "  segment " << dit->first << " has " << dit->second << " grid points" << std::endl;
    std::cout << " ========================================\n";
 
@@ -2843,22 +2840,28 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 
 }
 
+#include "utils/split-indices.hh"
+
 std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>
 coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                                            const std::string &chain_id,
                                                            const clipper::Xmap<float> &xmap,
                                                            unsigned int n_residues_per_blob) {
-   
+
    std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> res_map;
+   float atom_radius = 3.0; // maybe pass this?
 
    // can be 5s also
    class residue_run_t {
    public:
       unsigned int idx_mid;
-      explicit residue_run_t(unsigned int n_residues_per_blob) {
+      unsigned int n_residues_per_blob;
+      residue_run_t() {}
+      explicit residue_run_t(unsigned int n_residues_per_blob_in) : n_residues_per_blob(n_residues_per_blob_in) {
          idx_mid = n_residues_per_blob/2;
       }
       explicit residue_run_t(const std::vector<mmdb::Residue *> &rr_in) : residues(rr_in) {
+         n_residues_per_blob = rr_in.size();
          idx_mid = residues.size()/2;
       }
       std::vector<mmdb::Residue *> residues;
@@ -2868,61 +2871,80 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
          }
          std::cout << std::endl;
       }
+      void add_residue(mmdb::Residue *r) { residues.push_back(r); }
       mmdb::Residue *residue_mid() const {
-         return residues[idx_mid];
+         if (residues.size() >= n_residues_per_blob) {
+            return residues[idx_mid];
+         } else {
+            std::cout << "ERROR:: indexing residues_mid " << residues.size() << std::endl;
+            return 0;
+         }
+      }
+      void add(const std::vector<mmdb::Residue *> &rv) {
+         residues.insert(residues.begin(), rv.cbegin(), rv.cend());
       }
    };
 
    // triples and 5s
    auto make_residue_runs = [mol, chain_id, n_residues_per_blob] () {
-                               std::vector<residue_run_t> residues;
-                               mmdb::Model *model_p = mol->GetModel(1);
-                               if (model_p) {
-                                  int n_chains = model_p->GetNumberOfChains();
-                                  for (int ichain=0; ichain<n_chains; ichain++) {
-                                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                                     std::string this_chain_id(chain_p->GetChainID());
-                                     if (this_chain_id == chain_id) {
-                                        int nres = chain_p->GetNumberOfResidues();
-                                        std::vector<mmdb::Residue *> running_residues;
-                                        unsigned int offset = n_residues_per_blob -1;
-                                        for (unsigned int ires=0; ires<(nres-offset); ires++) {
-                                           for (unsigned int i=0; i<n_residues_per_blob; i++) {
-                                              mmdb::Residue *residue_p = chain_p->GetResidue(ires+i);
-                                              std::string res_name(residue_p->GetResName());
-                                              if (res_name == "HOH")
-                                                 continue;
-                                              if (i == 0) {
-                                                 running_residues.push_back(residue_p);
-                                              } else {
-                                                 mmdb::Residue *previous_residue_p = chain_p->GetResidue(ires+i-1);
-                                                 int resno_this = residue_p->GetSeqNum();
-                                                 int resno_prev = previous_residue_p->GetSeqNum();
-                                                 if (resno_this == (resno_prev + 1)) {
-                                                    running_residues.push_back(residue_p);
+                               std::map<residue_spec_t, residue_run_t> residue_run_map;
+                               int n_models = mol->GetNumberOfModels();
+                               for (int imod=1; imod<=n_models; imod++) {
+                                  mmdb::Model *model_p = mol->GetModel(imod);
+                                  if (model_p) {
+                                     int n_chains = model_p->GetNumberOfChains();
+                                     for (int i_chain=0; i_chain<n_chains; i_chain++) {
+                                        mmdb::Chain *chain_p = model_p->GetChain(i_chain);
+                                        std::string this_chain_id(chain_p->GetChainID());
+                                        if (this_chain_id == chain_id) {
+                                           int n_residues = chain_p->GetNumberOfResidues();
+                                           int idx_last_residue = n_residues - static_cast<int>(n_residues_per_blob);
+                                           std::vector<mmdb::Residue *> residue_vec;
+                                           for (int i_res=0; i_res<idx_last_residue; i_res++) {
+                                              for (int i_run=0; i_run<static_cast<int>(n_residues_per_blob); i_run++) {
+                                                 mmdb::Residue *residue_p = chain_p->GetResidue(i_res+i_run);
+                                                 // std::cout << "pushing back " << residue_spec_t(residue_p) << " to residue_vec" << std::endl;
+                                                 residue_vec.push_back(residue_p);
+                                              }
+                                              if (residue_vec.size() >= n_residues_per_blob) {
+                                                 if (! residue_vec.empty()) {
+                                                    residue_spec_t spec(chain_p->GetResidue(i_res)->GetChainID(),
+                                                                        chain_p->GetResidue(i_res)->GetSeqNum(),
+                                                                        chain_p->GetResidue(i_res)->GetInsCode());
+                                                    // if it's not in the map, we need to created it with a constructor that sets
+                                                    // the mid point
+                                                    std::map<residue_spec_t, residue_run_t>::const_iterator it;
+                                                    it = residue_run_map.find(spec);
+                                                    if (it == residue_run_map.end())
+                                                       residue_run_map[spec] = residue_run_t(n_residues_per_blob);
+                                                    residue_run_map[spec].add(residue_vec);
+                                                    residue_vec.clear();
                                                  }
                                               }
-                                           }
-                                           if (running_residues.size() == n_residues_per_blob) {
-                                              residue_run_t rr(running_residues);
-                                              residues.push_back(rr);
-                                              running_residues.clear();
                                            }
                                         }
                                      }
                                   }
                                }
-                               return residues;
+                               std::vector<residue_run_t> residue_runs;
+                               std::map<residue_spec_t, residue_run_t>::const_iterator it;
+                               for (it=residue_run_map.begin(); it!=residue_run_map.end(); ++it) {
+                                  residue_spec_t spec = it->first;
+                                  const residue_run_t &rr(it->second);
+                                  // rr.print();
+                                  residue_runs.push_back(rr);
+                               }
+                               return residue_runs;
                             };
 
    auto get_residue_run_stats = [] (const residue_run_t &residue_run,
                                     const clipper::Xmap<float> &xmap,
                                     const clipper::Xmap<float> &xmap_calc,
-                                    const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map) {
+                                    const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map,
+                                    float atom_radius) {
 
                                    util::density_correlation_stats_info_t dcs;
 
-                                   float atom_radius = 3.0; // pass this
                                    for (unsigned int ires=0; ires<residue_run.residues.size(); ires++) {
                                       mmdb::Residue *residue_p = residue_run.residues[ires];
                                       mmdb::Atom **residue_atoms = 0;
@@ -2937,14 +2959,11 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                             clipper::Coord_frac box0(cf.u() - atom_radius/contributor_map.cell().descr().a(),
                                                                      cf.v() - atom_radius/contributor_map.cell().descr().b(),
                                                                      cf.w() - atom_radius/contributor_map.cell().descr().c());
-                                            
                                             clipper::Coord_frac box1(cf.u() + atom_radius/contributor_map.cell().descr().a(),
                                                                      cf.v() + atom_radius/contributor_map.cell().descr().b(),
                                                                      cf.w() + atom_radius/contributor_map.cell().descr().c());
-                                            
                                             clipper::Grid_map grid(box0.coord_grid(contributor_map.grid_sampling()),
                                                                    box1.coord_grid(contributor_map.grid_sampling()));
-                                            
                                             float atom_radius_sq = atom_radius * atom_radius;
                                             clipper::Xmap_base::Map_reference_coord ix(contributor_map, grid.min()), iu, iv, iw;
                                             for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
@@ -2956,10 +2975,10 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                                         bool found_other_residue_flag = false; // other than those in the residue_run, I mean
                                                         std::set<mmdb::Residue *>::const_iterator it;
                                                         for (it=contributor_map[iw].begin(); it!=contributor_map[iw].end(); ++it) {
-                                                           mmdb::Residue *contributor_residue = *it;
+                                                           const mmdb::Residue *contributor_residue = *it;
                                                            // is contributor_residue in the residue run?
                                                            if (std::find(residue_run.residues.begin(), residue_run.residues.end(), contributor_residue) == residue_run.residues.end()) {
-                                                              // if it is, we can't count this grid point
+                                                              // if it isn't, we can't count this grid point
                                                               found_other_residue_flag = true;
                                                               break;
                                                            }
@@ -2987,8 +3006,8 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                 };
 
    auto fill_contributor_map = [] (clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map, // reference
-                                   mmdb::Manager *mol, int SelHnd) {
-                                  float atom_radius = 3.0; // pass this
+                                   mmdb::Manager *mol, int SelHnd, float atom_radius) {
+                                  float atom_radius_sq = atom_radius * atom_radius;
                                   mmdb::PPAtom atom_selection = 0;
                                   int n_atoms;
                                   mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
@@ -3001,47 +3020,104 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                      clipper::Coord_frac box0(cf.u() - atom_radius/contributor_map.cell().descr().a(),
                                                               cf.v() - atom_radius/contributor_map.cell().descr().b(),
                                                               cf.w() - atom_radius/contributor_map.cell().descr().c());
-                                     
+
                                      clipper::Coord_frac box1(cf.u() + atom_radius/contributor_map.cell().descr().a(),
                                                               cf.v() + atom_radius/contributor_map.cell().descr().b(),
                                                               cf.w() + atom_radius/contributor_map.cell().descr().c());
-                                     
+
                                      clipper::Grid_map grid(box0.coord_grid(contributor_map.grid_sampling()),
                                                             box1.coord_grid(contributor_map.grid_sampling()));
-                                     
-                                     float atom_radius_sq = atom_radius * atom_radius;
                                      clipper::Xmap_base::Map_reference_coord ix(contributor_map, grid.min()), iu, iv, iw;
+                                     unsigned int i_count_for_this_atom = 0;
                                      for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
                                         for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
                                            for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
                                               if ( (iw.coord().coord_frac(contributor_map.grid_sampling()).coord_orth(contributor_map.cell()) - co).lengthsq() < atom_radius_sq) {
                                                  contributor_map[iw].insert(residue_p);
+                                                 i_count_for_this_atom ++;
+                                                 // std::cout << "adding contributor " << residue_spec_t(residue_p) << " for " << iw.coord().format() << std::endl;
                                               }
                                            }
                                         }
                                      }
+                                     // std::cout << "i_count_for_this_atom " << atom_spec_t(at) << " " << i_count_for_this_atom << std::endl;
                                   }
                                };
 
+   auto multi_get_residue_range_stats = [get_residue_run_stats] (unsigned int idx_start, unsigned int idx_end,
+                                            const std::vector<residue_run_t> &residue_runs,
+                                            const clipper::Xmap<float> &xmap,
+                                            const clipper::Xmap<float> &calc_map,
+                                            const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map,
+                                            float atom_radius,
+                                            std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> &res_map_l) {
+
+                                           for (unsigned int i=idx_start; i<idx_end; i++) {
+                                              const residue_run_t &residue_run = residue_runs[i];
+                                              util::density_correlation_stats_info_t stats = get_residue_run_stats(residue_run, xmap, calc_map, contributor_map, atom_radius);
+                                              res_map_l[residue_spec_t(residue_run.residue_mid())] = stats;
+                                           }
+                                        };
+
+
    std::vector<residue_run_t> residue_runs = make_residue_runs();
 
-   if (false) // debug
-      for (unsigned int i=0; i<residue_runs.size(); i++)
-         residue_runs[i].print();
+   if (false)
+      for (const auto &rr : residue_runs)
+         rr.print();
 
    int SelHnd = mol->NewSelection(); // d
    mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    clipper::Xmap<float> calc_map = coot::util::calc_atom_map(mol, SelHnd, xmap.cell(), xmap.spacegroup(), xmap.grid_sampling());
 
-   if (not (calc_map.is_null())) {
+   if (true) {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("calc-map.map");
+      mapout.export_xmap(calc_map);
+      mapout.close_write();
+   }
+
+   if (calc_map.is_null()) {
+      std::cout << "OOPS! calc_map is null" << std::endl;
+   } else {
       clipper::Xmap<std::set<mmdb::Residue *> > contributor_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
-      fill_contributor_map(std::ref(contributor_map), mol, SelHnd);
+      fill_contributor_map(std::ref(contributor_map), mol, SelHnd, atom_radius);
+
+#if 0 // single thread
       for (unsigned int i=0; i<residue_runs.size(); i++) {
          const residue_run_t &residue_run = residue_runs[i];
-         util::density_correlation_stats_info_t stats = get_residue_run_stats(residue_run, xmap, calc_map, contributor_map);
+         util::density_correlation_stats_info_t stats = get_residue_run_stats(residue_run, xmap, calc_map, contributor_map, atom_radius);
+         if (false)
+            std::cout << "debug:: residue-run stats for mid-res " << residue_spec_t(residue_run.residue_mid()) << " n: "
+                      << stats.n << std::endl;
          if (stats.n > 1)
             res_map[residue_spec_t(residue_run.residue_mid())] = stats;
       }
+#endif
+
+#if 1
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      std::vector<std::thread> threads;
+      std::vector<std::pair<unsigned int, unsigned int> > ranges = atom_index_ranges(residue_runs.size(), n_threads);
+      std::vector<std::map<residue_spec_t, util::density_correlation_stats_info_t> > stats_map_vec(n_threads); // local maps
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+         std::map<coot::residue_spec_t, util::density_correlation_stats_info_t> &res_map_l = stats_map_vec[i_thread];
+         threads.push_back(std::thread(multi_get_residue_range_stats, ranges[i_thread].first, ranges[i_thread].second, std::cref(residue_runs),
+                                       std::cref(xmap), std::cref(calc_map), std::cref(contributor_map), atom_radius,
+                                       std::ref(res_map_l)));
+      }
+
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+         threads[i_thread].join();
+
+      // now merge the maps
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+         const std::map<residue_spec_t, util::density_correlation_stats_info_t> &res_map_l = stats_map_vec[i_thread];
+         std::map<residue_spec_t, util::density_correlation_stats_info_t>::const_iterator it;
+         for (it=res_map_l.begin(); it!=res_map_l.end(); ++it)
+            res_map[it->first] = it->second; // all the keys are different
+      }
+#endif
    }
 
    mol->DeleteSelection(SelHnd);
