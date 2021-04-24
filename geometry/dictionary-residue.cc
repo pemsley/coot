@@ -83,14 +83,14 @@ void
 coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 
    filled_with_bond_order_data_only_flag = false;
+   nuclear_distances_flag = false;
+
    if (residue_p) {
-      mmdb::PModel   model;
-      mmdb::PChain   chain;
       // mmdb::PResidue res = 0;
       mmdb::math::Graph    graph;
       mmdb::math::PPVertex V;
       mmdb::math::PPEdge   E;
-      int       i, im,ic,ir, nV,nE, k1,k2;
+      int       i, nV,nE, k1,k2;
 
       graph.MakeGraph   ( residue_p,NULL );
       graph.GetVertices ( V,nV );
@@ -112,7 +112,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 		      << E[ie]->GetVertex2() << std::endl;
 	 }
       }
-			   
+
       for (i=0;i<nE;i++)  {
 
 	 // mmdb 1.25.3 on pc offset needs to be -1

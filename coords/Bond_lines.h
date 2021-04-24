@@ -284,8 +284,12 @@ public:
    }
 
    void add_point(const T &pt) {
-      points[current_count] = pt;
-      current_count++;
+      if (points) {
+         current_count++;
+         if (current_count < num_points) {
+            points[current_count] = pt;
+         }
+      }
    } 
 };
 

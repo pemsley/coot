@@ -6725,8 +6725,6 @@ void set_add_ccp4i_projects_to_file_dialogs(short int state);
 
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
-/*! \brief get element colour for imol as Python formatted list char*/
-char *get_atom_colour_from_mol_no(int imol, const char *element);
 
 /* \} */
 

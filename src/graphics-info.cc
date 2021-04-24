@@ -552,8 +552,8 @@ graphics_info_t::import_all_refmac_cifs() {
 				    }
 				 }
 			      }
-			   }
-			   closedir(sub_dir);
+                              closedir(sub_dir);
+                           }
 			}
 		     } // not "."
 		  }

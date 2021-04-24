@@ -687,6 +687,7 @@ namespace coot {
       };
       void init(mmdb::Residue *r);
       bool has_partial_charges_flag;
+      bool nuclear_distances_flag;
       bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders
 					// (at the moment) and atom
@@ -715,16 +716,19 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 read_number = read_number_in;
 	 filled_with_bond_order_data_only_flag = 0;
+         nuclear_distances_flag = false;
       }
       dictionary_residue_restraints_t() {
 	 filled_with_bond_order_data_only_flag = 0;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
+         nuclear_distances_flag = false;
       }
       explicit dictionary_residue_restraints_t(bool constructor_for_srs_restraints) {
 	 filled_with_bond_order_data_only_flag = 1;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
+         nuclear_distances_flag = false;
          if (constructor_for_srs_restraints) {
          }
       }
@@ -786,6 +790,7 @@ namespace coot {
       // It will look like a chiral restraint.
       std::vector<atom_name_quad> plane_restraint_to_improper_dihedrals(unsigned int i) const;
 
+      void set_use_nuclear_distances(bool state) { nuclear_distances_flag = state; }
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;

@@ -2146,10 +2146,17 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // bond loop
 
-      if (bond_restraint.size()) { 
+      if (bond_restraint.size()) {
+         // bool nuclear_distances_flag = false;
 	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
+            std::string value_dist("value_dist");
+            std::string value_dist_esd("value_dist_esd");
+            if (nuclear_distances_flag) {
+               value_dist     = "value_dist_nucleus";
+               value_dist_esd = "value_dist_nucleus_esd";
+            }
 	    for (unsigned int i=0; i<bond_restraint.size(); i++) {
 	       // std::cout << "ading bond number " << i << std::endl;
 	       const char *ss = residue_info.comp_id.c_str();
@@ -2166,9 +2173,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(bond_type.c_str(), "type", i);
 	       try {
 	          float v = bond_restraint[i].value_dist();
-		  mmCIFLoop->PutReal(v, "value_dist", i, 5);
+		  mmCIFLoop->PutReal(v, value_dist.c_str(), i, 5); // dangerous string manip?
 		  v = bond_restraint[i].value_esd();
-		  mmCIFLoop->PutReal(v, "value_dist_esd", i, 3);
+		  mmCIFLoop->PutReal(v, value_dist_esd.c_str(), i, 3);
 	       }
 	       catch (const std::runtime_error &rte) {
 		  // do nothing, it's not really an error if the dictionary
