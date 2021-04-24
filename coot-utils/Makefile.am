@@ -225,7 +225,7 @@ test_tt_morph_SOURCES = test-morph.cc
 test_tt_morph_LDADD = ./libcoot-map-heavy.la \
 	./libcoot-map-utils.la \
 	./libcoot-coord-utils.la \
-	./libcoot-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc

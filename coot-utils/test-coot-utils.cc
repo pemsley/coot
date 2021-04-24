@@ -37,7 +37,7 @@ public:
    static coot::protein_geometry geom;
    testing_data() {
       if (geom.size() == 0)
-	 geom.init_standard();
+         geom.init_standard();
    }
 };
 
@@ -61,14 +61,14 @@ coot::SortableChainsManager::SortChains() {
       int nchains = model_p->GetNumberOfChains();
       std::vector<std::pair<mmdb::Chain *, std::string> > chain_ids(nchains);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 std::string chain_id = chain_p->GetChainID();
-	 chain_ids[ichain] = std::pair<mmdb::Chain *, std::string> (chain_p, chain_id);
+         chain_p = model_p->GetChain(ichain);
+         std::string chain_id = chain_p->GetChainID();
+         chain_ids[ichain] = std::pair<mmdb::Chain *, std::string> (chain_p, chain_id);
       }
       // now chain_ids is full
       std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 // model_p->Chain[ichain] = chain_ids[ichain].first;
+         // model_p->Chain[ichain] = chain_ids[ichain].first;
       }
    }
    PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
@@ -81,7 +81,7 @@ void test_euler_angles() {
    clipper::Rotation r(e);
 
    std::cout << "Rotation from euler angles: \n"
-	     << r.matrix().format() << std::endl;
+             << r.matrix().format() << std::endl;
 
 }
 
@@ -155,16 +155,16 @@ void test_lsq_improve() {
    for (unsigned int i=0; i<1; i++) {
 
       try {
-	 coot::lsq_improve lsq_imp(mol_1, "//A/1-50", mol_2, "//A/4-50");
-	 lsq_imp.improve();
-	 clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
-	 std::cout << "rtop:\n" << rtop.format() << std::endl;
-	 coot::util::transform_mol(mol_2, rtop);
-	 // mol_2->WritePDBASCII("lsq-improved.pdb");
+         coot::lsq_improve lsq_imp(mol_1, "//A/1-50", mol_2, "//A/4-50");
+         lsq_imp.improve();
+         clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
+         std::cout << "rtop:\n" << rtop.format() << std::endl;
+         coot::util::transform_mol(mol_2, rtop);
+         // mol_2->WritePDBASCII("lsq-improved.pdb");
 
       }
       catch (const std::runtime_error &rte) {
-	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
+         std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
       }
    }
 
@@ -177,19 +177,19 @@ int test_string_manipulation() {
    std::string s;
    s = "AVasdfasdfC";
    std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
-	     << std::endl;
+             << std::endl;
    s = "   AVC";
    std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
-	     << std::endl;
+             << std::endl;
    s = " AVC ";
    std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
-	     << std::endl;
+             << std::endl;
    s = "C";
    std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
-	     << std::endl;
+             << std::endl;
    s = "";
    std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
-	     << std::endl;
+             << std::endl;
    */
 
    std::string a("ABCDefgh");
@@ -199,22 +199,22 @@ int test_string_manipulation() {
    std::string s("Cottage");
    std::string r("tag");
    std::cout  << "removing :" << r << ": from :" << s << ": gives :"
-	      << coot::util::remove_string(s, r) <<  ":" << std::endl;
+              << coot::util::remove_string(s, r) <<  ":" << std::endl;
    r = "tage";
    std::cout << "removing :" << r << ": from :" << s << ": gives :"
-	     << coot::util::remove_string(s, r) <<  ":" << std::endl;
+             << coot::util::remove_string(s, r) <<  ":" << std::endl;
    r = "e";
    std::cout << "removing :" << r << ": from :" << s << ": gives :"
-	     << coot::util::remove_string(s, r) <<  ":" << std::endl;
+             << coot::util::remove_string(s, r) <<  ":" << std::endl;
    r = "";
    std::cout << "removing :" << r << ": from :" << s << ": gives :"
-	     << coot::util::remove_string(s, r) <<  ":" << std::endl;
+             << coot::util::remove_string(s, r) <<  ":" << std::endl;
    r = "ball";
    std::cout << "removing :" << r << ": from :" << s << ": gives :"
-	     << coot::util::remove_string(s, r) <<  ":" << std::endl;
+             << coot::util::remove_string(s, r) <<  ":" << std::endl;
    r = "Cottage";
    std::cout << "removing :" << r << ": from :" << s << ": gives :"
-	     << coot::util::remove_string(s, r) <<  ":" << std::endl;
+             << coot::util::remove_string(s, r) <<  ":" << std::endl;
 
    r = "Columns";
    split_test(r);
@@ -240,8 +240,8 @@ int test_matrices() {
    test_quaternion_matrix(m2);
    // this one from quat-convert.scm:
    clipper::Mat33<double> m3( 0.0347695872187614, 0.773433089256287,   0.632923781871796,
-			      0.774806916713715,  0.379149734973907,  -0.505885183811188,
-			     -0.631241261959076,  0.507983148097992,  -0.586078405380249);
+                              0.774806916713715,  0.379149734973907,  -0.505885183811188,
+                             -0.631241261959076,  0.507983148097992,  -0.586078405380249);
         // -> (-0.557 -0.694704 -0.0007537 0.454928)
    test_quaternion_matrix(m3);
 
@@ -325,24 +325,24 @@ int test_qq_plot() {
       std::vector<double> data;
       std::string line;
       while (std::getline(f, line)) {
-	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line, " ");
-	 for (unsigned int ibit=0; ibit<bits.size(); ibit++) {
-	    try {
-	       double v = coot::util::string_to_float(bits[ibit]);
-	       data.push_back(v);
-	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "   " << rte.what() << std::endl;
-	    }
-	 }
+         std::vector<std::string> bits = coot::util::split_string_no_blanks(line, " ");
+         for (unsigned int ibit=0; ibit<bits.size(); ibit++) {
+            try {
+               double v = coot::util::string_to_float(bits[ibit]);
+               data.push_back(v);
+            }
+            catch (const std::runtime_error &rte) {
+               std::cout << "   " << rte.what() << std::endl;
+            }
+         }
       }
 
       coot::util::qq_plot_t qq(data);
       std::vector<std::pair<double, double> > qqd = qq.qq_norm();
 
       for (unsigned int i=0; i<qqd.size(); i++) {
-	 std::cout << "plot " << i << " " << "   " << qqd[i].first << "   "
-		   << qqd[i].second << std::endl;
+         std::cout << "plot " << i << " " << "   " << qqd[i].first << "   "
+                   << qqd[i].second << std::endl;
       }
    }
    return status;
@@ -391,9 +391,9 @@ int test_atom_overlaps() {
    if (read_status == mmdb::Error_NoError) {
      mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
      if (residue_p) {
-	std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-	coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
-	coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
+        std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+        coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
+        coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
      } else {
        std::cout << "Can't find residue" << spec << std::endl;
      }
@@ -435,12 +435,12 @@ int test_all_atom_overlaps() {
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
       std::cout << "Found " << olv.size() << " atom overlaps" << std::endl;
       for (std::size_t ii=0; ii<olv.size(); ii++) {
-	 const coot::atom_overlap_t &o = olv[ii];
-	 std::cout << "Overlap " << ii << " "
-		   << coot::atom_spec_t(o.atom_1) << " "
-		   << coot::atom_spec_t(o.atom_2) << " overlap-vol "
-		   << o.overlap_volume << " r_1 "
-		   << o.r_1 << " r_2 " << o.r_2 << std::endl;
+         const coot::atom_overlap_t &o = olv[ii];
+         std::cout << "Overlap " << ii << " "
+                   << coot::atom_spec_t(o.atom_1) << " "
+                   << coot::atom_spec_t(o.atom_2) << " overlap-vol "
+                   << o.overlap_volume << " r_1 "
+                   << o.r_1 << " r_2 " << o.r_2 << std::endl;
       }
    }
 
@@ -462,29 +462,29 @@ int test_cp() {
       mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 if (! chain_p) {
-	    std::cout << "Null chain" << std::endl;
-	 } else {
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::Residue *residue_p;
-	    mmdb::Atom *at;
-	    for (int ires=0; ires<nres; ires++) {
-	       residue_p = chain_p->GetResidue(ires);
-	       if (! residue_p) {
-		  std::cout << "Null residue" << std::endl;
-	       } else {
-		  /*
-		  coot::cp_t cp;
-		  double a = cp.amplitude(residue_p);
-		  std::vector<double> t(6);
-		  t[0] = -62.576; t[1] =  38.474; t[2] =  16.080;
-		  t[3] = -56.662; t[4] =  32.146; t[5] =  28.071;
-		  // cp.amplitude(t);
-		  */
-	       }
-	    }
-	 }
+         chain_p = model_p->GetChain(ichain);
+         if (! chain_p) {
+            std::cout << "Null chain" << std::endl;
+         } else {
+            int nres = chain_p->GetNumberOfResidues();
+            mmdb::Residue *residue_p;
+            mmdb::Atom *at;
+            for (int ires=0; ires<nres; ires++) {
+               residue_p = chain_p->GetResidue(ires);
+               if (! residue_p) {
+                  std::cout << "Null residue" << std::endl;
+               } else {
+                  /*
+                  coot::cp_t cp;
+                  double a = cp.amplitude(residue_p);
+                  std::vector<double> t(6);
+                  t[0] = -62.576; t[1] =  38.474; t[2] =  16.080;
+                  t[3] = -56.662; t[4] =  32.146; t[5] =  28.071;
+                  // cp.amplitude(t);
+                  */
+               }
+            }
+         }
       }
    }
    return 1;
@@ -515,10 +515,10 @@ int test_glyco_link_by_geometry() {
    for (std::size_t i=0; i<file_names.size(); i++) {
       const std::string &file_name = file_names[i];
       if (coot::file_exists(file_name)) {
-	 mmdb::Manager *mol = new mmdb::Manager;
-	 mol->ReadCoorFile(file_name.c_str());
+         mmdb::Manager *mol = new mmdb::Manager;
+         mol->ReadCoorFile(file_name.c_str());
 
-	 // find linked carbohydrates and test axial vsl equatorial
+         // find linked carbohydrates and test axial vsl equatorial
       }
    }
 
@@ -570,12 +570,12 @@ int test_soi(int argc, char **argv) {
 #include "utils/ctpl.h"
 
 void density_for_atoms_multithread(int thread_index,
-				   const atom_selection_container_t &asc,
-				   const clipper::RTop<> &rtop_og,
-				   const std::pair<unsigned int, unsigned int> &atom_index_range,
-				   const clipper::NXmap<float> &nxmap,
-				   float *dv,
-				   std::atomic<unsigned int> &done_count_for_threads) {
+                                   const atom_selection_container_t &asc,
+                                   const clipper::RTop<> &rtop_og,
+                                   const std::pair<unsigned int, unsigned int> &atom_index_range,
+                                   const clipper::NXmap<float> &nxmap,
+                                   float *dv,
+                                   std::atomic<unsigned int> &done_count_for_threads) {
 
    for (unsigned int i=atom_index_range.first; i<atom_index_range.second; i++) {
       mmdb::Atom *at = asc.atom_selection[i];
@@ -651,16 +651,16 @@ int test_nxmap(int argc, char **argv) {
 
       clipper::NXmap_base::Map_reference_index ix;
       for (ix = nxmap.first(); !ix.last(); ix.next() )  { // iterator index.
-	 clipper::Coord_grid cg = ix.coord();
-	 clipper::Coord_map  cm = cg.coord_map();
-	 clipper::Coord_orth pt = nxmap.coord_orth(cm);
-	 // std::cout << "    " << pt.format() << std::endl;
-	 if (pt.x() < min_x) min_x = pt.x();
-	 if (pt.x() > max_x) max_x = pt.x();
-	 if (pt.y() < min_y) min_y = pt.y();
-	 if (pt.y() > max_y) max_y = pt.y();
-	 if (pt.z() < min_z) min_z = pt.z();
-	 if (pt.z() > max_z) max_z = pt.z();
+         clipper::Coord_grid cg = ix.coord();
+         clipper::Coord_map  cm = cg.coord_map();
+         clipper::Coord_orth pt = nxmap.coord_orth(cm);
+         // std::cout << "    " << pt.format() << std::endl;
+         if (pt.x() < min_x) min_x = pt.x();
+         if (pt.x() > max_x) max_x = pt.x();
+         if (pt.y() < min_y) min_y = pt.y();
+         if (pt.y() > max_y) max_y = pt.y();
+         if (pt.z() < min_z) min_z = pt.z();
+         if (pt.z() > max_z) max_z = pt.z();
       }
 
       std::cout << "nx grid extents: x " << min_x << " " << max_x << std::endl;
@@ -669,19 +669,19 @@ int test_nxmap(int argc, char **argv) {
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
       for(int i=0; i<n_atoms_max; i++) {
-	 mmdb::Atom *at = asc.atom_selection[i];
-	 clipper::Coord_orth pt = coot::co(at);
-	 float dx = coot::util::density_at_point(xmap, pt);
+         mmdb::Atom *at = asc.atom_selection[i];
+         clipper::Coord_orth pt = coot::co(at);
+         float dx = coot::util::density_at_point(xmap, pt);
       }
       auto tp_1 = std::chrono::high_resolution_clock::now();
 
       for(int i=0; i<n_atoms_max; i++) {
-	 // std::cout << "atom i " << i << std::endl;
-	 mmdb::Atom *at = asc.atom_selection[i];
-	 clipper::Coord_orth pt = coot::co(at);
+         // std::cout << "atom i " << i << std::endl;
+         mmdb::Atom *at = asc.atom_selection[i];
+         clipper::Coord_orth pt = coot::co(at);
 
-	 clipper::Coord_map cm_try_2(rtop_og * pt);
-	 float dn = coot::util::density_at_point_by_cubic_interp(nxmap, cm_try_2);
+         clipper::Coord_map cm_try_2(rtop_og * pt);
+         float dn = coot::util::density_at_point_by_cubic_interp(nxmap, cm_try_2);
       }
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
@@ -693,20 +693,20 @@ int test_nxmap(int argc, char **argv) {
       std::atomic<unsigned int> done_count_for_threads(0);
       std::vector<float> dv(n_threads, 0.0);
       std::vector<std::pair<unsigned int, unsigned int> > ranges =
-	 coot::atom_index_ranges(n_atoms_max, n_threads);
+         coot::atom_index_ranges(n_atoms_max, n_threads);
       auto tp_3 = std::chrono::high_resolution_clock::now();
       for (std::size_t i=0; i<ranges.size(); i++) {
-	 thread_pool.push(density_for_atoms_multithread,
-			  std::cref(asc),
-			  std::cref(rtop_og),
-			  std::cref(ranges[i]),
-			  std::cref(nxmap),
-			  &dv[i],
-			  std::ref(done_count_for_threads));
+         thread_pool.push(density_for_atoms_multithread,
+                          std::cref(asc),
+                          std::cref(rtop_og),
+                          std::cref(ranges[i]),
+                          std::cref(nxmap),
+                          &dv[i],
+                          std::ref(done_count_for_threads));
       }
       auto tp_4 = std::chrono::high_resolution_clock::now();
       while (done_count_for_threads < ranges.size()) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(1));
+         std::this_thread::sleep_for(std::chrono::microseconds(1));
       }
       auto tp_5 = std::chrono::high_resolution_clock::now();
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -729,7 +729,7 @@ int test_nxmap(int argc, char **argv) {
 
 void
 nxmap_fft_to(const clipper::Xmap<float> &xmap,
-	     clipper::HKL_data<clipper::data32::F_phi> &fphidata) {
+             clipper::HKL_data<clipper::data32::F_phi> &fphidata) {
 
    float mg = coot::util::max_gridding(xmap);
    clipper::Resolution reso(2.0 * mg);
@@ -774,11 +774,11 @@ test_nxmap_edcalc(int argc, char **argv) {
 
       std::cout << "Making nxmap... " << std::endl;
       clipper::NXmap<float> nxmap_ref =
-	 coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
+         coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
       std::cout << "ED calc..." << std::endl;
       clipper::NXmap<float> nxmap_edcalc =
-	 coot::util::make_edcalc_map(nxmap_ref,  // for metrics
-				     asc.mol, few_residues_selection_handle);
+         coot::util::make_edcalc_map(nxmap_ref,  // for metrics
+                                     asc.mol, few_residues_selection_handle);
 
       asc.mol->DeleteSelection(few_residues_selection_handle);
 
@@ -820,15 +820,15 @@ test_nxmap_edcalc(int argc, char **argv) {
 
       hri = fphi_calc.first();
       if (hri.last()) {
-	 std::cout << "booo... first is last " << std::endl;
+         std::cout << "booo... first is last " << std::endl;
       }
       for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
-	 std::cout << "   " << fphi_calc[hri].f() << " " << fphi_ref[hri].f()
-		   << std::endl;
+         std::cout << "   " << fphi_calc[hri].f() << " " << fphi_ref[hri].f()
+                   << std::endl;
 
-	 count++;
-	 if (count == 10)
-	    break;
+         count++;
+         if (count == 10)
+            break;
       }
 
       // bricks
@@ -841,26 +841,26 @@ test_nxmap_edcalc(int argc, char **argv) {
       int t5 = coot::get_brick_id_inner(3,2,2, 6,4,8);
 
       std::cout << "test: t1, t2, t3, t4 t5 "
-		<< t1 << " " << t2 << " " << t3 << " " << t4 << " " << t5
-		<< std::endl;
+                << t1 << " " << t2 << " " << t3 << " " << t4 << " " << t5
+                << std::endl;
 
 
       float atom_max_radius = 3.0;
       std::vector<std::vector<int> > bricks =
-	 coot::molecule_to_bricks(asc.mol, asc.SelectionHandle, atom_max_radius);
+         coot::molecule_to_bricks(asc.mol, asc.SelectionHandle, atom_max_radius);
 
       std::cout << "found " << bricks.size() << " bricks for "
-		<< asc.n_selected_atoms << " atoms " << std::endl;
+                << asc.n_selected_atoms << " atoms " << std::endl;
 
       // this looks fine
       if (false) {
-	 for (std::size_t ii=0; ii<bricks.size(); ii++) {
-	    std::cout << "--- brick " << ii << std::endl;
-	    for (std::size_t jj=0; jj<bricks[ii].size(); jj++) {
-	       std::cout << "   " << bricks[ii][jj] << " "
-			 << coot::atom_spec_t(asc.atom_selection[bricks[ii][jj]]) << "\n";
-	    }
-	 }
+         for (std::size_t ii=0; ii<bricks.size(); ii++) {
+            std::cout << "--- brick " << ii << std::endl;
+            for (std::size_t jj=0; jj<bricks[ii].size(); jj++) {
+               std::cout << "   " << bricks[ii][jj] << " "
+                         << coot::atom_spec_t(asc.atom_selection[bricks[ii][jj]]) << "\n";
+            }
+         }
       }
    }
    return 1;
@@ -897,10 +897,10 @@ test_xmap_edcalc(int argc, char **argv) {
       spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
 
       clipper::Xmap<float> calc_atom_map(mmdb::Manager *mol,
-					 int atom_selection_handle,
-					 const clipper::Cell &cell,
-					 const clipper::Spacegroup &space_group,
-					 const clipper::Grid_sampling &sampling);
+                                         int atom_selection_handle,
+                                         const clipper::Cell &cell,
+                                         const clipper::Spacegroup &space_group,
+                                         const clipper::Grid_sampling &sampling);
 
       asc.mol->DeleteSelection(few_residues_selection_handle);
 
@@ -938,8 +938,8 @@ int test_bonded_atoms(int argc, char **argv) {
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
       std::vector<std::vector<unsigned int> > b = coot::make_bonds(asc.mol,
-								   asc.n_selected_atoms,
-								   asc.UDDAtomIndexHandle);
+                                                                   asc.n_selected_atoms,
+                                                                   asc.UDDAtomIndexHandle);
 
       auto tp_1 = std::chrono::high_resolution_clock::now();
 
@@ -949,14 +949,14 @@ int test_bonded_atoms(int argc, char **argv) {
       std::vector<std::vector<unsigned int> > connections_1_4 = coot::find_1_4_connections(b);
 
       for (std::size_t i=0; i<connections_1_4.size(); i++) {
-	 const std::vector<unsigned int> &v1 = connections_1_4[i];
-	 mmdb::Atom *at_i = asc.atom_selection[i];
-	 for (std::size_t j=0; j<v1.size(); j++) {
-	    mmdb::Atom *at_j = asc.atom_selection[v1[j]];
-	    if (false)
-	       std::cout << " 1-4: " << coot::atom_spec_t(at_i) << " "
-			 << coot::atom_spec_t(at_j) << std::endl;
-	 }
+         const std::vector<unsigned int> &v1 = connections_1_4[i];
+         mmdb::Atom *at_i = asc.atom_selection[i];
+         for (std::size_t j=0; j<v1.size(); j++) {
+            mmdb::Atom *at_j = asc.atom_selection[v1[j]];
+            if (false)
+               std::cout << " 1-4: " << coot::atom_spec_t(at_i) << " "
+                         << coot::atom_spec_t(at_j) << std::endl;
+         }
       }
       auto tp_2 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -1098,10 +1098,10 @@ test_make_a_difference_map(int argc, char **argv) {
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
       clipper::Xmap<float> xmap_calc = coot::util::calc_atom_map(asc.mol,
-					                         asc.SelectionHandle,
-					                         xmap.cell(),
-					                         xmap.spacegroup(),
-					                         xmap.grid_sampling());
+                                                                 asc.SelectionHandle,
+                                                                 xmap.cell(),
+                                                                 xmap.spacegroup(),
+                                                                 xmap.grid_sampling());
 
       auto tp_1 = std::chrono::high_resolution_clock::now();
       if (true) {
@@ -1113,11 +1113,11 @@ test_make_a_difference_map(int argc, char **argv) {
 
 
       if (false) {
-	 xmap_calc = xmap;
+         xmap_calc = xmap;
          clipper::Xmap_base::Map_reference_index ix;
          for (ix = xmap_calc.first(); !ix.last(); ix.next() ) {
-	    xmap_calc[ix] = xmap[ix] * 2.0 + 0.11;
-	 }
+            xmap_calc[ix] = xmap[ix] * 2.0 + 0.11;
+         }
       }
 
       // ----- 3 ------------------ Get Amp vs Reso data for B-factor from map
@@ -1126,12 +1126,12 @@ test_make_a_difference_map(int argc, char **argv) {
       std::vector<coot::amplitude_vs_resolution_point> pts_calc = coot::util::amplitude_vs_resolution(xmap_calc, 15);
 
       if (true) { // debugging B-factor estimation
-	 for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
+         for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
             std::cout << "pts_ref " << pts_ref[ii].average << " " << pts_ref[ii].resolution_recip << std::endl;
-	 }
-	 for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
+         }
+         for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
             std::cout << "pts_calc " << pts_calc[ii].average << " " << pts_calc[ii].resolution_recip << std::endl;
-	 }
+         }
       }
 
 
@@ -1178,23 +1178,23 @@ test_make_a_difference_map(int argc, char **argv) {
       clipper::HKL_info::HKL_reference_index hri;
       hri = fphi_calc.first();
       if (hri.last()) {
-	 std::cout << "booo... first is last " << std::endl;
+         std::cout << "booo... first is last " << std::endl;
       }
       if (true) { // just check that the SFS contain data
          for (hri = fphi_ref.first(); !hri.last(); hri.next()) {
-	    std::cout << "   " << hri.hkl().format() << " " << fphi_ref[hri].f() << " " << fphi_ref[hri].phi()
-		      << std::endl;
-	    count++;
-	    if (count == 10)
-	       break;
+            std::cout << "   " << hri.hkl().format() << " " << fphi_ref[hri].f() << " " << fphi_ref[hri].phi()
+                      << std::endl;
+            count++;
+            if (count == 10)
+               break;
          }
          count = 0;
          for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
-	    std::cout << "   " << hri.hkl().format() << " " << fphi_calc[hri].f() << " " << fphi_calc[hri].phi()
-		      << std::endl;
-	    count++;
-	    if (count == 10)
-	       break;
+            std::cout << "   " << hri.hkl().format() << " " << fphi_calc[hri].f() << " " << fphi_calc[hri].phi()
+                      << std::endl;
+            count++;
+            if (count == 10)
+               break;
          }
       }
 
@@ -1213,39 +1213,39 @@ test_make_a_difference_map(int argc, char **argv) {
       std::vector<unsigned int> counts(n_bins, 0);
 
       for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
-	 if (hri.hkl() != clipper::HKL(0,0,0)) {
-	    float irs = hri.invresolsq();
-	    if (irs < reso_max) {
-	       int bin_idx = static_cast<int>(static_cast<float>(n_bins) * irs/reso_max);
-	       if (bin_idx == n_bins) bin_idx--;
-	       if (irs >= reso_min_for_scaling) {
-		  sum_fc[bin_idx] += fabs(fphi_calc[hri].f());
-		  counts[bin_idx]++;
-	       }
-	    }
-	 }
+         if (hri.hkl() != clipper::HKL(0,0,0)) {
+            float irs = hri.invresolsq();
+            if (irs < reso_max) {
+               int bin_idx = static_cast<int>(static_cast<float>(n_bins) * irs/reso_max);
+               if (bin_idx == n_bins) bin_idx--;
+               if (irs >= reso_min_for_scaling) {
+                  sum_fc[bin_idx] += fabs(fphi_calc[hri].f());
+                  counts[bin_idx]++;
+               }
+            }
+         }
       }
 
       for (hri = fphi_ref.first(); !hri.last(); hri.next()) {
-	 if (hri.hkl() != clipper::HKL(0,0,0)) {
-	    float irs = hri.invresolsq();
-	    if (irs < reso_max) {
-	       int bin_no = static_cast<int>(n_bins * irs/reso_max);
-	       if (bin_no == n_bins) bin_no--;
-	       if (irs >= reso_min_for_scaling)
-		  sum_fo[bin_no] += fabs(fphi_ref[hri].f());
-	    }
-	 }
+         if (hri.hkl() != clipper::HKL(0,0,0)) {
+            float irs = hri.invresolsq();
+            if (irs < reso_max) {
+               int bin_no = static_cast<int>(n_bins * irs/reso_max);
+               if (bin_no == n_bins) bin_no--;
+               if (irs >= reso_min_for_scaling)
+                  sum_fo[bin_no] += fabs(fphi_ref[hri].f());
+            }
+         }
       }
 
       for (std::size_t i=0; i<n_bins; i++) {
-	 float bin_reso = reso_max * (static_cast<float>(i)/static_cast<float>(n_bins) + 0.5);
-	 if (counts[i] > 0) {
-	    std::cout << i << " " << bin_reso << " "
-		      << sum_fo[i]/static_cast<float>(counts[i]) << " "
-		      << sum_fc[i]/static_cast<float>(counts[i]) << " "
-		      << sum_fo[i]/sum_fc[i] << "\n";
-	 }
+         float bin_reso = reso_max * (static_cast<float>(i)/static_cast<float>(n_bins) + 0.5);
+         if (counts[i] > 0) {
+            std::cout << i << " " << bin_reso << " "
+                      << sum_fo[i]/static_cast<float>(counts[i]) << " "
+                      << sum_fc[i]/static_cast<float>(counts[i]) << " "
+                      << sum_fo[i]/sum_fc[i] << "\n";
+         }
       }
    }
    return status;
@@ -1399,9 +1399,9 @@ void
 test_correlation_of_residue_runs(int argc, char **argv) {
 
    bool is_cryo_em = true;
-   
+
    if (argc > 2) {
-      std::string pdb_file_name = argv[1]; 
+      std::string pdb_file_name = argv[1];
       std::string map_file_name = argv[2];
       std::cout << "Getting atoms... " << std::endl;
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
@@ -1478,7 +1478,7 @@ int main(int argc, char **argv) {
 
    if (0)
       for (unsigned int i=0; i<2; i++) {
-	 test_all_atom_overlaps();
+         test_all_atom_overlaps();
       }
 
    if (0)
