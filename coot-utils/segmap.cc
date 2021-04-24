@@ -41,14 +41,14 @@ coot::segmap::proc(bool write_results_map_flag, const std::string &file_name) {
    for (ix=xmap.first(); !ix.last(); ix.next()) {
       n_count++;
       if (xmap[ix] > plausibly_protein_level)
-	 n_count_above_mean++;
+         n_count_above_mean++;
    }
 
 
    float frac_plausibly_protein = static_cast<float>(n_count_above_mean)/static_cast<float>(n_count);
 
    std::cout << " Of " << n_count << " points " << frac_plausibly_protein
-	     << " were above the plausibly_protein_level" << std::endl;
+             << " were above the plausibly_protein_level" << std::endl;
 
    float level_frac = 0.2; // was 0.2
    // level_frac = some_func(plausibly_protein_level) // this function will need turning for other proteins
@@ -69,10 +69,10 @@ coot::segmap::proc(bool write_results_map_flag, const std::string &file_name) {
       float v = map_stats.bins[i];
       v_cumulation += v/static_cast<float>(n_in_histogram);
       std::cout << "i " << i << " in this bin: " << v << " this_level " << this_level
-		<< " running_sum frac: " << v_cumulation << std::endl;
+                << " running_sum frac: " << v_cumulation << std::endl;
       if (v_cumulation > level_frac) {
-	 contour_level = this_level;
-	 break;
+         contour_level = this_level;
+         break;
       }
    }
 
@@ -116,23 +116,23 @@ coot::segmap::find_peaks(float cut_off) const {
    for (ix = xmap.first(); !ix.last(); ix.next())  {
       const float &v = xmap[ix];
       if (v > cut_off) {
-	 bool is_peak = true;
-	 for (int i=0; i<neighb.size(); i++) {
-	    clipper::Coord_grid c_g(ix.coord() + neighb[i]);
-	    if (v < xmap.get_data(c_g)) {
-	       is_peak = false;
-	       break;
-	    }
-	 }
-	 if (is_peak) {
-	    std::pair<clipper::Xmap_base::Map_reference_index, float> p(ix, v);
-	    peaks.push_back(p);
-	 }
+         bool is_peak = true;
+         for (int i=0; i<neighb.size(); i++) {
+            clipper::Coord_grid c_g(ix.coord() + neighb[i]);
+            if (v < xmap.get_data(c_g)) {
+               is_peak = false;
+               break;
+            }
+         }
+         if (is_peak) {
+            std::pair<clipper::Xmap_base::Map_reference_index, float> p(ix, v);
+            peaks.push_back(p);
+         }
       }
    }
 
    auto sorter = [] (const std::pair<clipper::Xmap_base::Map_reference_index, float> &p1,
-		     const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2) {
+                     const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2) {
       return (p1.second > p2.second);
    };
 
@@ -151,7 +151,7 @@ coot::segmap::find_peaks(float cut_off) const {
 
 clipper::Xmap<float>
 coot::segmap::flood_from_peaks(const std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float > > &peaks,
-			       float cut_off_for_flood) {
+                               float cut_off_for_flood) {
 
    int top_n_peaks = 1;
    float low_level = 0.0; // if density values are below the cut_off_for_flood and more than zero, make them this
@@ -178,31 +178,31 @@ coot::segmap::flood_from_peaks(const std::vector<std::pair<clipper::Xmap_base::M
       const clipper::Xmap_base::Map_reference_index &ix = peaks[j].first;
       q.push(ix.coord());
       while (! q.empty()) {
-	 clipper::Coord_grid gp_new_centre = q.front();
-	 considered.set_data(gp_new_centre, 1);
-	 q.pop();
-	 clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
-	 for (int i=0; i<neighb.size(); i++) {
-	    clipper::Coord_grid c_g(gp_new_centre + neighb[i]);
-	    if (xmap.get_data(c_g) > cut_off_for_flood) {
-	       if (considered.get_data(c_g) == 0) {
-		  // std::cout << "pushing back " << c_g.format() << " " << std::endl;
-		  if (queued.get_data(c_g) == 0) {
-		     q.push(c_g);
-		     inside_points.set_data(c_g, 1);
-		     queued.set_data(c_g, 1);
-		  }
-	       }
-	    }
-	 }
+         clipper::Coord_grid gp_new_centre = q.front();
+         considered.set_data(gp_new_centre, 1);
+         q.pop();
+         clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
+         for (int i=0; i<neighb.size(); i++) {
+            clipper::Coord_grid c_g(gp_new_centre + neighb[i]);
+            if (xmap.get_data(c_g) > cut_off_for_flood) {
+               if (considered.get_data(c_g) == 0) {
+                  // std::cout << "pushing back " << c_g.format() << " " << std::endl;
+                  if (queued.get_data(c_g) == 0) {
+                     q.push(c_g);
+                     inside_points.set_data(c_g, 1);
+                     queued.set_data(c_g, 1);
+                  }
+               }
+            }
+         }
       }
    }
 
    clipper::Xmap<float> segmented = xmap;
    for (ix=inside_points.first(); !ix.last(); ix.next()) {
       if (inside_points[ix] == 0) {
-	 if (segmented[ix] > 0.0)
-	    segmented[ix] = low_level;
+         if (segmented[ix] > 0.0)
+            segmented[ix] = low_level;
       }
    }
 

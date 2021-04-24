@@ -5,8 +5,8 @@
 
 void
 coot::util::mutate_internal(mmdb::Residue *residue,
-			    mmdb::Residue *std_residue,
-			    const std::string &alt_conf,
+                            mmdb::Residue *std_residue,
+                            const std::string &alt_conf,
                             short int is_from_shelx_ins_flag,
                             float b_factor) {
 
@@ -45,25 +45,25 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    for(int i=0; i<nResidueAtoms; i++) {
       std::string atom_alt_conf(residue_atoms[i]->altLoc);
       if (atom_alt_conf == alt_conf) { 
-	 std::string residue_this_atom (residue_atoms[i]->name);
-	 if (coot::is_main_chain_p(residue_atoms[i])) {
-	    if (to_residue_type == "MSE") {
-	       residue_atoms[i]->Het = 1;
-	    } else {
-	       if (residue_atoms[i]->Het)
-		  residue_atoms[i]->Het = 0; // from MSE to MET, say
-	    }
-	    if (to_residue_type == "PRO") {
-	       std::string atom_name(residue_atoms[i]->name);
-	       if (atom_name == " H  ")   // PDBv3 FIXME
-		  residue->DeleteAtom(i);
-	    }
-	    if (to_residue_type == "GLY") {
-	       std::string atom_name(residue_atoms[i]->name);
-	       if (atom_name == " HA ")  // PDBv3 FIXME
-		  residue->DeleteAtom(i);
-	    }
-	 } else {
+         std::string residue_this_atom (residue_atoms[i]->name);
+         if (coot::is_main_chain_p(residue_atoms[i])) {
+            if (to_residue_type == "MSE") {
+               residue_atoms[i]->Het = 1;
+            } else {
+               if (residue_atoms[i]->Het)
+                  residue_atoms[i]->Het = 0; // from MSE to MET, say
+            }
+            if (to_residue_type == "PRO") {
+               std::string atom_name(residue_atoms[i]->name);
+               if (atom_name == " H  ")   // PDBv3 FIXME
+                  residue->DeleteAtom(i);
+            }
+            if (to_residue_type == "GLY") {
+               std::string atom_name(residue_atoms[i]->name);
+               if (atom_name == " HA ")  // PDBv3 FIXME
+                  residue->DeleteAtom(i);
+            }
+         } else {
             // don't delete OXT, but do delete other things
             std::string atom_name(residue_atoms[i]->GetAtomName());
             if (atom_name != " OXT")
@@ -75,17 +75,17 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    for(int i=0; i<n_std_ResidueAtoms; i++) {
       std::string std_residue_this_atom (std_residue_atoms[i]->name);
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
-	 if (is_from_shelx_ins_flag)
-	    std_residue_atoms[i]->occupancy = 11.0;
-	 std_residue_atoms[i]->tempFactor = b_factor;
-	 mmdb::Atom *copy_at = new mmdb::Atom;
-	 copy_at->Copy(std_residue_atoms[i]);
-	 residue->AddAtom(copy_at);
-	 if (use_old_seg_id) {
-	    strcpy(copy_at->segID, old_seg_id_for_residue_atoms.c_str());
-	 }
-	 if (alt_conf != "")
-	    strcpy(copy_at->altLoc, alt_conf.c_str());
+         if (is_from_shelx_ins_flag)
+            std_residue_atoms[i]->occupancy = 11.0;
+         std_residue_atoms[i]->tempFactor = b_factor;
+         mmdb::Atom *copy_at = new mmdb::Atom;
+         copy_at->Copy(std_residue_atoms[i]);
+         residue->AddAtom(copy_at);
+         if (use_old_seg_id) {
+            strcpy(copy_at->segID, old_seg_id_for_residue_atoms.c_str());
+         }
+         if (alt_conf != "")
+            strcpy(copy_at->altLoc, alt_conf.c_str());
       }
    }
 
@@ -113,16 +113,16 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
       std::cout << "mutate, got 0 atoms" << std::endl;
    } else {
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 mmdb::Atom *at = residue_atoms[iat];
-	 clipper::Coord_orth co(at->x, at->y, at->z);
-	 std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
-	 if (it != rtops.end()) { 
-	    clipper::Coord_orth rotted = co.transform(it->second);
+         mmdb::Atom *at = residue_atoms[iat];
+         clipper::Coord_orth co(at->x, at->y, at->z);
+         std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
+         if (it != rtops.end()) { 
+            clipper::Coord_orth rotted = co.transform(it->second);
 
             at->x = rotted.x();
             at->y = rotted.y();
             at->z = rotted.z();
-	 }
+         }
       }
 
       coot::util::mutate_internal(res, std_res_unoriented, alt_conf, shelx_flag, b_factor); // it's oriented now.
@@ -145,9 +145,9 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
 // 
 void
 coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
-			bool use_old_style_naming,
-			bool print_match_stats_flag,
-			float b_factor) {
+                        bool use_old_style_naming,
+                        bool print_match_stats_flag,
+                        float b_factor) {
 
 
    bool debug = false;
@@ -302,49 +302,49 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
        (std_base_is_pyrimidine == -1) || (std_base_is_purine == -1) ) {
 
       std::cout << "ERROR:: mutate_base() unassigned type "
-		<< "mol_base_is_pyrimidine:" << " "
-		<< mol_base_is_pyrimidine << " "
-		<< "mol_base_is_purine: " << " "
-		<< mol_base_is_purine << " "
-		<< "std_base_is_pyrimidine: " << " "
-		<< std_base_is_pyrimidine << " "
-		<< "std_base_is_purine: " << " "
-		<< std_base_is_purine << " "
-		<< residue->GetResName() << " " << std_base->GetResName()
-		<< std::endl;
+                << "mol_base_is_pyrimidine:" << " "
+                << mol_base_is_pyrimidine << " "
+                << "mol_base_is_purine: " << " "
+                << mol_base_is_purine << " "
+                << "std_base_is_pyrimidine: " << " "
+                << std_base_is_pyrimidine << " "
+                << "std_base_is_purine: " << " "
+                << std_base_is_purine << " "
+                << residue->GetResName() << " " << std_base->GetResName()
+                << std::endl;
 
    } else {
 
       if (debug)
-	 std::cout << "DEBUG:: assigned types \n      "
-		   << "mol_base_is_pyrimidine:"  << " "
-		   << mol_base_is_pyrimidine     << "\n      "
-		   << "mol_base_is_purine:    "  << " "
-		   << mol_base_is_purine         << "\n      "
-		   << "std_base_is_pyrimidine:" << " "
-		   << std_base_is_pyrimidine     << "\n      "
-		   << "std_base_is_purine:    " << " "
-		   << std_base_is_purine         << "\n      res_name: "
-		   << residue->GetResName()      << "    std_base name:"
-		   << std_base->GetResName()
-		   << std::endl;
+         std::cout << "DEBUG:: assigned types \n      "
+                   << "mol_base_is_pyrimidine:"  << " "
+                   << mol_base_is_pyrimidine     << "\n      "
+                   << "mol_base_is_purine:    "  << " "
+                   << mol_base_is_purine         << "\n      "
+                   << "std_base_is_pyrimidine:" << " "
+                   << std_base_is_pyrimidine     << "\n      "
+                   << "std_base_is_purine:    " << " "
+                   << std_base_is_purine         << "\n      res_name: "
+                   << residue->GetResName()      << "    std_base name:"
+                   << std_base->GetResName()
+                   << std::endl;
 
       int n_match_atoms = 5;
       if (mol_base_is_pyrimidine && std_base_is_pyrimidine)
-	 n_match_atoms = 6;
+         n_match_atoms = 6;
 
       std::vector<std::string> moving_name_vector;
       std::vector<std::string> refrce_name_vector;
 
       if (std_base_is_purine)
-	 moving_name_vector = purine;
+         moving_name_vector = purine;
       else
-	 moving_name_vector = pyrimidine;
+         moving_name_vector = pyrimidine;
 
       if (mol_base_is_purine)
-	 refrce_name_vector = purine;
+         refrce_name_vector = purine;
       else
-	 refrce_name_vector = pyrimidine;
+         refrce_name_vector = pyrimidine;
       
       mmdb::PAtom *std_base_atoms;
       int n_std_base_atoms;
@@ -359,237 +359,237 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
       std::vector<clipper::Coord_orth> moving_atom_positions;
 
       if (debug) { 
-	 for (unsigned int i=0; i<refrce_name_vector.size(); i++)
-	    std::cout << "ref base search atom :" << refrce_name_vector[i]
-		      << ":" << std::endl;
-	 for (unsigned int i=0; i<moving_name_vector.size(); i++)
-	    std::cout << "mov base search atom :" << moving_name_vector[i]
-		      << ":" << std::endl;
+         for (unsigned int i=0; i<refrce_name_vector.size(); i++)
+            std::cout << "ref base search atom :" << refrce_name_vector[i]
+                      << ":" << std::endl;
+         for (unsigned int i=0; i<moving_name_vector.size(); i++)
+            std::cout << "mov base search atom :" << moving_name_vector[i]
+                      << ":" << std::endl;
       }
-	 
+         
       for (int j=0; j<n_match_atoms; j++) {
-	 for (int i=0; i<n_mol_base_atoms; i++) {
-	    std::string atom_name = mol_base_atoms[i]->name;
-	    if (refrce_name_vector[j] == atom_name) {
-	       refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
-								   mol_base_atoms[i]->y,
-								   mol_base_atoms[i]->z));
-	       if (debug)
-		  std::cout << "Found " << atom_name << " in reference " << std::endl;
-	    }
-	 }
+         for (int i=0; i<n_mol_base_atoms; i++) {
+            std::string atom_name = mol_base_atoms[i]->name;
+            if (refrce_name_vector[j] == atom_name) {
+               refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
+                                                                   mol_base_atoms[i]->y,
+                                                                   mol_base_atoms[i]->z));
+               if (debug)
+                  std::cout << "Found " << atom_name << " in reference " << std::endl;
+            }
+         }
       }
 
       for (int j=0; j<n_match_atoms; j++) {
-	 for (int i=0; i<n_std_base_atoms; i++) {
-	 std::string atom_name = std_base_atoms[i]->name;
-	    if (moving_name_vector[j] == atom_name) {
-	       moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
-								   std_base_atoms[i]->y,
-								   std_base_atoms[i]->z));
-	       if (debug)
-		  std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
-	    }
-	 }
+         for (int i=0; i<n_std_base_atoms; i++) {
+         std::string atom_name = std_base_atoms[i]->name;
+            if (moving_name_vector[j] == atom_name) {
+               moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
+                                                                   std_base_atoms[i]->y,
+                                                                   std_base_atoms[i]->z));
+               if (debug)
+                  std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
+            }
+         }
       }
 
       if (int(refrce_atom_positions.size()) != n_match_atoms) {
-	 std::cout << "ERROR:: wrong number of reference atoms found! "
-		   << refrce_atom_positions.size() << std::endl;
+         std::cout << "ERROR:: wrong number of reference atoms found! "
+                   << refrce_atom_positions.size() << std::endl;
       } else {
 
-	 if (int(moving_atom_positions.size()) != n_match_atoms) {
-	    std::cout << "ERROR:: wrong number of moving atoms found! "
-		   << moving_atom_positions.size() << std::endl;
+         if (int(moving_atom_positions.size()) != n_match_atoms) {
+            std::cout << "ERROR:: wrong number of moving atoms found! "
+                   << moving_atom_positions.size() << std::endl;
 
-	 } else {
+         } else {
 
-	    clipper::RTop_orth rtop (moving_atom_positions, refrce_atom_positions);
+            clipper::RTop_orth rtop (moving_atom_positions, refrce_atom_positions);
       
-	    double sum_dist = 0.0;
-	    double sum_dist2 = 0.0;
-	    double mind =  999999999.9;
-	    double maxd = -999999999.9;
-	    double d;
-	    for (unsigned int i=0; i<refrce_atom_positions.size(); i++) {
-	       d = clipper::Coord_orth::length(refrce_atom_positions[i],
-					       clipper::Coord_orth(moving_atom_positions[i].transform(rtop)));
-	       sum_dist  += d;
-	       sum_dist2 += d*d;
-	       if (d>maxd)
-		  maxd = d;
-	       if (d<mind)
-		  mind = d;
-	    }
-	    double mean = sum_dist/double(moving_atom_positions.size());
-	    double var  = sum_dist2/double(moving_atom_positions.size()); // no mean*mean
-	    std::cout << "INFO:: " << moving_atom_positions.size() << " matched atoms had: \n"
-		      << "   mean devi: " << mean << "\n"
-		      << "    rms devi: " << sqrt(var) << "\n"
-		      << "    max devi: " << maxd << "\n"
-		      << "    min devi: " << mind << std::endl;
+            double sum_dist = 0.0;
+            double sum_dist2 = 0.0;
+            double mind =  999999999.9;
+            double maxd = -999999999.9;
+            double d;
+            for (unsigned int i=0; i<refrce_atom_positions.size(); i++) {
+               d = clipper::Coord_orth::length(refrce_atom_positions[i],
+                                               clipper::Coord_orth(moving_atom_positions[i].transform(rtop)));
+               sum_dist  += d;
+               sum_dist2 += d*d;
+               if (d>maxd)
+                  maxd = d;
+               if (d<mind)
+                  mind = d;
+            }
+            double mean = sum_dist/double(moving_atom_positions.size());
+            double var  = sum_dist2/double(moving_atom_positions.size()); // no mean*mean
+            std::cout << "INFO:: " << moving_atom_positions.size() << " matched atoms had: \n"
+                      << "   mean devi: " << mean << "\n"
+                      << "    rms devi: " << sqrt(var) << "\n"
+                      << "    max devi: " << maxd << "\n"
+                      << "    min devi: " << mind << std::endl;
 
-	    mmdb::Atom *at;
-	    // We are going to delete the current atoms of the residue
-	    // and add the std_base ones.  First what *are* the atom
-	    // names we what to add or delete?
-	    // 
-	    std::vector<std::string> mol_base_atom_names;
-	    if (mol_base_name == "Ar" || mol_base_name == "Ad")
-	       mol_base_atom_names = adenine;
-	    if (mol_base_name == "Gr" || mol_base_name == "Gd")
-	       mol_base_atom_names = guanine;
-	    if (mol_base_name == "Cr" || mol_base_name == "Cd")
-	       mol_base_atom_names = cytosine;
-	    if (mol_base_name == "Tr" || mol_base_name == "Td")
-	       mol_base_atom_names = thymine;
-	    if (mol_base_name == "Ur" || mol_base_name == "Ud")
-	       mol_base_atom_names = uracil;
+            mmdb::Atom *at;
+            // We are going to delete the current atoms of the residue
+            // and add the std_base ones.  First what *are* the atom
+            // names we what to add or delete?
+            // 
+            std::vector<std::string> mol_base_atom_names;
+            if (mol_base_name == "Ar" || mol_base_name == "Ad")
+               mol_base_atom_names = adenine;
+            if (mol_base_name == "Gr" || mol_base_name == "Gd")
+               mol_base_atom_names = guanine;
+            if (mol_base_name == "Cr" || mol_base_name == "Cd")
+               mol_base_atom_names = cytosine;
+            if (mol_base_name == "Tr" || mol_base_name == "Td")
+               mol_base_atom_names = thymine;
+            if (mol_base_name == "Ur" || mol_base_name == "Ud")
+               mol_base_atom_names = uracil;
 
-	    // new names 
-	    if (mol_base_name == "A" || mol_base_name == "DA")
-	       mol_base_atom_names = adenine;
-	    if (mol_base_name == "G" || mol_base_name == "DG")
-	       mol_base_atom_names = guanine;
-	    if (mol_base_name == "C" || mol_base_name == "DC")
-	       mol_base_atom_names = cytosine;
-	    if (mol_base_name == "T" || mol_base_name == "DT")
-	       mol_base_atom_names = thymine;
-	    if (mol_base_name == "U" || mol_base_name == "DU")
-	       mol_base_atom_names = uracil;
+            // new names 
+            if (mol_base_name == "A" || mol_base_name == "DA")
+               mol_base_atom_names = adenine;
+            if (mol_base_name == "G" || mol_base_name == "DG")
+               mol_base_atom_names = guanine;
+            if (mol_base_name == "C" || mol_base_name == "DC")
+               mol_base_atom_names = cytosine;
+            if (mol_base_name == "T" || mol_base_name == "DT")
+               mol_base_atom_names = thymine;
+            if (mol_base_name == "U" || mol_base_name == "DU")
+               mol_base_atom_names = uracil;
 
-	    if (mol_base_atom_names.size() == 0) {
-	       std::cout << "ERROR:: muate_base(): ";
-	       std::cout << "failed to find mol_base_name for mol_base_atom_names\n";
-	    } else {
-	       
-	       std::vector<std::string> std_base_atom_names;
+            if (mol_base_atom_names.size() == 0) {
+               std::cout << "ERROR:: muate_base(): ";
+               std::cout << "failed to find mol_base_name for mol_base_atom_names\n";
+            } else {
+               
+               std::vector<std::string> std_base_atom_names;
 
-	       if (std_base_name == "Ar" || std_base_name == "Ad")
-		  std_base_atom_names = adenine;
-	       if (std_base_name == "Gr" || std_base_name == "Gd")
-		  std_base_atom_names = guanine;
-	       if (std_base_name == "Cr" || std_base_name == "Cd")
-		  std_base_atom_names = cytosine;
-	       if (std_base_name == "Tr" || std_base_name == "Td")
-		  std_base_atom_names = thymine;
-	       if (std_base_name == "Ur" || std_base_name == "Ud")
-		  std_base_atom_names = uracil;
+               if (std_base_name == "Ar" || std_base_name == "Ad")
+                  std_base_atom_names = adenine;
+               if (std_base_name == "Gr" || std_base_name == "Gd")
+                  std_base_atom_names = guanine;
+               if (std_base_name == "Cr" || std_base_name == "Cd")
+                  std_base_atom_names = cytosine;
+               if (std_base_name == "Tr" || std_base_name == "Td")
+                  std_base_atom_names = thymine;
+               if (std_base_name == "Ur" || std_base_name == "Ud")
+                  std_base_atom_names = uracil;
 
-	       // new names
-	       if (std_base_name == "A" || std_base_name == "DA")
-		  std_base_atom_names = adenine;
-	       if (std_base_name == "G" || std_base_name == "DG")
-		  std_base_atom_names = guanine;
-	       if (std_base_name == "C" || std_base_name == "DC")
-		  std_base_atom_names = cytosine;
-	       if (std_base_name == "T" || std_base_name == "DT")
-		  std_base_atom_names = thymine;
-	       if (std_base_name == "U" || std_base_name == "DU")
-		  std_base_atom_names = uracil;
+               // new names
+               if (std_base_name == "A" || std_base_name == "DA")
+                  std_base_atom_names = adenine;
+               if (std_base_name == "G" || std_base_name == "DG")
+                  std_base_atom_names = guanine;
+               if (std_base_name == "C" || std_base_name == "DC")
+                  std_base_atom_names = cytosine;
+               if (std_base_name == "T" || std_base_name == "DT")
+                  std_base_atom_names = thymine;
+               if (std_base_name == "U" || std_base_name == "DU")
+                  std_base_atom_names = uracil;
 
-	    
-	       if (std_base_atom_names.size() == 0) {
-		  std::cout << "ERROR:: muate_base(): ";
-		  std::cout << "failed to find std_base_name for std_base_atom_names\n";
-	       } else {
+            
+               if (std_base_atom_names.size() == 0) {
+                  std::cout << "ERROR:: muate_base(): ";
+                  std::cout << "failed to find std_base_name for std_base_atom_names\n";
+               } else {
 
-		  // now find the atoms of the given residue and apply
-		  // the transformation and add them to the residue;
-		  
-		  bool have_deleted = 0;
-		  bool need_a_ter = 0;
-		  for (unsigned int iat=0; iat<mol_base_atom_names.size(); iat++) {
-		     for (int i=0; i<n_mol_base_atoms; i++) {
-			if (mol_base_atoms[i]) { 
-			
-			   if (mol_base_atom_names[iat] == mol_base_atoms[i]->name) {
+                  // now find the atoms of the given residue and apply
+                  // the transformation and add them to the residue;
+                  
+                  bool have_deleted = 0;
+                  bool need_a_ter = 0;
+                  for (unsigned int iat=0; iat<mol_base_atom_names.size(); iat++) {
+                     for (int i=0; i<n_mol_base_atoms; i++) {
+                        if (mol_base_atoms[i]) { 
+                        
+                           if (mol_base_atom_names[iat] == mol_base_atoms[i]->name) {
 
-			      if (debug)
-				 std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
-					   << " i = " << i << std::endl;
-			      
-			      residue->DeleteAtom(i);
-			      mol_base_atoms[i] = NULL;
-			      have_deleted = 1;
-			      break;
-			   }
-			}
-		     }
-		  }
- 		  if (have_deleted)
- 		     residue->TrimAtomTable();
-
-
-		  mmdb::PPAtom residue_atoms = 0;
-		  int n_residue_atoms;
-		  residue->GetAtomTable(residue_atoms, n_residue_atoms);
-		  have_deleted = 0; // reset for Ter tests.
-
-		  for (int i=0; i<n_residue_atoms; i++) { 
-		     if (residue_atoms[i]->isTer()) {
-			if (debug)
-			   std::cout << "..... atom " << i << " is a Ter" << std::endl;
-			residue->DeleteAtom(i);
-			need_a_ter = 1;
-			have_deleted = 1;
-		     }
-		  }
- 		  if (have_deleted)
- 		     residue->TrimAtomTable();
-		  
-		  for (unsigned int iat=0; iat<std_base_atom_names.size(); iat++) {
-		     bool found = 0;
-		     for (int i=0; i<n_std_base_atoms; i++) {
-			if (std_base_atom_names[iat] == std_base_atoms[i]->name) {
-			   clipper::Coord_orth p(std_base_atoms[i]->x,
-						 std_base_atoms[i]->y,
-						 std_base_atoms[i]->z);
-			   clipper::Coord_orth pt = p.transform(rtop);
-			   std::string ele = std_base_atom_names[iat].substr(0,2);
-			   at = new mmdb::Atom;
-			   if (debug)
-			      std::cout << ".... Adding Atom " << std_base_atoms[i]->name
-					<< std::endl;
-			   at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, b_factor);
-			   std::string new_atom_name = std_base_atoms[i]->name;
-			   if (std_base_name == "Td")
-			      if (new_atom_name == " C5M")
-				 if (! use_old_style_naming)
-				    new_atom_name = " C7 ";
-			   at->SetAtomName(new_atom_name.c_str());
-			   at->SetElementName(ele.c_str());
-			   std::string new_alt_conf("");
-			   // force it down the atom's throat :) [is there a better way?]
-			   strncpy(at->altLoc, new_alt_conf.c_str(), 2);
-			   residue->AddAtom(at);
-			   if (use_old_seg_id)
-			      strcpy(at->segID, old_seg_id_for_residue_atoms.c_str());
-			   found = 1;
-			   break;
-			}
-		     }
-		     if (! found) {
-			// std::cout << "... failed to find std_base_atom  "
-			// << std_base_atom_names[iat] << std::endl;
-		     } 
-		  }
-	    
-
- 		  std::string new_base_name =
- 		     coot::util::convert_base_name(std_base_name, use_old_style_naming);
-		  residue->SetResName(new_base_name.c_str());
-		  residue->TrimAtomTable();
+                              if (debug)
+                                 std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
+                                           << " i = " << i << std::endl;
+                              
+                              residue->DeleteAtom(i);
+                              mol_base_atoms[i] = NULL;
+                              have_deleted = 1;
+                              break;
+                           }
+                        }
+                     }
+                  }
+                   if (have_deleted)
+                      residue->TrimAtomTable();
 
 
-		  if (need_a_ter) {
-		     mmdb::Atom *at = new mmdb::Atom;
-		     at->MakeTer();
-		     residue->TrimAtomTable();
-		  }
-	       }
-	    }
-	 }
+                  mmdb::PPAtom residue_atoms = 0;
+                  int n_residue_atoms;
+                  residue->GetAtomTable(residue_atoms, n_residue_atoms);
+                  have_deleted = 0; // reset for Ter tests.
+
+                  for (int i=0; i<n_residue_atoms; i++) { 
+                     if (residue_atoms[i]->isTer()) {
+                        if (debug)
+                           std::cout << "..... atom " << i << " is a Ter" << std::endl;
+                        residue->DeleteAtom(i);
+                        need_a_ter = 1;
+                        have_deleted = 1;
+                     }
+                  }
+                   if (have_deleted)
+                      residue->TrimAtomTable();
+                  
+                  for (unsigned int iat=0; iat<std_base_atom_names.size(); iat++) {
+                     bool found = 0;
+                     for (int i=0; i<n_std_base_atoms; i++) {
+                        if (std_base_atom_names[iat] == std_base_atoms[i]->name) {
+                           clipper::Coord_orth p(std_base_atoms[i]->x,
+                                                 std_base_atoms[i]->y,
+                                                 std_base_atoms[i]->z);
+                           clipper::Coord_orth pt = p.transform(rtop);
+                           std::string ele = std_base_atom_names[iat].substr(0,2);
+                           at = new mmdb::Atom;
+                           if (debug)
+                              std::cout << ".... Adding Atom " << std_base_atoms[i]->name
+                                        << std::endl;
+                           at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, b_factor);
+                           std::string new_atom_name = std_base_atoms[i]->name;
+                           if (std_base_name == "Td")
+                              if (new_atom_name == " C5M")
+                                 if (! use_old_style_naming)
+                                    new_atom_name = " C7 ";
+                           at->SetAtomName(new_atom_name.c_str());
+                           at->SetElementName(ele.c_str());
+                           std::string new_alt_conf("");
+                           // force it down the atom's throat :) [is there a better way?]
+                           strncpy(at->altLoc, new_alt_conf.c_str(), 2);
+                           residue->AddAtom(at);
+                           if (use_old_seg_id)
+                              strcpy(at->segID, old_seg_id_for_residue_atoms.c_str());
+                           found = 1;
+                           break;
+                        }
+                     }
+                     if (! found) {
+                        // std::cout << "... failed to find std_base_atom  "
+                        // << std_base_atom_names[iat] << std::endl;
+                     } 
+                  }
+            
+
+                   std::string new_base_name =
+                      coot::util::convert_base_name(std_base_name, use_old_style_naming);
+                  residue->SetResName(new_base_name.c_str());
+                  residue->TrimAtomTable();
+
+
+                  if (need_a_ter) {
+                     mmdb::Atom *at = new mmdb::Atom;
+                     at->MakeTer();
+                     residue->TrimAtomTable();
+                  }
+               }
+            }
+         }
       }
    }
 }
@@ -601,23 +601,23 @@ coot::util::convert_base_name(const std::string &std_base_name, bool use_old_sty
       return std_base_name;
    } else {
       if (std_base_name == "Cd")
-	 return "DC";
+         return "DC";
       if (std_base_name == "Ad")
-	 return "DA";
+         return "DA";
       if (std_base_name == "Gd")
-	 return "DG";
+         return "DG";
       if (std_base_name == "Td")
-	 return "DT";
+         return "DT";
       if (std_base_name == "Cr")
-	 return "C";
+         return "C";
       if (std_base_name == "Ar")
-	 return "A";
+         return "A";
       if (std_base_name == "Gr")
-	 return "G";
+         return "G";
       if (std_base_name == "Ur")
-	 return "U";
+         return "U";
       if (std_base_name == "Tr")
-	 return "T";
+         return "T";
    }
 
    return std_base_name;
