@@ -274,7 +274,7 @@ public:
    graphical_bonds_points_list() {
       current_count = 0;
       num_points = 0;
-      points = NULL;
+      points = 0;
    }
 
    graphical_bonds_points_list(unsigned int size) {

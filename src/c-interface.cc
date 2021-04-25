@@ -4412,7 +4412,7 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
    short int got_cell_symm_flag = 0;
    int imol = -1;// set bad molecule initally
    
-   graphics_info_t g; 
+   graphics_info_t g;
 //       std::cout << "DEBUG:: read_phs_and_make_map_using_cell_symm_from_mol "
 // 		<< g.molecules[imol_ref].atom_sel.mol->get_cell().a << "  " 
 // 		<< g.molecules[imol_ref].atom_sel.mol->get_cell().b << "  " 
@@ -8554,10 +8554,6 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
    if ((int(graphics_info_t::views.size()) > view_number) && (view_number >= 0)) {
       coot::view_info_t view = graphics_info_t::views[view_number];
       if (view.is_simple_spin_view_flag) {
-	 int nsteps = 2000;
-         nsteps = 500;
-	 if (graphics_info_t::views_play_speed > 0.000000001)
-	    nsteps = int(static_cast<float>(nsteps)/graphics_info_t::views_play_speed);
 	 float play_speed = 1.0; 
 	 if (graphics_info_t::views_play_speed > 0.0)
 	    play_speed = graphics_info_t::views_play_speed;

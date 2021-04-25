@@ -885,9 +885,11 @@ graphics_info_t::debug_refinement() {
 
 
    if (do_tabulate_geometric_distortions_flag) {
-      get_restraints_lock(__FUNCTION__);
-      tabulate_geometric_distortions(*last_restraints);
-      release_restraints_lock(__FUNCTION__);
+      if (last_restraints) {
+         get_restraints_lock(__FUNCTION__);
+         tabulate_geometric_distortions(*last_restraints);
+         release_restraints_lock(__FUNCTION__);
+      }
    }
 }
 
