@@ -683,15 +683,17 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
          clipper::Coord_orth pav_1 = p11;
          clipper::Coord_orth pav_2 = p12;
          clipper::Coord_orth pav_3 = p13;
-         mmdb::realtype bf = at_3->tempFactor;
-         mmdb::Atom *at_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
-         mmdb::Atom *at_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
-         mmdb::Atom *at_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
-         std::vector<mmdb::Atom *> h_atoms(3);
-         h_atoms[0] = at_0;
-         h_atoms[1] = at_1;
-         h_atoms[2] = at_2;
-         spinables.add(at_3, atom_with_attached_Hs::METHYL, h_atoms);
+         if (at_3) {
+            mmdb::realtype bf = at_3->tempFactor;
+            mmdb::Atom *at_H_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
+            mmdb::Atom *at_H_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
+            mmdb::Atom *at_H_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
+            std::vector<mmdb::Atom *> h_atoms(3);
+            h_atoms[0] = at_H_0;
+            h_atoms[1] = at_H_1;
+            h_atoms[2] = at_H_2;
+            spinables.add(at_3, atom_with_attached_Hs::METHYL, h_atoms);
+         }
       }
    }
 }

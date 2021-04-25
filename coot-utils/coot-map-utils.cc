@@ -3934,8 +3934,7 @@ coot::util::map_molecule_centre(const clipper::Xmap<float> &xmap) {
    float best_score = 0.0;
 
    for(unsigned int i=0; i<centres.size(); i++) {
-      map_molecule_centre_info_t r =
-         map_molecule_recentre_from_position(xmap, centres[i]);
+      map_molecule_centre_info_t r = map_molecule_recentre_from_position(xmap, centres[i]);
       if (r.success) {
          if (false)
             std::cout << "Starting at " << centres[i].format() << " gives score "
@@ -3967,15 +3966,12 @@ coot::util::map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap
 
    map_molecule_centre_info_t mmci;
    clipper::Coord_orth current_centre = initial_centre;
-   pentakis_dodec d;
+   pentakis_dodec pdodec;
    double normalizer = 1.0/sqrt(3.0);
    std::vector<clipper::Coord_orth> directions;
-   double aa = xmap.cell().descr().a();
-   double bb = xmap.cell().descr().b();
-   double cc = xmap.cell().descr().c();
-   directions = d.d.coords(); // 20 vertices
-   for (unsigned int i=0; i<d.pyrimid_vertices.size(); i++)
-      directions.push_back(clipper::Coord_orth(d.pyrimid_vertices[i] * normalizer));
+   directions = pdodec.d.coords(); // 20 vertices
+   for (unsigned int i=0; i<pdodec.pyrimid_vertices.size(); i++)
+      directions.push_back(clipper::Coord_orth(pdodec.pyrimid_vertices[i] * normalizer));
 
    if (false) {
       for (unsigned int i=0; i<directions.size(); i++) {
