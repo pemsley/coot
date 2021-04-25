@@ -97,7 +97,7 @@ coot::side_chain_densities::like_the_others(const std::map<int, std::string> &ch
          n = other_chains.size();
       unsigned int n_match = 0;
       std::map<int, std::string>::const_iterator it;
-      for (it=chain.begin(); it!=chain.end(); it++) {
+      for (it=chain.begin(); it!=chain.end(); ++it) {
          const int &key = it->first;
          const std::string &val = it->second;
 
@@ -172,7 +172,7 @@ coot::side_chain_densities::fill_useable_grid_points_vector(const std::string &f
       if (f) {
          std::string line;
          while (std::getline(f, line)) {
-            std::vector<std::string> words = coot::util::split_string_no_blanks(line);
+            std::vector<std::string> words = util::split_string_no_blanks(line);
             if (words.size() == 1) {
                int idx = util::string_to_int(words[0]);
                useable_grid_points.insert(idx);
@@ -204,7 +204,6 @@ coot::side_chain_densities::is_close_to_atoms(const std::vector<std::pair<double
 }
 
 std::string coot::side_chain_densities::get_rotamer_name(mmdb::Residue *res) const {
-   std::string res_name = res->GetResName();
    std::string alt_conf;
    mmdb::Manager *mol = 0;
    richardson_rotamer rr(res, alt_conf, mol, 0.0, 1);
@@ -269,12 +268,12 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
                         std::map<std::string, double>::const_iterator it;
                         double best_score = -999999999999999.9;
                         std::string best_type;
-                        for (it=likelihood_map.begin(); it!=likelihood_map.end(); it++) {
-                           const std::string &res_name = it->first;
+                        for (it=likelihood_map.begin(); it!=likelihood_map.end(); ++it) {
+                           const std::string &res_name_this = it->first;
                            const double &score = it->second;
                            if (score > best_score) {
                               best_score = score;
-                              best_type = res_name;
+                              best_type = res_name_this;
                            }
                         }
                         std::pair<mmdb::Residue *, std::string> p(residue_p, best_type);
@@ -373,50 +372,46 @@ coot::side_chain_densities::make_a_run_of_residues(mmdb::Manager *mol, const std
    }
    return a_run_of_residues;
 }
-void
-coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
-                                          const std::string &chain_id, int resno_start, int resno_end,
-                                          const clipper::Xmap<float> &xmap,
-                                          const std::string &sequence_name, // from fasta file
-                                          const std::string &sequence) {
-   std::vector<results_t> results;
-   std::string gene_name = sequence_name;
-   std::vector<std::string> parts = util::split_string_no_blanks(gene_name);
-   if (parts.size() > 0) gene_name = parts[0];
+
+
+std::vector<mmdb::Residue *>
+coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
+                                                const std::string &chain_id, int resno_start, int resno_end,
+                                                const clipper::Xmap<float> &xmap) {
 
    // What is the probability of each rotamer at each residue?
 
    std::vector<mmdb::Residue *> a_run_of_residues = make_a_run_of_residues(mol, chain_id, resno_start, resno_end);
 
-   std::cout << "debug:: in test_sequence() with " << a_run_of_residues.size()
-             << " residues in a_run_of_residues" << std::endl;
+   if (! a_run_of_residues.empty())
+      fill_residue_blocks(a_run_of_residues, xmap); // return fast if already filled
+
+   return a_run_of_residues;
+}
+
+void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
+                                               const clipper::Xmap<float> &xmap,
+                                               const std::string &sequence_name,
+                                               const std::string &sequence) {
+
+   std::vector<results_t> results;
+   std::string gene_name = sequence_name;
+   std::vector<std::string> parts = util::split_string_no_blanks(gene_name);
+   if (parts.size() > 0) gene_name = parts[0];
 
    if (! a_run_of_residues.empty()) {
-      fill_residue_blocks(a_run_of_residues, xmap); // return fast if already filled, uses atomic locking.
       int n_residues = a_run_of_residues.size();
       std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > scored_residues(n_residues);
       for (int i=0; i<n_residues; i++) {
          mmdb::Residue *residue_p = a_run_of_residues[i];
          std::map<std::string, double> likelihood_map =
-            likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
+            likelihood_of_each_rotamer_at_this_residue(residue_p, xmap); // why is xmap needed here?
+                                                                         // residues block should be filled
+                                                                         // in setup_test_sequence().
+                                                                         // Remove arg xmap from compare_block_vs_rotamer()
+                                                                         // and fixup other functions to match
          std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
-
-         if (false) { // debugging
-            std::cout << "debug:: transfer to scored_residues " << i<< " " << residue_spec_t(residue_p) << " "
-                      << residue_p->GetResName() << " " << " with score map: ---" << std::endl;
-            std::map<std::string, double>::const_iterator it_debug;
-            for (it_debug=likelihood_map.begin();
-                 it_debug!=likelihood_map.end();
-                 it_debug++) {
-               std::cout << "   " << it_debug->first << " " << it_debug->second
-                         << std::endl;
-            }
-            std::cout << "-----" << std::endl;
-         }
-
          scored_residues[i] = p;
-         // std::cout << "debug:: scored_residues - storing map of size " << p.second.size() << " for residue vector index "
-         // << i << " " << residue_spec_t(p.first) << std::endl;
       }
 
       std::string true_sequence;
@@ -428,7 +423,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
       }
 
       // slide
-      std::cout << "----------------- slide ------------ " << std::endl;
+      // std::cout << "----------------- slide ------------ " << std::endl;
 
       int sequence_length = sequence.length();
       int offset_max = sequence.length() - n_residues;
@@ -446,7 +441,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
                   std::map<std::string, double>::const_iterator it_debug;
                   for (it_debug=scored_map.begin();
                        it_debug!=scored_map.end();
-                       it_debug++) {
+                       ++it_debug) {
                      std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
                   }
                   std::cout << "\nDone map: " << std::endl;
@@ -474,7 +469,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
                         std::cout << "This was the map: POINT B, it has size " << scored_map.size() << std::endl;
                         for (it_debug=scored_map.begin();
                              it_debug!=scored_map.end();
-                             it_debug++) {
+                             ++it_debug) {
                            std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
                         }
                         std::cout << "\nDone map: " << std::endl;
@@ -490,10 +485,11 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
             results_t result(offset, sum_score, n_scored_residues, running_sequence, sequence_name,
                              true_sequence);
             results.push_back(result);
-            std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(8) << sum_score
-                      << " n_scored_residues " << n_scored_residues << " " << running_sequence
-                      << " gene-name " << gene_name
-                      << " true-sequence " << true_sequence << std::endl;
+            if (false)
+               std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(8) << sum_score
+                         << " n_scored_residues " << n_scored_residues << " " << running_sequence
+                         << " gene-name " << gene_name
+                         << " true-sequence " << true_sequence << std::endl;
          }
       }
    }
@@ -1241,7 +1237,9 @@ void
 coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
                                                 const clipper::Xmap<float> &xmap) {
 
-   get_results_addition_lock(); // all wait, except the first one
+   // call this function only once when multithreaded. We need only fill the residue blocks once.
+   // I mean, don't wrap this function with multi-threads.
+
    if (density_block_map_cache.size() > 0) {
       return; // already done
    } else {
@@ -1262,7 +1260,6 @@ coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue 
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       std::cout << "TIMINGS:: fill_residue_blocks() " << d10 << " milliseconds" << std::endl;
    }
-   release_results_addition_lock();
 
 }
 
@@ -1274,7 +1271,7 @@ coot::side_chain_densities::normalize_density_blocks() {
    double sum = 0;
 
    stats::single s_all;
-   for(it=density_block_map_cache.begin(); it!=density_block_map_cache.end(); it++) {
+   for(it=density_block_map_cache.begin(); it!=density_block_map_cache.end(); ++it) {
       const density_box_t &block = it->second;
       if (! block.empty()) {
          int nnn = block.nnn();
@@ -1363,6 +1360,10 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
       return bs;
    }
 
+   std::map<mmdb::Residue *, std::map<std::string, double> >::const_iterator itc = best_score_for_res_type_cache.find(residue_p);
+   if (itc != best_score_for_res_type_cache.end())
+      return itc->second;
+
    // are axes needed?
    std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
       get_residue_axes(residue_p);
@@ -1421,7 +1422,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
             // find the max value so that I can mark it and close others for screen output
             double best_score = -999999999999999.9;
             std::map<std::string, double>::const_iterator it;
-            for (it=probability_map.begin(); it!=probability_map.end(); it++) {
+            for (it=probability_map.begin(); it!=probability_map.end(); ++it) {
                if (it->second > best_score) {
                   best_score = it->second;
                }
@@ -1429,23 +1430,22 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 
             std::map<std::string, double> best_score_for_res_type;
             // std::cout << "here with probability_map size " << probability_map.size() << std::endl;
-            for (it=probability_map.begin(); it!=probability_map.end(); it++) {
+            for (it=probability_map.begin(); it!=probability_map.end(); ++it) {
                const std::string &key = it->first; // resname:rot_name
                // std::cout << "key: " << key << std::endl;
-               std::string m;
                std::pair<std::string, std::string> rrp = map_key_to_residue_and_rotamer_names(key);
-               const std::string &res_name = rrp.first;
-               const std::string &rot_name = rrp.second;
+               const std::string &res_name_l = rrp.first;
+               // const std::string &rot_name = rrp.second;
                const double &score = it->second;
-               if (best_score_for_res_type.find(res_name) == best_score_for_res_type.end()) {
-                  best_score_for_res_type[res_name] = score;
+               if (best_score_for_res_type.find(res_name_l) == best_score_for_res_type.end()) {
+                  best_score_for_res_type[res_name_l] = score;
                   if (false)
                      std::cout << "DEBUG:: first  score for res-type " << std::setw(10) << std::left << key << " "
                                << std::fixed << std::right << std::setw(7) << std::setprecision(2)
                                << score << std::endl;
                } else {
-                  if (score > best_score_for_res_type[res_name]) {
-                     best_score_for_res_type[res_name] = score;
+                  if (score > best_score_for_res_type[res_name_l]) {
+                     best_score_for_res_type[res_name_l] = score;
                      if (false)
                         std::cout << "DEBUG:: better score for res-type " << std::setw(10) << std::left << key << " "
                                   << std::fixed << std::right << std::setw(7) << std::setprecision(2)
@@ -1456,7 +1456,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
             bs = best_score_for_res_type;
 
             if (verbose_output_mode) {
-               for (it=best_score_for_res_type.begin(); it!=best_score_for_res_type.end(); it++) {
+               for (it=best_score_for_res_type.begin(); it!=best_score_for_res_type.end(); ++it) {
                   const std::string &res_type = it->first;
                   const double &score = it->second;
                   std::string m;
@@ -1477,6 +1477,9 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
       }
    }
 
+   get_results_addition_lock();
+   best_score_for_res_type_cache[residue_p] = bs;
+   release_results_addition_lock();
    return bs;
 }
 
@@ -1771,7 +1774,7 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
       success = true;
       const std::map<unsigned int, std::tuple<double, double, double> > &stats_map = it->second;
       std::map<unsigned int, std::tuple<double, double, double> >::const_iterator it_inner;
-      for (it_inner=stats_map.begin(); it_inner!=stats_map.end(); it_inner++) {
+      for (it_inner=stats_map.begin(); it_inner!=stats_map.end(); ++it_inner) {
          const unsigned int &grid_idx = it_inner->first;
          const std::tuple<double, double, double> &m_v_s = it_inner->second;
          const double &mean = std::get<0>(m_v_s);

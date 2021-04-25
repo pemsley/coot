@@ -1,4 +1,4 @@
-/* coot-utils/residue-and-atom-specs.hh
+/* ligand/test-side-chain-densities.cc
  * 
  * Author: Paul Emsley
  * 

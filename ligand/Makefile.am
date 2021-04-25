@@ -116,7 +116,7 @@ test_tube_finder_LDADD = ./libcoot-ligand.la          \
 if OS_WIN32
 bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
 else
-libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db identify-protein-bin
 endif
 
 test_trace_SOURCES = test-trace.cc
@@ -145,6 +145,14 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la
+
+identify_protein_bin_SOURCES = identify-protein.cc
+
+identify_protein_bin_LDADD = ./libcoot-ligand.la          \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la            \
+        $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
@@ -290,7 +298,7 @@ findwaters_bin_LDADD = \
 
 # testori_SOURCES = testori.cc
 
-dist_bin_SCRIPTS = findwaters findligand
+dist_bin_SCRIPTS = findwaters findligand coot-identify-protein
 
 #testdunbrack_SOURCES = testdunbrack.cc
 

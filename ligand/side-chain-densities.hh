@@ -179,6 +179,9 @@ namespace coot {
       void normalize_density_blocks();
       // use the above cache
       density_box_t get_block(mmdb::Residue *residue_p) const;
+      // and the cache of likelihoods for the best rotamer of each residue type at each position:
+      // this gets added to using the results lock
+      std::map<mmdb::Residue *, std::map<std::string, double> > best_score_for_res_type_cache;
 
       std::map<int, std::string> make_sequence_for_chain(mmdb::Chain *chain_p) const;
 
@@ -329,7 +332,12 @@ namespace coot {
 
       void check_useable_grid_points(mmdb::Residue *residue_p,
 				     const std::string &useable_grid_points_mapped_to_residue_file_name) const;
-      void test_sequence(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end,
+
+      std::vector<mmdb::Residue *>
+      setup_test_sequence(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end,
+                               const clipper::Xmap<float> &xmap);
+
+      void test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
 			 const clipper::Xmap<float> &xmap,
                          const std::string &sequence_name,    // from fasta file
                          const std::string &sequence);
