@@ -29,9 +29,6 @@
 #include <sys/time.h>
 #endif // ANALYSE_REFINEMENT_TIMING
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 
 #include <fstream>
 #include <algorithm> // for sort
@@ -8132,4 +8129,3 @@ coot::refinement_results_t::hooray() const {
 
    return std::pair<bool, std::string> (status, message);
 }
-#endif // HAVE_GSL
