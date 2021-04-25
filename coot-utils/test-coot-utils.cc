@@ -1423,11 +1423,9 @@ test_correlation_of_residue_runs(int argc, char **argv) {
          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> residue_stats =
             coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, "A", xmap,
                                                                        n_residue_per_residue_range);
+         std::cout << "INFO:: We got " << residue_stats.size() << " residue correlations" << std::endl;
 
          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
-
-         std::cout << "We got " << residue_stats.size() << " residue correlations" << std::endl;
-
          for (it=residue_stats.begin(); it!=residue_stats.end(); ++it) {
             const coot::residue_spec_t &rs(it->first);
             const coot::util::density_correlation_stats_info_t &stats(it->second);

@@ -53,7 +53,7 @@ coot::make_fragments(mmdb::Manager *mol) {
                   if (residue_start != residue_prev) {
                      fragment_container_t::fragment_range_t fr(chain_id, residue_spec_t(residue_start), residue_spec_t(residue_prev));
                      fr.residues = residues_running;
-                     std::cout << "transferring  residues running of size " << residues_running.size() << std::endl;
+                     // std::cout << "transferring residues running of size " << residues_running.size() << std::endl;
                      fc.add(fr);
                   }
                }

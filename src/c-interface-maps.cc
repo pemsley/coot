@@ -1264,34 +1264,6 @@ void check_for_dark_blue_density() {
    }
 }
 
-int
-handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
-
-   int istate = -1;
-   if (true) {
-      graphics_info_t g;
-      int imol_new = graphics_info_t::create_molecule();
-
-      istate = g.molecules[imol_new].read_ccp4_map(filename, is_diff_map_flag,
-						   *graphics_info_t::map_glob_extensions);
-
-      if (istate > -1) { // not a failure
-	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
-	 g.activate_scroll_radio_button_in_display_manager(imol_new);
-      } else {
-	 g.erase_last_molecule();
-	 std::cout << "Read map " << filename << " failed" << std::endl;
-	 std::string s = "Read map ";
-	 s += filename;
-	 s += " failed.";
-	 g.add_status_bar_text(s);
-      }
-      graphics_draw();
-   }
-   return istate;
-}
-
-
 #include "utils/coot-utils.hh"
 
 int handle_read_emdb_data(const std::string &dir_name) {

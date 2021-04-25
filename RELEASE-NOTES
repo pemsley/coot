@@ -6,6 +6,11 @@
 
   o FEATURE: -P mode added to pyrogen (no coordinates optimization)
 
+  o FEATURE: New program coot-identify-protein, identifies a protein from a poly-ALA
+             fragment and a set of sequences
+
+  o FEATURE: model_correlation_stats_per_residue_range() added to the API
+
   o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
 
   o CHANGE:  post-refinement restraints analysis added
@@ -18,8 +23,8 @@
 
   o CHANGE:  turn off EM-mode for PANDDA maps (Frank von Delft)
 
-  o CHANGE:  Residues with missing atoms no longer considers OP3. Also missing
-             atom names are written to the terminal (Lothar Essar)
+  o CHANGE:  "Residues with missing atoms" function no longer considers OP3. Additionally,
+             missing atom names are written to the terminal (Lothar Essar)
 
   o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
 
@@ -29,7 +34,7 @@
 
   o BUG-FIX: Better crash-catcher diagnostics (thanks Kevin Cowtan)
 
-  o BUG-FIX: chiral restraints improved in pyrogen (Rob Nicholls)
+  o BUG-FIX: Chiral restraints improved in pyrogen (Rob Nicholls)
 
   o BUG-FIX: add-hydrogen-atoms no longer adds a hydrogen atom to an CYS SG if
              it is linked

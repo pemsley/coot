@@ -364,6 +364,7 @@ coot_bin_SOURCES = \
 	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
+	cc-interface-map-utils.cc \
 	cc-interface-scripting.hh\
 	cc-interface-image.hh    \
 	cc-interface-png.cc      \

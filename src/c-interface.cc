@@ -8593,7 +8593,6 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 /*! \brief return the number of views */
 int n_views() {
 
-
    if (true) {
       std::cout << "debug in n_views(): with n_views " <<  graphics_info_t::views.size() << std::endl;
       unsigned int nv =  graphics_info_t::views.size();

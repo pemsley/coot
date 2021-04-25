@@ -307,6 +307,9 @@ PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
 
 /*! \brief read a CCP4 map or a CNS map (despite the name). */
+int read_ccp4_map(const std::string &filename, int is_diff_map_flag);
+
+/*! \brief same function as above - old name for the function. Deleted from the API at some stage */
 int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
 int handle_read_emdb_data(const std::string &dir_name);
@@ -1599,6 +1602,13 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 				      PyObject *neighb_residue_specs,
 				      unsigned short int atom_mask_mode,
 				      int imol_map);
+
+PyObject *
+map_to_model_correlation_stats_per_residue_range_py(int imol,
+                                                    const std::string &chain_id,
+                                                    int imol_map,
+                                                    unsigned int n_residue_per_residue_range);
+
 #endif
 
 //! \brief atom-mask-mode is as follows:
@@ -1656,6 +1666,13 @@ map_to_model_correlation_stats_per_residue(int imol,
 					   unsigned short int atom_mask_mode,
 					   float atom_radius_for_masking,
 					   int imol_map);
+
+//! \brief map to model density statistics, reported per residue, the middle residue
+//!        of a range of residues
+std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>
+map_to_model_correlation_stats_per_residue_range(int imol, const std::string &chain_id, int imol_map,
+                                                 unsigned int n_residue_per_residue_range);
+
 #endif // not for swigging.
 
 #ifdef USE_GUILE

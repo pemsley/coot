@@ -1172,7 +1172,10 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
             for (unsigned int idx=0; idx<n_sequences; idx++) {
                std::string sequence = fam[idx].sequence;
                const std::string &name = fam[idx].name;
-               scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
+               std::vector<mmdb::Residue *> a_run_of_residues =
+                  scd.setup_test_sequence(mol, chain_id, resno_start, resno_end, xmap);
+               // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
+               scd.test_sequence(a_run_of_residues, xmap, name, sequence);
             }
             coot::side_chain_densities::results_t new_sequence_result = scd.get_result();
             std::string new_sequence = new_sequence_result.sequence;
