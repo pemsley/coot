@@ -1817,7 +1817,7 @@ coot::protein_geometry::make_tight_planar_peptide_restraint() {
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
       if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
-	 std::vector<coot::dict_link_plane_restraint_t>::iterator it;
+	 std::vector<dict_link_plane_restraint_t>::iterator it;
 	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
 	    if (it->plane_id == plane_id) {

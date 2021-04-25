@@ -71,6 +71,21 @@ coot::dict_bond_restraint_t::mmdb_bond_type() const {
    return bt;
 }
 
+bool
+coot::dictionary_residue_restraints_t::is_bond_to_hydrogen_atom(const coot::dict_bond_restraint_t &br) const {
+   bool is_H = false;
+   std::string ele_1 = element(br.atom_id_1_4c());
+   std::string ele_2 = element(br.atom_id_2_4c());
+   if (ele_1 == " H") {
+      is_H = true;
+   } else {
+      if (ele_2 == " H") {
+         is_H = true;
+      }
+   }
+   return is_H;
+}
+
 // constructor.  Caller should make sure that there are no bonds
 // before constructing this (mol->RemoveBonds());
 //

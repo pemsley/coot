@@ -225,6 +225,7 @@ namespace coot {
       dict_bond_restraint_t() {} // boost::python needs this
 
       std::string type() const { return type_; }
+      bool is_bond_to_hydrogen_atom() const;
       int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage
       // can throw a std::runtime_error exception (if target values not set)
       double value_dist() const {
@@ -687,7 +688,8 @@ namespace coot {
       };
       void init(mmdb::Residue *r);
       bool has_partial_charges_flag;
-      bool nuclear_distances_flag;
+      bool nuclear_distances_flag; // oops. I didn't know that bond_length_type_t NUCLEAR_POSITION was a thing.
+                                   // this needs to be consolidated.
       bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders
 					// (at the moment) and atom
@@ -799,12 +801,14 @@ namespace coot {
 
       // look up the atom id in the atom_info (dict_atom vector).
       // Return "" on no atom found with name atom_name;
-      // 
+      //
       std::string element(const std::string &atom_name) const;
+
+      bool is_bond_to_hydrogen_atom(const dict_bond_restraint_t &br) const;
 
       // likewise look up the energy type.  Return "" on no atom found
       // with that atom_name.
-      // 
+      //
       std::string type_energy(const std::string &atom_name) const;
 
       std::vector<std::vector<std::string> > get_ligand_ring_list() const;
