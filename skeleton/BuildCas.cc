@@ -856,7 +856,12 @@ BuildCas::peak_search_distance_theta_2(const TreeNode *node) //trial_centre_poin
 
    // return this:
    score_and_cart score_and_cartesian; 
-   score_and_cartesian.score = 0; 
+   score_and_cartesian.score = 0;
+
+   // protection
+   if (! node) return score_and_cartesian;
+   if (! node->parent) return score_and_cartesian;
+   if (! node->parent->parent) return score_and_cartesian;
 
    // recover the old variables:
    coot::Cartesian point =                      node->pos; 
@@ -867,8 +872,8 @@ BuildCas::peak_search_distance_theta_2(const TreeNode *node) //trial_centre_poin
    // 
    coot::Cartesian previous_atom = ith_plus_one_point; 
 
-   float grid_size = 0.75; 
-   float grid_step = 0.25; 
+   float grid_size = 0.75;
+   float grid_step = 0.25;
 
    // we only need to calculate prebuilt_exclusion_score for the centre point
    // 
@@ -2543,7 +2548,6 @@ BuildCas::ca_grow_recursive() {
 
 
    TreeNode *previous_node = &first_node; 
-   TreeNode *current_node; 
 
    for (int ires=2; ires<=40; ires++) {
 
@@ -2573,13 +2577,11 @@ BuildCas::ca_grow_recursive() {
 
 	 build[i_current_build][ires] = score_and_cartesian;
       
-	 current_node = new TreeNode; 
+	 TreeNode *current_node = new TreeNode; // where does this get deleted?
 	 current_node->setup(previous_node, score_and_cartesian); 
 
 	 // and now for next round:
 	 previous_node = current_node; 
-	 
-	 
       }
    }
 }
