@@ -4494,7 +4494,7 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
       }
 
       if (got_cell_symm_flag) {
-	 std::string phs_filename(graphics_get_phs_filename()); 
+	 std::string phs_filename(g.get_phs_filename());
 
 	 imol = g.create_molecule();
 	 g.molecules[imol].make_map_from_phs(spacegroup, cell, phs_filename);
@@ -4537,13 +4537,6 @@ graphics_store_phs_filename(const gchar *phs_filename) {
    g.set_phs_filename(std::string(phs_filename));
 }
 
-
-const char *
-graphics_get_phs_filename() {
-
-   graphics_info_t g;
-   return g.get_phs_filename().c_str(); 
-}
 
 short int possible_cell_symm_for_phs_file() {
 

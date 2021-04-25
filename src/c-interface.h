@@ -2687,8 +2687,6 @@ given "x,y,z ; -x,y+1/2,-z" */
 void
 graphics_store_phs_filename(const gchar *phs_filename);
 
-const char* graphics_get_phs_filename();
-
 short int possible_cell_symm_for_phs_file();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
