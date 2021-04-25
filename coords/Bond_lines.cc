@@ -3863,7 +3863,6 @@ void Bond_lines_container::check_static() const {
 
    std::cout << "check: num_colours:"     << pot.num_colours << std::endl;
    std::cout << "check: bonds:"           << pot.bonds_ << std::endl;
-   std::cout << "check: bonds::numlines " << pot.bonds_[12].num_lines << std::endl;
 
 }
 
