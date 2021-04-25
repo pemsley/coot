@@ -845,7 +845,6 @@ coot::side_chain_densities::normalize_density_boxes_v1(const std::string &id) {
    if (n_grid_pts > 0) {
       float mean = sum/static_cast<float>(n_grid_pts);
       float var = sum_sq/static_cast<float>(n_grid_pts) - mean * mean;
-      float sd = sqrt(var);
       float scale_factor = 1.0/mean;
       std::cout << "Dataset from " << id << " mean " << mean << " scale_factor "
                 << scale_factor << std::endl;
@@ -916,6 +915,7 @@ coot::side_chain_densities::normalize_density_boxes_v3(const std::string &id) {
 void
 coot::density_box_t::normalize_using_ca_stats() {
 
+   if (! density_box) return; // clang scan-build fixup. So that
    if (var_around_ca > 0) {
       int n = nnn();
       if (mean_of_positives_around_ca > 0.0) {

@@ -52,6 +52,7 @@ namespace coot {
       void self_normalize();
       void clear() {
 	 delete [] density_box;
+         density_box = 0;
       }
       // caller checks for valid index
       float operator[](const unsigned int &idx) const {
