@@ -7,6 +7,7 @@
 //
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "utils/coot-fasta.hh"
 
 namespace coot {
 
@@ -34,12 +35,13 @@ namespace coot {
 	 mean_around_ca = 0; mean_of_positives_around_ca = 0;
 	 var_around_ca = -1;
          is_weird = false;
+         mean_of_positives = 0;
       }
       void scale_by(float scale_factor) {
 	 if (n_steps > 0) {
 	    int n = 2 * n_steps + 1;
-	    int nnn = n * n * n;
-	    for (int i=0; i<nnn; i++)
+	    int n3 = n * n * n;
+	    for (int i=0; i<n3; i++)
 	       if (density_box[i] > -1000)
 		  density_box[i] *= scale_factor;
 	 }
@@ -164,9 +166,6 @@ namespace coot {
 
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
-
-      // why is this not in utils or something?
-      char single_letter_code(const std::string &res_name) const;
 
       double null_hypothesis_scale;
       double null_hypothesis_sigma;
@@ -342,6 +341,9 @@ namespace coot {
                          const std::string &sequence_name,    // from fasta file
                          const std::string &sequence);
 
+      void setup_likelihood_of_each_rotamer_at_every_residue(const std::vector<mmdb::Residue *> &a_run_of_residues,
+                                                             const clipper::Xmap<float> &xmap);
+
       // find the best result stored by the above function.
       results_t get_result() const;
 
@@ -364,6 +366,12 @@ namespace coot {
       bool test_grid_point_to_coords_interconversion() const;
       
    };
+
+   std::vector<coot::side_chain_densities::results_t>
+   get_fragment_sequence_scores(mmdb::Manager *mol,
+                                const fasta_multi &fam,
+                                const clipper::Xmap<float> &xmap);
+
 }
 
 

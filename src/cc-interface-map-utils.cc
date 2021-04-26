@@ -60,8 +60,6 @@ map_to_model_correlation_stats_per_residue_range(int imol, const std::string &ch
       }
    }
 
-   std::cout << "-------------------- debug map_to_model_correlation_stats_per_residue_run size " << m.size()
-             << std::endl;
    return m;
 }
 

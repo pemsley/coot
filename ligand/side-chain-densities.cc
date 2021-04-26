@@ -6,8 +6,10 @@
 
 
 #include <boost/math/distributions/skew_normal.hpp>
+#include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 
 #include "analysis/stats.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
 #include "side-chain-densities.hh"
 #include "richardson-rotamer.hh"
@@ -29,7 +31,7 @@ coot::side_chain_densities::get_results_addition_lock() {
 
    bool unlocked = false;
    while (! results_addition_lock.compare_exchange_weak(unlocked, true)) {
-      std::this_thread::sleep_for(std::chrono::microseconds(1));
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
       unlocked = false;
    }
 }
@@ -294,7 +296,9 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
          std::cout << res->GetChainID() << " " << res->GetSeqNum()
                    << " real-type: "  << res->GetResName()
                    << " best-guess: " << best_guess_for_residue << std::endl;
-      best_guess_sequence += single_letter_code(best_guess_for_residue);
+      char r;
+      mmdb::Get1LetterCode(best_guess_for_residue.c_str(), &r);
+      best_guess_sequence += r;
    }
 
    // std::cout << "best guess sequence:\n" << best_guess_sequence << std::endl;
@@ -307,35 +311,17 @@ coot::side_chain_densities::likelihood_of_each_rotamer_at_this_residue(mmdb::Res
                                                                        const clipper::Xmap<float> &xmap,
                                                                        bool limit_to_correct_rotamers_only,
                                                                        bool verbose_output_mode) {
-   return get_rotamer_likelihoods(residue_p, xmap, limit_to_correct_rotamers_only, verbose_output_mode);
-}
 
-char
-coot::side_chain_densities::single_letter_code(const std::string &res_name) const {
-
-   char r = '.';
-   if (res_name == "ALA") r = 'A';
-   if (res_name == "ARG") r = 'R';
-   if (res_name == "ASN") r = 'N';
-   if (res_name == "ASP") r = 'D';
-   if (res_name == "CYS") r = 'C';
-   if (res_name == "GLN") r = 'Q';
-   if (res_name == "GLY") r = 'G';
-   if (res_name == "GLU") r = 'E';
-   if (res_name == "HIS") r = 'H';
-   if (res_name == "ILE") r = 'I';
-   if (res_name == "LEU") r = 'L';
-   if (res_name == "LYS") r = 'K';
-   if (res_name == "MET") r = 'M';
-   if (res_name == "PHE") r = 'F';
-   if (res_name == "PRO") r = 'P';
-   if (res_name == "SER") r = 'S';
-   if (res_name == "THR") r = 'T';
-   if (res_name == "TRP") r = 'W';
-   if (res_name == "TYR") r = 'Y';
-   if (res_name == "VAL") r = 'V';
-
-   return r;
+   std::map<mmdb::Residue *, std::map<std::string, double> >::const_iterator itc =
+      best_score_for_res_type_cache.find(residue_p);
+   if (itc != best_score_for_res_type_cache.end()) {
+      return itc->second;
+   } else {
+      std::map<std::string, double> s =
+         get_rotamer_likelihoods(residue_p, xmap, limit_to_correct_rotamers_only, verbose_output_mode);
+      best_score_for_res_type_cache[residue_p] = s;
+      return s;
+   }
 }
 
 std::vector<mmdb::Residue *>
@@ -389,10 +375,77 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
    return a_run_of_residues;
 }
 
+void
+coot::side_chain_densities::setup_likelihood_of_each_rotamer_at_every_residue(const std::vector<mmdb::Residue *> &a_run_of_residues,
+                                                                              const clipper::Xmap<float> &xmap) {
+
+   if (! a_run_of_residues.empty()) {
+      int n_residues = a_run_of_residues.size();
+      for (int i=0; i<n_residues; i++) {
+         mmdb::Residue *residue_p = a_run_of_residues[i];
+         std::map<std::string, double> likelihood_map =
+            likelihood_of_each_rotamer_at_this_residue(residue_p, xmap); // why is xmap needed here?
+                                                                         // residues block should be filled
+                                                                         // in setup_test_sequence().
+                                                                         // Remove arg xmap from compare_block_vs_rotamer()
+                                                                         // and fixup other functions to match
+      }
+   }
+   
+}
+
 void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
                                                const clipper::Xmap<float> &xmap,
                                                const std::string &sequence_name,
                                                const std::string &sequence) {
+
+   auto make_pdb_reference_sequence = [] (const std::vector<mmdb::Residue *> &a_run_of_residues) {
+                                         std::string true_sequence;
+                                         int n_residues = a_run_of_residues.size();
+                                         for (int i=0; i<n_residues; i++) {
+                                            mmdb::Residue *residue_p = a_run_of_residues[i];
+                                            std::string res_name(residue_p->GetResName());
+                                            char r;
+                                            mmdb::Get1LetterCode(res_name.c_str(), &r);
+                                            true_sequence += r;
+                                         }
+                                         return true_sequence;
+                                      };
+
+   std::map<char, std::string> code_cache;
+   auto fill_code_cache = [] (std::map<char, std::string> *code_cache_p) {
+                             (*code_cache_p)['G'] = std::string("GLY");
+                             (*code_cache_p)['A'] = std::string("ALA");
+                             (*code_cache_p)['V'] = std::string("VAL");
+                             (*code_cache_p)['S'] = std::string("SER");
+                             (*code_cache_p)['N'] = std::string("ASN");
+                             (*code_cache_p)['P'] = std::string("PRO");
+                             (*code_cache_p)['D'] = std::string("ASP");
+                             (*code_cache_p)['C'] = std::string("CYS");
+                             (*code_cache_p)['Q'] = std::string("GLN");
+                             (*code_cache_p)['E'] = std::string("GLU");
+                             (*code_cache_p)['H'] = std::string("HIS");
+                             (*code_cache_p)['I'] = std::string("ILE");
+                             (*code_cache_p)['L'] = std::string("LEU");
+                             (*code_cache_p)['K'] = std::string("LYS");
+                             (*code_cache_p)['M'] = std::string("MET");
+                             (*code_cache_p)['F'] = std::string("PHE");
+                             (*code_cache_p)['T'] = std::string("THR");
+                             (*code_cache_p)['W'] = std::string("TRP");
+                             (*code_cache_p)['Y'] = std::string("TYR");
+                             (*code_cache_p)['R'] = std::string("ARG");
+                             (*code_cache_p)['X'] = std::string("");
+                          };
+   fill_code_cache(&code_cache);
+   auto get_res_type_from_single_letter_code = [code_cache] (char c) {
+                                                  std::map<char, std::string>::const_iterator it = code_cache.find(c);
+                                                  if (it != code_cache.end()) {
+                                                     return std::cref(it->second);
+                                                  } else {
+                                                     std::runtime_error message("miss");
+                                                     throw(message);
+                                                  }
+                                               };
 
    std::vector<results_t> results;
    std::string gene_name = sequence_name;
@@ -404,26 +457,21 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
       std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > scored_residues(n_residues);
       for (int i=0; i<n_residues; i++) {
          mmdb::Residue *residue_p = a_run_of_residues[i];
-         std::map<std::string, double> likelihood_map =
-            likelihood_of_each_rotamer_at_this_residue(residue_p, xmap); // why is xmap needed here?
-                                                                         // residues block should be filled
-                                                                         // in setup_test_sequence().
-                                                                         // Remove arg xmap from compare_block_vs_rotamer()
-                                                                         // and fixup other functions to match
-         std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
-         scored_residues[i] = p;
+         scored_residues[i] =
+            std::pair<mmdb::Residue *, std::map<std::string, double> >(residue_p, likelihood_of_each_rotamer_at_this_residue(residue_p, xmap));
       }
+      
+      auto tp_0 = std::chrono::high_resolution_clock::now();
 
-      std::string true_sequence;
-      for (int i=0; i<n_residues; i++) {
-         mmdb::Residue *residue_p = a_run_of_residues[i];
-         std::string res_name(residue_p->GetResName());
-         char s = single_letter_code(res_name);
-         true_sequence += s;
-      }
+      // insta-fail when the protein sequence for test is shorter than the model.
+      if (sequence.length() < a_run_of_residues.size()) return;
+
+      std::string true_sequence = make_pdb_reference_sequence(a_run_of_residues);
 
       // slide
       // std::cout << "----------------- slide ------------ " << std::endl;
+
+      // std::cout << "debug:: testing sequence " << sequence << std::endl;
 
       int sequence_length = sequence.length();
       int offset_max = sequence.length() - n_residues;
@@ -433,6 +481,9 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
          double sum_score = 0;
          std::string running_sequence;
          for (int ires=0; ires<n_residues; ires++) {
+            if (false) // Xs in sequences result in sequence count mismatches
+               std::cout << "compare offset" << offset << " ires " << ires << " i+o = "<< (ires+offset)
+                         << " and sequence_length " << sequence_length << std::endl;
             if ((ires+offset) < sequence_length) {
                mmdb::Residue *residue_p = scored_residues[ires].first;
                const std::map<std::string, double> &scored_map = scored_residues[ires].second;
@@ -448,52 +499,70 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
                }
 
                char letter = sequence[ires+offset];
-               std::string res_type = util::single_letter_to_3_letter_code(letter);
-               // std::cout << "----------- debug:: res_type from " << letter << " is \"" << res_type << "\"" << std::endl;
-               if (! res_type.empty()) {
-                  std::map<std::string, double>::const_iterator it = scored_map.find(res_type);
-                  if (it != scored_map.end()) {
-                     const double &score = it->second;
-                     running_sequence += letter;
-                     sum_score += score;
-                     n_scored_residues++;
-                     if (false)
-                        std::cout << "debug:: adding "
-                                  << std::right << std::fixed << std::setw(9) << std::setprecision(4)
-                                  << score << " for " << letter << " " << "ires " << ires << " "
-                                  << residue_spec_t(residue_p) << std::endl;
-                  } else {
-                     if (false) { // debug
-                        std::cout << "DEBUG:: Failed to find " << res_type << " in this map: " << std::endl;
-                        std::map<std::string, double>::const_iterator it_debug;
-                        std::cout << "This was the map: POINT B, it has size " << scored_map.size() << std::endl;
-                        for (it_debug=scored_map.begin();
-                             it_debug!=scored_map.end();
-                             ++it_debug) {
-                           std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
+               try {
+                  const std::string &res_type = get_res_type_from_single_letter_code(letter);
+                  // std::cout << "----------- debug:: res_type from " << letter << " is \"" << res_type << "\"" << std::endl;
+                  if (! res_type.empty()) {
+                     std::map<std::string, double>::const_iterator it = scored_map.find(res_type);
+                     if (it != scored_map.end()) {
+                        const double &score = it->second;
+                        running_sequence += letter;
+                        sum_score += score;
+                        n_scored_residues++;
+                        if (false)
+                           std::cout << "debug:: adding "
+                                     << std::right << std::fixed << std::setw(9) << std::setprecision(4)
+                                     << score << " for " << letter << " " << "ires " << ires << " "
+                                     << residue_spec_t(residue_p) << std::endl;
+                     } else {
+                        if (true) { // debug
+                           std::cout << "DEBUG:: Failed to find " << res_type << " in this map: (which has size) "
+                                     << scored_map.size() << std::endl;
+                           std::map<std::string, double>::const_iterator it_debug;
+                           std::cout << "This was the map: POINT B, it has size " << scored_map.size() << std::endl;
+                           for (it_debug=scored_map.begin();
+                                it_debug!=scored_map.end();
+                                ++it_debug) {
+                              std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
+                           }
+                           std::cout << "\nDone map: " << std::endl;
                         }
-                        std::cout << "\nDone map: " << std::endl;
+                        running_sequence += '.';
                      }
-                     running_sequence += '.';
+                  } else {
+                     if (false) // this happens a lot
+                        std::cout << "WARNING:: empty residue type for sequence letter " << letter << std::endl;
+                     running_sequence += '-';
+                     // no point in continuing because if we don't add to n_scored_residues, then
+                     // the test below (n_scored_residues == n_residues) will never be true.
+                     break;
                   }
-               } else {
-                  running_sequence += '-';
+               }
+               catch (const std::runtime_error &rte) {
+                  // there was an X in the sequence or some other unknown single residue type
+                  break;
                }
             }
          }
          if (n_scored_residues == n_residues) {
-            results_t result(offset, sum_score, n_scored_residues, running_sequence, sequence_name,
-                             true_sequence);
-            results.push_back(result);
+            // std::cout << "pushing back a result! offset " << offset << std::endl;
+            results.push_back(results_t(offset, sum_score, n_scored_residues, running_sequence, sequence_name, true_sequence));
             if (false)
                std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(8) << sum_score
                          << " n_scored_residues " << n_scored_residues << " " << running_sequence
                          << " gene-name " << gene_name
                          << " true-sequence " << true_sequence << std::endl;
+         } else {
+            if (false) // happens a lot due to Xs in sequence
+               std::cout << "failed to push back a result because " << n_scored_residues << " != " << n_residues << std::endl;
          }
       }
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      // std::cout << "TIMINGS:: test_sequence() " << d10 << " microseconds" << std::endl;
    }
    get_results_addition_lock();
+   // std::cout << "storing results of size " << results.size() << " for sequence with name " << sequence_name << std::endl;
    results_container[sequence_name] = results;
    release_results_addition_lock();
 }
@@ -709,12 +778,10 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
                   if (! is_close_to_atoms(main_chain_atom_positions, pt_grid_point)) {
                      if (in_sphere(pt_grid_point, cb_pt, grid_box_radius)) {
                         if (main_chain_clashing_points.find(idx) == main_chain_clashing_points.end()) {
-                           if (gen_usable_points_flag) { // setting up for sampling
-                              f << "setting grid point " << idx << " at "
-                                << pt_grid_point.x() <<  " "
-                                << pt_grid_point.y() <<  " "
-                                << pt_grid_point.z() << std::endl;
-                           }
+                           f << "setting grid point " << idx << " at "
+                             << pt_grid_point.x() <<  " "
+                             << pt_grid_point.y() <<  " "
+                             << pt_grid_point.z() << std::endl;
                         }
                      }
                   }
@@ -1288,7 +1355,7 @@ coot::side_chain_densities::normalize_density_blocks() {
       double av = sum/static_cast<double>(n_grid_pts);
       double sc = mn_scale_for_normalized_density/av;
       std::map<mmdb::Residue *, density_box_t>::iterator it_inner;
-      for(it_inner=density_block_map_cache.begin(); it_inner!=density_block_map_cache.end(); it_inner++) {
+      for(it_inner=density_block_map_cache.begin(); it_inner!=density_block_map_cache.end(); ++it_inner) {
          density_box_t &block = it_inner->second; // because not const
          block.scale_by(sc);
       }
@@ -1359,10 +1426,6 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
       std::cout << "ERROR:: Cache is empty - fill it first" << std::endl;
       return bs;
    }
-
-   std::map<mmdb::Residue *, std::map<std::string, double> >::const_iterator itc = best_score_for_res_type_cache.find(residue_p);
-   if (itc != best_score_for_res_type_cache.end())
-      return itc->second;
 
    // are axes needed?
    std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
@@ -1477,9 +1540,6 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
       }
    }
 
-   get_results_addition_lock();
-   best_score_for_res_type_cache[residue_p] = bs;
-   release_results_addition_lock();
    return bs;
 }
 
@@ -1558,7 +1618,7 @@ bool
 coot::side_chain_densities::get_test_map_is_above_model_mean(const unsigned int &grid_idx,
                                                              const density_box_t &block,
                                                              const double &mean) const {
-   double x = block[grid_idx];
+   const double &x = block[grid_idx];
    return (x > mean);
 
 }
@@ -1766,7 +1826,9 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
    double sum_log_likelihood = 0.0;
    double step_size = grid_box_radius/static_cast<float>(n_steps);
 
-   std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
+   get_results_addition_lock();
+   std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it;
+   it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
 
    // std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
 
@@ -1836,9 +1898,9 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
                }
             }
 
-            get_results_addition_lock(); // not really results...
+            // get_results_addition_lock(); // not really results...
             rotamer_dir_grid_stats_map_cache[rotamer_dir] = stats_map;
-            release_results_addition_lock();
+            // release_results_addition_lock();
 
             if (n_grid_points > 0) {
 
@@ -1858,6 +1920,8 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
          }
       }
    }
+
+   release_results_addition_lock();
 
    if (do_debug_scoring) {
       std::cout << "debug:: above the mean " << n_above << " of " << n_grid_pts << std::endl;
@@ -2003,7 +2067,7 @@ coot::side_chain_densities::combine_directory(const std::string &rot_dir, int n_
    }
 
    std::map<std::string, unsigned int>::const_iterator it;
-   for (it=number_count_map.begin(); it!=number_count_map.end(); it++) {
+   for (it=number_count_map.begin(); it!=number_count_map.end(); ++it) {
       // std::cout << "counts " << it->first << " " << it->second << std::endl;
       if (it->second != n_target) {
          std::cout << "combine_directory() fail " << rot_dir << " " << it->first
@@ -2025,12 +2089,12 @@ coot::side_chain_densities::combine_directory(const std::string &rot_dir, int n_
 
    for (std::size_t i=0; i<files.size(); i++) {
       const std::string &fn = files[i];
-      std::ifstream f(fn.c_str());
-      if (f) {
+      std::ifstream ff(fn.c_str());
+      if (ff) {
          unsigned int word_count = 0;
          std::string line;
-         while (std::getline(f, line)) {
-            std::vector<std::string> words = coot::util::split_string_no_blanks(line);
+         while (std::getline(ff, line)) {
+            std::vector<std::string> words = util::split_string_no_blanks(line);
             for (std::size_t ii=0; ii<words.size(); ii++) {
                const std::string &w = words[ii];
                try {
@@ -2185,3 +2249,115 @@ coot::side_chain_densities::set_magic_number(const std::string &mn_name, double 
    release_results_addition_lock();
 
 }
+
+#include "coot-utils/fragment-container.hh"
+#include "utils/split-indices.hh"
+
+// This function seems to crash if I put it into side-chain-densities (which gets added to the
+// coot-ligand library)
+//
+std::vector<coot::side_chain_densities::results_t>
+coot::get_fragment_sequence_scores(mmdb::Manager *mol,
+                             const coot::fasta_multi &fam,
+                             const clipper::Xmap<float> &xmap) {
+
+   // score blocks of sequences (of which there are, say, 21000)
+   auto proc_threads = [] (const std::pair<unsigned int, unsigned int> &start_stop_pair,
+                           const coot::fasta_multi &fam,
+                           const std::vector<mmdb::Residue *> &a_run_of_residues,
+                           const clipper::Xmap<float> &xmap,
+                           coot::side_chain_densities &scd) { // fill scd
+
+                          for(unsigned int idx=start_stop_pair.first; idx!=start_stop_pair.second; ++idx) {
+                             // std::cout << "proc_threads calls scd.test_sequence() with idx" << idx << std::endl;
+                             scd.test_sequence(a_run_of_residues, xmap, fam[idx].name, fam[idx].sequence);
+                          }
+                       };
+
+   std::vector<coot::side_chain_densities::results_t> results;
+
+   unsigned int n_sequences = fam.size();
+   // "analysis" constructor
+   // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
+   // scd.set_data_dir("side-chain-data");
+   coot::side_chain_densities scd;
+
+   coot::fragment_container_t fc = make_fragments(mol);
+
+   std::cout << "INFO:: n_sequences: " << n_sequences << std::endl;
+
+   for (const auto &range : fc.ranges) {
+      // std::cout << "new-range" << std::endl;
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      std::vector<mmdb::Residue *> a_run_of_residues =
+         scd.setup_test_sequence(mol, range.chain_id, range.start_res.res_no, range.end_res.res_no, xmap);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      scd.setup_likelihood_of_each_rotamer_at_every_residue(a_run_of_residues, xmap);
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+
+#if 1 // threaded version
+      unsigned int n_threads = get_max_number_of_threads();
+      std::vector<std::pair<unsigned int, unsigned int> > seq_index_vector =
+         coot::atom_index_ranges(n_sequences, n_threads);
+      std::vector<std::thread> threads;
+
+      for (unsigned int i=0; i<seq_index_vector.size(); i++) {
+         std::pair<unsigned int, unsigned int> index_pair = seq_index_vector[i];
+         threads.push_back(std::thread(proc_threads, index_pair, fam, a_run_of_residues, xmap, std::ref(scd)));
+      }
+
+      for (unsigned int i=0; i<seq_index_vector.size(); i++)
+         threads[i].join();
+#endif
+
+#if 0 // the single threaded way
+
+      for (unsigned int idx=0; idx<n_sequences; idx++) {
+         std::string sequence = fam[idx].sequence;
+         // std::cout << "Input Sequence:\n" << sequence << std::endl;
+         const std::string &name = fam[idx].name;
+         scd.test_sequence(a_run_of_residues, xmap, name, sequence);
+      }
+#endif
+
+      std::map<std::string, std::vector<coot::side_chain_densities::results_t> >::const_iterator it;
+      bool print_results = false;
+      if (print_results) {
+         for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+            const std::string &sequence = it->first;
+            std::cout << "sequence: " << sequence << std::endl;
+            for (const auto &r : it->second) {
+               std::cout << "   " << r.offset << " " << r.sequence << " " << r.sum_score << std::endl;
+            }
+         }
+      }
+
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      // transfer scd.results_container to returned results
+      if (false) {
+         for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+            const std::vector<side_chain_densities::results_t> &v(it->second);
+            if (! v.empty())
+               results.insert(results.end(), v.begin(), v.end());
+         }
+      } else {
+         // this is not any faster, sadly. 2000+ ms!
+         for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+            const std::vector<side_chain_densities::results_t> &v(it->second);
+            std::move(v.begin(), v.end(), std::back_inserter(results));
+         }
+      }
+
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+      std::cout << "TIMINGS:: get_fragment_sequence_scores() setup model: "
+                << d10 << " setup likelihoods: " << d21 << " proc_theads: " << d32 << " consolidate: " << d43
+                << " milliseconds" << std::endl;
+   }
+
+   return results;
+}
+
