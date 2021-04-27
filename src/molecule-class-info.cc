@@ -2292,7 +2292,6 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
             }
          }
       }
-      int linesdrawn = 0;
 
       if (with_gl_lines) {
 
@@ -2300,25 +2299,21 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
          for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
             const coot::CartesianPair &pospair = ll.pair_list[j].positions;
-            const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
-            const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
+            const coot::Cartesian &start  = pospair.getStart();
+            const coot::Cartesian &finish = pospair.getFinish();
+            glVertex3f(start.get_x(), start.get_y(), start.get_z());
+            glVertex3f(finish.get_x(), finish.get_y(), finish.get_z());
 
-            glVertex3f(start.get_x(),
-                       start.get_y(),
-                       start.get_z());
-            glVertex3f(finish.get_x(),
-                       finish.get_y(),
-                       finish.get_z());
          }
          glEnd();
       }
 
       if (! with_gl_lines) {
 
-         float zsc = graphics_info_t::zoom;
+         float zsc_inner = graphics_info_t::zoom;
 
          if (bonds_box.bonds_[i].thin_lines_flag)
-            zsc *= 0.5;
+            zsc_inner *= 0.5;
 
          glBegin(GL_QUADS);
 
@@ -2334,7 +2329,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
                      get_vector_pependicular_to_screen_z(front, back,
                                                          ll.pair_list[j].positions.getFinish() -
                                                          ll.pair_list[j].positions.getStart(),
-                                                         zsc, p_bond_width);
+                                                         zsc_inner, p_bond_width);
 
                   glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
                              ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
@@ -2365,7 +2360,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
                      get_vector_pependicular_to_screen_z(front, back,
                                                          ll.pair_list[j].positions.getFinish() -
                                                          ll.pair_list[j].positions.getStart(),
-                                                         zsc, p_bond_width);
+                                                         zsc_inner, p_bond_width);
 
                   if (graphics_info_t::is_within_display_radius(ll.pair_list[j].positions)) {
 
@@ -2404,9 +2399,9 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
    // We can't jump out early now, because if we are in stick mode, we still want to see waters
 
    // bool display_it = display_stick_mode_atoms_flag;
-   bool display_it = true;
 
-   if (display_it) {
+
+   if (true) {
 
       if (bonds_box.atom_centres_) {
 
@@ -2418,6 +2413,9 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 
          // in general, we need to run this loop for every different atom radius
          for (unsigned int ii=0; ii<2; ii++) {
+
+            // std::cout << "display_bonds_stick_mode_atoms() ii is " << ii << std::endl;
+
             float base_point_size =  280.0/zsc;
             if (ii==1)
                base_point_size = 1.5 * base_point_size;
@@ -2447,20 +2445,27 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
             // Note that this delta for atom interacts with the highlight.
             //
             for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+
+               // std::cout << "icol: " << icol << " of " << bonds_box.n_consolidated_atom_centres << std::endl;
+
                if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
                if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
                   set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
                } else {
                   set_bond_colour_by_mol_no(icol, against_a_dark_background);
                }
+
+               // std::cout << "drawing bonds_box.consolidated_atom_centres[icol].num_points "
+               // << bonds_box.consolidated_atom_centres[icol].num_points << std::endl;
+
                for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
                   // no points for hydrogens
+                  // std::cout << "Here ii " << ii << " icol " << icol << " A with point i " << i << std::endl;
                   const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
-                  if (! gbai.is_hydrogen_atom || gbai.is_water) {
+                  if (!gbai.is_hydrogen_atom || gbai.is_water) {
 
-                     if (! display_stick_mode_atoms_flag && !gbai.is_water) {
+                     if (!display_stick_mode_atoms_flag && !gbai.is_water)
                         continue;
-                     }
 
                      if ((single_model_view_current_model_number == 0) ||
                          (single_model_view_current_model_number == gbai.model_number)) {
@@ -2468,11 +2473,16 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
                         if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
 
                            bool do_it = false;
+                           // std::cout << "Here ii " << ii << " icol " << icol << " B with point i " << i << std::endl;
                            if (ii==0 && gbai.radius_scale == 1.0) do_it = true;
+                           // std::cout << "Here ii " << ii << " C with point i " << i << " with rs " << gbai.radius_scale << " do_it: " << do_it << std::endl;
                            if (ii==1 && gbai.radius_scale >  1.0) do_it = true;
+                           // std::cout << "Here ii " << ii << " D with point i " << i << " with rs " << gbai.radius_scale << " do_it: " << do_it << std::endl;
 
                            if (do_it) {
+
                               const coot::Cartesian &pt = gbai.position;
+                              // std::cout << "draw at " << pt.x()+z_delta.x() << " " << pt.y()+z_delta.y() << " " << pt.z()+z_delta.z() << std::endl;
                               glVertex3f(pt.x()+z_delta.x(), pt.y()+z_delta.y(), pt.z()+z_delta.z());
                            }
                         }

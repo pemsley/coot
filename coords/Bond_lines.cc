@@ -569,9 +569,24 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
 				    }
 				 } else {
-				    col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type, nullptr);
-				    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-				    addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+                                    // should this test be here or further up?
+                                    // Don't bond water Oxygens to each other
+                                    bool do_it = true;
+                                    if (atom_p_1->residue != atom_p_2->residue) {
+                                       std::string res_name_1(atom_p_1->residue->GetResName());
+                                       if (res_name_1 == "HOH") {
+                                          std::string res_name_2(atom_p_2->residue->GetResName());
+                                          if (res_name_2 == "HOH") {
+                                             do_it = false;
+                                          }
+                                       }
+                                    }
+
+                                    if (do_it) {
+                                       col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type, nullptr);
+                                       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+                                       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+                                    }
 				 }
 			      }
 
@@ -4183,7 +4198,6 @@ Bond_lines_container::add_dashed_bond(int col,
 
    float n_dash = dash_end - dash_start;
    coot::Cartesian delta = end - start;
-   coot::Cartesian f = delta.by_scalar(1.0/n_dash);
 
    //                        1 1 1 1 1 1 1 1 1
    //   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8
@@ -7642,16 +7656,19 @@ graphical_bonds_container::add_rotamer_goodness_markup(const std::vector<rotamer
       n_rotamer_markups = ric.size();
       rotamer_markups = new rotamer_markup_container_t[n_rotamer_markups];
       for (unsigned int i=0; i<ric.size(); i++)
-	 rotamer_markups[i] = ric[i];
+         rotamer_markups[i] = ric[i];
    }
 }
 
 void
 graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_atom_info_t> &centres,
-					    const std::vector<int> &colours) {
+                                            const std::vector<int> &colours) {
+
+   // std::cout << "In graphical_bonds_container::add_atom_centres adding "
+   //<< centres.size() << " atoms" << std::endl;
 
    if (colours.size() != centres.size()) {
-      std::cout << "ERROR!! colours.size() != centres.size() in add_atom_centres\n";
+      std::cout << "ERROR:: !! colours.size() != centres.size() in add_atom_centres\n";
    }
    n_atom_centres_ = centres.size();
    atom_centres_ = new graphical_bonds_atom_info_t[n_atom_centres_];
@@ -7667,7 +7684,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    int col_idx_max = 1;
    for (int i=0; i<n_atom_centres_; i++) {
       if (colours[i] > col_idx_max) {
-	 col_idx_max = colours[i];
+         col_idx_max = colours[i];
       }
    }
    col_idx_max += 1;
@@ -7685,16 +7702,21 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
 
    for (int i=0; i<col_idx_max; i++) {
       consolidated_atom_centres[i] = graphical_bonds_points_list<graphical_bonds_atom_info_t>(counts[i]);
+
+      for (unsigned int ii=0; ii<consolidated_atom_centres[i].num_points; ii++) {
+      }
    }
 
    for (int i=0; i<n_atom_centres_; i++) {
       consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);
    }
 
-   if (false) // debug
+   if (false)  {// debug
+      for (int i=0; i<n_atom_centres_; i++)
+         std::cout << "---- add_atom_centres() " << i << " " << atom_centres_[i].position << "\n";
       for (int i=0; i<col_idx_max; i++)
-	 std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points
-		   << std::endl;
+         std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points << std::endl;
+   }
 
 }
 

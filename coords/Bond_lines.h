@@ -242,7 +242,7 @@ public:
       // 20200608-PE: I did!
       mmdb::Residue *r = atom_p->GetResidue();
       if (r) {
-         std::string res_name = r->GetResName();
+         std::string res_name(r->GetResName());
          if (res_name == "HOH")
             return true;
          if (res_name == "CA")
@@ -285,10 +285,9 @@ public:
 
    void add_point(const T &pt) {
       if (points) {
-         current_count++;
-         if (current_count < num_points) {
+         if (current_count < num_points)
             points[current_count] = pt;
-         }
+         current_count++;
       }
    } 
 };
