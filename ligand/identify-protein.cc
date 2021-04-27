@@ -76,7 +76,7 @@ void test_sequence(const std::string &pdb_file_name,
             if (found_a_better) {
                std::cout << "\nBest fit and Top 30:\n"
                          << "   " << best_result.sequence << " "
-                            << std::setw(9) << best_result.sum_score + 4200.0 << " "
+                            << std::setw(9) << best_result.sum_score + 0.0 << " "
                             << best_result.sequence_name << "\n";
                std::cout << "   --------------------------------------------------------------------\n";
             }

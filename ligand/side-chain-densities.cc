@@ -2341,11 +2341,45 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                results.insert(results.end(), v.begin(), v.end());
          }
       } else {
-         // this is not any faster, sadly. 2000+ ms!
+         auto tp_3i = std::chrono::high_resolution_clock::now();
+         double sum_data = 0.0;
+         double sum_data_sqrd = 0.0;
+         unsigned int n = 0;
          for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
             const std::vector<side_chain_densities::results_t> &v(it->second);
-            std::move(v.begin(), v.end(), std::back_inserter(results));
+            for (unsigned int i=0; i<v.size(); i++) {
+               sum_data += v[i].sum_score;
+               sum_data_sqrd += v[i].sum_score * v[i].sum_score;
+            }
+            n += v.size();
          }
+         if (n > 1000) {
+            results.reserve(10000);
+            double mean = sum_data/static_cast<double>(n);
+            double var = sum_data_sqrd/static_cast<double>(n) - mean * mean;
+            if (var < 0) var = 0;
+            double sd = std::sqrt(var);
+            std::cout << "Mean: " << mean << " sd " << sd << std::endl;
+            double lim_good_enough = mean + 1.5 * sd;
+            for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+               const std::vector<side_chain_densities::results_t> &v(it->second);
+               for (unsigned int i=0; i<v.size(); i++) {
+                  if (v[i].sum_score > lim_good_enough)
+                     results.push_back(v[i]);
+               }
+            }
+         } else {
+            for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+               const std::vector<side_chain_densities::results_t> &v(it->second);
+               if (! v.empty())
+                  results.insert(results.end(), v.begin(), v.end());
+            }
+         }
+
+         auto tp_3j = std::chrono::high_resolution_clock::now();
+         auto dij = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3j - tp_3i).count();
+         std::cout << "TIMINGS:: get_fragment_sequence_scores() calc mean results " << dij
+                   << " milliseconds" << std::endl;
       }
 
       auto tp_4 = std::chrono::high_resolution_clock::now();
