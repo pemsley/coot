@@ -151,6 +151,14 @@ int setup_database();
 #include "draw.hh" // for test_gtk3_adjustment_changed() - maybe that should go elsewhere?
 #include "draw-2.hh"
 
+void
+windows_set_error_mode() {
+
+#ifdef WINDOWS_MINGW
+      // in Windows we don't want a crash dialog if no-graphics
+      SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
+#endif // MINGW
+}
 
 GtkWidget *do_splash_screen(const command_line_data &cld) {
 
@@ -213,11 +221,11 @@ void do_main_window(const command_line_data &cld) {
       gtk_widget_show(model_toolbar);
 
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
-      GtkWidget *vbox = lookup_widget(window1, "vbox1");
+      GtkWidget *vbox = lookup_widget(window1, "main_window_vbox");
       // make this a grid, so that we can have 2x3 (say) graphics contexts
       GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
 
-      GtkWidget *glarea = my_gtkglarea(graphics_hbox);
+      GtkWidget *glarea = my_gtkglarea(graphics_hbox, false);
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
       
@@ -326,6 +334,73 @@ do_self_tests() {
 
 }
 
+void on_glarea_realize(GtkGLArea *glarea);
+
+
+void
+init_main_window(GtkBuilder *builder) {
+
+   GtkWidget *window1       = GTK_WIDGET(gtk_builder_get_object(builder, "window1"));
+   GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
+
+   if (graphics_hbox) {
+      graphics_info_t::set_main_window(window1);
+      GtkWidget *glarea = my_gtkglarea(graphics_hbox, true);
+      graphics_info_t::glareas.push_back(glarea);
+
+      gtk_gl_area_make_current(GTK_GL_AREA(glarea));
+      GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
+      if (err)
+         std::cout << "ERROR in init()" << err << std::endl;
+
+      my_glarea_add_signals_and_events(glarea);
+      std::cout << "............ done setup signals and events " << std::endl;
+      gtk_widget_show(glarea);
+      on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
+                                              // without this.
+      gtk_widget_show(window1);
+      gtk_widget_show(graphics_hbox);
+   } else {
+      std::cout << "graphics_hbox was null" << std::endl;
+   }
+}
+
+void
+init_from_gtkbuilder() {
+
+   std::string glade_file_full = "../../coot/a6.glade";
+   GtkBuilder *builder = gtk_builder_new();
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   std::cout << "add_from_file_status " << add_from_file_status << std::endl;
+   init_main_window(builder);
+}
+
+
+void init_main_window_again(bool old_way_flag) {
+
+   // exerperimenting....
+
+   if (old_way_flag) {
+
+      std::cout << "---------------------------- old way ----------------" << std::endl;
+
+      GtkWidget *window1 = create_window1();
+      graphics_info_t::set_main_window(window1);
+      GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar");
+      gtk_widget_show(model_toolbar);
+      // make this a grid, so that we can have 2x3 (say) graphics contexts
+      GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
+      GtkWidget *glarea = my_gtkglarea(graphics_hbox, false);
+      my_glarea_add_signals_and_events(glarea);
+      graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
+      gtk_widget_show(glarea);
+      gtk_widget_show (window1);
+   } else {
+      init_from_gtkbuilder();
+   }
+}
+
+
 
 // This main is used for both python/guile useage and unscripted.
 int
@@ -384,10 +459,7 @@ main (int argc, char *argv[]) {
 
    } else {
 
-#ifdef WINDOWS_MINGW
-      // in Windows we don't want a crash dialog if no-graphics
-      SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
-#endif // MINGW
+      windows_set_error_mode();
 
    }
 
@@ -395,14 +467,23 @@ main (int argc, char *argv[]) {
 
    setup_symm_lib();
    check_reference_structures_dir();
-#ifdef USE_MYSQL_DATABASE
-   setup_database();
-#endif
 
    graphics_info.init();
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      do_main_window(cld);
+
+      bool old_way_flag = true;
+      if (cld.use_gtkbuilder)
+         old_way_flag = false;
+
+      if (! cld.use_gtkbuilder) {
+         do_main_window(cld);
+      }
+
+      if (cld.use_gtkbuilder) {
+          init_from_gtkbuilder();
+      }
+
    }
 
    // Mac users often start somewhere where they can't write files

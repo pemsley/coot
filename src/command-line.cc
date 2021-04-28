@@ -123,6 +123,7 @@ parse_command_line(int argc, char ** argv ) {
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
+      {"gtkbuilder", 0, 0, 0},
       {"run-state-script",  0, 0, 0},
       {"splash-screen", 1, 0, 0}, // alternate splash screen
       {"self-test",        0, 0, 0},
@@ -221,7 +222,10 @@ parse_command_line(int argc, char ** argv ) {
 
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
-	    
+
+            if (arg_str == "gtkbuilder")
+               cld.use_gtkbuilder = true;
+
 	    if (arg_str == "stereo") {
 	       cld.hardware_stereo_flag = 1;
 	    } else {

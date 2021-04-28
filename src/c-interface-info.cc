@@ -835,6 +835,7 @@ PyObject *scm_to_py(SCM s) {
 SCM py_to_scm(PyObject *o) {
 
    SCM s = SCM_BOOL_F;
+   if (! o) return s;
    if (PyList_Check(o)) {
       int l = PyObject_Length(o);
       s = SCM_EOL;

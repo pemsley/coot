@@ -176,6 +176,9 @@
 
 (define reduce-molecule-updates-current #f)
 
+(define *probe-command* "probe")
+(define *reduce-command* "reduce")
+
 ;; run molprobity (well reduce and probe) to make generic objects (and
 ;; display the generic objects gui)
 ;; 

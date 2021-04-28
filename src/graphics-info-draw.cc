@@ -1789,11 +1789,15 @@ graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
    draw_cube(glarea, ORIGIN_CUBE);
 }
 
-GtkWidget *my_gtkglarea(GtkWidget *vbox) {
+GtkWidget *my_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
+
+   // the use_gtk_builder flag really means "was invoked from the path that..."
 
    GtkWidget *w = gtk_gl_area_new();
    gtk_gl_area_set_required_version(GTK_GL_AREA(w), 3, 3);
-   gtk_widget_set_size_request(w, 400, 400);
+   unsigned int dimensions = 400;
+   if (! use_gtk_builder) dimensions = 900;
+   gtk_widget_set_size_request(w, dimensions, dimensions);
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 2);
    return w;
 }
