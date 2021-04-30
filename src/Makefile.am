@@ -174,6 +174,9 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
 
+# we need to run swig to make coot.py
+coot.py: coot_wrap_python.cc
+
 #libcoot_wrap.so: coot_wrap.o
 #	-DVERSION=$(VERSION) already in config.h
 #	g++ --shared -o libcoot_wrap.so coot_wrap.o
