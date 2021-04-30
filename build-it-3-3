@@ -1,6 +1,6 @@
 # 
+# -*-shell-script-*-
 #  ----------------- this is now the python-3 version ----------------
-# -*-shell-script-*-s
 #
 # Copyright 2004, 2005, 2006, 2007, 2008 by The University of York
 # Copyright 2009, 2010, 2011, 2012 by The University of York
@@ -387,7 +387,8 @@
 # 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
 # 5.30 20180109 Update python version.
 # 6.00 20200812 include glm
-script_version=6.00
+# 6.01 20210430 pkg-config tweak and no remove rdkit libs for coot configure
+script_version=6.01
 
 
 
@@ -1090,6 +1091,10 @@ echo update_libtool: $update_libtool
 echo update_config_guess_sub: $update_config_guess_sub
 
 
+# we need these dependencies:
+# - libgtk-3-dev
+# - git
+
 # check dependencies for Ubuntu.
 case $dist_name in
    *ubuntu*)
@@ -1098,6 +1103,7 @@ case $dist_name in
        patch
        m4
        g++
+       git
        libxext-dev
        libxmu-dev
        libxt-dev
@@ -1136,7 +1142,7 @@ case $dist_name in
       ;;
 
     debian)
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk3.0-dev libgnomecanvas2-dev'
+      dep_list='libncurses5-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev libgtk3.0-dev libgnomecanvas2-dev m4'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev'
       # not tested
 
@@ -1692,6 +1698,9 @@ export PATH=$install_top_dir/bin:$PATH
 #
 # override STD_PKGCONFIG_DIR to lib64 dir if we are in 64 bit.
 #
+
+os_arch=x86_64-linux-gnu # for now
+
 STD_PKGCONFIG_DIR=/usr/lib/pkgconfig
 case "$architecture" in
    x86_64*)
@@ -1701,9 +1710,13 @@ esac
 if [ -z "$PKG_CONFIG_PATH" ] ; then
   # I think that the standard dir is not needed.
   # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+  # FYI packages that go into $install_top_dir/lib/$os_arch/pkgconfig:
+  #   gobject-introspection-1.0.pc
+  #   pygobject-3.0.pc
+  #   py3cairo.pc
+  #   glm.pc
+  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig
 else
-   os_arch=x86_64-linux-gnu
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
    if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
       PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
@@ -1973,7 +1986,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python3.9
-pver=3.9.1
+pver=3.9.4
 python_version_extension=3.9 # extract this
 
 #
@@ -2527,7 +2540,7 @@ test_for_already_installed_dependencies=true
 
 
 build_gobject_introspection=true
-ls $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h
+
 if [ -e $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h ] ; then
    build_gobject_introspection=false
    echo installation has gobject-introspection
@@ -2891,7 +2904,7 @@ else
    echo 1 ----------------------------------------------------------------
    $MAKE install
 fi
-) > $HOSTLOGDIR/15-gsl.txt
+) > $HOSTLOGDIR/15-gsl.txt 2>&1
 else
     echo not building gsl:
 fi
@@ -3179,10 +3192,13 @@ pip3 install cython
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py 
+   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py
    if [ -e $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
+   else
+         echo not found: $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py
+         echo numpy was not found - needs building
    fi
    if [ $skip_this = false ] ;  then
       numpy_version=1.19.4
@@ -3665,7 +3681,7 @@ if [ "$build_guile" = true ] ; then
 fi
 
 # ------------------------------------  template -------------------------------------
-if [ "$build_template" = true ] ; then
+if [ "$build_template_thing" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       if [ -e $install_top_dir/include/template.h ] ; then # use the right file
@@ -3682,10 +3698,7 @@ if [ "$build_template" = true ] ; then
       else
          exit
       fi
-      if [ ! -e $install_top_dir/bin/guile ] ; then
-         echo no guile
-         exit
-      fi
+      (
       cd template-$template_version
       if ./configure --prefix=$install_top_dir ; then
          if $MAKE ; then
@@ -3696,7 +3709,7 @@ if [ "$build_template" = true ] ; then
       ) > $HOSTLOGDIR/2x-xx.txt 2>&1
    fi
 fi
-# ------------------------------------  template -------------------------------------
+# ------------------------------------  template end ----------------------------------
 
 
 if [ "$build_g_wrap" = true ] ; then
@@ -3786,8 +3799,6 @@ if [ "$build_guile_lib" = true ] ; then
       fi
    fi
 
-   # echo template skip_this $skip_this
-
    if [ $skip_this = false ] ; then
       echo ========================= build guile-lib =================================
       if [ -e $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz ] ; then
@@ -3795,6 +3806,7 @@ if [ "$build_guile_lib" = true ] ; then
       else
          exit
       fi
+      (
       if [ ! -e $install_top_dir/bin/guile ] ; then
          echo no guile
          exit
@@ -3871,6 +3883,11 @@ if [ -e coot ] ; then
    # fi
    echo 44444444444444444444444 done fetch and merge
    rm -rf autom4te.cache
+
+   if [ -e ltmain.sh    ] ; then rm ltmain.sh    ; fi
+   if [ -e config.guess ] ; then rm config.guess ; fi
+   if [ -e config.sub   ] ; then rm config.sub   ; fi
+
    echo 5555555555555555555555 bash autogen.sh
    echo bash autogen.sh
    bash autogen.sh
@@ -3882,6 +3899,9 @@ else
    git clone https://github.com/pemsley/coot.git -b gtk3
    cd coot
    rm -rf autom4te.cache
+   if [ -e ltmain.sh    ] ; then rm ltmain.sh    ; fi
+   if [ -e config.guess ] ; then rm config.guess ; fi
+   if [ -e config.sub   ] ; then rm config.sub   ; fi
    bash autogen.sh
    cd $save_dir
 fi
@@ -3940,48 +3960,50 @@ echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
 echo PATH: $PATH
 echo PKG_CONFIG_PATH: $PKG_CONFIG_PATH
-
 # For external use, we need to have used git checkout for
 # the gtk3 branch, have run autogen.sh
 # and have placed that directory somewhere sensible relative to here
 
-rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python39 -lpython3.9"
-rdkit_install_dir=$install_top_dir
+
+echo 33333
+
+# add this when then are compiling and RDKIT is compiling
+#      --with-enhanced-ligand-tools
+#      ---with-rdkit-prefix=$prfx
 
 echo bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       SHELL=/bin/bash \
       PYTHON=python3 \
-      --with-enhanced-ligand-tools   \
       --with-boost=$install_top_dir  \
+      --with-boost-libdir=$install_top_dir/lib  \
       $guile_scripting    \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
-      $extra_args_for_darwin \
-   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT" \
-   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
+      $extra_args_for_darwin
 
    bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       SHELL=/bin/bash \
       PYTHON=python3 \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
-      --with-enhanced-ligand-tools   \
       --with-boost=$install_top_dir  \
+      --with-boost-libdir=$install_top_dir/lib  \
       $guile_scripting    \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
-      $extra_args_for_darwin \
-   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT" \
-   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
+      $extra_args_for_darwin
 
 
 $MAKE
+# No rule to make target 'coot.py', needed by 'all-am'. Stop.
+# but it's there! Timing problems?
+make
 status=$?
 if [ "$status" != 0 ] ; then
     echo make failed.
@@ -3997,6 +4019,7 @@ else
       # cp src/coot.py $install_top_dir/share/coot/python
    # fi
 fi
+
 ) > $HOSTLOGDIR/30-coot.txt 2>&1
 
 #         --with-gsl-prefix=$install_top_dir \
