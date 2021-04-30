@@ -278,7 +278,7 @@ pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
-           $(top_builddir)/src/libcootsumo.la                \
+           libcootsumo.la                \
            $(top_builddir)/coot-utils/libcoot-coord-utils.la \
            $(top_builddir)/coords/libcoot-coords.la          \
 	   $(top_builddir)/geometry/libcoot-geometry.la      \
