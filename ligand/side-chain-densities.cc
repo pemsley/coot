@@ -228,13 +228,32 @@ coot::side_chain_densities::make_pt_in_grid(int ix, int iy, int iz, const float 
 
 }
 
+double
+coot::side_chain_densities::get_relabun(const std::string &res_name) {
+
+   if (relabun.empty()) {
+      // vertibrates
+      relabun["ALA"] = 7.4; relabun["ARG"] = 4.2; relabun["ASN"] = 4.4; relabun["ASP"] = 5.9; relabun["CYS"] = 3.3;
+      relabun["GLU"] = 5.8; relabun["GLN"] = 3.7; relabun["GLY"] = 7.4; relabun["HIS"] = 2.9; relabun["ILE"] = 3.8;
+      relabun["LEU"] = 7.6; relabun["LYS"] = 7.2; relabun["MET"] = 1.8; relabun["PHE"] = 4.0; relabun["PRO"] = 5.0;
+      relabun["SER"] = 8.1; relabun["THR"] = 6.2; relabun["TRP"] = 1.3; relabun["TYR"] = 3.3; relabun["VAL"] = 6.8;
+      relabun["MSE"] = 1.8;
+   }
+
+   const std::map<std::string, double>::const_iterator it = relabun.find(res_name);
+   if (it == relabun.end())
+      return 2.0;
+   else
+      return it->second;
+};
+
 // return the "guessed" sequence
 std::string
-coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
-                                                                        const std::string &chain_id,
-                                                                        int resno_start, int resno_end,
-                                                                        const clipper::Xmap<float> &xmap,
-                                                                        bool verbose_output_mode) {
+coot::side_chain_densities::guess_the_sequence(mmdb::Manager *mol,
+                                               const std::string &chain_id,
+                                               int resno_start, int resno_end,
+                                               const clipper::Xmap<float> &xmap,
+                                               bool verbose_output_mode) {
 
    std::vector<std::pair<mmdb::Residue *, std::string> > best_guess; // a bit of fun
 
@@ -272,7 +291,7 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
                         std::string best_type;
                         for (it=likelihood_map.begin(); it!=likelihood_map.end(); ++it) {
                            const std::string &res_name_this = it->first;
-                           const double &score = it->second;
+                           double score = it->second  + 10.0 * log(get_relabun(res_name_this)); // hacketty hack!
                            if (score > best_score) {
                               best_score = score;
                               best_type = res_name_this;

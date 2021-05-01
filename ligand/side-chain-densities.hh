@@ -194,6 +194,9 @@ namespace coot {
 			  float step_size,
 			  const clipper::Xmap<float> &xmap) const;
 
+      std::map<std::string, double> relabun;
+      double get_relabun(const std::string &res_name);
+
    public:
 
       std::string id;
@@ -349,11 +352,11 @@ namespace coot {
 
       // return the "guessed" sequence
       std::string
-      probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
-                                                  const std::string &chain_id,
-                                                  int resno_start, int resno_end,
-                                                  const clipper::Xmap<float> &xmap,
-                                                  bool verbose_output_mode = false);
+      guess_the_sequence(mmdb::Manager *mol,
+                         const std::string &chain_id,
+                         int resno_start, int resno_end,
+                         const clipper::Xmap<float> &xmap,
+                         bool verbose_output_mode = false);
 
       // Have a guess at the sequence - choose the best fitting residue at every position
       // and turn that into a string.

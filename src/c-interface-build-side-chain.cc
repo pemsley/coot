@@ -1150,7 +1150,7 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
          coot::side_chain_densities scd;
          scd.fill_residue_blocks(mol, chain_id, resno_start, resno_end, xmap);
          guessed_sequence =
-            scd.probability_of_each_rotamer_at_each_residue(mol, chain_id, resno_start, resno_end, xmap);
+            scd.guess_the_sequence(mol, chain_id, resno_start, resno_end, xmap);
          // std::cout << "guessed sequence " << guessed_sequence << std::endl;
       }
    }
