@@ -968,7 +968,8 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
-                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS
+                << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
       rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
@@ -987,7 +988,9 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
       // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
 
+
       float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour;
+      // std::cout << "rotating colours: i " << i << " by rotation_size " << rotation_size << std::endl;
       rgb = rotate_rgb(rgb, rotation_size);
    }
 
@@ -2013,33 +2016,23 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
    if (has_model()) {
       if (draw_it == 1) {
          if (! cootsurface) {
-#ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
-            if (! molrepinsts.size()) {
-#endif
-#endif
-               deuterium_spots();
-               if (do_zero_occ_spots)
-                  zero_occupancy_spots();
-               display_bonds(against_a_dark_background);
-               draw_fixed_atom_positions();
-               if (show_ghosts_flag) {
-                  if (ncs_ghosts.size() > 0) {
-                     for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-                        display_ghost_bonds(ighost);
-                     }
+            deuterium_spots();
+            if (do_zero_occ_spots)
+               zero_occupancy_spots();
+            display_bonds(against_a_dark_background);
+            draw_fixed_atom_positions();
+            if (show_ghosts_flag) {
+               if (ncs_ghosts.size() > 0) {
+                  for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+                     display_ghost_bonds(ighost);
                   }
                }
-               if (show_cis_peptide_markups)
-                  draw_cis_peptide_markups();
-
-               draw_bad_CA_CA_dist_spots();
-
-#ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
             }
-#endif
-#endif
+            if (show_cis_peptide_markups)
+               draw_cis_peptide_markups();
+
+            draw_bad_CA_CA_dist_spots();
+
          }
       }
    }
@@ -2250,17 +2243,17 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       back  = unproject(1.0);
    }
 
-   for (int i=0; i<bonds_box.num_colours; i++) {
+   for (int icol=0; icol<bonds_box.num_colours; icol++) {
 
       if (false)
-         std::cout << "----------- in display_bonds() here with i "
-                   << i
+         std::cout << "----------- in display_bonds() here with icol "
+                   << icol
                    << " bonds_box_type " << bonds_box_type
-                   << " num_lines " << bonds_box.bonds_[i].num_lines << std::endl;
+                   << " num_lines " << bonds_box.bonds_[icol].num_lines << std::endl;
 
-      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
 
-      if (bonds_box.bonds_[i].thin_lines_flag) {
+      if (bonds_box.bonds_[icol].thin_lines_flag) {
          if (use_variable_bond_width)
             glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
          else
@@ -2273,20 +2266,23 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       }
 
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
-         set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+         set_bond_colour_by_colour_wheel_position(icol, bonds_box_type);
       } else {
          if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
-            set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+            set_bond_colour_by_colour_wheel_position(icol, bonds_box_type);
          } else {
             // if test suggested by Ezra Peisach.
-            if (bonds_box.bonds_[i].num_lines > 0) {
+            if (bonds_box.bonds_[icol].num_lines > 0) {
                if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
-                  set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+                  if (graphics_info_t::have_user_defined_colours())
+                     graphics_info_t::set_bond_colour_from_user_defined_colours(icol);
+                  else
+                     set_bond_colour_by_colour_wheel_position(icol, bonds_box_type);
                } else {
                   if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-                     set_bond_colour_for_goodsell_mode(i, against_a_dark_background);
+                     set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
                   } else {
-                     set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+                     set_bond_colour_by_mol_no(icol, against_a_dark_background); // outside inner loop
                   }
                }
             }
@@ -2296,7 +2292,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       if (with_gl_lines) {
 
          glBegin(GL_LINES);
-         for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+         for (int j=0; j< bonds_box.bonds_[icol].num_lines; j++) {
 
             const coot::CartesianPair &pospair = ll.pair_list[j].positions;
             const coot::Cartesian &start  = pospair.getStart();
@@ -2312,14 +2308,14 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
          float zsc_inner = graphics_info_t::zoom;
 
-         if (bonds_box.bonds_[i].thin_lines_flag)
+         if (bonds_box.bonds_[icol].thin_lines_flag)
             zsc_inner *= 0.5;
 
          glBegin(GL_QUADS);
 
          if (! use_radius_limit.first) {
 
-            for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+            for (int j=0; j< bonds_box.bonds_[icol].num_lines; j++) {
 
                if ((single_model_view_current_model_number == 0) ||
                    (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
@@ -2350,7 +2346,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
             // I am not sure that this (is_within_display_radius) split is necessary...
 
-            for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+            for (int j=0; j< bonds_box.bonds_[icol].num_lines; j++) {
 
                if ((single_model_view_current_model_number == 0) ||
                    (single_model_view_current_model_number == ll.pair_list[j].model_number)) {

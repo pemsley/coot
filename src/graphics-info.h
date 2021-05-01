@@ -4004,6 +4004,14 @@ string   static std::string sessionid;
 
    static void poke_the_refinement();
 
+   // by default, user-defined colours are on a colour wheel, but we can overwride that
+   // by setting actual user defined colours for give colour indices
+   //
+   static std::vector<coot::colour_holder> user_defined_colours;
+   static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
+   // run glColor3f())
+   static void set_bond_colour_from_user_defined_colours(int icol);
+
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,
 						     const graphical_bonds_container &bonds_box) const;

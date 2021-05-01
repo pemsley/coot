@@ -91,6 +91,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   coot::rotamer_probability_tables *tables_p
 					   ) {
 
+
    init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -114,6 +115,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    udd_has_ca_handle = -1;
 
 }
+
+
 
 // the constructor for bond by dictionary - should use this most of the time.
 // geom_in can be null if you don't have it.
@@ -243,7 +246,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 //
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
-					   Bond_lines_container::bond_representation_type by_occ) {
+					   Bond_lines_container::bond_representation_type br_type) {
 
    // std::cout << "Bond_lines_container() for B-factors! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
@@ -259,16 +262,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    float max_dist = 1.71;
    int model_number = 0; // all models
    bool do_rama_markup = false;
-   if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
+   if (br_type == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
       construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0, model_number, do_rama_markup);
    } else {
-      if (by_occ == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-         int atom_colours_udd = set_b_factor_colours(SelAtom.mol);
+      if (br_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+         set_b_factor_colours(SelAtom.mol);
 	 try_set_b_factor_scale(SelAtom.mol);
 	 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
       } else {
-	 // how confusing... :-)
-	 if (by_occ == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
+	 if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
 	    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
       }
    }
@@ -5143,6 +5145,9 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 				       if (at->GetUDData(udd_handle, ic) == mmdb::UDDATA_Ok) {
 					  col = ic;
 				       } else {
+                                          if (false)
+                                             std::cout << "DEBUG:: failed to get udd for udd_handle " << udd_handle
+                                                       << " for user-defined-atom-colour-index" << std::endl;
 					  col = 20;
 				       }
 				    } else {

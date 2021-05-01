@@ -2703,9 +2703,28 @@ molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
    mmdb::Residue *res = get_residue(atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code);
    mmdb::Atom *at = NULL;
 
+   auto get_atom_from_residue = [res, atom_spec] (const std::string &test_atom_name) {
+                                   mmdb::Atom *at = 0;
+                                   mmdb::PPAtom residue_atoms = 0;
+                                   int nResidueAtoms = 0;
+                                   res->GetAtomTable(residue_atoms, nResidueAtoms);
+                                   for (int iat=0; iat<nResidueAtoms; iat++) {
+                                      mmdb::Atom *test_at = residue_atoms[iat];
+                                      std::string at_name(test_at->name);
+                                      if (test_atom_name == at_name) {
+                                         std::string at_alt_conf(test_at->altLoc);
+                                         if (atom_spec.alt_conf == at_alt_conf) {
+                                            at = test_at;
+                                            break;
+                                         }
+                                      }
+                                   }
+                                   return at;
+                                };
+
    if (res) {
-      mmdb::PPAtom residue_atoms;
-      int nResidueAtoms;
+      mmdb::PPAtom residue_atoms = 0;
+      int nResidueAtoms = 0;
       res->GetAtomTable(residue_atoms, nResidueAtoms);
       for (int iat=0; iat<nResidueAtoms; iat++) {
          mmdb::Atom *test_at = residue_atoms[iat];
@@ -2715,6 +2734,30 @@ molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
             if (atom_spec.alt_conf == at_alt_conf) {
                at = test_at;
                break;
+            }
+         }
+         const std::size_t asnl = atom_spec.atom_name.length();
+         if (asnl != 4) {
+            // perhaps we were give an atom name with no spaces?
+            if (asnl == 1) {
+               std::string test_atom_name = " " + atom_spec.atom_name + "  ";
+               at = get_atom_from_residue(test_atom_name);
+               if (! at) {
+                  test_atom_name = atom_spec.atom_name + "   ";
+                  at = get_atom_from_residue(test_atom_name);
+               }
+            }
+            if (asnl == 2) {
+               std::string test_atom_name = " " + atom_spec.atom_name + " ";
+               at = get_atom_from_residue(test_atom_name);
+               if (! at) {
+                  test_atom_name = atom_spec.atom_name + "  ";
+                  at = get_atom_from_residue(test_atom_name);
+               }
+            }
+            if (asnl == 3) {
+               std::string test_atom_name = " " + atom_spec.atom_name;
+               at = get_atom_from_residue(test_atom_name);               
             }
          }
       }

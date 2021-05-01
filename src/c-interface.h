@@ -70,6 +70,8 @@ p  So we need to have this function external for c++ linking.
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
+#include <gtk/gtk.h>
+
 #ifndef BEGIN_C_DECLS
 
 #ifdef __cplusplus

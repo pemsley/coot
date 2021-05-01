@@ -6621,3 +6621,27 @@ graphics_info_t::quick_save() {
 #endif
 
 }
+
+
+// run glColor3f())
+// static
+void
+graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
+
+   if (use_graphics_interface_flag) {
+      int n_user_defined_colours = user_defined_colours.size();
+      if (icol < n_user_defined_colours) {
+         if (icol >= 0) {
+            const coot::colour_holder &ch = user_defined_colours[icol];
+            glColor3f(ch.red, ch.green, ch.blue);
+         } else {
+            coot::colour_holder ch;
+            glColor3f(ch.red, ch.green, ch.blue);
+         }
+      } else {
+         coot::colour_holder ch;
+         glColor3f(ch.red, ch.green, ch.blue);
+      }
+   }
+   
+}

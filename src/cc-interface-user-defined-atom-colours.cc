@@ -24,6 +24,8 @@
 #include "c-interface.h"   // for is_valid_model_molecule
 #include "cc-interface.hh" // residue_spec_from_py
 
+#include "graphics-info.h"
+
 /*  ----------------------------------------------------------------------- */
 /*                  user-defined atom colours                               */
 /*  ----------------------------------------------------------------------- */
@@ -57,6 +59,8 @@ void set_user_defined_atom_colour_by_residue_py(int imol, PyObject *residue_spec
       }
    }
 }
+
+#include "c-interface-python.hh"
 
 void set_user_defined_atom_colour_py(int imol, PyObject *atom_specs_colour_index_tuple_list_py) {
 
@@ -108,3 +112,61 @@ void clear_user_defined_atom_colours(int imol) {
       
 
 }
+
+
+#ifdef USE_PYTHON
+void set_user_defined_colours_py(PyObject *colour_list_py) {
+
+   if (PyList_Check(colour_list_py)) {
+      unsigned int l = PyObject_Length(colour_list_py);
+      if (l > 0) {
+         std::vector<coot::colour_holder> colours;
+         for (unsigned int i=0; i<l; i++) {
+            PyObject *item_py = PyList_GetItem(colour_list_py, i);
+            if (PyTuple_Check(item_py)) {
+               unsigned int l2 = PyObject_Length(item_py);
+               if (l2 == 2) {
+                  std::cout << "l2 = 2 for " << item_py << std::endl;
+                  PyObject *colour_index_py = PyTuple_GetItem(item_py, 0);
+                  PyObject *colour_list_py  = PyTuple_GetItem(item_py, 1);
+                  std::cout << "debug colour_index_py " << colour_index_py << std::endl;
+                  std::cout << "colour_list_py " << colour_list_py << std::endl;
+                  if (colour_index_py) {
+                     if (colour_list_py) {
+                        if (PyInt_Check(colour_index_py)) {
+                           long colour_index = PyInt_AsLong(colour_index_py);
+                           if (PyList_Check(colour_list_py)) {
+                              unsigned int l3 = PyObject_Length(colour_list_py);
+                              if (l3 == 3) {
+                                 double r = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 0));
+                                 double g = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 1));
+                                 double b = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 2));
+                                 coot::colour_holder ch(r,g,b);
+                                 int n_colours = colours.size();
+                                 if (colour_index < 10000) {
+                                    if (colour_index < n_colours) {
+                                       if (colour_index >= 0) {
+                                          colours[colour_index] = ch;
+                                       }
+                                    } else {
+                                       int cc = colours.capacity();
+                                       if (cc < (colour_index+1))
+                                          colours.reserve(2 * colour_index);
+                                       colours.resize(colour_index+1);
+                                       colours[colour_index] = ch;
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         graphics_info_t::user_defined_colours = colours;
+      }
+   }
+}
+
+#endif
