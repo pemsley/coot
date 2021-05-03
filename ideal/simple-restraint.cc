@@ -520,6 +520,13 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    init_neutron_occupancies();
 }
 
+double
+coot::restraints_container_t::get_distortion_score() const {
+
+   // Yummy mixing C and C++ APIs...
+   return distortion_score(x, const_cast<void *>(static_cast<const void *>(this)));
+}
+
 void
 coot::restraints_container_t::set_use_proportional_editing(bool state) {
    use_proportional_editing = state;
@@ -1613,7 +1620,6 @@ coot::restraints_container_t::free_delete_reset()  {
    m_s = 0;
    x = 0;
    needs_reset = true;
-
 }
 
 coot::refinement_results_t
