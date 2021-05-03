@@ -7729,7 +7729,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
          for (int imod=1; imod<=n_models; imod++) {
 
             mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-            mmdb::Chain *chain_p;
+	    if (! model_p) continue;
             // run over chains of the existing mol
             int nchains = model_p->GetNumberOfChains();
             if (nchains <= 0) {
@@ -7737,7 +7737,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
                          << std::endl;
             } else {
                for (int ichain=0; ichain<nchains; ichain++) {
-                  chain_p = model_p->GetChain(ichain);
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
                   if (chain_p == NULL) {
                      // This should not be necessary. It seem to be a
                      // result of mmdb corruption elsewhere - possibly
@@ -7760,7 +7760,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
             for (int imod=1; imod<=n_models; imod++) {
 
                mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-               mmdb::Chain *chain_p;
+	       if (! model_p) continue;
                // run over chains of the existing mol
                int nchains = model_p->GetNumberOfChains();
                if (nchains <= 0) {
@@ -7768,7 +7768,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
                             << std::endl;
                } else {
                   for (int ichain=0; ichain<nchains; ichain++) {
-                     chain_p = model_p->GetChain(ichain);
+		     mmdb::Chain *chain_p = model_p->GetChain(ichain);
                      if (chain_p) {
                         std::string chain_id = chain_p->GetChainID();
                         if (from_chain_id == chain_id) {
@@ -7857,7 +7857,8 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
    for (int imod=1; imod<=n_models; imod++) {
 
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      mmdb::Chain *chain_p;
+      if (! model_p) continue;
+
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains <= 0) {
@@ -7865,7 +7866,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
                    << std::endl;
       } else {
          for (int ichain=0; ichain<nchains; ichain++) {
-            chain_p = model_p->GetChain(ichain);
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
             if (chain_p == NULL) {
                // This should not be necessary. It seem to be a
                // result of mmdb corruption elsewhere - possibly
@@ -7898,7 +7899,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
       for (int imod=1; imod<=n_models; imod++) {
 
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-         mmdb::Chain *chain_p;
+	 if (! model_p) continue;
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
          if (nchains <= 0) {
@@ -7906,7 +7907,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
                       << std::endl;
          } else {
             for (int ichain=0; ichain<nchains; ichain++) {
-               chain_p = model_p->GetChain(ichain);
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
                if (chain_p) {
                   std::string chain_id = chain_p->GetChainID();
                   if (from_chain_id == chain_id) {
@@ -7956,7 +7957,8 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
       for (int imod=1; imod<=n_models; imod++) {
 
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-         mmdb::Chain *chain_p;
+	 if (! model_p) continue;
+
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
          short int residue_already_exists_flag = 0;
@@ -7965,7 +7967,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
                       << std::endl;
          } else {
             for (int ichain=0; ichain<nchains; ichain++) {
-               chain_p = model_p->GetChain(ichain);
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
                if (chain_p) {
                   std::string chain_id = chain_p->GetChainID();
                   if (to_chain_id == chain_id) {
@@ -8155,11 +8157,10 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
    bool found = 0;
    int r = 0; // returned value
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
       if (chain_id == chain_p->GetChainID()) {
          int nres = chain_p->GetNumberOfResidues();
          mmdb::PResidue residue_p;
