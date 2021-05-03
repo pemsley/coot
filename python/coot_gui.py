@@ -5530,7 +5530,37 @@ def add_module_ccp4_gui():
       add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
                                     lambda func: acedrg_link_generation_control_window())
 
+<<<<<<< HEAD
    
+=======
+def add_module_pdbe_gui():
+   if coot_python.main_menubar():
+      menu = coot_menubar_menu("PDBe")
+
+      # ---------------------------------------------------------------------
+      #     Recent structures from the PDBe
+      # ---------------------------------------------------------------------
+      #
+      add_simple_coot_menu_menuitem(
+         menu, "PDBe recent structures...",
+         lambda func: pdbe_latest_releases_gui())
+
+      # we do test for refmac at startup not runtime (for simplicity)
+      if command_in_path_qm("refmac5"):
+         mess = " Get it "
+      else:
+         mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
+
+      add_simple_coot_menu_menuitem(
+         menu, "Get from PDBe...",
+         lambda func: generic_single_entry("Get PDBe accession code",
+                                           "", " Get it ",
+                                           lambda text:
+                                           pdbe_get_pdb_and_sfs_cif(
+                                              "include-sfs", text.rstrip().lstrip())))
+
+
+>>>>>>> 187621fb9... Bring pythonic Coot modules in order
 #### BL stuff
    
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):

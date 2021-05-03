@@ -48,8 +48,9 @@ pdbe_file_name_tail = "ent"
 
 # helper function to avoid downloading empty files
 # returns download filename upon success or False when fail
+# should we return the response header too?
 #
-def coot_urlretrieve(url, file_name):
+def coot_urlretrieve(url, file_name, reporthook=None):
 
     """Helper function to avoid downloading empty files
     returns download filename upon success or False when fail."""
@@ -62,9 +63,9 @@ def coot_urlretrieve(url, file_name):
             # we just pass
             pass
 
-    opener = CootURLopener()
+    opener = CootURLopener(context=ssl_context)
     try:
-        local_filename, header = opener.retrieve(url, file_name)
+        local_filename, header = opener.retrieve(url, file_name, reporthook)
     except:
         # we could catch more here, but dont bother for now
         print "BL WARNING:: retrieve of url %s failed" %url

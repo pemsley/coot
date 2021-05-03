@@ -1695,30 +1695,34 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(
+         submenu_modules, "Carbohydrate",
+         lambda func: add_module_carbohydrate_gui())
+
+     add_simple_coot_menu_menuitem(
        submenu_modules, "CCP4...",
        lambda func: add_module_ccp4())
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "SHELX...",
-       lambda func: add_module_shelx())
+         submenu_modules, "Cryo-EM",
+         lambda func: add_module_cryo_em())
 
      add_simple_coot_menu_menuitem(
        submenu_modules, "User-defined Restraints...",
        lambda func: add_module_user_defined_restraints())
 
      add_simple_coot_menu_menuitem(
+       submenu_modules, "PDBe...",
+       lambda func: add_module_pdbe())
+
+     add_simple_coot_menu_menuitem(
          submenu_modules, "ProSMART",
          lambda func: add_module_prosmart())
 
      add_simple_coot_menu_menuitem(
-         submenu_modules, "Carbohydrate",
-         lambda func: add_module_carbohydrate_gui())
-     
-     add_simple_coot_menu_menuitem(
-         submenu_modules, "Cryo-EM",
-         lambda func: add_module_cryo_em())
+       submenu_modules, "SHELX...",
+       lambda func: add_module_shelx())
 
-     
+
      # ---------------------------------------------------------------------
      #     Settings
      # ---------------------------------------------------------------------
