@@ -291,7 +291,9 @@ coot::side_chain_densities::guess_the_sequence(mmdb::Manager *mol,
                         std::string best_type;
                         for (it=likelihood_map.begin(); it!=likelihood_map.end(); ++it) {
                            const std::string &res_name_this = it->first;
-                           double score = it->second  + 10.0 * log(get_relabun(res_name_this)); // hacketty hack!
+                           std::cout << "debug:: " << residue_spec_t(residue_p) << " " << res_name_this << " "
+                                     << it->second << " " << 10.0 * log(get_relabun(res_name_this)) << std::endl;
+                           double score = it->second  + 30.0 * log(get_relabun(res_name_this)); // hacketty hack!
                            if (score > best_score) {
                               best_score = score;
                               best_type = res_name_this;
@@ -1192,7 +1194,6 @@ coot::side_chain_densities::get_residue_axes_type_GLY(mmdb::Residue *this_residu
       clipper::Coord_orth cb_pos(0,0,0);
       return std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > (cb_pos, axes);
    }
-   
 }
 
 std::vector<clipper::Coord_orth>
@@ -1214,8 +1215,8 @@ coot::side_chain_densities::make_axes(const clipper::Coord_orth &pt_ca_this,
    clipper::Coord_orth axis_2(cp_1.unit());
    clipper::Coord_orth axis_3(cp_2.unit());
 
-   double dp = clipper::Coord_orth::dot(nc_uv, axis_3);
-   double theta = acos(dp);
+   // double dp = clipper::Coord_orth::dot(nc_uv, axis_3);
+   // double theta = acos(dp);
    // std::cout << residue_spec_t(this_residue) << " "
    // << clipper::Util::rad2d(theta) << std::endl;
    v.push_back(axis_1);
@@ -1276,6 +1277,8 @@ coot::side_chain_densities::get_residue_axes(mmdb::Residue *residue_p) const {
    return p;
 }
 
+
+// This function is not used - it could be deleted.
 void
 coot::side_chain_densities::gen_useable_grid_points(mmdb::Residue *residue_this_p,
                                                     mmdb::Residue *residue_next_p,
@@ -1387,7 +1390,7 @@ coot::side_chain_densities::add_mean_and_variance_to_individual_density_blocks()
    stats::single s;
    stats::single s_positive;
    std::map<mmdb::Residue *, density_box_t>::iterator it;
-   for(it=density_block_map_cache.begin(); it!=density_block_map_cache.end(); it++) {
+   for(it=density_block_map_cache.begin(); it!=density_block_map_cache.end(); ++it) {
       density_box_t &block = it->second;
       if (! block.empty()) {
          int nnn = block.nnn();
@@ -1678,6 +1681,7 @@ coot::side_chain_densities::get_grid_point_distance_from_grid_centre(const unsig
 double
 coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_idx,
                                                      const density_box_t &block,
+                                                     const std::string &rotamer_dir,
                                                      const double &step_size,
                                                      const double &mean,
                                                      const double &variance_in,
@@ -1740,6 +1744,8 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    // w = w * w * w;
    // w = 1.0;
    double diff = w * (e_part - e_part_normal);
+
+   // std::cout << "for " << rotamer_dir << " diff " << diff << std::endl;
 
    // remove this hideous baddies: Magic number - needs optimizing
    double mn_log_likelihood_ratio_difference_max = 18.0;
@@ -1834,23 +1840,51 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
                 << coot::residue_spec_t(residue_p) << " " << rotamer_dir
                 << std::endl;
 
-   bool do_debug_scoring = false; // count the number of times the the sample map is more than
+   // bool do_debug_scoring = false; // count the number of times the the sample map is more than
                                   // the template stats mean. Should be about 50-50?
                                   // Turns out not. 100-150 seems to work.
-   
-   unsigned int n_grid_pts = 0;
-   unsigned int n_above = 0;
 
    bool success = false; // initially
    double sum_log_likelihood = 0.0;
    double step_size = grid_box_radius/static_cast<float>(n_steps);
 
    get_results_addition_lock();
-   std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it;
-   it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
 
    // std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
 
+   auto fill_rotamer_dir_grid_stats_map_cache = [rotamer_dir] (std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > > &rotamer_dir_grid_stats_map_cache) {
+                                                   std::string glob_pattern = "stats.table";
+                                                   std::vector<std::string> tables = coot::util::glob_files(rotamer_dir, glob_pattern);
+                                                   if (tables.size() == 1) {
+                                                      std::map<unsigned int, std::tuple<double, double, double> > stats_map;
+                                                      std::string stats_table_file_name = tables[0];
+
+                                                      // std::cout << "stats_table_file_name: " << stats_table_file_name << std::endl;
+                                                      std::ifstream f(stats_table_file_name.c_str());
+                                                      if (f) {
+                                                         std::string line;
+                                                         while (std::getline(f, line)) {
+                                                            std::vector<std::string> words = coot::util::split_string_no_blanks(line);
+                                                            if (words.size() == 4) { // 5 with kurtosis
+                                                               unsigned int grid_idx = util::string_to_int(words[0]);
+                                                               double mean = util::string_to_double(words[1]);
+                                                               double var  = util::string_to_double(words[2]);
+                                                               double skew = util::string_to_double(words[3]);
+                                                               std::tuple<double, double, double> t(mean, var, skew);
+                                                               stats_map[grid_idx] = t;
+                                                            }
+                                                         }
+                                                         rotamer_dir_grid_stats_map_cache[rotamer_dir] = stats_map;
+                                                      }
+                                                   }
+                                                };
+
+   std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it;
+   it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
+   if (it == rotamer_dir_grid_stats_map_cache.end())
+      fill_rotamer_dir_grid_stats_map_cache(rotamer_dir_grid_stats_map_cache);
+   if (it == rotamer_dir_grid_stats_map_cache.end())
+      it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
    if (it != rotamer_dir_grid_stats_map_cache.end()) {
       success = true;
       const std::map<unsigned int, std::tuple<double, double, double> > &stats_map = it->second;
@@ -1861,90 +1895,12 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
          const double &mean = std::get<0>(m_v_s);
          const double &var  = std::get<1>(m_v_s);
          const double &skew = std::get<2>(m_v_s);
-         // std::cout << "debug:: compare_block_vs_rotamer() A var " << var << " block.var " << block.var << std::endl;
-         // double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
-         double llr = get_log_likelihood_ratio(grid_idx, block, step_size, mean, var, skew);
+         double llr = get_log_likelihood_ratio(grid_idx, block, rotamer_dir, step_size, mean, var, skew);
          sum_log_likelihood += llr;
-         if (do_debug_scoring) {
-            bool above = get_test_map_is_above_model_mean(grid_idx, block, mean);
-            if (above)
-               n_above++;
-            n_grid_pts++;
-         }
-      }
-   } else {
-      std::string glob_pattern = "stats.table";
-      std::vector<std::string> tables = coot::util::glob_files(rotamer_dir, glob_pattern);
-      if (tables.size() == 1) {
-         std::map<unsigned int, std::tuple<double, double, double> > stats_map;
-         std::string stats_table_file_name = tables[0];
-
-         // std::cout << "stats_table_file_name: " << stats_table_file_name << std::endl;
-         std::ifstream f(stats_table_file_name.c_str());
-         if (f) {
-            std::string line;
-            unsigned int n_grid_points = 0;
-            while (std::getline(f, line)) {
-               std::vector<std::string> words = coot::util::split_string_no_blanks(line);
-               if (words.size() == 4) { // 5 with kurtosis
-                  unsigned int grid_idx = util::string_to_int(words[0]);
-                  double mean = util::string_to_double(words[1]);
-                  double var  = util::string_to_double(words[2]);
-                  double skew = util::string_to_double(words[3]);
-                  if (false)
-                     std::cout << "debug:: compare_block_vs_rotamer() B var " << var << " block.var " << block.var
-                               << std::endl;
-                  if (var < 0.0) std::cout << "ERROR:: negative variance " << var << std::endl;
-                  // double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
-                  double llr = get_log_likelihood_ratio(grid_idx, block, step_size, mean, var, skew);
-                  sum_log_likelihood += llr;
-                  n_grid_points++;
-                  if (do_debug_scoring) {
-                     bool above = get_test_map_is_above_model_mean(grid_idx, block, mean);
-                     if (above)
-                        n_above++;
-                     n_grid_pts++;
-                  }
-                  if (false)
-                     std::cout << "for rotamer_dir " << rotamer_dir << " grid point "
-                               << grid_idx << " density " << block[grid_idx]
-                               << " adding " << llr << std::endl;
-
-                  // cache that
-                  std::tuple<double, double, double> t(mean, var, skew);
-                  stats_map[grid_idx] = t;
-
-               }
-            }
-
-            // get_results_addition_lock(); // not really results...
-            rotamer_dir_grid_stats_map_cache[rotamer_dir] = stats_map;
-            // release_results_addition_lock();
-
-            if (n_grid_points > 0) {
-
-               success = true;
-
-               if (false)
-                  std::cout << "debug:: " << std::left << std::setw(27) << rotamer_dir
-                            << " sum-ll: " << std::right << sum_log_likelihood
-                            << std::endl;
-            } else {
-               std::cout << "zero grid points " << rotamer_dir << std::endl;
-            }
-
-         } else {
-            std::cout << "ERROR:: failed to open stats file " << stats_table_file_name
-                      << std::endl;
-         }
       }
    }
 
    release_results_addition_lock();
-
-   if (do_debug_scoring) {
-      std::cout << "debug:: above the mean " << n_above << " of " << n_grid_pts << std::endl;
-   }
 
    return std::pair<bool, double>(success, sum_log_likelihood);
 }

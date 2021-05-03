@@ -133,6 +133,7 @@ namespace coot {
 				const double &skew) const;
       double get_log_likelihood_ratio(const unsigned int &grid_idx,
                                       const density_box_t &block,
+                                      const std::string &rotamer_dir, // for debugging
 				      const double &step_size,
                                       const double &mean,
                                       const double &variance,
