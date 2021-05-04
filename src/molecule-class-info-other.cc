@@ -6266,9 +6266,8 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 
 		  make_backup();
 		  int nres = chain_p->GetNumberOfResidues();
-		  mmdb::Residue *residue_p;
 		  for (int ires=0; ires<nres; ires++) { // ires is a serial number
-		     residue_p = chain_p->GetResidue(ires);
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 		     if (residue_p->seqNum >= start_resno) {
 			if (residue_p->seqNum <= last_resno) {
 			   coot::residue_spec_t old_res_spec(residue_p);
@@ -6283,9 +6282,9 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 		     }
 		  }
 	       }
-	    }
-	    if (status)
-	       chain_p->SortResidues();
+               if (status)
+                  chain_p->SortResidues();
+            }
 	 }
       }
       if (status) {
@@ -6337,9 +6336,8 @@ molecule_class_info_t::renumber_residue_range_old(const std::string &chain_id,
 	       chain_p_active = chain_p;
 	       make_backup();
 	       int nres = chain_p->GetNumberOfResidues();
-	       mmdb::Residue *residue_p;
 	       for (int ires=0; ires<nres; ires++) { // ires is a serial number
-		  residue_p = chain_p->GetResidue(ires);
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 		  if (residue_p->seqNum >= start_resno) {
 		     if (residue_p->seqNum <= last_resno) {
 
@@ -6462,9 +6460,9 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 
                if (sn.first != -1) { // normal insert
 
-                  int result = this_chain_p->InsResidue(res_copy, sn.first);
+                  this_chain_p->InsResidue(res_copy, sn.first);
                   this_chain_p->TrimResidueTable(); // probably not needed
-                  result = atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_INDEX);
+                  int result = atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_INDEX);
                   if (result != 0) {
                      std::cout << "WARNING:: change_residue_number() PDBCleanup failed " << std::endl;
                   }
