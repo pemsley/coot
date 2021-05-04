@@ -29,24 +29,23 @@
 
 void calc_almn(const clipper::Xmap<float> &xmap, clipper::Coord_orth &pos) {
 
-   float r = 10;
-   std::cout << "almn here" << std::endl;
+   float r = 10.0;
 
    clipper::Grid_sampling grid = xmap.grid_sampling();
    clipper::Cell cell = xmap.cell();
    clipper::Grid_range gr(cell, grid, r);
-   clipper::Coord_grid g, g0, g1;
    clipper::Coord_orth c0, c1;
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
+   clipper::Coord_grid g = pos.coord_frac(cell).coord_grid(grid);
+   clipper::Coord_grid g0 = g + gr.min();
+   clipper::Coord_grid g1 = g + gr.max();
+
    MRC i0, iu, iv, iw;
-   g = pos.coord_frac(cell).coord_grid(grid);
-   g0 = g + gr.min();
-   g1 = g + gr.max();
    i0 = MRC(xmap, g0);
    std::cout << "grid_range " << gr.format() << std::endl;
-   for (iu = i0; iu.coord().u() <= g1.u(); iu.next_u()) {
-      for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() ) {
-         for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
+   for(iu = i0; iu.coord().u() <= g1.u(); iu.next_u()) {
+      for(iv = iu; iv.coord().v() <= g1.v(); iv.next_v() ) {
+         for(iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
             c0 = iw.coord_orth() - pos;
             float rho = xmap[iw];
             std::cout << "c0: " << c0.format() << " rho: " << rho << std::endl;
@@ -72,7 +71,6 @@ void test_spherical() {
 
 int main(int argc, char **argv) {
 
-
    if (argc > 1) {
       std::string file_name(argv[1]);
       clipper::CCP4MAPfile file;
@@ -82,7 +80,7 @@ int main(int argc, char **argv) {
          clipper::Xmap<float> xmap;
          file.import_xmap(xmap);
          std::cout << "map grid sampling " << xmap.grid_sampling().format() << std::endl;
-         clipper::Coord_orth pos(30,10,20);
+         clipper::Coord_orth pos(71.41, 71.42, 71.42);
          calc_almn(xmap, pos);
       }
       catch (const clipper::Message_base &exc) {
