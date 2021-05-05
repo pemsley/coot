@@ -438,6 +438,3 @@
                          (gtk-signal-emit update-button "clicked"))))
               (set! post-manipulation-hook pmh)
               )))))))
-
-(register-extension "curlew-find-atom-overlap-baddies.scm" "1.0")
-;;
