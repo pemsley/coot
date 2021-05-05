@@ -8,7 +8,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/xmap.h>
-#include <geometry/protein-geometry.hh>
+#include "geometry/protein-geometry.hh"
 
 // delte this on merge
 std::string coot_util_single_letter_to_3_letter_code(char code);
