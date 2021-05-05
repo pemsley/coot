@@ -377,16 +377,13 @@ graphics_info_t::moving_atoms_atom_pick(short int pick_mode) const {
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
 
-   float m_front = 0.8;   // pickable distance
-   float m_back =  0.04;
-
-   std::pair<float, float> min_dist(999,999);
-   float close_score_best = 999.9;
-
-   float d_front_to_back = (back-front).amplitude();
-
    // This is the signal that moving_atoms_asc is clear
    if (moving_atoms_asc->n_selected_atoms > 0) {
+
+      float m_front = 0.8;   // pickable distance
+      float m_back =  0.04;
+      float close_score_best = 999.9;
+      float d_front_to_back = (back-front).amplitude();
 
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
