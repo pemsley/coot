@@ -1400,9 +1400,11 @@ test_correlation_of_residue_runs(int argc, char **argv) {
 
    bool is_cryo_em = true;
 
-   if (argc > 2) {
+   if (argc > 3) {
       std::string pdb_file_name = argv[1];
-      std::string map_file_name = argv[2];
+      std::string chain_id      = argv[2];
+      std::string map_file_name = argv[3];
+
       std::cout << "Getting atoms... " << std::endl;
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
       if (asc.read_success) {
@@ -1421,7 +1423,7 @@ test_correlation_of_residue_runs(int argc, char **argv) {
 
          unsigned int n_residue_per_residue_range = 11;
          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> residue_stats =
-            coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, "A", xmap,
+            coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, chain_id, xmap,
                                                                        n_residue_per_residue_range);
          std::cout << "INFO:: We got " << residue_stats.size() << " residue correlations" << std::endl;
 
@@ -1435,6 +1437,8 @@ test_correlation_of_residue_runs(int argc, char **argv) {
       } else {
          std::cout << "Failed to read " << pdb_file_name << std::endl;
       }
+   } else {
+      std::cout << "Usage: " << argv[0] << "pdb_file_name chain_id map_file_name" << std::endl;
    }
 }
 
