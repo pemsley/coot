@@ -27,10 +27,10 @@ n * This program is distributed in the hope that it will be useful, but
 #ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
-#   ifndef HAVE_INCLUDED_PYTHON
-#      define HAVE_INCLUDED_PYTHON
-#      include <Python.h>
-#   endif
+#ifndef HAVE_INCLUDED_PYTHON
+#define HAVE_INCLUDED_PYTHON
+#include <Python.h>
+#endif
 #endif 
 
 

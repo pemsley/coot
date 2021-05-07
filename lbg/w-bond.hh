@@ -93,8 +93,8 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 					const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 					GooCanvasItem *root) {
 
-      lig_build::pos_t A = atom_changed.atom_position;
-      lig_build::pos_t B =   atom_other.atom_position;
+      // lig_build::pos_t A = atom_changed.atom_position;
+      // lig_build::pos_t B =   atom_other.atom_position;
 
 //       bool shorten_first = 0;
 //       bool shorten_second = 0;
