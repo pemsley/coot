@@ -2388,7 +2388,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
                         //       if (debug_grid_points)
                         //          gp.close();
 
-                        if (debug) {
+                        if (false) {
                            // just checking that the maps are what we expect them to be...
                            clipper::CCP4MAPfile mapout;
                            mapout.open_write("calc.map");
@@ -2842,14 +2842,18 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 
 #include "utils/split-indices.hh"
 
-std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>
+std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                                            const std::string &chain_id,
                                                            const clipper::Xmap<float> &xmap,
-                                                           unsigned int n_residues_per_blob) {
+                                                           unsigned int n_residues_per_blob,
+                                                           bool exclude_CON,
+                                                           float atom_mask_radius,
+                                                           float NOC_mask_radius) {
 
-   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> res_map;
-   float atom_radius = 3.0; // maybe pass this?
+   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> res_map_all_atom;
+   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> res_map_side_chain;;
 
    // can be 5s also
    class residue_run_t {
@@ -2885,8 +2889,23 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
       }
    };
 
+   // Thi should be in utils, I guess.
+   auto is_het_residue = [] (mmdb::Residue *residue_p) {
+                            bool status = false;
+                            mmdb::Atom **residue_atoms = 0;
+                            int n_residue_atoms = 0;
+                            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                            if (n_residue_atoms > 0) {
+                               mmdb::Atom *at = residue_atoms[0];
+                               if (! at->isTer())
+                                  if (at->Het)
+                                     status = true;
+                            }
+                            return status;
+                         };
+
    // triples and 5s
-   auto make_residue_runs = [mol, chain_id, n_residues_per_blob] () {
+   auto make_residue_runs = [mol, chain_id, n_residues_per_blob, is_het_residue] () {
                                std::map<residue_spec_t, residue_run_t> residue_run_map;
                                int n_models = mol->GetNumberOfModels();
                                for (int imod=1; imod<=n_models; imod++) {
@@ -2904,7 +2923,14 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                               for (int i_run=0; i_run<static_cast<int>(n_residues_per_blob); i_run++) {
                                                  mmdb::Residue *residue_p = chain_p->GetResidue(i_res+i_run);
                                                  // std::cout << "pushing back " << residue_spec_t(residue_p) << " to residue_vec" << std::endl;
-                                                 residue_vec.push_back(residue_p);
+                                                 std::string res_name(residue_p->GetResName());
+                                                 if (res_name != "HOH" &&
+                                                     res_name != "A"  && res_name != "G"  && res_name != "U"  && res_name != "C" &&
+                                                     res_name != "DA" && res_name != "DG" && res_name != "DT" && res_name != "DC") {
+                                                    if (! is_het_residue(residue_p)) {
+                                                       residue_vec.push_back(residue_p);
+                                                    }
+                                                 }
                                               }
                                               if (residue_vec.size() >= n_residues_per_blob) {
                                                  if (! residue_vec.empty()) {
@@ -2937,13 +2963,39 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                return residue_runs;
                             };
 
-   auto get_residue_run_stats = [] (const residue_run_t &residue_run,
-                                    const clipper::Xmap<float> &xmap,
-                                    const clipper::Xmap<float> &xmap_calc,
-                                    const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map,
-                                    float atom_radius) {
+   auto get_residue_run_stats = [NOC_mask_radius] (const residue_run_t &residue_run,
+                                                   const clipper::Xmap<float> &xmap,
+                                                   const clipper::Xmap<float> &xmap_calc,
+                                                   const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map,
+                                                   float atom_radius,
+                                                   bool exclude_NOC) {
 
-                                   util::density_correlation_stats_info_t dcs;
+                                   // if exclude_NOC is true, then fill dcs_side_chain also. Return the pair.
+
+                                   util::density_correlation_stats_info_t dcs_all_atom;
+                                   util::density_correlation_stats_info_t dcs_side_chain;
+                                   std::vector<clipper::Coord_orth> atom_positions_to_avoid;
+                                   if (exclude_NOC) {
+                                      for (unsigned int ires=0; ires<residue_run.residues.size(); ires++) {
+                                         mmdb::Residue *residue_p = residue_run.residues[ires];
+                                         mmdb::Atom **residue_atoms = 0;
+                                         int n_residue_atoms = 0;
+                                         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                                         for (int iat=0; iat<n_residue_atoms; iat++) {
+                                            mmdb::Atom *at = residue_atoms[iat];
+                                            if (! at->isTer()) {
+                                               std::string atom_name(at->GetAtomName());
+                                               if (atom_name == " N  ") atom_positions_to_avoid.push_back(coot::co(at));
+                                               if (atom_name == " C  ") atom_positions_to_avoid.push_back(coot::co(at));
+                                               if (atom_name == " O  ") atom_positions_to_avoid.push_back(coot::co(at));
+                                               if (atom_name == " H  ") atom_positions_to_avoid.push_back(coot::co(at));
+                                            }
+                                         }
+                                      }
+                                   }
+
+                                   // std::cout << "rrrrrrrrrrrrrrrrrrrrrrrrr here with " << atom_positions_to_avoid.size()
+                                   // << " atom positions to avoid "<< std::endl;
 
                                    for (unsigned int ires=0; ires<residue_run.residues.size(); ires++) {
                                       mmdb::Residue *residue_p = residue_run.residues[ires];
@@ -2989,7 +3041,23 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                                            if (! clipper::Util::is_nan(yf)) {
                                                               double x = static_cast<double>(xf);
                                                               double y = static_cast<double>(yf);
-                                                              dcs.add(x,y);
+                                                              if (exclude_NOC) {
+                                                                 bool found_a_close_NOC = false;
+                                                                 const double dd_inside = NOC_mask_radius * NOC_mask_radius;
+                                                                 for (const auto &NOC_pos : atom_positions_to_avoid) {
+                                                                    double d = (co-NOC_pos).lengthsq();
+                                                                    if (d < dd_inside) {
+                                                                       found_a_close_NOC = true;
+                                                                       break;
+                                                                    }
+                                                                 }
+                                                                 if (found_a_close_NOC)
+                                                                    dcs_all_atom.add(x,y); // just main-chain in this case (confusing name).
+                                                                 else
+                                                                    dcs_side_chain.add(x,y);
+                                                              } else {
+                                                                 dcs_all_atom.add(x,y);
+                                                              }
                                                            } else {
                                                               if (false)
                                                                  std::cout << "Null calc map value " << atom_spec_t(at) << " " << iw.coord().format() << std::endl;
@@ -3002,7 +3070,7 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                          }
                                       }
                                    }
-                                   return dcs;
+                                   return std::pair<util::density_correlation_stats_info_t, util::density_correlation_stats_info_t>(dcs_all_atom, dcs_side_chain);
                                 };
 
    auto fill_contributor_map = [] (clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map, // reference
@@ -3044,18 +3112,23 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                   }
                                };
 
-   auto multi_get_residue_range_stats = [get_residue_run_stats] (unsigned int idx_start, unsigned int idx_end,
-                                            const std::vector<residue_run_t> &residue_runs,
-                                            const clipper::Xmap<float> &xmap,
-                                            const clipper::Xmap<float> &calc_map,
-                                            const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map,
-                                            float atom_radius,
-                                            std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> &res_map_l) {
+   auto multi_get_residue_range_stats = [get_residue_run_stats, exclude_CON] (unsigned int idx_start, unsigned int idx_end,
+                                                                              const std::vector<residue_run_t> &residue_runs,
+                                                                              const clipper::Xmap<float> &xmap,
+                                                                              const clipper::Xmap<float> &calc_map,
+                                                                              const clipper::Xmap<std::set<mmdb::Residue *> > &contributor_map,
+                                                                              float atom_radius,
+                                                                              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> &res_map_all_atom_l,
+                                                                              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> &res_map_side_chain_l) {
 
                                            for (unsigned int i=idx_start; i<idx_end; i++) {
                                               const residue_run_t &residue_run = residue_runs[i];
-                                              util::density_correlation_stats_info_t stats = get_residue_run_stats(residue_run, xmap, calc_map, contributor_map, atom_radius);
-                                              res_map_l[residue_spec_t(residue_run.residue_mid())] = stats;
+                                              std::pair<util::density_correlation_stats_info_t, util::density_correlation_stats_info_t> stats_all_atom_and_side_chains =
+                                                 get_residue_run_stats(residue_run, xmap, calc_map, contributor_map, atom_radius, exclude_CON);
+                                              const util::density_correlation_stats_info_t &stats_all_atom    = stats_all_atom_and_side_chains.first;
+                                              const util::density_correlation_stats_info_t &stats_side_chain  = stats_all_atom_and_side_chains.second;
+                                              res_map_all_atom_l[residue_spec_t(residue_run.residue_mid())]   = stats_all_atom;
+                                              res_map_side_chain_l[residue_spec_t(residue_run.residue_mid())] = stats_side_chain;
                                            }
                                         };
 
@@ -3070,7 +3143,7 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
    mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    clipper::Xmap<float> calc_map = coot::util::calc_atom_map(mol, SelHnd, xmap.cell(), xmap.spacegroup(), xmap.grid_sampling());
 
-   if (true) {
+   if (false) {
       clipper::CCP4MAPfile mapout;
       mapout.open_write("calc-map.map");
       mapout.export_xmap(calc_map);
@@ -3081,7 +3154,7 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
       std::cout << "OOPS! calc_map is null" << std::endl;
    } else {
       clipper::Xmap<std::set<mmdb::Residue *> > contributor_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
-      fill_contributor_map(std::ref(contributor_map), mol, SelHnd, atom_radius);
+      fill_contributor_map(std::ref(contributor_map), mol, SelHnd, atom_mask_radius);
 
 #if 0 // single thread
       for (unsigned int i=0; i<residue_runs.size(); i++) {
@@ -3099,12 +3172,14 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
       unsigned int n_threads = coot::get_max_number_of_threads();
       std::vector<std::thread> threads;
       std::vector<std::pair<unsigned int, unsigned int> > ranges = atom_index_ranges(residue_runs.size(), n_threads);
-      std::vector<std::map<residue_spec_t, util::density_correlation_stats_info_t> > stats_map_vec(n_threads); // local maps
+      std::vector<std::map<residue_spec_t, util::density_correlation_stats_info_t> > stats_map_all_atom_vec(n_threads);   // local maps
+      std::vector<std::map<residue_spec_t, util::density_correlation_stats_info_t> > stats_map_side_chain_vec(n_threads); // local maps
       for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-         std::map<coot::residue_spec_t, util::density_correlation_stats_info_t> &res_map_l = stats_map_vec[i_thread];
+         std::map<coot::residue_spec_t, util::density_correlation_stats_info_t> &res_map_all_atom_l   = stats_map_all_atom_vec[i_thread];
+         std::map<coot::residue_spec_t, util::density_correlation_stats_info_t> &res_map_side_chain_l = stats_map_side_chain_vec[i_thread];
          threads.push_back(std::thread(multi_get_residue_range_stats, ranges[i_thread].first, ranges[i_thread].second, std::cref(residue_runs),
-                                       std::cref(xmap), std::cref(calc_map), std::cref(contributor_map), atom_radius,
-                                       std::ref(res_map_l)));
+                                       std::cref(xmap), std::cref(calc_map), std::cref(contributor_map), atom_mask_radius,
+                                       std::ref(res_map_all_atom_l), std::ref(res_map_side_chain_l)));
       }
 
       for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
@@ -3112,16 +3187,20 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
 
       // now merge the maps
       for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-         const std::map<residue_spec_t, util::density_correlation_stats_info_t> &res_map_l = stats_map_vec[i_thread];
+         std::map<residue_spec_t, util::density_correlation_stats_info_t> &res_map_l = stats_map_all_atom_vec[i_thread];
          std::map<residue_spec_t, util::density_correlation_stats_info_t>::const_iterator it;
          for (it=res_map_l.begin(); it!=res_map_l.end(); ++it)
-            res_map[it->first] = it->second; // all the keys are different
+            res_map_all_atom[it->first] = it->second; // all the keys are different. But are they for multple models
+         res_map_l = stats_map_side_chain_vec[i_thread];
+         for (it=res_map_l.begin(); it!=res_map_l.end(); ++it)
+            res_map_side_chain[it->first] = it->second; // all the keys are different. But are they for multple models
       }
 #endif
    }
 
    mol->DeleteSelection(SelHnd);
-   return res_map;
+   return std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+                    std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >(res_map_all_atom, res_map_side_chain);
 }
 
 

@@ -153,6 +153,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-emma test-convolute test-segmap test-5-residue-fragments
 
+bin_PROGRAMS = mmrrcc
+
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -164,6 +166,13 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 #        $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
+
+mmrrcc_SOURCES = mmrrcc.cc
+mmrrcc_LDADD = ./libcoot-map-utils.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)
 
 test_coot_probe_SOURCES = test-coot-probe.cc
 test_coot_probe_LDADD =          \

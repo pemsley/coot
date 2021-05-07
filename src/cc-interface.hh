@@ -1607,7 +1607,8 @@ PyObject *
 map_to_model_correlation_stats_per_residue_range_py(int imol,
                                                     const std::string &chain_id,
                                                     int imol_map,
-                                                    unsigned int n_residue_per_residue_range);
+                                                    unsigned int n_residue_per_residue_range,
+                                                    short int exclude_NOC_flag);
 
 #endif
 
@@ -1669,9 +1670,13 @@ map_to_model_correlation_stats_per_residue(int imol,
 
 //! \brief map to model density statistics, reported per residue, the middle residue
 //!        of a range of residues
-std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>
+//!
+//! @return the all-atom stats first and side chains stats second
+std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 map_to_model_correlation_stats_per_residue_range(int imol, const std::string &chain_id, int imol_map,
-                                                 unsigned int n_residue_per_residue_range);
+                                                 unsigned int n_residue_per_residue_range,
+                                                 short int exclude_NOC_flag);
 
 #endif // not for swigging.
 
@@ -1689,6 +1694,11 @@ map_to_model_correlation_stats_per_residue_scm(int imol,
                                                unsigned short int atom_mask_mode,
                                                float atom_radius_for_masking,
                                                int imol_map);
+
+SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::string &chain_id, int imol_map,
+                                                         unsigned int n_residue_per_residue_range,
+                                                         short int exclude_NOC_flag);
+
 
 //! \brief QQ plot of the model density correlation, reported per residue
 //!

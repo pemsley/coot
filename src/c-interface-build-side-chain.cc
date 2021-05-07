@@ -1158,7 +1158,7 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
 }
 
 void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
-                                    const coot::fasta_multi &fam) {
+                                   const coot::fasta_multi &fam) {
 
    // change the residue number if you can
 
@@ -1184,8 +1184,8 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
             if (! new_sequence.empty()) {
                int sl = new_sequence.length();
                int residue_count = resno_end - resno_start + 1;
-               std::cout << "DEBUG:: new_sequence length " << sl
-                         << " residue_count " << residue_count << std::endl;
+               std::cout << "DEBUG:: new_sequence length " << sl << " residue_count " << residue_count
+                         << " offset " << offset << std::endl;
                if (sl == residue_count) {
                   molecule_class_info_t &m = graphics_info_t::molecules[imol];
                   m.make_backup_from_outside();
@@ -1213,6 +1213,9 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
                   }
                   if (backup_state)
                      m.turn_on_backup();
+               } else {
+                  std::cout << "WARNING:: residue count (based on given resno start and end) does not match "
+                            << "new sequence length" << std::endl;
                }
             }
             graphics_draw();
@@ -1250,15 +1253,18 @@ void assign_sequence_to_active_fragment() {
             mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
             if (residue_p) {
                float close_dist_max = 1.7;
+               // Yes, simple_residue_tree() is very slow: ~2 seconds for 1000 residues
+               // std::cout << "getting the residue tree ... " << std::endl;
                std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
-               if (v.size() > 0) {
+               // std::cout << "done getting the residue tree ... " << std::endl;
+               if (! v.empty()) {
                   std::string chain_id = atom_spec.chain_id;
                   int resno_low  =  10000000;
                   int resno_high = -10000000;
                   for (unsigned int i=0; i<v.size(); i++) {
                      int resno = v[i]->GetSeqNum();
                      // check that v[i] is in the same chain as the active atom
-                     if (true) {
+                     if (v[i]->GetChain() == residue_p->GetChain()) {
                         if (resno < resno_low)  resno_low  = resno;
                         if (resno > resno_high) resno_high = resno;
                      }
@@ -1269,6 +1275,8 @@ void assign_sequence_to_active_fragment() {
                      coot::fasta f(seq.first, seq.second, coot::fasta::SIMPLE_STRING);
                      fam.add(f);
                   }
+                  std::cout << "debug:: calling apply_fasta_multi_to_fragment() " << chain_id
+                            << " " << resno_low << " " << resno_high << " " << imol_map << std::endl;
                   apply_fasta_multi_to_fragment(imol, chain_id, resno_low, resno_high, imol_map, fam);
                } else {
                   std::cout << "empty v from simple_residue_tree() " << std::endl;

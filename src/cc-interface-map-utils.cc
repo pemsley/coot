@@ -45,18 +45,24 @@ handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
 
 //! \brief map to model density statistics, reported per residue, the middle residue
 //!        of a range of residues
-std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> 
+std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 map_to_model_correlation_stats_per_residue_range(int imol, const std::string &chain_id, int imol_map,
-                                                 unsigned int n_residue_per_residue_range) {
+                                                 unsigned int n_residue_per_residue_range,
+                                                 short int exclude_NOC_flag) {
 
-   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> m;
+   bool exclude_NOC = false;
+   if (exclude_NOC_flag)
+      exclude_NOC = true;
+   std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+             std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > m;
 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       if (g.is_valid_map_molecule(imol_map)) {
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-         const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
-         m = coot::util::map_to_model_correlation_stats_per_residue_run(mol, chain_id, xmap, n_residue_per_residue_range);
+         const clipper::Xmap<float> &xmap(g.molecules[imol_map].xmap);
+         m = coot::util::map_to_model_correlation_stats_per_residue_run(mol, chain_id, xmap, n_residue_per_residue_range, exclude_NOC);
       }
    }
 
@@ -67,18 +73,23 @@ map_to_model_correlation_stats_per_residue_range(int imol, const std::string &ch
 #ifdef USE_PYTHON
 PyObject *
 map_to_model_correlation_stats_per_residue_range_py(int imol, const std::string &chain_id, int imol_map,
-                                                    unsigned int n_residue_per_residue_range) {
+                                                    unsigned int n_residue_per_residue_range,
+                                                    short int exclude_NOC_flag) {
 
-   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> m =
-      map_to_model_correlation_stats_per_residue_range(imol, chain_id, imol_map, n_residue_per_residue_range);
+   std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+             std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > m =
+      map_to_model_correlation_stats_per_residue_range(imol, chain_id, imol_map, n_residue_per_residue_range, exclude_NOC_flag);
 
-   unsigned int  n_items = m.size();
-   PyObject *o = PyList_New(n_items);
+   unsigned int  n_aa_items = m.first.size();  // all atom and side chain
+   unsigned int  n_sc_items = m.first.size();
+   PyObject *o = PyList_New(2);
+   PyObject *o_0 = PyList_New(n_aa_items);
+   PyObject *o_1 = PyList_New(n_sc_items);
 
    std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
 
    unsigned int count = 0;
-   for (it=m.begin(); it!=m.end(); ++it) {
+   for (it=m.first.begin(); it!=m.first.end(); ++it) {
       const coot::residue_spec_t &spec(it->first);
       const coot::util::density_correlation_stats_info_t &stats(it->second);
       PyObject *spec_py = residue_spec_to_py(spec);
@@ -88,30 +99,57 @@ map_to_model_correlation_stats_per_residue_range_py(int imol, const std::string 
       PyObject *list_py = PyList_New(2);
       PyList_SetItem(list_py, 0, spec_py);
       PyList_SetItem(list_py, 1, stats_py);
-      PyList_SetItem(o, count, list_py);
+      PyList_SetItem(o_0, count, list_py);
       count++;
    }
+   count = 0;
+   for (it=m.first.begin(); it!=m.first.end(); ++it) {
+      const coot::residue_spec_t &spec(it->first);
+      const coot::util::density_correlation_stats_info_t &stats(it->second);
+      PyObject *spec_py = residue_spec_to_py(spec);
+      PyObject *stats_py = PyList_New(2);
+      PyList_SetItem(stats_py, 0, PyInt_FromLong(stats.n));
+      PyList_SetItem(stats_py, 1, PyFloat_FromDouble(stats.correlation()));
+      PyObject *list_py = PyList_New(2);
+      PyList_SetItem(list_py, 0, spec_py);
+      PyList_SetItem(list_py, 1, stats_py);
+      PyList_SetItem(o_1, count, list_py);
+      count++;
+   }
+   PyList_SetItem(o, 0, o_0);
+   PyList_SetItem(o, 1, o_1);
    return o;
 }
 #endif
 
 #ifdef USE_GUILE
 SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::string &chain_id, int imol_map,
-                                                         unsigned int n_residue_per_residue_range) {
+                                                         unsigned int n_residue_per_residue_range,
+                                                         short int exclude_NOC_flag) {
 
-   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> m =
-      map_to_model_correlation_stats_per_residue_range(imol, chain_id, imol_map, n_residue_per_residue_range);
+   std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+             std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > m =
+      map_to_model_correlation_stats_per_residue_range(imol, chain_id, imol_map, n_residue_per_residue_range, exclude_NOC_flag);
 
-   SCM r = SCM_EOL;
+   SCM r_0 = SCM_EOL;
+   SCM r_1 = SCM_EOL;
    std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
-   for (it=m.begin(); it!=m.end(); ++it) {
+   for (it=m.first.begin(); it!=m.first.end(); ++it) {
       const coot::residue_spec_t &spec(it->first);
       const coot::util::density_correlation_stats_info_t &stats(it->second);
       SCM spec_scm = residue_spec_to_scm(spec);
       SCM stats_scm = scm_list_2(SCM_MAKINUM(stats.n), scm_double2num(stats.correlation()));
       SCM item = scm_list_2(spec_scm, stats_scm);
-      r = scm_cons(r, item);
+      r_0 = scm_cons(r_0, item);
    }
-   return r;
+   for (it=m.second.begin(); it!=m.second.end(); ++it) {
+      const coot::residue_spec_t &spec(it->first);
+      const coot::util::density_correlation_stats_info_t &stats(it->second);
+      SCM spec_scm = residue_spec_to_scm(spec);
+      SCM stats_scm = scm_list_2(SCM_MAKINUM(stats.n), scm_double2num(stats.correlation()));
+      SCM item = scm_list_2(spec_scm, stats_scm);
+      r_1 = scm_cons(r_1, item);
+   }
+   return scm_list_2(r_0, r_1);
 }
 #endif

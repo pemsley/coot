@@ -1399,11 +1399,25 @@ void
 test_correlation_of_residue_runs(int argc, char **argv) {
 
    bool is_cryo_em = true;
+   bool exclude_NOC = true;
 
-   if (argc > 3) {
+   if (argc > 5) {
       std::string pdb_file_name = argv[1];
       std::string chain_id      = argv[2];
       std::string map_file_name = argv[3];
+      std::string atom_mask_radius_str = argv[4];
+      std::string NOC_mask_radius_str  = argv[5];
+      float atom_mask_radius = 3.0;
+      float NOC_mask_radius = 3.0;
+
+      try {
+         atom_mask_radius = coot::util::string_to_float(atom_mask_radius_str);
+         NOC_mask_radius  = coot::util::string_to_float(NOC_mask_radius_str);
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "ERROR::" << rte.what() << std::endl;
+         return;
+      }
 
       std::cout << "Getting atoms... " << std::endl;
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
@@ -1421,24 +1435,36 @@ test_correlation_of_residue_runs(int argc, char **argv) {
          if (is_cryo_em)
             clipper::ScatteringFactors::selectScattteringFactorsType(clipper::SF_ELECTRON);
 
+         // if exclude_NOC is set then the second part of the pair (for side chains) is also filled.
+
          unsigned int n_residue_per_residue_range = 11;
-         std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> residue_stats =
+         std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+                   std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > residue_stats =
             coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, chain_id, xmap,
-                                                                       n_residue_per_residue_range);
-         std::cout << "INFO:: We got " << residue_stats.size() << " residue correlations" << std::endl;
+                                                                       n_residue_per_residue_range, exclude_NOC,
+                                                                       atom_mask_radius, NOC_mask_radius);
+         std::cout << "INFO:: We got " << residue_stats.first.size()  << " residue all-atom correlations"   << std::endl;
+         std::cout << "INFO:: We got " << residue_stats.second.size() << " residue side-chain correlations" << std::endl;
 
          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
-         for (it=residue_stats.begin(); it!=residue_stats.end(); ++it) {
+         for (it=residue_stats.first.begin(); it!=residue_stats.first.end(); ++it) {
             const coot::residue_spec_t &rs(it->first);
             const coot::util::density_correlation_stats_info_t &stats(it->second);
-            std::cout << "   " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
+            std::cout << "   all-atom-stats " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
+            std::cout << std::endl;
+         }
+         for (it=residue_stats.second.begin(); it!=residue_stats.second.end(); ++it) {
+            const coot::residue_spec_t &rs(it->first);
+            const coot::util::density_correlation_stats_info_t &stats(it->second);
+            std::cout << "   side-chain-stats " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
             std::cout << std::endl;
          }
       } else {
          std::cout << "Failed to read " << pdb_file_name << std::endl;
       }
    } else {
-      std::cout << "Usage: " << argv[0] << "pdb_file_name chain_id map_file_name" << std::endl;
+      std::cout << "Usage: " << argv[0] << "pdb_file_name chain_id map_file_name atom-mask-radius NOC-mask-radius"
+                << std::endl;
    }
 }
 

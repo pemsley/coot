@@ -238,11 +238,14 @@ namespace coot {
 
       // n_residues_per_run should be an odd number more than 2 (say 11)
       //
-      std::map<coot::residue_spec_t, density_correlation_stats_info_t>
+      std::pair<std::map<coot::residue_spec_t, density_correlation_stats_info_t>, std::map<coot::residue_spec_t, density_correlation_stats_info_t> >
       map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                                      const std::string &chain_id,
                                                      const clipper::Xmap<float> &xmap,
-                                                     unsigned int n_residues_per_run);
+                                                     unsigned int n_residues_per_run,
+                                                     bool exclude_CON,
+                                                     float atom_mask_radius=2.8,
+                                                     float NOC_mask_radius=1.8); // optimized on strepavidin
 
       // helper
       std::pair<clipper::Coord_frac, clipper::Coord_frac>

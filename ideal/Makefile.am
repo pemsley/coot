@@ -99,7 +99,7 @@ crankshaft_test_LDADD = ./libcoot-ideal.la \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/utils/libcoot-utils.la            \
-        $(top_builddir)/compat/libcoot-compat.la -lpthread
+        $(top_builddir)/compat/libcoot-compat.la -lm -lpthread
 
 with_geometry_SOURCES = with-geometry.cc
 
