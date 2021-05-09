@@ -9,7 +9,8 @@ ligand_check.py
 run_mogul.py 
 ligand_check_refmac_columns in enhanced_ligand.py
 enhanced_ligand.py      test it
-use -Os (and not -g) for release build to save space. no debugging symbols needed for Windows (at this point).
+
+use #define _USE_MATH_DEFINES instead of extra M_PI (and derivative) defines
 
 Dictionaries:
 KCX, TPP
@@ -1152,3 +1153,8 @@ Osaka 2010
    o new gtk/gtkglext disappears with Dexpot
 
 * not done but fixed by showing on all desktops. Nothing else can be done AFAIK.
+
+   o use -Os (and not -g) for release build to save space. no debugging symbols needed for Windows (at this point).
+
+* Done (use make install-strip now)
+
