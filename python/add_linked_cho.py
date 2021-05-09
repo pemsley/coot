@@ -47,7 +47,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
         set_dragged_refinement_steps_per_frame(300)
 
         if (not isinstance(current_residue_spec, list)):
-            print "OOps not a proper res_spec %s with residue_to_add: %s" \
+            print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" \
                   %(current_residue_spec, residue_to_add)
             return False
         else:
@@ -56,7 +56,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
             else:
                 if (not isinstance(residue_to_add, list) and \
                     not len(residue_to_add) == 2):
-                    print "Oops - not a residue_link string pair when adding new_res_pair"
+                    print "WARNING:: Oops - not a residue_link string pair when adding new_res_pair"
                 else:
                     new_res = residue_to_add[0]
                     new_link = residue_to_add[1]

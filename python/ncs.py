@@ -19,9 +19,13 @@
 
 def find_first_model_molecule():
 
-    for molecule in molecule_number_list():
-        if valid_model_molecule_qm(molecule):
-           return molecule
+    imols = molecule_number_list()
+    if not imols:
+        return False
+    else:
+        for molecule in imols:
+            if valid_model_molecule_qm(molecule):
+                return molecule
 
 # Skip the residue in the next chain (typically of a molecule with
 # NCS) with the same residue number.  If on the last chain, then wrap

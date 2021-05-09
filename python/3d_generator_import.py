@@ -367,6 +367,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
             working_dir)
 
 
+    # keep the legacy...
     def use_libcheck(three_letter_code):
 
        import shutil
@@ -487,7 +488,7 @@ def new_molecule_by_smiles_string_by_acedrg(tlc_str, smiles_str):
     smiles_input.write(smiles_str)
     smiles_input.close()
 
-    stub = "acedrg-" + comp_id
+    stub = "acedrg-" + tlc_str
     pdb_out_file_name = stub + ".pdb"
     cif_out_file_name = stub + ".cif"
 

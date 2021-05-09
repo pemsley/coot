@@ -1442,7 +1442,7 @@ def transform_map(*args):
     ret = None
     def tf(imol, mat, trans, about_pt, radius, space_group, cell):
 
-        print("here in tf with ", imol, mat, trans, about_pt, radius, space_group, cell)
+        print("DEBUG:: here in tf with ", imol, mat, trans, about_pt, radius, space_group, cell)
 
         return transform_map_raw(imol,
                                  mat[0], mat[1], mat[2],
@@ -1747,8 +1747,12 @@ def auto_weight_for_refinement():
     def refinement_func():
         sr = sphere_residues(3.5)
         if sr:
-            ret = with_auto_accept([refine_residues, sr[0], sr[1]])
-            return ret
+            with AutoAccept():
+                refine_residues(*sr)
+                ret = accept_moving_atoms()
+                #ret = with_auto_accept([refine_residues, sr],
+                #                       [accept_moving_atoms])
+                return ret
             #return with_auto_accept([refine_residues, sr[0], sr[1]])
         else:
             return False
@@ -1771,14 +1775,18 @@ def auto_weight_for_refinement():
         if not rr:   # check for list?
             return False
         else:
-            nnb_list = no_non_bonded(rr[2])
-            chi_squares = [x[2] for x in nnb_list]
-            n = len(chi_squares)
-            summ = sum(chi_squares)
-            if n == 0:
+            results_inner = rr[2]
+            if not results_inner:
                 return False
             else:
-                return summ/n
+                nnb_list = no_non_bonded(results_inner)
+                chi_squares = [x[2] for x in nnb_list]
+                n = len(chi_squares)
+                summ = sum(chi_squares)
+                if n == 0:
+                    return False
+                else:
+                    return summ/n
 
     # main body
     #
