@@ -1860,11 +1860,10 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
    int imod = 1;
 
    mmdb::Model *model_p = mol_in->GetModel(imod);
-   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
       std::string mol_chain_id = chain_p->GetChainID();
       if (mol_chain_id == atom_spec.chain_id) {
          int nres = chain_p->GetNumberOfResidues();
@@ -1896,8 +1895,8 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
          break;
    }
 
-   bool found_search = 0;
    if (search_atom) {
+      bool found_search = false;
       // now try to set res_bot and res_top and their resnos.
       mmdb::Chain *chain_p = search_atom->GetChain();
       int nres = chain_p->GetNumberOfResidues();
@@ -1937,7 +1936,7 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
                
             }
             
-            found_search = 1;
+            found_search = true;
          }
          
          if (found_search)
@@ -3556,6 +3555,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
       }
    }
 
+
 //    int udd_afix_handle_inter = residues_mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 //    std::cout << "DEBUG:: about to return from create_mmdbmanager_from_res_selection, "
 //              << "udd_afix_handle_inter : " << udd_afix_handle_inter << std::endl;
@@ -3572,6 +3572,7 @@ std::pair<bool, mmdb::Manager *>
 coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
                                                    mmdb::Manager *old_mol,
                                                    const std::pair<bool,std::string> &use_alt_conf) {
+
 
    // If use_alt_conf first is true then
    //    if use_alt_conf second is not blank
@@ -3655,8 +3656,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       chain_p->SetChainID(residues_of_chain[ich].chain_id.c_str());
       for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) {
          mmdb::Residue *residue_new_p =
-            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires],
-                                               use_alt_conf);
+            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires], use_alt_conf);
 
          if (residue_new_p) {
 
@@ -3779,7 +3779,34 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
    pdbcleanup_serial_residue_numbers(mol);
    mol->FinishStructEdit();
-   return std::pair<bool, mmdb::Manager *> (1, mol);
+
+
+   bool debug_return_molecule = false;
+   if (debug_return_molecule) {
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     std::cout << "debug:: mol atom " << atom_spec_t(at) << std::endl;
+                  }
+               }
+            }
+         }
+      }
+   }
+
+
+
+   return std::pair<bool, mmdb::Manager *> (true, mol);
 }
 
 
@@ -4535,7 +4562,7 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue,
          if (! at->isTer()) {
 
             if (use_alt_conf.first) {
-               std::string alt_conf = at->altLoc;
+               std::string alt_conf(at->altLoc);
                if (! alt_conf.empty())
                   if (alt_conf != use_alt_conf.second)
                      continue;
