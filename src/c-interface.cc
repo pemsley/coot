@@ -2107,7 +2107,7 @@ void set_symmetry_size_from_widget(const char *text) {
       g.symmetry_search_radius = tmp;
    } else {
 
-      cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
+      std::cout << "Cannot interpret " << text << ".  Assuming 10A" << std::endl;
       g.symmetry_search_radius = 10.0;
    }
    //
@@ -2880,7 +2880,7 @@ set_aniso_limit_size_from_widget(const char *text) {
 
       g.show_aniso_atoms_radius = tmp;
    } else {
-      cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
+      std::cout << "Cannot interpret " << text << ".  Assuming 10A" << std::endl;
       g.show_aniso_atoms_radius = 10.0;
    }
 }
@@ -3366,7 +3366,7 @@ void set_smooth_scroll_steps_str(const char *text) {
    if (v > 0 && v < 10000000) {
       set_smooth_scroll_steps(v);
    } else {
-      cout << "Cannot interpret " << text << ".  Assuming 10 steps" << endl;
+      std::cout << "Cannot interpret " << text << ".  Assuming 10 steps" << std::endl;
       set_smooth_scroll_steps(10);
    }
 }
@@ -3397,7 +3397,7 @@ void  set_smooth_scroll_limit_str(const char *text) {
    if (v >0 && v < 1000) { 
       graphics_info_t::smooth_scroll_limit = v;
    } else {
-      cout << text << " out of range: using 10A" << endl;
+      std::cout << text << " out of range: using 10A" << std::endl;
       graphics_info_t::smooth_scroll_limit = 10;
    }
 }
@@ -3481,7 +3481,7 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
 
    val = atof(text); 
    if ((val > 1000) || (val < 0)) { 
-      cout << "Invalid cube size: " << text << ". Assuming 1.0A" << endl; 
+      std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0; 
    } 
    g.rotation_centre_cube_size = val; 
@@ -4724,7 +4724,7 @@ int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno,
    // 
    std::string t3s(t3);
    std::string::size_type icomma = t3s.find_last_of(",");
-   if (icomma == string::npos) {
+   if (icomma == std::string::npos) {
 
       // there was no comma, conventional usage:
       g.set_go_to_atom_chain_residue_atom_name(t1, iresno, t3); 
@@ -5260,7 +5260,7 @@ void set_skeletonization_level_from_widget(const char *txt) {
       g.skeleton_level = tmp; 
    } else { 
       
-      cout << "Cannot interpret " << txt << " using 0.2 instead" << endl; 
+      std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
       g.skeleton_level = 0.2; 
    } 
 
@@ -5295,7 +5295,7 @@ void set_skeleton_box_size_from_widget(const char *txt) {
       g.skeleton_box_radius = tmp; 
    } else { 
       
-      cout << "Cannot interpret " << txt << " using 0.2 instead" << endl; 
+      std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
       g.skeleton_box_radius = 0.2; 
    }
 
@@ -6806,7 +6806,7 @@ void set_found_coot_gui() {
    
    graphics_info_t g; 
 #ifdef USE_GUILE
-   cout << "Coot Scheme Scripting GUI code found and loaded." << endl; 
+   std::cout << "Coot Scheme Scripting GUI code found and loaded." << std::endl;
    g.guile_gui_loaded_flag = TRUE; 
 #endif // USE_GUILE
 }
@@ -6815,7 +6815,7 @@ void set_found_coot_python_gui() {
   
 #ifdef USE_PYTHON
    graphics_info_t g;
-   cout << "Coot Python Scripting GUI code found and loaded." << endl; 
+   std::cout << "Coot Python Scripting GUI code found and loaded." << std::endl;
    g.python_gui_loaded_flag = TRUE;
 #endif // USE_PYTHON
 
@@ -7400,7 +7400,7 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -7451,12 +7451,12 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
       
-      cout << "Reading cif file: " << filename << endl; 
+      std::cout << "Reading cif file: " << filename << std::endl;
 
       graphics_info_t g; 
 
@@ -7499,7 +7499,7 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -7536,7 +7536,7 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -7587,7 +7587,7 @@ int read_cif_data_with_phases_nfo_fc(const char *filename,
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {

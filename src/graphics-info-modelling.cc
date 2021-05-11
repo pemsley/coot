@@ -2157,7 +2157,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
       std::cout << "FYI: chain ids are: \"" << chain_id_1
 		<< "\" and \"" << chain_id_2 << "\"" << std::endl;
-      cout << "Picked atoms are not in the same chain.  Failure" << endl; 
+      std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
    } else { 
       flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);

@@ -1433,7 +1433,7 @@ graphics_info_t::skeletonize_map(int imol, short int prune_it) {
 						       g.molecules[imol].xmap,
 						       map_cutoff);
 
-	    cout << "INFO:: There were " << nsegments << " different segments" << endl;
+            std::cout << "INFO:: There were " << nsegments << " different segments" << std::endl;
 
 	    bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
 	    g.molecules[imol].set_colour_skeleton_by_segment(); // use random colours

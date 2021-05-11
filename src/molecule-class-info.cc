@@ -148,7 +148,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "WARNING:: Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-         std::cout << filename << " is a directory." << endl;
+         std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    }
@@ -2015,7 +2015,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
    // displayed.
    if (has_model()) {
       if (draw_it == 1) {
-         if (! cootsurface) {
+         if (true) {
             deuterium_spots();
             if (do_zero_occ_spots)
                zero_occupancy_spots();
@@ -2032,7 +2032,6 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
                draw_cis_peptide_markups();
 
             draw_bad_CA_CA_dist_spots();
-
          }
       }
    }
@@ -7951,7 +7950,7 @@ molecule_class_info_t::Refmac_name_stub() const {
 #else
    std::string::size_type islash = name_.find_last_of("/");
 #endif // MINGW
-   if (islash == string::npos) {
+   if (islash == std::string::npos) {
       // std::cout << "DEBUG:: slash not found in " << name_ << std::endl;
       stripped_name = name_;
    } else {
@@ -7965,11 +7964,11 @@ molecule_class_info_t::Refmac_name_stub() const {
    std::string::size_type irefmac = stripped_name.rfind("-refmac");
    std::string::size_type irefmac_ccp4i = stripped_name.rfind("_refmac");
 
-   if (irefmac == string::npos) { // not found
+   if (irefmac == std::string::npos) { // not found
 
       // so was it a ccp4i refmac pdb file?
 
-      if ( ! (irefmac_ccp4i == string::npos) ) {
+      if ( ! (irefmac_ccp4i == std::string::npos) ) {
          // it *was* a ccp4i pdb file:
          //
          refmac_name = stripped_name.substr(0,irefmac_ccp4i) + "_refmac";
@@ -7979,7 +7978,7 @@ molecule_class_info_t::Refmac_name_stub() const {
       // lets strip off ".pdb", ".pdb.gz"
       std::string::size_type ipdb = stripped_name.rfind(".pdb");
 
-      if (ipdb == string::npos) { // not a pdb
+      if (ipdb == std::string::npos) { // not a pdb
 
          // std::cout << "DEBUG:: ipdb not found" << std::endl;
          // just tack "refmac-2.pdb" on to the name then

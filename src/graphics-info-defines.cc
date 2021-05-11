@@ -1157,9 +1157,9 @@ graphics_info_t::check_if_in_rigid_body_define(GdkEventButton *event) {
 		  execute_rigid_body_refine(0);
 
 	       } else {
-		  cout << "Rigid Body: That atom was not in the "; 
-		  cout << "same molecule as the previous atom" << endl; 
-		  cout << "Cancelling selection" << endl;
+                  std::cout << "Rigid Body: That atom was not in the "; 
+                  std::cout << "same molecule as the previous atom" << std::endl; 
+                  std::cout << "Cancelling selection" << std::endl;
 	       }
 	    }
 	    g.in_rigid_body_define = 0;

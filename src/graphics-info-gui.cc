@@ -372,8 +372,8 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	    if (chirals_warn > -1) {
 	       // remove the chirals warn text
-	       string::size_type start_warn = rr.info_text.find("WARN");
-	       string::size_type end_warn   = rr.info_text.size();
+               std::string::size_type start_warn = rr.info_text.find("WARN");
+               std::string::size_type end_warn   = rr.info_text.size();
 	       tips_info_cis = rr.info_text.substr(start_warn, end_warn); // list the extra cis peptides here?
 	    } else {
 	       tips_info_cis = rr.info_text; // list the extra cis peptides?
@@ -390,7 +390,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	    if (cis_pep_warn > -1) {
 	       // remove the cis warn text
-	       string::size_type start_warn = rr.info_text.find("WARN");
+               std::string::size_type start_warn = rr.info_text.find("WARN");
 	       tips_info_chirals = rr.info_text.substr(0,start_warn) + old_tip;
 	    } else {
 	       tips_info_chirals = rr.info_text + old_tip;
@@ -867,9 +867,7 @@ graphics_info_t::get_estimated_map_weight(int imol_map) {
    float v = -1.0; // invalid value (negative)
 
    if (is_valid_map_molecule(imol_map)) {
-      float mean = graphics_info_t::molecules[imol_map].map_mean();
       float sd   = graphics_info_t::molecules[imol_map].map_sigma();
-
       v = 50*0.3/sd;
       if (graphics_info_t::molecules[imol_map].is_EM_map())
 	 v *= 0.35;
@@ -1104,7 +1102,6 @@ graphics_info_t::try_set_draw_baton(short int i) {
 void
 graphics_info_t::fill_combobox_with_skeleton_options(GtkWidget *combobox) {
 
-   graphics_info_t g;
    GCallback signalfunc = G_CALLBACK(skeleton_map_combobox_changed);
    fill_combobox_with_map_options(combobox, signalfunc, imol_refinement_map);
 }

@@ -7150,10 +7150,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
          mmdb::mat44 my_matt;
          int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
          if (err != mmdb::SYMOP_Ok) {
-            cout << "!! Warning:: No symmetry available for this molecule"
-                 << endl;
+            std::cout << "!! Warning:: No symmetry available for this molecule"
+                      << std::endl;
          } else {
-            cout << "Symmetry available for this molecule" << endl;
+            std::cout << "Symmetry available for this molecule" << std::endl;
          }
          is_from_shelx_ins_flag = 1;
 
@@ -9003,22 +9003,22 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
 
    initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
-   cout << "initializing map...";
+   std::cout << "initializing map...";
    xmap.init(mydata.spacegroup(),
                      mydata.cell(),
                      clipper::Grid_sampling(mydata.spacegroup(),
                                             mydata.cell(),
                                             mydata.resolution()));
-   cout << "done."<< endl;
-   cout << "doing fft..." ;
+   std::cout << "done."<< std::endl;
+   std::cout << "doing fft..." ;
    xmap.fft_from( fphidata );                  // generate map
-   cout << "done." << endl;
+   std::cout << "done." << std::endl;
    update_map_in_display_control_widget();
 
    mean_and_variance<float> mv = map_density_distribution(xmap,0);
 
-   cout << "Mean and sigma of map from CNS file: " << mv.mean
-        << " and " << sqrt(mv.variance) << endl;
+   std::cout << "Mean and sigma of map from CNS file: " << mv.mean
+             << " and " << sqrt(mv.variance) << std::endl;
 
    // fill class variables
    map_mean_ = mv.mean;

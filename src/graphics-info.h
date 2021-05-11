@@ -3267,7 +3267,7 @@ public:
    static float raster3d_bone_thickness;
    static bool  raster3d_enable_shadows;
    static int raster3d_water_sphere_flag;
-   static string raster3d_font_size;
+   static std::string raster3d_font_size;
 
    short int renderman(std::string filename);
 
@@ -3943,9 +3943,9 @@ string   static std::string sessionid;
 
    static double log_cosh_target_distance_scale_factor;
 
-   static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
-                                                  // if so, what is it? (say 20A)
-                                                  // used in draw_bonds().
+   static std::pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
+                                                       // if so, what is it? (say 20A)
+                                                       // used in draw_bonds().
 
    // extensions registry
    // a name (a script file name) and a version number/identifier as a string
