@@ -6232,19 +6232,19 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 			   new_res_spec.res_no += offset;
 
 			   residue_p->seqNum += offset;
-			   status = true; // found one residue at least.
+			   status = 1; // found one residue at least.
 
 			   update_any_link_containing_residue(old_res_spec, new_res_spec);
 			}
 		     }
 		  }
 	       }
+	       if (status == 1)
+		  chain_p->SortResidues();
 	    }
-	    if (status)
-	       chain_p->SortResidues();
 	 }
       }
-      if (status) {
+      if (status == 1) {
          have_unsaved_changes_flag = 1;
          atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
          atom_sel.mol->FinishStructEdit();
