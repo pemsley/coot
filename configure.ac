@@ -404,7 +404,6 @@ ccp4mg-utils/Makefile
 coords/Makefile
 db-main/Makefile
 density-contour/Makefile
-coot-surface/Makefile
 angles/Makefile
 mini-mol/Makefile
 skeleton/Makefile
