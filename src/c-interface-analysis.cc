@@ -24,7 +24,7 @@
 #include <iomanip> 
 #include "compat/coot-sysdep.h"
 
-#include "libgtkgraph/gtkgraph.h"
+// #include "libgtkgraph/gtkgraph.h"  // no longer built
 
 #ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
