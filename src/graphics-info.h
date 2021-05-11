@@ -1061,6 +1061,8 @@ public:
      molecules.pop_back();
    }
 
+   static int get_latest_model_molecule();
+
    static short int use_graphics_interface_flag;
 
    // Display size

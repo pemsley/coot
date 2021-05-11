@@ -4703,6 +4703,11 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 
    int imol = user_pointer_atom_molecule;
    graphics_info_t g;
+   if (! is_valid_model_molecule(imol)) {
+      // try to find one
+      imol = get_latest_model_molecule();
+   }
+
    if (is_valid_model_molecule(imol)) {
       molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
       update_environment_distances_by_rotation_centre_maybe(imol);

@@ -250,6 +250,22 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
 
 
+// static
+int
+graphics_info_t::get_latest_model_molecule() {
+
+   int imol = -1;
+   int n = n_molecules();
+   for(int ii=0; ii<n; ii++) {
+      if (is_valid_model_molecule(ii)) {
+         if (ii > imol) {
+            imol = ii;
+         }
+      }
+   }
+   return imol;
+}
+
 
 
 double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };
