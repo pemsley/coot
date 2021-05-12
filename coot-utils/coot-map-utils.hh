@@ -148,10 +148,14 @@ namespace coot {
          clipper::Coord_orth updated_centre;
          float suggested_contour_level;
          double sum_of_densities; // for scoring origins
-         map_molecule_centre_info_t() { success = false; sum_of_densities = -1;}
+         map_molecule_centre_info_t() {
+            success = false;
+            sum_of_densities = -1;
+            suggested_contour_level = 0.0;
+         }
       };
 
-      coot::util::map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
+      map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
 
       map_molecule_centre_info_t map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap,
                                                                               const clipper::Coord_orth &current_centre);

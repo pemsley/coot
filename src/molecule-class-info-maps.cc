@@ -1453,6 +1453,8 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 GdkRGBA
 molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_orth &position) {
 
+   // std::cout << "position_to_colour_using_other_map() pos " << position.format() << std::endl;
+
    GdkRGBA c;
    c.red   = 0.0;
    c.green = 0.1;
@@ -1460,26 +1462,38 @@ molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_o
    c.alpha = 1.0;
 
    if (other_map_for_colouring_p) {
-      float min_value = other_map_for_colouring_min_value;
-      float max_value = other_map_for_colouring_max_value;
-      float dv = coot::util::density_at_point(*other_map_for_colouring_p, position);
 
-      float f = 0.0;
-      if (dv < min_value) {
-         f = 0.0;
+      // std::cout << "debug other_map_for_colouring_p " << other_map_for_colouring_p << std::endl;
+      const clipper::Xmap<float> &other_xmap(*other_map_for_colouring_p);
+      if (other_xmap.is_null()) {
+         // this should not happen
+         return c;
       } else {
-         if (dv > max_value) {
-            f = 1.0;
-         } else {
-            // in the range
-            float range = max_value - min_value;
-            float m = dv - min_value;
-            f = m/range;
-         }
-      }
+         float min_value = other_map_for_colouring_min_value;
+         float max_value = other_map_for_colouring_max_value;
 
-      c = fraction_to_colour(f);
-      // std::cout << "fraction " << f << " col " << c.red << " " << c.green << " " << c.blue << std::endl;
+         // coot::util::map_molecule_centre_info_t mmci = coot::util::map_molecule_centre(*other_map_for_colouring_p);
+         // std::cout << "debug:: map molecule centre: " << mmci.updated_centre.format() << std::endl;
+
+         float dv = coot::util::density_at_point(*other_map_for_colouring_p, position);
+
+         float f = 0.0;
+         if (dv < min_value) {
+            f = 0.0;
+         } else {
+            if (dv > max_value) {
+               f = 1.0;
+            } else {
+               // in the range
+               float range = max_value - min_value;
+               float m = dv - min_value;
+               f = m/range;
+            }
+         }
+
+         c = fraction_to_colour(f);
+         // std::cout << "fraction " << f << " col " << c.red << " " << c.green << " " << c.blue << std::endl;
+      }
    } else {
       return c;
    }
@@ -4765,6 +4779,8 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
       colour_map_using_other_map_flag = true; // tell the triangle generator to use a function to get the colour
                                               // (position_to_colour_using_other_map(co))
       other_map_for_colouring_p = &xmap;
+
+      std::cout << "debug:: in colour_map_using_map() other_map_for_colouring_p is set to " << other_map_for_colouring_p << std::endl;
       other_map_for_colouring_min_value = table_bin_start;
       other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
       other_map_for_colouring_colour_table = colours;

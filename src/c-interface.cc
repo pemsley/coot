@@ -2478,6 +2478,7 @@ colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
          g.molecules[imol_map].colour_map_using_map(xmap_for_colouring);
       }
    }
+   graphics_draw();
 
 }
 
@@ -2523,6 +2524,7 @@ colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float 
          }
       }
    }
+   graphics_draw();
 }
 
 

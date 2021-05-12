@@ -1306,7 +1306,7 @@ def view_matrix_transp():
 
 def view_quaternion():
 
-    ret = list(map(get_view_quaternion_internal, [0, 1, 2, 3]))
+    ret = list(map(coot.get_view_quaternion_internal, [0, 1, 2, 3]))
     return ret
 
 # Return the view number
