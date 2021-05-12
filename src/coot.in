@@ -176,6 +176,12 @@ if ! [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/
   export PYTHONPATH="$extra_pypath:${extra_pypath//lib/lib64}:$PYTHONPATH"
 fi
 
+if [ -z "$GI_TYPELIB_PATH" ] ; then
+    if [ -e  /usr/lib/x86_64-linux-gnu/girepository-1.0 ] ; then
+        echo GI_TYPELIB_PATH /usr/lib/x86_64-linux-gnu/girepository-1.0
+    fi
+fi
+
 export SYMINFO
 export COOT_PREFIX
 export COOT_STANDARD_RESIDUES
