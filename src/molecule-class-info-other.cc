@@ -1714,11 +1714,13 @@ molecule_class_info_t::unalt_conf_residue_atoms(mmdb::Residue *residue_p) {
             }
          }
          if (n_match == 1) {
-            if (std::string(atoms[i]->altLoc) != "") {
-               std::string new_alt_conf("");
-               // force it down the atom's throat :) c.f. insert_coords_change_altconf
-               if (atoms[i]->altLoc) // scan-build fix
+            if (atoms[i]->altLoc) { // scan-build fix, needs review
+               std::string al(atoms[i]->altLoc);
+               if (! al.empty()) {
+                  std::string new_alt_conf("");
+                  // force it down the atom's throat :) c.f. insert_coords_change_altconf
                   strncpy(atoms[i]->altLoc, new_alt_conf.c_str(), 2);
+               }
             }
          }
       }

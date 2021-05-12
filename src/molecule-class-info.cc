@@ -8420,8 +8420,6 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
                   std::vector<std::vector<int> > contact_indices =
                      contact.get_contact_indices_with_reverse_contacts();
 
-                  std::cout << "here ... " << std::endl;
-
                   try {
                      coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
                      problem_string = jed_flip_internal(tree, interesting_torsions,

@@ -3602,7 +3602,7 @@ void coot_all_atom_contact_dots(int imol) {
       colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
 
-      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";

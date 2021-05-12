@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
          std::cout << "Failed to read " << pdb_file_name << std::endl;
       }
    } else {
-      std::cout << "Usage: " << argv[0] << " pdb_file_name chain_id map_file_name atom-mask-radius NOC-mask-radius"
+      std::cout << "Usage: " << argv[0] << " pdb_file_name chain_id map_file_name"
                 << std::endl;
    }
 

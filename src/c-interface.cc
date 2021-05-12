@@ -5983,7 +5983,7 @@ void set_refine_ramachandran_angles(int state) {
 void set_refine_ramachandran_restraints_type(int type) {
    graphics_info_t::restraints_rama_type = type;
    if (type == 0)
-      graphics_info_t::rama_restraints_weight = 0.1; // big numbers make the refinement fail (precision?)
+      graphics_info_t::rama_restraints_weight = 1.0; // big numbers make the refinement fail (precision?)
 }
 
 
