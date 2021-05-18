@@ -60,7 +60,7 @@ void change_directory_maybe() {
                   std::cout << "Faked to change dir to " << s << std::endl;
 	    } else {
 	       s = getenv("COOT_HOME");
-	       if (s) { 
+	       if (s) {
 		  std::cout << "INFO:: changing working directory to " << s << std::endl;
 		  int state = chdir(s);
                   if (state != 0)

@@ -25,6 +25,9 @@ from rdkit import Chem
 # Note that atom_type properties can also have been set in hydrogen_transformations():
 #
 def set_atom_type(match, match_atom_index, mol, atom_type, types_type='Refmac'):
+
+    # Refmac and monomer_library mean the same thing.
+
     prop_str = 'type_energy'
     if types_type == 'Parm@Frosst':
         prop_str = 'pf_atom_type'
@@ -64,7 +67,7 @@ def smarts_by_element():
       "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U"]
    return map(ele_to_smart, eles)
 
-def set_atom_types(mol):
+def set_monomer_library_atom_types(mol):
     smarts_list = [
 
         # Full coverage for C, H, O.
@@ -260,6 +263,54 @@ def set_atom_types(mol):
           return False
     # we got to the end, good
     return True
+
+def set_amber_atom_types(mol):
+    smarts_list = [
+
+        ('C',   '[CX3]=[OX1]', 0), # sp2 C carbonyl group
+        ('CA',  'c', 0), # aromatic C
+        ('CB',  'c', 0), # aromatic C of fused 5,6 membered rings
+        ('CC',  '[cr5;H1]', 0), # C in HIS
+        ('CD',  'C=C-C=C', 1), # CD in C=CD-CD=C
+        ('CK',  'n[cr5]n', 1), # C in the 5 membered ring of purines
+        ('CM',  '[cr6;H1]n', 0), # C in pyrmidines, positions 5,6
+        ('CM',  '[cr6;H1]c', 0), # C in pyrmidines, positions 5,6
+        ('CN',  '[cr6]n[cr5]', 0), # aromatic C 5,6 membered rings. Is that enough?
+        ('CQ',  'n[cr5]n', 1), # C of 5 membered ring in purines N-C-N
+        ('CR',  'c[cr5]n', 1), # as above but in HIS
+        ('CT',  '[CX4]', 0), # sp3 C aliphatic
+        ('CV',  'c', 0), # arom 5 membered ring with 1 N and 1 H (HIS)
+        ('CW',  'c', 0), # arom 5 membered ring with 1 N-H and 1 H (HIS)
+        ('C*',  'c', 0), # arom 5 membered ring with 1 subst. (TRP)
+        ('C*',  'c', 0),  # arom 5 membered ring with 1 subst. (TRP)
+        ('CY',  'C#N', 0), # nitrile C
+        ('CZ',  'A=C=A', 1), # sp C
+        ('CZ',  'C#A', 1), # sp C
+
+        ('O',  'O=C',  0) # carbonyl oxygen
+        ('OH',  'COH', 1) # alcohol oxygen
+        ('OS',  'C(=O)OA', 2) # ethyl or ester oxygen
+        ('OW',  'HOY', 1) # water oxygen
+        ('O2',  'O=CO', 1) # carboxyl oxygen
+        ('O2',  'O=PO', 1) # phosphate
+
+        ('SI',   '[Si]',    0)  # Si any other
+        ]
+
+    full_list = smarts_list
+    for smarts_info in full_list:
+        atom_type, smarts, match_atom_index = smarts_info
+        pattern = Chem.MolFromSmarts(smarts)
+        if mol.HasSubstructMatch(pattern):
+            matches = mol.GetSubstructMatches(pattern)
+            if False:
+                print("Amber SMARTS ", smarts)
+                print("  ", atom_type, ": ", matches)
+            for match in matches:
+                set_atom_type(match, match_atom_index, mol, atom_type)
+        else:
+            # print "SMARTS ", smarts, " --- No hits  "
+            pass
 
 
 def set_parmfrosst_atom_types(mol):

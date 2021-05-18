@@ -33,11 +33,11 @@ coot::bonded_pair_container_t::linked_already_p(mmdb::Residue *r1, mmdb::Residue
    bool r = 0;
    for (unsigned int i=0; i<bonded_residues.size(); i++) {
       if (((bonded_residues[i].res_1 == r1) &&
-	   (bonded_residues[i].res_2 == r2)) ||
-	  ((bonded_residues[i].res_1 == r2) &&
-	   (bonded_residues[i].res_2 == r1))) {
-	 r = 1;
-	 break;
+           (bonded_residues[i].res_2 == r2)) ||
+          ((bonded_residues[i].res_1 == r2) &&
+           (bonded_residues[i].res_2 == r1))) {
+         r = 1;
+         break;
       }
    }
    return r;
@@ -49,11 +49,11 @@ coot::bonded_pair_container_t::try_add(const coot::bonded_pair_t &bp) {
    bool found = false;
    for (unsigned int i=0; i<bonded_residues.size(); i++) {
       if ( (bonded_residues[i].res_1 == bp.res_1 &&
-	    bonded_residues[i].res_2 == bp.res_2) ||
-	   (bonded_residues[i].res_1 == bp.res_2 &&
-	    bonded_residues[i].res_2 == bp.res_1) ) {
-	 found = true;
-	 break;
+            bonded_residues[i].res_2 == bp.res_2) ||
+           (bonded_residues[i].res_1 == bp.res_2 &&
+            bonded_residues[i].res_2 == bp.res_1) ) {
+         found = true;
+         break;
       }
    }
 
@@ -71,12 +71,12 @@ coot::operator<<(std::ostream &s, coot::bonded_pair_container_t bpc) {
 
    for (unsigned int i=0; i<bpc.bonded_residues.size(); i++)
       s << "   " << i << "  [\""
-	<< bpc[i].link_type << "\" "
-	<< bpc[i].res_1->GetChainID() << " "    << bpc[i].res_1->GetSeqNum() << " "
-	<< bpc[i].res_1->GetInsCode() << " to " << bpc[i].res_2->GetChainID() << " "
-	<< bpc[i].res_2->GetSeqNum() << " "     << bpc[i].res_2->GetInsCode() << "]"
+        << bpc[i].link_type << "\" "
+        << bpc[i].res_1->GetChainID() << " "    << bpc[i].res_1->GetSeqNum() << " "
+        << bpc[i].res_1->GetInsCode() << " to " << bpc[i].res_2->GetChainID() << " "
+        << bpc[i].res_2->GetSeqNum() << " "     << bpc[i].res_2->GetInsCode() << "]"
         << "   " << bpc[i]
-	<< "\n";
+        << "\n";
 
    return s; 
 }
@@ -103,22 +103,22 @@ coot::bonded_pair_t::reorder_as_needed() {
       std::string chain_id_1_i = res_1->GetChainID();
       std::string chain_id_2_i = res_2->GetChainID();
       if (chain_id_1_i == chain_id_2_i) {
-	 if (res_1->isAminoacid()) {
-	    if (res_2->isAminoacid()) {
-	       mmdb::Residue *r = res_1;
-	       res_1 = res_2;
-	       res_2 = r;
+         if (res_1->isAminoacid()) {
+            if (res_2->isAminoacid()) {
+               mmdb::Residue *r = res_1;
+               res_1 = res_2;
+               res_2 = r;
                std::swap(is_fixed_first, is_fixed_second);
-	    }
-	 }
-	 if (res_1->isNucleotide()) {
-	    if (res_2->isNucleotide()) {
-	       mmdb::Residue *r = res_1;
-	       res_1 = res_2;
-	       res_2 = r;
+            }
+         }
+         if (res_1->isNucleotide()) {
+            if (res_2->isNucleotide()) {
+               mmdb::Residue *r = res_1;
+               res_1 = res_2;
+               res_2 = r;
                std::swap(is_fixed_first, is_fixed_second);
-	    }
-	 }
+            }
+         }
       }
    }
    // check here for ins code ordering
@@ -131,31 +131,31 @@ coot::bonded_pair_t::apply_chem_mods(const coot::protein_geometry &geom) {
    
    if (res_2 && res_2) { 
       try { 
-	 // apply the mods given the link type
+         // apply the mods given the link type
 
-	 // get the chem mods for each residue (can throw a runtime
-	 // error if there is one - (not an error).
-	 // 
-	 std::pair<chem_mod, chem_mod> mods = geom.get_chem_mods_for_link(link_type);
-	 std::string res_1_name = res_1->GetResName();
-	 std::string res_2_name = res_2->GetResName();
-	 for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) {
-	    if (mods.first.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
-	       std::string atom_name = mods.first.atom_mods[i].atom_id;
-	       std::string at_name = geom.atom_id_expand(atom_name, res_1_name, imol);
-	       delete_atom(res_1, at_name);
-	    }
-	 }
-	 for (unsigned int i=0; i<mods.second.atom_mods.size(); i++) {
-	    if (mods.second.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
-	       std::string atom_name = mods.second.atom_mods[i].atom_id;
-	       std::string at_name = geom.atom_id_expand(atom_name, res_2_name, imol);
-	       delete_atom(res_2, at_name);
-	    }
-	 }
+         // get the chem mods for each residue (can throw a runtime
+         // error if there is one - (not an error).
+         // 
+         std::pair<chem_mod, chem_mod> mods = geom.get_chem_mods_for_link(link_type);
+         std::string res_1_name = res_1->GetResName();
+         std::string res_2_name = res_2->GetResName();
+         for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) {
+            if (mods.first.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
+               std::string atom_name = mods.first.atom_mods[i].atom_id;
+               std::string at_name = geom.atom_id_expand(atom_name, res_1_name, imol);
+               delete_atom(res_1, at_name);
+            }
+         }
+         for (unsigned int i=0; i<mods.second.atom_mods.size(); i++) {
+            if (mods.second.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
+               std::string atom_name = mods.second.atom_mods[i].atom_id;
+               std::string at_name = geom.atom_id_expand(atom_name, res_2_name, imol);
+               delete_atom(res_2, at_name);
+            }
+         }
       }
       catch (const std::runtime_error &rte) {
-	 // it's OK if we don't find a chem mod for this link
+         // it's OK if we don't find a chem mod for this link
       }
    }
 }
@@ -180,12 +180,12 @@ coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_nam
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       if (at) {
-	 std::string at_name(at->name);
-	 if (at_name == atom_name) {
-	    delete at;
-	    at = NULL;
-	    deleted = true;
-	 }
+         std::string at_name(at->name);
+         if (at_name == atom_name) {
+            delete at;
+            at = NULL;
+            deleted = true;
+         }
       }
    }
 
@@ -217,10 +217,10 @@ coot::bonded_pair_container_t::filter() {
    if (debug) {
       std::cout << "DEBUG::: bonded_pair_container_t::filter(): we have these bonded pairs" << std::endl;
       for (unsigned int i=0; i<bonded_residues.size(); i++) {
-	 const bonded_pair_t &bp_i = bonded_residues[i];
-	 std::cout << i << "   "
-		   << residue_spec_t(bp_i.res_1) << " - to - "
-		   << residue_spec_t(bp_i.res_2) << std::endl;
+         const bonded_pair_t &bp_i = bonded_residues[i];
+         std::cout << i << "   "
+                   << residue_spec_t(bp_i.res_1) << " - to - "
+                   << residue_spec_t(bp_i.res_2) << std::endl;
       }
    }
 
@@ -228,64 +228,64 @@ coot::bonded_pair_container_t::filter() {
       bool keep_this = true;
       const bonded_pair_t &bp_i = bonded_residues[i];
       if (bp_i.res_1 && bp_i.res_2) {
-	 int resno_delta_i = bp_i.res_2->GetSeqNum() - bp_i.res_1->GetSeqNum();
-	 if (abs(resno_delta_i) > 1) {
-	    std::string chain_id_1_i = bp_i.res_1->GetChainID();
-	    std::string chain_id_2_i = bp_i.res_2->GetChainID();
-	    if (chain_id_1_i != chain_id_2_i) {
+         int resno_delta_i = bp_i.res_2->GetSeqNum() - bp_i.res_1->GetSeqNum();
+         if (abs(resno_delta_i) > 1) {
+            std::string chain_id_1_i = bp_i.res_1->GetChainID();
+            std::string chain_id_2_i = bp_i.res_2->GetChainID();
+            if (chain_id_1_i != chain_id_2_i) {
 
-	       if (bp_i.link_type == "SS" || bp_i.link_type == "disulf") {
-		  // this might be OK then
-	       } else {
-		  keep_this = false; // 20170422 covalently linked residues and carbohydrate must be in
-		                     // the same chain now
-	       }
-	    } else {
-	       for (unsigned int j=0; j<bonded_residues.size(); j++) {
-		  if (j!=i) {
-		     const bonded_pair_t &bp_j = bonded_residues[j];
-		     int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
+               if (bp_i.link_type == "SS" || bp_i.link_type == "disulf") {
+                  // this might be OK then
+               } else {
+                  keep_this = false; // 20170422 covalently linked residues and carbohydrate must be in
+                                     // the same chain now
+               }
+            } else {
+               for (unsigned int j=0; j<bonded_residues.size(); j++) {
+                  if (j!=i) {
+                     const bonded_pair_t &bp_j = bonded_residues[j];
+                     int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
 
-		     // We need to ask if the j'th linked-pair has a residue in
-		     // common with the i'th linked pair. If so, which one? If it's
-		     // the first one, then we are interested in comparing linked residues
-		     // with residue numbers greater than the first, and likewise, if it's
-		     // the second residue, then we are interested in comparing the
-		     // residue numbers of the first.
-		     //
-		     // Is the j'th linked-pair more reasonable than the i'th linked-pair?
-		     // as judged by the residue number difference being smaller
-		     //
-		     if (((resno_delta_i > 0) && (bp_i.res_1 == bp_j.res_1)) ||
-			 ((resno_delta_i < 0) && (bp_i.res_2 == bp_j.res_2))) {
-		     
-			if (abs(resno_delta_j) < abs(resno_delta_i)) {
-			   std::string chain_id_1_j = bp_j.res_1->GetChainID();
-			   std::string chain_id_2_j = bp_j.res_2->GetChainID();
-			   if (chain_id_1_j == chain_id_2_j) {
-			      if (chain_id_1_j == chain_id_1_i) {
-				 if (bp_i.link_type == "CIS" || bp_i.link_type == "TRANS" || bp_i.link_type == "PTRANS") {
-				    if (bp_j.link_type == "CIS" || bp_j.link_type == "TRANS" || bp_j.link_type == "PTRANS") {
-				       keep_this = false;
-				       if (debug)
-					  std::cout << ":::::::::::::::::::::: delete bonded pair "
-						    << residue_spec_t(bp_i.res_1) << " - to = "
-						    << residue_spec_t(bp_i.res_2) << " because "
-						    << residue_spec_t(bp_j.res_1) << " - to - "
-						    << residue_spec_t(bp_j.res_2) << " is closer " << std::endl;
-				    }
-				 }
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
+                     // We need to ask if the j'th linked-pair has a residue in
+                     // common with the i'th linked pair. If so, which one? If it's
+                     // the first one, then we are interested in comparing linked residues
+                     // with residue numbers greater than the first, and likewise, if it's
+                     // the second residue, then we are interested in comparing the
+                     // residue numbers of the first.
+                     //
+                     // Is the j'th linked-pair more reasonable than the i'th linked-pair?
+                     // as judged by the residue number difference being smaller
+                     //
+                     if (((resno_delta_i > 0) && (bp_i.res_1 == bp_j.res_1)) ||
+                         ((resno_delta_i < 0) && (bp_i.res_2 == bp_j.res_2))) {
+                     
+                        if (abs(resno_delta_j) < abs(resno_delta_i)) {
+                           std::string chain_id_1_j = bp_j.res_1->GetChainID();
+                           std::string chain_id_2_j = bp_j.res_2->GetChainID();
+                           if (chain_id_1_j == chain_id_2_j) {
+                              if (chain_id_1_j == chain_id_1_i) {
+                                 if (bp_i.link_type == "CIS" || bp_i.link_type == "TRANS" || bp_i.link_type == "PTRANS") {
+                                    if (bp_j.link_type == "CIS" || bp_j.link_type == "TRANS" || bp_j.link_type == "PTRANS") {
+                                       keep_this = false;
+                                       if (debug)
+                                          std::cout << ":::::::::::::::::::::: delete bonded pair "
+                                                    << residue_spec_t(bp_i.res_1) << " - to = "
+                                                    << residue_spec_t(bp_i.res_2) << " because "
+                                                    << residue_spec_t(bp_j.res_1) << " - to - "
+                                                    << residue_spec_t(bp_j.res_2) << " is closer " << std::endl;
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
       }
       if (keep_this)
-	 new_bonded_residues.push_back(bp_i);
+         new_bonded_residues.push_back(bp_i);
    }
 
    bonded_residues = new_bonded_residues;
@@ -304,25 +304,25 @@ coot::bonded_pair_container_t::closer_exists_p(const coot::bonded_pair_t &bp_in)
    if (bp_in.res_1 && bp_in.res_2) { 
       int resno_delta_i = bp_in.res_2->GetSeqNum() - bp_in.res_1->GetSeqNum();
       if (abs(resno_delta_i) > 1) { // needs more sophisticated test for ins-code linked residues
-	 std::string chain_id_1_i = bp_in.res_1->GetChainID();
-	 std::string chain_id_2_i = bp_in.res_1->GetChainID();
-	 if (chain_id_1_i == chain_id_2_i) {
-	    for (unsigned int j=0; j<bonded_residues.size(); j++) {
-	       const bonded_pair_t &bp_j = bonded_residues[j];
-	       int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
-	       if (abs(resno_delta_j) < resno_delta_i) {
-		  std::string chain_id_1_j = bp_j.res_1->GetChainID();
-		  std::string chain_id_2_j = bp_j.res_1->GetChainID();
-		  if (chain_id_1_j == chain_id_2_j) {
-		     if (chain_id_1_i == chain_id_1_j) {
-			e = true;
-		     }
-		  }
-	       }
-	       if (e)
-		  break;
-	    }
-	 }
+         std::string chain_id_1_i = bp_in.res_1->GetChainID();
+         std::string chain_id_2_i = bp_in.res_1->GetChainID();
+         if (chain_id_1_i == chain_id_2_i) {
+            for (unsigned int j=0; j<bonded_residues.size(); j++) {
+               const bonded_pair_t &bp_j = bonded_residues[j];
+               int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
+               if (abs(resno_delta_j) < resno_delta_i) {
+                  std::string chain_id_1_j = bp_j.res_1->GetChainID();
+                  std::string chain_id_2_j = bp_j.res_1->GetChainID();
+                  if (chain_id_1_j == chain_id_2_j) {
+                     if (chain_id_1_i == chain_id_1_j) {
+                        e = true;
+                     }
+                  }
+               }
+               if (e)
+                  break;
+            }
+         }
       }
    }
 

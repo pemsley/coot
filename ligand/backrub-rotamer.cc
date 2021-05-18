@@ -71,7 +71,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
       for (int ivr=-n_vr; ivr<=n_vr; ivr++) {
 
          double rotation_angle = vector_rotation_range * double(ivr)/double(n_vr);
-         if (0) {
+         if (false) {
             std::cout << "DEBUG:: rotamer " << irot << " rotation_angle " << rotation_angle
                       << " from "
                       << vector_rotation_range << "*"  << double(ivr) << "/" << double(n_vr)
@@ -688,8 +688,6 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
    double dist_crit_sq = dist_crit * dist_crit;
    double dist_crit_H_bonder_sq = dist_crit_H_bonder * dist_crit_H_bonder;
    std::pair<double, clipper::Coord_orth> rotamer_info = a_rotamer.get_pos();
-   double max_dev_residue_pos = rotamer_info.first;
-   clipper::Coord_orth mean_residue_pos = rotamer_info.second;
    int resno_1 = orig_prev_residue->GetSeqNum();
    int resno_2 = orig_this_residue->GetSeqNum();
    int resno_3 = orig_next_residue->GetSeqNum();
@@ -752,4 +750,98 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
    }
    std::pair<float, std::vector<mmdb::Atom *> > p(clash_score, clashing_waters);
    return p;
+}
+
+
+void
+coot::backrub_molecule(mmdb::Manager *mol, const clipper::Xmap<float> *xmap_p, const coot::protein_geometry &pg) {
+
+   if (! mol) return;
+   if (! xmap_p) return;
+
+   auto replace_coords = [mol] (atom_selection_container_t fragment_asc) {
+                            if (mol)  {
+                               int imod = 1;
+                               mmdb::Model *model_p = fragment_asc.mol->GetModel(imod);
+                               if (model_p) {
+                                  int n_chains = model_p->GetNumberOfChains();
+                                  for (int ichain=0; ichain<n_chains; ichain++) {
+                                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                     int nres = chain_p->GetNumberOfResidues();
+                                     for (int ires=0; ires<nres; ires++) {
+                                        mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                        int n_atoms = residue_p->GetNumberOfAtoms();
+                                        for (int iat=0; iat<n_atoms; iat++) {
+                                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                                           atom_spec_t spec(at);
+                                           mmdb::Atom *at_mol = util::get_atom(spec, mol);
+                                           if (at_mol) {
+                                              if (false)
+                                                 std::cout << "--------------- replacing coords for atom "
+                                                           << atom_spec_t(at) << " "
+                                                           << at_mol->x << " " << at_mol->y << " " << at_mol->z << " "
+                                                           <<     at->x << " " <<     at->y << " " <<     at->z << " "
+                                                           << std::endl;
+                                              at_mol->x = at->x;
+                                              at_mol->y = at->y;
+                                              at_mol->z = at->z;
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
+                            }
+                         };
+
+   auto delete_atoms = [mol] (const std::vector<coot::atom_spec_t> &baddie_waters) {
+                          if (mol)  {
+                             for (const auto &baddie_spec : baddie_waters) {
+                                mmdb::Atom *at = util::get_atom(baddie_spec, mol);
+                                if (at) {
+                                   mmdb::Residue *residue = at->residue;
+                                   delete at;
+                                   residue->TrimAtomTable();
+                                }
+                             }
+                          }
+                       };
+
+   int imol_no = protein_geometry::IMOL_ENC_ANY;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id(chain_p->GetChainID());
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *this_res = chain_p->GetResidue(ires);
+            mmdb::Residue *prev_res = coot::util::previous_residue(this_res);
+            mmdb::Residue *next_res = coot::util::next_residue(this_res);
+            std::string res_name(this_res->GetResName());
+
+            if (res_name != "GLY" && res_name != "ALA") {
+               if (this_res && prev_res && next_res) {
+
+                  std::pair<short int, dictionary_residue_restraints_t> p =
+                     pg.get_monomer_restraints(res_name, imol_no);
+                  dictionary_residue_restraints_t restraints = p.second;
+
+                  if (p.first) {
+
+                     std::string alt_conf("");
+                     coot::backrub br(chain_id, this_res, prev_res, next_res, alt_conf, mol, xmap_p);
+                     std::pair<coot::minimol::molecule,float> m = br.search(restraints);
+                     std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
+                     atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
+                     replace_coords(fragment_asc);
+                     if (! baddie_waters.empty())
+                        delete_atoms(baddie_waters);
+                  }
+               }
+            }
+         }
+      }
+   }
 }

@@ -388,15 +388,11 @@ GtkWidget *wrapped_create_superpose_dialog() {
 void fill_superpose_combobox_with_chain_options(GtkWidget *chain_combobox, 
 						int is_reference_structure_flag) {
 
-   std::cout << "------- in fill_superpose_combobox_with_chain_options with chain_combobox " << chain_combobox
-	     << std::endl;
 #ifdef HAVE_SSMLIB
 
    graphics_info_t::fill_superpose_combobox_with_chain_options(chain_combobox,
 							       is_reference_structure_flag);
 #endif // HAVE_SSMLIB    
-   std::cout << "------- done fill_superpose_combobox_with_chain_options with chain_combobox "
-	     << std::endl;
 }
 
 
@@ -619,7 +615,7 @@ void fill_lsq_combobox_with_chain_options(GtkWidget *chain_id_combobox,
 
 void lsq_ref_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   std::cout << "Here in lsq_ref_mol_combobox_changed() " << std::endl;
+   // std::cout << "Here in lsq_ref_mol_combobox_changed() " << std::endl;
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
    std::string ss = "Unset";
    GtkWidget *chain_id_combobox = reinterpret_cast<GtkWidget *> (data);

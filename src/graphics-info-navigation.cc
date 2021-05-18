@@ -182,12 +182,12 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
       setRotationCentre(pi.atom_index, go_to_atom_molecule());
 
    } else {
-      cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
-	   << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
-	   << " res-no: " << go_to_atom_residue()
-	   << ", ins-code \"" << go_to_atom_inscode_ << "\","
-	   << " chain: \"" << go_to_atom_chain()
-	   << "\" not found in molecule " << go_to_atom_molecule() << endl;
+      std::cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
+                << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
+                << " res-no: " << go_to_atom_residue()
+                << ", ins-code \"" << go_to_atom_inscode_ << "\"," 
+                << " chain: \"" << go_to_atom_chain()
+                << "\" not found in molecule " << go_to_atom_molecule() << std::endl;
       std::string w = "WARNING:: atom ";
       w += go_to_atom_atom_name();
       w += go_to_atom_atom_altLoc_;
@@ -211,7 +211,7 @@ graphics_info_t::split_atom_name(const std::string &atom_name) {
    std::pair<std::string, std::string> v("","");
 
    std::string::size_type icomma = atom_name.find_last_of(",");
-   if (icomma == string::npos) {
+   if (icomma == std::string::npos) {
       // no comma
       v.first = atom_name;
    } else {

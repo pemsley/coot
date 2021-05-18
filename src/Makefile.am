@@ -400,6 +400,7 @@ libcootsumo_la_SOURCES = \
 	cc-interface-mogul.hh    \
 	cc-interface-scripting.cc\
 	cc-interface-scripting.hh\
+	cc-interface-map-utils.cc\
 	cc-interface-image.hh    \
 	cc-interface-png.cc      \
 	cc-interface-user-defined-atom-colours.hh \

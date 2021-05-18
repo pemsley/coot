@@ -50,7 +50,7 @@ namespace coot {
       class position_triple_t {
 	 void fill_residue_atom_positions(const minimol::residue &res);
       public:
-	 position_triple_t(const minimol::residue &res) { fill_residue_atom_positions(res); }
+	 explicit position_triple_t(const minimol::residue &res) { fill_residue_atom_positions(res); }
 	 clipper::Coord_orth positions[3];
       };
    private:
@@ -68,10 +68,14 @@ namespace coot {
       std::vector<std::pair<int, position_triple_t> > residue_atom_positions;
       void fill_residue_atom_positions();
    public:
-      stored_fragment_t() { standard_residues_mol = 0; }
+      stored_fragment_t() {
+         standard_residues_mol = 0;
+         sidechains_tried = false;
+         with_sidechains = false;
+         build_dir = 0;
+      }
       stored_fragment_t(const minimol::fragment &f, int build_dir_in,
-			bool with_sidechains_in, mmdb::Manager *m) {
-	 frag = f;
+			bool with_sidechains_in, mmdb::Manager *m) : frag(f) {
 	 with_sidechains = with_sidechains_in;
 	 sidechains_tried = false;
 	 standard_residues_mol = m;
@@ -171,8 +175,7 @@ namespace coot {
 					    const clipper::Xmap<float> &xmap_in,
 					    std::pair<float, float> mv_in,
 					    const std::vector<std::pair<std::string, std::string> > &sequences_in) :
-	 xmap(xmap_in) {
-	 mv = mv_in;
+	 xmap(xmap_in), mv(mv_in) {
 	 setup_standard_residues_mol();
 	 setup_symms();
 	 sequences = sequences_in;

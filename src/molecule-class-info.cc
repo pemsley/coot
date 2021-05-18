@@ -22,7 +22,7 @@
  */
 
 #ifdef USE_PYTHON
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include <Python.h> // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
 #include <epoxy/gl.h>
@@ -238,7 +238,7 @@ molecule_class_info_t::setup_internal() {
    contour_sigma_step = 0.1;
 
    //
-   cootsurface = NULL; // no surface initial, updated by make_surface()
+   // cootsurface = NULL; // no surface initial, updated by make_surface() removed for now
    theSurface = 0;
    transparent_molecular_surface_flag = 0;
 
@@ -371,7 +371,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "WARNING:: Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-         std::cout << filename << " is a directory." << endl;
+         std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    }
@@ -1277,7 +1277,8 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
-                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS
+                << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
       rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
@@ -2180,10 +2181,10 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
    // displayed.
    if (has_model()) {
       if (draw_it == 1) {
-    if (! cootsurface) {
+         if (true) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
-       if (! molrepinsts.size()) {
+            if (! molrepinsts.size()) {
 #endif
 #endif
           deuterium_spots();
@@ -2200,15 +2201,13 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
           }
           if (show_cis_peptide_markups)
              draw_cis_peptide_markups();
-
           draw_bad_CA_CA_dist_spots();
-
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
-       }
+            }
 #endif
 #endif
-    }
+         }
       }
    }
 }
@@ -8241,7 +8240,7 @@ molecule_class_info_t::Refmac_name_stub() const {
 #else
    std::string::size_type islash = name_.find_last_of("/");
 #endif // MINGW
-   if (islash == string::npos) {
+   if (islash == std::string::npos) {
       // std::cout << "DEBUG:: slash not found in " << name_ << std::endl;
       stripped_name = name_;
    } else {
@@ -8255,11 +8254,11 @@ molecule_class_info_t::Refmac_name_stub() const {
    std::string::size_type irefmac = stripped_name.rfind("-refmac");
    std::string::size_type irefmac_ccp4i = stripped_name.rfind("_refmac");
 
-   if (irefmac == string::npos) { // not found
+   if (irefmac == std::string::npos) { // not found
 
       // so was it a ccp4i refmac pdb file?
 
-      if ( ! (irefmac_ccp4i == string::npos) ) {
+      if ( ! (irefmac_ccp4i == std::string::npos) ) {
          // it *was* a ccp4i pdb file:
          //
          refmac_name = stripped_name.substr(0,irefmac_ccp4i) + "_refmac";
@@ -8269,7 +8268,7 @@ molecule_class_info_t::Refmac_name_stub() const {
       // lets strip off ".pdb", ".pdb.gz"
       std::string::size_type ipdb = stripped_name.rfind(".pdb");
 
-      if (ipdb == string::npos) { // not a pdb
+      if (ipdb == std::string::npos) { // not a pdb
 
          // std::cout << "DEBUG:: ipdb not found" << std::endl;
          // just tack "refmac-2.pdb" on to the name then
@@ -8693,8 +8692,6 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
                   coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
                   std::vector<std::vector<int> > contact_indices =
                      contact.get_contact_indices_with_reverse_contacts();
-
-                  std::cout << "here ... " << std::endl;
 
                   try {
                      coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);

@@ -58,17 +58,22 @@ molecule_class_info_t::set_user_defined_colour_indices(const std::vector<std::pa
 
    if (atom_sel.mol) {
       int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+
       if (udd_handle == 0)
 	 udd_handle = atom_sel.mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+
       for (unsigned int i=0; i<cis.size(); i++) {
 	 const coot::atom_spec_t &spec = cis[i].first;
 	 mmdb::Atom *at = get_atom(spec);
 	 if (at) {
 	    int ierr = at->PutUDData(udd_handle, cis[i].second);
 	    if (ierr != mmdb::UDDATA_Ok) {
-	       std::cout << "problem setting udd on atom " << coot::atom_spec_t(at) << std::endl;
+	       std::cout << "ERROR:: problem setting udd on atom " << coot::atom_spec_t(at) << std::endl;
 	    }
-	 }
+	 } else {
+            std::cout << "WARNING:: in set_user_defined_colour_indices() failed to get atom "
+                      << spec << std::endl;
+         }
       }
    }
 }
@@ -82,8 +87,7 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
    bonds_box.clear_up();
    if (all_atoms_mode) {
 
-      Bond_lines_container bonds(atom_sel, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
-      bool add_residue_indices = true;
+      Bond_lines_container bonds(atom_sel, imol_no, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
 

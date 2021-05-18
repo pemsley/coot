@@ -1087,6 +1087,8 @@ public:
      molecules.pop_back();
    }
 
+   static int get_latest_model_molecule();
+
    static short int use_graphics_interface_flag;
 
    // Display size
@@ -1697,6 +1699,9 @@ public:
    pick_info find_atom_index_from_goto_info(int imol);
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
    mmdb::Atom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
+
+   pick_info pick_moving_atoms(const coot::Cartesian &front, const coot::Cartesian &back) const;
+   mmdb::Atom *get_moving_atom(const pick_info &pi) const; // return 0 on lookup failure
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
@@ -3371,7 +3376,7 @@ public:
    static float raster3d_bone_thickness;
    static bool  raster3d_enable_shadows;
    static int raster3d_water_sphere_flag;
-   static string raster3d_font_size;
+   static std::string raster3d_font_size;
 
    short int renderman(std::string filename);
 
@@ -4071,9 +4076,9 @@ string   static std::string sessionid;
 
    static double log_cosh_target_distance_scale_factor;
 
-   static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
-                                                  // if so, what is it? (say 20A)
-                                                  // used in draw_bonds().
+   static std::pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
+                                                       // if so, what is it? (say 20A)
+                                                       // used in draw_bonds().
 
    // extensions registry
    // a name (a script file name) and a version number/identifier as a string
@@ -4272,6 +4277,14 @@ string   static std::string sessionid;
    static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
 
    static void poke_the_refinement();
+
+   // by default, user-defined colours are on a colour wheel, but we can overwride that
+   // by setting actual user defined colours for give colour indices
+   //
+   static std::vector<coot::colour_holder> user_defined_colours;
+   static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
+   // run glColor3f())
+   static void set_bond_colour_from_user_defined_colours(int icol);
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

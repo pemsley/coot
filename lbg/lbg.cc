@@ -276,6 +276,9 @@ void lbg_info_t::init_internal() {
    lbg_srs_search_results_scrolledwindow = NULL;
    // lbg_qed_properties_progressbars = NULL;
    lbg_qed_properties_vbox = NULL;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   pending_action_data_picked_bond_index = -1;
+#endif
    lbg_view_rotate_entry = NULL;
    lbg_scale_spinbutton = NULL;
    lbg_search_combobox = NULL;

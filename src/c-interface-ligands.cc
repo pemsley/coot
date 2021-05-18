@@ -1469,7 +1469,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
       std::string button_name = "monomer_button_";
       // gets embedded as user data (hmm).
-      string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
+      std::string *s = new std::string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
 
       std::cout << "GTK-FIXME widget_ref b" << std::endl;
@@ -3753,7 +3753,7 @@ void coot_all_atom_contact_dots_old(int imol) {
       Material material;
       material.specular_strength *= 0.4;
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";

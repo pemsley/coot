@@ -546,6 +546,13 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    init_neutron_occupancies();
 }
 
+double
+coot::restraints_container_t::get_distortion_score() const {
+
+   // Yummy mixing C and C++ APIs...
+   return distortion_score(x, const_cast<void *>(static_cast<const void *>(this)));
+}
+
 void
 coot::restraints_container_t::set_use_proportional_editing(bool state) {
    use_proportional_editing = state;
@@ -1436,7 +1443,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
 	 std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
 	 std::cout << "No minimization will happen" << std::endl;
-	 return coot::refinement_results_t(0, 0, "No Restraints!");
+	 return refinement_results_t(0, 0, "No Restraints!");
       }
    }
 
@@ -1592,7 +1599,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    // (we don't get here unless restraints were found)
    bool found_restraints_flag = true;
-   coot::refinement_results_t rr(found_restraints_flag, status, lights_vec);
+   refinement_results_t rr(found_restraints_flag, status, lights_vec);
    if (refinement_results_add_details) {
       // this may be slowing thing down for big molecules. Needs investigation.
       // std::cout << "mimize_inner() calling add_details_to_refinement_results() " << std::endl;
@@ -1674,7 +1681,6 @@ coot::restraints_container_t::free_delete_reset()  {
    m_s = 0;
    x = 0;
    needs_reset = true;
-
 }
 
 coot::refinement_results_t
@@ -1693,7 +1699,7 @@ coot::restraints_container_t::get_refinement_results() {
 
 
 void
-coot::restraints_container_t::add_details_to_refinement_results(refinement_results_t *rr) const {
+coot::restraints_container_t::add_details_to_refinement_results(coot::refinement_results_t *rr) const {
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
    int n_restraints = size();
@@ -2805,21 +2811,22 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    // "thread starvation"
    std::atomic<unsigned int> done_count_for_restraints_sets(0);
 
-   double results[1024]; // we will always have less than 1024 threads
-
    if (restraints_p->thread_pool_p) {
-      for(unsigned int i=0; i<ranges.size(); i++) {
+
+      double results[1024]; // we will always have less than 1024 threads
+
+      unsigned int n_ranges = ranges.size(); // clang scan-build fix.
+      for(unsigned int i=0; i<n_ranges; i++) {
          results[i] = 0.0;
 	 restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
-					   v, std::cref(ranges[i]), restraints_p, &results[i],
+					   v, std::cref(ranges[i]), restraints_p, &(results[i]),
 					   std::ref(done_count_for_restraints_sets));
       }
-      while (done_count_for_restraints_sets < ranges.size()) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(1));
-      }
+      while (done_count_for_restraints_sets < ranges.size())
+	 std::this_thread::sleep_for(std::chrono::nanoseconds(300));
 
       // consolidate
-      for(unsigned int i=0; i<ranges.size(); i++)
+      for(unsigned int i=0; i<n_ranges; i++)
 	 score += results[i];
    } else {
       // null thread pool. restraints_container_t was created without a call to

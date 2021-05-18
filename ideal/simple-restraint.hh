@@ -1045,7 +1045,6 @@ namespace coot {
    void my_df_parallel_planes(const gsl_vector *v, void *params, gsl_vector *df);
    // Compute both f and df together.
    void my_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df);
-
    // replace this function, to test if things go faster with
    // alternative implementations?
    //
@@ -2409,6 +2408,9 @@ namespace coot {
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
 
       refinement_results_t get_refinement_results(); // not const because setup_minimize()
+
+      void simulated_annealing();
+
       void free_delete_reset();
 
       bool refinement_results_add_details;
@@ -2714,6 +2716,8 @@ namespace coot {
       // e.g. JED refine, cis-trans, pepflip will set this
       //
       void set_needs_reset() { needs_reset = true; }
+
+      double get_distortion_score() const;
 
       void analyze_for_bad_restraints();
 

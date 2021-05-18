@@ -442,11 +442,11 @@ matrix matrix::MinorMatrix(const matrix &a, const unsigned int &row, const unsig
     if(i!=row) {
       for(unsigned int j=0;j<a.get_columns();j++){
          if(j!=col){
-           if(i<row) 
+           if(i<row)
              ii = i;
            else
              ii = i-1;
-           if(j<col) 
+           if(j<col)
              jj = j;
            else
              jj = j-1;
@@ -460,17 +460,19 @@ matrix matrix::MinorMatrix(const matrix &a, const unsigned int &row, const unsig
 
 double* matrix::to_dp(){
 
-  double *result = new double[get_columns()*get_rows()];
-  int l=0;
+   double *result = 0;
 
-  for(unsigned int i=0;i<get_rows();i++){
-    for(unsigned int j=0;j<get_columns();j++){
-      result[l++] = mat[i][j];
-    } 
-  }
+   if (! mat.empty()) {
+      result = new double[get_columns()*get_rows()];
+      int l=0;
 
-  return result;
-  
+      for(unsigned int i=0;i<get_rows();i++){
+         for(unsigned int j=0;j<get_columns();j++){
+            result[l++] = mat[i][j];
+         }
+      }
+   }
+   return result;
 }
 
 unsigned int matrix::get_rows() const{
@@ -489,7 +491,7 @@ void matrix::Zero(){
   for(unsigned int i=0;i<get_rows();i++){
     for(unsigned int j=0;j<get_columns();j++){
       mat[i][j]=0.0;
-    } 
+    }
   }
 }
 

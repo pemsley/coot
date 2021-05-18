@@ -226,7 +226,7 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
    if (intermediate_atoms_only_flag) {
       if (moving_atoms_asc) {
          if (moving_atoms_asc->n_selected_atoms > 0) {
-            moving_atoms_molecule.atom_sel = *moving_atoms_asc; // why is this needed here?
+            moving_atoms_molecule.atom_sel = *moving_atoms_asc; // why is this needed here? Actually, is it needed here?
                                                                 // it shold be set when we start refinement.
             p_i = l(moving_atoms_molecule, -1);
          }
@@ -248,7 +248,7 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
          }
       }
       if (p_i.success) {
-         mmdb::Atom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
+         // mmdb::Atom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
          // std::cout << "INFO:: picked atom: " << coot::atom_spec_t(at) << std::endl;
       }
    }

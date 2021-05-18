@@ -124,11 +124,11 @@ void refine_zone(int imol, const char *chain_id,
 	 std::string resname_2(res_2->GetResName());
 	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
 	 // g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
-         // is_water_like_flag);
+         //                        is_water_like_flag);
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          std::vector<mmdb::Residue *> residues = coot::util::get_residues_in_range(mol, chain_id, resno1, resno2);
 
-         std::string alt_conf("");
+         std::string alt_conf(altconf);
          if (! residues.empty())
             coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf, mol);
       }

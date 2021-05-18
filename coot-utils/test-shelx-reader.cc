@@ -34,7 +34,7 @@ main(int argc, char **argv) {
       sh.write_ins_file(p.mol, std::string(argv[2]));
    } else {
       std::cout << "Usage: " << argv[0] << " shelx-ins-file-name out-file-name"
-		<< std::endl;
+                << std::endl;
    }
    return 0;
 }

@@ -2127,7 +2127,7 @@ void handle_get_accession_code(GtkWidget *widget) {
 
 
 #ifdef USE_GUILE
-      string scheme_command;
+      std::string scheme_command;
 
       if (n == 1) {
          get_coords_for_accession_code(text);
@@ -2159,7 +2159,7 @@ void handle_get_accession_code(GtkWidget *widget) {
 #else
 
 #ifdef USE_PYTHON
-      string python_command;
+      std::string python_command;
       if (n == 1) {
 	 get_coords_for_accession_code(text);
       } else {
@@ -5388,7 +5388,7 @@ void sequence_view_old_style(int imol) {
 
 	 std::string::size_type islash = g.molecules[imol].name_.find_last_of("/");
 	 std::string tstring;
-	 if (islash == string::npos) {
+	 if (islash == std::string::npos) {
 	    // no slash found
 	    tstring = g.molecules[imol].name_;
 	 } else {
@@ -5397,7 +5397,7 @@ void sequence_view_old_style(int imol) {
 
 	 std::string::size_type ipdb = tstring.rfind(".pdb");
 
-	 if (ipdb == string::npos) {
+	 if (ipdb == std::string::npos) {
 	    std::cout << "INFO .pdb not found in filename" << std::endl;
 	    short_name = tstring;
 	 } else {

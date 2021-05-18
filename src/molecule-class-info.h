@@ -76,7 +76,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "mini-mol/mini-mol.hh"
 #include "build/CalphaBuild.hh"
 #include "coot-render.hh"
-#include "coot-surface/coot-surface.hh"
+// #include "coot-surface/coot-surface.hh" dead now
 #include "coot-align.hh"
 #include "utils/coot-fasta.hh"
 #include "coot-utils/coot-shelx.hh"
@@ -1312,11 +1312,16 @@ public:        //                      public
    // chain).
    void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom,
 		     float col_scale);
+
    bool molecule_is_drawn_as_surface() const {
+#if 0
       if (cootsurface)
 	 return true;
       else
 	 return false;
+#else
+      return true; // for now (in 0.9.x)
+#endif
    }
    //
 
@@ -2314,7 +2319,7 @@ public:        //                      public
 
 
    // LMB surface
-   coot::surface *cootsurface;
+   // coot::surface *cootsurface; // dead for now
 
    // for widget label:
    std::string cell_text_with_embeded_newline() const;

@@ -45,6 +45,7 @@
 #include <goocanvas.h>
 #include <clipper/core/coords.h>
 
+#include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-shared.hh"
 
 // #define dark "#111111"

@@ -185,7 +185,7 @@ GdkColor colour_by_distortion(float dist) {
 
 GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
-   if (false)
+   if (true)
       std::cout << "in colour_by_rama_plot_distortion plot_value "
    << plot_value << " rama_type " << rama_type
    << " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
@@ -199,10 +199,21 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    //   plot_value = 20*plot_value -80;
 
    GdkColor col;
-   float scale = 10.0;
 
    col.pixel = 1;
    col.blue  = 0;
+
+   auto rotation_size_raw_to_gdkcol = [] (float rotation_size_raw) {
+                                         float rotation_size = -0.33f * rotation_size_raw; // cooked
+                                         std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+                                         std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+                                         GdkColor col;
+                                         col.pixel = 1;
+                                         col.red   = rgb_new[0] * 255.0 * 255.0;
+                                         col.green = rgb_new[1] * 255.0 * 255.0;
+                                         col.blue  = rgb_new[2] * 255.0 * 255.0;
+                                         return col;
+                                      };
 
    if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
       // This used to be true:
@@ -210,48 +221,65 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       // scheme will do for both
       // But then I changed the weight on ZO rama
       // So colours need to be different
-      if (plot_value < -15.0*scale) {
-    col.red   = 0;
-    col.green = 55535;
-      } else {
-    if (plot_value < -13.0*scale) {
-       col.red   = 55000;
-       col.green = 55000;
-       // col.blue  = 22000;
-    } else {
-       if (plot_value < -10.0*scale) {
-          col.red   = 64000;
-          col.green = 32000;
-       } else {
-          col.red   = 65535;
-          col.green = 0;
-       }
-    }
+
+      //  Let's rotate the colour map
+
+      if (false) { // print a rotation to colour table
+         int n_cols = 100; // either side
+         for (int i = -n_cols; i<n_cols; i++) {
+            float rotation_size = 0.01f * static_cast<float>(i);
+            std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+            std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+            std::cout << "debug colours::" << rgb_new[0] << " " << rgb_new[1] << " " << rgb_new[2]
+                      << " using rotation_size " << rotation_size << std::endl;
+         }
+         // if we start at solid green then rotation_size for "no rotation" is 0.0
+         //                                 rotation_size for full rotation is -0.33 (solid red) # cooked
       }
+
+      // the range of good to bad rama plot score is -18 to -8. That should be mapped to
+      // rotation_size_raw of 0.0 to 1.0.
+      float rotation_size_raw = 0.0;
+      if (plot_value > -18.0) {
+         rotation_size_raw = (plot_value + 18.0f) / (-8.0f - -18.0f);
+         if (rotation_size_raw > 1.0f)
+            rotation_size_raw = 1.0f;
+      }
+      col = rotation_size_raw_to_gdkcol(rotation_size_raw);
+
    } else {
-      // RAMA_TYPE_ZO
-      if (plot_value < -1.8) {
-    col.red   = 0;
-    col.green = 55535;
-      } else {
-    if (plot_value < -1.2) {
-       col.red   = 55000;
-       col.green = 55000;
-    } else {
-       if (plot_value < -0.4) {
-          col.red   = 64000;
-          col.green = 32000;
-       } else {
-          col.red   = 65535;
-          col.green = 0;
-       }
-    }
+      // RAMA_TYPE_ZO.  -2.5 is bad. -5 is good
+      //
+      // That should be mapped to rotation_size_raw of 0.0 to 1.0.
+      float rotation_size_raw = 0.0;
+      if (plot_value > -5.0f) {
+         rotation_size_raw = (plot_value + 5.0f) / (-2.5f - -5.0f);
+         if (rotation_size_raw > 1.0f)
+            rotation_size_raw = 1.0f;
       }
+      col = rotation_size_raw_to_gdkcol(rotation_size_raw);
+
    }
    return col;
 }
 
 
+
+// static
+int
+graphics_info_t::get_latest_model_molecule() {
+
+   int imol = -1;
+   int n = n_molecules();
+   for(int ii=0; ii<n; ii++) {
+      if (is_valid_model_molecule(ii)) {
+         if (ii > imol) {
+            imol = ii;
+         }
+      }
+   }
+   return imol;
+}
 
 
 
@@ -447,80 +475,80 @@ graphics_info_t::import_all_refmac_cifs() {
       struct stat buf;
       int status = stat(coot_refmac_lib_dir.c_str(), &buf);
       if (status != 0) {
-    std::cout << "Error finding directory " << coot_refmac_lib_dir << std::endl;
+         std::cout << "Error finding directory " << coot_refmac_lib_dir << std::endl;
       } else {
-    if (S_ISDIR(buf.st_mode)) {
-       std::cout << coot_refmac_lib_dir << " is a directory (good). " << std::endl;
+         if (S_ISDIR(buf.st_mode)) {
+            std::cout << coot_refmac_lib_dir << " is a directory (good). " << std::endl;
 
-       std::string data_dir = add_dir_file(coot_refmac_lib_dir, "data");
-       std::string monomer_dir = add_dir_file(data_dir, "monomers");
+            std::string data_dir = add_dir_file(coot_refmac_lib_dir, "data");
+            std::string monomer_dir = add_dir_file(data_dir, "monomers");
 
-       // good
+            // good
 
-       DIR *lib_dir = opendir(monomer_dir.c_str());
-       if (lib_dir == NULL) {
-          std::cout << "An ERROR occured on opening the directory "
-    << monomer_dir << std::endl;
-       } else {
+            DIR *lib_dir = opendir(monomer_dir.c_str());
+            if (lib_dir == NULL) {
+               std::cout << "An ERROR occured on opening the directory "
+                         << monomer_dir << std::endl;
+            } else {
 
-          struct dirent *dir_ent;
+               struct dirent *dir_ent;
 
-          // loop until the end of the filelist (readdir returns NULL)
-          //
-          while (1) {
-     dir_ent = readdir(lib_dir);
-     if (dir_ent == NULL) {
-        break;
-     } else {
+               // loop until the end of the filelist (readdir returns NULL)
+               //
+               while (1) {
+                  dir_ent = readdir(lib_dir);
+                  if (dir_ent == NULL) {
+                     break;
+                  } else {
 
-        std::string sub_dir_part(std::string(dir_ent->d_name));
+                     std::string sub_dir_part(std::string(dir_ent->d_name));
 
-        if ( ! (sub_dir_part == ".") ) {
-   std::string subdirname = add_dir_file(monomer_dir, sub_dir_part);
+                     if ( ! (sub_dir_part == ".") ) {
+                        std::string subdirname = add_dir_file(monomer_dir, sub_dir_part);
 
-   // we need to test that sub_dir_part is a directory:
-   // (if not, silently skip over it)
-   //
-   status = stat(subdirname.c_str() , &buf);
-   if (S_ISDIR(buf.st_mode)) {
+                        // we need to test that sub_dir_part is a directory:
+                        // (if not, silently skip over it)
+                        //
+                        status = stat(subdirname.c_str() , &buf);
+                        if (S_ISDIR(buf.st_mode)) {
 
-      DIR *sub_dir = opendir(subdirname.c_str());
+                           DIR *sub_dir = opendir(subdirname.c_str());
 
-      if (sub_dir == NULL) {
-         std::cout << "An ERROR occured on opening the subdirectory "
-   << subdirname << std::endl;
-      } else {
+                           if (sub_dir == NULL) {
+                              std::cout << "An ERROR occured on opening the subdirectory "
+                                        << subdirname << std::endl;
+                           } else {
 
-         struct dirent *sub_dir_ent;
+                              struct dirent *sub_dir_ent;
 
-         while (1) {
-    sub_dir_ent = readdir(sub_dir);
-    if (sub_dir_ent == NULL) {
-       break;
-    } else {
-       std::string cif_filename =
-          add_dir_file(subdirname, std::string(sub_dir_ent->d_name));
-       status = stat(cif_filename.c_str(), &buf);
-       if (status == 0) {
-          if (S_ISREG(buf.st_mode)) {
-     add_cif_dictionary(cif_filename,
-        coot::protein_geometry::IMOL_ENC_ANY, 0);
-          }
-       }
-    }
+                              while (1) {
+                                 sub_dir_ent = readdir(sub_dir);
+                                 if (sub_dir_ent == NULL) {
+                                    break;
+                                 } else {
+                                    std::string cif_filename =
+                                       add_dir_file(subdirname, std::string(sub_dir_ent->d_name));
+                                    status = stat(cif_filename.c_str(), &buf);
+                                    if (status == 0) {
+                                       if (S_ISREG(buf.st_mode)) {
+                                          add_cif_dictionary(cif_filename,
+                                                             coot::protein_geometry::IMOL_ENC_ANY, 0);
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                           closedir(sub_dir);
+                        }
+                     } // not "."
+                  }
+               }
+               closedir(lib_dir);
+            }
+         } else {
+            std::cout << "Failure to import - " << coot_refmac_lib_dir
+                      << " is not a directory\n";
          }
-      }
-      closedir(sub_dir);
-   }
-        } // not "."
-     }
-          }
-          closedir(lib_dir);
-       }
-    } else {
-       std::cout << "Failure to import - " << coot_refmac_lib_dir
-         << " is not a directory\n";
-    }
       }
    }
 }
@@ -1359,10 +1387,9 @@ graphics_info_t::skeletonize_map(int imol, short int prune_it) {
        // mark segments by connectivity
        //
        int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan,
-          g.molecules[imol].xmap,
-          map_cutoff);
+                                                  g.molecules[imol].xmap, map_cutoff);
 
-       cout << "INFO:: There were " << nsegments << " different segments" << endl;
+       std::cout << "INFO:: There were " << nsegments << " different segments" << std::endl;
 
        bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
        g.molecules[imol].set_colour_skeleton_by_segment(); // use random colours
@@ -2220,6 +2247,39 @@ graphics_info_t::get_rotamer_dodecs() {
    return dodecs;
 }
 
+
+// Merge weirdness
+//
+// This does (draws) symmetry too.
+//
+// static
+// void
+// graphics_info_t::draw_environment_graphics_object() {
+
+//    graphics_info_t g;
+//    if (is_valid_model_molecule(mol_no_for_environment_distances)) {
+//       if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
+// 	 g.environment_graphics_object_internal(environment_object_bonds_box);
+// 	 if (g.show_symmetry)
+// 	    g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
+//       }
+//    }
+// }
+
+
+#include "pick.hh"
+
+
+mmdb::Atom *
+graphics_info_t::get_moving_atom(const pick_info &pi) const {
+   mmdb::Atom *at  = 0;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         at = moving_atoms_asc->atom_selection[pi.atom_index];
+      }
+   }
+   return at;
+}
 
 
 // static
@@ -6241,3 +6301,25 @@ graphics_info_t::quick_save() {
 
 }
 
+
+// run glColor3f())
+// static
+void
+graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
+
+   if (use_graphics_interface_flag) {
+      int n_user_defined_colours = user_defined_colours.size();
+      if (icol < n_user_defined_colours) {
+         if (icol >= 0) {
+            const coot::colour_holder &ch = user_defined_colours[icol];
+            glColor3f(ch.red, ch.green, ch.blue);
+         } else {
+            coot::colour_holder ch;
+            glColor3f(ch.red, ch.green, ch.blue);
+         }
+      } else {
+         coot::colour_holder ch;
+         glColor3f(ch.red, ch.green, ch.blue);
+      }
+   }   
+}

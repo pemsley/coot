@@ -375,8 +375,8 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	    if (chirals_warn > -1) {
 	       // remove the chirals warn text
-	       string::size_type start_warn = rr.info_text.find("WARN");
-	       string::size_type end_warn   = rr.info_text.size();
+               std::string::size_type start_warn = rr.info_text.find("WARN");
+               std::string::size_type end_warn   = rr.info_text.size();
 	       tips_info_cis = rr.info_text.substr(start_warn, end_warn); // list the extra cis peptides here?
 	    } else {
 	       tips_info_cis = rr.info_text; // list the extra cis peptides?
@@ -394,7 +394,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	    if (cis_pep_warn > -1) {
 	       // remove the cis warn text
-	       string::size_type start_warn = rr.info_text.find("WARN");
+               std::string::size_type start_warn = rr.info_text.find("WARN");
 	       tips_info_chirals = rr.info_text.substr(0,start_warn) + old_tip;
 	    } else {
 	       tips_info_chirals = rr.info_text + old_tip;

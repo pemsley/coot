@@ -71,6 +71,21 @@ coot::dict_bond_restraint_t::mmdb_bond_type() const {
    return bt;
 }
 
+bool
+coot::dictionary_residue_restraints_t::is_bond_to_hydrogen_atom(const coot::dict_bond_restraint_t &br) const {
+   bool is_H = false;
+   std::string ele_1 = element(br.atom_id_1_4c());
+   std::string ele_2 = element(br.atom_id_2_4c());
+   if (ele_1 == " H") {
+      is_H = true;
+   } else {
+      if (ele_2 == " H") {
+         is_H = true;
+      }
+   }
+   return is_H;
+}
+
 // constructor.  Caller should make sure that there are no bonds
 // before constructing this (mol->RemoveBonds());
 //
@@ -83,14 +98,14 @@ void
 coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 
    filled_with_bond_order_data_only_flag = false;
+   nuclear_distances_flag = false;
+
    if (residue_p) {
-      mmdb::PModel   model;
-      mmdb::PChain   chain;
       // mmdb::PResidue res = 0;
       mmdb::math::Graph    graph;
       mmdb::math::PPVertex V;
       mmdb::math::PPEdge   E;
-      int       i, im,ic,ir, nV,nE, k1,k2;
+      int       i, nV,nE, k1,k2;
 
       graph.MakeGraph   ( residue_p,NULL );
       graph.GetVertices ( V,nV );
@@ -112,7 +127,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 		      << E[ie]->GetVertex2() << std::endl;
 	 }
       }
-			   
+
       for (i=0;i<nE;i++)  {
 
 	 // mmdb 1.25.3 on pc offset needs to be -1

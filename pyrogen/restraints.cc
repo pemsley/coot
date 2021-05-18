@@ -54,6 +54,7 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 									    n_atoms_all,
 									    n_atoms_non_hydrogen,
 									    bond_order_restraints);
+   restraints.set_use_nuclear_distances(true);
    restraints.write_cif(cif_file_name);
 
 }
@@ -71,6 +72,7 @@ coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
    }
  
    if (restraints.is_filled()) {
+      restraints.set_use_nuclear_distances(true);
       restraints.write_cif(file_name);
    } else {
       std::cout << "No restraints in write_restraints()" << std::endl;
@@ -427,6 +429,7 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 	 RDKit::RWMol mol_for_mmff(mol);
          regularize_and_update_mol_and_restraints(&mol_for_mmff, &restraints);
       }
+      restraints.set_use_nuclear_distances(true);
       restraints.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
                                                          // matching is enabled.
       return monomer_restraints_to_python(restraints);
@@ -1909,6 +1912,7 @@ coot::write_restraints(PyObject *restraints_py,
 		       const std::string &file_name) {
 
    coot::dictionary_residue_restraints_t rest = monomer_restraints_from_python(restraints_py);
+   rest.set_use_nuclear_distances(true);
    rest.write_cif(file_name);
 }
 

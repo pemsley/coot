@@ -124,8 +124,7 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
 			spg  = xtal.second;
 			spacegroup_ok = 1;
 		     } catch (const std::runtime_error &except) {
-			cout << "!! get_cell_symm() fails in symmetry_atom_pick"
-			     << endl;
+                        std::cout << "!! get_cell_symm() fails in symmetry_atom_pick" << std::endl;
 		     }
 		     if (spacegroup_ok == 1) { 
 			// 		     std::cout << "DEBUG:: Initing clipper::Spacegroup: "
@@ -385,9 +384,17 @@ atom_pos_within_box(const glm::vec4 &atom_pos, const glm::vec4 &front, const glm
    return false;
 }
 
+// put this in graphics_info_t
+pick_info
+pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imol,
+                              const coot::Cartesian &front,
+                              const coot::Cartesian &back,
+                              short int pick_mode, bool verbose_mode);
+
+
+
 float atom_pos_distance_to_line(const glm::vec4 &atom_pos, const glm::vec4 &front, const glm::vec4 &back) {
 
-   float d = -1.0;
    glm::vec4 line_vector = back - front;
    float lva = glm::distance(back, front);
 

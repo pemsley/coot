@@ -164,7 +164,8 @@ namespace coot {
 							       const clipper::Ramachandran &rama, float rama_max,
 							       const clipper::Ramachandran &rama_pro, float rama_max_pro,
 							       bool debug_solutions,
-							       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results);
+							       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results,
+                                                               std::atomic<unsigned int> &thread_count);
 
       // retire this at some stage                                                       
 //      minimol::fragment

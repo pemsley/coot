@@ -57,9 +57,9 @@ namespace coot {
       clipper::RTop_orth rtop_of_moving() const;
       
       ~lsq_improve() {
-	 delete mol;
 	 mol->DeleteSelection(sel_hnd_1);
 	 mol->DeleteSelection(sel_hnd_2);
+	 delete mol;
       }
    };
 }

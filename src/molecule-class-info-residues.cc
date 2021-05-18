@@ -657,7 +657,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
                } else {
                   region = coot::rama_plot::RAMA_OUTLIER;
                }
-               rama_pair = make_pair(it->first, region);
+               rama_pair = std::make_pair(it->first, region);
                rs.region.push_back(rama_pair);
 
                if (p < zero_cut_off) {

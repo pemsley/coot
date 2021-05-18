@@ -22,6 +22,9 @@
 #ifndef COOT_DENSITY_STATS_HH
 #define COOT_DENSITY_STATS_HH
 
+#include <vector>
+#include <cmath>
+
 namespace coot {
 
    enum map_stats_t {
@@ -108,16 +111,24 @@ namespace coot {
 	 double var_y() const {
 	    double mean_y = sum_y/n;
 	    return (sum_sqrd_y/n - mean_y * mean_y);
-	 } 
+	 }
+         void add(const double &x, const double &y) {
+            n += 1;
+            sum_x  += x;
+            sum_y  += y;
+            sum_xy += x * y;
+            sum_sqrd_x += x * x;
+            sum_sqrd_y += y * y;
+         }
 	 double correlation() const {
 	    double top = n * sum_xy - sum_x * sum_y;
 	    double b_1 = n * sum_sqrd_x - sum_x * sum_x;
 	    double b_2 = n * sum_sqrd_y - sum_y * sum_y;
 	    if (b_1 < 0) b_1 = 0;
 	    if (b_2 < 0) b_2 = 0;
-	    double c = top/(sqrt(b_1) * sqrt(b_2));
+	    double c = top/(std::sqrt(b_1) * std::sqrt(b_2));
 	    return c;
-	 } 
+	 }
       }; 
 
    }

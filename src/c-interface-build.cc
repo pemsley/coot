@@ -4054,7 +4054,7 @@ SCM missing_atom_info_scm(int imol) {
    if (is_valid_model_molecule(imol)) {
       r = SCM_EOL;
       graphics_info_t g;
-      short int missing_hydrogens_flag = 0;
+      bool missing_hydrogens_flag = 0;
       coot::util::missing_atom_info m_i_info =
 	 g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
       for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
@@ -4069,6 +4069,18 @@ SCM missing_atom_info_scm(int imol) {
 	 l = scm_cons(scm_from_int(resno), l);
 	 l = scm_cons(scm_from_locale_string(chain_id.c_str()), l);
 	 r = scm_cons(l, r);
+
+         std::map<mmdb::Residue *, std::vector<std::string> >::const_iterator it;
+         it = m_i_info.residue_missing_atom_names_map.find(residue_p);
+         if (it != m_i_info.residue_missing_atom_names_map.end()) {
+            const std::vector<std::string> &missing_atom_names = it->second;
+            if (! missing_atom_names.empty()) {
+               std::cout << "INFO:: residue " << coot::residue_spec_t(residue_p) << " has missing atoms ";
+               for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
+                  std::cout << single_quote(missing_atom_names[iat]) << " ";
+               std::cout << std::endl;
+            }
+         }
       }
       r = scm_reverse(r);
    }

@@ -319,6 +319,8 @@ def make_picture(mol, conf_id, comp_id, output_postfix):
 
 def make_picture_to_file(mol, conf_id, output_file_name):
 
+   # need to install Pillow (I did it with pip)
+
    try:
       from rdkit.Chem import Draw
       # The import of Image may change depending on how it was provided.
@@ -585,7 +587,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
          AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
 
    atom_names = add_atom_names(sane_H_mol)
-   all_set = atom_types.set_atom_types(sane_H_mol)  # has deloc bonds now, potentially
+   all_set = atom_types.set_monomer_library_atom_types(sane_H_mol)  # has deloc bonds now, potentially
 
    # debug sane_H_mol
    if True:

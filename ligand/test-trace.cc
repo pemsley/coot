@@ -243,10 +243,10 @@ int main(int argc, char **argv) {
 			   std::cout << "ERROR:: res-no extraction: " << rte.what() << std::endl;
 			}
 		     }
+                     std::cout << "res_no " << res_no << std::endl;
 		     if (res_no > -999) {
 
 			std::cout << "Here 1 " << res_no << std::endl;
-			self_seed = false;
 			coot::residue_spec_t spec(chain_id, res_no, "");
 			mmdb::Residue *r = coot::util::get_residue(spec, mol);
 			if (r) {

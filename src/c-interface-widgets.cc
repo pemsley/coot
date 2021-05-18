@@ -285,7 +285,7 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	 author_lines.push_back(line);
       }
    }
-   std::cout << "---------------- have " << author_lines.size() << " author lines" << std::endl;
+   // std::cout << "---------------- have " << author_lines.size() << " author lines" << std::endl;
    if (author_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Author");
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
@@ -339,7 +339,7 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	 journal_lines.push_back(line);
       }
    }
-   std::cout << "---------------- have " << journal_lines.size() << " journal_lines" << std::endl;
+   // std::cout << "---------------- have " << journal_lines.size() << " journal_lines" << std::endl;
    if (journal_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Journal");
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);

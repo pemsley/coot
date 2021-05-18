@@ -507,6 +507,7 @@ void resolve_clashing_sidechains_by_deletion(int imol) {
    if (is_valid_model_molecule(imol)) {
       coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
       graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_deletion(geom_p);
+      graphics_draw();
    }
 }
 
@@ -516,7 +517,7 @@ void resolve_clashing_sidechains_by_rebuilding(int imol) {
       coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
       graphics_info_t g;
       int imol_refinement_map = g.Imol_Refinement_Map();
-      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_rebuilding(geom_p,
-                                                                                 imol_refinement_map);
+      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_rebuilding(geom_p, imol_refinement_map);
+      graphics_draw();
    }
 }

@@ -46,8 +46,7 @@ namespace coot {
 	 single() {
 	    // have_cached_kurtosis = false;
 	 }
-	 single(const std::vector<double> &v_in) {
-	    v = v_in;
+	 explicit single(const std::vector<double> &v_in) :v(v_in) {
 	    // have_cached_kurtosis = false;
 	 }
 	 unsigned int size() const { return v.size(); }
@@ -58,8 +57,8 @@ namespace coot {
 	 
 	 double mean() const {
 	    double m = 0;
-	    double sum = 0;
 	    if (v.size() ) { 
+               double sum = 0;
 	       for (unsigned int i=0; i<v.size(); i++)
 		  sum += v[i];
 	       m = sum/double(v.size());
@@ -69,9 +68,9 @@ namespace coot {
 
 	 double variance() const {
 	    double var = 0;
-	    double sum = 0;
-	    double sum_sq = 0;
 	    if (v.size() ) { 
+               double sum = 0;
+               double sum_sq = 0;
 	       for (unsigned int i=0; i<v.size(); i++) { 
 		  sum += v[i];
 		  sum_sq += v[i] * v[i];
@@ -85,13 +84,12 @@ namespace coot {
 
 	 double skew() const {
 	    double skew = 0;
-	    double sum = 0;
-	    double sum_cubed = 0;
 	    double m = mean();
 	    double var = variance();
 	    double sigma = sqrt(var);
 	    double s3 = sigma * sigma * sigma;
 	    if (v.size() > 0) {
+               double sum_cubed = 0;
 	       for (unsigned int i=0; i<v.size(); i++) {
 		  double delta = v[i] - m;
 		  sum_cubed += delta * delta * delta;
@@ -117,11 +115,11 @@ namespace coot {
 	    double k = -999;
 	    if (v.size() ) {
 
-	       double sum_to_the_4 = 0;
 	       double m = mean();
 	       double var = variance();
 
 	       if (var > 0) {
+                  double sum_to_the_4 = 0;
 		  for (unsigned int i=0; i<v.size(); i++) { 
 		     double t = v[i] - m;
 		     sum_to_the_4 += t * t * t * t;

@@ -203,7 +203,7 @@ don't write files on exit
 .B \-\-small\-screen 
 start with small screen
 
-.B \-\-self\-test test slf
+.B \-\-self\-test run the self test
 
 
 .SH AUTHOR

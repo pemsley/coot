@@ -20,6 +20,7 @@
  */
 
 #include <fstream>
+#include <atomic>
 
 #include "residue_by_phi_psi.hh"
 #include "utils/coot-utils.hh"
@@ -149,7 +150,7 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 		  break;
 	       }
 	    }
-	 } 
+	 }
       }
    }
 
@@ -195,11 +196,11 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
       float best_score = 0.0;
       bool two_residues_flag = true;
       if (terminus_type == "MC")
-	 two_residues_flag = 0;
+	 two_residues_flag = false;
       if (terminus_type == "singleton")
-	 two_residues_flag = 0;
+	 two_residues_flag = false;
       if (terminus_type == "MN")
-	 two_residues_flag = 0;
+	 two_residues_flag = false;
       int next_residue_seq_num;
       if (terminus_type == "C" || terminus_type == "MC" || terminus_type == "singleton") {
 	 next_residue_seq_num = residue_p->GetSeqNum() + 1;
@@ -208,6 +209,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
       }
 
       std::vector<std::pair<ligand_score_card, minimol::fragment> > results(n_trials);
+      std::atomic<unsigned int> thread_count(0);
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
@@ -215,6 +217,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	 auto tp_1 = std::chrono::high_resolution_clock::now();
 	 int n_per_thread = n_trials/n_threads;
+
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
 	    int trial_idx_start = i_thread * n_per_thread;
 	    int trial_idx_end   = trial_idx_start + n_per_thread;
@@ -232,23 +235,23 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 				std::ref(current_res_pos), std::ref(xmap_in), map_rms,
 				std::ref(rama), rama_max,
 				std::ref(rama_pro), rama_max_pro,
-				debug_trials_flag, &results);
+				debug_trials_flag, &results, std::ref(thread_count));
 	 }
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
 	 // wait for thread pool to finish jobs.
-	 bool wait_continue = true;
-	 while (wait_continue) {
-	    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	    if (thread_pool_p->n_idle() == thread_pool_p->size())
-	       wait_continue = false;
-	 }
+         while (thread_count != n_threads) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            // std::cout << "waiting... thread count " << thread_count << " vs " << n_threads << std::endl;
+         }
 	 auto tp_3 = std::chrono::high_resolution_clock::now();
 
-	 // std::cout << "fit_terminal_residue_generic(): multithread results: " << std::endl;
+	 std::cout << "fit_terminal_residue_generic(): post-wait: multithread results: " << std::endl;
 	 for (int itrial=0; itrial<n_trials; itrial++) {
-	    // std::cout << "   comparing scores: " << results[itrial].first.get_score() << " "
-	    // << best_score << std::endl;
+            if (false) // mostly 0 because they are not filled in fit_terminal_residue_generic_trial_inner_multithread,
+               std::cout << "   comparing scores: itrial: " << itrial << " "
+                         << results[itrial].first.get_score() << " vs best score: "
+                         << best_score << std::endl;
 	    if (results[itrial].first.get_score() > best_score) {
 	       best_score = results[itrial].first.get_score();
 	       best_fragment = results[itrial].second;
@@ -259,12 +262,12 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	    }
 	 }
 
-	 // std::cout << "DEBUG:: multi-thread: best_score " << best_score << std::endl;
+	 std::cout << "DEBUG:: multi-thread: best_score " << best_score << std::endl;
 	 auto tp_4 = std::chrono::high_resolution_clock::now();
 	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
 	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-	 // std::cout << "Timings: " << d21 << " " << d32 << " " << d43 << " ms" << std::endl;
+	 std::cout << "Timings: dispatch: " << d21 << " execute: " << d32 << " consolidate: " << d43 << " ms" << std::endl;
 
       } else {
 
@@ -281,7 +284,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 							      rama, rama_max,
 							      rama_pro, rama_max_pro,
 							      debug_trials_flag,
-							      &results);
+							      &results, std::ref(thread_count));
 
 	 // find the best
 	 for (int itrial=0; itrial<n_trials; itrial++) {
@@ -310,7 +313,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 							      rama, rama_max,
 							      rama_pro, rama_max_pro,
 							      debug_trials_flag,
-							      &results);
+							      &results, std::ref(thread_count));
 
 	 // find the best
 	 for (int itrial=0; itrial<n_trials; itrial++) {
@@ -326,7 +329,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 #endif
 
    }
-   if (best_fragment.residues.size() == 0) { 
+   if (best_fragment.residues.size() == 0) {
       std::cout << "WARNING! fit_terminal_residue_generic:"
 		<< " best_fragment is empty" << std::endl;
    }
@@ -360,7 +363,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 									       const clipper::Ramachandran &rama, float rama_max,
 									       const clipper::Ramachandran &rama_pro, float rama_max_pro,
 									       bool debug_solutions,
-									       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results) {
+									       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results,
+                                                                               std::atomic<unsigned int> &thread_count) {
 
    bool do_low_density_fingerprint_positions = true;
 
@@ -376,6 +380,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
    coot::ligand_score_card current_best; // zero score
 
    for (int itrial=itrial_start; itrial<itrial_end; itrial++) {
+
+      // std::cout << "itrial " << itrial << " itrial_start " << itrial_start << " itrial_end " << itrial_end << std::endl;
 
       coot::minimol::fragment frag;
 
@@ -433,6 +439,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 	 current_best = s;
 	 std::pair<ligand_score_card, minimol::fragment> result(s, frag);
 
+         // std::cout << "itrial " << itrial << " itrial_start " << itrial_start << " itrial_end " << itrial_end
+         // << " storing result with score " << s.get_score() << std::endl;
+
 	 results->at(itrial) = result;
 
 	 if (debug_solutions)
@@ -443,6 +452,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 			 pp1, pp2, s);
       }
    }
+   thread_count++;
 }
 
 // static
@@ -634,7 +644,7 @@ coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card 
 
 
 // If there are 3 positions on return their order is N, C, CA
-// 
+//
 coot::residue_by_phi_psi::connecting_atoms_t
 coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
 
@@ -710,7 +720,7 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
 
 // a forward-built residue is made from psi of the previous residue and a phi from "this" one.
 // phi_this, psi_prev are in degrees (what a mess)
-// 
+//
 coot::minimol::residue
 coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi_this, float psi_prev,
 							      float tau, int seqno,
@@ -741,7 +751,7 @@ coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi_this, fl
 
    angle = clipper::Util::d2rad(116.200); // Ca-C-N
    torsion = clipper::Util::d2rad(psi_prev);
-   clipper::Coord_orth n_pos(previous_n, previous_ca, previous_c, 
+   clipper::Coord_orth n_pos(previous_n, previous_ca, previous_c,
 			     1.329, angle, torsion); // C-N bond
 
    angle = clipper::Util::d2rad(121.700); // C-N-Ca

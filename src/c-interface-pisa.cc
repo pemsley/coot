@@ -731,7 +731,7 @@ void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm,
 	 SCM atom_spec_1 = scm_list_ref(pisa_bond_scm, scm_from_int(1));
 	 SCM atom_spec_2 = scm_list_ref(pisa_bond_scm, scm_from_int(2));
 	 int generic_object_number = -1;
-	 string bond_type = "";
+         std::string bond_type = "";
 	 std::string colour = "grey";
 	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("h-bonds"))))) { 
 	    bond_type = "h-bond";
@@ -822,7 +822,7 @@ void add_pisa_interface_bond_py(int imol_1, int imol_2, PyObject *pisa_bond_py,
 	 PyObject *atom_spec_1 = PyList_GetItem(pisa_bond_py, 1);
 	 PyObject *atom_spec_2 = PyList_GetItem(pisa_bond_py, 2);
 	 int generic_object_number = -1;
-	 string bond_type = "";
+         std::string bond_type = "";
 	 std::string colour = "grey";
          std::string tmp;
 

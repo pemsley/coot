@@ -72,27 +72,27 @@ namespace coot {
 					  int nResidueAtoms, 
 					  protein_geometry *geom_p);
 
+      // class definition is here but functionality is in molecule-class-info-other
       class missing_atom_info {
       public:
 	 std::vector<std::string> residues_with_no_dictionary;
-	 std::vector<mmdb::Residue *>  residues_with_missing_atoms;
+	 std::vector<mmdb::Residue *> residues_with_missing_atoms;
+         std::map<mmdb::Residue *, std::vector<std::string> > residue_missing_atom_names_map;
 	 std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > atoms_in_coords_but_not_in_dict;
 	 missing_atom_info() {}
 	 missing_atom_info(const std::vector<std::string> &residues_with_no_dictionary_in,
 			   const std::vector<mmdb::Residue *>  &residues_with_missing_atoms_in,
-			   const std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > &atoms_in_coords_but_not_in_dict_in) {
-	    residues_with_no_dictionary = residues_with_no_dictionary_in;
-	    residues_with_missing_atoms = residues_with_missing_atoms_in;
-	    atoms_in_coords_but_not_in_dict = atoms_in_coords_but_not_in_dict_in;
-	 }
+			   const std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > &atoms_in_coords_but_not_in_dict_in) :
+            residues_with_no_dictionary(residues_with_no_dictionary_in),
+            residues_with_missing_atoms(residues_with_missing_atoms_in),
+            atoms_in_coords_but_not_in_dict(atoms_in_coords_but_not_in_dict_in) {}
       };
 
       class dict_atom_info_t {
       public:
 	 std::string name;
-	 short int is_Hydrogen_flag;
-	 dict_atom_info_t(const std::string &name_in, short int is_Hydrogen_flag_in) {
-	    name = name_in;
+	 bool is_Hydrogen_flag;
+	 dict_atom_info_t(const std::string &name_in, bool is_Hydrogen_flag_in) : name(name_in) {
 	    is_Hydrogen_flag = is_Hydrogen_flag_in;
 	 }
       };
@@ -103,9 +103,8 @@ namespace coot {
 	 std::string residue_name;
 	 std::vector<dict_atom_info_t> atom_info;
 	 dict_residue_atom_info_t(const std::string &residue_name_in,
-				  const std::vector<dict_atom_info_t> &atom_info_in) {
-	    residue_name = residue_name_in;
-	    atom_info = atom_info_in;
+				  const std::vector<dict_atom_info_t> &atom_info_in) :
+            residue_name(residue_name_in), atom_info(atom_info_in)  {
 	 }
 	 // Here is the clever stuff, get the restraints info for a
 	 // particular residue and from that set the atom_info.

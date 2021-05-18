@@ -834,16 +834,16 @@ coot::protein_geometry::print_chem_links() const {
 
    std::map<unsigned int, std::vector<chem_link> >::const_iterator it;
 
-   for (it=chem_link_map.begin(); it!=chem_link_map.end(); it++) {
+   for (it=chem_link_map.begin(); it!=chem_link_map.end(); ++it) {
       const std::vector<chem_link> &v = it->second;
       std::vector<chem_link>::const_iterator itv;
-      for (itv=v.begin(); itv!=v.end(); itv++) {
-	 const chem_link &cl = *itv;
-	 std::cout << "   " << it->first << " " << cl << "\n";
+      for (itv=v.begin(); itv!=v.end(); ++itv) {
+         const chem_link &cl = *itv;
+         std::cout << "     " << it->first << " " << cl << "\n";
       }
    }
 
-} 
+}
 
 
 
