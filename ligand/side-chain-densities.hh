@@ -304,11 +304,10 @@ namespace coot {
       // a function to density block map cache
       void fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
 			       const clipper::Xmap<float> &xmap);
-      // above is called by 
+      // above is called by
       void fill_residue_blocks(mmdb::Manager *mol, const std::string &chain_id,
                                int resno_start, int resno_end,
                                const clipper::Xmap<float> &xmap);
-      
 
       // we want to find the probability distribution from all the sample of that type
       // of rotamer for that particular residue type.
@@ -336,7 +335,9 @@ namespace coot {
       void check_useable_grid_points(mmdb::Residue *residue_p,
 				     const std::string &useable_grid_points_mapped_to_residue_file_name) const;
 
-      std::vector<mmdb::Residue *>
+      // return an error message (if any of the residues didn't have a mainchain and CB) or a vector of residues
+      //
+      std::pair<std::string, std::vector<mmdb::Residue *> >
       setup_test_sequence(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end,
                                const clipper::Xmap<float> &xmap);
 
@@ -368,7 +369,6 @@ namespace coot {
 			     const clipper::Xmap<float> &xmap) const;
 
       bool test_grid_point_to_coords_interconversion() const;
-      
    };
 
    std::vector<coot::side_chain_densities::results_t>
