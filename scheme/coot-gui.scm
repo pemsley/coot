@@ -4232,6 +4232,11 @@
               (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
 
         (add-simple-coot-menu-menuitem
+         menu "Assign Sequence Based on Associated Sequence"
+         (lambda ()
+           (assign-sequence-to-active-fragment)))
+
+        (add-simple-coot-menu-menuitem
          menu "Auto-assign Sequence Based on Map"
          (lambda ()
            (auto-assign-sequence-from-map)))

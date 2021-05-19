@@ -5466,6 +5466,9 @@ def add_module_cryo_em_gui():
             c = cell(m)
             set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
 
+      def ass_seq_assoc_seq():
+         assign_sequence_to_active_fragment()
+
       add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())
 
@@ -5484,6 +5487,8 @@ def add_module_cryo_em_gui():
       add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
 
+      add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
+                                    lambda func: ass_seq_assoc_seq())
 
 
 def add_module_ccp4_gui():
