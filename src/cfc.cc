@@ -65,8 +65,10 @@
 // which, with radius will be used to find the waters
 // 
 PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
-				       PyObject *solvated_ligand_info_py,
+				       PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
 				       double radius_1, double radius_2) {
+
+   std::cout << "debug:: ################ chemical_feature_clusters_py() start" << std::endl;
 
    PyObject *r = Py_False;
 
@@ -80,13 +82,17 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
          	                                           // solvated_ligand_info_py
 
 	 int n = PyObject_Length(solvated_ligand_info_py);
+         std::cout << "debug:: ################ chemical_feature_clusters_py() here with size of imol_ligand_specs "
+                   << n << std::endl;
 	 for(int i=0; i<n; i++) {
 
+            std::cout << "debug:: ################ chemical_feature_clusters_py() here with i " << i << std::endl;
 	    PyObject *o = PyList_GetItem(solvated_ligand_info_py, i);
 
 	    // o should be a list of molecule-idx, residue-spec
 	    if (PyList_Check(o)) {
 	       int no = PyObject_Length(o);
+               std::cout << "debug:: ################ chemical_feature_clusters_py() here with no " << no << std::endl;
 	       if (no == 2) {
 		  PyObject *mol_idx_py  = PyList_GetItem(o, 0);
 		  PyObject *lig_spec_py = PyList_GetItem(o, 1);
@@ -102,13 +108,19 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 			std::vector<coot::residue_spec_t> neighbs_waters; // fill this
 			std::vector<coot::residue_spec_t> neighbs_raw =
 			   coot::residues_near_residue(ligand_spec, mol, radius_1);
+                        std::cout << "debug:: ##### in chemical_feature_clusters_py() neighbs_raw size is "
+                                  << neighbs_raw.size() << std::endl;
+
 			for (unsigned int i_neighb=0; i_neighb<neighbs_raw.size(); i_neighb++) { 
 			   mmdb::Residue *res = coot::util::get_residue(neighbs_raw[i_neighb], mol);
 			   if (res) {
 			      std::string res_name = res->GetResName();
 			      if (res_name == "HOH")
 				 neighbs_waters.push_back(neighbs_raw[i_neighb]);
-			   }
+			   } else {
+                              std::cout << "debug:: ##### in chemical_feature_clusters_py() got a NULL residue"
+                                        << std::endl;
+                           }
 			}
 
 			if (false) { // debug
@@ -213,6 +225,9 @@ void chemical_feature_clusters_accept_info_py(unsigned int site_number,
 					      PyObject *env_residue,
 					      PyObject *mol_ligand_specs,
 					      PyObject *cluster_info) {
+
+   std::cout << "debug:: ################################## chemical_feature_clusters_accept_info_py()"
+             << std::endl;
 
    if (graphics_info_t::use_graphics_interface_flag) {
       cfc::extracted_cluster_info_from_python eci(cluster_info);
@@ -328,11 +343,12 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 
    // return a list of pairs of imol,residue_specs
    //
+   std::cout << "---------------------------- debug creating ligand_sites_py with size " << ligand_sites.size() << std::endl;
    PyObject *ligand_sites_py = PyList_New(ligand_sites.size());
    
    std::map<int, std::vector<std::pair<int, coot::residue_spec_t> > >::const_iterator it;
    unsigned int list_idx = 0; // because we are using iterator
-   for (it = ligand_sites.begin(); it != ligand_sites.end(); it++) {
+   for (it = ligand_sites.begin(); it != ligand_sites.end(); ++it) {
       PyObject *li = PyList_New(it->second.size());
       for (unsigned int i=0; i<it->second.size(); i++) { 
 	 PyObject *l = PyList_New(2);
@@ -375,7 +391,6 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    //
    std::vector<int> structures_vec = extracted_cluster_info.water_structures_vec();
 
-   unsigned int cluster_idx = 0;
    double inv_n = 1.0/double(n_structures);
 
    // we need to convert the map to a vector, because we can sort a
@@ -389,7 +404,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	     << extracted_cluster_info.water_cluster_idx_max() << std::endl;
    
    std::vector<std::pair<std::vector<int>, water_cluster_info_from_python> > cluster_vec(extracted_cluster_info.water_cluster_idx_max()+1);
-   for (it=cluster_map.begin(); it!=cluster_map.end(); it++) {
+   for (it=cluster_map.begin(); it!=cluster_map.end(); ++it) {
 
       unsigned int idx = it->first;
       if (idx < extracted_cluster_info.wc.size()) {
@@ -499,7 +514,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	       // the question is: what is
 	       // the imol (molecule number) of the jth
 	       // structure?
-	    
+
 	       std::string struct_button_name = "cfc_site_";
 	       struct_button_name += coot::util::int_to_string(site_number);
 	       struct_button_name += "_water_cluster_";
@@ -523,8 +538,9 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	       } else {
 		  // happy path
 		  GdkColor color;
-		  gdk_color_parse ("#AACCAA", &color);
+		  gdk_color_parse("#AACCAA", &color);
 		  gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+                  gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
 	       }
 	       gtk_widget_show(button);
 
@@ -588,7 +604,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 
    for (it_2  = cluster_structure_vector.begin();
 	it_2 != cluster_structure_vector.end();
-	it_2++) {
+	++it_2) {
       for (unsigned int i=0; i<it_2->second.size(); i++)
 	 n_pharacophores++;
    }
@@ -597,7 +613,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    if (true) { 
       for (it_2  = cluster_structure_vector.begin();
 	   it_2 != cluster_structure_vector.end();
-	   it_2++) {
+	   ++it_2) {
 	 for (unsigned int i=0; i<it_2->second.size(); i++) {
 	    if (false) { // debug
 	       std::cout << "DEBUG:: cluster_structure_vector[" << it_2->first
@@ -608,7 +624,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 	    }
 	 }
       }
-      std::cout << "DEUBG:: found " << n_pharacophores << " pharmacophores " << std::endl;
+      std::cout << "DEBUG:: found " << n_pharacophores << " pharmacophores " << std::endl;
    }
 
    GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
@@ -642,7 +658,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    //
    unsigned int n_structures = extracted_cluster_info.n_pharmacophore_structures();
 
-   std::cout << "in cfc_dialog_add_pharmacophores() n_structures: " << n_structures << std::endl;
+   std::cout << "debug:: in cfc_dialog_add_pharmacophores() n_structures: " << n_structures << std::endl;
 
    if (n_structures == 0) {
 
@@ -661,7 +677,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    
       for (it_2  = cluster_structure_vector.begin();
 	   it_2 != cluster_structure_vector.end();
-	   it_2++) {
+	   ++it_2) {
 
 	 const std::string &type = it_2->first;
 
@@ -746,10 +762,13 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 		     // wasn't there (that's OK)
 		  
 		  } else {
-		     // happy path
+		     // happy path, let's change the button colour and add it to contributing specs
 		     GdkColor color;
 		     gdk_color_parse("#AACCAA", &color);
+
+                     std::cout << "debug:: cfc_dialog_add_pharmacophores() setting the button bg to #AACCAA " << std::endl;
 		     gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+                     gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
 
 		     if (std::find(contributing_specs.begin(),
 				   contributing_specs.end(),
@@ -991,6 +1010,10 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
    std::vector<clustered_feature_info_from_python> v_cw;
 
    int list_size = PyObject_Length(cluster_info_py);
+
+   std::cout << "extracted_cluster_info_from_python::extract_water_info() list_size is " << list_size
+             << std::endl;
+
    if (list_size > 0) {
       PyObject *water_cluster_info_py = PyList_GetItem(cluster_info_py, 0);
 
@@ -1026,7 +1049,7 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 	       if (n_items != 3) {
 		  std::cout << "strange cluster info " << n_items << std::endl;
 	       } else {
-		     
+
 		  PyObject *pos_py    = PyTuple_GetItem(cluster_py, 0);
 		  PyObject *weight_py = PyTuple_GetItem(cluster_py, 1);
 		  PyObject *radius_py = PyTuple_GetItem(cluster_py, 2);
@@ -1256,6 +1279,7 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
    }
 }
 
+// constructor
 cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyObject *cluster_info_py) {
 
    if (! PyList_Check(cluster_info_py)) {
