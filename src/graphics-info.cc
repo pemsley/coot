@@ -4443,6 +4443,7 @@ graphics_info_t::apply_undo() {
 
 		  update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS
+                  run_post_manipulation_hook(umol, 0);
 	       }
 	    } else {
 	       if (use_graphics_interface_flag) {
@@ -4497,20 +4498,18 @@ graphics_info_t::apply_redo() {
 	    // need to update the atom and residue list in Go To Atom widget
 	    // (maybe)
 	    update_go_to_atom_window_on_changed_mol(umol);
-       // BL says:: from undo, maybe more should be updated!?!
-       // update the ramachandran, if there was one
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-       GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
-       if (w) {
-          coot::rama_plot *plot = (coot::rama_plot *)
-        gtk_object_get_user_data(GTK_OBJECT(w));
-          handle_rama_plot_update(plot);
-       }
-       // now update the geometry graphs, so get the asc
-       atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-       update_geometry_graphs(u_asc, umol);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+            GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+            if (w) {
+               coot::rama_plot *plot = (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+               handle_rama_plot_update(plot);
+            }
+            // now update the geometry graphs, so get the asc
+            atom_selection_container_t u_asc = molecules[umol].atom_sel;
+            update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS
+            run_post_manipulation_hook(umol, 0);
 
 	 } else {
 	    // std::cout << "DEBUG:: not applying redo" << std::endl;
