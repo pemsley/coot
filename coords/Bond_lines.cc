@@ -7451,10 +7451,6 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
    ramachandran_goodness_spots.clear();
    std::set<mmdb::Residue *, bool(*)(mmdb::Residue *, mmdb::Residue *)> sorted_residues_set(residue_sort_function);
 
-   mmdb::Residue *this_res;
-   mmdb::Residue *prev_res;
-   mmdb::Residue *next_res;
-
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
       mmdb::Residue *this_res = SelAtom.atom_selection[i]->residue;
       if (this_res) {
@@ -7468,16 +7464,16 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
    // so convert to a vector
    std::vector<mmdb::Residue *> sorted_residues_vec(sorted_residues_set.size());
    unsigned int ii = 0;
-   for (it=sorted_residues_set.begin(); it!=sorted_residues_set.end(); it++) {
+   for (it=sorted_residues_set.begin(); it!=sorted_residues_set.end(); ++it) {
       sorted_residues_vec[ii] = *it;
       ii++;
    }
 
    if (sorted_residues_vec.size() > 2) {
       for (ii=1; ii<(sorted_residues_vec.size()-1); ii++) {
-	 prev_res = sorted_residues_vec[ii-1];
-	 this_res = sorted_residues_vec[ii];
-	 next_res = sorted_residues_vec[ii+1];
+         mmdb::Residue *prev_res = sorted_residues_vec[ii-1];
+	 mmdb::Residue *this_res = sorted_residues_vec[ii];
+	 mmdb::Residue *next_res = sorted_residues_vec[ii+1];
 	 if (prev_res->GetChain() == this_res->GetChain()) {
 	    if (next_res->GetChain() == this_res->GetChain()) {
 	       if ((prev_res->GetSeqNum()+1) == this_res->GetSeqNum()) {
@@ -7485,8 +7481,11 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 
 		     try {
 			coot::util::phi_psi_t pp(prev_res, this_res, next_res); // coot-rama.hh
-			// std::cout << "   " << coot::residue_spec_t(this_res)
-			//           << " " << pp << std::endl;
+
+                        if (false)
+                           std::cout << "DEBUG:: pp " << coot::residue_spec_t(this_res)
+                                     << " " << pp << std::endl;
+
 			mmdb::Atom *at = this_res->GetAtom(" CA "); // PDBv3 FIXME
 			if (at) {
 			   coot::Cartesian pos(at->x, at->y, at->z);
