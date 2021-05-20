@@ -1462,8 +1462,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
       if (do_trans_peptide_restraints) {
          lrc.n_link_trans_peptide += add_link_trans_peptide(res_1, res_2,
                                                             is_fixed_first_residue,
-                                                            is_fixed_second_residue,
-                                                            geom);
+                                                            is_fixed_second_residue, false); // don't add if cis
       } else {
          if (false) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
             std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "

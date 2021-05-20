@@ -4344,8 +4344,9 @@ coot::restraints_container_t::post_add_new_restraint() {
       if (found) break;
    }
 
-   if (! found)
+   if (! found) {
       restraints_indices.back().push_back(idx_rest);
+   }
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 

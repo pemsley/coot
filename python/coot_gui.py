@@ -243,7 +243,7 @@ def coot_gui(own_gtk_main=False):
              print "BL WARNING:: None input"
 
        if res is not None:
-             print "BL INFO:: result is", res
+             print "INFO:: result:", res
              insert_normal_text(str(res) + "\n")
 
        if his:
@@ -5604,10 +5604,10 @@ def toggle_backrub_rotamers(widget=None):
       if widget.get_active():
          # the button is toggled on
          set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-         print "BL INFO:: Using Backrub rotamers now!"
+         print "BL INFO:: Using Backrub rotamers"
       else:
          set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-         print "BL INFO:: NOT using Backrub rotamers any more!"
+         print "BL INFO:: No longer using Backrub rotamers"
 
    else:
       # non graphical - but wont be able to run if this is not loaded.
