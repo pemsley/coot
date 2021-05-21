@@ -149,8 +149,20 @@ on_glarea_realize(GtkGLArea *glarea) {
    // gdk/x11/gdkglcontext-x11.c
    // glXGetConfig(dpy, &visual_list[0], GLX_SAMPLE_BUFFERS_ARB, &gl_info[i].num_multisample);
 
-   // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface 
+   // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface
 
+   const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+   const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+   const char *s3 = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+   const char *s4 = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+   std::string ss1(s1);
+   std::string ss2(s2);
+   std::string ss3(s3);
+   std::string ss4(s4);
+   std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
+   std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
+   std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
+   std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
 
    graphics_info_t g;
    g.init_shaders();

@@ -85,13 +85,13 @@ void setup_python(int argc, char **argv) {
 
    PyObject *sys = PyImport_ImportModule("sys");
    if (! sys) {
-      std::cout << "Null sys" << std::endl;
+      std::cout << "ERROR:: setup_python() Null sys" << std::endl;
    } else {
       // std::cout << "sys imported" << std::endl;
    }
    PyObject *coot = PyImport_ImportModule("coot");
    if (! coot) {
-      std::cout << "Null coot" << std::endl;
+      std::cout << "ERROR:: setup_python() Null coot" << std::endl;
    } else {
       // std::cout << "coot imported" << std::endl;
       initcoot_python_gobject(); // this is not a good name for this function. We need to say
