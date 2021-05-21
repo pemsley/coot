@@ -381,7 +381,8 @@ coot::side_chain_densities::make_a_run_of_residues(mmdb::Manager *mol, const std
 }
 
 
-std::vector<mmdb::Residue *>
+// return an error messages or a vector of residues
+std::pair<std::string, std::vector<mmdb::Residue *> >
 coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
                                                 const std::string &chain_id, int resno_start, int resno_end,
                                                 const clipper::Xmap<float> &xmap) {
@@ -392,7 +393,39 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
    if (! a_run_of_residues.empty())
       fill_residue_blocks(a_run_of_residues, xmap); // return fast if already filled
 
-   return a_run_of_residues;
+   std::string error_message; // no error message
+   for (auto &residue_p : a_run_of_residues) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      bool found_N  = false;
+      bool found_CA = false;
+      bool found_C  = false;
+      bool found_O  = false;
+      bool found_CB = false;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            if (atom_name == " N  ") found_N  = true;
+            if (atom_name == " CA ") found_CA = true;
+            if (atom_name == " CB ") found_CB = true;
+            if (atom_name == " C  ") found_C  = true;
+            if (atom_name == " O  ") found_O  = true;
+         }
+      }
+      if (found_N && found_C && found_O && found_CA && found_CB) {
+         // happy path
+      } else {
+         std::string chain_id = residue_p->GetChainID();
+         int res_no = residue_p->GetSeqNum();
+         error_message = "ERROR:: missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+         if (! found_CB)
+            error_message = "ERROR:: missing atom CB in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+      }
+   }
+
+   return std::pair<std::string, std::vector<mmdb::Residue *> >(error_message, a_run_of_residues);
 }
 
 void
@@ -491,18 +524,22 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
       // slide
       // std::cout << "----------------- slide ------------ " << std::endl;
 
-      // std::cout << "debug:: testing sequence " << sequence << std::endl;
-
       int sequence_length = sequence.length();
-      int offset_max = sequence.length() - n_residues;
+      int offset_max = sequence.length() - n_residues; // n_residues is the size of a run of residues
+
+      std::cout << "debug:: testing sequence " << sequence << std::endl;
+      std::cout << "debug::   model sequence " << true_sequence << std::endl;
+      std::cout << "debug:: offset_max " << offset_max << std::endl;
 
       for (int offset=0; offset<=offset_max; offset++) {
+         std::cout << "trying loop with offset " << offset << std::endl;
          int n_scored_residues = 0;
          double sum_score = 0;
          std::string running_sequence;
          for (int ires=0; ires<n_residues; ires++) {
+
             if (false) // Xs in sequences result in sequence count mismatches
-               std::cout << "compare offset" << offset << " ires " << ires << " i+o = "<< (ires+offset)
+               std::cout << "   compare offset" << offset << " ires " << ires << " i+o = "<< (ires+offset)
                          << " and sequence_length " << sequence_length << std::endl;
             if ((ires+offset) < sequence_length) {
                mmdb::Residue *residue_p = scored_residues[ires].first;
@@ -515,13 +552,15 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
                        ++it_debug) {
                      std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
                   }
-                  std::cout << "\nDone map: " << std::endl;
+                  if (! scored_map.empty()) std::cout << "\n" << std::endl;
                }
 
                char letter = sequence[ires+offset];
                try {
                   const std::string &res_type = get_res_type_from_single_letter_code(letter);
-                  // std::cout << "----------- debug:: res_type from " << letter << " is \"" << res_type << "\"" << std::endl;
+                  if (false)
+                     std::cout << "   ----------- debug:: offset " << offset << " ires " << ires
+                               << " res_type from " << letter << " is \"" << res_type << "\"" << std::endl;
                   if (! res_type.empty()) {
                      std::map<std::string, double>::const_iterator it = scored_map.find(res_type);
                      if (it != scored_map.end()) {
@@ -535,20 +574,22 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
                                      << score << " for " << letter << " " << "ires " << ires << " "
                                      << residue_spec_t(residue_p) << std::endl;
                      } else {
-                        if (true) { // debug
-                           std::cout << "DEBUG:: Failed to find " << res_type << " in this map: (which has size) "
-                                     << scored_map.size() << std::endl;
+                        // res_type was not in the scored_map map. Because it couldn't be scored. The input model didn't
+                        // have a CB perhaps?. The scoring function should complain!
+                        if (false) { // debug
+                           std::cout << "   DEBUG:: test_sequence(): Failed to find " << res_type
+                                     << " in this map: which has size " << scored_map.size()
+                                     << " for ires " << ires << " offset " << offset << std::endl;
                            std::map<std::string, double>::const_iterator it_debug;
-                           std::cout << "This was the map: POINT B, it has size " << scored_map.size() << std::endl;
-                           for (it_debug=scored_map.begin();
-                                it_debug!=scored_map.end();
-                                ++it_debug) {
+                           std::cout << "   This was the map: POINT B, it has size " << scored_map.size() << std::endl;
+                           for (it_debug=scored_map.begin(); it_debug!=scored_map.end(); ++it_debug) {
                               std::cout << "   " << it_debug->first << " : " << it_debug->second << ", ";
                            }
-                           std::cout << "\nDone map: " << std::endl;
+                           if (! scored_map.empty()) std::cout << std::endl;
                         }
                         running_sequence += '.';
                      }
+                     // std::cout << "   running sequence is now " << running_sequence << std::endl;
                   } else {
                      if (false) // this happens a lot
                         std::cout << "WARNING:: empty residue type for sequence letter " << letter << std::endl;
@@ -564,8 +605,8 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
                }
             }
          }
+
          if (n_scored_residues == n_residues) {
-            // std::cout << "pushing back a result! offset " << offset << std::endl;
             results.push_back(results_t(offset, sum_score, n_scored_residues, running_sequence, sequence_name, true_sequence));
             if (false)
                std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(8) << sum_score
@@ -574,7 +615,7 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
                          << " true-sequence " << true_sequence << std::endl;
          } else {
             if (false) // happens a lot due to Xs in sequence
-               std::cout << "failed to push back a result because " << n_scored_residues << " != " << n_residues << std::endl;
+               std::cout << "INFO:: Failed to push back a result because " << n_scored_residues << " != " << n_residues << std::endl;
          }
       }
       auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -2263,107 +2304,114 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
    for (const auto &range : fc.ranges) {
       // std::cout << "new-range" << std::endl;
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      std::vector<mmdb::Residue *> a_run_of_residues =
+      std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
          scd.setup_test_sequence(mol, range.chain_id, range.start_res.res_no, range.end_res.res_no, xmap);
       auto tp_1 = std::chrono::high_resolution_clock::now();
-      scd.setup_likelihood_of_each_rotamer_at_every_residue(a_run_of_residues, xmap);
-      auto tp_2 = std::chrono::high_resolution_clock::now();
+      if (! a_run_of_residues.first.empty()) {
+         std::cout << "WARNING:: Failed to make a run of residue - due to missing atoms" << std::endl;
+         std::cout << a_run_of_residues.first << std::endl;
+      } else {
+         // happy path
+         scd.setup_likelihood_of_each_rotamer_at_every_residue(a_run_of_residues.second, xmap);
+
+         auto tp_2 = std::chrono::high_resolution_clock::now();
 
 #if 1 // threaded version
-      unsigned int n_threads = get_max_number_of_threads();
-      std::vector<std::pair<unsigned int, unsigned int> > seq_index_vector =
-         coot::atom_index_ranges(n_sequences, n_threads);
-      std::vector<std::thread> threads;
+         unsigned int n_threads = get_max_number_of_threads();
+         std::vector<std::pair<unsigned int, unsigned int> > seq_index_vector =
+            coot::atom_index_ranges(n_sequences, n_threads);
+         std::vector<std::thread> threads;
 
-      for (unsigned int i=0; i<seq_index_vector.size(); i++) {
-         std::pair<unsigned int, unsigned int> index_pair = seq_index_vector[i];
-         threads.push_back(std::thread(proc_threads, index_pair, fam, a_run_of_residues, xmap, std::ref(scd)));
-      }
+         for (unsigned int i=0; i<seq_index_vector.size(); i++) {
+            std::pair<unsigned int, unsigned int> index_pair = seq_index_vector[i];
+            threads.push_back(std::thread(proc_threads, index_pair, fam, a_run_of_residues.second, xmap, std::ref(scd)));
+         }
 
-      for (unsigned int i=0; i<seq_index_vector.size(); i++)
-         threads[i].join();
+         for (unsigned int i=0; i<seq_index_vector.size(); i++)
+            threads[i].join();
 #endif
 
 #if 0 // the single threaded way
 
-      for (unsigned int idx=0; idx<n_sequences; idx++) {
-         std::string sequence = fam[idx].sequence;
-         // std::cout << "Input Sequence:\n" << sequence << std::endl;
-         const std::string &name = fam[idx].name;
-         scd.test_sequence(a_run_of_residues, xmap, name, sequence);
-      }
+         for (unsigned int idx=0; idx<n_sequences; idx++) {
+            std::string sequence = fam[idx].sequence;
+            // std::cout << "Input Sequence:\n" << sequence << std::endl;
+            const std::string &name = fam[idx].name;
+            scd.test_sequence(a_run_of_residues, xmap, name, sequence);
+         }
 #endif
 
-      std::map<std::string, std::vector<coot::side_chain_densities::results_t> >::const_iterator it;
-      bool print_results = false;
-      if (print_results) {
-         for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
-            const std::string &sequence = it->first;
-            std::cout << "sequence: " << sequence << std::endl;
-            for (const auto &r : it->second) {
-               std::cout << "   " << r.offset << " " << r.sequence << " " << r.sum_score << std::endl;
-            }
-         }
-      }
-
-      auto tp_3 = std::chrono::high_resolution_clock::now();
-      // transfer scd.results_container to returned results
-      if (false) {
-         for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
-            const std::vector<side_chain_densities::results_t> &v(it->second);
-            if (! v.empty())
-               results.insert(results.end(), v.begin(), v.end());
-         }
-      } else {
-         auto tp_3i = std::chrono::high_resolution_clock::now();
-         double sum_data = 0.0;
-         double sum_data_sqrd = 0.0;
-         unsigned int n = 0;
-         for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
-            const std::vector<side_chain_densities::results_t> &v(it->second);
-            for (unsigned int i=0; i<v.size(); i++) {
-               sum_data += v[i].sum_score;
-               sum_data_sqrd += v[i].sum_score * v[i].sum_score;
-            }
-            n += v.size();
-         }
-         if (n > 1000) {
-            results.reserve(10000);
-            double mean = sum_data/static_cast<double>(n);
-            double var = sum_data_sqrd/static_cast<double>(n) - mean * mean;
-            if (var < 0) var = 0;
-            double sd = std::sqrt(var);
-            std::cout << "Mean: " << mean << " sd " << sd << std::endl;
-            double lim_good_enough = mean + 1.5 * sd;
+         std::map<std::string, std::vector<coot::side_chain_densities::results_t> >::const_iterator it;
+         bool print_results = false;
+         if (print_results) {
             for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
-               const std::vector<side_chain_densities::results_t> &v(it->second);
-               for (unsigned int i=0; i<v.size(); i++) {
-                  if (v[i].sum_score > lim_good_enough)
-                     results.push_back(v[i]);
+               const std::string &sequence = it->first;
+               std::cout << "sequence: " << sequence << std::endl;
+               for (const auto &r : it->second) {
+                  std::cout << "   " << r.offset << " " << r.sequence << " " << r.sum_score << std::endl;
                }
             }
-         } else {
+         }
+
+         auto tp_3 = std::chrono::high_resolution_clock::now();
+         // transfer scd.results_container to returned results
+         if (false) {
             for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
                const std::vector<side_chain_densities::results_t> &v(it->second);
                if (! v.empty())
                   results.insert(results.end(), v.begin(), v.end());
             }
+         } else {
+            auto tp_3i = std::chrono::high_resolution_clock::now();
+            double sum_data = 0.0;
+            double sum_data_sqrd = 0.0;
+            unsigned int n = 0;
+            for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+               const std::vector<side_chain_densities::results_t> &v(it->second);
+               for (unsigned int i=0; i<v.size(); i++) {
+                  sum_data += v[i].sum_score;
+                  sum_data_sqrd += v[i].sum_score * v[i].sum_score;
+               }
+               n += v.size();
+            }
+            if (n > 1000) {
+               results.reserve(10000);
+               double mean = sum_data/static_cast<double>(n);
+               double var = sum_data_sqrd/static_cast<double>(n) - mean * mean;
+               if (var < 0) var = 0;
+               double sd = std::sqrt(var);
+               std::cout << "Mean: " << mean << " sd " << sd << std::endl;
+               double lim_good_enough = mean + 1.5 * sd;
+               for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+                  const std::vector<side_chain_densities::results_t> &v(it->second);
+                  for (unsigned int i=0; i<v.size(); i++) {
+                     if (v[i].sum_score > lim_good_enough)
+                        results.push_back(v[i]);
+                  }
+               }
+            } else {
+               for (it=scd.results_container.begin(); it!=scd.results_container.end(); ++it) {
+                  const std::vector<side_chain_densities::results_t> &v(it->second);
+                  if (! v.empty())
+                     results.insert(results.end(), v.begin(), v.end());
+               }
+            }
+
+            auto tp_3j = std::chrono::high_resolution_clock::now();
+            auto dij = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3j - tp_3i).count();
+            std::cout << "TIMINGS:: get_fragment_sequence_scores() calc mean results " << dij
+                      << " milliseconds" << std::endl;
          }
 
-         auto tp_3j = std::chrono::high_resolution_clock::now();
-         auto dij = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3j - tp_3i).count();
-         std::cout << "TIMINGS:: get_fragment_sequence_scores() calc mean results " << dij
+         auto tp_4 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+         auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+         auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+         std::cout << "TIMINGS:: get_fragment_sequence_scores() setup model: "
+                   << d10 << " setup likelihoods: " << d21 << " proc_theads: " << d32 << " consolidate: " << d43
                    << " milliseconds" << std::endl;
       }
-
-      auto tp_4 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-      std::cout << "TIMINGS:: get_fragment_sequence_scores() setup model: "
-                << d10 << " setup likelihoods: " << d21 << " proc_theads: " << d32 << " consolidate: " << d43
-                << " milliseconds" << std::endl;
    }
 
    return results;

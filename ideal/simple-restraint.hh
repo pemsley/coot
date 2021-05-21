@@ -273,7 +273,7 @@ namespace coot {
           PARALLEL_PLANES_MASK = 256,
           GEMAN_MCCLURE_DISTANCE_MASK = 1024,
           TRANS_PEPTIDE_MASK = 2048,
-     IMPROPER_DIHEDRALS_MASK = 4096
+          IMPROPER_DIHEDRALS_MASK = 4096
    };
 
 
@@ -1989,9 +1989,9 @@ namespace coot {
       //
       int add_link_trans_peptide(mmdb::Residue *first,
                                  mmdb::Residue *second,
-                                 short int is_fixed_first,
-                                 short int is_fixed_second,
-                                 const protein_geometry &geom);
+                                 bool is_fixed_first,
+                                 bool is_fixed_second,
+                                 bool add_even_if_cis);
 
       int add_rama(std::string link_type,
                    mmdb::PResidue prev,
@@ -2196,7 +2196,6 @@ namespace coot {
          // xmap = xmap_in;
 
          init();
-         n_atoms = asc_in.n_selected_atoms;
          mol = asc_in.mol;
          n_atoms = asc_in.n_selected_atoms;
          atom = asc_in.atom_selection;
@@ -2660,6 +2659,10 @@ namespace coot {
       double lennard_jones_epsilon; // 0.1 default values
 
       void set_lennard_jones_epsilon(const double &e) { lennard_jones_epsilon = e; }
+
+      // when we dynamically do a cis-trans conversion on the moving/intermediate atoms
+      void add_trans_peptide_restraint(mmdb::Residue *first, mmdb::Residue *second);
+      void remove_trans_peptide_restraint(mmdb::Residue *first, mmdb::Residue *second);
 
       // Is it sane to have threads without a thread pool?
       //

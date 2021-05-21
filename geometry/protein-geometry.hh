@@ -548,6 +548,11 @@ namespace coot {
    // (i.e. each atom in a residue/comp_id).
    // 
    class dict_atom {
+      void init() {
+         aromaticity = UNASSIGNED;
+         ordinal_id = -1;
+         is_hydrogen_flag = false;
+      }
    public:
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       enum { IDEAL_MODEL_POS, REAL_MODEL_POS}; 
@@ -556,6 +561,7 @@ namespace coot {
       std::string type_symbol;
       std::string type_energy;
       aromaticity_t aromaticity;
+      bool is_hydrogen_flag;
       std::pair<bool, float> partial_charge;
       std::pair<bool, int> formal_charge;
       std::pair<bool, std::string> pdbx_stereo_config;
@@ -570,13 +576,16 @@ namespace coot {
          atom_id(atom_id_in), atom_id_4c(atom_id_4c_in), type_symbol(type_symbol_in),
          type_energy(type_energy_in), partial_charge(partial_charge_in)
       {
-         aromaticity = UNASSIGNED;
-         ordinal_id = -1;
+         init();
+         if (type_energy == "H" ) is_hydrogen_flag = true;
+         if (type_symbol == "H" ) is_hydrogen_flag = true;
+         if (type_symbol == " H") is_hydrogen_flag = true;
+         if (type_symbol == " D") is_hydrogen_flag = true;
       }
-      dict_atom() {}; // for resize(0);
+      dict_atom() { init(); }; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
       void add_ordinal_id(int ordinal_id_in) { ordinal_id = ordinal_id_in; }
-      bool is_hydrogen() const;
+      bool is_hydrogen() const { return is_hydrogen_flag; }
       friend std::ostream& operator<<(std::ostream &s, const dict_atom &at);
    };
    std::ostream& operator<<(std::ostream &s, const dict_atom &at);

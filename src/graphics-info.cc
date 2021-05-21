@@ -4146,59 +4146,60 @@ graphics_info_t::apply_undo() {
    // std::cout << "DEBUG:: undo molecule : " << umol << std::endl;
    if (umol == -2) {
       if (use_graphics_interface_flag) {
-    GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-    GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
-    fill_combobox_with_undo_options(combobox);
-    gtk_widget_show(dialog);
+         GtkWidget *dialog = create_undo_molecule_chooser_dialog();
+         GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+         fill_combobox_with_undo_options(combobox);
+         gtk_widget_show(dialog);
       }
    } else {
       if (umol == -1) {
-    std::cout << "There are no molecules with modifications "
-              << "that can be undone" << std::endl;
+         std::cout << "There are no molecules with modifications "
+                   << "that can be undone" << std::endl;
       } else {
 
-    std::string cwd = coot::util::current_working_dir();
-    if (molecules[umol].Have_modifications_p()) {
-       if (molecules[umol].is_displayed_p()) {
-          state = molecules[umol].apply_undo(cwd);
-          if (use_graphics_interface_flag) {
-     graphics_draw();
+         std::string cwd = coot::util::current_working_dir();
+         if (molecules[umol].Have_modifications_p()) {
+            if (molecules[umol].is_displayed_p()) {
+               state = molecules[umol].apply_undo(cwd);
+               if (use_graphics_interface_flag) {
+                  graphics_draw();
 
-     // need to update the atom and residue list in Go To Atom widget
-     // (maybe)
-     update_go_to_atom_window_on_changed_mol(umol);
+                  // need to update the atom and residue list in Go To Atom widget
+                  // (maybe)
+                  update_go_to_atom_window_on_changed_mol(umol);
 
-     // update the ramachandran, if there was one
+                  // update the ramachandran, if there was one
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-     GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
-     if (w) {
-        coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
-        handle_rama_plot_update(plot);
-     }
-     // now update the geometry graphs, so get the asc
-     atom_selection_container_t u_asc = molecules[umol].atom_sel;
+                  GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+                  if (w) {
+                     coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
+                     handle_rama_plot_update(plot);
+                  }
+                  // now update the geometry graphs, so get the asc
+                  atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-     update_geometry_graphs(u_asc, umol);
+                  update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS
-          }
-       } else {
-          if (use_graphics_interface_flag) {
-     std::string s = "WARNING:: Coot will not undo modifications on a \n";
-     s += "molecule that is not displayed";
-     GtkWidget *w = wrapped_nothing_bad_dialog(s);
-     gtk_widget_show(w);
-          }
-       }
-    } else {
-       undo_molecule = -1; // reset it
-       if (use_graphics_interface_flag) {
-          std::cout << "WARNING:: !!!  Changing the molecule to which "
-    << "\"Undo\"s are done." << std::endl;
-          std::string s = "WARNING:: Changing to Undo molecule";
-          add_status_bar_text(s);
-       }
-       apply_undo();       // find another molecule to undo
-    }
+                  run_post_manipulation_hook(umol, 0);
+               }
+            } else {
+               if (use_graphics_interface_flag) {
+                  std::string s = "WARNING:: Coot will not undo modifications on a \n";
+                  s += "molecule that is not displayed";
+                  GtkWidget *w = wrapped_nothing_bad_dialog(s);
+                  gtk_widget_show(w);
+               }
+            }
+         } else {
+            undo_molecule = -1; // reset it
+            if (use_graphics_interface_flag) {
+               std::cout << "WARNING:: !!!  Changing the molecule to which "
+                         << "\"Undo\"s are done." << std::endl;
+               std::string s = "WARNING:: Changing to Undo molecule";
+               add_status_bar_text(s);
+            }
+            apply_undo();       // find another molecule to undo
+         }
       }
    }
 
@@ -4221,36 +4222,37 @@ graphics_info_t::apply_redo() {
       gtk_widget_show(dialog);
    } else {
       if (umol == -1) { // unset
-    std::cout << "There are no molecules with modifications "
-      << "that can be re-done" << std::endl;
+         std::cout << "There are no molecules with modifications "
+                   << "that can be re-done" << std::endl;
       } else {
 
-    if (molecules[umol].Have_redoable_modifications_p()) {
-       // std::cout << "DEBUG:: applying redo" << std::endl;
-       std::string cwd = coot::util::current_working_dir();
-       state = molecules[umol].apply_redo(cwd);
-       graphics_draw();
+         if (molecules[umol].Have_redoable_modifications_p()) {
+            // std::cout << "DEBUG:: applying redo" << std::endl;
+            std::string cwd = coot::util::current_working_dir();
+            state = molecules[umol].apply_redo(cwd);
+            graphics_draw();
 
-       // need to update the atom and residue list in Go To Atom widget
-       // (maybe)
-       update_go_to_atom_window_on_changed_mol(umol);
-       // BL says:: from undo, maybe more should be updated!?!
-       // update the ramachandran, if there was one
+            // need to update the atom and residue list in Go To Atom widget
+            // (maybe)
+            update_go_to_atom_window_on_changed_mol(umol);
+            // BL says:: from undo, maybe more should be updated!?!
+            // update the ramachandran, if there was one
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-       GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
-       if (w) {
-          coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
-          handle_rama_plot_update(plot);
-       }
-       // now update the geometry graphs, so get the asc
-       atom_selection_container_t u_asc = molecules[umol].atom_sel;
+            GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+            if (w) {
+               coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
+               handle_rama_plot_update(plot);
+            }
+            // now update the geometry graphs, so get the asc
+            atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-       update_geometry_graphs(u_asc, umol);
+            update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS
+            run_post_manipulation_hook(umol, 0);
 
-    } else {
-       // std::cout << "DEBUG:: not applying redo" << std::endl;
-    }
+         } else {
+            // std::cout << "DEBUG:: not applying redo" << std::endl;
+         }
       }
    }
    return state;

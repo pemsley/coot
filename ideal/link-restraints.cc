@@ -736,8 +736,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 	    if (do_trans_peptide_restraints)
 	       n_link_trans_peptide += add_link_trans_peptide(sel_res_1, sel_res_2,
 							      is_fixed_first_residue,
-							      is_fixed_second_residue,
-							      geom);
+							      is_fixed_second_residue, false); // don't add if cis
 	 
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);

@@ -5358,11 +5358,15 @@ coot::util::residues_with_insertion_codes(mmdb::Manager *mol) {
 }
 
 // return the status too, torsion in radians.
-std::pair<short int, double>
+std::pair<bool, double>
 coot::util::omega_torsion(mmdb::Residue *C_residue, mmdb::Residue *N_residue, const std::string &altconf) {
 
-   double omega = 0;
-   short int istatus = 0; // initially unset
+   double omega = 0.0;
+   bool istatus = false; // initially unset
+
+   if (! C_residue) return std::make_pair(false, 0.0);
+   if (! N_residue) return std::make_pair(false, 0.0);
+
    mmdb::PPAtom C_residue_atoms = NULL;
    int nCResidueAtoms;
    C_residue->GetAtomTable(C_residue_atoms, nCResidueAtoms);
@@ -5412,9 +5416,27 @@ coot::util::omega_torsion(mmdb::Residue *C_residue, mmdb::Residue *N_residue, co
                              N_residue_N_atom_p->z);
 
       omega = clipper::Coord_orth::torsion(ca1, c1, n2, ca2);
-      istatus = 1;
+      istatus = true;
+
+      // std::cout << "omega from clipper function: " << omega << " "
+      //           << ca1.format() << " " << c1.format() << " " << n2.format() << " " << ca2.format() << "\n      "
+      //           << atom_spec_t(C_residue_CA_atom_p) << " " << atom_spec_t(C_residue_C_atom_p) << " "
+      //           << atom_spec_t(N_residue_N_atom_p) << " " << atom_spec_t(N_residue_CA_atom_p) << std::endl;
+
    }
-   return std::pair<short int, double> (istatus, omega);
+   return std::pair<bool, double> (istatus, omega);
+}
+
+
+// in radians
+bool
+coot::util::is_cis(const double &omega_torsion) {
+
+   // -90 to +90
+   bool is_cis_flag = false;
+   if ((omega_torsion < 1.57) && (omega_torsion > -1.57))
+      is_cis_flag = true;
+   return is_cis_flag;
 }
 
 
@@ -6963,6 +6985,58 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 }
 
 
+int
+coot::util::cis_trans_conversion(mmdb::Residue *res_first, mmdb::Residue *res_second,
+                                 mmdb::Manager *mol, mmdb::Manager *standard_residues_mol) {
+
+   int count = 0;
+
+   if (standard_residues_mol) {
+      mmdb::PResidue *trans_residues = NULL;
+      mmdb::PResidue *cis_residues = NULL;
+      int selHnd_trans = standard_residues_mol->NewSelection();
+      int ntrans_residues;
+      standard_residues_mol->Select(selHnd_trans, mmdb::STYPE_RESIDUE, 0,
+                                    "*",
+                                    mmdb::ANY_RES, "*",
+                                    mmdb::ANY_RES, "*",
+                                    "TNS", // residue name
+                                    "*",   // Residue must contain this atom name?
+                                    "*",   // Residue must contain this Element?
+                                    "*",   // altLocs
+                                    mmdb::SKEY_NEW // selection key
+                                    );
+      standard_residues_mol->GetSelIndex(selHnd_trans, trans_residues, ntrans_residues);
+      if (ntrans_residues >= 2) {
+
+         int selHnd_cis = standard_residues_mol->NewSelection(); // d
+         int ncis_residues;
+         standard_residues_mol->Select(selHnd_cis, mmdb::STYPE_RESIDUE, 0,
+                                       "*",
+                                       mmdb::ANY_RES, "*",
+                                       mmdb::ANY_RES, "*",
+                                       "CIS", // residue name
+                                       "*",   // Residue must contain this atom name?
+                                       "*",   // Residue must contain this Element?
+                                       "*",   // altLocs
+                                       mmdb::SKEY_NEW // selection key
+                                       );
+         standard_residues_mol->GetSelIndex(selHnd_cis, cis_residues, ncis_residues);
+
+         if (ncis_residues >= 2) {
+
+            auto mol_residues_pair = std::make_pair(res_first, res_second);
+            int istatus = cis_trans_convert(mol_residues_pair, trans_residues, cis_residues);
+            if (istatus) count = 1; // snicker.
+         }
+         standard_residues_mol->DeleteSelection(selHnd_cis);
+      }
+      standard_residues_mol->DeleteSelection(selHnd_trans);
+   }
+   return count;
+}
+
+
 // ---- cis <-> trans conversion
 int
 coot::util::cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *mol, mmdb::Manager *standard_residues_mol) {
@@ -7036,7 +7110,8 @@ coot::util::cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *
                trans_residues[0]->GetAtomTable(residue_atoms, n_residue_atoms);
                trans_residues[1]->GetAtomTable(residue_atoms, n_residue_atoms);
 
-               istat = cis_trans_convert(mol_residues, trans_residues, cis_residues);
+               std::pair<mmdb::Residue *, mmdb::Residue *> mol_residues_pair(mol_residues[0], mol_residues[1]);
+               istat = cis_trans_convert(mol_residues_pair, trans_residues, cis_residues);
 
             } else {
                std::cout << "ERROR:: failed to get cis residues in cis_trans_convert "
@@ -7061,8 +7136,9 @@ coot::util::cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *
 
 
 // mol_residues, trans_residues, cis_residues must be at least of length 2.
+// return status (1 for success)
 int
-coot::util::cis_trans_convert(mmdb::PResidue *mol_residues,
+coot::util::cis_trans_convert(std::pair<mmdb::Residue *, mmdb::Residue *> mol_residues, // for mc conversion
                               mmdb::PResidue *trans_residues,
                               mmdb::PResidue *cis_residues) {
 
@@ -7072,9 +7148,11 @@ coot::util::cis_trans_convert(mmdb::PResidue *mol_residues,
    // mol_residues is guaranteed to have at least 2 residues.
    //
    int istatus = 0;
+   if (! mol_residues.first)  return 0;
+   if (! mol_residues.second) return 0;
    std::string altconf("");
    std::pair<short int, double> omega =
-      coot::util::omega_torsion(mol_residues[0], mol_residues[1], altconf);
+      coot::util::omega_torsion(mol_residues.first, mol_residues.second, altconf);
 
    std::cout << "INFO:: omega: " << omega.first << " " << omega.second*180.0/3.14159
              << " degrees " << std::endl;
@@ -7084,12 +7162,12 @@ coot::util::cis_trans_convert(mmdb::PResidue *mol_residues,
       mmdb::PResidue *cis_trans_init_match = trans_residues;
       mmdb::PResidue *converted_residues   = cis_residues;
       if ((omega.second < 1.57) && (omega.second > -1.57)) {
-         std::cout << "INFO This is a CIS peptide - making it TRANS" << std::endl;
+         std::cout << "INFO:: This is a CIS peptide - making it TRANS" << std::endl;
          is_cis_flag = 1;
          cis_trans_init_match = cis_residues;
          converted_residues = trans_residues;
       } else {
-         std::cout << "INFO This is a TRANS peptide - making it CIS" << std::endl;
+         std::cout << "INFO:: This is a TRANS peptide - making it CIS" << std::endl;
       }
 
       // Now match cis_trans_init_match petide atoms onto the peptide
@@ -7107,7 +7185,7 @@ coot::util::cis_trans_convert(mmdb::PResidue *mol_residues,
 
       mmdb::PPAtom mol_residue_atoms = NULL;
       int n_residue_atoms;
-      mol_residues[0]->GetAtomTable(mol_residue_atoms, n_residue_atoms);
+      mol_residues.first->GetAtomTable(mol_residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
          std::string atom_name = mol_residue_atoms[i]->name;
          if (atom_name == " CA ") {
@@ -7121,7 +7199,7 @@ coot::util::cis_trans_convert(mmdb::PResidue *mol_residues,
          }
       }
       mol_residue_atoms = NULL;
-      mol_residues[1]->GetAtomTable(mol_residue_atoms, n_residue_atoms);
+      mol_residues.second->GetAtomTable(mol_residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
          std::string atom_name = mol_residue_atoms[i]->name;
          if (atom_name == " CA ") {

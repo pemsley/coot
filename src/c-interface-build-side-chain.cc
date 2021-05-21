@@ -1165,18 +1165,26 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
+         std::cout << "here 1" << std::endl;
          mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
          coot::side_chain_densities scd;
          unsigned int n_sequences = fam.size();
+         std::cout << "here 2 with n_sequences " << n_sequences << std::endl;
          if (n_sequences > 0) {
             for (unsigned int idx=0; idx<n_sequences; idx++) {
                std::string sequence = fam[idx].sequence;
                const std::string &name = fam[idx].name;
-               std::vector<mmdb::Residue *> a_run_of_residues =
+               std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
                   scd.setup_test_sequence(mol, chain_id, resno_start, resno_end, xmap);
                // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
-               scd.test_sequence(a_run_of_residues, xmap, name, sequence);
+               if (a_run_of_residues.first.empty()) {
+                  scd.test_sequence(a_run_of_residues.second, xmap, name, sequence);
+               } else {
+                  std::cout << "ERROR:: when generating a run of residues " << std::endl;
+                  std::cout << a_run_of_residues.first << std::endl;
+                  add_status_bar_text(a_run_of_residues.first.c_str());
+               }
             }
             coot::side_chain_densities::results_t new_sequence_result = scd.get_result();
             std::string new_sequence = new_sequence_result.sequence;
@@ -1277,7 +1285,7 @@ void assign_sequence_to_active_fragment() {
                      fam.add(f);
                   }
                   std::cout << "debug:: calling apply_fasta_multi_to_fragment() " << chain_id
-                            << " " << resno_low << " " << resno_high << " " << imol_map << std::endl;
+                            << " " << resno_low << " " << resno_high << " with imol_map: " << imol_map << std::endl;
                   apply_fasta_multi_to_fragment(imol, chain_id, resno_low, resno_high, imol_map, fam);
                } else {
                   std::cout << "empty v from simple_residue_tree() " << std::endl;

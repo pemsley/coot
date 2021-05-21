@@ -5275,12 +5275,18 @@ def add_module_cryo_em_gui():
         add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
                                       lambda func: refmac_multi_sharpen_gui())
 
-        def interactive_nudge_func():
-            with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
-                                                      aa_ins_code, aa_atom_name,
-                                                      aa_alt_conf, aa_res_spec]:
-                interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
+        def ass_seq_assoc_seq():
+            assign_sequence_to_active_fragment()
 
+            add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
+                                          lambda func: sharpen_blur_map_gui())
+
+            def interactive_nudge_func():
+                with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                                        aa_ins_code, aa_atom_name,
+                                                          aa_alt_conf, aa_res_spec]:
+                    interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
+                
         add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
                                       lambda func: interactive_nudge_func())
 
@@ -5296,6 +5302,8 @@ def add_module_cryo_em_gui():
         add_simple_coot_menu_menuitem(menu, "Solidify Maps", solidify_maps)
 
         add_simple_coot_menu_menuitem(menu, "Unsolidify Maps", unsolidify_maps)
+        add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
+                              lambda func: ass_seq_assoc_seq())
 
 
 def add_module_ccp4_gui():

@@ -57,25 +57,17 @@ namespace coot {
                       float ion_radius_in,
                       const std::string &element_in,
                       int valency_in,
-                      int sp_hybridisation_in) {
-         type = type_in;
-         hb_type = hb_type_in;
-         weight = weight_in;
-         vdw_radius  = vdw_radius_in;
-         vdwh_radius = vdwh_radius_in;
-         ion_radius = ion_radius_in;
-         element = element_in;
+                      int sp_hybridisation_in) : type(type_in),  weight(weight_in), hb_type(hb_type_in),
+                                                 vdw_radius(vdw_radius_in),
+                                                 vdwh_radius(vdwh_radius_in),
+                                                 ion_radius(ion_radius_in),
+                                                 element(element_in) {
          valency = valency_in;
          sp_hybridisation = sp_hybridisation_in;
       }
       // for the map
-      energy_lib_atom() {
-         type = "";
-         hb_type = HB_UNASSIGNED;
-         weight = -1;
-         vdw_radius = -1;
-         ion_radius = -1;
-         element = "";
+      energy_lib_atom() :type(""), weight(-1), hb_type(HB_UNASSIGNED), vdw_radius(-1), ion_radius(-1),
+                         element("") {
          valency = -1;
          sp_hybridisation = -1;
       }
@@ -93,21 +85,19 @@ namespace coot {
       float length;
       float esd;
       bool needed_permissive;
-      energy_lib_bond() {
-         type = "unset";
+      energy_lib_bond() : type("unset") {
          length = 0;
          esd = 0;
          needed_permissive = false;
+         spring_constant = 1.0;
       }
       energy_lib_bond(const std::string &atom_type_1_in,
                       const std::string &atom_type_2_in,
                       const std::string &type_in,
                       float spring_constant_in,
                       float length_in,
-                      float esd_in) {
-         atom_type_1 = atom_type_1_in;
-         atom_type_2 = atom_type_2_in;
-         type = type_in;
+                      float esd_in) : atom_type_1(atom_type_1_in), atom_type_2(atom_type_2_in),
+                                      type(type_in) {
          spring_constant = spring_constant_in;
          length = length_in;
          esd = esd_in;
@@ -160,11 +150,9 @@ namespace coot {
                        const std::string &atom_type_3_in,
                        float spring_constant_in,
                        float value_in,
-                       float value_esd_in) {
+                       float value_esd_in) : atom_type_1(atom_type_1_in), atom_type_2(atom_type_2_in),
+                                             atom_type_3(atom_type_3_in) {
 
-         atom_type_1 = atom_type_1_in;
-         atom_type_2 = atom_type_2_in;
-         atom_type_3 = atom_type_3_in;
          spring_constant = spring_constant_in;
          angle = value_in;
          angle_esd = value_esd_in;
@@ -228,12 +216,9 @@ namespace coot {
                          const std::string &atom_type_4_in,
                          float spring_constant_in,
                          float value_in,
-                         int period_in) {
+                         int period_in)  : atom_type_1(atom_type_1_in), atom_type_2(atom_type_2_in),
+                                           atom_type_3(atom_type_3_in), atom_type_4(atom_type_4_in) {
 
-         atom_type_1 = atom_type_1_in;
-         atom_type_2 = atom_type_2_in;
-         atom_type_3 = atom_type_3_in;
-         atom_type_4 = atom_type_4_in;
          spring_constant = spring_constant_in;
          angle = value_in;
          period = period_in;
@@ -310,7 +295,7 @@ namespace coot {
       std::vector<energy_lib_torsion> torsions;
 
       energy_lib_t() {}
-      energy_lib_t(const std::string &file_name) { read(file_name); }
+      explicit energy_lib_t(const std::string &file_name) { read(file_name); }
 
       // Will throw an std::runtime_error if not found.
       //

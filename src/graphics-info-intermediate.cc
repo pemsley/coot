@@ -271,6 +271,50 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 bool
 graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 
+   // prefer to choose the peptide that contains a cis-peptide if you can find one on
+   // either side of the given residue
+   //
+   // PDBv3 FIXME
+   //
+   auto get_this_and_next_residue_for_peptide_link = [] (atom_selection_container_t *asc,
+                                                         mmdb::Atom *closest_atom) {
+
+                                                        mmdb::Residue *residue_of_closest_atom = closest_atom->residue;
+                                                        mmdb::Residue *res_this = residue_of_closest_atom;
+                                                        mmdb::Residue *res_prev = asc->get_previous(residue_of_closest_atom);
+                                                        mmdb::Residue *res_next = asc->get_next(residue_of_closest_atom);
+                                                        std::pair<bool, double> omega_1 = coot::util::omega_torsion(res_prev, res_this, "");
+                                                        std::pair<bool, double> omega_2 = coot::util::omega_torsion(res_this, res_next, "");
+
+                                                        if (omega_1.first) {
+                                                           if (coot::util::is_cis(omega_1.second)) {
+                                                              return std::make_pair(res_prev, res_this);
+                                                           } else {
+                                                              if (omega_2.first) {
+                                                                 if (coot::util::is_cis(omega_2.second)) {
+                                                                    return std::make_pair(res_this, res_next);
+                                                                 } else {
+                                                                    // they are both not cis, so choose pair depending on
+                                                                    // the closest atom
+                                                                    std::string name_of_closest_atom(closest_atom->GetResName());
+                                                                    if (name_of_closest_atom == " N  ") {
+                                                                       return std::make_pair(res_this, res_next);
+                                                                    } else {
+                                                                       return std::make_pair(res_prev, res_this);
+                                                                    }
+                                                                 }
+                                                              } else {
+                                                                 // no next residue
+                                                                 return std::make_pair(res_prev, res_this);
+                                                              }
+                                                           }
+                                                        } else {
+                                                           // no prev residue
+                                                           return std::make_pair(res_this, res_next);
+                                                        }
+                                                        return std::pair<mmdb::Residue *, mmdb::Residue *>(res_this, res_next);
+                                                     };
+
    bool state = false;
    if (moving_atoms_asc->mol) {
 
@@ -291,35 +335,16 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 
       if (at_close) {
 
-	 mmdb::Residue *res_this = at_close->residue;
-	 std::string atom_name = at_close->name;
-
-	 // if N is at active atom then we want prev,this
-	 // otherwise we want this,next
-	 //
-	 mmdb::Residue *res_1 = NULL;
-	 mmdb::Residue *res_2 = NULL;
-	 if (atom_name == " N  ") {
-	    res_1 = moving_atoms_asc->get_previous(res_this);
-	    res_2 = res_this;
-	 } else {
-	    res_1 = res_this;
-	    res_2 = moving_atoms_asc->get_next(res_this);
-	 }
+         std::pair<mmdb::Residue *, mmdb::Residue *> res_pair = get_this_and_next_residue_for_peptide_link(moving_atoms_asc, at_close);
+	 mmdb::Residue *res_1 = res_pair.first;
+	 mmdb::Residue *res_2 = res_pair.second;
 
 	 if (res_1 && res_2) {
 	    mmdb::Atom *at_1_ca = res_1->GetAtom(" CA ");
 	    mmdb::Atom *at_1_c  = res_1->GetAtom(" C  ");
-	    mmdb::Atom *at_1_o  = res_1->GetAtom(" O  ");
 	    mmdb::Atom *at_2_ca = res_2->GetAtom(" CA ");
-	    mmdb::Atom *at_2_n  = res_2->GetAtom(" N  ");
-	    mmdb::Atom *at_2_h  = res_2->GetAtom(" H  ");
 
-	    bool is_N_flag = false;
-	    if (atom_name == " N  ")
-	       is_N_flag = true;
-
-	    if (at_1_ca && at_2_ca) {
+	    if (at_1_ca && at_2_ca && at_1_c) {
 
 	       mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
 	       mmdb::Manager *mol = moving_atoms_asc->mol;
@@ -331,15 +356,25 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 		  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	       }
 
-	       int s = coot::util::cis_trans_conversion(at_close, is_N_flag, mol, standard_residues_mol);
-	       state = true; // we found intermedate atoms and tried to convert them
+               std::pair<bool, double> omega = coot::util::omega_torsion(res_1, res_2, "");
+               if (omega.first) {
+                  bool is_currently_cis = coot::util::is_cis(omega.second);
 
-	       // the atoms have moved, we need to continue the refinement.
+                  //  now we can manipulate the coordinates
+                  coot::util::cis_trans_conversion(res_1, res_2, mol, standard_residues_mol);
 
-	       refinement_of_last_restraints_needs_reset(); // maybe not needed.
-	       thread_for_refinement_loop_threaded();
+                  if (is_currently_cis) { // well, before the conversion, I mean
+                     last_restraints->add_trans_peptide_restraint(res_1, res_2);
+                  } else {
+                     // it was trans, now is cis and so we want to remove the trans-peptide restraint
+                     last_restraints->remove_trans_peptide_restraint(res_1, res_2);
+                  }
+               }
 
-	    }
+               // deliberately outside previous test
+               refinement_of_last_restraints_needs_reset(); // maybe not needed.
+               thread_for_refinement_loop_threaded();
+            }
 	 }
       }
    }

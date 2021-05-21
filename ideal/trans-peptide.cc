@@ -25,9 +25,9 @@
 int
 coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 						     mmdb::Residue *second,
-						     short int is_fixed_first,
-						     short int is_fixed_second,
-						     const coot::protein_geometry &geom) {
+						     bool is_fixed_first,
+						     bool is_fixed_second,
+                                                     bool add_even_if_cis) {
    int n_trans_peptide_torsion = 0;
 
    mmdb::PPAtom first_sel;
@@ -115,48 +115,55 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 			   double dist = clipper::Coord_orth::length(a2,a3);
 
 			   if (false)
-			      std::cout << "... current omega " << omega * 180/M_PI
-					<< " and N-C dist " << dist << std::endl;
-				 
-			   if (dist < 2.0) {
-			      if ((omega > 0.5 * M_PI) || (omega < -0.5 * M_PI)) {
+			      std::cout << "DEBUG:: current omega " << omega * 180/M_PI
+					<< " degrees and N-C dist " << dist << std::endl;
 
-				 std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2, index3, index4);
-				 for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
-				    if (other_fixed_flags[ii])
-				       fixed_flags[ii] = true;
+			   bool add_it = true;
+			   if (dist > 2.0) add_it = false;
+                           if ((omega > 0.5 * M_PI) || (omega < -0.5 * M_PI)) {
+                              // trans
+                           } else {
+                              add_it = false; // because cis (except...)
+                           }
+                           if (add_even_if_cis) add_it = true;
+
+                           if (add_it) {
+
+                              std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2, index3, index4);
+                              for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
+                                 if (other_fixed_flags[ii])
+                                    fixed_flags[ii] = true;
 
 
-				 // why did I have this test here?
-				 //
-				 // if (none_are_fixed_p(fixed_flags)) ...
-				 //
-				 // it seems that I didn't want to make trans restraints if there
-				 // were fixed atoms in the restraint.
-				 // I am now (20190528) not convinced that that's such a bad idea
-				 // So now I enable trans-peptide links to residues with fixed atoms
+                              // why did I have this test here?
+                              //
+                              // if (none_are_fixed_p(fixed_flags)) ...
+                              //
+                              // it seems that I didn't want to make trans restraints if there
+                              // were fixed atoms in the restraint.
+                              // I am now (20190528) not convinced that that's such a bad idea
+                              // So now I enable trans-peptide links to residues with fixed atoms
 
-				 if (true) {
+                              if (true) {
 
-				    if (false) { // debug
-				       std::cout << "debug:: making trans-peptide restraint with fixed flags: ";
-				       for (std::size_t jj=0; jj<fixed_flags.size(); jj++)
-					  std::cout << " " << fixed_flags[jj];
-				       std::cout << std::endl;
-				    }
+                                 if (false) { // debug
+                                    std::cout << "debug:: making trans-peptide restraint with fixed flags: ";
+                                    for (std::size_t jj=0; jj<fixed_flags.size(); jj++)
+                                       std::cout << " " << fixed_flags[jj];
+                                    std::cout << std::endl;
+                                 }
 
-				    double target_omega = 180.0;
-				    double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
-				    // esd = 0.2; // 20171228 trial - does this beat the plane restraints?
-				    add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
-					fixed_flags,
-					target_omega,
-					esd,
-					1.2, // dummy value
-					1);
-				    n_trans_peptide_torsion++;
-				 }
-			      }
+                                 double target_omega = 180.0;
+                                 double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
+                                 // esd = 0.2; // 20171228 trial - does this beat the plane restraints?
+                                 add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
+                                     fixed_flags,
+                                     target_omega,
+                                     esd,
+                                     1.2, // dummy value
+                                     1);
+                                 n_trans_peptide_torsion++;
+                              }
 			   }
 			}
 		     }
@@ -178,6 +185,8 @@ double
 coot::distortion_score_trans_peptide(const int &restraint_index,
 				     const coot::simple_restraint &restraint,
 				     const gsl_vector *v) {
+
+   if (restraint.is_closed) return 0.0;
 
    int idx;
 
@@ -253,6 +262,8 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 
          const simple_restraint &restraint = restraints->at(i);
 	 if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+
+            if (restraint.is_closed) continue;
 
 	    int idx;
 
@@ -359,6 +370,71 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 	       *gsl_vector_ptr(df, idx+2) += zP4_contrib;
 	    }
 	 }
+      }
+   }
+}
+
+
+// when we dynamically do a cis-trans conversion on the moving/intermediate atoms
+
+void
+coot::restraints_container_t::add_trans_peptide_restraint(mmdb::Residue *first, mmdb::Residue *second) {
+
+   // does the restraint already exist?
+   //
+   bool new_restraint_needed = true;
+   unsigned int n_rest = size();
+
+   for (unsigned int i=0; i<=n_rest; i++) {
+      simple_restraint &restraint = restraints_vec[i];
+      if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+         mmdb::Residue *r_11 = atom[restraint.atom_index_1]->residue;
+         mmdb::Residue *r_12 = atom[restraint.atom_index_2]->residue;
+         mmdb::Residue *r_21 = atom[restraint.atom_index_3]->residue;
+         mmdb::Residue *r_22 = atom[restraint.atom_index_4]->residue;
+         if (r_11 == first) {
+            if (r_12 == first) {
+               if (r_21 == second) {
+                  if (r_22 == second) {
+                     restraint.is_closed = false;
+                     new_restraint_needed = false;
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (new_restraint_needed) {
+      // std::cout << "########################### adding a new trans-peptide link (should not often happen)" << std::endl;
+      // by definition
+      bool is_fixed_first  = false;
+      bool is_fixed_second = false;
+      int n_tpr_added = add_link_trans_peptide(first, second, is_fixed_first, is_fixed_second,  true);
+      post_add_new_restraint();
+   }
+}
+
+void
+coot::restraints_container_t::remove_trans_peptide_restraint(mmdb::Residue *first, mmdb::Residue *second) {
+
+   unsigned int n_rest = size();
+   for (unsigned int i=0; i<=n_rest; i++) {
+      simple_restraint &restraint = restraints_vec[i];
+      if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+         mmdb::Residue *r_11 = atom[restraint.atom_index_1]->residue;
+         mmdb::Residue *r_12 = atom[restraint.atom_index_2]->residue;
+         mmdb::Residue *r_21 = atom[restraint.atom_index_3]->residue;
+         mmdb::Residue *r_22 = atom[restraint.atom_index_4]->residue;
+         if (r_11 == first) {
+            if (r_12 == first) {
+               if (r_21 == second) {
+                  if (r_22 == second) {
+                     restraint.close();
+                  }
+               }
+            }
+         }
       }
    }
 }
