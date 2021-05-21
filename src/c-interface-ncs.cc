@@ -77,8 +77,10 @@ int add_strict_ncs_matrix(int imol,
 			  float m11, float m12, float m13, 
 			  float m21, float m22, float m23, 
 			  float m31, float m32, float m33, 
-			  float t1,  float t2,  float t3)
-{
+			  float t1,  float t2,  float t3) {
+
+   std::cout << "--------------------------- add_strict_ncs_matrix " << imol
+                << " " << this_chain_id << " " << target_chain_id << " " << std::endl;
 
    int istat = 0;
    if (is_valid_model_molecule(imol)) {
@@ -112,6 +114,9 @@ int add_strict_ncs_matrix(int imol,
       istat = 1;
       std::string tch = target_chain_id;
       std::string chain_id = this_chain_id;
+
+      std::cout << "--------------------------- calling molecule's add_strict_ncs_matrix " << imol
+                << " " << chain_id << " " << tch << " " << std::endl;
 
       graphics_info_t::molecules[imol].add_strict_ncs_matrix(chain_id, tch, cm44);
 

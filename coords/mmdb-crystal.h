@@ -21,10 +21,11 @@
 
 // -*-c++-*-
 
-#include "Cartesian.h" // uncommented so that r899 compiles for Bill. Strange.
-
 #ifndef MMDB_CRYSTAL
 #define MMDB_CRYSTAL
+
+#include "Cartesian.h" // uncommented so that r899 compiles for Bill. Strange.
+#include "coot-utils/atom-selection-container.hh"
 
 namespace coot { 
    class coot_v4 {
@@ -70,6 +71,7 @@ namespace coot {
    };
 }
 
+std::ostream & operator<<(std::ostream &s, const coot::coot_mat44 &m);
 
 atom_selection_container_t read_standard_residues();
 
@@ -81,6 +83,7 @@ class symm_trans_t {
    std::string symm_as_string;
    symm_trans_t(int n, int x, int y, int z) 
       { symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z;};
+   explicit symm_trans_t(int idx) { symm_no = idx; x_shift_ = 0; y_shift_ = 0; z_shift_ = 0; }
    symm_trans_t() {};
 
    friend std::ostream & operator<<(std::ostream &s, const symm_trans_t &st);

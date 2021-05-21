@@ -1025,7 +1025,7 @@ molecule_class_info_t::update_symmetry() {
    if ((graphics_info_t::show_symmetry == 1) &&
        (show_symmetry == 1)) {
 
-      // don't do stuff until we have read in a molecule.
+      // don't do stuff until we have read in a model molecule.
       //
       if (draw_it == 1) {
 
@@ -1037,13 +1037,14 @@ molecule_class_info_t::update_symmetry() {
          std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
             extents.which_boxes(point, atom_sel, shift_search_size);
 
-//            std::cout << "DEBUG:: symm_trans_boxes.size() is "
-//                      << symm_trans_boxes.size() << std::endl;
-//            std::cout << "Here are the symms we should check:" << std::endl;
-//             for(int ii=0; ii<symm_trans_boxes.size(); ii++)
-//               std::cout << ii << " " << symm_trans_boxes[ii].first << " "
-//                        << symm_trans_boxes[ii].second << std::endl;
-
+         if (false)  {
+            std::cout << "DEBUG:: imol_no " << imol_no << " symm_trans_boxes.size() is "
+                      << symm_trans_boxes.size() << std::endl;
+            std::cout << "Here are the symms we should check:" << std::endl;
+            for(unsigned int ii=0; ii<symm_trans_boxes.size(); ii++)
+               std::cout << ii << " " << symm_trans_boxes[ii].first << " "
+                        << symm_trans_boxes[ii].second << std::endl;
+         }
 
          if (symm_trans_boxes.size() > 0) {
 
@@ -1083,8 +1084,10 @@ molecule_class_info_t::update_symmetry() {
             Bond_lines_container bonds(NO_SYMMETRY_BONDS);
          }
 
+         std::cout << "Here in imol " << imol_no << " with show_strict_ncs_flag " << show_strict_ncs_flag
+                   << " and  strict_ncs_matrices size " << strict_ncs_matrices.size() << std::endl;
          if (show_strict_ncs_flag == 1) {
-            if (strict_ncs_matrices.size() > 0) {
+            if (! strict_ncs_matrices.empty()) {
                update_strict_ncs_symmetry(point, extents);
             }
          }
