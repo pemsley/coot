@@ -8626,9 +8626,11 @@ on_screendump_image_cancel_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button),
-					    "screendump_fileselection");
-   gtk_widget_destroy(fileselection);
+   GtkWidget *filechooser = lookup_widget(GTK_WIDGET(button),
+					    "screendump_filechooser"); /* now consistent with above */
+
+   if (filechooser)
+     gtk_widget_destroy(filechooser);
 
 }
 
