@@ -5614,11 +5614,11 @@ def toggle_backrub_rotamers(widget=None):
       mode = rotamer_search_mode_state()
       if (mode == ROTAMERSEARCHLOWRES):
          set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-         print "BL INFO:: NOT using Backrub rotamers any more!"
+         print "INFO:: no longer using Backrub rotamers"
       if (mode == ROTAMERSEARCHHIGHRES or
           mode == ROTAMERSEARCHAUTOMATIC):
          set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-         print "BL INFO:: Using Backrub rotamers now!"
+         print "INFO:: Using Backrub rotamers"
          
          
       # no alternative for now
