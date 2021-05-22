@@ -278,9 +278,6 @@ class molecule_class_info_t {
    // (molecule_class_info_t) object goes away.
    //
    int imol_no;
-   int *imol_no_ptr;  // use this not &imol_no, because this is safe
-		      // on copy of mol, but &imol_no most definately
-		      // is not.
 
    float data_resolution_;
    float map_sigma_;
@@ -633,8 +630,6 @@ public:        //                      public
       // give it a pointer to something at least *vagely* sensible
       // (better than pointing at -129345453).
       imol_no = -1;
-      imol_no_ptr = new int;
-      *imol_no_ptr = imol_no;
       //
    }
 
@@ -644,8 +639,6 @@ public:        //                      public
 
       setup_internal();
       imol_no = i;
-      imol_no_ptr = new int;
-      *imol_no_ptr = i;
    }
 
    // Why did I add this?  It causes a bug in "expanding molecule space"
