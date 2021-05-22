@@ -362,6 +362,7 @@ coot_bin_SOURCES = \
 	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \
 	cc-interface-molecular-representation.cc \
+	cc-interface-molecular-symmetry.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
 	cc-interface-map-utils.cc \
@@ -485,13 +486,14 @@ coot_bin_SOURCES = \
 	molecule-class-info-alignment.cc \
 	molecule-class-info-analysis.cc \
 	molecule-class-info-bonds.cc    \
+	molecule-class-info-build.cc 	\
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\
+	molecule-class-info-molecular-symmetry.cc \
 	molecule-class-info-kdc.cc      \
 	molecule-class-info-dots.cc 	\
 	molecule-class-info-dots-internal.cc 	\
 	molecule-class-info-other.cc 	\
-	molecule-class-info-build.cc 	\
 	molecule-class-info.h 	        \
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-residues.cc \

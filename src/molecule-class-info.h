@@ -692,7 +692,6 @@ public:        //                      public
       skeleton_treenodemap_is_filled = 0;
 
       draw_hydrogens_flag = 1;
-      bond_width = 3.0;
       ghost_bond_width = 2.0;
 
       // initial bonds type (checked and reset in handle_read_draw_molecule)
@@ -2552,6 +2551,13 @@ public:        //                      public
    void add_strict_ncs_matrix(const std::string &chain_id,
 			      const std::string &target_chain_id,
 			      const coot::coot_mat44 &m);
+
+   void add_molecular_symmetry(const clipper::Mat33<double> &mol_symm,
+                               const clipper::Coord_orth &molecular_origin);
+
+   // and that add to this:
+   // (consider using a class)
+   std::vector<std::pair<clipper::Mat33<double>, clipper::Coord_orth> > molecular_symmetry_matrices;
 
    // trivial helper class for add_molecular_symmetry_matrices()
    class quad_d_t {

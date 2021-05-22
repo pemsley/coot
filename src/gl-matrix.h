@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#ifndef HAVE_GL_MATRIX
-#define HAVE_GL_MATRIX
+#ifndef HAVE_GL_MATRIX_H
+#define HAVE_GL_MATRIX_H
 
 #include <ostream>
 
@@ -33,7 +33,7 @@ enum { TRANSPOSE };
 #include <clipper/core/coords.h>
 #include "coords/Cartesian.h"
 
-class GL_matrix { 
+class GL_matrix {
 
    float mat[16];
 
@@ -53,9 +53,9 @@ class GL_matrix {
 
    clipper::Mat33<double> to_clipper_mat() const;
 
-   float* operator()(void) const;
+   float* operator()() const;
 
-   const float* get(void) const;
+   const float* get() const;
 
    void rotate_X(float angle);
    void rotate_Y(float angle);
@@ -98,4 +98,4 @@ void my_aniso_error_handler (const char * reason,
 			     int line,
 			     int gsl_errno);
 
-#endif // HAVE_GL_MATRIX
+#endif // HAVE_GL_MATRIX_H

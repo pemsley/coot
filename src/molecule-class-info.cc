@@ -1084,8 +1084,9 @@ molecule_class_info_t::update_symmetry() {
             Bond_lines_container bonds(NO_SYMMETRY_BONDS);
          }
 
-         std::cout << "Here in imol " << imol_no << " with show_strict_ncs_flag " << show_strict_ncs_flag
-                   << " and  strict_ncs_matrices size " << strict_ncs_matrices.size() << std::endl;
+         if (false) // come back and debug crystallographic strict NCS one day!
+            std::cout << "Here in imol " << imol_no << " with show_strict_ncs_flag " << show_strict_ncs_flag
+                      << " and  strict_ncs_matrices size " << strict_ncs_matrices.size() << std::endl;
          if (show_strict_ncs_flag == 1) {
             if (! strict_ncs_matrices.empty()) {
                update_strict_ncs_symmetry(point, extents);
@@ -2642,13 +2643,72 @@ molecule_class_info_t::display_symmetry_bonds() {
    //
    glLineWidth(bond_width);
 
+   auto display_molecular_symmetry = [] (const graphical_bonds_container &bonds_box,
+                                         const std::vector<std::pair<clipper::Mat33<double>, clipper::Coord_orth> > &molecular_symmetry_matrices) {
+
+                                        // each symmetry-related molecule is drawn in it's own colour (no colour by atom (although it could be
+                                        // easily changed to be so)).
+
+                                        for (unsigned int i_ms=0; i_ms<molecular_symmetry_matrices.size(); i_ms++) {
+                                           coot::colour_t rgb(0.66, 0.66, 0.3);
+                                           float rotation_size = static_cast<float>(i_ms) * 0.28450f;
+                                           while (rotation_size > 1.0f) rotation_size -= 1.0f;
+                                           rgb.rotate(rotation_size);
+                                           glColor3f(rgb[0], rgb[1], rgb[2]);
+                                           const clipper::Mat33<double> &mat(molecular_symmetry_matrices[i_ms].first);
+                                           const clipper::Coord_orth  &trans(molecular_symmetry_matrices[i_ms].second);
+                                           clipper::Coord_orth zero_trans(0.0, 0.0, 0.0);
+                                           clipper::RTop_orth rtop_mat(mat, zero_trans);
+                                           clipper::Mat33<double> identity_m(clipper::Mat33<double>::identity());
+                                           clipper::RTop_orth origin_shift(identity_m, trans);
+                                           clipper::RTop_orth back_origin_shift(identity_m, -trans);
+                                           clipper::RTop_orth rtop_A(origin_shift);
+                                           clipper::RTop_orth rtop_B(rtop_A * rtop_mat);
+                                           clipper::RTop_orth rtop_C(rtop_B * back_origin_shift);
+                                           clipper::RTop_orth rtop(rtop_C);
+                                           float mat_for_glm[16];
+                                           for (unsigned int i=0; i<3; i++)
+                                              for (unsigned int j=0; j<3; j++)
+                                                 mat_for_glm[i*4 + j] = rtop.rot()(i,j);
+                                           for (unsigned int i=0; i<3; i++)
+                                              mat_for_glm[i*4 + 3 ] = 0.0;
+                                           for (unsigned int i=0; i<3; i++)
+                                              mat_for_glm[i + 12] = rtop.trn()[i];
+                                           mat_for_glm[15] = 1.0f;
+                                           glPushMatrix();
+                                           glMultMatrixf(mat_for_glm);
+
+                                           if (false) {
+                                              for (unsigned int i=0; i<16; i++)
+                                                 std::cout << " " << mat_for_glm[i];
+                                              std::cout << std::endl;
+                                           }
+
+                                           glBegin(GL_LINES);
+                                           for (int icol=0; icol<bonds_box.num_colours; icol++) {
+                                              graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
+                                              for (int j=0; j<ll.num_lines; j++) {
+                                                 const coot::CartesianPair &pospair = ll.pair_list[j].positions;
+                                                 const coot::Cartesian &p_1 = pospair.getStart();
+                                                 const coot::Cartesian &p_2 = pospair.getFinish();
+                                                 glVertex3d(p_1.x(), p_1.y(), p_1.z());
+                                                 glVertex3d(p_2.x(), p_2.y(), p_2.z());
+                                              }
+                                           }
+                                           glEnd();
+                                           glPopMatrix();
+                                        }
+                                     };
+
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
-      int isymop;
+
+      if (! molecular_symmetry_matrices.empty())
+         display_molecular_symmetry(bonds_box, molecular_symmetry_matrices);
+      else
+         std::cout << "molecular_symmetry_matrices empty\n";
 
       for (unsigned int isym=0; isym<symmetry_bonds_box.size(); isym++) {
-         // isymop = isym;
-         isymop = symmetry_bonds_box[isym].second.first.isym();
-
+         int isymop = symmetry_bonds_box[isym].second.first.isym();
          if (symmetry_bonds_box[isym].first.symmetry_has_been_created == 1) {
 
             for (int icol=0; icol<symmetry_bonds_box[isym].first.num_colours; icol++) {
