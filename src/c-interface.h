@@ -6022,6 +6022,7 @@ void set_show_strict_ncs(int imol, int state);
 /*! \brief At what level of homology should we say that we can't see homology
    for NCS calculation? (default 0.8) */
 void set_ncs_homology_level(float flev);
+
 /* for a single copy */
 /*! \brief Copy single NCS chain */
 void copy_chain(int imol, const char *from_chain, const char *to_chain);

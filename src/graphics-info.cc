@@ -139,6 +139,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
    std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
 
    for (int ii=0; ii<n_molecules(); ii++) {
+      // std::cout << "update symmetry  for ii " << ii << std::endl;
       molecules[ii].update_symmetry();
    }
    make_pointer_distance_objects();

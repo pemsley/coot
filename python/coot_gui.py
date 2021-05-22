@@ -5421,21 +5421,21 @@ def toggle_backrub_rotamers(widget=None):
         if widget.get_active():
             # the button is toggled on
             coot.set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-            print("BL INFO:: Using Backrub rotamers now!")
+            print("INFO:: Using Backrub rotamers now")
         else:
             coot.set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-            print("BL INFO:: NOT using Backrub rotamers any more!")
+            print("INFO:: No longer using Backrub rotamers")
 
     else:
         # non graphical - but wont be able to run if this is not loaded.
         mode = coot.rotamer_search_mode_state()
         if (mode == ROTAMERSEARCHLOWRES):
             coot.set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-            print("BL INFO:: NOT using Backrub rotamers any more!")
+            print("INFO:: No longer using Backrub rotamers")
         if (mode == ROTAMERSEARCHHIGHRES or
                 mode == ROTAMERSEARCHAUTOMATIC):
             coot.set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-            print("BL INFO:: Using Backrub rotamers now!")
+            print("INFO:: Using Backrub rotamers")
 
         # no alternative for now
         # need to be able to get the state of search mode.

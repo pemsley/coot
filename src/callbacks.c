@@ -8547,6 +8547,7 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *fileselection = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
    /*    set_directory_for_fileselection(fileselection); */
    /*    set_filename_for_filechooserselection(fileselection, "coot.png"); */
@@ -8565,6 +8566,7 @@ on_povray1_activate                    (GtkMenuItem     *menuitem,
 {
 
    GtkWidget *fileselection = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
    /*    set_directory_for_fileselection(fileselection); */
    /*    set_filename_for_filechooserselection(fileselection, "coot-povray"); */
@@ -8580,6 +8582,7 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
 {
 
    GtkWidget *fileselection = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
    /*    set_directory_for_fileselection(fileselection); */
    /*    set_filename_for_filechooserselection(fileselection, "coot.png"); */
@@ -8589,6 +8592,33 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
    gtk_widget_show(fileselection);
 }
 
+
+void
+on_screendump_image_ok_button_clicked  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *filechooser = lookup_widget(GTK_WIDGET(button), "screendump_filechooser");
+  /*
+
+    To restore this then I need to fix up the usage of gtk_object_get_user_data()
+    i.e. is the user data set properly. This is a merge issue, fix later.
+
+   int image_type = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(filechooser)));
+   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser));
+
+   if (image_type == COOT_SCREENDUMP_SIMPLE) {
+      screendump_image(filename);
+   }
+   if (image_type == COOT_SCREENDUMP_POVRAY) {
+      make_image_povray(filename);
+   }
+   if (image_type == COOT_SCREENDUMP_RASTER3D) {
+      make_image_raster3d(filename);
+   }
+  */
+   if (filechooser)
+     gtk_widget_destroy(filechooser);
+}
 
 
 void
