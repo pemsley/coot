@@ -828,6 +828,32 @@ public:        //                      public
       // mtz updating
       continue_watching_mtz = false;
 
+      // flycheck fixup - this will cause a conflict because setup_internal()
+      // is no longer in this header
+
+      radial_map_colour_saturation = 0.5;
+      radial_map_colour_invert_flag = false;
+      radial_map_colour_radius_min =  5.0;
+      radial_map_colour_radius_max = 65.0;
+      continue_watching_coordinates_file = false;
+      draw_it_for_parallel_plane_restraints = false;
+      bonds_rotate_colour_map_flag = false;
+      bonds_colour_map_rotation = 0.0;
+      map_colour = NULL; // double ** bleugh.
+      contour_level = 0.25;
+      xmap_is_diff_map = false;
+      have_unit_cell = false;
+      save_use_reso_limits = false;
+      save_low_reso_limit = 9999.9;
+      save_high_reso_limit = 2.0;
+      save_is_diff_map_flag = false;
+      save_is_anomalous_map_flag = false;
+      save_use_weights = false;
+      refmac_r_free_flag_sensible = false;
+      manual_bond_colour = false;
+      map_mean_ = 0.0;
+      map_sigma_ = 1.0;
+
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -3465,8 +3491,8 @@ public:        //                      public
    clipper::Coord_orth radial_map_colour_centre;
    double radial_map_colour_radius_min;
    double radial_map_colour_radius_max;
-   double radial_map_colour_invert_flag;
    double radial_map_colour_saturation;
+   bool   radial_map_colour_invert_flag;
 
 };
 
