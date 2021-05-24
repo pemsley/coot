@@ -4219,6 +4219,13 @@
            (map-molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
 
         (add-simple-coot-menu-menuitem
+         menu "Add molecular symmetry using MTRIX"
+         (lambda ()
+           (using-active-atom
+            (set-show-symmetry-master 1)
+            (add-molecular-symmetry-from-mtrix-from-self-file aa-imol))))
+
+        (add-simple-coot-menu-menuitem
          menu "Align and Mutate using ClustalW2"
          (lambda ()
            'x

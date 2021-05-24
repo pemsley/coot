@@ -5459,6 +5459,13 @@ def add_module_cryo_em_gui():
       def flip_hand_local_func():
          map_molecule_chooser_gui("Select", lambda imol: flip_hand(imol))
 
+      def add_mol_sym_mtrix():
+         with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                        aa_ins_code, aa_atom_name,
+                                        aa_alt_conf, aa_res_spec]:
+            add_molecular_symmetry_from_mtrix_from_self_file(aa_imol)
+            set_show_symmetry_master(1)
+
       def go_to_box_middle():
          m_list = map_molecule_list()
          if len(m_list) > 0:
@@ -5468,6 +5475,9 @@ def add_module_cryo_em_gui():
 
       def ass_seq_assoc_seq():
          assign_sequence_to_active_fragment()
+
+      add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
+                                    lambda func: add_mol_sym_mtrix())
 
       add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())

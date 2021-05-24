@@ -2602,6 +2602,10 @@ public:        //                      public
    void add_strict_ncs_from_mtrix_from_file(const std::string &file_name);
    void add_strict_ncs_from_mtrix_from_self_file();
 
+   // New style EM molecular symmetry
+   void add_molecular_symmetry_from_mtrix_from_self_file();
+   void add_molecular_symmetry_from_mtrix_from_file(const std::string &file_name);
+
    // Not 'const' because we can do a fill_ghost_info if the NCS ghosts
    // do not have rtops.
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id,

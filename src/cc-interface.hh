@@ -215,6 +215,9 @@ void add_molecular_symmetry(int imol,
                             double about_origin_y,
                             double about_origin_z);
 
+int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
+
+
 //! \}
 
 /*  ---------------------------------------------------------------------- */

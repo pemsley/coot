@@ -26,6 +26,20 @@ void add_molecular_symmetry(int imol,
                                              r_20, r_21, r_22);
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       m.add_molecular_symmetry(mol_symm_matrix, molecule_origin);
+      graphics_draw();
    }
 
 }
+
+
+int add_molecular_symmetry_from_mtrix_from_self_file(int imol) {
+
+   int istat = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].add_molecular_symmetry_from_mtrix_from_self_file();
+   }
+   graphics_draw();
+   return istat;
+}
+

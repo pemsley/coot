@@ -172,11 +172,11 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 	 // clipper::data32::F_phi friedel = fc_from_model[hri];
 	 // friedel.friedel();
 	 float r = sqrt(hri.invresolsq());
-	 float x = 2*M_PI*x_gl*r;
+	 float x = 2*M_PI*x_gl*r_k; // was r - hmm!
 	 float y = gsl_sf_bessel_J0(x);
-	 if (0) 
+	 if (false)
 	    std::cout << r_k_i <<  " for " << hri.hkl().format() << " y: " << y << std::endl;
-	 
+
 	 std::complex<float> t = fc_from_model[hri];
 	 std::complex<double> yt(y*t.real(), y*t.imag());
 	 std::complex<double> yt_friedel(y*t.real(), -y*t.imag());
@@ -186,7 +186,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 	 T[r_k_i] += yt;          // sum now (then multiply after looping over reflection list)
 	 T[r_k_i] += yt_friedel; 
       }
-      float func_r_k = 1;
+      float func_r_k = 1.0f;
       T[r_k_i] *= w_k * func_r_k * r_k *r_k;
    }
 

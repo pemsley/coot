@@ -9001,12 +9001,12 @@ coot::mtrix_info(const std::string &file_name) {
       std::ifstream f(file_name.c_str());
       if (f) {
          std::vector<std::string> lines;
-         std::string line;;
-         while (std::getline(f, line)) {
-            if (line.length() > 10) {
-               if (line.substr(0,5) == "MTRIX") {
+         std::string line_in;
+         while (std::getline(f, line_in)) {
+            if (line_in.length() > 10) {
+               if (line_in.substr(0,5) == "MTRIX") {
                   // std::cout << "found " << line << std::endl;
-                  lines.push_back(line);
+                  lines.push_back(line_in);
                }
             }
          }
