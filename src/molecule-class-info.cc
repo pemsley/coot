@@ -2702,10 +2702,11 @@ molecule_class_info_t::display_symmetry_bonds() {
 
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
 
-      if (! molecular_symmetry_matrices.empty())
+      if (! molecular_symmetry_matrices.empty()) {
          display_molecular_symmetry(bonds_box, molecular_symmetry_matrices);
-      else
-         std::cout << "molecular_symmetry_matrices empty\n";
+      } else {
+         // std::cout << "molecular_symmetry_matrices empty\n";
+      }
 
       for (unsigned int isym=0; isym<symmetry_bonds_box.size(); isym++) {
          int isymop = symmetry_bonds_box[isym].second.first.isym();

@@ -43,3 +43,14 @@ int add_molecular_symmetry_from_mtrix_from_self_file(int imol) {
    return istat;
 }
 
+
+int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &file_name) {
+
+   int istat = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].add_molecular_symmetry_from_mtrix_from_file(file_name);
+   }
+   graphics_draw();
+   return istat;
+}
