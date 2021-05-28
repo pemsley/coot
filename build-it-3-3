@@ -1094,6 +1094,7 @@ echo update_config_guess_sub: $update_config_guess_sub
 # we need these dependencies:
 # - libgtk-3-dev
 # - git
+# - libsqlite3-dev  # needed for python compilation by jupyterlab
 
 # check dependencies for Ubuntu.
 case $dist_name in
@@ -1986,7 +1987,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python3.9
-pver=3.9.4
+pver=3.9.5
 python_version_extension=3.9 # extract this
 
 #
@@ -3877,16 +3878,17 @@ if [ -e coot ] ; then
    pwd
    echo 33333333333333333333333 and about to fetch and merge...
    git fetch
+
+   if [ -e ltmain.sh    ] ; then rm ltmain.sh    ; fi
+   if [ -e config.guess ] ; then rm config.guess ; fi
+   if [ -e config.sub   ] ; then rm config.sub   ; fi
+
    git merge
    # if [ -e ltmain.sh ] ; then
    #   rm ltmain.sh
    # fi
    echo 44444444444444444444444 done fetch and merge
    rm -rf autom4te.cache
-
-   if [ -e ltmain.sh    ] ; then rm ltmain.sh    ; fi
-   if [ -e config.guess ] ; then rm config.guess ; fi
-   if [ -e config.sub   ] ; then rm config.sub   ; fi
 
    echo 5555555555555555555555 bash autogen.sh
    echo bash autogen.sh
