@@ -321,6 +321,10 @@ molecule_class_info_t::update_map(bool do_it) {
 void
 molecule_class_info_t::update_map_internal() {
 
+   // duck out of doing map OpenGL map things if we are not in gui mode
+   //
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
    float radius = graphics_info_t::box_radius_xray;
 
    if (has_xmap()) {
@@ -454,9 +458,11 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
 
-   // cut glass mode means
-   // do_solid_surface_for_density
-   // do_flat_shading_for_solid_density_surface is true
+   // duck out of doing map OpenGL map things if we are not in gui mode
+   // (for figure making, from jupyter (say) in the future, this is probably not the right
+   // thing to do.
+
+   if (! graphics_info_t::use_graphics_interface_flag) return;
 
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;
