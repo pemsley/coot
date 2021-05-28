@@ -1398,7 +1398,7 @@ def miguels_axes():
 
 
 def molecule_centre(imol):
-    return [molecule_centre_internal(imol, 0),
+    return [coot.molecule_centre_internal(imol, 0),
             coot.molecule_centre_internal(imol, 1),
             coot.molecule_centre_internal(imol, 2)]
 
