@@ -2121,19 +2121,71 @@ PyObject *closest_atom_raw_py() {
 }
 #endif
 
+#include "nsv.hh"
 
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
 void update_go_to_atom_from_current_position() {
 
+   // move this function into graphics_info_t I think
+
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
-      set_go_to_atom_molecule(pp.second.first);
-      set_go_to_atom_chain_residue_atom_name(pp.second.second.chain_id.c_str(),
-					     pp.second.second.res_no,
-					     pp.second.second.atom_name.c_str());
+      int imol = pp.second.first;
+      set_go_to_atom_molecule(imol);
+      const coot::atom_spec_t &atom_spec = pp.second.second;
+      set_go_to_atom_chain_residue_atom_name(atom_spec.chain_id.c_str(),
+                                             atom_spec.res_no,
+                                             atom_spec.atom_name.c_str());
       update_go_to_atom_window_on_other_molecule_chosen(pp.second.first);
+
+      graphics_info_t g;
+
+      auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom, GtkWidget *svc) {
+                                                      if (svc) {
+                                                         if (next_atom) {
+                                                            mmdb::Residue *residue_p = next_atom->residue;
+                                                            if (residue_p) {
+                                                               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+                                                               if (nsv)
+                                                                  nsv->highlight_residue(residue_p);
+                                                            }
+                                                         }
+                                                      }
+                                                   };
+
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      sequence_view_highlight_residue_maybe(at, g.get_sequence_view_is_displayed(imol));
    }
+}
+
+void
+update_sequence_view_current_position_highlight_from_active_atom() {
+
+   // maybe put this function in graphics_info_t?
+
+   auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom, GtkWidget *svc) {
+                                                   if (svc) {
+                                                      if (next_atom) {
+                                                         mmdb::Residue *residue_p = next_atom->residue;
+                                                         if (residue_p) {
+                                                            exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+                                                            if (nsv)
+                                                               nsv->highlight_residue(residue_p);
+                                                         }
+                                                      }
+                                                   }
+                                                };
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t &atom_spec = pp.second.second;
+      graphics_info_t g;
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      sequence_view_highlight_residue_maybe(at, g.get_sequence_view_is_displayed(imol));
+   }
+
 }
 
 

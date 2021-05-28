@@ -53,17 +53,17 @@
 // and atom quads
 #include "mini-mol/atom-quads.hh"
 
-// 
+//
 //
 class atom_selection_container_t {
 
    void fill_links(mmdb::Manager *mol_other);
-   void fill_links() { fill_links(mol); } 
-   
+   void fill_links() { fill_links(mol); }
+
 public:
    mmdb::Manager *mol;
-   int n_selected_atoms; 
-   mmdb::PPAtom atom_selection; 
+   int n_selected_atoms;
+   mmdb::PPAtom atom_selection;
    std::string read_error_message;
    int read_success;
    int SelectionHandle;
@@ -106,18 +106,18 @@ public:
 
    void fill_links_using_mol(mmdb::Manager *mol_other) {
       fill_links(mol_other);
-   } 
-  
-   void clear_up() { 
-      if (read_success) 
-	 if (SelectionHandle)
-	    mol->DeleteSelection(SelectionHandle);
+   }
+
+   void clear_up() {
+      if (read_success)
+         if (SelectionHandle)
+            mol->DeleteSelection(SelectionHandle);
       delete mol;
       atom_selection = 0;
       mol = 0;
    }
 
-   void delete_atom_selection() { 
+   void delete_atom_selection() {
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
       atom_selection = 0;
@@ -132,26 +132,34 @@ public:
       clipper::Coord_orth sum(0,0,0);
       unsigned int count = 0;
       for (int i=0; i<n_selected_atoms; i++) {
-	 mmdb::Atom *at = atom_selection[i];
-	 if (at) {
-	    sum += clipper::Coord_orth(at->x, at->y, at->z);
-	    count++;
-	 }
+         mmdb::Atom *at = atom_selection[i];
+         if (at) {
+            sum += clipper::Coord_orth(at->x, at->y, at->z);
+            count++;
+         }
       }
       if (count > 0) {
-	 float d = 1.0/static_cast<float>(count);
-	 sum = d * sum;
-	 return sum;
+         float d = 1.0/static_cast<float>(count);
+         sum = d * sum;
+         return sum;
       } else {
-	 return sum;
+         return sum;
       }
    }
-   
+
    void apply_shift(float x_shift, float y_shift, float z_shift) {
-      for (int i=0; i<n_selected_atoms; i++) { 
-	 atom_selection[i]->x -= x_shift;
-	 atom_selection[i]->y -= y_shift;
-	 atom_selection[i]->z -= z_shift;
+      for (int i=0; i<n_selected_atoms; i++) {
+         atom_selection[i]->x += x_shift;
+         atom_selection[i]->y += y_shift;
+         atom_selection[i]->z += z_shift;
+      }
+   }
+
+   void apply_shift(const clipper::Coord_orth &shift) {
+      for (int i=0; i<n_selected_atoms; i++) {
+         atom_selection[i]->x += shift.x();
+         atom_selection[i]->y += shift.y();
+         atom_selection[i]->z += shift.z();
       }
    }
 
@@ -161,10 +169,10 @@ public:
 
 atom_selection_container_t make_asc(mmdb::Manager *mol, bool transfer_atom_indices_flag=false);
 
-atom_selection_container_t get_atom_selection(std::string t, 
-					      bool allow_duplseqnum,
+atom_selection_container_t get_atom_selection(std::string t,
+                                              bool allow_duplseqnum,
                                               bool verbose_mode,
-					      bool convert_to_v2_name_flag);
+                                              bool convert_to_v2_name_flag);
 
 // put these in coot namespace? -- FIXME
 

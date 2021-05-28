@@ -2502,7 +2502,6 @@ molecule_class_info_t::add_strict_ncs_from_mtrix_from_self_file() {
 }
 
 
-
 // if we are are the centre of a given chain_id, how big a radius
 // do we need to encompass all atoms of that chain?
 // 

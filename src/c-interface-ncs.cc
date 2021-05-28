@@ -137,7 +137,6 @@ int add_strict_ncs_from_mtrix_from_self_file(int imol) {
 }
 
 
-
 GtkWidget *wrapped_create_ncs_maps_dialog() {
 
    GtkWidget *dialog = create_ncs_maps_dialog();

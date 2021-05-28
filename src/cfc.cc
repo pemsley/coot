@@ -758,15 +758,19 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 				imol_this_structure) == it_2->second[i].first.end()) {
 		  
 		     // wasn't there (that's OK)
+                     gtk_button_set_label(GTK_BUTTON(button), "_"); // space doesn't match the size of an I
 		  
 		  } else {
 		     // happy path, let's change the button colour and add it to contributing specs
 		     GdkColor color;
 		     gdk_color_parse("#AACCAA", &color);
 
-                     std::cout << "debug:: cfc_dialog_add_pharmacophores() setting the button bg to #AACCAA " << std::endl;
+                     if (false) // we know now that this is working right - it's the window manager that
+                                // obscures the colour of the background
+                        std::cout << "debug:: cfc_dialog_add_pharmacophores() setting the button bg to #AACCAA " << std::endl;
 		     gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
                      gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
+                     gtk_button_set_label(GTK_BUTTON(button), "I");
 
 		     if (std::find(contributing_specs.begin(),
 				   contributing_specs.end(),
@@ -1564,7 +1568,8 @@ cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
    cfc_dialog_add_waters(site_number, eci, cfc_dialog);
    cfc_dialog_add_pharmacophores(site_number, eci, cfc_dialog);
    cfc_dialog_add_site_info(site_number, eci);
-   
+
+   gtk_window_set_default_size(GTK_WINDOW(cfc_dialog), 600, 400);
    gtk_widget_show(cfc_dialog);
 }
 

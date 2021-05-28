@@ -172,21 +172,21 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 	 // clipper::data32::F_phi friedel = fc_from_model[hri];
 	 // friedel.friedel();
 	 float r = sqrt(hri.invresolsq());
-	 float x = 2*M_PI*x_gl*r;
+	 float x = 2*M_PI*x_gl*r_k; // was r - hmm!
 	 float y = gsl_sf_bessel_J0(x);
-	 if (0) 
+	 if (false)
 	    std::cout << r_k_i <<  " for " << hri.hkl().format() << " y: " << y << std::endl;
-	 
+
 	 std::complex<float> t = fc_from_model[hri];
 	 std::complex<double> yt(y*t.real(), y*t.imag());
 	 std::complex<double> yt_friedel(y*t.real(), -y*t.imag());
-	 if (0) 
+	 if (false)
 	    std::cout << r_k_i <<  " for " << hri.hkl().format() << " x: " << x << " r: " << r
 		      << " adding " << yt << std::endl;
 	 T[r_k_i] += yt;          // sum now (then multiply after looping over reflection list)
 	 T[r_k_i] += yt_friedel; 
       }
-      float func_r_k = 1;
+      float func_r_k = 1.0f;
       T[r_k_i] *= w_k * func_r_k * r_k *r_k;
    }
 
@@ -195,8 +195,8 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
       std::cout << "   rki " << r_k_i << "  val: " << T[r_k_i] << std::endl;
    }
 
-   clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata; 
-   
+   clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata;
+
    // run over the "map fragment" reflection list
    // 
    clipper::HKL_info::HKL_reference_index hri;
@@ -212,7 +212,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 	 sum += prod;
       }
       A_data[hri] = std::complex<double>(map_fphidata[hri]) * sum;
-      if (0) 
+      if (false)
 	 std::cout << "   A_data: " << hri.hkl().format()
 		   << " f: " << A_data[hri].f() << " phi: " << A_data[hri].phi()
 		   << " sum_abs: " << std::abs(sum) << " sum_arg: " << std::arg(sum)
@@ -224,7 +224,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 
 
    // compare phases:
-   if (0)
+   if (false)
       for (hri = map_fphidata.first(); !hri.last(); hri.next())
 	 std::cout << "  A_phase vs map phase " << hri.hkl().format() << " "
 		   << clipper::Util::rad2d(map_fphidata[hri].phi()) << " "
@@ -247,7 +247,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    }
    
    A_map.fft_from(A_data);
-   
+
    // mean_and_variance<float> mv =
    float v = map_density_distribution(A_map, 40, false).variance;
    float rmsd = sqrt(v);
@@ -266,13 +266,12 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
       vp.push_back(peaks[ipeak].first.coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()));
    mmdb::Manager *mol = create_mmdbmanager_from_points(vp);
-   
 
    clipper::CCP4MAPfile mapout;
    mapout.open_write("A.map");
    mapout.export_xmap(A_map);
    mapout.close_write();
-   
+
    mapout.open_write("map_fragment.map");
    mapout.export_xmap(xmap);
    mapout.close_write();
@@ -438,9 +437,8 @@ coot::util::make_phi_thetas(unsigned int n_pts) {
    for (std::size_t i=0; i<n_pts; i++) {
       double theta = 2 * M_PI * random() * recip; // longitude
       double phi = acos(2.0*random()*recip-1.0);  // latitude
-      v.push_back(std::pair<double, double>(phi, theta));
+      v.push_back(std::make_pair(phi, theta));
    }
-
    return v;
 }
 
