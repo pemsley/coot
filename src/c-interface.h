@@ -4216,6 +4216,9 @@ void set_nsv_canvas_pixel_limit(int cpl);
 /*!  \brief show old style sequence view */
 void sequence_view_old_style(int imol);
 
+/*!  \brief update the sequnce view current position highlight based on active atom */
+void update_sequence_view_current_position_highlight_from_active_atom();
+
 /* this is a widget function, it shouldn't be here */
 void add_on_sequence_view_choices();
 
