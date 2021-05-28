@@ -17,11 +17,11 @@ int main(int argc, char **argv) {
       std::string chain_id      = argv[2];
       std::string map_file_name = argv[3];
 
-      std::cout << "Getting atoms... " << std::endl;
+      std::cout << "INFO:: Getting atoms... " << std::endl;
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
       if (asc.read_success) {
 
-         std::cout << "pdb read success " << pdb_file_name << std::endl;
+         std::cout << "INFO:: pdb read success " << pdb_file_name << std::endl;
 
          if (coot::file_exists(map_file_name)) {
             clipper::CCP4MAPfile file;
