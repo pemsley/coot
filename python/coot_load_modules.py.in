@@ -141,7 +141,7 @@ import libcheck
 import gap
 import raster3d
 import povray
-import remote_control
+# import remote_control
 import generic_objects
 import parse_pisa_xml
 import cns2coot
