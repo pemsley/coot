@@ -2,6 +2,9 @@
 #ifndef COOT_COLOUR_HH
 #define COOT_COLOUR_HH
 
+#include <vector>
+#include <iostream>
+
 #if __APPLE__
 #   include <OpenGL/gl.h>
 #else

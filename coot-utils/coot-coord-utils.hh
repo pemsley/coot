@@ -1349,8 +1349,9 @@ namespace coot {
 
       // Return the status in the first position
       // Return the angle in radians.
-      std::pair<short int, double> omega_torsion(mmdb::Residue *C_residue, mmdb::Residue *N_residue,
-						 const std::string &altconf);
+      std::pair<bool, double> omega_torsion(mmdb::Residue *C_residue, mmdb::Residue *N_residue,
+                                            const std::string &altconf);
+      bool is_cis(const double &omega_torsion); // in radians
       // and along the same lines:
       // Return the angles in radians.
       peptide_torsion_angles_info_t peptide_torsions(mmdb::Residue *C_residue, mmdb::Residue *N_residue,
@@ -1427,14 +1428,17 @@ namespace coot {
       std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(mmdb::Chain *chain_p);
       void standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs);
 
+      // this is the more modern interface of the two
+      int cis_trans_conversion(mmdb::Residue *res_first, mmdb::Residue *res_second,
+                               mmdb::Manager *mol, mmdb::Manager *standard_residues_mol);
+
       // alter the model to fix the cis peptide of the given atom
       int cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *mol, mmdb::Manager *standard_residues_mol);
 
       // mol_residues, trans_residues, cis_residues must be at least of length 2.
-      int
-      cis_trans_convert(mmdb::PResidue *mol_residues,
-			mmdb::PResidue *trans_residues,
-			mmdb::PResidue *cis_residues);
+      int cis_trans_convert(std::pair<mmdb::Residue *, mmdb::Residue *> mol_residues, // for mc conversion
+                            mmdb::PResidue *trans_residues,
+                            mmdb::PResidue *cis_residues);
 
       // return the number of cis peptides in mol:
       int count_cis_peptides(mmdb::Manager *mol);

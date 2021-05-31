@@ -4216,6 +4216,9 @@ void set_nsv_canvas_pixel_limit(int cpl);
 /*!  \brief show old style sequence view */
 void sequence_view_old_style(int imol);
 
+/*!  \brief update the sequnce view current position highlight based on active atom */
+void update_sequence_view_current_position_highlight_from_active_atom();
+
 /* this is a widget function, it shouldn't be here */
 void add_on_sequence_view_choices();
 
@@ -6009,6 +6012,7 @@ void set_show_strict_ncs(int imol, int state);
 /*! \brief At what level of homology should we say that we can't see homology
    for NCS calculation? (default 0.8) */
 void set_ncs_homology_level(float flev);
+
 /* for a single copy */
 /*! \brief Copy single NCS chain */
 void copy_chain(int imol, const char *from_chain, const char *to_chain);

@@ -1416,7 +1416,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
 	 std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
 	 std::cout << "No minimization will happen" << std::endl;
-	 return coot::refinement_results_t(0, 0, "No Restraints!");
+	 return refinement_results_t(0, 0, "No Restraints!");
       }
    }
 
@@ -1572,7 +1572,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    // (we don't get here unless restraints were found)
    bool found_restraints_flag = true;
-   coot::refinement_results_t rr(found_restraints_flag, status, lights_vec);
+   refinement_results_t rr(found_restraints_flag, status, lights_vec);
    if (refinement_results_add_details) {
       // this may be slowing thing down for big molecules. Needs investigation.
       // std::cout << "mimize_inner() calling add_details_to_refinement_results() " << std::endl;
@@ -1638,7 +1638,7 @@ coot::restraints_container_t::get_refinement_results() {
 
 
 void
-coot::restraints_container_t::add_details_to_refinement_results(refinement_results_t *rr) const {
+coot::restraints_container_t::add_details_to_refinement_results(coot::refinement_results_t *rr) const {
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
    int n_restraints = size();
@@ -4344,8 +4344,9 @@ coot::restraints_container_t::post_add_new_restraint() {
       if (found) break;
    }
 
-   if (! found)
+   if (! found) {
       restraints_indices.back().push_back(idx_rest);
+   }
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 

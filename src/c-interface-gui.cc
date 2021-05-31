@@ -6315,6 +6315,9 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                   int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
+                     std::cout << "WARNING:: rename error: " << strerror(errno) << std::endl;
+                     std::cout << "WARNING:: fall-back: run the script from download-dir: " << dl_fn << std::endl;
+                     run_script(dl_fn.c_str());
                   } else {
                      std::cout << "debug:: BB renaming successful" << std::endl;
                      std::cout << "debug:: BB run_script() called on " << preferences_file_name << std::endl;

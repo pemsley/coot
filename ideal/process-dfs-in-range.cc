@@ -1255,8 +1255,10 @@ coot::process_electron_density_dfs_for_atoms(int thread_idx,
 
 void
 coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
-					 const gsl_vector *v,
+                                const gsl_vector *v,
 				std::vector<double> &results) {
+
+   if (restraint.is_closed) return;
 
    int idx;
 

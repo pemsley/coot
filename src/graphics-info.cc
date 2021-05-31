@@ -136,6 +136,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
    std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
 
    for (int ii=0; ii<n_molecules(); ii++) {
+      // std::cout << "update symmetry  for ii " << ii << std::endl;
       molecules[ii].update_symmetry();
    }
    make_pointer_distance_objects();
@@ -182,7 +183,7 @@ GdkColor colour_by_distortion(float dist) {
 
 GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
-   if (false)
+   if (true)
       std::cout << "in colour_by_rama_plot_distortion plot_value "
 		<< plot_value << " rama_type " << rama_type
 		<< " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
@@ -196,10 +197,21 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    //   plot_value = 20*plot_value -80;
 
    GdkColor col;
-   float scale = 10.0;
 
    col.pixel = 1;
    col.blue  = 0;
+
+   auto rotation_size_raw_to_gdkcol = [] (float rotation_size_raw) {
+                                         float rotation_size = -0.33f * rotation_size_raw; // cooked
+                                         std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+                                         std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+                                         GdkColor col;
+                                         col.pixel = 1;
+                                         col.red   = rgb_new[0] * 255.0 * 255.0;
+                                         col.green = rgb_new[1] * 255.0 * 255.0;
+                                         col.blue  = rgb_new[2] * 255.0 * 255.0;
+                                         return col;
+                                      };
 
    if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
       // This used to be true:
@@ -207,43 +219,44 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       // scheme will do for both
       // But then I changed the weight on ZO rama
       // So colours need to be different
-      if (plot_value < -15.0*scale) {
-	 col.red   = 0;
-	 col.green = 55535;
-      } else {
-	 if (plot_value < -13.0*scale) {
-	    col.red   = 55000;
-	    col.green = 55000;
-	    // col.blue  = 22000;
-	 } else {
-	    if (plot_value < -10.0*scale) {
-	       col.red   = 64000;
-	       col.green = 32000;
-	    } else {
-	       col.red   = 65535;
-	       col.green = 0;
-	    }
-	 }
+
+      //  Let's rotate the colour map
+
+      if (false) { // print a rotation to colour table
+         int n_cols = 100; // either side
+         for (int i = -n_cols; i<n_cols; i++) {
+            float rotation_size = 0.01f * static_cast<float>(i);
+            std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+            std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+            std::cout << "debug colours::" << rgb_new[0] << " " << rgb_new[1] << " " << rgb_new[2]
+                      << " using rotation_size " << rotation_size << std::endl;
+         }
+         // if we start at solid green then rotation_size for "no rotation" is 0.0
+         //                                 rotation_size for full rotation is -0.33 (solid red) # cooked
       }
+
+      // the range of good to bad rama plot score is -18 to -8. That should be mapped to
+      // rotation_size_raw of 0.0 to 1.0.
+      float rotation_size_raw = 0.0;
+      if (plot_value > -18.0) {
+         rotation_size_raw = (plot_value + 18.0f) / (-8.0f - -18.0f);
+         if (rotation_size_raw > 1.0f)
+            rotation_size_raw = 1.0f;
+      }
+      col = rotation_size_raw_to_gdkcol(rotation_size_raw);
+
    } else {
-      // RAMA_TYPE_ZO
-      if (plot_value < -1.8) {
-	 col.red   = 0;
-	 col.green = 55535;
-      } else {
-	 if (plot_value < -1.2) {
-	    col.red   = 55000;
-	    col.green = 55000;
-	 } else {
-	    if (plot_value < -0.4) {
-	       col.red   = 64000;
-	       col.green = 32000;
-	    } else {
-	       col.red   = 65535;
-	       col.green = 0;
-	    }
-	 }
+      // RAMA_TYPE_ZO.  -2.5 is bad. -5 is good
+      //
+      // That should be mapped to rotation_size_raw of 0.0 to 1.0.
+      float rotation_size_raw = 0.0;
+      if (plot_value > -5.0f) {
+         rotation_size_raw = (plot_value + 5.0f) / (-2.5f - -5.0f);
+         if (rotation_size_raw > 1.0f)
+            rotation_size_raw = 1.0f;
       }
+      col = rotation_size_raw_to_gdkcol(rotation_size_raw);
+
    }
    return col;
 }
@@ -4431,6 +4444,7 @@ graphics_info_t::apply_undo() {
 
 		  update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS
+                  run_post_manipulation_hook(umol, 0);
 	       }
 	    } else {
 	       if (use_graphics_interface_flag) {
@@ -4485,20 +4499,18 @@ graphics_info_t::apply_redo() {
 	    // need to update the atom and residue list in Go To Atom widget
 	    // (maybe)
 	    update_go_to_atom_window_on_changed_mol(umol);
-       // BL says:: from undo, maybe more should be updated!?!
-       // update the ramachandran, if there was one
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-       GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
-       if (w) {
-          coot::rama_plot *plot = (coot::rama_plot *)
-        gtk_object_get_user_data(GTK_OBJECT(w));
-          handle_rama_plot_update(plot);
-       }
-       // now update the geometry graphs, so get the asc
-       atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-       update_geometry_graphs(u_asc, umol);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+            GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+            if (w) {
+               coot::rama_plot *plot = (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+               handle_rama_plot_update(plot);
+            }
+            // now update the geometry graphs, so get the asc
+            atom_selection_container_t u_asc = molecules[umol].atom_sel;
+            update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS
+            run_post_manipulation_hook(umol, 0);
 
 	 } else {
 	    // std::cout << "DEBUG:: not applying redo" << std::endl;

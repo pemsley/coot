@@ -467,10 +467,8 @@ int test_cp() {
             std::cout << "Null chain" << std::endl;
          } else {
             int nres = chain_p->GetNumberOfResidues();
-            mmdb::Residue *residue_p;
-            mmdb::Atom *at;
             for (int ires=0; ires<nres; ires++) {
-               residue_p = chain_p->GetResidue(ires);
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (! residue_p) {
                   std::cout << "Null residue" << std::endl;
                } else {
@@ -1200,9 +1198,6 @@ test_make_a_difference_map(int argc, char **argv) {
 
       // ----- 6 ------------------ Scale and get stats for R-factor
 
-      double sum_f_ref  = 0.0;
-      double sum_f_calc = 0.0;
-
       const unsigned int n_bins = 20;
 
       // if these are data from an mtz say, we'd need to check for isnan, but it's from a map
@@ -1338,11 +1333,11 @@ int test_interface_residues(int argc, char **argv) {
          std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> > ir = coot::interface_residues(asc.mol, "A", "B", min_dist);
 
          std::set<mmdb::Residue *>::const_iterator it;
-         for (it=ir.first.begin(); it!=ir.first.end(); it++) {
+         for (it=ir.first.begin(); it!=ir.first.end(); ++it) {
             mmdb::Residue *r = *it;
             std::cout << "   B " << coot::residue_spec_t(r) << std::endl;
          }
-         for (it=ir.second.begin(); it!=ir.second.end(); it++) {
+         for (it=ir.second.begin(); it!=ir.second.end(); ++it) {
             mmdb::Residue *r = *it;
             std::cout << "   B " << coot::residue_spec_t(r) << std::endl;
          }
@@ -1471,45 +1466,45 @@ test_correlation_of_residue_runs(int argc, char **argv) {
 
 int main(int argc, char **argv) {
 
-   if (0)
+   if (false)
       test_all_atom_overlaps();
 
-   if (0)
+   if (false)
       test_glyco_link_by_geometry();
 
-   if (0)
+   if (false)
       test_string_manipulation();
 
-   if (0)
+   if (false)
       test_sort_chains();
 
-   if (0)
+   if (false)
       test_euler_angles();
 
-   if (0)
+   if (false)
       test_lsq_improve();
 
-   if (0)
+   if (false)
       test_glyco_tree();
 
-   if (0)
+   if (false)
       test_helix_analysis();
 
-   if (0)
+   if (false)
       test_qq_plot();
 
-   if (0)
+   if (false)
       test_least_squares_fit();
 
-   if (0)
+   if (false)
       test_atom_overlaps();
 
-   if (0)
+   if (false)
       for (unsigned int i=0; i<2; i++) {
          test_all_atom_overlaps();
       }
 
-   if (0)
+   if (false)
       test_reduce();
 
    if (false)

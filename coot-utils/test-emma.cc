@@ -21,7 +21,8 @@ void overlap_map(const std::vector<std::complex<double> > &vp_fft,
       file.open_read(xmap_file_name);
       file.import_xmap(xmap);
 
-      clipper::Resolution reso(4.16);
+      // clipper::Resolution reso(4.16); not 4
+      clipper::Resolution reso(3.00);
       clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphi_map(myhkl);
 
@@ -36,30 +37,31 @@ void overlap_map(const std::vector<std::complex<double> > &vp_fft,
 
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = fphi_map.first(); !hri.last(); hri.next()) {
-              float irs = hri.invresolsq();
-              float ir = sqrt(irs);
-              unsigned int bin_idx = static_cast<unsigned int>(ir * max_bin_no / angstroms_per_bin);
-              float bin_res = bin_idx * (1.0/static_cast<float>(max_bin_no));
-              std::cout << hri.hkl().format() << " bin_idx " << bin_idx
-                             << " bin resolution " << bin_res
-                             << " vs " << ir << " ir(Angstroms) " << 1.0/ir << "\n";
+         float irs = hri.invresolsq();
+         float ir = sqrt(irs);
+         unsigned int bin_idx = static_cast<unsigned int>(ir * max_bin_no / angstroms_per_bin);
+         float bin_res = bin_idx * (1.0/static_cast<float>(max_bin_no));
+         if (false)
+            std::cout << hri.hkl().format() << " bin_idx " << bin_idx
+                      << " bin resolution " << bin_res
+                      << " vs " << ir << " ir(Angstroms) " << 1.0/ir << "\n";
 
-              // We only need to look at the "low" resolution reflections
-              //
-              if (bin_idx < max_bin_no) {
-                 float a = fphi_map[hri].a();
-                 float b = fphi_map[hri].b();
-                 std::complex<float> fphi(a,b);
-                 std::complex<float> saft(vp_fft[bin_idx]);
-                 std::complex<float> p = fphi * std::conj(-saft); // or the other way round or negative.
-                 float new_f   = std::abs(p);
-                 float new_phi = std::arg(p);
-                 fphi_map[hri].f()   = new_f;
-                 fphi_map[hri].phi() = new_phi;
-              } else {
-                 fphi_map[hri].f()   = 0.0;
-                 fphi_map[hri].phi() = 0.0;
-              }
+         // We only need to look at the "low" resolution reflections
+         //
+         if (bin_idx < max_bin_no) {
+            float a = fphi_map[hri].a();
+            float b = fphi_map[hri].b();
+            std::complex<float> fphi(a,b);
+            std::complex<float> saft(vp_fft[bin_idx]);
+            std::complex<float> p = fphi * std::conj(-saft); // or the other way round or negative.
+            float new_f   = std::abs(p);
+            float new_phi = std::arg(p);
+            fphi_map[hri].f()   = new_f;
+            fphi_map[hri].phi() = new_phi;
+         } else {
+            fphi_map[hri].f()   = 0.0;
+            fphi_map[hri].phi() = 0.0;
+         }
       }
 
       xmap.fft_from(fphi_map);
@@ -77,13 +79,14 @@ int main(int argc, char **argv) {
 
    if (argc > 3) {
 
+      // order changed to be more sane
       std::string pdb_file_name   = argv[1];
-      std::string table_file_name = argv[2];
-      std::string xmap_file_name  = argv[3];
+      std::string xmap_file_name  = argv[2];
+      std::string table_file_name = argv[3];
       float border = 5.0;
+      float angstroms_per_bin = 1.0;
 
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
-      float angstroms_per_bin = 1.0;
 
       // I don't like spherically_averaged_molecule now.  Better do this:
       //
@@ -101,23 +104,28 @@ int main(int argc, char **argv) {
          std::cout << "DEBUG:: molecule  centre after recentering: "
                              << centre.first << " " << centre.second.format() << std::endl;
 
-              // move to origin (!)
-              asc.apply_shift(centre.second.x(), centre.second.y(), centre.second.z());
-
               std::pair<clipper::Coord_orth, clipper::Coord_orth> e = coot::util::extents(asc.mol, asc.SelectionHandle);
               double x_range = e.second.x() - e.first.x();
               double y_range = e.second.y() - e.first.y();
               double z_range = e.second.z() - e.first.z();
 
-              float border = 5.0;
-              double nr = clipper::Util::d2rad(90.0);
-              clipper::Cell_descr cell_descr(x_range + 2*border,
-                                             y_range + 2*border,
-                                             z_range + 2*border, nr, nr, nr);
+              double r_90 = clipper::Util::d2rad(90.0);
+              clipper::Cell_descr cell_descr(x_range + 2.0*border,
+                                             y_range + 2.0*border,
+                                             z_range + 2.0*border, r_90, r_90, r_90);
               clipper::Cell cell = clipper::Cell(cell_descr);
               clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
-              clipper::Resolution reso = clipper::Resolution(3.0);
+              double resolution = 2.0; // related to A/pix? resolution = 0.5 * angstroms_per_pixel (for nice sampling)
+              clipper::Resolution reso = clipper::Resolution(resolution);
               clipper::Grid_sampling gs(spacegroup, cell, reso);
+
+              // move molecule to origin
+              asc.apply_shift(-centre.second);
+
+              // move molecule to centre of cell
+              clipper::Coord_orth centre_of_cell(0.5 * cell_descr.a(), 0.5 * cell_descr.b(), 0.5 * cell_descr.c());
+              asc.apply_shift(centre_of_cell);
+
               clipper::Xmap<float> xmap =
                  coot::util::calc_atom_map(asc.mol, asc.SelectionHandle, cell, spacegroup, gs);
 
@@ -135,7 +143,7 @@ int main(int argc, char **argv) {
          // New method:
 
          unsigned int n_bins = 32; // more than 6
-         unsigned int n_sphere_points = 100;
+         unsigned int n_sphere_points = 300;
 
          std::vector<std::pair<double, double> > vp(n_bins);
          std::vector<coot::util::phitheta> phithetas = coot::util::make_phi_thetas(n_sphere_points);

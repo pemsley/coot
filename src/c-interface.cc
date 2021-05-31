@@ -2492,9 +2492,11 @@ void set_show_symmetry_master(short int state) {
       if ((n_has_symm == 0) && (n_model_molecules > 0)) {
 	 std::string s = "WARNING:: there are no model molecules\n"; 
 	 s += " that can display symmetry.  \n\nCRYST1 problem?";
-	 if (graphics_info_t::use_graphics_interface_flag) { 
-	    GtkWidget *w = g.wrapped_nothing_bad_dialog(s);
-	    gtk_widget_show(w);
+         if (false) { // I don't like this noise in the days of molecular symmetry for EM models
+            if (graphics_info_t::use_graphics_interface_flag) {
+               GtkWidget *w = g.wrapped_nothing_bad_dialog(s);
+               gtk_widget_show(w);
+            }
 	 }
       }
    }
@@ -5983,7 +5985,7 @@ void set_refine_ramachandran_angles(int state) {
 void set_refine_ramachandran_restraints_type(int type) {
    graphics_info_t::restraints_rama_type = type;
    if (type == 0)
-      graphics_info_t::rama_restraints_weight = 0.1; // big numbers make the refinement fail (precision?)
+      graphics_info_t::rama_restraints_weight = 1.0; // big numbers make the refinement fail (precision?)
 }
 
 
