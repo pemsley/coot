@@ -148,13 +148,13 @@ namespace coot {
          clipper::Coord_orth updated_centre;
          float suggested_contour_level;
          double sum_of_densities; // for scoring origins
-         map_molecule_centre_info_t() { success = false; sum_of_densities = -1;}
+         map_molecule_centre_info_t() { success = false; sum_of_densities = -1; suggested_contour_level = 0.0; }
       };
 
-      coot::util::map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
+      map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
 
       map_molecule_centre_info_t map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap,
-                                                                              const clipper::Coord_orth &current_centre);
+                                                                     const clipper::Coord_orth &current_centre);
 
       // if n_bins is -1, let the function decide how many bins
       //
@@ -235,6 +235,17 @@ namespace coot {
 						 unsigned short int atom_mask_mode,
 						 float atom_radius, // for masking
 						 const clipper::Xmap<float> &xmap);
+
+      // n_residues_per_run should be an odd number more than 2 (say 11)
+      //
+      std::pair<std::map<coot::residue_spec_t, density_correlation_stats_info_t>, std::map<coot::residue_spec_t, density_correlation_stats_info_t> >
+      map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
+                                                     const std::string &chain_id,
+                                                     const clipper::Xmap<float> &xmap,
+                                                     unsigned int n_residues_per_run,
+                                                     bool exclude_CON,
+                                                     float atom_mask_radius=2.8,
+                                                     float NOC_mask_radius=1.8); // optimized on strepavidin
 
       // helper
       std::pair<clipper::Coord_frac, clipper::Coord_frac>
@@ -411,10 +422,10 @@ namespace coot {
 	 backrub_residue_triple_t(mmdb::Residue *this_residue_in,
 				  mmdb::Residue *prev_residue_in,
 				  mmdb::Residue *next_residue_in,
-				  std::string alt_conf_in) : residue_triple_t(this_residue_in,
-									      prev_residue_in,
-									      next_residue_in,
-									      alt_conf_in) {
+				  const std::string &alt_conf_in) : residue_triple_t(this_residue_in,
+                                                                                     prev_residue_in,
+                                                                                     next_residue_in,
+                                                                                     alt_conf_in) {
 	    trim_this_residue_atoms();
 	    trim_prev_residue_atoms();
 	    trim_next_residue_atoms();

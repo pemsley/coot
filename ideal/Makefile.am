@@ -70,7 +70,7 @@ libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/utils/libcoot-utils.la              \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
-   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS)
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS) -lm
 
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squareds.cc \
@@ -99,7 +99,7 @@ crankshaft_test_LDADD = ./libcoot-ideal.la \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/utils/libcoot-utils.la            \
-        $(top_builddir)/compat/libcoot-compat.la -lpthread
+        $(top_builddir)/compat/libcoot-compat.la -lm -lpthread
 
 with_geometry_SOURCES = with-geometry.cc
 

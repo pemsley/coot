@@ -4350,7 +4350,7 @@ std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
 
 // i goes upto bond_box.num_colours
 //
-void set_skeleton_bond_colour_random(int i, const vector< vector<float> > &colour_table) {
+void set_skeleton_bond_colour_random(int i, const std::vector<std::vector<float> > &colour_table) {
 
    glColor3f(0.2+0.8*colour_table[i][0],
 	     0.2+0.8*colour_table[i][1],

@@ -277,8 +277,8 @@ atom_pick(GdkEventButton *event) {
 
          // still something strange going on here, because p_i.success = -1073747613
          // on failure to find a (direct) hit (which is interpretted in glarea_button_press()
-         // as failure fortuneately(?)). 
-         // 
+         // as failure fortuneately(?)).
+         //
          //    cout << "p_i.imol    = " << p_i.imol << endl;
          //    cout << "p_i.success = " << p_i.success << endl;
          //    cout << "GL_FALSE    = " << GL_FALSE    << endl;
@@ -293,31 +293,31 @@ atom_pick(GdkEventButton *event) {
                alt_conf_bit=std::string(",") + std::string(at->altLoc);
             atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
             nearest_atom_index = p_i.atom_index;
-		  
-            cout << "(" << p_i.imol << ") \"" 
-                 << (SelAtom.atom_selection)[nearest_atom_index]->name 
-                 << alt_conf_bit << "\"/"
-                 << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
-                 << "/chainid=\""
-                 << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
-                 << "\"/"
-                 << (SelAtom.atom_selection)[nearest_atom_index]->GetSeqNum()
-                 << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
-                 << "/"
-                 << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
-                 << ", "
-                 << (SelAtom.atom_selection)[nearest_atom_index]->segID
-                 << " occ: " 
-                 << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
-                 << " with B-factor: "
-                 << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
-                 << " element: \""
-                 << (SelAtom.atom_selection)[nearest_atom_index]->element
-                 << "\" at " << "("
-                 << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
-                 << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
-                 << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
-                 << " : " << dist_closest << endl;
+
+            std::cout << "(" << p_i.imol << ") \""
+                      << (SelAtom.atom_selection)[nearest_atom_index]->name
+                      << alt_conf_bit << "\"/"
+                      << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
+                      << "/chainid=\""
+                      << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
+                      << "\"/"
+                      << (SelAtom.atom_selection)[nearest_atom_index]->GetSeqNum()
+                      << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
+                      << "/"
+                      << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
+                      << ", "
+                      << (SelAtom.atom_selection)[nearest_atom_index]->segID
+                      << " occ: "
+                      << (SelAtom.atom_selection)[nearest_atom_index]->occupancy
+                      << " with B-factor: "
+                      << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
+                      << " element: \""
+                      << (SelAtom.atom_selection)[nearest_atom_index]->element
+                      << "\" at " << "("
+                      << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
+                      << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
+                      << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
+                      << " : " << dist_closest << std::endl;
 
             ai = atom_info_as_text_for_statusbar(nearest_atom_index, p_i.imol);
 
@@ -327,7 +327,7 @@ atom_pick(GdkEventButton *event) {
          }
       }
    }
-   
+
    return p_i;
 }
 

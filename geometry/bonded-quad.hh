@@ -1,4 +1,4 @@
-
+//
 #ifndef BONDED_QUAD_HH
 #define BONDED_QUAD_HH
 
@@ -9,7 +9,7 @@
 class bonded_quad_atoms : public coot::atom_quad {
 public:
    enum bond_t { NONE, SINGLE, DOUBLE, TRIPLE, DELOC };
-   bonded_quad_atoms() {}
+   bonded_quad_atoms() { bond_type = NONE; }
    bond_t bond_type;
 };
 
@@ -32,3 +32,4 @@ public:
 
 #endif // BONDED_QUAD_HH
 
+//

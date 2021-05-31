@@ -1,4 +1,4 @@
-
+//
 #include <iostream>
 #include <string>
 #include "elastic.hh"
@@ -14,14 +14,14 @@ coot::test_elastic() {
    int selhnd = mol->NewSelection();
 
    mol->SelectAtoms(selhnd, 0,
-		    "*",
-		    mmdb::ANY_RES, "*",
-		    mmdb::ANY_RES, "*",
-		    "*",  // residue name
-		    "*",  // Residue must contain this atom name?
-		    "*",  // Residue must contain this Element?
-		    "*"  // altLocs
-		    );
+                    "*",
+                    mmdb::ANY_RES, "*",
+                    mmdb::ANY_RES, "*",
+                    "*",  // residue name
+                    "*",  // Residue must contain this atom name?
+                    "*",  // Residue must contain this Element?
+                    "*"  // altLocs
+                    );
 
    mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
@@ -29,8 +29,7 @@ coot::test_elastic() {
 
    elastic_network_model_t enm(mol, selhnd, 1, 20, 2000000);
    mol->DeleteSelection(selhnd);
-   
-} 
+}
 
 
 int main(int argc, char **argv) {
@@ -39,13 +38,13 @@ int main(int argc, char **argv) {
 
    if (0) {
       int n = 100000000; // ~100 million sqrt()s/second
-      double v = 0.9; 
-      for (int i=0; i<n; i++) { 
-	 // v = sqrt(v + 65.7);
-	 v = acos(v * 0.01);
+      double v = 0.9;
+      for (int i=0; i<n; i++) {
+         // v = sqrt(v + 65.7);
+         v = acos(v * 0.01);
       }
       std::cout << "   " << v << std::endl;
    }
 
    return 0;
-} 
+}

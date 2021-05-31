@@ -2,8 +2,8 @@
 #include "find-pepflip-using-difference-map.hh"
 
 coot::pepflip_using_difference_map::pepflip_using_difference_map(mmdb::Manager *mol_in,
-								 const clipper::XMap<float> &xmap) {
-								    
+                                                                 const clipper::XMap<float> &xmap) {
+                                                                    
    diff_map = xmap;
    mol = mol_in;
    
@@ -43,12 +43,12 @@ coot::pepflip_using_difference_map::get_suggested_flips(float n_sigma) const {
       float d2 = density_at_point(xmap, pt_2);
       float delta = d2-d1;
       if (delta > cut)
-	 rv.push_back(residue_spec_t(t.CA_this->residue));
+         rv.push_back(residue_spec_t(t.CA_this->residue));
    }
 
    return rv;
 }
-								 
+                                                                 
 std::vector<coot::flip_atom_triplet_t>
 coot::pepflip_using_difference_map::get_peptide_atom_triplets() const {
    
@@ -72,54 +72,54 @@ coot::pepflip_using_difference_map::get_peptide_atom_triplets() const {
             mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
             std::string res_name_this = residue_this_p->GetResName();
             std::string res_name_next = residue_next_p->GetResName();
-	    int res_no_this = residue_this_p->GetSeqNum();
-	    int res_no_next = residue_next_p->GetSeqNum();
-	    if (res_no_next != (res_no_this + 1)) continue;
+            int res_no_this = residue_this_p->GetSeqNum();
+            int res_no_next = residue_next_p->GetSeqNum();
+            if (res_no_next != (res_no_this + 1)) continue;
             if (is_standard_amino_acid_name(res_name_this)) {
                if (is_standard_amino_acid_name(res_name_next)) {
                   int n_atoms_this = residue_this_p->GetNumberOfAtoms();
-		  mmdb::Atom *O_this = 0;
-		  mmdb::Atom *CA_this = 0;
-		  mmdb::Atom *CA_next = 0;
+                  mmdb::Atom *O_this = 0;
+                  mmdb::Atom *CA_this = 0;
+                  mmdb::Atom *CA_next = 0;
                   for (int iat=0; iat<n_atoms_this; iat++) {
                      mmdb::Atom *at = residue_p->GetAtom(iat);
                      if (! at->isTer()) {
-			std::string atom_name(at->GetAtomName());
-			if (atom_name == " O  ") {
-			   std::string alt_loc(at->altLoc);
-			   if (alt_loc == "") {
-			      O_this = at;
-			   }
-			}
-			if (atom_name == " CA ") {
-			   std::string alt_loc(at->altLoc);
-			   if (alt_loc == "") {
-			      CA_this = at;
-			   }
-			}
+                        std::string atom_name(at->GetAtomName());
+                        if (atom_name == " O  ") {
+                           std::string alt_loc(at->altLoc);
+                           if (alt_loc == "") {
+                              O_this = at;
+                           }
+                        }
+                        if (atom_name == " CA ") {
+                           std::string alt_loc(at->altLoc);
+                           if (alt_loc == "") {
+                              CA_this = at;
+                           }
+                        }
                      }
                   }
-		  if (CA_this && O_this) {
-		     // Find CA of next residue
-		     int n_atoms_next = residue_next_p->GetNumberOfAtoms();
-		     for (int iat=0; iat<n_atoms_next; iat++) {
-			mmdb::Atom *at = residue_next_p->GetAtom(iat);
-			if (! at->isTer()) {
-			   std::string atom_name(at->GetAtomName());
-			   if (atom_name == " CA ") {
-			      std::string alt_loc(at->altLoc);
-			      if (alt_loc == "") {
-				 CA_next = at;
-				 break;
-			      }
-			   }
-			}
-		     }
-		     if (CA_next) {
-			flip_atom_triplet_t p(CA_this, O_this, CA_next);
-			rps.push_back(p);
-		     }
-		  }
+                  if (CA_this && O_this) {
+                     // Find CA of next residue
+                     int n_atoms_next = residue_next_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms_next; iat++) {
+                        mmdb::Atom *at = residue_next_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::string atom_name(at->GetAtomName());
+                           if (atom_name == " CA ") {
+                              std::string alt_loc(at->altLoc);
+                              if (alt_loc == "") {
+                                 CA_next = at;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                     if (CA_next) {
+                        flip_atom_triplet_t p(CA_this, O_this, CA_next);
+                        rps.push_back(p);
+                     }
+                  }
                }
             }
          }
@@ -164,22 +164,22 @@ coot::pepflip_using_difference_map::make_random_other_pairs(unsigned int n_other
       mmdb::realtype min_dist = 4.0;
       int i_sel_hnd = mol->NewSelection(); // d
       mol->SelectAtoms (i_sel_hnd, 0, "*",
-			mmdb::ANY_RES, // starting resno, an int
-			"*", // any insertion code
-			mmdb::ANY_RES, // ending resno
-			"*", // ending insertion code
-			"*", // any residue name
-			"*", // atom name
-			"*", // elements
-			"*"  // alt loc.
-			);
+                        mmdb::ANY_RES, // starting resno, an int
+                        "*", // any insertion code
+                        mmdb::ANY_RES, // ending resno
+                        "*", // ending insertion code
+                        "*", // any residue name
+                        "*", // atom name
+                        "*", // elements
+                        "*"  // alt loc.
+                        );
 
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
       for (int i=0; i<4; i++)
-	 for (int j=0; j<4; j++)
-	    my_matt[i][j] = 0.0;
+         for (int j=0; j<4; j++)
+            my_matt[i][j] = 0.0;
       for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
       mmdb::Atom **atom_selection = 0;
@@ -189,39 +189,39 @@ coot::pepflip_using_difference_map::make_random_other_pairs(unsigned int n_other
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
       mol->SeekContacts(atom_selection, n_selected_atoms,
-			atom_selection, n_selected_atoms,
-			0.01, max_dist,
-			0, // 0: in same residue also?
-			pscontact, n_contacts,
-			0, &my_matt, i_contact_group);
+                        atom_selection, n_selected_atoms,
+                        0.01, max_dist,
+                        0, // 0: in same residue also?
+                        pscontact, n_contacts,
+                        0, &my_matt, i_contact_group);
       if (n_contacts > 0) {
 
-	 // now make a filter. Choose a random number so that we select only about
-	 // n_others from these contacts, factor 2 because we filter on ii < jj
-	 // and n_contacts contacts contact symmetry
-	 //
-	 float filter = 1.0;
-	 if (n_contacts > n_others)
-	    filter = 2.0 * static_cast<int>(n_others)/static_cast<float>(n_contacts);
-	 float rmi = 1.0f/float(RAND_MAX);
-	 
-	 if (pscontact) {
-	    float f = coot::util::random() * rmi;
-	    if (f < filter) {
-	       for (int i=0; i<n_contacts; i++) {
-		  const int &ii = pscontact[i].id1;
-		  const int &jj = pscontact[i].id2;
-		  if (ii < jj) {
-		     mmdb::Atom *at_1 = atom_selection[ii];
-		     mmdb::Atom *at_2 = atom_selection[jj];
-		     clipper::Coord_orth pt_1 = co(at_1);
-		     clipper::Coord_orth pt_2 = co(at_2);
-		     std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_1, pt_2);
-		     v.push_back(p):
-		  }
-	       }
-	    }
-	 }
+         // now make a filter. Choose a random number so that we select only about
+         // n_others from these contacts, factor 2 because we filter on ii < jj
+         // and n_contacts contacts contact symmetry
+         //
+         float filter = 1.0;
+         if (n_contacts > n_others)
+            filter = 2.0 * static_cast<int>(n_others)/static_cast<float>(n_contacts);
+         float rmi = 1.0f/float(RAND_MAX);
+         
+         if (pscontact) {
+            float f = coot::util::random() * rmi;
+            if (f < filter) {
+               for (int i=0; i<n_contacts; i++) {
+                  const int &ii = pscontact[i].id1;
+                  const int &jj = pscontact[i].id2;
+                  if (ii < jj) {
+                     mmdb::Atom *at_1 = atom_selection[ii];
+                     mmdb::Atom *at_2 = atom_selection[jj];
+                     clipper::Coord_orth pt_1 = co(at_1);
+                     clipper::Coord_orth pt_2 = co(at_2);
+                     std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_1, pt_2);
+                     v.push_back(p):
+                  }
+               }
+            }
+         }
       }
       mol->DeleteSelection(i_sel_hnd);
    }

@@ -7,6 +7,7 @@
 //
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "utils/coot-fasta.hh"
 
 namespace coot {
 
@@ -34,12 +35,13 @@ namespace coot {
 	 mean_around_ca = 0; mean_of_positives_around_ca = 0;
 	 var_around_ca = -1;
          is_weird = false;
+         mean_of_positives = 0;
       }
       void scale_by(float scale_factor) {
 	 if (n_steps > 0) {
 	    int n = 2 * n_steps + 1;
-	    int nnn = n * n * n;
-	    for (int i=0; i<nnn; i++)
+	    int n3 = n * n * n;
+	    for (int i=0; i<n3; i++)
 	       if (density_box[i] > -1000)
 		  density_box[i] *= scale_factor;
 	 }
@@ -52,6 +54,7 @@ namespace coot {
       void self_normalize();
       void clear() {
 	 delete [] density_box;
+         density_box = 0;
       }
       // caller checks for valid index
       float operator[](const unsigned int &idx) const {
@@ -130,6 +133,7 @@ namespace coot {
 				const double &skew) const;
       double get_log_likelihood_ratio(const unsigned int &grid_idx,
                                       const density_box_t &block,
+                                      const std::string &rotamer_dir, // for debugging
 				      const double &step_size,
                                       const double &mean,
                                       const double &variance,
@@ -161,17 +165,8 @@ namespace coot {
       clipper::Coord_orth make_pt_in_grid(int ix, int iy, int iz, const float &step_size,
 					  const std::vector<clipper::Coord_orth> &axes) const;
 
-      std::map<std::string, double>
-      likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-						 const clipper::Xmap<float> &xmap,
-						 bool limit_to_correct_rotamers_only=false,
-                                                 bool verbose_output_mode = false);
-
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
-
-      // why is this not in utils or something?
-      char single_letter_code(const std::string &res_name) const;
 
       double null_hypothesis_scale;
       double null_hypothesis_sigma;
@@ -184,6 +179,9 @@ namespace coot {
       void normalize_density_blocks();
       // use the above cache
       density_box_t get_block(mmdb::Residue *residue_p) const;
+      // and the cache of likelihoods for the best rotamer of each residue type at each position:
+      // this gets added to using the results lock
+      std::map<mmdb::Residue *, std::map<std::string, double> > best_score_for_res_type_cache;
 
       std::map<int, std::string> make_sequence_for_chain(mmdb::Chain *chain_p) const;
 
@@ -196,6 +194,9 @@ namespace coot {
 			  const std::vector<clipper::Coord_orth> &axes,
 			  float step_size,
 			  const clipper::Xmap<float> &xmap) const;
+
+      std::map<std::string, double> relabun;
+      double get_relabun(const std::string &res_name);
 
    public:
 
@@ -289,6 +290,12 @@ namespace coot {
       // the data_dir should be an argument to the constructor.
       void set_data_dir(const std::string &dir) { data_dir = dir; }
 
+      std::map<std::string, double>
+      likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
+						 const clipper::Xmap<float> &xmap,
+						 bool limit_to_correct_rotamers_only=false,
+                                                 bool verbose_output_mode = false);
+
       void set_null_hypothesis_scale_and_sigma(double scale, double sigma) {
          null_hypothesis_scale = scale;
          null_hypothesis_sigma = sigma;
@@ -328,21 +335,29 @@ namespace coot {
 
       void check_useable_grid_points(mmdb::Residue *residue_p,
 				     const std::string &useable_grid_points_mapped_to_residue_file_name) const;
-      void test_sequence(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end,
+
+      std::vector<mmdb::Residue *>
+      setup_test_sequence(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end,
+                               const clipper::Xmap<float> &xmap);
+
+      void test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
 			 const clipper::Xmap<float> &xmap,
                          const std::string &sequence_name,    // from fasta file
                          const std::string &sequence);
+
+      void setup_likelihood_of_each_rotamer_at_every_residue(const std::vector<mmdb::Residue *> &a_run_of_residues,
+                                                             const clipper::Xmap<float> &xmap);
 
       // find the best result stored by the above function.
       results_t get_result() const;
 
       // return the "guessed" sequence
       std::string
-      probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
-                                                  const std::string &chain_id,
-                                                  int resno_start, int resno_end,
-                                                  const clipper::Xmap<float> &xmap,
-                                                  bool verbose_output_mode = false);
+      guess_the_sequence(mmdb::Manager *mol,
+                         const std::string &chain_id,
+                         int resno_start, int resno_end,
+                         const clipper::Xmap<float> &xmap,
+                         bool verbose_output_mode = false);
 
       // Have a guess at the sequence - choose the best fitting residue at every position
       // and turn that into a string.
@@ -355,6 +370,12 @@ namespace coot {
       bool test_grid_point_to_coords_interconversion() const;
       
    };
+
+   std::vector<coot::side_chain_densities::results_t>
+   get_fragment_sequence_scores(mmdb::Manager *mol,
+                                const fasta_multi &fam,
+                                const clipper::Xmap<float> &xmap);
+
 }
 
 

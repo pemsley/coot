@@ -885,9 +885,11 @@ graphics_info_t::debug_refinement() {
 
 
    if (do_tabulate_geometric_distortions_flag) {
-      get_restraints_lock(__FUNCTION__);
-      tabulate_geometric_distortions(*last_restraints);
-      release_restraints_lock(__FUNCTION__);
+      if (last_restraints) {
+         get_restraints_lock(__FUNCTION__);
+         tabulate_geometric_distortions(*last_restraints);
+         release_restraints_lock(__FUNCTION__);
+      }
    }
 }
 
@@ -932,7 +934,7 @@ graphics_info_t::refine_residues_vec(int imol,
 				     const std::string &alt_conf,
 				     mmdb::Manager *mol) {
 
-   bool use_map_flag = 1;
+   bool use_map_flag = true;
 
    if (false)
       std::cout << "INFO:: refine_residues_vec() with altconf \""
@@ -1244,7 +1246,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 #ifdef HAVE_GSL
 
    if (is_valid_map_molecule(Imol_Refinement_Map()) || (! use_map_flag)) {
-      float weight = geometry_vs_map_weight;
       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       coot::restraint_usage_Flags flags = set_refinement_flags();
       bool do_residue_internal_torsions = false;
@@ -1268,7 +1269,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       for (std::size_t i=0; i<residues_in.size(); i++)
 	 residues_set.insert(residues_in[i]);
       residues.reserve(residues_set.size());
-      for(it=residues_set.begin(); it!=residues_set.end(); it++)
+      for(it=residues_set.begin(); it!=residues_set.end(); ++it)
 	 residues.push_back(*it);
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
@@ -1283,7 +1284,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       //
       // The flanking atoms are fixed the passed residues are not fixed.
       // Keep a clear head.
-      
       std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
       // use try_dynamic_add()
       bool have_restraints = geom_p->have_dictionary_for_residue_types(residue_types, imol,
@@ -1811,6 +1811,11 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       if (! alt_conf.empty())
 	 use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
 
+      std::cout << "----------------- in create_mmdbmanager_from_res_vector() alt_conf is "
+                << "\"" << alt_conf << "\"" << std::endl;
+      std::cout << "----------------- in create_mmdbmanager_from_res_vector() use_alt_conf is "
+                << use_alt_conf.first << "\"" << use_alt_conf.second << "\"" << std::endl;
+
       std::pair<bool, mmdb::Manager *> n_mol_1 =
 	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
 
@@ -1895,10 +1900,10 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 // now fill @var{flankers_in_reference_mol} from rnr, avoiding residues
 	 // already in @var{residues}.
 	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
-	 for (it=rnr.begin(); it!=rnr.end(); it++) {
+	 for (it=rnr.begin(); it!=rnr.end(); ++it) {
 	    const std::set<mmdb::Residue *> &s = it->second;
 	    std::set<mmdb::Residue *>::const_iterator its;
-	    for (its=s.begin(); its!=s.end(); its++) {
+	    for (its=s.begin(); its!=s.end(); ++its) {
 	       mmdb::Residue *tres = *its;
 	       if (std::find(residues.begin(), residues.end(), tres) == residues.end())
 		  if (std::find(flankers_in_reference_mol.begin(), flankers_in_reference_mol.end(), tres) == flankers_in_reference_mol.end())
@@ -2152,7 +2157,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
       std::cout << "FYI: chain ids are: \"" << chain_id_1
 		<< "\" and \"" << chain_id_2 << "\"" << std::endl;
-      cout << "Picked atoms are not in the same chain.  Failure" << endl; 
+      std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
    } else { 
       flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
@@ -4694,10 +4699,15 @@ graphics_info_t::place_dummy_atom_at_pointer() {
 }
 
 void 
-graphics_info_t::place_typed_atom_at_pointer(const std::string &type) { 
+graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 
    int imol = user_pointer_atom_molecule;
    graphics_info_t g;
+   if (! is_valid_model_molecule(imol)) {
+      // try to find one
+      imol = get_latest_model_molecule();
+   }
+
    if (is_valid_model_molecule(imol)) {
       molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
       update_environment_distances_by_rotation_centre_maybe(imol);

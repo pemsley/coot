@@ -250,6 +250,22 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
 
 
+// static
+int
+graphics_info_t::get_latest_model_molecule() {
+
+   int imol = -1;
+   int n = n_molecules();
+   for(int ii=0; ii<n; ii++) {
+      if (is_valid_model_molecule(ii)) {
+         if (ii > imol) {
+            imol = ii;
+         }
+      }
+   }
+   return imol;
+}
+
 
 
 double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };
@@ -552,8 +568,8 @@ graphics_info_t::import_all_refmac_cifs() {
 				    }
 				 }
 			      }
-			   }
-			   closedir(sub_dir);
+                              closedir(sub_dir);
+                           }
 			}
 		     } // not "."
 		  }
@@ -1417,7 +1433,7 @@ graphics_info_t::skeletonize_map(int imol, short int prune_it) {
 						       g.molecules[imol].xmap,
 						       map_cutoff);
 
-	    cout << "INFO:: There were " << nsegments << " different segments" << endl;
+            std::cout << "INFO:: There were " << nsegments << " different segments" << std::endl;
 
 	    bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
 	    g.molecules[imol].set_colour_skeleton_by_segment(); // use random colours
@@ -6620,4 +6636,28 @@ graphics_info_t::quick_save() {
    save_state_file("0-coot.state.py", il);
 #endif
 
+}
+
+
+// run glColor3f())
+// static
+void
+graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
+
+   if (use_graphics_interface_flag) {
+      int n_user_defined_colours = user_defined_colours.size();
+      if (icol < n_user_defined_colours) {
+         if (icol >= 0) {
+            const coot::colour_holder &ch = user_defined_colours[icol];
+            glColor3f(ch.red, ch.green, ch.blue);
+         } else {
+            coot::colour_holder ch;
+            glColor3f(ch.red, ch.green, ch.blue);
+         }
+      } else {
+         coot::colour_holder ch;
+         glColor3f(ch.red, ch.green, ch.blue);
+      }
+   }
+   
 }

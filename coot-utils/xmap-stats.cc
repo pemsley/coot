@@ -27,10 +27,10 @@
 template <class T>
 mean_and_variance<T>
 map_density_distribution(const clipper::Xmap<T> &map,
-			 unsigned int n_bins,     // default 40
-			 bool write_output_flag,  // default false 
-			 bool ignore_pseudo_zeros // default false
-			 ) {
+                         unsigned int n_bins,     // default 40
+                         bool write_output_flag,  // default false
+                         bool ignore_pseudo_zeros // default false
+                         ) {
 
    mean_and_variance<T> mv;  // returned object
 
@@ -44,11 +44,11 @@ map_density_distribution(const clipper::Xmap<T> &map,
       n_point += 1.0;
       rho = map[ix];
       if (! clipper::Util::is_nan(rho)) {
-	 double v = double (rho);
-	 if (v < density_min) density_min = v;
-	 if (v > density_max) density_max = v;
-	 sum += v;
-	 sum_sq += v*v;
+         double v = double (rho);
+         if (v < density_min) density_min = v;
+         if (v > density_max) density_max = v;
+         sum += v;
+         sum_sq += v*v;
       }
    }
 
@@ -59,7 +59,7 @@ map_density_distribution(const clipper::Xmap<T> &map,
    float inv_range = (range>0.0) ? (1.0/range) : (1.0);
 
    mv.mean = mean;
-   mv.variance = var; 
+   mv.variance = var;
    mv.range = range;
    mv.max_density = density_max;
    mv.min_density = density_min;
@@ -69,12 +69,12 @@ map_density_distribution(const clipper::Xmap<T> &map,
 
    for (ix=map.first(); !ix.last(); ix.next()) {
       rho = map[ix];
-      if (! clipper::Util::is_nan(rho)) { 
-	 int bin_no = int (n_bins*(rho - density_min)*inv_range);
-	 // std::cout << "bin_no: " << bin_no << " from " << nbins << "*(" << map[ix] << "- " << min << ") * "
-	 // << inv_range << std::endl;
-	 bin[bin_no]++;
-	 // std::cout << "bin[" << bin_no << "] is now " << bin[bin_no] << std::endl;
+      if (! clipper::Util::is_nan(rho)) {
+         int bin_no = int (n_bins*(rho - density_min)*inv_range);
+         // std::cout << "bin_no: " << bin_no << " from " << nbins << "*(" << map[ix] << "- " << min << ") * "
+         // << inv_range << std::endl;
+         bin[bin_no]++;
+         // std::cout << "bin[" << bin_no << "] is now " << bin[bin_no] << std::endl;
       }
    }
 
@@ -86,9 +86,9 @@ map_density_distribution(const clipper::Xmap<T> &map,
    mv.histogram_max = bin[ibin_max_counts];
    if (write_output_flag) {
       for (unsigned int ii=0; ii <= n_bins; ii++) {
-	 std::cout.width(10);
-	 std::cout << std::right << ((float) (ii) + 0.5)*range/float(n_bins) + density_min << "    "
-		   << std::right << bin[ii] << std::endl;
+         std::cout.width(10);
+         std::cout << std::right << ((float) (ii) + 0.5)*range/float(n_bins) + density_min << "    "
+                   << std::right << bin[ii] << std::endl;
       }
    }
    unsigned int ibin_second_highest_counts = 0;
@@ -106,23 +106,23 @@ map_density_distribution(const clipper::Xmap<T> &map,
    if (ignore_pseudo_zeros) {
 
       // Print to screen and fill bins in mv.
-      
+
       int nbins_filter = 10000;
       long n = 0;
       bin = std::vector<int>(nbins_filter+1, 0);
 
       for (ix=map.first(); !ix.last(); ix.next()) {
-	 rho = map[ix];
-	 if (! clipper::Util::is_nan(rho)) {
-	    int bin_no = static_cast<int>(nbins_filter*(rho - density_min)*inv_range);
-	    bin[bin_no]++;
-	    n++;
-	 }
+         rho = map[ix];
+         if (! clipper::Util::is_nan(rho)) {
+            int bin_no = static_cast<int>(nbins_filter*(rho - density_min)*inv_range);
+            bin[bin_no]++;
+            n++;
+         }
       }
       ibin_max_counts = 0;
       for (unsigned int i=0; i<bin.size(); i++) {
-	 if (bin[i] > bin[ibin_max_counts])
-	    ibin_max_counts = i;
+         if (bin[i] > bin[ibin_max_counts])
+            ibin_max_counts = i;
       }
 
       int n_remainder = n - bin[ibin_max_counts];
@@ -137,25 +137,25 @@ map_density_distribution(const clipper::Xmap<T> &map,
       double uppoer_bound_density_for_ibin_max_counts = (di+1.0)   * range/double(nbins_filter) + density_min;
 
       std::cout << "INFO:: filter by ignoring " << bin[ibin_max_counts]
-		<< " of " << n << " counts ( = " << std::setprecision(4)
-		<< 100*float(bin[ibin_max_counts])/float(n) << "%)"
-		<< " with values around "
-		<< std::setprecision(4)
-		<< average_density_for_ibin_max_counts
+                << " of " << n << " counts ( = " << std::setprecision(4)
+                << 100*float(bin[ibin_max_counts])/float(n) << "%)"
+                << " with values around "
+                << std::setprecision(4)
+                << average_density_for_ibin_max_counts
                 << " bounds " << lower_bound_density_for_ibin_max_counts << " "
                 << uppoer_bound_density_for_ibin_max_counts
-		<< " from bin-number " << ibin_max_counts << " of "
-		<< nbins_filter<< std::endl;
+                << " from bin-number " << ibin_max_counts << " of "
+                << nbins_filter<< std::endl;
       sum = 0;
       sum_sq = 0;
       for (unsigned int i=0; i<bin.size(); i++) {
-	 if (i != ibin_max_counts) { 
-	    double v = (static_cast<double>(i) + 0.5) * range/static_cast<double>(nbins_filter) + density_min;
+         if (i != ibin_max_counts) {
+            double v = (static_cast<double>(i) + 0.5) * range/static_cast<double>(nbins_filter) + density_min;
             int counts = bin[i];
             double weight = static_cast<double>(counts);
-	    sum += v * weight;
-	    sum_sq += v * v * weight;
-	 }
+            sum += v * weight;
+            sum_sq += v * v * weight;
+         }
       }
 
       mv.mean = sum/static_cast<float>(n_remainder);
@@ -166,21 +166,20 @@ map_density_distribution(const clipper::Xmap<T> &map,
       std::cout << "Post-filter Map statistics: min: " << density_min << " max: " << density_max << std::endl;
 
    }
-   return mv; 
+   return mv;
 }
 
-// instantiate that 
+// instantiate that
 template mean_and_variance<float> map_density_distribution(const clipper::Xmap<float> &map,
                                                            unsigned int n_bins,
                                                            bool write_output_flag,
                                                            bool ignore_pseude_zeros);
 
-// template mean_and_variance<int> map_density_distribution(const clipper::Xmap<int> &map, short int write_output_flag); 
+// template mean_and_variance<int> map_density_distribution(const clipper::Xmap<int> &map, short int write_output_flag);
 
 
-// ostream& operator<<(ostream& s, mean_and_variance<T> mv) { 
+// ostream& operator<<(ostream& s, mean_and_variance<T> mv) {
 
-//    s << "mean: " << mv.mean << ", sigma: " << sqrt(mv.variance); 
-//    return s; 
+//    s << "mean: " << mv.mean << ", sigma: " << sqrt(mv.variance);
+//    return s;
 // }
-

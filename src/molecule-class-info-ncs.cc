@@ -647,8 +647,8 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
          }
       }
       // now get the lowest common denominator
-      int resno_start = max(reference_resno_start, moving_resno_start);
-      int resno_end   = min(reference_resno_end, moving_resno_end);
+      int resno_start = std::max(reference_resno_start, moving_resno_start);
+      int resno_end   = std::min(reference_resno_end, moving_resno_end);
       coot::lsq_range_match_info_t matches(resno_start, resno_end,
       				   chain_id_reference,
       				   resno_start, resno_end,
@@ -2359,7 +2359,7 @@ molecule_class_info_t::ncs_ghost_chains() const {
 	    }
 	 }
 	 if (! found) {
-	    std::vector<string> v;
+	    std::vector<std::string> v;
 	    v.push_back(ncs_ghosts[ighost].chain_id);
 	    std::pair<std::string, std::vector<std::string> > group(master_chain, v);
 	    grouped_ghosts.push_back(group);
@@ -2624,7 +2624,7 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
       //
       int matrix_id_max = 0;
       std::map<std::pair<int, int>, quad_d_t>::const_iterator it;
-      for (it=biomts.begin(); it!=biomts.end(); it++) {
+      for (it=biomts.begin(); it!=biomts.end(); ++it) {
 	 if (it->first.first > matrix_id_max)
 	    matrix_id_max = it->first.first;
       }
@@ -2668,8 +2668,9 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 }
       }
 
-      std::cout << "in add_molecular_symmetry_matrices() made "
-		<< biomt_matrices.size() << " biomt matrices" << std::endl;
+      if (false)
+         std::cout << "in add_molecular_symmetry_matrices() made "
+                   << biomt_matrices.size() << " biomt matrices" << std::endl;
 
       for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
 	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {

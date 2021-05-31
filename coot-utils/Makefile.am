@@ -40,8 +40,8 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh \
-	coot_shiftfield.h shiftfield.h fib-sphere.hh pepflip-using-difference-map.hh polar-atoms.hh
-
+	coot_shiftfield.h shiftfield.h fib-sphere.hh pepflip-using-difference-map.hh polar-atoms.hh \
+	fragment-container.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -71,7 +71,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
-	merge-molecules.cc
+	merge-molecules.cc fragment-container.cc mutate.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -153,6 +153,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-emma test-convolute test-segmap test-5-residue-fragments
 
+bin_PROGRAMS = mmrrcc
+
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -164,6 +166,13 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 #        $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
+
+mmrrcc_SOURCES = mmrrcc.cc
+mmrrcc_LDADD = ./libcoot-map-utils.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)
 
 test_coot_probe_SOURCES = test-coot-probe.cc
 test_coot_probe_LDADD =          \
@@ -225,7 +234,7 @@ test_tt_morph_SOURCES = test-morph.cc
 test_tt_morph_LDADD = ./libcoot-map-heavy.la \
 	./libcoot-map-utils.la \
 	./libcoot-coord-utils.la \
-	./libcoot-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc

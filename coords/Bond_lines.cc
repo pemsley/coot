@@ -91,6 +91,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   coot::rotamer_probability_tables *tables_p
 					   ) {
 
+
    init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -114,6 +115,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    udd_has_ca_handle = -1;
 
 }
+
+
 
 // the constructor for bond by dictionary - should use this most of the time.
 // geom_in can be null if you don't have it.
@@ -243,7 +246,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 //
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
-					   Bond_lines_container::bond_representation_type by_occ) {
+					   Bond_lines_container::bond_representation_type br_type) {
 
    // std::cout << "Bond_lines_container() for B-factors! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
@@ -259,16 +262,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    float max_dist = 1.71;
    int model_number = 0; // all models
    bool do_rama_markup = false;
-   if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
+   if (br_type == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
       construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0, model_number, do_rama_markup);
    } else {
-      if (by_occ == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-         int atom_colours_udd = set_b_factor_colours(SelAtom.mol);
+      if (br_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+         set_b_factor_colours(SelAtom.mol);
 	 try_set_b_factor_scale(SelAtom.mol);
 	 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
       } else {
-	 // how confusing... :-)
-	 if (by_occ == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
+	 if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
 	    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
       }
    }
@@ -569,9 +571,24 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
 				    }
 				 } else {
-				    col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type, nullptr);
-				    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-				    addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+                                    // should this test be here or further up?
+                                    // Don't bond water Oxygens to each other
+                                    bool do_it = true;
+                                    if (atom_p_1->residue != atom_p_2->residue) {
+                                       std::string res_name_1(atom_p_1->residue->GetResName());
+                                       if (res_name_1 == "HOH") {
+                                          std::string res_name_2(atom_p_2->residue->GetResName());
+                                          if (res_name_2 == "HOH") {
+                                             do_it = false;
+                                          }
+                                       }
+                                    }
+
+                                    if (do_it) {
+                                       col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type, nullptr);
+                                       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+                                       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+                                    }
 				 }
 			      }
 
@@ -3863,7 +3880,6 @@ void Bond_lines_container::check_static() const {
 
    std::cout << "check: num_colours:"     << pot.num_colours << std::endl;
    std::cout << "check: bonds:"           << pot.bonds_ << std::endl;
-   std::cout << "check: bonds::numlines " << pot.bonds_[12].num_lines << std::endl;
 
 }
 
@@ -4184,7 +4200,6 @@ Bond_lines_container::add_dashed_bond(int col,
 
    float n_dash = dash_end - dash_start;
    coot::Cartesian delta = end - start;
-   coot::Cartesian f = delta.by_scalar(1.0/n_dash);
 
    //                        1 1 1 1 1 1 1 1 1
    //   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8
@@ -4220,18 +4235,6 @@ Bond_lines::add_bond(const coot::CartesianPair &p,
    points.push_back(gl);
 }
 
-//
-Bond_lines::Bond_lines() {
-
-   // This gets called when we resize a Bond_lines_container's bonds array.
-   //
-   // std::cout << "nothing much" << std::endl;
-}
-
-//
-Bond_lines::Bond_lines(int col) {
-   colour = col;
-}
 
 int
 Bond_lines::size() const {
@@ -5130,6 +5133,9 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 				       if (at->GetUDData(udd_handle, ic) == mmdb::UDDATA_Ok) {
 					  col = ic;
 				       } else {
+                                          if (false)
+                                             std::cout << "DEBUG:: failed to get udd for udd_handle " << udd_handle
+                                                       << " for user-defined-atom-colour-index" << std::endl;
 					  col = 20;
 				       }
 				    } else {
@@ -7643,16 +7649,19 @@ graphical_bonds_container::add_rotamer_goodness_markup(const std::vector<rotamer
       n_rotamer_markups = ric.size();
       rotamer_markups = new rotamer_markup_container_t[n_rotamer_markups];
       for (unsigned int i=0; i<ric.size(); i++)
-	 rotamer_markups[i] = ric[i];
+         rotamer_markups[i] = ric[i];
    }
 }
 
 void
 graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_atom_info_t> &centres,
-					    const std::vector<int> &colours) {
+                                            const std::vector<int> &colours) {
+
+   // std::cout << "In graphical_bonds_container::add_atom_centres adding "
+   //<< centres.size() << " atoms" << std::endl;
 
    if (colours.size() != centres.size()) {
-      std::cout << "ERROR!! colours.size() != centres.size() in add_atom_centres\n";
+      std::cout << "ERROR:: !! colours.size() != centres.size() in add_atom_centres\n";
    }
    n_atom_centres_ = centres.size();
    atom_centres_ = new graphical_bonds_atom_info_t[n_atom_centres_];
@@ -7668,7 +7677,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    int col_idx_max = 1;
    for (int i=0; i<n_atom_centres_; i++) {
       if (colours[i] > col_idx_max) {
-	 col_idx_max = colours[i];
+         col_idx_max = colours[i];
       }
    }
    col_idx_max += 1;
@@ -7686,16 +7695,21 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
 
    for (int i=0; i<col_idx_max; i++) {
       consolidated_atom_centres[i] = graphical_bonds_points_list<graphical_bonds_atom_info_t>(counts[i]);
+
+      for (unsigned int ii=0; ii<consolidated_atom_centres[i].num_points; ii++) {
+      }
    }
 
    for (int i=0; i<n_atom_centres_; i++) {
       consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);
    }
 
-   if (false) // debug
+   if (false)  {// debug
+      for (int i=0; i<n_atom_centres_; i++)
+         std::cout << "---- add_atom_centres() " << i << " " << atom_centres_[i].position << "\n";
       for (int i=0; i<col_idx_max; i++)
-	 std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points
-		   << std::endl;
+         std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points << std::endl;
+   }
 
 }
 

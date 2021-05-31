@@ -671,19 +671,20 @@ molecule_class_info_t::add_residue_with_atoms(const coot::residue_spec_t &residu
          int n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            std::string chain_id = chain_p->GetChainID();
-            if (chain_id == residue_spec.chain_id) {
+            std::string chain_id(chain_p->GetChainID());
+            if (chain_id == residue_spec.chain_id)
                chain_p_for_residue = chain_p;
-            }
          }
-      }
-      if (chain_p_for_residue) {
-         residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+         if (chain_p_for_residue) {
+            residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+         } else {
+            chain_p_for_residue = new mmdb::Chain;
+            chain_p_for_residue->SetChain(residue_spec.chain_id.c_str());
+            model_p->AddChain(chain_p_for_residue);
+            residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+         }
       } else {
-         chain_p_for_residue = new mmdb::Chain;
-         chain_p_for_residue->SetChain(residue_spec.chain_id.c_str());
-         model_p->AddChain(chain_p_for_residue);
-         residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+         std::cout << "ERROR:: in add_residue_with_atoms() null model_p " << imod << std::endl;
       }
    }
    if (residue_p) {

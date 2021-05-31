@@ -753,16 +753,16 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
-	 
-	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size()
-		   << " types with no dictionary " << std::endl;
+
+         if (false)
+            std::cout << "DEBUG:: there were " << types_with_no_dictionary.size()
+                      << " types with no dictionary " << std::endl;
 
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
-	    if (0)
+	    if (false)
 	       std::cout << "DEBUG:: calling try_dynamic_add: " << types_with_no_dictionary[i]
 			 << " with read number " << g.cif_dictionary_read_number << std::endl;
-	    int n_bonds = g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i],
-						      g.cif_dictionary_read_number);
+	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], g.cif_dictionary_read_number);
 	    g.cif_dictionary_read_number++;
 	 }
 	 
@@ -2107,7 +2107,7 @@ void set_symmetry_size_from_widget(const char *text) {
       g.symmetry_search_radius = tmp;
    } else {
 
-      cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
+      std::cout << "Cannot interpret " << text << ".  Assuming 10A" << std::endl;
       g.symmetry_search_radius = 10.0;
    }
    //
@@ -2880,7 +2880,7 @@ set_aniso_limit_size_from_widget(const char *text) {
 
       g.show_aniso_atoms_radius = tmp;
    } else {
-      cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
+      std::cout << "Cannot interpret " << text << ".  Assuming 10A" << std::endl;
       g.show_aniso_atoms_radius = 10.0;
    }
 }
@@ -3366,7 +3366,7 @@ void set_smooth_scroll_steps_str(const char *text) {
    if (v > 0 && v < 10000000) {
       set_smooth_scroll_steps(v);
    } else {
-      cout << "Cannot interpret " << text << ".  Assuming 10 steps" << endl;
+      std::cout << "Cannot interpret " << text << ".  Assuming 10 steps" << std::endl;
       set_smooth_scroll_steps(10);
    }
 }
@@ -3397,7 +3397,7 @@ void  set_smooth_scroll_limit_str(const char *text) {
    if (v >0 && v < 1000) { 
       graphics_info_t::smooth_scroll_limit = v;
    } else {
-      cout << text << " out of range: using 10A" << endl;
+      std::cout << text << " out of range: using 10A" << std::endl;
       graphics_info_t::smooth_scroll_limit = 10;
    }
 }
@@ -3481,7 +3481,7 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
 
    val = atof(text); 
    if ((val > 1000) || (val < 0)) { 
-      cout << "Invalid cube size: " << text << ". Assuming 1.0A" << endl; 
+      std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0; 
    } 
    g.rotation_centre_cube_size = val; 
@@ -4412,7 +4412,7 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
    short int got_cell_symm_flag = 0;
    int imol = -1;// set bad molecule initally
    
-   graphics_info_t g; 
+   graphics_info_t g;
 //       std::cout << "DEBUG:: read_phs_and_make_map_using_cell_symm_from_mol "
 // 		<< g.molecules[imol_ref].atom_sel.mol->get_cell().a << "  " 
 // 		<< g.molecules[imol_ref].atom_sel.mol->get_cell().b << "  " 
@@ -4494,7 +4494,7 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
       }
 
       if (got_cell_symm_flag) {
-	 std::string phs_filename(graphics_get_phs_filename()); 
+	 std::string phs_filename(g.get_phs_filename());
 
 	 imol = g.create_molecule();
 	 g.molecules[imol].make_map_from_phs(spacegroup, cell, phs_filename);
@@ -4537,13 +4537,6 @@ graphics_store_phs_filename(const gchar *phs_filename) {
    g.set_phs_filename(std::string(phs_filename));
 }
 
-
-const char *
-graphics_get_phs_filename() {
-
-   graphics_info_t g;
-   return g.get_phs_filename().c_str(); 
-}
 
 short int possible_cell_symm_for_phs_file() {
 
@@ -4731,7 +4724,7 @@ int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno,
    // 
    std::string t3s(t3);
    std::string::size_type icomma = t3s.find_last_of(",");
-   if (icomma == string::npos) {
+   if (icomma == std::string::npos) {
 
       // there was no comma, conventional usage:
       g.set_go_to_atom_chain_residue_atom_name(t1, iresno, t3); 
@@ -5063,7 +5056,7 @@ void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      bool all_atoms_flag = false;
+      bool all_atoms_flag = true;
       g.molecules[imol].user_defined_colours_representation(g.Geom_p(), all_atoms_flag, g.draw_missing_loops_flag);
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-user-defined-colours-representation");
@@ -5267,7 +5260,7 @@ void set_skeletonization_level_from_widget(const char *txt) {
       g.skeleton_level = tmp; 
    } else { 
       
-      cout << "Cannot interpret " << txt << " using 0.2 instead" << endl; 
+      std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
       g.skeleton_level = 0.2; 
    } 
 
@@ -5302,7 +5295,7 @@ void set_skeleton_box_size_from_widget(const char *txt) {
       g.skeleton_box_radius = tmp; 
    } else { 
       
-      cout << "Cannot interpret " << txt << " using 0.2 instead" << endl; 
+      std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
       g.skeleton_box_radius = 0.2; 
    }
 
@@ -6813,7 +6806,7 @@ void set_found_coot_gui() {
    
    graphics_info_t g; 
 #ifdef USE_GUILE
-   cout << "Coot Scheme Scripting GUI code found and loaded." << endl; 
+   std::cout << "Coot Scheme Scripting GUI code found and loaded." << std::endl;
    g.guile_gui_loaded_flag = TRUE; 
 #endif // USE_GUILE
 }
@@ -6822,7 +6815,7 @@ void set_found_coot_python_gui() {
   
 #ifdef USE_PYTHON
    graphics_info_t g;
-   cout << "Coot Python Scripting GUI code found and loaded." << endl; 
+   std::cout << "Coot Python Scripting GUI code found and loaded." << std::endl;
    g.python_gui_loaded_flag = TRUE;
 #endif // USE_PYTHON
 
@@ -7407,7 +7400,7 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -7458,12 +7451,12 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
       
-      cout << "Reading cif file: " << filename << endl; 
+      std::cout << "Reading cif file: " << filename << std::endl;
 
       graphics_info_t g; 
 
@@ -7506,7 +7499,7 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -7543,7 +7536,7 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -7594,7 +7587,7 @@ int read_cif_data_with_phases_nfo_fc(const char *filename,
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
    } else {
@@ -8561,10 +8554,6 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
    if ((int(graphics_info_t::views.size()) > view_number) && (view_number >= 0)) {
       coot::view_info_t view = graphics_info_t::views[view_number];
       if (view.is_simple_spin_view_flag) {
-	 int nsteps = 2000;
-         nsteps = 500;
-	 if (graphics_info_t::views_play_speed > 0.000000001)
-	    nsteps = int(static_cast<float>(nsteps)/graphics_info_t::views_play_speed);
 	 float play_speed = 1.0; 
 	 if (graphics_info_t::views_play_speed > 0.0)
 	    play_speed = graphics_info_t::views_play_speed;
@@ -8603,7 +8592,6 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 
 /*! \brief return the number of views */
 int n_views() {
-
 
    if (true) {
       std::cout << "debug in n_views(): with n_views " <<  graphics_info_t::views.size() << std::endl;

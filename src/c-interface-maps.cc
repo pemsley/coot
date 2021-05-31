@@ -1007,13 +1007,13 @@ void set_iso_level_increment_from_text(const char *text, int imol) {
    val = atof(text);
 
    if ((val > 10000) || (val < -10000)) {
-      cout << "Cannot interpret: " << text
-	   << ".  Assuming 0.05 for increment" << endl;
+      std::cout << "Cannot interpret: " << text
+                << ".  Assuming 0.05 for increment" << std::endl;
       val  = 0.05;
 
    }
 
-   cout << "setting iso_level_increment to " << val << endl;
+   std::cout << "setting iso_level_increment to " << val << std::endl;
    g.iso_level_increment = val;
 
    graphics_draw();
@@ -1050,8 +1050,8 @@ void set_diff_map_iso_level_increment_from_text(const char *text, int imol) {
    val = atof(text);
 
    if ((val > 10000) || (val < -10000)) {
-      cout << "Cannot interpret: " << text
-	   << ".  Assuming 0.005 for increment" << endl;
+      std::cout << "Cannot interpret: " << text
+                << ".  Assuming 0.005 for increment" << std::endl;
       val  = 0.005;
    }
    g.diff_map_iso_level_increment = val;
@@ -1073,8 +1073,8 @@ void set_map_sampling_rate_text(const char *text) {
    val = atof(text);
 
    if ((val > 100) || (val < 1)) {
-      cout << "Nonsense value: " << text
-	   << ".  Assuming 1.5 for increment" << endl;
+      std::cout << "Nonsense value: " << text
+                << ".  Assuming 1.5 for increment" << std::endl;
       val  = 1.5;
    }
    set_map_sampling_rate(val);
@@ -1263,34 +1263,6 @@ void check_for_dark_blue_density() {
       }
    }
 }
-
-int
-handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
-
-   int istate = -1;
-   if (true) {
-      graphics_info_t g;
-      int imol_new = graphics_info_t::create_molecule();
-
-      istate = g.molecules[imol_new].read_ccp4_map(filename, is_diff_map_flag,
-						   *graphics_info_t::map_glob_extensions);
-
-      if (istate > -1) { // not a failure
-	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
-	 g.activate_scroll_radio_button_in_display_manager(imol_new);
-      } else {
-	 g.erase_last_molecule();
-	 std::cout << "Read map " << filename << " failed" << std::endl;
-	 std::string s = "Read map ";
-	 s += filename;
-	 s += " failed.";
-	 g.add_status_bar_text(s);
-      }
-      graphics_draw();
-   }
-   return istate;
-}
-
 
 #include "utils/coot-utils.hh"
 

@@ -848,7 +848,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
             auto tp_1 = std::chrono::high_resolution_clock::now();
 	    tri_con.depth_sort(back_cl, front_cl);
             auto tp_2 = std::chrono::high_resolution_clock::now();
-            auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+            auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
             // std::cout << "triangle sorting " << d21 << " milliseconds" << std::endl;
 	    // std::cout << " sorted" << std::endl;
 	    if (xmap_is_diff_map)
@@ -923,7 +923,6 @@ molecule_class_info_t::display_solid_surface_triangles(const coot::density_conto
    } else {
 
       glShadeModel(GL_SMOOTH);
-      bool opacity_experiment = false;
 
       /*
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
@@ -1310,13 +1309,13 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
             fix_anomalous_phases(&fphidata);
          }
 
-         cout << "INFO:: finding ASU unique map points with sampling rate "
-   	        << map_sampling_rate	<< endl;
+         std::cout << "INFO:: finding ASU unique map points with sampling rate "
+                   << map_sampling_rate	<< std::endl;
          clipper::Grid_sampling gs(fphidata.spacegroup(),
                                    fphidata.cell(),
                                    fft_reso,
                                    map_sampling_rate);
-         cout << "INFO:: grid sampling..." << gs.format() << endl;
+         std::cout << "INFO:: grid sampling..." << gs.format() << std::endl;
          xmap.init( fphidata.spacegroup(), fphidata.cell(), gs);
 
          long T2 = glutGet(GLUT_ELAPSED_TIME);
@@ -1519,13 +1518,13 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 	 std::cout << "WARNING:: No reflections in cns file!?" << std::endl;
 	 return 0;
       }
-      cout << "INFO:: finding ASU unique map points with sampling rate "
-	   << map_sampling_rate	<< endl;
+      std::cout << "INFO:: finding ASU unique map points with sampling rate "
+                << map_sampling_rate << std::endl;
       clipper::Grid_sampling gs(fphidata.spacegroup(),
 				fphidata.cell(),
 				fphidata.resolution(),
 				map_sampling_rate);
-      cout << "INFO grid sampling..." << gs.format() << endl;
+      std::cout << "INFO grid sampling..." << gs.format() << std::endl;
       xmap.init( fphidata.spacegroup(), fphidata.cell(), gs ); // 1.5 default
       // 	 cout << "Grid..." << xmap.grid_sampling().format() << "\n";
 
@@ -1870,9 +1869,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    } else {
       if (!S_ISREG (s.st_mode)) {
 	 if (S_ISDIR(s.st_mode)) {
-	    std::cout << "WARNING:: " << filename << " is a directory." << endl;
+	    std::cout << "WARNING:: " << filename << " is a directory." << std::endl;
 	 } else {
-	    std::cout << "WARNING:: " << filename << " not a regular file." << endl;
+	    std::cout << "WARNING:: " << filename << " not a regular file." << std::endl;
 	 }
 	 return -1;
       }
@@ -1951,7 +1950,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          bool check_only = false;
          done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
          auto tp_2 = std::chrono::high_resolution_clock::now();
-         auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
          std::cout << "INFO:: map read " << d21 << " milliseconds" << std::endl;
          try {
             clipper_map_file_wrapper file;
@@ -2060,7 +2059,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       auto tp_0 = std::chrono::high_resolution_clock::now();
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
       auto tp_1 = std::chrono::high_resolution_clock::now();
-      auto d10 = chrono::duration_cast<chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
 
       float mean = mv.mean;
@@ -2219,8 +2218,7 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
 	    coot::util::get_cell_symm( SelAtom.mol );
 	 iret = make_map_from_phs(xtal.second, xtal.first, phs_filename);
       } catch (const std::runtime_error &except) {
-	 cout << "!! get_cell_symm() fails in make_map_from_phs"
-	      << endl;
+         std::cout << "!! get_cell_symm() fails in make_map_from_phs" << std::endl;
       }
    }
    return iret;
@@ -2272,22 +2270,22 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 //        // << " " << fphidata[i].phi() <<
 //    }
 
-  std::string mol_name = phs_filename;
+   std::string mol_name = phs_filename;
+   
+   initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
+   
+   std::cout << "initializing map...";
+   xmap.init(mydata.spacegroup(),
+             mydata.cell(),
+             clipper::Grid_sampling(mydata.spacegroup(),
+                                    mydata.cell(),
+                                    mydata.resolution(),
+                                    map_sampling_rate));
+   std::cout << "done."<< std::endl;
 
-  initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
-
-  std::cout << "initializing map...";
-  xmap.init(mydata.spacegroup(),
-		    mydata.cell(),
-		    clipper::Grid_sampling(mydata.spacegroup(),
-					   mydata.cell(),
-					   mydata.resolution(),
-					   map_sampling_rate));
- std:cout << "done."<< std::endl;
-
-//   cout << "Map Grid (from phs file)..."
-//        << xmap.grid_sampling().format()
-//        << endl;
+   //   cout << "Map Grid (from phs file)..."
+   //        << xmap.grid_sampling().format()
+   //        << endl;
 
   std::cout << "doing fft..." ;
   xmap.fft_from(fphidata);                  // generate map
@@ -2295,8 +2293,8 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 
   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 
-  cout << "Mean and sigma of map from PHS file: " << mv.mean
-       << " and " << sqrt(mv.variance) << endl;
+  std::cout << "Mean and sigma of map from PHS file: " << mv.mean
+            << " and " << sqrt(mv.variance) << std::endl;
 
   // fill class variables
   map_mean_ = mv.mean;
@@ -2648,15 +2646,15 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 		     clipper::Grid_sampling(map_fphidata.spacegroup(),
 					    map_fphidata.cell(),
 					    map_fphidata.resolution()));
-   cout << "done."<< endl;
-   cout << "doing fft..." ;
+   std::cout << "done."<< std::endl;
+   std::cout << "doing fft..." ;
    xmap.fft_from( map_fphidata ); // generate map
-   cout << "done." << endl;
+   std::cout << "done." << std::endl;
 
    mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 
-   cout << "Mean and sigma of map " << mol_name << " " << mv.mean
-	<< " and " << sqrt(mv.variance) << endl;
+   std::cout << "Mean and sigma of map " << mol_name << " " << mv.mean
+             << " and " << sqrt(mv.variance) << std::endl;
 
    // fill class variables
    map_mean_ = mv.mean;
@@ -2823,19 +2821,19 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 
 	    // back to old code
 	    //
-	    cout << "initializing map...";
+            std::cout << "initializing map...";
 	    xmap.init(mydata.spacegroup(),
 			      mydata.cell(),
 			      clipper::Grid_sampling(mydata.spacegroup(),
 						     mydata.cell(),
 						     mydata.resolution(),
 						     graphics_info_t::map_sampling_rate));
-	    cout << "done."<< endl;
+            std::cout << "done."<< std::endl;
 
-	    cout << "doing fft..." ;
+            std::cout << "doing fft..." ;
 	    // xmap.fft_from( fphidata );       // generate Fc alpha-c map
 	    xmap.fft_from( map_fphidata );       // generate sigmaA map 20050804
-	    cout << "done." << endl;
+            std::cout << "done." << std::endl;
 	    initialize_map_things_on_read_molecule(mol_name, is_diff, false, false);
 	    // now need to fill contour_level, xmap_is_diff_map xmap_is_filled
 	    if (is_diff)
@@ -2845,8 +2843,8 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 
 	    mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 
-	    cout << "Mean and sigma of map from CIF file (make_map_from_cif): "
-		 << mv.mean << " and " << sqrt(mv.variance) << endl;
+            std::cout << "Mean and sigma of map from CIF file (make_map_from_cif): "
+                      << mv.mean << " and " << sqrt(mv.variance) << std::endl;
 
 	    update_map_in_display_control_widget();
 
@@ -2948,7 +2946,7 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag, is_anomalous_flag,
 						swap_difference_map_colours);
 
-	 cout << "initializing map...";
+         std::cout << "initializing map...";
 	 xmap.init(mydata.spacegroup(),
 			   mydata.cell(),
 			   clipper::Grid_sampling(mydata.spacegroup(),
@@ -3190,14 +3188,14 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
       //        << xmap.grid_sampling().format()
       //        << endl;
 
-      cout << "doing fft..." ;
+      std::cout << "doing fft..." ;
       xmap.fft_from( fphidata );                  // generate map
-      cout << "done." << endl;
+      std::cout << "done." << std::endl;
 
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 
-      cout << "Mean and sigma of map from PHS file: " << mv.mean
-	   << " and " << sqrt(mv.variance) << endl;
+      std::cout << "Mean and sigma of map from PHS file: " << mv.mean
+                << " and " << sqrt(mv.variance) << std::endl;
 
       // fill class variables
       map_mean_ = mv.mean;
@@ -3732,7 +3730,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 						     density_scoring_function, &trial_results[itrial]);
 
             auto tp_2 = std::chrono::high_resolution_clock::now();
-            auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+            auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
 	    // not to self: it takes 40ms to copy a const xmap reference to the function.
 	    // question for self: was it actually a reference though? I suspect not, because
 	    // std::ref() was not in the code until I (just) added it.

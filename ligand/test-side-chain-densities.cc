@@ -1,4 +1,4 @@
-/* coot-utils/residue-and-atom-specs.hh
+/* ligand/test-side-chain-densities.cc
  * 
  * Author: Paul Emsley
  * 
@@ -161,7 +161,7 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
 	 // scd.set_data_dir("side-chain-data");
          scd.fill_residue_blocks(asc.mol, chain_id, resno_start, resno_end, xmap);
          std::string guessed_sequence =
-            scd.probability_of_each_rotamer_at_each_residue(asc.mol, chain_id, resno_start, resno_end, xmap);
+            scd.guess_the_sequence(asc.mol, chain_id, resno_start, resno_end, xmap);
          std::cout << "guessed sequence " << guessed_sequence << std::endl;
       }
    }
@@ -193,7 +193,8 @@ void test_sequence(int n_steps, float grid_box_radius,
                            coot::side_chain_densities &scd) { // fill scd
 
                           for(unsigned int idx=start_stop_pair.first; idx!=start_stop_pair.second; ++idx) {
-                             scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
+                             // the interface has changed.
+                             // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
                           }
                           
                        };
@@ -232,13 +233,8 @@ void test_sequence(int n_steps, float grid_box_radius,
                threads[i].join();
 #endif
 #if 1 // the single threaded way
-            for (unsigned int idx=0; idx<n_sequences; idx++) {
-               std::string sequence = fam[idx].sequence;
-               std::cout << "Input Sequence:\n" << sequence << std::endl;
-               
-               const std::string &name = fam[idx].name;
-               scd.test_sequence(asc.mol, chain_id, resno_start, resno_end, xmap, name, sequence);
-            }
+
+            coot::get_fragment_sequence_scores(asc.mol, fam, xmap);
 #endif
          }
       }

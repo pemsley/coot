@@ -70,6 +70,8 @@ p  So we need to have this function external for c++ linking.
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
+#include <gtk/gtk.h>
+
 #ifndef BEGIN_C_DECLS
 
 #ifdef __cplusplus
@@ -2686,8 +2688,6 @@ given "x,y,z ; -x,y+1/2,-z" */
 
 void
 graphics_store_phs_filename(const gchar *phs_filename);
-
-const char* graphics_get_phs_filename();
 
 short int possible_cell_symm_for_phs_file();
 
@@ -6725,8 +6725,6 @@ void set_add_ccp4i_projects_to_file_dialogs(short int state);
 
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
-/*! \brief get element colour for imol as Python formatted list char*/
-char *get_atom_colour_from_mol_no(int imol, const char *element);
 
 /* \} */
 

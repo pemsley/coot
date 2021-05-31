@@ -34,18 +34,18 @@ int main(int argc, char **argv) {return 0;}
 
 // ordered so that the table is written in decreasing order
 bool string_int_pair_sorter(const std::pair<std::string, unsigned int> &p1,
-			    const std::pair<std::string, unsigned int> &p2) {
+                            const std::pair<std::string, unsigned int> &p2) {
 
    return (p2.second < p1.second);
 } 
 
 int find_string_in_vector(const std::vector<std::pair<std::string, unsigned int> > &v,
-			  const std::string &t) {
+                          const std::string &t) {
 
    int r = -1;
    for (unsigned int i=0; i<v.size(); i++) {
       if (v[i].first == t) {
-	 return i;
+         return i;
       } 
    }
    return r;
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
    for (int i=1; i<argc; i++) {
       std::string file_name = argv[i];
       coot::read_refmac_mon_lib_info_t status =
-	 geom.init_refmac_mon_lib(file_name, read_number);
+         geom.init_refmac_mon_lib(file_name, read_number);
       read_number++;
    }
 
@@ -87,58 +87,58 @@ int main(int argc, char **argv) {
       mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
-	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
+         std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
-	 
-	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+         
+         mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 
-	 if (! residue_p) {
-	    // pretty strange
-	    std::cout << "Null residue from mol from mol_from_dictionary() for "
-		      << comp_id << std::endl;
-	 } else { 
+         if (! residue_p) {
+            // pretty strange
+            std::cout << "Null residue from mol from mol_from_dictionary() for "
+                      << comp_id << std::endl;
+         } else { 
 
-	    try { 
-	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
+            try { 
+               RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 
-	       cod::atom_types_t t;
-	       std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
-	       if (v.size() == r.atom_info.size()) {
-		  // std::cout << comp_id << " was good" << std::endl;
-		  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
-		     const std::string &key = r.atom_info[iat].type_energy;
-		     if (0) 
-			std::cout << comp_id << "  "
-				  << std::setw(4) << r.atom_info[iat].atom_id << "  "
-				  << std::setw(6) << r.atom_info[iat].type_energy << "   " 
-				  << v[iat].level_4 << "\n";
+               cod::atom_types_t t;
+               std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
+               if (v.size() == r.atom_info.size()) {
+                  // std::cout << comp_id << " was good" << std::endl;
+                  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+                     const std::string &key = r.atom_info[iat].type_energy;
+                     if (0) 
+                        std::cout << comp_id << "  "
+                                  << std::setw(4) << r.atom_info[iat].atom_id << "  "
+                                  << std::setw(6) << r.atom_info[iat].type_energy << "   " 
+                                  << v[iat].level_4 << "\n";
 
-		     it = atom_map.find(key);
-		     if (it == atom_map.end()) {
-			std::pair<std::string, unsigned int> p(v[iat].level_4, 1);
-			atom_map[key].push_back(p);
-		     } else { 
-			int idx = find_string_in_vector(atom_map[key], v[iat].level_4);
-			if (idx == -1) { // not found
-			   std::pair<std::string, unsigned int> p(v[iat].level_4, 1);
-			   atom_map[key].push_back(p);
-			} else {
-			   atom_map[key][idx].second++;
-			}
-		     }
-		  }
-	       } else {
-		  std::cout << comp_id << " was not good" << v.size() << " " << r.atom_info.size()
-			    << std::endl;
-	       }
-	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
-	    } 
-	    catch (const std::exception &e) {
-	       std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
-	    } 
-	 }
+                     it = atom_map.find(key);
+                     if (it == atom_map.end()) {
+                        std::pair<std::string, unsigned int> p(v[iat].level_4, 1);
+                        atom_map[key].push_back(p);
+                     } else { 
+                        int idx = find_string_in_vector(atom_map[key], v[iat].level_4);
+                        if (idx == -1) { // not found
+                           std::pair<std::string, unsigned int> p(v[iat].level_4, 1);
+                           atom_map[key].push_back(p);
+                        } else {
+                           atom_map[key][idx].second++;
+                        }
+                     }
+                  }
+               } else {
+                  std::cout << comp_id << " was not good" << v.size() << " " << r.atom_info.size()
+                            << std::endl;
+               }
+            }
+            catch (const std::runtime_error &rte) {
+               std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
+            } 
+            catch (const std::exception &e) {
+               std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
+            } 
+         }
       }
    }
 
@@ -146,12 +146,12 @@ int main(int argc, char **argv) {
    if (output_atom_map) { 
       std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
       for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
-	 std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
-	 std::cout << itv->first << "       ";
-	 for (unsigned int i=0; i<itv->second.size(); i++) { 
-	    std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
-	 }
-	 std::cout << "\n";
+         std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
+         std::cout << itv->first << "       ";
+         for (unsigned int i=0; i<itv->second.size(); i++) { 
+            std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
+         }
+         std::cout << "\n";
       }
    }
 
@@ -170,19 +170,19 @@ int main(int argc, char **argv) {
       std::map<std::string, std::vector<std::string> > cod_map;
       std::map<std::string, std::vector<std::string> >::const_iterator it_cod;
       for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
-	 for (unsigned int i=0; i<itv->second.size(); i++) {
-	    cod_map[itv->second[i].first].push_back(itv->first);
-	 }
+         for (unsigned int i=0; i<itv->second.size(); i++) {
+            cod_map[itv->second[i].first].push_back(itv->first);
+         }
       }
 
       for (it_cod=cod_map.begin(); it_cod!=cod_map.end(); it_cod++) {
-	 if (it_cod->second.size() != 1) {
-	    std::cout << "strange cod: " << std::left << std::setw(20) << it_cod->first << "     ";
-	    for (unsigned int i=0; i<it_cod->second.size(); i++) { 
-	       std::cout << std::setw(5) << it_cod->second[i] << " ";
-	    }
-	    std::cout << "\n";
-	 }
+         if (it_cod->second.size() != 1) {
+            std::cout << "strange cod: " << std::left << std::setw(20) << it_cod->first << "     ";
+            for (unsigned int i=0; i<it_cod->second.size(); i++) { 
+               std::cout << std::setw(5) << it_cod->second[i] << " ";
+            }
+            std::cout << "\n";
+         }
       }
    }
 
@@ -203,51 +203,51 @@ int main(int argc, char **argv) {
       mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
-	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
+         std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
-	 
-	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+         
+         mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 
-	 if (! residue_p) {
-	    // pretty strange
-	    std::cout << "Null residue from mol from mol_from_dictionary() for "
-		      << comp_id << std::endl;
-	 } else { 
+         if (! residue_p) {
+            // pretty strange
+            std::cout << "Null residue from mol from mol_from_dictionary() for "
+                      << comp_id << std::endl;
+         } else { 
 
-	    try { 
-	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
-	       cod::atom_types_t t;
-	       std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
-	       if (v.size() == r.atom_info.size()) {
-		  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
-		     const std::string &te = r.atom_info[iat].type_energy;
-		     const std::string &key = v[iat].level_4;
+            try { 
+               RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
+               cod::atom_types_t t;
+               std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
+               if (v.size() == r.atom_info.size()) {
+                  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+                     const std::string &te = r.atom_info[iat].type_energy;
+                     const std::string &key = v[iat].level_4;
 
-		     it = reverse_atom_map.find(key);
+                     it = reverse_atom_map.find(key);
 
-		     if (it == reverse_atom_map.end()) {
-			std::pair<std::string, unsigned int> p(te, 1);
-			reverse_atom_map[key].push_back(p);
-		     } else {
-			// is the type_energy there already?
-			int idx = find_string_in_vector(reverse_atom_map[key], te);
-			if (idx == -1) { // not found
-			   std::pair<std::string, unsigned int> p(te, 1);
-			   reverse_atom_map[key].push_back(p);
-			} else {
-			   reverse_atom_map[key][idx].second++;
-			}
-		     }
-		  }
-	       }
-	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
-	    } 
-	    catch (const std::exception &e) {
-	       std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
-	    } 
-	 }
+                     if (it == reverse_atom_map.end()) {
+                        std::pair<std::string, unsigned int> p(te, 1);
+                        reverse_atom_map[key].push_back(p);
+                     } else {
+                        // is the type_energy there already?
+                        int idx = find_string_in_vector(reverse_atom_map[key], te);
+                        if (idx == -1) { // not found
+                           std::pair<std::string, unsigned int> p(te, 1);
+                           reverse_atom_map[key].push_back(p);
+                        } else {
+                           reverse_atom_map[key][idx].second++;
+                        }
+                     }
+                  }
+               }
+            }
+            catch (const std::runtime_error &rte) {
+               std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
+            } 
+            catch (const std::exception &e) {
+               std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
+            } 
+         }
       }
    }
 
@@ -255,13 +255,13 @@ int main(int argc, char **argv) {
    if (output_reverse_atom_map) { 
       std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
       for (itv=reverse_atom_map.begin(); itv!=reverse_atom_map.end(); itv++) {
-	 std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
-	 std::cout << "cod type " << std::left << std::setw(20) << itv->first
-		   << "       energy-lib-types: ";
-	 for (unsigned int i=0; i<itv->second.size(); i++) { 
-	    std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
-	 }
-	 std::cout << "\n";
+         std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
+         std::cout << "cod type " << std::left << std::setw(20) << itv->first
+                   << "       energy-lib-types: ";
+         for (unsigned int i=0; i<itv->second.size(); i++) { 
+            std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
+         }
+         std::cout << "\n";
       }
    }
    

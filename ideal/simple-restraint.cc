@@ -520,6 +520,13 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    init_neutron_occupancies();
 }
 
+double
+coot::restraints_container_t::get_distortion_score() const {
+
+   // Yummy mixing C and C++ APIs...
+   return distortion_score(x, const_cast<void *>(static_cast<const void *>(this)));
+}
+
 void
 coot::restraints_container_t::set_use_proportional_editing(bool state) {
    use_proportional_editing = state;
@@ -1613,7 +1620,6 @@ coot::restraints_container_t::free_delete_reset()  {
    m_s = 0;
    x = 0;
    needs_reset = true;
-
 }
 
 coot::refinement_results_t
@@ -2096,21 +2102,22 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    // "thread starvation"
    std::atomic<unsigned int> done_count_for_restraints_sets(0);
 
-   double results[1024]; // we will always have less than 1024 threads
-
    if (restraints_p->thread_pool_p) {
-      for(unsigned int i=0; i<ranges.size(); i++) {
+
+      double results[1024]; // we will always have less than 1024 threads
+
+      unsigned int n_ranges = ranges.size(); // clang scan-build fix.
+      for(unsigned int i=0; i<n_ranges; i++) {
          results[i] = 0.0;
 	 restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
-					   v, std::cref(ranges[i]), restraints_p, &results[i],
+					   v, std::cref(ranges[i]), restraints_p, &(results[i]),
 					   std::ref(done_count_for_restraints_sets));
       }
-      while (done_count_for_restraints_sets < ranges.size()) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(1));
-      }
+      while (done_count_for_restraints_sets < ranges.size())
+	 std::this_thread::sleep_for(std::chrono::nanoseconds(300));
 
       // consolidate
-      for(unsigned int i=0; i<ranges.size(); i++)
+      for(unsigned int i=0; i<n_ranges; i++)
 	 score += results[i];
    } else {
       // null thread pool. restraints_container_t was created without a call to
