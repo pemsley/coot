@@ -9159,6 +9159,9 @@ void load_tutorial_model_and_data() {
    std::string pdb_fn = coot::util::append_dir_file(d, "tutorial-modern.pdb");
    std::string mtz_fn = coot::util::append_dir_file(d, "rnasa-1.8-all_refmac1.mtz");
 
+   std::cout << "--------- load_tutorial_model_and_data() " << pdb_fn << std::endl;
+   std::cout << "--------- load_tutorial_model_and_data() " << mtz_fn << std::endl;
+
    int imol = handle_read_draw_molecule_with_recentre(pdb_fn.c_str(), true);
    int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
    int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);

@@ -1789,16 +1789,39 @@ graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
    draw_cube(glarea, ORIGIN_CUBE);
 }
 
-GtkWidget *my_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
+GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 
    // the use_gtk_builder flag really means "was invoked from the path that..."
 
+
+   std::cout << "------------------------------------------------ create_and_pack_gtkglarea() start " << std::endl;
    GtkWidget *w = gtk_gl_area_new();
-   gtk_gl_area_set_required_version(GTK_GL_AREA(w), 3, 3);
+
+   // allow the user to set the major and minor version (for debugging)
+
+   int opengl_major_version = 3;
+   int opengl_minor_version = 3;
+   char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
+   char *e2 = getenv("COOT_OPENGL_MINOR_VERSION");
+   if (e1) {
+      std::string e1s(e1);
+      opengl_major_version = std::stoi(e1s);
+   }
+   if (e2) {
+      std::string e2s(e2);
+      opengl_minor_version = std::stoi(e2s);
+   }
+   std::cout << "DEBUG:: seting OpenGL required version to "
+             << opengl_major_version << " " << opengl_minor_version << std::endl;
+
+   gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
+   std::cout << "----------- set OpenGL required version done" << std::endl;
+
    unsigned int dimensions = 400;
    if (! use_gtk_builder) dimensions = 900;
    gtk_widget_set_size_request(w, dimensions, dimensions);
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 2);
+   std::cout << "------------------------------------------------ create_and_pack_gtkglarea() done " << std::endl;
    return w;
 }
 

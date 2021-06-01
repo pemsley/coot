@@ -134,15 +134,23 @@ glarea_tick_func(GtkWidget *widget,
 void
 on_glarea_realize(GtkGLArea *glarea) {
 
+   std::cout << "debug:: ---------------------- on_glarea_realize() here with glarea " << glarea << std::endl;
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
+   std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
    gtk_gl_area_make_current(glarea);
-   gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
    GLenum err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
+   if (gtk_gl_area_get_error(glarea) != NULL) {
+      std::cout << "OOPS:: on_glarea_realize() error on gtk_gl_area_make_current()" << std::endl;
+      return;
+   }
+
+   gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
    // GLX_SAMPLE_BUFFERS_ARB
    // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_multisample.txt
@@ -155,14 +163,18 @@ on_glarea_realize(GtkGLArea *glarea) {
    const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
    const char *s3 = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
    const char *s4 = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
-   std::string ss1(s1);
-   std::string ss2(s2);
-   std::string ss3(s3);
-   std::string ss4(s4);
-   std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
-   std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
-   std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
-   std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+   if (s1 && s2 && s3 && s4) {
+      std::string ss1(s1);
+      std::string ss2(s2);
+      std::string ss3(s3);
+      std::string ss4(s4);
+      std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
+      std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
+      std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
+      std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+   } else {
+      std::cout << "error:: on_glarea_realize() null from glGetString()" << std::endl;
+   }
 
    graphics_info_t g;
    g.init_shaders();
@@ -239,6 +251,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError();
    if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
                       << err << std::endl;
+
+   std::cout << "------------------------ reaize() done " << std::endl;
 
 }
 

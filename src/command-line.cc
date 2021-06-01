@@ -124,19 +124,19 @@ parse_command_line(int argc, char ** argv ) {
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
       {"gtkbuilder", 0, 0, 0},
-      {"run-state-script",  0, 0, 0},
-      {"splash-screen", 1, 0, 0}, // alternate splash screen
+      {"run-state-script", 0, 0, 0},
+      {"splash-screen",    1, 0, 0}, // alternate splash screen
       {"self-test",        0, 0, 0},
       {"no-state-script",  0, 0, 0},
       {"no-startup-scripts", 0, 0, 0},
       {"no-graphics",      0, 0, 0},
       {"no-splash-screen", 0, 0, 0},
-      {"stereo",     0, 0, 0},        // no arguments 
+      {"stereo",           0, 0, 0},        // no arguments 
       {"side-by-side",     0, 0, 0},  //
       {"zalman-stereo",    0, 0, 0},  //
-      {"version",    0, 0, 0},        //
-      {"version-full",  0, 0, 0},     //
-      {"no-guano",   0, 0, 0},        //
+      {"version",          0, 0, 0},        //
+      {"version-full",     0, 0, 0},     //
+      {"no-guano",         0, 0, 0},        //
       {"small-screen", 0, 0, 0},      // no arguments (setting for small screens)
       {"update-self", 0, 0, 0},  
       {0, 0, 0, 0}	       // must have blanks at end
@@ -150,7 +150,7 @@ parse_command_line(int argc, char ** argv ) {
       switch(ch) {
 	 
       case 0:
-	 
+
 	 if (coot_optarg) {
 
 	    // options that need an argument:
@@ -353,9 +353,14 @@ parse_command_line(int argc, char ** argv ) {
                                                                cld.update_self = 1;
                                                                cld.do_graphics = 0;
                                                             } else {
-                                                               std::cout << "WARNING! Malformed option - needs an argument: "
-                                                                         << long_options[option_index].name
-                                                                         << std::endl << std::endl;
+                                                               // this is a bit hacky. the test should happen before
+                                                               // and push this whole block to the right
+                                                               if (arg_str == "gtkbuilder") {
+                                                               } else {
+                                                                  std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                            << long_options[option_index].name
+                                                                            << std::endl << std::endl;
+                                                               }
                                                             }
                                                          }
                                                       }

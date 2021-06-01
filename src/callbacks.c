@@ -5813,13 +5813,13 @@ on_check_waters_diff_map_cancel_button_clicked (GtkButton       *button,
 }
 
 
-/* void */
-/* on_check_waters_by_difference_map_variance1_activate (GtkMenuItem     *menuitem, */
-/* 						      gpointer         user_data) */
-/* { */
-/*   GtkWidget *w = wrapped_create_check_waters_diff_map_dialog(); */
-/*   gtk_widget_show(w); */
-/* } */
+void
+on_check_waters_by_difference_map_variance1_activate (GtkMenuItem     *menuitem,
+						      gpointer         user_data)
+{
+  /* GtkWidget *w = wrapped_create_check_waters_diff_map_dialog(); */
+  /* gtk_widget_show(w); */
+}
 
 
 void

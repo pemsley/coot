@@ -301,7 +301,7 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-coot_bin_SOURCES = main.cc
+coot_bin_SOURCES = main.cc glade-callbacks.cc
 
 coot_bin_LDADD = $(top_builddir)/utils/libcoot-utils.la \
                  libcootsumo.la $(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
@@ -712,7 +712,8 @@ dist_python_PYTHON = coot.py coot.pth
 #        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
 
 # coot_bin_LDFLAGS = -static -lstdc++
-coot_bin_LDFLAGS =
+#
+coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
 #  -Wl,-undefined -Wl,dynamic_lookup

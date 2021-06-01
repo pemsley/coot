@@ -1791,7 +1791,6 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*              scripting gtk interface                                      */
 /*  ------------------------------------------------------------------------ */
 
-
 // extern "C" G_MODULE_EXPORT
 gboolean
 on_python_window_entry_key_press_event(GtkWidget   *entry,

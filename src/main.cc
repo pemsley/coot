@@ -225,7 +225,7 @@ void do_main_window(const command_line_data &cld) {
       // make this a grid, so that we can have 2x3 (say) graphics contexts
       GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
 
-      GtkWidget *glarea = my_gtkglarea(graphics_hbox, false);
+      GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, false);
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
       
@@ -336,70 +336,49 @@ do_self_tests() {
 
 void on_glarea_realize(GtkGLArea *glarea);
 
+void init_from_gtkbuilder() {
 
-void
-init_main_window(GtkBuilder *builder) {
+   std::string glade_file_full = "a6.glade"; // do this properly at some stage
+   GtkBuilder *builder = gtk_builder_new();
 
-   GtkWidget *window1       = GTK_WIDGET(gtk_builder_get_object(builder, "window1"));
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   std::cout << "add_from_file_status " << add_from_file_status << std::endl;
+
    GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
 
    if (graphics_hbox) {
-      graphics_info_t::set_main_window(window1);
-      GtkWidget *glarea = my_gtkglarea(graphics_hbox, true);
-      graphics_info_t::glareas.push_back(glarea);
 
-      gtk_gl_area_make_current(GTK_GL_AREA(glarea));
-      GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
-      if (err)
-         std::cout << "ERROR in init()" << err << std::endl;
+      GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
-      my_glarea_add_signals_and_events(glarea);
-      std::cout << "............ done setup signals and events " << std::endl;
-      gtk_widget_show(glarea);
-      on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
-                                              // without this.
-      gtk_widget_show(window1);
-      gtk_widget_show(graphics_hbox);
+      std::cout << "debug:: main_window " << main_window << std::endl;
+      std::cout << "debug:: graphics_hbox " << graphics_hbox << std::endl;
+
+      if (main_window)
+         graphics_info_t::set_main_window(main_window);
+      GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, true);
+      if (glarea) {
+         graphics_info_t::glareas.push_back(glarea);
+
+         gtk_gl_area_make_current(GTK_GL_AREA(glarea));
+         GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
+         if (err)
+            std::cout << "ERROR in init()" << err << std::endl;
+         
+         gtk_builder_connect_signals(builder, main_window);
+         gtk_widget_show(main_window);
+
+         GtkWidget *w = gtk_label_new("Some Test Label");
+         gtk_widget_show(w);
+         gtk_box_pack_start(GTK_BOX(graphics_hbox), w, TRUE, TRUE, 2);
+
+
+      } else {
+         std::cout << "init_main_window() glarea null" << std::endl;
+      }
    } else {
       std::cout << "graphics_hbox was null" << std::endl;
    }
 }
-
-void
-init_from_gtkbuilder() {
-
-   std::string glade_file_full = "../../coot/a6.glade";
-   GtkBuilder *builder = gtk_builder_new();
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
-   std::cout << "add_from_file_status " << add_from_file_status << std::endl;
-   init_main_window(builder);
-}
-
-
-void init_main_window_again(bool old_way_flag) {
-
-   // exerperimenting....
-
-   if (old_way_flag) {
-
-      std::cout << "---------------------------- old way ----------------" << std::endl;
-
-      GtkWidget *window1 = create_window1();
-      graphics_info_t::set_main_window(window1);
-      GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar");
-      gtk_widget_show(model_toolbar);
-      // make this a grid, so that we can have 2x3 (say) graphics contexts
-      GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
-      GtkWidget *glarea = my_gtkglarea(graphics_hbox, false);
-      my_glarea_add_signals_and_events(glarea);
-      graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
-      gtk_widget_show(glarea);
-      gtk_widget_show (window1);
-   } else {
-      init_from_gtkbuilder();
-   }
-}
-
 
 
 // This main is used for both python/guile useage and unscripted.
@@ -408,7 +387,6 @@ main (int argc, char *argv[]) {
 
    int shell_exit_code = 0;
    GtkWidget *window1 = NULL;
-   GtkWidget *glarea = NULL;
 
    graphics_info_t graphics_info;
    graphics_info.coot_is_a_python_module = false;
@@ -481,7 +459,14 @@ main (int argc, char *argv[]) {
       }
 
       if (cld.use_gtkbuilder) {
-          init_from_gtkbuilder();
+         init_from_gtkbuilder();
+         GtkWidget *glarea = graphics_info_t::glareas[0];
+
+         gtk_widget_show(glarea);
+         my_glarea_add_signals_and_events(glarea);
+         std::cout << "............ done setup signals and events " << std::endl;
+         on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
+                                                 // without this.
       }
 
    }
@@ -501,8 +486,10 @@ main (int argc, char *argv[]) {
    // before we run the scripting, let's make default preferences
    make_preferences_internal_default();
 
+   // this glade file is derived from an ancient coot. It doesn't have a
+   // ligand builder menu item. Add this back when it does.
    //
-   add_ligand_builder_menu_item_maybe();
+   // add_ligand_builder_menu_item_maybe();             // FIXME
 
    // remove Curlew from the File menu with old compiler?
    remove_file_curlew_menu_item_maybe();
