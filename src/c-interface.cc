@@ -7253,7 +7253,7 @@ import_python_module(const char *module_name, int use_namespace) {
 
 
 
-void add_on_rama_choices(){  // the the menu
+void add_on_rama_choices() {  // the the menu
 
    // std::cout << "adding rama molecule options:" << std::endl;
 

@@ -359,7 +359,7 @@ void init_from_gtkbuilder() {
       if (glarea) {
          graphics_info_t::glareas.push_back(glarea);
 
-         gtk_gl_area_make_current(GTK_GL_AREA(glarea));
+         // gtk_gl_area_make_current(GTK_GL_AREA(glarea));
          GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
          if (err)
             std::cout << "ERROR in init()" << err << std::endl;
@@ -367,10 +367,11 @@ void init_from_gtkbuilder() {
          gtk_builder_connect_signals(builder, main_window);
          gtk_widget_show(main_window);
 
-         GtkWidget *w = gtk_label_new("Some Test Label");
-         gtk_widget_show(w);
-         gtk_box_pack_start(GTK_BOX(graphics_hbox), w, TRUE, TRUE, 2);
-
+         if (false) {
+            GtkWidget *w = gtk_label_new("Some Test Label");
+            gtk_widget_show(w);
+            gtk_box_pack_start(GTK_BOX(graphics_hbox), w, FALSE, FALSE, 2);
+         }
 
       } else {
          std::cout << "init_main_window() glarea null" << std::endl;

@@ -1254,11 +1254,6 @@ on_single_map_properties_colour_button_clicked
                                         gpointer         user_data);
 
 void
-on_single_map_properties_colour_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
 on_run_refmac_phase_input_optionmenu_changed
                                         (GtkComboBox   *optionmenu,
                                         gpointer         user_data);
