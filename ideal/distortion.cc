@@ -738,8 +738,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
    coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
    double local_sum = 0.0;
 
-   double d = 0;
-   std::vector<std::size_t>::const_iterator it;
+   double d = 0.0;
+
 //   for (it=restraint_indices.begin(); it!=restraint_indices.end(); it++) {
 //      int i = *it;
 
@@ -792,8 +792,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
          if ( this_restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	         double d =  coot::distortion_score_trans_peptide(i, this_restraint, v);
-	         local_sum += d;
+	         double dtp = coot::distortion_score_trans_peptide(i, this_restraint, v);
+	         local_sum += dtp;
 	         // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
 	         continue;
 	      }
@@ -801,9 +801,9 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if (this_restraint.restraint_type == coot::TORSION_RESTRAINT) {
-	    double d =  coot::distortion_score_torsion(i, this_restraint, v);
+	    double dt =  coot::distortion_score_torsion(i, this_restraint, v);
 	    // std::cout << "dsm: torsion " << thread_id << " idx " << i << " " << d << std::endl;
-	    local_sum += d;
+	    local_sum += dt;
 	    continue;
 	 }
       }
@@ -819,10 +819,10 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::IMPROPER_DIHEDRALS_MASK) {
          if (this_restraint.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT) {
-            double d = coot::distortion_score_improper_dihedral(this_restraint, v);
+            double did = coot::distortion_score_improper_dihedral(this_restraint, v);
             // std::cout << "dsm: improper_dihedral_restraint thread_idx "
             //           << thread_id << " idx " << i << " " << d << std::endl;
-            local_sum += d;
+            local_sum += did;
          }
       }
 
@@ -2036,7 +2036,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
    double max_dist = 2.5 * lj_sigma; // r_max
 
-   max_dist = 999.9; // does this match the 2 in the derivatives
+   max_dist = 999.9; // does this match the 2 in the derivatives?
 
    if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 
@@ -2062,6 +2062,25 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
       double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
       double alpha_up_12 = alpha_up_6 * alpha_up_6;
       V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
+
+      if (true) {
+         clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
+                                gsl_vector_get(v,idx_1+1),
+                                gsl_vector_get(v,idx_1+2));
+
+         clipper::Coord_orth a2(gsl_vector_get(v,idx_2),
+                                gsl_vector_get(v,idx_2+1),
+                                gsl_vector_get(v,idx_2+2));
+         double b_i_sqrd = (a1-a2).lengthsq();
+         double lj_r = std::sqrt(b_i_sqrd);
+
+         std::cout << "adding NBC distortion: "
+                   << std::setw(2) << nbc_restraint.atom_index_1 << " "
+                   << std::setw(2) << nbc_restraint.atom_index_2 << " "
+                   << " target: " << std::setw(5) << std::setprecision(2) << std::fixed << std::right << lj_sigma
+                   << " actual "  << std::setw(5) << std::setprecision(2) << std::fixed << std::right << lj_r
+                   << " distortion_pre_offset: " << std::fixed << std::right << V_lj << std::endl;
+      }
 
       // offset the Vlj so that it is zero at r_max (beyond which we no longer
       // consider contributions to the distortion)

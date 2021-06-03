@@ -1142,14 +1142,41 @@ coot::process_dfs_non_bonded_lennard_jones(const coot::simple_restraint &this_re
       double delta_y = a1.y() - a2.y();
       double delta_z = a1.z() - a2.z();
 
-      if (! this_restraint.fixed_atom_flags[0]) {
- 	 // *gsl_vector_ptr(df, idx_1  ) += x_k_contrib;
- 	 // *gsl_vector_ptr(df, idx_1+1) += y_k_contrib;
- 	 // *gsl_vector_ptr(df, idx_1+2) += z_k_contrib;
+      if (false) {
+         std::cout << "process_dfs_non_bonded_lennard_jones() bond-length "
+                   << std::setw(2) << this_restraint.atom_index_1 << " "
+                   << std::setw(2) << this_restraint.atom_index_2 << " "
+                   << " target: " << std::setw(5) << std::setprecision(2) << std::right << lj_sigma
+                   << " actual "  << std::setw(5) << std::setprecision(2) << std::right << lj_r << std::endl;
+      }
 
-	 double x_k_contrib = constant_part*(a1.x()-a2.x());
-	 double y_k_contrib = constant_part*(a1.y()-a2.y());
-	 double z_k_contrib = constant_part*(a1.z()-a2.z());
+      if (! this_restraint.fixed_atom_flags[0]) {
+
+	 double x_k_contrib = constant_part * delta_x;
+	 double y_k_contrib = constant_part * delta_y;
+	 double z_k_contrib = constant_part * delta_z;
+
+#if 0
+         double delta_lim = 10.5;
+         if (fabs(x_k_contrib) > delta_lim)
+            if (x_k_contrib < 0.0) { x_k_contrib = -delta_lim; } else { x_k_contrib =  delta_lim; }
+         if (fabs(y_k_contrib) > delta_lim)
+            if (y_k_contrib < 0.0) { y_k_contrib = -delta_lim; } else { y_k_contrib =  delta_lim; }
+         if (fabs(z_k_contrib) > delta_lim)
+            if (z_k_contrib < 0.0) { z_k_contrib = -delta_lim; } else { z_k_contrib =  delta_lim; }
+         if (true)
+            std::cout << "adding gradients k_contrib for indices "
+                      << std::setw(2) << this_restraint.atom_index_1 << " "
+                      << std::setw(2) << this_restraint.atom_index_2 << " "
+                      << " constant_part " << constant_part
+                      << " delta_x " << delta_x << " delta_y " << delta_y << " delta_z " << delta_z
+                      << " target: " << std::setw(5) << std::setprecision(2) << std::right << lj_sigma
+                      << " actual "  << std::setw(5) << std::setprecision(2) << std::right << lj_r
+                      << " contribs: "
+                      << std::setw(8) << std::setprecision(2) << std::right << x_k_contrib << " "
+                      << std::setw(8) << std::setprecision(2) << std::right << y_k_contrib << " "
+                      << std::setw(8) << std::setprecision(2) << std::right << z_k_contrib << std::endl;
+#endif
 
 	 results[idx_1  ] += x_k_contrib;
 	 results[idx_1+1] += y_k_contrib;
@@ -1157,13 +1184,16 @@ coot::process_dfs_non_bonded_lennard_jones(const coot::simple_restraint &this_re
 
       }
       if (! this_restraint.fixed_atom_flags[1]) {
- 	 // *gsl_vector_ptr(df, idx_2  ) += x_l_contrib;
- 	 // *gsl_vector_ptr(df, idx_2+1) += y_l_contrib;
- 	 // *gsl_vector_ptr(df, idx_2+2) += z_l_contrib;
 
-	 double x_l_contrib = constant_part*(a2.x()-a1.x());
-	 double y_l_contrib = constant_part*(a2.y()-a1.y());
-	 double z_l_contrib = constant_part*(a2.z()-a1.z());
+	 double x_l_contrib = constant_part * -delta_x;
+	 double y_l_contrib = constant_part * -delta_y;
+	 double z_l_contrib = constant_part * -delta_z;
+
+         if (false)
+            std::cout << "adding gradients l_contrib for indices "
+                      << this_restraint.atom_index_1 << " " << this_restraint.atom_index_2<< " "
+                      << x_l_contrib << " " << y_l_contrib << " " << z_l_contrib
+                      << std::endl;
 
 	 results[idx_2  ] += x_l_contrib;
 	 results[idx_2+1] += y_l_contrib;
