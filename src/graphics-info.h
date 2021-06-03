@@ -44,6 +44,10 @@
 #   include <GL/gl.h>
 #endif
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include <gdk/gdkglconfig.h>
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
@@ -1959,6 +1963,10 @@ public:
    coot::refinement_results_t refine_molecule(int imol, mmdb::Manager *mol);
    coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);
 
+   static bool use_harmonic_approximation_for_NBCs;
+   void set_use_harmonic_approximations_for_nbcs(bool flag) {
+      use_harmonic_approximation_for_NBCs = flag;
+   }
 
    // on reading a pdb file, we get a list of residues, use these to
    // load monomers from the dictionary

@@ -4449,7 +4449,25 @@ coot::restraints_container_t::position_OXT() {
       atom[oxt_index]->y = oxt_pos.y();
       atom[oxt_index]->z = oxt_pos.z();
    }
-} 
+}
+
+void
+coot::restraints_container_t::set_use_harmonic_approximations_for_nbcs(bool flag) {
+
+   bool needs_reset_flag = false;
+   simple_restraint::nbc_function_t nbc_func_type = simple_restraint::LENNARD_JONES;
+   if (flag)
+      nbc_func_type = simple_restraint::HARMONIC;
+   for (unsigned int i=0; i< restraints_vec.size(); i++) {
+      simple_restraint &restraint = restraints_vec[i];
+      if (restraint.nbc_function != nbc_func_type) {
+         restraint.nbc_function = nbc_func_type;
+         needs_reset_flag = true;
+      }
+   }
+   if (needs_reset_flag)
+      set_needs_reset();
+}
 
 int
 coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) { 

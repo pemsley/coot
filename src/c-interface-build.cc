@@ -1702,6 +1702,15 @@ void stop_refinement_internal() {
 
 }
 
+void set_refinement_use_soft_mode_nbc_restraints(short int flag) {
+
+   graphics_info_t g;
+   g.set_use_harmonic_approximations_for_nbcs(flag);
+   
+}
+
+
+
 
 #ifdef USE_PYTHON
 std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *r) {

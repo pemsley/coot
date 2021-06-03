@@ -329,7 +329,7 @@ coot::process_dfs_in_range(int thread_idx,
 
    for (std::size_t i=0; i<restraints_indices.size(); i++) {
 
-      // restraints_vec can change size due to pull atom restraints
+      // restraints_vec can change size due to pull atom restraints (Hmm... that sounds bad)
       if (restraints_indices[i] >= n_restraints)
          continue;
 
@@ -1033,11 +1033,6 @@ coot::process_dfs_non_bonded(const coot::simple_restraint &this_restraint,
    int idx_1 = 3*this_restraint.atom_index_1;
    int idx_2 = 3*this_restraint.atom_index_2;
 
-   // no need to calculate anything if both these atoms are non-moving
-   //
-   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1])
-      return;
-
    // check for both-ways nbcs (seems OK)
    //
    // std::cout << "nbc: idx_1 " << idx_1 << " idx_2 " << idx_2 << std::endl;
@@ -1056,7 +1051,7 @@ coot::process_dfs_non_bonded(const coot::simple_restraint &this_restraint,
 
       double weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
 
-      double b_i = sqrt(b_i_sqrd);
+      // double b_i = sqrt(b_i_sqrd);
       // b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
       double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 
@@ -1066,9 +1061,14 @@ coot::process_dfs_non_bonded(const coot::simple_restraint &this_restraint,
 	 double y_k_contrib = constant_part*(a1.y()-a2.y());
 	 double z_k_contrib = constant_part*(a1.z()-a2.z());
 
- 	 // *gsl_vector_ptr(df, idx_1  ) += x_k_contrib;
- 	 // *gsl_vector_ptr(df, idx_1+1) += y_k_contrib;
- 	 // *gsl_vector_ptr(df, idx_1+2) += z_k_contrib;
+         if (false)
+            std::cout << "process_dfs_non_bonded() A "
+                      << std::setw(3) << this_restraint.atom_index_1 << " "
+                      << std::setw(3) << this_restraint.atom_index_2 << " "
+                      << std::setw(10) << std::fixed << std::right << std::setprecision(3) << x_k_contrib << " "
+                      << std::setw(10) << std::fixed << std::right << std::setprecision(3) << y_k_contrib << " "
+                      << std::setw(10) << std::fixed << std::right << std::setprecision(3) << z_k_contrib << " "
+                      << std::endl;
 
 	 results[idx_1  ] += x_k_contrib;
 	 results[idx_1+1] += y_k_contrib;
@@ -1077,13 +1077,18 @@ coot::process_dfs_non_bonded(const coot::simple_restraint &this_restraint,
 
       if (! this_restraint.fixed_atom_flags[1]) {
 
- 	 // *gsl_vector_ptr(df, idx_2  ) += x_l_contrib;
- 	 // *gsl_vector_ptr(df, idx_2+1) += y_l_contrib;
- 	 // *gsl_vector_ptr(df, idx_2+2) += z_l_contrib;
-
 	 double x_l_contrib = constant_part*(a2.x()-a1.x());
 	 double y_l_contrib = constant_part*(a2.y()-a1.y());
 	 double z_l_contrib = constant_part*(a2.z()-a1.z());
+
+         if (false)
+            std::cout << "process_dfs_non_bonded() B "
+                      << std::setw(3) << this_restraint.atom_index_1 << " "
+                      << std::setw(3) << this_restraint.atom_index_2 << " "
+                      << std::setw(10) << std::fixed << std::right << std::setprecision(3) << x_l_contrib << " "
+                      << std::setw(10) << std::fixed << std::right << std::setprecision(3) << y_l_contrib << " "
+                      << std::setw(10) << std::fixed << std::right << std::setprecision(3) << z_l_contrib << " "
+                      << std::endl;
 
 	 results[idx_2  ] += x_l_contrib;
 	 results[idx_2+1] += y_l_contrib;

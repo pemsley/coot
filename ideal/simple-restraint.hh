@@ -607,7 +607,10 @@ namespace coot {
         torsion_restraint_weight = 1.0;
      }
 
-      // Non-bonded - are you sure that this is the constructor that you want?
+      // Non-bonded
+      //
+      //- are you sure that this is the constructor that you want?
+      //
       simple_restraint(restraint_type_t restraint_type_in,
                        int index_1,
                        int index_2,
@@ -631,7 +634,7 @@ namespace coot {
                // short/standard value
                target_value = 2.5;
             }
-            sigma = 0.02;
+            sigma = 0.02; // probably not this constructor....
             fixed_atom_flags = fixed_atom_flags_in;
             is_user_defined_restraint = 0;
             is_H_non_bonded_contact = false;
@@ -661,7 +664,7 @@ namespace coot {
             target_value = dist_min;
             // nbc_function = HARMONIC;
             nbc_function = nbc_func_type;
-            sigma = 0.02;
+            sigma = 0.2;
             fixed_atom_flags = fixed_atom_flags_in;
             is_user_defined_restraint = 0;
             is_single_Hydrogen_atom_angle_restraint = false;
@@ -1837,7 +1840,7 @@ namespace coot {
          link_restraints_counts() {
             init();
          }
-         link_restraints_counts(const std::string &s) {
+         explicit link_restraints_counts(const std::string &s) {
             init();
             link_type = s; // e.g. "flank"
          }
@@ -2289,7 +2292,8 @@ namespace coot {
                              const std::set<int> &fixed_atom_indices,
                              clipper::Xmap<float> *map_p_in);
 
-      restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
+      explicit restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
+         init();
          from_residue_vector = 0;
          include_map_terms_flag = 0;
 
@@ -2714,6 +2718,8 @@ namespace coot {
 
       // friend?
       void copy_from(const restraints_container_t &other);
+
+      void set_use_harmonic_approximations_for_nbcs(bool flag);
 
       // allow the calling function to tell us that the atoms have moved and they
       // need to be updated from the intermediate atoms molecule (moving_atom_asc)

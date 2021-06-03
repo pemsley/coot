@@ -2063,7 +2063,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
       double alpha_up_12 = alpha_up_6 * alpha_up_6;
       V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
 
-      if (true) {
+      if (false) {
          clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
                                 gsl_vector_get(v,idx_1+1),
                                 gsl_vector_get(v,idx_1+2));
