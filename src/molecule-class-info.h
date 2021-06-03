@@ -87,6 +87,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
 #include "coot-utils/xmap-stats.hh"
+#include "coot-utils/atom-tree.hh"
 #include "crunch-model.hh"
 
 #include "geometry/protein-geometry.hh"

@@ -73,7 +73,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
       int n_threads = n_threads_max -1;
       if (n_threads < 1) n_threads = 1;
       ctpl::thread_pool tp(n_threads);
-      std::cout << "set thread pool " << n_threads << std::endl;
+      // std::cout << "set thread pool " << n_threads << std::endl;
       restraints.thread_pool(&tp, n_threads);
 
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;

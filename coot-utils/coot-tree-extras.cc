@@ -28,6 +28,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
+#include "atom-tree.hh"
 
 // constructor can throw an exception
 // 

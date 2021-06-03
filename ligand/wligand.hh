@@ -53,7 +53,7 @@ namespace coot {
       std::vector<torsioned_atoms_info_t> torsioned_atoms;
       void add_torsion(const dict_torsion_restraint_t &rest, double torsion);
       void add_torsions(const std::vector<dict_torsion_restraint_t> &rests,
-			const std::vector<float> torsions);
+			const std::vector<float> &torsions);
       unsigned int n_torsions() const;
       // throw an exception if not possible
       std::pair<float, float> get_set_and_ideal_torsions(int i) const;
@@ -124,12 +124,20 @@ namespace coot {
 
       bool is_unique_conformer(const coot::minimol::molecule &mol) const;
 
+      static installed_wiggly_ligand_info_t
+      optimize(const coot::minimol::residue &wiggled_ligand_residue,
+               const coot::protein_geometry &pg,
+               const std::vector <dict_torsion_restraint_t> &non_const_torsions,
+               const std::vector<float> &torsion_set,
+               const std::string &ligand_chain_id,
+               int isample);
+
       // can throw a std::runtime_error
       // (if the dictionary/atoms are not found)
       //
       installed_wiggly_ligand_info_t
       optimize_and_install_if_unique(const minimol::residue &wiggled_ligand_residue,
-				     coot::protein_geometry *pg,
+				     const coot::protein_geometry &pg,
 				     const std::vector <dict_torsion_restraint_t> &non_const_torsions, 
 				     const std::vector<float> &torsion_set,
 				     const std::string &chain_id,

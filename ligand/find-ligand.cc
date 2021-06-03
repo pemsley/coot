@@ -344,11 +344,11 @@ main(int argc, char **argv) {
 	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << " - using default 2.0 sigma";
 	    }
-	    int n_cluster = atoi(n_cluster_string.c_str());
+
 	    short int use_weights = 0;
 	    short int is_diff_map = 0; 
 	    coot::wligand wlig;
-	    wlig.set_verbose_reporting();
+	    // wlig.set_verbose_reporting();
 
 	    // sampling rate
 	    if (! map_sampling_factor_str.empty()) {
@@ -431,10 +431,10 @@ main(int argc, char **argv) {
 
 	    } else {
 
-	       // wiggly ligands  path
+	       // wiggly ligands path
 
 	       coot::protein_geometry geom;
-	       wlig.set_verbose_reporting();
+	       // wlig.set_verbose_reporting();
 	       
 	       // this might be a pain if the flexible ligand is in the standard
 	       // refmac dictionary...
