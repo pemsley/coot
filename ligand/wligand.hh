@@ -20,9 +20,10 @@
 
 #ifndef WLIGAND_HH
 #define WLIGAND_HH
-
+#include <atomic>
 #include "monomer-utils.hh"
 #include "ligand.hh"
+#include "utils/ctpl.h"
 
 
 namespace coot {
@@ -189,7 +190,8 @@ namespace coot {
 				    int imol_ligand,
 				    int n_samples,
 				    bool optimize_geometry_flag,
-				    bool fill_returned_molecules_vector_flag);
+				    bool fill_returned_molecules_vector_flag,
+                                    ctpl::thread_pool *thread_pool_p, int n_threads);
 
       // install one by one for dialog updating
       installed_wiggly_ligand_info_t

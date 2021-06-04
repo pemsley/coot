@@ -1855,8 +1855,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 	    }
 	 }
       } else {
-	 std::cout << "ligand " << ilig << "  fails the size match test "
-		   << "for cluster number " << iclust << std::endl;
+         if (false) // too noisy
+            std::cout << "ligand " << ilig << "  fails the size match test "
+                      << "for cluster number " << iclust << std::endl;
       }
    }
    sort_final_ligand(iclust);
@@ -2692,9 +2693,10 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 	    score_card.many_atoms_fit = 1; // consider using a member function
 	    score_card.score_per_atom = score_card.get_score()/float(n_non_hydrogens);
 	 } else {
-	    std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
-		      << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
-		      << std::endl;
+            if (false) // too noisy
+               std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
+                         << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
+                         << std::endl;
 	 }
       } else {
 	 // Pathalogical case.  No non-hydrogens in ligand.  This code

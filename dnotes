@@ -9665,3 +9665,23 @@ Mon 10 May 16:42:18 BST 2021
 
    what is zeromq? https://zeromq.org/ for inter-process communication?
    (Art Lyubimov used it)
+
+-----
+Thu  3 Jun 17:25:58 BST 2021
+
+   print_lock is useful elsewhere
+
+   std::atomic<bool> print_lock(false);
+   auto get_print_lock = [&print_lock] () {
+                            bool unlocked = false;
+                            while (! print_lock.compare_exchange_weak(unlocked, true)) {
+                               std::this_thread::sleep_for(std::chrono::microseconds(1));
+                               unlocked = false;
+                            }
+                         };
+   auto release_print_lock = [&print_lock] () {
+                                print_lock = false;
+                             };
+   auto make_a_wiggled_ligand = [get_print_lock, release_print_lock] (int isample, const coot::minimol::molecule &ligand,
+                                    const std::vector<float> &torsion_set ..) {};
+

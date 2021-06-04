@@ -789,6 +789,7 @@ PyObject *execute_ligand_search_py() {
 }
 #endif // USE_PYTHON
 
+#include "utils/ctpl.h"
 
 /*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
 void set_find_ligand_here_cluster(int state) {
@@ -853,9 +854,11 @@ ligand_search_install_wiggly_ligands() {
 	       // optim_geom, fill_vec);
 
 	    } else {
+               unsigned int n_threads = coot::get_max_number_of_threads();
+               ctpl::thread_pool thread_pool(n_threads);
 	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
-						     optim_geom, fill_vec);
+						     optim_geom, fill_vec, &thread_pool, n_threads);
 	    }
 	 }
 	 catch (const std::runtime_error &mess) {
@@ -1072,9 +1075,11 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    bool optim_geom = true;
 	    bool fill_return_vec = false; // would give input molecules (not conformers)
 	    coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
+            unsigned int n_threads = coot::get_max_number_of_threads();
+            ctpl::thread_pool thread_pool(n_threads);
 	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 					       g.ligand_wiggly_ligand_n_samples,
-					       optim_geom, fill_return_vec);
+					       optim_geom, fill_return_vec, &thread_pool, n_threads);
 	 }
 	 catch (const std::runtime_error &mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
