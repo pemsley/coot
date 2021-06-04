@@ -239,6 +239,7 @@ namespace coot {
                                 BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
                                 JUST_RAMAS = 64,
                                 BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
+                                BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_PLANES = 55 + 8,
                                 BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+2048,
 
                                 BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
@@ -1126,7 +1127,7 @@ namespace coot {
             std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
             std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
             std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
-            std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
+            std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
             std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
             if (do_residue_internal_torsions)
                std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
@@ -1180,7 +1181,7 @@ namespace coot {
       bool apply_H_non_bonded_contacts;
 
       void init() {
-               verbose_geometry_reporting = NORMAL;
+         verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
          n_atoms = 0;
          n_atoms_limit_for_nbc = 0; // needs to be set in every constructor.
@@ -1196,12 +1197,12 @@ namespace coot {
          apply_H_non_bonded_contacts = true;
          lograma.init(LogRamachandran::All, 2.0, true);
          // when zo_rama is a static, this is already done
-//          try {
-//             zo_rama.init();
-//          }
-//          catch (const std::runtime_error &rte) {
-//             std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
-//          }
+         //          try {
+         //             zo_rama.init();
+         //          }
+         //          catch (const std::runtime_error &rte) {
+         //             std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
+         //          }
          from_residue_vector = 0;
          rama_type = RAMA_TYPE_LOGRAMA;
          rama_plot_weight = 40.0;

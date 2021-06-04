@@ -1131,18 +1131,11 @@ coot::restraints_container_t::debug_atoms() const {
    std::cout << "---- " << n_atoms << " atoms" << std::endl;
    for (int iat=0; iat<n_atoms; iat++) {
       bool is_fixed = false;
-      // use fixed_atom_indices.find()
-      std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it) {
-	 if (*it == iat) {
-	    is_fixed = true;
-	    break;
-	 }
-      }
-      std::cout << iat << " " << atom_spec_t(atom[iat]) << "  "
-		<< std::right << std::setw(10) << atom[iat]->x << " "
-		<< std::right << std::setw(10) << atom[iat]->y << " "
-		<< std::right << std::setw(10) << atom[iat]->z
+      if (fixed_atom_indices.find(iat) != fixed_atom_indices.end()) is_fixed = true;
+      std::cout << std::setw(3) << iat << " " << atom_spec_t(atom[iat]) << "  "
+		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->x << " "
+		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->y << " "
+		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->z
 		<< " fixed: " << is_fixed << std::endl;
    }
 }
@@ -1307,7 +1300,14 @@ coot::restraints_container_t::setup_minimize() {
 
    m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
-   m_initial_step_size = 2.5 * gsl_blas_dnrm2(x); // how about just 0.1?
+   double step_size_multiplier = 2.0;
+   // std::cout << "setting step_size_multiplier with n_atoms " << n_atoms << std::endl;
+
+   // this is a bit "heuristic" - actually I want the number of non-fixed atoms.
+   if (n_atoms < 100)
+      step_size_multiplier = 0.1;
+
+   m_initial_step_size = step_size_multiplier * gsl_blas_dnrm2(x); // how about just 0.1?
 
    // std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
 
@@ -1328,7 +1328,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
 
-   std::cout << "------------ ::minimize() basic " << size() << std::endl;
+   // std::cout << "------------ ::minimize() basic " << size() << std::endl;
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
@@ -1425,6 +1425,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       debug_atoms();
    }
 
+   // debug_atoms(); // for diagnosing refinement (atom index) issues // DEBUG-ATOMS
+
    std::vector<refinement_lights_info_t> lights; // = chi_squareds("--------", m_s->x, false);
 
    int iter = 0; 
@@ -1475,8 +1477,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
 	 // this might be useful for debugging rama restraints
 
-	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
-	 double pnorm = state->pnorm;
+	 conjugate_pr_state_t *state = static_cast<conjugate_pr_state_t *>(m_s->state);
+	 double pnorm  = state->pnorm;
 	 double g0norm = state->g0norm;
 	 //
 	 if (false)
@@ -1495,7 +1497,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	       // write out gradients here - with numerical gradients for comparison
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
                analyze_for_bad_restraints();
-               
+
 	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
@@ -1509,9 +1511,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
                // debugging/analysis
                std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
-               gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
-               void *params = static_cast<void *>(this);
-               // useful - but not for everyone
+
+               // follwing is useful - but not for everyone
+               // gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
+               // void *params = static_cast<void *>(this);
                // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
             restraints_lock = false;
