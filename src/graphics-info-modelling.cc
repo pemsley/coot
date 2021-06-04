@@ -1160,8 +1160,10 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       pseudo_bonds_type);
                                                        // link and flank args default true
 
-   if (use_harmonic_approximation_for_NBCs)
+   if (use_harmonic_approximation_for_NBCs) {
+      std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
       last_restraints->set_use_harmonic_approximations_for_nbcs(true);
+   }
 
    if (pull_restraint_neighbour_displacement_max_radius > 1.99) {
       last_restraints->set_use_proportional_editing(true);
