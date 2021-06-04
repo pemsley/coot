@@ -1000,7 +1000,6 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
 								   const coot::protein_geometry &geom,
 								   bool do_residue_internal_torsions) {
 
-   bool print_summary = true;
    int iret = 0;
 
    restraint_counts_t sum;
@@ -1019,8 +1018,7 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
 
    if (verbose_geometry_reporting != QUIET) {
       std::cout << "INFO:: from_res_vec() created " << size() << " monomer restraints " << std::endl;
-      if (print_summary)
-	 sum.report(do_residue_internal_torsions);
+      sum.report(do_residue_internal_torsions);
    }
    return iret;
 }
