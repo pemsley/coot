@@ -308,7 +308,7 @@
 		(begin 
 		  (local-format #t "refmac failed (no executable)")
 		  (local-format #t " - no new map and molecule available~%")
-		  test-refmac-status)
+		  refmac-status)
 
                 ;; OK, we found the executable, this should be OK then...
                 (let* ((to-screen-flag (if (= make-molecules-flag 0)
