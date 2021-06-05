@@ -271,6 +271,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    std::vector<coot::atom_name_quad> atom_name_quads = get_torsion_bonds_atom_quads(monomer_type, non_const_non_ring_torsions);
    std::vector<coot::installed_wiggly_ligand_info_t> threaded_wiggled_ligands(n_samples); // may be empty after filling
 
+   bool do_unique_conformer_test = false;
+
    if (thread_pool_p) {
       std::atomic<int> count(0);
 
@@ -285,26 +287,33 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       }
 
       while (count != n_samples) {
+         std::cout << "waiting.... done " << count << " of " << n_samples << std::endl;
          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       }
+      std::cout << "All samples/threads done" << std::endl;
 
       for (int isample=0; isample<n_samples; isample++) {
          const installed_wiggly_ligand_info_t &wl = threaded_wiggled_ligands[isample];
          if (! wl.mol.is_empty()) {
-            if (is_unique_conformer(wl.mol)) {
+            // is_unique_conformer doesn't seem to filter out much and is slow for 2000 conformers
+            if (!do_unique_conformer_test || is_unique_conformer(wl.mol)) {
                install_ligand(wl.mol);
                returned_tors_molecules_info.push_back(wl);
             } else {
-               std::cout << "----------------- " << isample << " was not unique" << std::endl;
+               std::cout << "------- " << isample << " was not unique" << std::endl;
             }
          } else {
-            std::cout << "----------------- " << isample << " mol.mol was empty" << std::endl;
+            std::cout << "------ " << isample << " mol.mol was empty" << std::endl;
          }
       }
+
+      std::cout << "INFO:: " << returned_tors_molecules_info.size() << " ligands have been installed "
+                << std::endl;
+
    } else {
       std::cout << "NULL thread pool. Sadge." << std::endl;
    }
-   
+
    return returned_tors_molecules_info;
 }
 
@@ -625,7 +634,6 @@ coot::wligand::is_unique_conformer(const coot::minimol::molecule &mol) const {
    } else {
       for (unsigned int i=0; i<initial_ligand.size(); i++) { 
 	 const minimol::residue &res_ref = initial_ligand[i][0].residues[1];
-	 bool include_hydrogens = false; // not used
 	 double rmsd = res_ref.lsq_overlay_rmsd(res_in);
 	 //std::cout << "rmsd to  ref " << i << " is " << rmsd << std::endl;
 	 if (rmsd < 0) {

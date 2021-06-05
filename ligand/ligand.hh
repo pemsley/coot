@@ -174,12 +174,12 @@ namespace coot {
       void fit_ligands_to_cluster(int ilig);
 
       // clipper::RTop_orth ligand_transformation(int i_cluster) const; // old
-      clipper::Coord_orth transform_ligand_atom(clipper::Coord_orth a_in,
+      clipper::Coord_orth transform_ligand_atom(const clipper::Coord_orth &a_in,
 						int ilig, int iclust, int ior) const;
-      clipper::Coord_orth transform_ligand_atom(clipper::Coord_orth a_in,
+      clipper::Coord_orth transform_ligand_atom(const clipper::Coord_orth &a_in,
 						int ilig, int iclust, int ior,
 						const clipper::RTop_orth &eigen_ori) const;
-      clipper::Coord_orth transform_ligand_atom(clipper::Coord_orth a_in,
+      clipper::Coord_orth transform_ligand_atom(const clipper::Coord_orth &a_in,
 						int ilig,
 						const clipper::RTop_orth &cluster_rtop,
 						int ior) const;
@@ -187,10 +187,13 @@ namespace coot {
       std::vector <std::vector<minimol::molecule> > fitted_ligand_vec;
 
       // return  \alpha_x, \alpha_y, \alpha_z in radians:
+      static
       clipper::Vec3<double>
       get_rigid_body_angle_components(const std::vector<minimol::atom *> &atoms,
 				      const clipper::Coord_orth &mean_pos,
-				      const std::vector<clipper::Grad_orth<float> > &grad_vec) const;
+				      const std::vector<clipper::Grad_orth<float> > &grad_vec,
+                                      const clipper::RTop_orth rotation_component[3],
+                                      float gradient_scale);
       void apply_angles_to_ligand(const clipper::Vec3<double> &angles,
 				  const std::vector<minimol::atom *> *atoms_p,
 				  const clipper::Coord_orth &mean_pos);
@@ -290,12 +293,18 @@ namespace coot {
       // transformations by altering the Coord_orth (from the origin
       // to the density) only.  When the refinement is complete - then
       // we move the (saved in fitted_ligand_vec) atoms.
+      static
       void rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms,
-				    const clipper::Xmap<float> &xmap_fitting);
+				    const clipper::Xmap<float> &xmap_fitting,
+				    const clipper::Xmap<float> &xmap_pristine,
+                                    const clipper::RTop_orth rotation_component[3],
+                                    float gradient_scale);
+      static
       ligand_score_card
       score_orientation(const std::vector<minimol::atom*> &atoms,
 			const clipper::Xmap<float> &xmap_fitting,
-			bool use_linear_interpolation=false) const;
+                        float fit_fraction,
+                        bool use_linear_interpolation=false);
       float
       score_position(const clipper::Coord_orth &pt,
 		     const clipper::Xmap<float> &xmap_fitting) const;
