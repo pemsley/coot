@@ -975,13 +975,31 @@ graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
 
 void
 graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
-				     short int do_zoom_and_move_flag,
-				     float target_zoom) {
+                                     short int do_zoom_and_move_flag,
+                                     float target_zoom) {
 
-   if ( (x - rotation_centre_x) != 0.0 ||
-        (y - rotation_centre_y) != 0.0 ||
-        (z - rotation_centre_z) != 0.0) {
-      smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+   auto simple_set = [] (float x, float y, float z) {
+                        rotation_centre_x = x;
+                        rotation_centre_y = y;
+                        rotation_centre_z = z;
+                     };
+
+   coot::Cartesian delta(x - rotation_centre_x,
+                         y - rotation_centre_y,
+                         z - rotation_centre_z);
+
+   // std::cout << "here in smooth_scroll_maybe with smooth_scroll_on " << smooth_scroll_on
+   // << " and delta " << delta << std::endl;
+
+   if (smooth_scroll) {
+
+      if (delta.amplitude_squared() > 1.0) {
+         smooth_scroll_maybe_sinusoidal_acceleration(x,y,z, do_zoom_and_move_flag, target_zoom);
+      } else {
+         simple_set(x,y,z);
+      }
+   } else {
+      simple_set(x,y,z);
    }
 
 }
@@ -1007,17 +1025,17 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;
-   if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
 
+   // std::cout << "here in smooth_scroll_maybe_sinusoidal_acceleration "
+   // << xd << " " << yd << " " << zd  << std::endl;
+
+   if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
 
       float pre_zoom = zoom;
 
       float frac = 1;
       if (smooth_scroll_steps > 0)
 	 frac = 1/float (smooth_scroll_steps);
-      float stepping_x = frac*xd;
-      float stepping_y = frac*yd;
-      float stepping_z = frac*zd;
 
       float rc_x_start = rotation_centre_x;
       float rc_y_start = rotation_centre_y;
@@ -1028,12 +1046,22 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       for (int istep=0; istep<smooth_scroll_steps; istep++) {
 	 if (do_zoom_and_move_flag)
 	    zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
-	 double theta = 2 * M_PI * frac * istep;
-	 double v = (1-cos(theta))*frac;
+	 double theta = 2.0 * M_PI * frac * istep;
+	 double v = (1.0-cos(theta))*frac;
 	 v_acc += v;
 	 rotation_centre_x = rc_x_start + v_acc * xd;
 	 rotation_centre_y = rc_y_start + v_acc * yd;
 	 rotation_centre_z = rc_z_start + v_acc * zd;
+         if (true) {
+            coot::Cartesian rc(rotation_centre_x, rotation_centre_y, rotation_centre_z);
+            coot::Cartesian tt(x,y,z);
+            coot::Cartesian delta = rc - tt;
+            if (false)
+               std::cout << "smooth_scroll_maybe_sinusoidal_acceleration() " << istep << " "
+                         << smooth_scroll_steps << " "
+                         << rotation_centre_x << " " << rotation_centre_y << " " << rotation_centre_z << " "
+                         << x << " " << y << " " << z << " " << delta << std::endl;
+         }
 	 graphics_draw();
       }
 

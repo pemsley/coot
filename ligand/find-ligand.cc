@@ -47,10 +47,69 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "wligand.hh"
 
+void
+do_just_conformers(int n_conformers, const std::string &cif_file_name) {
+
+   std::cout << "INFO:: do-just-conformers " << cif_file_name << std::endl;
+
+   // c.f. the ligand_search_make_conformers_internal() in src.
+
+   // the model will be extracted from the cif file
+   coot::protein_geometry geom;
+   coot::read_refmac_mon_lib_info_t rmit = geom.init_refmac_mon_lib(cif_file_name, 10);
+   if (rmit.n_bonds == 0) {
+      std::cout << "failed to parse cif " << cif_file_name << std::endl;
+   } else {
+      // happy path
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      ctpl::thread_pool thread_pool(n_threads);
+      std::vector<std::string> monomer_names = geom.monomer_types();
+      if (! monomer_names.empty()) {
+         std::string comp_id = monomer_names.back();
+         int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+         std::pair<bool, coot::dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id, imol_enc);
+         if (rest.first) {
+            try {
+               bool idealize_flag = true;
+               mmdb::Residue *residue_p = geom.get_residue(comp_id, imol_enc, idealize_flag);
+               if (residue_p) {
+                  coot::minimol::residue mmres(residue_p);
+                  // somewhat clumsy
+                  coot::minimol::fragment frag;
+                  frag.addresidue(mmres, false);
+                  coot::minimol::molecule mmol(frag);
+                  coot::wligand wlig;
+                  int imol_ligand = -1;
+                  bool optim_geom = true;
+                  bool fill_vec = true;
+                  wlig.install_simple_wiggly_ligands(&geom, mmol, imol_ligand, n_conformers, optim_geom,
+                                                     fill_vec, &thread_pool, n_threads);
+                  std::vector<coot::minimol::molecule> conformers = wlig.get_conformers();
+                  std::string file_name_stub = "conformer-" + comp_id + "-";
+                  for (unsigned int i=0; i<conformers.size(); i++) {
+                     std::string fn = file_name_stub + std::to_string(i) + ".pdb";
+                     coot::minimol::molecule m = conformers[i];
+                     clipper::Coord_orth c = m.centre();
+                     m.translate(-c);
+                     m.write_file(fn, 30.0f);
+                  }
+               }
+            }
+            catch (const std::runtime_error &mess) {
+               std::cout << "Failed to install flexible ligands\n" << mess.what()
+                         << std::endl;
+            }
+         } else {
+            std::cout << "failed to get monomer restraints for " << comp_id << std::endl;
+         }
+      }
+   }
+}
+
 int
 main(int argc, char **argv) {
 
-   if (argc < 6) { 
+   if (argc < 4) {
       std::cout << "Usage: " << argv[0] << "\n     "
 		<< " --pdbin pdb-in-filename" << " --hklin mtz-filename" << "\n     "
 		<< " --f f_col_label" << " --phi phi_col_label" << "\n     "
@@ -62,6 +121,7 @@ main(int argc, char **argv) {
 		<< " --samples nsamples"  << "\n     "
 		<< " --sampling-rate map-sampling-rate"  << "\n     "
 		<< " --dictionary cif-dictionary-name" << "\n     "
+		<< " --just-conformers"   << "\n     "
 		<< " --script script-file-name\n"
 		<< "   ligand-pdb-file-name(s)\n";
       std::cout << "     where pdbin is the protein (typically)\n"
@@ -74,6 +134,7 @@ main(int argc, char **argv) {
 		<< "           frac is the minimum fraction of atoms in density allowed after fit [default 0.75]\n"
 		<< "           script-file-name is a file name of helper script suitable for use in Coot\n"
 		<< "               (default: coot-ligands.scm)."
+                << "           just-conformers means just generate and write out the conforms - no density search\n"
 		<< std::endl;
 
    } else { 
@@ -93,11 +154,11 @@ main(int argc, char **argv) {
       std::string coot_ligands_script_file_name = "coot-ligands.scm";
       float fit_frac = -1.0; // tested for positivity
       bool set_absolute = 0;
-      float absolute_level = 0.0;
       std::string absolute_string = "";
       bool blobs_mode = false;
       float map_sampling_factor = 1.5;
       std::string map_sampling_factor_str;
+      bool just_conformers_flag = false;
 
       // These hold the coordinates of a particular position.  The
       // bool is whether they were set in the input or not.  Only of
@@ -121,6 +182,7 @@ main(int argc, char **argv) {
 	 {"flexible",      0, 0, 0},
 	 {"script",        0, 0, 0},
 	 {"blobs",         0, 0, 0},
+	 {"just-conformers", 0, 0, 0},
 	 {"sampling-factor", 1, 0, 0},
 	 {"pos-x",         1, 0, 0},
 	 {"pos-y",         1, 0, 0},
@@ -134,7 +196,7 @@ main(int argc, char **argv) {
 	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
 	 switch(ch) {
-	    
+
 	 case 0:
 	    if (coot_optarg) { 
 
@@ -238,7 +300,12 @@ main(int argc, char **argv) {
 		 blobs_mode = true;
 		 std::cout << "set blobs mode " << std::endl;
 		 n_used_args++;
-	       } 
+	       }
+
+               if (arg_str == "just-conformers") {
+                  just_conformers_flag = true;
+                  n_used_args++;
+               }
 
 	    }
 	    break;
@@ -277,6 +344,12 @@ main(int argc, char **argv) {
 	    std::cout << "default coot_optarg: " << coot_optarg << std::endl;
 	    break;
 	 }
+      }
+
+      if (just_conformers_flag) {
+         // the model is in the cif file
+         do_just_conformers(wiggly_ligand_n_samples, cif_file_name);
+         exit(0);
       }
 
       bool do_it = false;

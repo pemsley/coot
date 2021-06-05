@@ -1222,7 +1222,8 @@ public:
    static short int display_lists_for_maps_flag;
 
    // expose this so that it can be seen in draw();
-   static short int smooth_scroll_on;
+   static short int smooth_scroll_on; // flag used to show wirecube centre
+                                      // (not anything else so rename it?)
    std::vector<int> displayed_map_imols() const;
 
    // expose so that they can be used in c-interface.cc
