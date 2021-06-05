@@ -1941,12 +1941,14 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    // FIXME
    // remember to add back the code for debugging solutions post-generation after multithreading
 
+   unsigned int n_ligands = initial_ligand.size();
+   std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;
+
    std::vector<std::pair<minimol::molecule, ligand_score_card> > big_vector_of_results;
 
-   unsigned int n_ligands = initial_ligand.size();
-
    // we split them into batches of 4 - that's fast enough for a nice speed up, but won't
-   // create a massive (20Gb) memory load
+   // create a massive (20Gb) memory load. I don't know how to find out where the memory
+   // is allocated.
    //
    std::vector<std::vector<unsigned int> > indices;
    unsigned int n_per_batch = 4;

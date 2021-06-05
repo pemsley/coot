@@ -287,7 +287,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       }
 
       while (count != n_samples) {
-         std::cout << "waiting.... done " << count << " of " << n_samples << std::endl;
+         std::cout << "waiting for conformers: done " << count << " of " << n_samples << std::endl;
          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       }
       std::cout << "All samples/threads done" << std::endl;
