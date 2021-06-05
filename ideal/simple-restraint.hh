@@ -665,7 +665,7 @@ namespace coot {
             target_value = dist_min;
             // nbc_function = HARMONIC;
             nbc_function = nbc_func_type;
-            sigma = 0.2;
+            sigma = 0.06;
             fixed_atom_flags = fixed_atom_flags_in;
             is_user_defined_restraint = 0;
             is_single_Hydrogen_atom_angle_restraint = false;
