@@ -244,6 +244,9 @@ void export_map_gui(short int export_map_fragment);
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
+/*! function to show or hide the vertical modelling toolbar */
+void set_show_modelling_toolbar(short int state);
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */

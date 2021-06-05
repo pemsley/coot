@@ -1620,7 +1620,25 @@ set_main_window_title(const char *s) {
 	 }
       }
    }
-} 
+}
+
+/*! function to show or hide the vertical modelling toolbar */
+void set_show_modelling_toolbar(short int state) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      std::string n = "model_fit_refine_toolbar_handlebox";
+
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea, n.c_str());
+      if (w) {
+         if (state == 0) {
+            gtk_widget_hide(w);
+         } else {
+            gtk_widget_show(w);
+         }
+      }
+   }
+}
+
 
 
 
@@ -1632,7 +1650,7 @@ GtkWidget *main_menubar() {
 
 GtkWidget *main_statusbar() {
    return graphics_info_t::statusbar;
-} 
+}
 
 GtkWidget *main_toolbar() {
 
@@ -3526,7 +3544,10 @@ void set_draw_axes(int i) {
 
 
 GtkWidget *main_window() {
-   return graphics_info_t::glarea; 
+
+   // this is not right!
+
+   return graphics_info_t::glarea;
 }; 
 
 int graphics_n_molecules() {
