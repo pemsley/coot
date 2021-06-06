@@ -7013,9 +7013,9 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                                  // (ignoring things means less marked atoms)
                                  if (ignore_part_occ_contact_flag==0) {
 
-                                    // we want mark as a baddie if ignore Zero Occ is off (0)
+                                    // we do want mark tha  atom as a baddie if ignore-Zero-Occ is off (0)
                                     //
-                                    if (ignore_zero_occ_flag==0 || at->occupancy < 0.01) {
+                                    if (ignore_zero_occ_flag==false || at->occupancy < 0.01) {
                                        double dist_to_atoms_min = 99999;
                                        double d;
                                        double d_sqrd;

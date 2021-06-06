@@ -239,6 +239,7 @@ namespace coot {
                                 BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
                                 JUST_RAMAS = 64,
                                 BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
+                                BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_PLANES = 55 + 8,
                                 BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+2048,
 
                                 BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
@@ -607,7 +608,10 @@ namespace coot {
         torsion_restraint_weight = 1.0;
      }
 
-      // Non-bonded - are you sure that this is the constructor that you want?
+      // Non-bonded
+      //
+      //- are you sure that this is the constructor that you want?
+      //
       simple_restraint(restraint_type_t restraint_type_in,
                        int index_1,
                        int index_2,
@@ -631,7 +635,7 @@ namespace coot {
                // short/standard value
                target_value = 2.5;
             }
-            sigma = 0.02;
+            sigma = 0.02; // probably not this constructor....
             fixed_atom_flags = fixed_atom_flags_in;
             is_user_defined_restraint = 0;
             is_H_non_bonded_contact = false;
@@ -661,7 +665,7 @@ namespace coot {
             target_value = dist_min;
             // nbc_function = HARMONIC;
             nbc_function = nbc_func_type;
-            sigma = 0.02;
+            sigma = 0.06;
             fixed_atom_flags = fixed_atom_flags_in;
             is_user_defined_restraint = 0;
             is_single_Hydrogen_atom_angle_restraint = false;
@@ -1123,7 +1127,7 @@ namespace coot {
             std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
             std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
             std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
-            std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
+            std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
             std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
             if (do_residue_internal_torsions)
                std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
@@ -1177,7 +1181,7 @@ namespace coot {
       bool apply_H_non_bonded_contacts;
 
       void init() {
-               verbose_geometry_reporting = NORMAL;
+         verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
          n_atoms = 0;
          n_atoms_limit_for_nbc = 0; // needs to be set in every constructor.
@@ -1193,12 +1197,12 @@ namespace coot {
          apply_H_non_bonded_contacts = true;
          lograma.init(LogRamachandran::All, 2.0, true);
          // when zo_rama is a static, this is already done
-//          try {
-//             zo_rama.init();
-//          }
-//          catch (const std::runtime_error &rte) {
-//             std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
-//          }
+         //          try {
+         //             zo_rama.init();
+         //          }
+         //          catch (const std::runtime_error &rte) {
+         //             std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
+         //          }
          from_residue_vector = 0;
          rama_type = RAMA_TYPE_LOGRAMA;
          rama_plot_weight = 40.0;
@@ -1837,7 +1841,7 @@ namespace coot {
          link_restraints_counts() {
             init();
          }
-         link_restraints_counts(const std::string &s) {
+         explicit link_restraints_counts(const std::string &s) {
             init();
             link_type = s; // e.g. "flank"
          }
@@ -2289,7 +2293,8 @@ namespace coot {
                              const std::set<int> &fixed_atom_indices,
                              clipper::Xmap<float> *map_p_in);
 
-      restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
+      explicit restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
+         init();
          from_residue_vector = 0;
          include_map_terms_flag = 0;
 
@@ -2714,6 +2719,8 @@ namespace coot {
 
       // friend?
       void copy_from(const restraints_container_t &other);
+
+      void set_use_harmonic_approximations_for_nbcs(bool flag);
 
       // allow the calling function to tell us that the atoms have moved and they
       // need to be updated from the intermediate atoms molecule (moving_atom_asc)

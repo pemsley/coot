@@ -60,7 +60,6 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
       if (this_chain_id == chain_id) {
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::Residue *residue_p;
-	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int this_res_no = residue_p->GetSeqNum();
@@ -82,7 +81,6 @@ main(int argc, char **argv) {
 #ifndef HAVE_GSL
    std::cout << "We don't have GSL, this program does nothing" << std::endl;
 #else 
-   std::string dict_filename;
    coot::protein_geometry geom;
 
    if (argc < 2) {

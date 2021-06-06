@@ -2544,7 +2544,7 @@ void apply_residue_info_changes(GtkWidget *widget) {
 
 void do_distance_define() {
 
-   std::cout << "Click on 2 atoms: " << std::endl;
+   // std::cout << "Click on 2 atoms: " << std::endl;
    graphics_info_t g;
    g.pick_cursor_maybe();
    g.in_distance_define = 1;
@@ -2554,7 +2554,7 @@ void do_distance_define() {
 
 void do_angle_define() {
 
-   std::cout << "Click on 3 atoms: " << std::endl;
+   // std::cout << "Click on 3 atoms: " << std::endl;
    graphics_info_t g;
    g.pick_cursor_maybe();
    g.in_angle_define = 1;
@@ -2564,7 +2564,7 @@ void do_angle_define() {
 
 void do_torsion_define() {
 
-   std::cout << "Click on 4 atoms: " << std::endl;
+   // std::cout << "Click on 4 atoms: " << std::endl;
    graphics_info_t g;
    g.pick_cursor_maybe();
    g.in_torsion_define = 1;

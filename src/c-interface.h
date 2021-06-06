@@ -244,6 +244,9 @@ void export_map_gui(short int export_map_fragment);
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
+/*! function to show or hide the vertical modelling toolbar */
+void set_show_modelling_toolbar(short int state);
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */
@@ -3340,6 +3343,8 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 
 /* Used by on_accept_reject_refinement_reject_button_clicked() */
 void stop_refinement_internal();
+
+void set_refinement_use_soft_mode_nbc_restraints(short int flag);
 
 /*! \brief shiftfield B-factor refinement */
 void shiftfield_b_factor_refinement(int imol);

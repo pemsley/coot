@@ -257,7 +257,7 @@ main (int argc, char *argv[]) {
    check_reference_structures_dir();
 #ifdef USE_MYSQL_DATABASE
    setup_database();
-#endif  
+#endif
 
    // static vector usage
    // and reading in refmac geometry restratints info:

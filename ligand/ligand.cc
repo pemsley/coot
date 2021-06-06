@@ -228,9 +228,10 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
 				short int is_diff_map,
 				float map_sampling_rate) { // 1.5 default
 
-  clipper::HKL_info myhkl;
-  clipper::MTZdataset myset;
-  clipper::MTZcrystal myxtl;
+   std::cout << "............................. map_fill_from_mtz " << mtz_file_name << std::endl;
+   clipper::HKL_info myhkl;
+   clipper::MTZdataset myset;
+   clipper::MTZcrystal myxtl;
 
   std::cout << "reading mtz file " << mtz_file_name << std::endl;
   if (! coot::is_regular_file(mtz_file_name))
@@ -1785,6 +1786,10 @@ coot::ligand::fit_ligands_to_clusters(int max_n_clusters) {
    }
 }
 
+#include <atomic>
+#include <thread>
+
+#include "utils/split-indices.hh"
 
 // We are given a particular site.  Fit all different ligand types to
 // that site and write out the best one if it has a score above 0.0.
@@ -1815,50 +1820,179 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    eigen_orientations.push_back(y_axis_op);
    eigen_orientations.push_back(x_axis_op);
 
-   for (unsigned int ilig=0; ilig<initial_ligand.size(); ilig++) {
+   std::atomic<bool> results_lock(false);
+   auto get_results_lock = [&results_lock] () {
+                              bool unlocked = false;
+                              while (! results_lock.compare_exchange_weak(unlocked, true)) {
+                                 std::this_thread::sleep_for(std::chrono::microseconds(1));
+                                 unlocked = false;
+                              }
+                           };
+   auto release_results_lock = [&results_lock] () {
+                                results_lock = false;
+                             };
 
-      // fitted_ligand_vec is added to when we install_ligand
+   // I wasn't sure how to make these functions static, so we have a local versions.
 
-      if (!do_size_match_test ||
-	  (do_size_match_test && cluster_ligand_size_match(iclust, ilig))) {
+   auto cluster_ligand_size_match = [] (const map_point_cluster &cluster, const minimol::molecule &ligand, float grid_vol) {
+                                       float cluster_vol = grid_vol * cluster.map_grid.size();
+                                       unsigned int n_atoms = ligand.count_atoms();
+                                       float ligand_vol = (4.0 * 3.14159/3.0) * 1.78 * static_cast<float>(n_atoms);
+                                       return ((ligand_vol/cluster_vol < 7.0) && (ligand_vol/cluster_vol > 0.8));
+                                    };
 
-	 if (debug)
-	    std::cout << "ligand " << ilig << " passes the size match test "
-		      << "for cluster number " << iclust << std::endl;
+   auto transform_ligand_atom = [] (const clipper::Coord_orth &position,
+                                    const clipper::RTop_orth &cluster_rtop,
+                                    const clipper::Mat33<double> &initial_ligand_eigenvector,
+                                    const clipper::Coord_orth &initial_ligand_model_centre,
+                                    const clipper::Mat33<double> &origin_rotation) {
+                                   clipper::Coord_orth zero(0,0,0);
+                                   clipper::RTop_orth ligand_op(initial_ligand_eigenvector, initial_ligand_model_centre);
+                                   clipper::RTop_orth lopi(ligand_op.inverse());
+                                   clipper::RTop_orth origin_rotation_op(origin_rotation, zero);
+                                   clipper::Coord_orth a = position.transform(lopi);
+                                   a = a.transform(origin_rotation_op);
+                                   a = a.transform(cluster_rtop);
+                                   return a;
+                                };
 
-	 int n_rot = origin_rotations.size();
-	 if (dont_test_rotations)
-	    n_rot = 1;  // the first one is the identity matrix
+   auto fit_ligand_copy = [transform_ligand_atom] (unsigned int ilig,
+                                                   const map_point_cluster &cluster,
+                                                   const minimol::molecule &ligand_in,
+                                                   const clipper::Mat33<double> &initial_ligand_eigenvector,
+                                                   const clipper::Coord_orth &initial_ligand_model_centre,
+                                                   const clipper::RTop_orth &eigen_orientation,
+                                                   const clipper::Xmap<float> &xmap_masked,
+                                                   const clipper::Xmap<float> &xmap_pristine,
+                                                   const clipper::RTop_orth rotation_component[3],
+                                                   float gradient_scale) {
 
-	 int n_eigen_oris = 3;
-	 if (dont_test_rotations)
-	    n_eigen_oris = 1;
+                             auto ligand = ligand_in;
+                             std::vector<minimol::atom *> atoms_p = ligand.select_atoms_serial();
 
-	 for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) {
+                             // First move the ligand to the site of the cluster:
+                             for(unsigned int ii=0; ii<atoms_p.size(); ii++)
+                                atoms_p[ii]->pos = transform_ligand_atom(atoms_p[ii]->pos, cluster.eigenvectors_and_centre,
+                                                                         initial_ligand_eigenvector, initial_ligand_model_centre,
+                                                                         eigen_orientation.rot());
 
-	    for (int ior=0; ior<n_rot; ior++) {
-	       // Copy from initial_ligand into an element of the
-	       // fitted_ligand_vec vector:
-	       //
-	       // fiddle with fitted_ligand_vec[i]
-	       this_scorecard = fit_ligand_copy(iclust, ilig, ior, eigen_orientations[i_eigen_ori]);
+                             rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
+                                                      rotation_component, gradient_scale); // ("rigid body") move atoms.
+                             float fit_fraction = 0.1;
+                             ligand_score_card lsc = score_orientation(atoms_p, std::cref(xmap_pristine), fit_fraction);
+                             lsc.set_ligand_number(ilig);
+                             return std::make_pair(ligand, lsc);
+                          };
 
-	       std::pair<minimol::molecule, ligand_score_card> p(fitted_ligand_vec[ilig][iclust],
-								 this_scorecard);
-	       final_ligand[iclust].push_back(p);
+   auto fit_ligand_to_cluster = [cluster_ligand_size_match,
+                                 fit_ligand_copy,
+                                 get_results_lock,
+                                 release_results_lock] (unsigned int ilig, unsigned int iclust, // needed for debugging
+                                                        const map_point_cluster &cluster,
+                                                        const minimol::molecule &ligand,
+                                                        const clipper::Mat33<double> &initial_ligand_eigenvector,
+                                                        const clipper::Coord_orth &initial_ligand_model_centre,
+                                                        const std::vector<clipper::Mat33<double> > &origin_rotations,
+                                                        const std::vector<clipper::RTop_orth> &eigen_orientations,
+                                                        const clipper::Xmap<float> &xmap_masked,
+                                                        const clipper::Xmap<float> &xmap_pristine,
+                                                        const clipper::RTop_orth rotation_component[3],
+                                                        float gradient_scale,
+                                                        float grid_vol,
+                                                        bool do_size_match_test,
+                                                        bool dont_test_rotations,
+                                                        bool debug,
+                                                        std::vector<std::pair<minimol::molecule, ligand_score_card> > &results) {
 
-	       if (debug)
-		  std::cout << "Post-fitting score_card is\n" << this_scorecard << std::endl;
-	       if (write_orientation_solutions)
-		  write_orientation_solution(iclust, ilig, i_eigen_ori, ior,
-					     fitted_ligand_vec[ilig][iclust]);
-	    }
-	 }
-      } else {
-	 std::cout << "ligand " << ilig << "  fails the size match test "
-		   << "for cluster number " << iclust << std::endl;
+                                   if (!do_size_match_test || cluster_ligand_size_match(cluster, ligand, grid_vol)) {
+                                      if (debug)
+                                         std::cout << "ligand " << ilig << " passes the size match test " << "for cluster number "
+                                                   << iclust << std::endl;
+
+                                      int n_rot = origin_rotations.size();
+                                      int n_eigen_oris = 3;
+                                      if (dont_test_rotations) {
+                                         n_rot = 1;  // the first one is the identity matrix
+                                         n_eigen_oris = 1;
+                                      }
+
+                                      for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) {
+                                         for (int ior=0; ior<n_rot; ior++) {
+                                            std::pair<minimol::molecule, ligand_score_card> scored_ligand =
+                                               fit_ligand_copy(ilig, cluster, ligand,
+                                                               initial_ligand_eigenvector,
+                                                               initial_ligand_model_centre,
+                                                               eigen_orientations[i_eigen_ori],
+                                                               std::cref(xmap_masked),
+                                                               std::cref(xmap_pristine),
+                                                               rotation_component, gradient_scale);
+                                            get_results_lock();
+                                            results.push_back(scored_ligand);
+                                            release_results_lock();
+                                         }
+                                      }
+                                   }
+                                };
+
+   float vol = xmap_pristine.cell().volume();
+   float ngrid = xmap_pristine.grid_sampling().nu() * xmap_pristine.grid_sampling().nv() * xmap_pristine.grid_sampling().nw();
+   float grid_vol = vol/ngrid;
+
+   // FIXME
+   // remember to add back the code for debugging solutions post-generation after multithreading
+
+   unsigned int n_ligands = initial_ligand.size();
+   std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;
+
+   std::vector<std::pair<minimol::molecule, ligand_score_card> > big_vector_of_results;
+
+   // we split them into batches of 4 - that's fast enough for a nice speed up, but won't
+   // create a massive (20Gb) memory load. I don't know how to find out where the memory
+   // is allocated.
+   //
+   std::vector<std::vector<unsigned int> > indices;
+   unsigned int n_per_batch = 4;
+   unsigned int n_batches = n_ligands / n_per_batch + 1;
+   coot::split_indices(&indices, n_ligands, n_batches);
+
+   for (unsigned int ii=0; ii<indices.size(); ii++) {
+      const std::vector<unsigned int> &ligand_indices = indices[ii];
+      std::vector<std::thread> threads;
+      for (unsigned int jj=0; jj<ligand_indices.size(); jj++) {
+         const unsigned int &ilig = ligand_indices[jj];
+         const minimol::molecule &ligand = initial_ligand[ilig];
+         threads.push_back(std::thread(fit_ligand_to_cluster,
+                                       ilig, iclust,
+                                       std::cref(cluster[iclust]),
+                                       std::cref(ligand),
+                                       std::cref(initial_ligand_eigenvectors[ilig]),
+                                       std::cref(initial_ligand_model_centre[ilig]),
+                                       std::cref(origin_rotations),
+                                       std::cref(eigen_orientations),
+                                       std::cref(xmap_masked),
+                                       std::cref(xmap_pristine),
+                                       std::cref(rotation_component),
+                                       gradient_scale,
+                                       grid_vol,
+                                       do_size_match_test,
+                                       dont_test_rotations,
+                                       debug,
+                                       std::ref(big_vector_of_results)));
       }
+      for (unsigned int ilig=0; ilig<ligand_indices.size(); ilig++)
+         threads[ilig].join();
    }
+
+   if (write_orientation_solutions) {
+      // we no longer have access to i_eigen_ori or ior here, I think. Maybe they can be added to
+      // ligand_score_card?
+      // so that write_orientation_solution(mol) becomes a member function of ligand_score_card?
+      //
+      // old-function: write_orientation_solution(iclust, ilig, i_eigen_ori, ior, fitted_ligand_vec[ilig][iclust]);
+   }
+   
+   final_ligand[iclust] = big_vector_of_results;
+
    sort_final_ligand(iclust);
 }
 
@@ -2188,7 +2322,7 @@ coot::ligand::cluster_ligand_size_match(int iclust, int ilig) {
    }
 
    // 1.2^3 = 1.78
-   float ligand_vol = (4*3.14159/3.0)*1.78*float(n_lig_atoms);
+   float ligand_vol = (4.0*3.14159/3.0)*1.78*float(n_lig_atoms);
 
 //     std::cout << "cluster_ligand_size_match: "
 //  	     << cluster[iclust].map_grid.size()
@@ -2240,14 +2374,15 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior) {
 
    // rigid_body_refine_ligand(&atoms_p, xmap_pristine); // ("rigid body") move atoms.
    // Joel suggests that we have another go at the masked map:
-   rigid_body_refine_ligand(&atoms_p, xmap_masked); // ("rigid body") move atoms.
+   rigid_body_refine_ligand(&atoms_p, xmap_masked, xmap_pristine, rotation_component, gradient_scale); // ("rigid body") move atoms.
 
    // update_fitted_ligand_vec(i, atoms); // no need now.  We will
    // reintroduce this when I convert to RTops to do the
    // manipulations.  We will need to convert the atoms for final
    // output.
    // ligand_score_card s = score_orientation(atoms_p, xmap_pristine); // JB says try masked map
-   ligand_score_card s = score_orientation(atoms_p, xmap_masked);
+   float ff = 0.1; // fit fraction
+   ligand_score_card s = score_orientation(atoms_p, xmap_masked, ff);
    s.set_ligand_number(ilig);
    return s;
 }
@@ -2281,14 +2416,15 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
 
    // rigid_body_refine_ligand(&atoms_p, xmap_pristine); // ("rigid body") move atoms.
    // Joel suggests that we have another go at the masked map:
-   rigid_body_refine_ligand(&atoms_p, xmap_masked); // ("rigid body") move atoms.
+   rigid_body_refine_ligand(&atoms_p, xmap_masked, xmap_pristine, rotation_component, gradient_scale); // ("rigid body") move atoms.
 
    // update_fitted_ligand_vec(i, atoms); // no need now.  We will
    // reintroduce this when I convert to RTops to do the
    // manipulations.  We will need to convert the atoms for final
    // output.
    // ligand_score_card s = score_orientation(atoms_p, xmap_pristine); // JB says try masked map
-   ligand_score_card s = score_orientation(atoms_p, xmap_masked);
+   float ff = 0.1;
+   ligand_score_card s = score_orientation(atoms_p, xmap_masked, ff);
    // std::cout << "  ligand_score_card: " << s << std::endl;
    s.set_ligand_number(ilig);
    return s;
@@ -2304,7 +2440,7 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
 // i is the i'th cluster
 //
 clipper::Coord_orth
-coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
+coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
 				    int ilig, int iclust, int ior) const {
 
    return transform_ligand_atom(a_in, ilig,
@@ -2313,7 +2449,7 @@ coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
 }
 
 clipper::Coord_orth
-coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
+coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
 				    int ilig, const clipper::RTop_orth &cluster_rtop, int ior) const {
 
    clipper::Coord_orth a;
@@ -2351,7 +2487,7 @@ coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
 // i is the i'th cluster
 //
 clipper::Coord_orth
-coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
+coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
 				    int ilig, int iclust, int ior,
 				    const clipper::RTop_orth &eigen_ori) const {
 
@@ -2399,9 +2535,14 @@ coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
 //
 
 // Move the atoms by rigid body to fit the xmap.
+//
+// static
 void
 coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
-				       const clipper::Xmap<float> &xmap_fitting) {
+				       const clipper::Xmap<float> &xmap_fitting,
+                                       const clipper::Xmap<float> &xmap_pristine,
+                                       const clipper::RTop_orth rotation_component[3],
+                                       float gradient_scale) {
 
    int n_atoms = atoms_p->size();
    int round_max = 300;
@@ -2410,14 +2551,55 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
    double angle_sum = 1.0;      // as above
    bool debug = false;
 
+   auto mean_ligand_position = [] (const std::vector<minimol::atom *> &atoms) {
+                                  clipper::Coord_orth p(0,0,0);
+                                  for (unsigned int ii=0; ii<atoms.size(); ii++)
+                                     p += atoms[ii]->pos;
+                                  double sc = 1.0/static_cast<double>(atoms.size());
+                                  return clipper::Coord_orth(sc * p);
+                               };
+
+   auto apply_angles_to_ligand = [] (const clipper::Vec3<double> &angles ,
+				     const clipper::Coord_orth &mean_pos,
+				     const std::vector<minimol::atom *> *atoms_p) {
+
+                                    double scale_factor = 1.0;
+                                    unsigned int n_atoms = atoms_p->size();
+                                    if (n_atoms > 2)
+                                       scale_factor = 1.5/sqrt(static_cast<double>(n_atoms));
+
+                                    double sin_t = sin(-scale_factor*angles[0]);
+                                    double cos_t = cos(-scale_factor*angles[0]);
+                                    clipper::Mat33<double> x_mat(1,0,0, 0,cos_t,-sin_t, 0,sin_t,cos_t);
+
+                                    sin_t = sin(-scale_factor*angles[1]);
+                                    cos_t = cos(-scale_factor*angles[1]);
+                                    clipper::Mat33<double> y_mat(cos_t,0,sin_t, 0,1,0, -sin_t,0,cos_t);
+
+                                    sin_t = sin(-scale_factor*angles[2]);
+                                    cos_t = cos(-scale_factor*angles[2]);
+                                    clipper::Mat33<double> z_mat(cos_t,-sin_t,0, sin_t,cos_t,0, 0,0,1);
+
+                                    clipper::Mat33<double> angle_mat = x_mat * y_mat * z_mat;
+                                    clipper::RTop_orth angle_op(angle_mat, clipper::Coord_frac(0,0,0));
+
+                                    for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
+                                       (*atoms_p)[ii]->pos -= mean_pos;
+                                       (*atoms_p)[ii]->pos = (*atoms_p)[ii]->pos.transform(angle_op);
+                                       (*atoms_p)[ii]->pos += mean_pos;
+                                    }
+                                 };
+
+
    while ((iround < round_max) &&
 	  ((move_by_length > 0.002) || (angle_sum > 0.002))) {
 
       clipper::Coord_orth midpoint(0,0,0);
+      float ff = 0.1; // doesn't matter, we don't want warning messages
 
       if (debug)
 	 std::cout << "---------------------  start of the rigid body round " << iround << "\n"
-		   << "   score is " << score_orientation(*atoms_p, xmap_fitting) << std::endl;
+		   << "   score is " << score_orientation(*atoms_p, xmap_fitting, ff) << std::endl;
 
       for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
 	 midpoint += (*atoms_p)[ii]->pos;
@@ -2467,7 +2649,8 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
       clipper::Vec3<double> angles;
       bool angles_are_valid = false;
       if (atoms_p->size() > 1) {
-	 angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec);
+	 angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec,
+                                                  rotation_component, gradient_scale);
 	 angles_are_valid = true;
       }
 
@@ -2499,7 +2682,7 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 		   << clipper::Util::rad2d(angles[2]) << std::endl;
 
       if (angles_are_valid) {
-	 apply_angles_to_ligand(angles,atoms_p,mean_pos);
+	 apply_angles_to_ligand(angles,mean_pos, atoms_p);
 
 	 // set angle_sum for next round
 	 angle_sum = 0.0;
@@ -2541,7 +2724,9 @@ coot::ligand::mean_ligand_position(const std::vector<minimol::atom *> &atoms) co
 clipper::Vec3<double>
 coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *> &atoms,
 					      const clipper::Coord_orth &mean_pos,
-					      const std::vector<clipper::Grad_orth<float> > &grad_vec) const {
+					      const std::vector<clipper::Grad_orth<float> > &grad_vec,
+                                              const clipper::RTop_orth rotation_component[3],
+                                              float gradient_scale) {
 
    clipper::Vec3<double> a;  // return this
    bool debug = false;
@@ -2600,13 +2785,11 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
    for (int ir=0; ir<3; ir++) {
 
       // a[ir] = gradient_scale * sum_grad[ir]/Vp_av_len[ir];
-      a[ir] = gradient_scale * 0.1 * sum_grad[ir]/(Vp_av_len[ir] * sqrt(double(atoms.size())));
+      a[ir] = gradient_scale * 0.1 * sum_grad[ir]/(Vp_av_len[ir] * sqrt(static_cast<double>(atoms.size())));
 
       if (debug) {
-
 	 std::cout << "  a[" << ir << "] is " << sum_grad[ir] << "/" << Vp_av_len[ir] << "/sqrt("
 		   << atoms.size() << ") = " << a[ir] << "     " << a[ir] * 57.3 << " degrees " << std::endl;
-
  	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
  		   << ir << "] is " << sum_grad[ir] << "  ";
  	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
@@ -2651,10 +2834,13 @@ coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
 }
 
 // return the score
+//
+// static
 coot::ligand_score_card
 coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 				const clipper::Xmap<float> &xmap_fitting,
-				bool use_linear_interpolation) const {
+                                float fit_fraction,
+				bool use_linear_interpolation) {
 
    coot::ligand_score_card score_card;
    int n_positive_atoms = 0;
@@ -2692,9 +2878,10 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 	    score_card.many_atoms_fit = 1; // consider using a member function
 	    score_card.score_per_atom = score_card.get_score()/float(n_non_hydrogens);
 	 } else {
-	    std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
-		      << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
-		      << std::endl;
+            if (false) // too noisy
+               std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
+                         << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
+                         << std::endl;
 	 }
       } else {
 	 // Pathalogical case.  No non-hydrogens in ligand.  This code

@@ -344,11 +344,11 @@ main(int argc, char **argv) {
 	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << " - using default 2.0 sigma";
 	    }
-	    int n_cluster = atoi(n_cluster_string.c_str());
+
 	    short int use_weights = 0;
 	    short int is_diff_map = 0; 
 	    coot::wligand wlig;
-	    wlig.set_verbose_reporting();
+	    // wlig.set_verbose_reporting();
 
 	    // sampling rate
 	    if (! map_sampling_factor_str.empty()) {
@@ -431,10 +431,10 @@ main(int argc, char **argv) {
 
 	    } else {
 
-	       // wiggly ligands  path
+	       // wiggly ligands path
 
 	       coot::protein_geometry geom;
-	       wlig.set_verbose_reporting();
+	       // wlig.set_verbose_reporting();
 	       
 	       // this might be a pain if the flexible ligand is in the standard
 	       // refmac dictionary...
@@ -494,9 +494,11 @@ main(int argc, char **argv) {
 			      coot::minimol::molecule mmol;
 			      mmol.read_file(lig_files[ilig]);
 
-			      bool optim_geom = 1;
-			      bool fill_vec = 0;
+			      bool optim_geom = true;
+			      bool fill_vec = false;
 			      try {
+                                 unsigned int n_threads = coot::get_max_number_of_threads();
+                                 ctpl::thread_pool thread_pool(n_threads);
 				 int imol_ligand = 0;
 				 std::vector<coot::installed_wiggly_ligand_info_t>
 				    wiggled_ligands =
@@ -504,7 +506,7 @@ main(int argc, char **argv) {
 								       imol_ligand,
 								       wiggly_ligand_n_samples,
 								       optim_geom,
-								       fill_vec);
+								       fill_vec, &thread_pool, n_threads);
 			      }
 			      catch (const std::runtime_error &mess) {
 				 std::cout << "Failed to install flexible ligands\n" << mess.what()
@@ -523,7 +525,6 @@ main(int argc, char **argv) {
 	    // now add in the solution ligands:
 	    int n_clusters = wlig.n_clusters_final();
 
-	    int n_new_ligand = 0;
 	    coot::minimol::molecule m;
 	    for (int iclust=0; iclust<n_clusters; iclust++) {
 

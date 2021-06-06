@@ -32,7 +32,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
-
+#include "coot-utils/atom-tree.hh"
 
 std::ostream &
 coot::operator<<(std::ostream &s, const coot::rotamer_probability_info_t &rpi) {
