@@ -1951,7 +1951,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    // is allocated.
    //
    std::vector<std::vector<unsigned int> > indices;
-   unsigned int n_per_batch = 4;
+   unsigned int n_per_batch = 10;
    unsigned int n_batches = n_ligands / n_per_batch + 1;
    coot::split_indices(&indices, n_ligands, n_batches);
 
@@ -1971,7 +1971,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                        std::cref(eigen_orientations),
                                        std::cref(xmap_masked),
                                        std::cref(xmap_pristine),
-                                       std::cref(rotation_component),
+                                       rotation_component, // make this a vector?
                                        gradient_scale,
                                        grid_vol,
                                        do_size_match_test,
