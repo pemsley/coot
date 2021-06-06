@@ -1714,13 +1714,11 @@ molecule_class_info_t::unalt_conf_residue_atoms(mmdb::Residue *residue_p) {
             }
          }
          if (n_match == 1) {
-            if (atoms[i]->altLoc) { // scan-build fix, needs review
-               std::string al(atoms[i]->altLoc);
-               if (! al.empty()) {
-                  std::string new_alt_conf("");
-                  // force it down the atom's throat :) c.f. insert_coords_change_altconf
-                  strncpy(atoms[i]->altLoc, new_alt_conf.c_str(), 2);
-               }
+	    std::string alt_conf(atoms[i]->altLoc);
+            if (! alt_conf.empty()) {
+	       std::string new_alt_conf("");
+	       // force it down the atom's throat :) c.f. insert_coords_change_altconf
+	       strncpy(atoms[i]->altLoc, new_alt_conf.c_str(), 2);
             }
          }
       }
@@ -6978,6 +6976,13 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 
                         for (int iat=0; iat<n_atoms; iat++) {
                            at = residue_p->GetAtom(iat);
+			   bool water_atom_is_hydrogen_atom = false;
+			   // PDBv3 FIXME
+			   if (! strncmp(at->name, " H", 2)) water_atom_is_hydrogen_atom = true;
+			   if (! strncmp(at->name, " D", 2)) water_atom_is_hydrogen_atom = true;
+
+			   if (water_atom_is_hydrogen_atom) continue;
+
                            this_is_marked = false;
 
                            if (! at->isTer()) {
@@ -7011,11 +7016,11 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                               if (! this_is_marked) {
 
                                  // (ignoring things means less marked atoms)
-                                 if (ignore_part_occ_contact_flag==0) {
+                                 if (ignore_part_occ_contact_flag == 0) {
 
                                     // we do want mark tha  atom as a baddie if ignore-Zero-Occ is off (0)
                                     //
-                                    if (ignore_zero_occ_flag==false || at->occupancy < 0.01) {
+                                    if (ignore_zero_occ_flag == false || at->occupancy < 0.01) {
                                        double dist_to_atoms_min = 99999;
                                        double d;
                                        double d_sqrd;
