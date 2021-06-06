@@ -7003,7 +7003,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                               if (! this_is_marked) {
                                  if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
                                     marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
-                              }
+				 }
                               }
 
 

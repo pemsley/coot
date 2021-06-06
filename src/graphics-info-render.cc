@@ -884,13 +884,8 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 
       float tmp_len = view_centre_cl * direction_cl;
       
-      float angle_factor = abs((v1_2.amplitude()/2)/(dir_len+tmp_len));
-      //std::cout <<"BL DEBUG:: view centre 2 : " << view_centre_cl[0] << " " <<view_centre_cl[1] << " " << view_centre_cl[2] <<std::endl;
-      //std::cout <<"BL DEBUG:: anglefactor   : " << angle_factor <<std::endl;
-      //std::cout <<"BL DEBUG::   v1_2 ampl   : " << v1_2.amplitude() <<std::endl;
-      //std::cout <<"BL DEBUG::   dir_len     : " << dir_len <<std::endl;
-      //std::cout <<"BL DEBUG::   tmp_len     : " << tmp_len <<std::endl;
-      //std::cout <<"BL DEBUG::   dir+tmp_len : " << dir_len+tmp_len <<std::endl;
+      float angle_factor = fabsf((v1_2.amplitude()/2)/(dir_len+tmp_len));
+
       if (angle_factor > 1.99) {
         // simple protection, so that povray doesnt fail if angle get's too
         // large
