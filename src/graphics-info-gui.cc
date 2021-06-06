@@ -1747,9 +1747,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
                graphics_info_t::float_from_entry(GTK_WIDGET(widget_o));
             if (occ_entry.first) {
                if (at) {
-//                   std::cout << "    occ comparison " << occ_entry.second << " "
-//                   << at->occupancy << std::endl;
-                  if (abs(occ_entry.second - at->occupancy) > 0.009) {
+                  if (std::abs(occ_entry.second - at->occupancy) > 0.009) {
                      coot::select_atom_info local_at = *ai;
                      local_at.add_occ_edit(occ_entry.second);
                      local_atom_edits.push_back(local_at);
@@ -1771,7 +1769,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
                if (at) {
                   // std::cout << "    temp comparison " << temp_entry.second
                   // << " " << at->tempFactor << std::endl;
-                  if (abs(temp_entry.second - at->tempFactor) > 0.009) {
+                  if (std::abs(temp_entry.second - at->tempFactor) > 0.009) {
                      coot::select_atom_info local_at = *ai;
                      local_at.add_b_factor_edit(temp_entry.second);
                      local_atom_edits.push_back(local_at);
