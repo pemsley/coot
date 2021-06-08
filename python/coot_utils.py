@@ -876,14 +876,16 @@ def command_in_path_qm_old_version(cmd, only_extension="", add_extensions=[]):
             print "BL WARNING:: couldnt open $PATH"  # this shouldnt happen
             return False
 
-       
+
 global gtk_thread_return_value
 gtk_thread_return_value = None
-# Where cmd is e.g. "refmac" 
+# Where cmd is e.g. "refmac"
 #       args is ["HKLIN","thing.mtz"]
-#       data_list is ["HEAD","END"]
-#       log_file_name is "refmac.log"      
+#       data_list is ["HEAD","END"] OR
+#       it is a filename for file input (i.e. cmd < filename)
+#       log_file_name is "refmac.log"
 #       screen_flag True/False to display or not in shell window
+#       stderr_capture True/False pipe stderr to stdout too
 #       local_env can be set to change the environment variables the
 #                 command is run in.
 # 
@@ -892,7 +894,7 @@ gtk_thread_return_value = None
 # uses os.popen if python version < 2.4 otherwise subprocess
 # 
 def popen_command(cmd, args, data_list, log_file, screen_flag=False,
-                  local_env=None):
+                  stderr_capture=False, local_env=None):
 
     import sys, string, os
     
@@ -913,17 +915,41 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
             import subprocess
             log = open(log_file, 'w')
             cmd_args = [cmd_execfile] + args
+
+            # set stdin
+            pipe_data=False
+            if (isinstance(data_list, str) and
+                os.path.isfile(data_list)):
+                stdin_inp = open(data_list)
+            else:
+                pipe_data=True
+                stdin_inp = subprocess.PIPE
+
+            # set stderr
+            if stderr_capture:
+                stderr_arg = subprocess.STDOUT
+            else:
+                stderr_arg = None
+
             if (screen_flag):
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                process = subprocess.Popen(cmd_args, stdin=stdin_inp,
                                            stdout=subprocess.PIPE,
+                                           stderr=stderr_arg,
                                            env=local_env)
             else:
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
-                                           stdout=log, env=local_env)
+                process = subprocess.Popen(cmd_args, stdin=stdin_inp,
+                                           stdout=log, stderr=stderr_arg,
+                                           env=local_env)
 
-            for data in data_list:
-                process.stdin.write(data + "\n")
-            process.stdin.close()
+            if pipe_data:
+                for data in data_list:
+                    process.stdin.write(data + "\n")
+                process.stdin.close()
+            else:
+                # file?
+                if isinstance(stdin_inp, file):
+                    stdin_inp.close()
+
             if (screen_flag):
                 for line in process.stdout:
                     print "#", line.rstrip(" \n")  # remove trailing whitespace
