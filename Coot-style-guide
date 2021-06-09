@@ -1,0 +1,26 @@
+
+
+Based on the Webkit style
+
+Spaces not tabs (never tabs)
+
+Line length limit: 128 characters
+
+3 character indent
+
+Spaces: Usually like this:
+
+   int a = 1;
+   if (a < 10) {
+   }
+
+except in the for loop, where the spaces around the operator are removed:
+
+   for (int i=0; i<10; i++) {
+   }
+
+Never pass by reference (non-const reference) unless the function which you are calling
+is less than 30 lines of code away (in which case it is allowed, but not prefered), i.e.
+variables that are modified by a function are marked by passing a pointer (variable_p)
+or &variable (preferably the later).
+
