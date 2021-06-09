@@ -4235,18 +4235,6 @@ Bond_lines::add_bond(const coot::CartesianPair &p,
    points.push_back(gl);
 }
 
-//
-Bond_lines::Bond_lines() {
-
-   // This gets called when we resize a Bond_lines_container's bonds array.
-   //
-   // std::cout << "nothing much" << std::endl;
-}
-
-//
-Bond_lines::Bond_lines(int col) {
-   colour = col;
-}
 
 int
 Bond_lines::size() const {

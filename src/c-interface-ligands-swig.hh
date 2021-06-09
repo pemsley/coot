@@ -3,6 +3,10 @@
 #ifndef C_INTERFACE_LIGANDS_SWIG_HH
 #define C_INTERFACE_LIGANDS_SWIG_HH
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include "probe-clash-score.hh"
 #include "ligand-check.hh"
 
@@ -201,5 +205,20 @@ bool enhanced_ligand_coot_p();
 //! \brief JED-Flip the bond of the active atoms
 int jed_flip_intermediate_atoms();
 
+
+// No here - this file  is for swigging
+// #include "ideal/simple-restraint.hh"
+// coot::geometry_distortion_info_container_t get_ligand_distortion_summary_info(int imol, coot::residue_spec_t &rs);
+
+#ifdef USE_GUILE
+//! \brief return the summary info for ligand distortion
+SCM get_ligand_distortion_summary_info_scm(int imol, SCM residue_spec);
+#endif
+#ifdef USE_PYTHON
+//! \brief return the summary info for ligand distortion
+PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec);
+#endif
+
+double gsl_sf_erf_scm(double v);
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

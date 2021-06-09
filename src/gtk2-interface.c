@@ -29338,7 +29338,7 @@ create_ligand_check_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label779), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label779), 0, 4);
 
-  label780 = gtk_label_new ("Mogul\nZ-worst");
+  label780 = gtk_label_new ("Geometry\nDistortion");
   gtk_widget_show (label780);
   gtk_table_attach (GTK_TABLE (table7), label780, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),

@@ -96,9 +96,16 @@ class ligand_validation_metrics_gui:
 
                  
     # return True if the bar for the absolute percentile was drawn,
-    # otherwise return False
+    # otherwise return False (da is drawing_area, gc, is graphics_context (or something))
     #
-    def draw_slider(self, name, x_for_rj, percentile_abs_str, percentile_rel_str, value_str, slider_no, da, gc):
+    def draw_slider(self, name, x_for_rj, percentile_abs, percentile_rel_str, value_str, slider_no, da, gc):
+
+        print("debug:: draw_slider():", name, "  ", x_for_rj, " percentile_abs:", percentile_abs,
+              "percentile_rel_str:", percentile_rel_str, "value_str", value_str, slider_no)
+
+        # if the percentile_abs is actually 0.0, then the block doesn't get drawn (it's off the canvas?)
+        if percentile_abs < 0.01:
+            percentile_abs = 0.01;
 
 	y = self.y_bar_offset + self.y_pixels_bar_spacing*(slider_no+1)
 
@@ -132,12 +139,12 @@ class ligand_validation_metrics_gui:
 	    if percentile_rel_str != False:
 		rel = float(percentile_rel_str)
 		self.arcs_for_rel(rel, y, da, gc)
-	    if percentile_abs_str != False:
-		abs = float(percentile_abs_str)
+	    if percentile_abs != False:
+		abs = float(percentile_abs)
 		self.bar_for_abs(abs, y, da, gc)
 		return True
 		
-	    rel = float(rel_str)
+	    rel = float(percentile_rel_str)
 	except TypeError as e:
 	    print e
 

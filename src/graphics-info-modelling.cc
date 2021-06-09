@@ -1160,6 +1160,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       pseudo_bonds_type);
                                                        // link and flank args default true
 
+   if (use_harmonic_approximation_for_NBCs) {
+      std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      last_restraints->set_use_harmonic_approximations_for_nbcs(true);
+   }
+
    if (pull_restraint_neighbour_displacement_max_radius > 1.99) {
       last_restraints->set_use_proportional_editing(true);
       last_restraints->pull_restraint_neighbour_displacement_max_radius =
@@ -2157,7 +2162,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
       std::cout << "FYI: chain ids are: \"" << chain_id_1
 		<< "\" and \"" << chain_id_2 << "\"" << std::endl;
-      cout << "Picked atoms are not in the same chain.  Failure" << endl; 
+      std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
    } else { 
       flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
@@ -4703,6 +4708,11 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 
    int imol = user_pointer_atom_molecule;
    graphics_info_t g;
+   if (! is_valid_model_molecule(imol)) {
+      // try to find one
+      imol = get_latest_model_molecule();
+   }
+
    if (is_valid_model_molecule(imol)) {
       molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
       update_environment_distances_by_rotation_centre_maybe(imol);

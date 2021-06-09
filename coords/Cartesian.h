@@ -25,17 +25,11 @@
 
 #include <iostream>
 #include <fstream>
-
-#ifndef HAVE_VECTOR
-#define HAVE_VECTOR
 #include <vector>
-#endif
 
 #include "clipper/core/coords.h"
 
 // #include "cos-sin.h"
-
-
 
 enum surface_face_data { NO_FACE = 0, X_FACE = 1, Y_FACE = 2, Z_FACE = 3 };
 

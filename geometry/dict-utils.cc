@@ -1306,16 +1306,16 @@ coot::dict_torsion_restraint_t::is_const() const {
 
 
 
-bool
-coot::dict_atom::is_hydrogen() const {
+// bool
+// coot::dict_atom::is_hydrogen() const {
 
-   bool r = false;
-   if (type_symbol == "H" ||
-       type_symbol == " H" ||
-       type_symbol == "D")
-      r = true;
-   return r;
-}
+//    bool r = false;
+//    if (type_symbol == "H" ||
+//        type_symbol == " H" ||
+//        type_symbol == "D")
+//       r = true;
+//    return r;
+// }
 
 
 

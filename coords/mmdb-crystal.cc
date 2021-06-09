@@ -264,7 +264,17 @@ std::ostream& operator<<(std::ostream &s, molecule_extents_t e) {
    s << "bottom: " << e.bottom  << std::endl;
 
    return s;
-} 
+}
+
+std::ostream & operator<<(std::ostream &s, const coot::coot_mat44 &m) {
+   std::cout << "coot::mat_44\n"
+             << "[ " << m.m[0].v4[0] << " " << m.m[0].v4[1] << " " << m.m[0].v4[2] << " " << m.m[0].v4[3] << " ]\n"
+             << "[ " << m.m[1].v4[0] << " " << m.m[1].v4[1] << " " << m.m[1].v4[2] << " " << m.m[1].v4[3] << " ]\n"
+             << "[ " << m.m[2].v4[0] << " " << m.m[2].v4[1] << " " << m.m[2].v4[2] << " " << m.m[2].v4[3] << " ]\n"
+             << "[ " << m.m[3].v4[0] << " " << m.m[3].v4[1] << " " << m.m[3].v4[2] << " " << m.m[3].v4[3] << " ]\n";
+   return s;
+}
+
 
 
 //  Let's try again.
@@ -423,9 +433,9 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 				     const Cell_Translation &c_t) const {
 
    std::vector<std::pair<int, symm_trans_t> > r;
-   int n = strict_ncs_matrices.size();
+   int n_matrices = strict_ncs_matrices.size();
    // mmdb::mat44 m[n]; GNU code
-   mmdb::mat44 *m = new mmdb::mat44[n]; // give it back at end;
+   mmdb::mat44 *m = new mmdb::mat44[n_matrices]; // give it back at end;
 
    for (unsigned int imat=0; imat<strict_ncs_matrices.size(); imat++) { 
       m[imat][0][0] = strict_ncs_matrices[imat].m[0].v4[0];
@@ -440,16 +450,27 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
       m[imat][0][3] = strict_ncs_matrices[imat].m[0].v4[3];  // t
       m[imat][1][3] = strict_ncs_matrices[imat].m[1].v4[3];  // t
       m[imat][2][3] = strict_ncs_matrices[imat].m[2].v4[3];  // t
+      m[imat][3][0] = 0.0f;
+      m[imat][3][1] = 0.0f;
+      m[imat][3][2] = 0.0f;
+      m[imat][3][3] = 0.0f;
+
+      if (false)
+         std::cout
+            << "which_strict_ncs() " << m[imat][0][0] << " " << m[imat][0][1] << " " << m[imat][0][2] << " " << m[imat][0][3] << "\n"
+            << "                   " << m[imat][1][0] << " " << m[imat][1][1] << " " << m[imat][1][2] << " " << m[imat][1][3] << "\n"
+            << "                   " << m[imat][2][0] << " " << m[imat][2][1] << " " << m[imat][2][2] << " " << m[imat][2][3] << "\n"
+            << "                   " << m[imat][3][0] << " " << m[imat][3][1] << " " << m[imat][3][2] << " " << m[imat][3][3] << "\n";
    }
 
    mmdb::Atom atom;
    mmdb::Atom trans_atom;
    mmdb::Atom tmp_atom;
    atom.SetCoordinates(centre_pt.x(), centre_pt.y(), centre_pt.z(), 1.0, 10.0);
-   mmdb::realtype diff_x, diff_y, diff_z, u, v, w, u_cs, v_cs, w_cs;
+   mmdb::realtype diff_x, diff_y, diff_z, u, v, w;
    symm_trans_t  symm_trans_this;
 
-   for (int ii=0; ii<n; ii++) {
+   for (int ii=0; ii<n_matrices; ii++) {
       trans_atom.Copy(&atom); // atom not modified.
 
       trans_atom.Transform(m[ii]);
@@ -461,14 +482,11 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
       diff_z = centre_pt.z() - trans_atom.z;
 
       AtomSel.mol->Orth2Frac(diff_x, diff_y, diff_z, u, v, w); // fill u, v, w.
-      u_cs = rint(u);
-      v_cs = rint(v);
-      w_cs = rint(w);
 
       float min_dist = 99999999999.9;
       float b, dist;
       mmdb::mat44 shifted_mat;
-      
+
       for (int x_shift= -1; x_shift<= 1; x_shift++) { 
 	 for (int y_shift= -1; y_shift<= 1; y_shift++) { 
 	    for (int z_shift= -1; z_shift<= 1; z_shift++) {
@@ -504,7 +522,7 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
       int pz_shift = symm_trans_this.z();
       mmdb::PPAtom trans_selection;
       int in;
-      
+
       for (int x_shift=px_shift-1; x_shift<=px_shift+1; x_shift++) { 
 	 for (int y_shift=py_shift-1; y_shift<=py_shift+1; y_shift++) { 
 	    for (int z_shift=pz_shift-1; z_shift<=pz_shift+1; z_shift++) { 

@@ -5,6 +5,7 @@
 
 #include "geometry/protein-geometry.hh"
 #include "coot-coord-extras.hh"
+#include "atom-tree.hh"
 
 namespace coot {
 

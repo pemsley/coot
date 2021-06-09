@@ -44,6 +44,10 @@
 #   include <GL/gl.h>
 #endif
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include <gdk/gdkglconfig.h>
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
@@ -1061,6 +1065,8 @@ public:
      molecules.pop_back();
    }
 
+   static int get_latest_model_molecule();
+
    static short int use_graphics_interface_flag;
 
    // Display size
@@ -1216,7 +1222,8 @@ public:
    static short int display_lists_for_maps_flag;
 
    // expose this so that it can be seen in draw();
-   static short int smooth_scroll_on;
+   static short int smooth_scroll_on; // flag used to show wirecube centre
+                                      // (not anything else so rename it?)
    std::vector<int> displayed_map_imols() const;
 
    // expose so that they can be used in c-interface.cc
@@ -1957,6 +1964,10 @@ public:
    coot::refinement_results_t refine_molecule(int imol, mmdb::Manager *mol);
    coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);
 
+   static bool use_harmonic_approximation_for_NBCs;
+   void set_use_harmonic_approximations_for_nbcs(bool flag) {
+      use_harmonic_approximation_for_NBCs = flag;
+   }
 
    // on reading a pdb file, we get a list of residues, use these to
    // load monomers from the dictionary
@@ -3265,7 +3276,7 @@ public:
    static float raster3d_bone_thickness;
    static bool  raster3d_enable_shadows;
    static int raster3d_water_sphere_flag;
-   static string raster3d_font_size;
+   static std::string raster3d_font_size;
 
    short int renderman(std::string filename);
 
@@ -3941,9 +3952,9 @@ string   static std::string sessionid;
 
    static double log_cosh_target_distance_scale_factor;
 
-   static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
-                                                  // if so, what is it? (say 20A)
-                                                  // used in draw_bonds().
+   static std::pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
+                                                       // if so, what is it? (say 20A)
+                                                       // used in draw_bonds().
 
    // extensions registry
    // a name (a script file name) and a version number/identifier as a string

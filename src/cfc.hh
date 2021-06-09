@@ -63,12 +63,11 @@ namespace cfc {
    public:
       water_cluster_info_from_python(const clipper::Coord_orth &pos_in,
 				     double w_in,
-				     double r_in) {
-	 pos = pos_in;
+				     double r_in) : pos(pos_in) {
 	 weight = w_in;
 	 radius = r_in;
       }
-      water_cluster_info_from_python() {weight = 0;}
+      water_cluster_info_from_python() { weight = 0; radius = 1.0; }
       clipper::Coord_orth pos;
       double weight;
       double radius;
@@ -78,10 +77,9 @@ namespace cfc {
    // 
    class clustered_feature_info_from_python {
    public:
-      clustered_feature_info_from_python(int imol_in, coot::residue_spec_t &spec_in,
-					 unsigned int cluster_number_in) {
+      clustered_feature_info_from_python(int imol_in, const coot::residue_spec_t &spec_in,
+					 unsigned int cluster_number_in) : residue_spec(spec_in) {
 	 imol = imol_in;
-	 residue_spec = spec_in;
 	 cluster_number = cluster_number_in;
       }
       clustered_feature_info_from_python() { imol = -1; cluster_number = -1;}
@@ -100,7 +98,7 @@ namespace cfc {
    public:
       std::vector<water_cluster_info_from_python>   wc;
       std::vector<clustered_feature_info_from_python> cw;
-      extracted_cluster_info_from_python(PyObject *cluster_info_py);
+      explicit extracted_cluster_info_from_python(PyObject *cluster_info_py);
       unsigned int n_water_structures() const;
       unsigned int n_pharmacophore_structures() const; 
       std::vector<int> water_structures_vec() const;  // for structure buttons (water cluster)

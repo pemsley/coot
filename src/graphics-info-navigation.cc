@@ -181,12 +181,12 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
       setRotationCentre(pi.atom_index, go_to_atom_molecule()); 
 
    } else { 
-      cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
-	   << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
-	   << " res-no: " << go_to_atom_residue()
-	   << ", ins-code \"" << go_to_atom_inscode_ << "\"," 
-	   << " chain: \"" << go_to_atom_chain()
-	   << "\" not found in molecule " << go_to_atom_molecule() << endl;
+      std::cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
+                << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
+                << " res-no: " << go_to_atom_residue()
+                << ", ins-code \"" << go_to_atom_inscode_ << "\"," 
+                << " chain: \"" << go_to_atom_chain()
+                << "\" not found in molecule " << go_to_atom_molecule() << std::endl;
       std::string w = "WARNING:: atom ";
       w += go_to_atom_atom_name();
       w += go_to_atom_atom_altLoc_;
@@ -210,7 +210,7 @@ graphics_info_t::split_atom_name(const std::string &atom_name) {
    std::pair<std::string, std::string> v("","");
 
    std::string::size_type icomma = atom_name.find_last_of(",");
-   if (icomma == string::npos) { 
+   if (icomma == std::string::npos) {
       // no comma 
       v.first = atom_name;
    } else {
@@ -285,13 +285,12 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 #include "nsv.hh"
 
 // direction is either "next" or "previous"
-// 
+//
 int
 graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 						const std::string &direction) {
 
 
-   
    std::string chain =     go_to_atom_chain_;
    std::string atom_name = go_to_atom_atom_name_;
    std::string ins_code =  go_to_atom_inscode_;
@@ -335,7 +334,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 	 atom_index = molecules[imol].intelligent_next_atom(chain, resno, atom_name, ins_code, rc);
       } else { // "previous"
 	 atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code, rc);
-      } 
+      }
 
       if (atom_index != -1) {
 	 mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
@@ -349,31 +348,35 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 	 // now update the widget with the new values of the above (like
 	 // c-interface:goto_near_atom_maybe())
 
-	 if (go_to_atom_window) { 
+	 if (go_to_atom_window) {
 	    update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-	    // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window, 
-	    // 						 "go_to_atom_residue_tree"); 
+	    // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+	    // 						 "go_to_atom_residue_tree");
 	    // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
-	 } 
+	 }
 	 try_centre_from_new_go_to_atom();
-	 
+
 	 // Update the graphics (glarea widget):
-	 // 
+	 //
 	 update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
          // and show something in the statusbar
          std::string ai;
          ai = atom_info_as_text_for_statusbar(atom_index, imol);
          add_status_bar_text(ai);
 
-         mmdb::Residue *residue_p = next_atom->residue;
-         if (residue_p) {
-            GtkWidget *svc = get_sequence_view_is_displayed(imol);
-            if (svc) {
-               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
-               if (nsv)
-                  nsv->highlight_residue(residue_p);
-            }
-         }
+         auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom,
+                                                          GtkWidget *svc) {
+                                                         if (svc) {
+                                                            mmdb::Residue *residue_p = next_atom->residue;
+                                                            if (residue_p) {
+                                                               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+                                                               if (nsv)
+                                                                  nsv->highlight_residue(residue_p);
+                                                            }
+                                                         }
+                                                      };
+
+         sequence_view_highlight_residue_maybe(next_atom, get_sequence_view_is_displayed(imol));
       }
    }
    return 1;
@@ -384,7 +387,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 // *t1, int it2, const char *t3, const char *altLoc)
 // in that it sets the go_to_atom variables.
 // (try_centre_from_new_go_to_atom should be called after this function)
-// 
+//
 // We will set the atom name to " CA " if there is one, if not, then
 // first atom in the residue.
 //
@@ -394,9 +397,9 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 //
 void
 graphics_info_t::set_go_to_residue_intelligent(const std::string &chain_id, int resno,
-					       const std::string &ins_code) { 
+					       const std::string &ins_code) {
 
-      
+
    // OK, we want a molecule function that returns an atom name
    // (either " CA ", or the first atom in the residue or "no-residue"
    // (error-flag)).

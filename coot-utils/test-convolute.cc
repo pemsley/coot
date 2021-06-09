@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
                    << centre.first << " " << centre.second.format() << std::endl;
 
          // move to origin (!)
-         asc.apply_shift(centre.second.x(), centre.second.y(), centre.second.z());
+         asc.apply_shift(-centre.second);
 
          std::pair<clipper::Coord_orth, clipper::Coord_orth> e =
             coot::util::extents(asc.mol, asc.SelectionHandle);

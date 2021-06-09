@@ -243,7 +243,7 @@ def coot_gui(own_gtk_main=False):
              print "BL WARNING:: None input"
 
        if res is not None:
-             print "BL INFO:: result is", res
+             print "INFO:: result:", res
              insert_normal_text(str(res) + "\n")
 
        if his:
@@ -5459,12 +5459,25 @@ def add_module_cryo_em_gui():
       def flip_hand_local_func():
          map_molecule_chooser_gui("Select", lambda imol: flip_hand(imol))
 
+      def add_mol_sym_mtrix():
+         with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                        aa_ins_code, aa_atom_name,
+                                        aa_alt_conf, aa_res_spec]:
+            add_molecular_symmetry_from_mtrix_from_self_file(aa_imol)
+            set_show_symmetry_master(1)
+
       def go_to_box_middle():
          m_list = map_molecule_list()
          if len(m_list) > 0:
             m = m_list[-1]
             c = cell(m)
             set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
+
+      def ass_seq_assoc_seq():
+         assign_sequence_to_active_fragment()
+
+      add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
+                                    lambda func: add_mol_sym_mtrix())
 
       add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())
@@ -5484,6 +5497,8 @@ def add_module_cryo_em_gui():
       add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
 
+      add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
+                                    lambda func: ass_seq_assoc_seq())
 
 
 def add_module_ccp4_gui():
@@ -5599,21 +5614,21 @@ def toggle_backrub_rotamers(widget=None):
       if widget.get_active():
          # the button is toggled on
          set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-         print "BL INFO:: Using Backrub rotamers now!"
+         print "BL INFO:: Using Backrub rotamers"
       else:
          set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-         print "BL INFO:: NOT using Backrub rotamers any more!"
+         print "BL INFO:: No longer using Backrub rotamers"
 
    else:
       # non graphical - but wont be able to run if this is not loaded.
       mode = rotamer_search_mode_state()
       if (mode == ROTAMERSEARCHLOWRES):
          set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-         print "BL INFO:: NOT using Backrub rotamers any more!"
+         print "INFO:: no longer using Backrub rotamers"
       if (mode == ROTAMERSEARCHHIGHRES or
           mode == ROTAMERSEARCHAUTOMATIC):
          set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-         print "BL INFO:: Using Backrub rotamers now!"
+         print "INFO:: Using Backrub rotamers"
          
          
       # no alternative for now

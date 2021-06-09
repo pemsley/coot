@@ -1714,11 +1714,11 @@ molecule_class_info_t::unalt_conf_residue_atoms(mmdb::Residue *residue_p) {
             }
          }
          if (n_match == 1) {
-            if (std::string(atoms[i]->altLoc) != "") {
-               std::string new_alt_conf("");
-               // force it down the atom's throat :) c.f. insert_coords_change_altconf
-               if (atoms[i]->altLoc) // scan-build fix
-                  strncpy(atoms[i]->altLoc, new_alt_conf.c_str(), 2);
+	    std::string alt_conf(atoms[i]->altLoc);
+            if (! alt_conf.empty()) {
+	       std::string new_alt_conf("");
+	       // force it down the atom's throat :) c.f. insert_coords_change_altconf
+	       strncpy(atoms[i]->altLoc, new_alt_conf.c_str(), 2);
             }
          }
       }
@@ -6275,19 +6275,19 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 			   new_res_spec.res_no += offset;
 
 			   residue_p->seqNum += offset;
-			   status = true; // found one residue at least.
+			   status = 1; // found one residue at least.
 
 			   update_any_link_containing_residue(old_res_spec, new_res_spec);
 			}
 		     }
 		  }
 	       }
-               if (status)
-                  chain_p->SortResidues();
-            }
+	       if (status == 1)
+		  chain_p->SortResidues();
+	    }
 	 }
       }
-      if (status) {
+      if (status == 1) {
          have_unsaved_changes_flag = 1;
          atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
          atom_sel.mol->FinishStructEdit();
@@ -6976,6 +6976,13 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 
                         for (int iat=0; iat<n_atoms; iat++) {
                            at = residue_p->GetAtom(iat);
+			   bool water_atom_is_hydrogen_atom = false;
+			   // PDBv3 FIXME
+			   if (! strncmp(at->name, " H", 2)) water_atom_is_hydrogen_atom = true;
+			   if (! strncmp(at->name, " D", 2)) water_atom_is_hydrogen_atom = true;
+
+			   if (water_atom_is_hydrogen_atom) continue;
+
                            this_is_marked = false;
 
                            if (! at->isTer()) {
@@ -7001,7 +7008,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                               if (! this_is_marked) {
                                  if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
                                     marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
-                              }
+				 }
                               }
 
 
@@ -7009,11 +7016,11 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                               if (! this_is_marked) {
 
                                  // (ignoring things means less marked atoms)
-                                 if (ignore_part_occ_contact_flag==0) {
+                                 if (ignore_part_occ_contact_flag == 0) {
 
-                                    // we want mark as a baddie if ignore Zero Occ is off (0)
+                                    // we do want mark tha  atom as a baddie if ignore-Zero-Occ is off (0)
                                     //
-                                    if (ignore_zero_occ_flag==0 || at->occupancy < 0.01) {
+                                    if (ignore_zero_occ_flag == false || at->occupancy < 0.01) {
                                        double dist_to_atoms_min = 99999;
                                        double d;
                                        double d_sqrd;
@@ -7150,10 +7157,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
          mmdb::mat44 my_matt;
          int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
          if (err != mmdb::SYMOP_Ok) {
-            cout << "!! Warning:: No symmetry available for this molecule"
-                 << endl;
+            std::cout << "!! Warning:: No symmetry available for this molecule"
+                      << std::endl;
          } else {
-            cout << "Symmetry available for this molecule" << endl;
+            std::cout << "Symmetry available for this molecule" << std::endl;
          }
          is_from_shelx_ins_flag = 1;
 
@@ -9003,22 +9010,22 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
 
    initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
-   cout << "initializing map...";
+   std::cout << "initializing map...";
    xmap.init(mydata.spacegroup(),
                      mydata.cell(),
                      clipper::Grid_sampling(mydata.spacegroup(),
                                             mydata.cell(),
                                             mydata.resolution()));
-   cout << "done."<< endl;
-   cout << "doing fft..." ;
+   std::cout << "done."<< std::endl;
+   std::cout << "doing fft..." ;
    xmap.fft_from( fphidata );                  // generate map
-   cout << "done." << endl;
+   std::cout << "done." << std::endl;
    update_map_in_display_control_widget();
 
    mean_and_variance<float> mv = map_density_distribution(xmap,0);
 
-   cout << "Mean and sigma of map from CNS file: " << mv.mean
-        << " and " << sqrt(mv.variance) << endl;
+   std::cout << "Mean and sigma of map from CNS file: " << mv.mean
+             << " and " << sqrt(mv.variance) << std::endl;
 
    // fill class variables
    map_mean_ = mv.mean;

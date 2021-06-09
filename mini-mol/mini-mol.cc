@@ -1181,7 +1181,18 @@ coot::minimol::molecule::transform(const clipper::RTop_orth &rtop, const clipper
    transform(shift_1);
    transform(rtop);
    transform(shift_2);
-} 
+}
+
+void
+coot::minimol::molecule::translate(const clipper::Coord_orth &t) {
+
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++)
+      for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++)
+         for (unsigned int iatom=0; iatom<fragments[ifrag][ires].atoms.size(); iatom++)
+            fragments[ifrag][ires][iatom].pos += t;
+
+}
+
 
 
 

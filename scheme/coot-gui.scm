@@ -4219,6 +4219,13 @@
            (map-molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
 
         (add-simple-coot-menu-menuitem
+         menu "Add molecular symmetry using MTRIX"
+         (lambda ()
+           (using-active-atom
+            (set-show-symmetry-master 1)
+            (add-molecular-symmetry-from-mtrix-from-self-file aa-imol))))
+
+        (add-simple-coot-menu-menuitem
          menu "Align and Mutate using ClustalW2"
          (lambda ()
            'x
@@ -4230,6 +4237,11 @@
             "Select PIR Alignment file"
             (lambda (imol chain-id target-sequence-pir-file)
               (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Assign Sequence Based on Associated Sequence"
+         (lambda ()
+           (assign-sequence-to-active-fragment)))
 
         (add-simple-coot-menu-menuitem
          menu "Auto-assign Sequence Based on Map"

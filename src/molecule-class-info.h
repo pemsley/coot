@@ -74,7 +74,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "mini-mol/mini-mol.hh"
 #include "build/CalphaBuild.hh"
 #include "coot-render.hh"
-#include "coot-surface/coot-surface.hh"
+// #include "coot-surface/coot-surface.hh" dead now
 #include "coot-align.hh"
 #include "utils/coot-fasta.hh"
 #include "coot-utils/coot-shelx.hh"
@@ -87,6 +87,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
 #include "coot-utils/xmap-stats.hh"
+#include "coot-utils/atom-tree.hh"
 #include "crunch-model.hh"
 
 #include "geometry/protein-geometry.hh"
@@ -278,9 +279,6 @@ class molecule_class_info_t {
    // (molecule_class_info_t) object goes away.
    //
    int imol_no;
-   int *imol_no_ptr;  // use this not &imol_no, because this is safe
-		      // on copy of mol, but &imol_no most definately
-		      // is not.
 
    float data_resolution_;
    float map_sigma_;
@@ -633,8 +631,6 @@ public:        //                      public
       // give it a pointer to something at least *vagely* sensible
       // (better than pointing at -129345453).
       imol_no = -1;
-      imol_no_ptr = new int;
-      *imol_no_ptr = imol_no;
       //
    }
 
@@ -644,8 +640,6 @@ public:        //                      public
 
       setup_internal();
       imol_no = i;
-      imol_no_ptr = new int;
-      *imol_no_ptr = i;
    }
 
    // Why did I add this?  It causes a bug in "expanding molecule space"
@@ -692,7 +686,6 @@ public:        //                      public
       skeleton_treenodemap_is_filled = 0;
 
       draw_hydrogens_flag = 1;
-      bond_width = 3.0;
       ghost_bond_width = 2.0;
 
       // initial bonds type (checked and reset in handle_read_draw_molecule)
@@ -788,8 +781,8 @@ public:        //                      public
       contour_by_sigma_flag = 1;
       contour_sigma_step = 0.1;
 
-      //
-      cootsurface = NULL; // no surface initial, updated by make_surface()
+      // cootsurface is no longer used in Coot 0.9
+      // cootsurface = NULL; // no surface initial, updated by make_surface() // dead for now
       theSurface = 0;
       transparent_molecular_surface_flag = 0;
 
@@ -835,6 +828,32 @@ public:        //                      public
 
       // mtz updating
       continue_watching_mtz = false;
+
+      // flycheck fixup - this will cause a conflict because setup_internal()
+      // is no longer in this header
+
+      radial_map_colour_saturation = 0.5;
+      radial_map_colour_invert_flag = false;
+      radial_map_colour_radius_min =  5.0;
+      radial_map_colour_radius_max = 65.0;
+      continue_watching_coordinates_file = false;
+      draw_it_for_parallel_plane_restraints = false;
+      bonds_rotate_colour_map_flag = false;
+      bonds_colour_map_rotation = 0.0;
+      map_colour = NULL; // double ** bleugh.
+      contour_level = 0.25;
+      xmap_is_diff_map = false;
+      have_unit_cell = false;
+      save_use_reso_limits = false;
+      save_low_reso_limit = 9999.9;
+      save_high_reso_limit = 2.0;
+      save_is_diff_map_flag = false;
+      save_is_anomalous_map_flag = false;
+      save_use_weights = false;
+      refmac_r_free_flag_sensible = false;
+      manual_bond_colour = false;
+      map_mean_ = 0.0;
+      map_sigma_ = 1.0;
 
    }
 
@@ -1397,11 +1416,16 @@ public:        //                      public
    // chain).
    void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom,
 		     float col_scale);
+
    bool molecule_is_drawn_as_surface() const {
+#if 0
       if (cootsurface)
 	 return true;
       else
 	 return false;
+#else
+      return true; // for now (in 0.9.x)
+#endif
    }
    //
 
@@ -2382,7 +2406,7 @@ public:        //                      public
 
 
    // LMB surface
-   coot::surface *cootsurface;
+   // coot::surface *cootsurface; // dead for now
 
    // for widget label:
    std::string cell_text_with_embeded_newline() const;
@@ -2548,6 +2572,13 @@ public:        //                      public
 			      const std::string &target_chain_id,
 			      const coot::coot_mat44 &m);
 
+   void add_molecular_symmetry(const clipper::Mat33<double> &mol_symm,
+                               const clipper::Coord_orth &molecular_origin);
+
+   // and that add to this:
+   // (consider using a class)
+   std::vector<std::pair<clipper::Mat33<double>, clipper::Coord_orth> > molecular_symmetry_matrices;
+
    // trivial helper class for add_molecular_symmetry_matrices()
    class quad_d_t {
    public:
@@ -2571,6 +2602,10 @@ public:        //                      public
 
    void add_strict_ncs_from_mtrix_from_file(const std::string &file_name);
    void add_strict_ncs_from_mtrix_from_self_file();
+
+   // New style EM molecular symmetry
+   void add_molecular_symmetry_from_mtrix_from_self_file();
+   void add_molecular_symmetry_from_mtrix_from_file(const std::string &file_name);
 
    // Not 'const' because we can do a fill_ghost_info if the NCS ghosts
    // do not have rtops.
@@ -3461,8 +3496,8 @@ public:        //                      public
    clipper::Coord_orth radial_map_colour_centre;
    double radial_map_colour_radius_min;
    double radial_map_colour_radius_max;
-   double radial_map_colour_invert_flag;
    double radial_map_colour_saturation;
+   bool   radial_map_colour_invert_flag;
 
 };
 

@@ -11,9 +11,18 @@
 
   o FEATURE: model_correlation_stats_per_residue_range() added to the API
 
+  o FEATURE: Molecular (i.e. not crystallographic) symmetry added
+
+  o FEATURE: coot-find-ligand has a mode to merely generate conformers
+
   o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
 
-  o CHANGE:  post-refinement restraints analysis added
+  o CHANGE:  Adjust the initial RSR step size (no more wild water refinement)
+
+  o CHANGE:  Post-refinement restraints analysis added
+
+  o CHANGE:  Trans-peptide restraints added/removed as needed for cis-trans conversion
+             of intermediate atoms
 
   o CHANGE:  Increase the initial step size for refinement
 
@@ -21,7 +30,7 @@
 
   o CHANGE:  Remove libcheck as a restraints generator option
 
-  o CHANGE:  turn off EM-mode for PANDDA maps (Frank von Delft)
+  o CHANGE:  Turn off EM-mode for PANDDA maps (Frank von Delft)
 
   o CHANGE:  "Residues with missing atoms" function no longer considers OP3. Additionally,
              missing atom names are written to the terminal (Lothar Essar)
@@ -30,14 +39,17 @@
 
   o BUG-FIX: Linking (shell) to the Coot executable now works (Marcin Wodjyr)
 
+  o BUG-FIX: Clean up bit-rotten chemical feature clustering
+
   o BUG-FIX: rotamer-fit now runs the post-manipulation hook
+
+  o BUG-FIX: No longer fail to load scheme scripts if the user-name is not in the passwd file
 
   o BUG-FIX: Better crash-catcher diagnostics (thanks Kevin Cowtan)
 
   o BUG-FIX: Chiral restraints improved in pyrogen (Rob Nicholls)
 
-  o BUG-FIX: add-hydrogen-atoms no longer adds a hydrogen atom to an CYS SG if
-             it is linked
+  o BUG-FIX: add-hydrogen-atoms no longer adds a hydrogen atom to an CYS SG if it is linked
 
 ----
 

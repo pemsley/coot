@@ -681,7 +681,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
       // std::cout << "Here with i " << i << " which has " << n_set.size() << " neighbours " << std::endl;
       std::set<unsigned int>::const_iterator it;
-      for (it=n_set.begin(); it!=n_set.end(); it++) {
+      for (it=n_set.begin(); it!=n_set.end(); ++it) {
 
          const unsigned int &j = *it;
          if (j < i) /* only add NBC one way round */
@@ -902,6 +902,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
          non_bonded_contacts_atom_indices[i].insert(j);
          simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
+         // simple_restraint::nbc_function_t nbcf = simple_restraint::HARMONIC;
          simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
                             nbcf, i, j,
                             is_H_non_bonded_contact,
@@ -959,7 +960,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 
    std::set<unsigned int> fixed_atom_flags_set; // signed to unsigned conversion - bleugh.
    std::set<int>::const_iterator it;
-   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
       fixed_atom_flags_set.insert(*it);
 
    auto tp_2 = std::chrono::high_resolution_clock::now();
@@ -1355,7 +1356,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
                      dist_min = nbc_dist.second;
                }
             } else {
-               // short/standard value
+               // short/standard value for no nbc value calculated
+               // std::cout << ".......... using short/standard 2.8" << std::endl;
                dist_min = 2.8;
             }
          }
@@ -1462,8 +1464,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
       if (do_trans_peptide_restraints) {
          lrc.n_link_trans_peptide += add_link_trans_peptide(res_1, res_2,
                                                             is_fixed_first_residue,
-                                                            is_fixed_second_residue,
-                                                            geom);
+                                                            is_fixed_second_residue, false); // don't add if cis
       } else {
          if (false) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
             std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "

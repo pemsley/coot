@@ -647,8 +647,8 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
          }
       }
       // now get the lowest common denominator
-      int resno_start = max(reference_resno_start, moving_resno_start);
-      int resno_end   = min(reference_resno_end, moving_resno_end);
+      int resno_start = std::max(reference_resno_start, moving_resno_start);
+      int resno_end   = std::min(reference_resno_end, moving_resno_end);
       coot::lsq_range_match_info_t matches(resno_start, resno_end,
       				   chain_id_reference,
       				   resno_start, resno_end,
@@ -1421,6 +1421,9 @@ molecule_class_info_t::add_strict_ncs_matrix(const std::string &chain_id,
 					     const std::string &target_chain_id,
 					     const coot::coot_mat44 &m) {
 
+   // std::cout << "-------------------------------------------------------------- add_strict_ncs_matrix imol "
+   // << imol_no << " " << chain_id << " " << target_chain_id << std::endl;
+
 
    std::string name = "Strict NCS for Chain ";
    name += chain_id;
@@ -1439,26 +1442,50 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
 
    bool debug = false;
 
-   if (debug)
+   if (debug) {
       std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
 		<< " NCS matrices" << std::endl;
+      for (const auto &m : strict_ncs_matrices) {
+         std::cout << "NCS Matrix\n"
+                   << "[ " << m.m[0].v4[0] << " " << m.m[0].v4[1] << " " << m.m[0].v4[2] << " " << m.m[0].v4[3] << " ]\n"
+                   << "[ " << m.m[1].v4[0] << " " << m.m[1].v4[1] << " " << m.m[1].v4[2] << " " << m.m[1].v4[3] << " ]\n"
+                   << "[ " << m.m[2].v4[0] << " " << m.m[2].v4[1] << " " << m.m[2].v4[2] << " " << m.m[2].v4[3] << " ]\n"
+                   << "[ " << m.m[3].v4[0] << " " << m.m[3].v4[1] << " " << m.m[3].v4[2] << " " << m.m[3].v4[3] << " ]\n";
+      }
+   }
 
    // We need to convert from internal coot_mat44 to mmdb::mat44s, then do
    // similar things to update_symmetry()
 
    Cell_Translation c_t = extents.coord_to_unit_cell_translations(centre_point, atom_sel);
 
+   if (debug) {
+      std::cout << "cell translation " << c_t << std::endl;
+   }
+
+   // For real NCS, uses the unit cell
+   //
    std::vector<std::pair<int, symm_trans_t> > ncs_mat_indices =
       extents.which_strict_ncs(centre_point, atom_sel, strict_ncs_matrices, c_t);
 
-   std::vector<std::pair<coot::coot_mat44, symm_trans_t> > cmats;
-   for (unsigned int i=0; i<ncs_mat_indices.size(); i++)
-      cmats.push_back(std::pair<coot::coot_mat44, symm_trans_t> (strict_ncs_matrices[ncs_mat_indices[i].first], ncs_mat_indices[i].second));
-
-
-   // guarenteed to be at least one.
+   // guaranteed to be at least one.
    if (debug)
       std::cout << "There were " << ncs_mat_indices.size() << " touching molecules\n";
+
+   std::vector<std::pair<coot::coot_mat44, symm_trans_t> > cmats;
+   for (unsigned int i=0; i<ncs_mat_indices.size(); i++)
+      cmats.push_back(std::pair<coot::coot_mat44, symm_trans_t> (strict_ncs_matrices[ncs_mat_indices[i].first],
+                                                                 ncs_mat_indices[i].second));
+
+   if (debug) {
+      for (unsigned int i=0; i<cmats.size(); i++) {
+         const coot::coot_mat44 &m44 = cmats[i].first;
+         const symm_trans_t &st      = cmats[i].second;
+         std::cout << " cmat " << i <<  std::endl;
+         std::cout << m44;
+         std::cout << st;
+      }
+   }
 
    Bond_lines_container bonds;
    strict_ncs_bonds_box.clear();
@@ -2359,7 +2386,7 @@ molecule_class_info_t::ncs_ghost_chains() const {
 	    }
 	 }
 	 if (! found) {
-	    std::vector<string> v;
+	    std::vector<std::string> v;
 	    v.push_back(ncs_ghosts[ighost].chain_id);
 	    std::pair<std::string, std::vector<std::string> > group(master_chain, v);
 	    grouped_ghosts.push_back(group);
@@ -2470,7 +2497,6 @@ molecule_class_info_t::add_strict_ncs_from_mtrix_from_self_file() {
       }
    }
 }
-
 
 
 // if we are are the centre of a given chain_id, how big a radius

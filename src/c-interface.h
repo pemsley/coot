@@ -244,6 +244,9 @@ void export_map_gui(short int export_map_fragment);
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
+/*! function to show or hide the vertical modelling toolbar */
+void set_show_modelling_toolbar(short int state);
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */
@@ -3341,6 +3344,8 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 /* Used by on_accept_reject_refinement_reject_button_clicked() */
 void stop_refinement_internal();
 
+void set_refinement_use_soft_mode_nbc_restraints(short int flag);
+
 /*! \brief shiftfield B-factor refinement */
 void shiftfield_b_factor_refinement(int imol);
 
@@ -4215,6 +4220,9 @@ void set_nsv_canvas_pixel_limit(int cpl);
 
 /*!  \brief show old style sequence view */
 void sequence_view_old_style(int imol);
+
+/*!  \brief update the sequnce view current position highlight based on active atom */
+void update_sequence_view_current_position_highlight_from_active_atom();
 
 /* this is a widget function, it shouldn't be here */
 void add_on_sequence_view_choices();
@@ -6009,6 +6017,7 @@ void set_show_strict_ncs(int imol, int state);
 /*! \brief At what level of homology should we say that we can't see homology
    for NCS calculation? (default 0.8) */
 void set_ncs_homology_level(float flev);
+
 /* for a single copy */
 /*! \brief Copy single NCS chain */
 void copy_chain(int imol, const char *from_chain, const char *to_chain);

@@ -107,7 +107,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       n_bond_restraints++;
 	       // 	    bond_distortion += distortion_score_bond(restraint, v);
 	       double dist = distortion_score_bond(restraint, v);
-	       const simple_restraint &rest = restraint;
 	       bond_distortion += dist;
 	       if (dist > dist_max_bonds.second) {
 		  dist_max_bonds.first = i;
@@ -247,7 +246,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       n_rama_restraints++;
 	       if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
 		  double dd = distortion_score_rama( restraint, v, ZO_Rama(), get_rama_plot_weight());
-		  // std::cout << "Here with index " << i << " rama distortion score " << dd << std::endl;
 		  rama_distortion += dd;
 		  baddies["Rama"].update_if_worse(dd, i);
 
@@ -266,6 +264,9 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 #endif		  
 
 	       } else {
+
+                  // type is RAMA_TYPE_LOGRAMA
+
                   double w = get_rama_plot_weight();
 		  double dd = distortion_score_rama(restraint, v, lograma, w);
 		  rama_distortion += dd;

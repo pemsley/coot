@@ -101,28 +101,30 @@
 		      (list 0.952432048573266 13.3150000572205 13.9800000190735 0.176323987538941))))
 
     (if (list? m)
-	
+
 	(let* ((diff-d 0.05)
 	       (d            (list-ref m 0))
-	       (mwz          (list-ref m 1))  ;; mogul Z
+	       (dict-stats   (list-ref m 1))  ;; Acedrg-based dict-basesd stats
 	       (contact-info (list-ref m 2))  ;; number of bad contacts
 	       (bc (list-ref contact-info 0))
 	       (low-is-good 1)
 	       (high-is-good 0))
 
-	  ;; if mogul ran OK, then we can display the mogul markup
-	  ;; 
-	  (if (pair? mwz) ;; mwz an improper pair (mogul-z-worst . mogul-out-file-name) or an error status
-	      (let ((mogul-out-file-name (cdr mwz)))
-		(mogul-markup imol chain-id res-no ins-code mogul-out-file-name)))
-	      
+	  (let ((percentile-d      (get-ligand-percentile "density_correlation"             d         high-is-good))
+		(percentile-diff-d (get-ligand-percentile "coot_diff_map_correlation"       diff-d     low-is-good))
+                ;; (percentile-dbgs   (get-ligand-percentile "dictionary_based_geometry_stats" dict-stats low-is-good))  ;; not today
+		(percentile-bc     (get-ligand-percentile "bumps_1"                         bc         low-is-good))
 
-	  (let ((percentile-d      (get-ligand-percentile "density_correlation" d high-is-good))
-		(percentile-diff-d (get-ligand-percentile "coot_diff_map_correlation" diff-d low-is-good))
-		(percentile-mwz    (get-ligand-percentile "mogul_z_worst" (car mwz) low-is-good))
-		(percentile-bc     (get-ligand-percentile "bumps_1" bc low-is-good))
+                ;; make an "informed guess" for the percentile value for dictionary-based-geometry
+                ;;
+                (percentile-dbgs (let ((v (/ (- (car dict-stats) 9) 3.0))) ;; the car is the distortion
+                                   (* 100.0 (- 1.0 (/ (+ (* 1.0 (gsl-sf-erf-scm v)) 1.0) 2.0)))))
+                ;;
 		(c ",")) ;; comma
-	    
+
+            (format #t ":::::::::::::: percentile-d ~s ~s~%"  d percentile-d)
+            (format #t ":::::::::::::: percentile-dbgs ~s ~s~%" (car dict-stats) percentile-dbgs)
+
 	    (let ((input-to-sliders 
 		   (string-append
 		    "["
@@ -130,16 +132,18 @@
 		    ","
 		    (to-python-arg-string (list " Diff map density correl." c percentile-diff-d c diff-d))
 		    ","
-		    (to-python-arg-string (list "            Mogul Z-worst" c percentile-mwz c mwz))
-		    ","
+		    ;; (to-python-arg-string (list "            Mogul Z-worst" c percentile-mwz c mwz))
+		    ;; ","
+		    (to-python-arg-string (list "Dictionary-based-geom." c percentile-dbgs c (car dict-stats)))
+                    ","
 		    (to-python-arg-string (list "             Bad contacts" c percentile-bc  c bc))
 		    "]")))
-	      
-	      (run-python-command (string-append "ligand_validation_metrics_gui_list_wrapper(" 
-						 input-to-sliders
-						 ")"))))))))
 
-  
+              (format #t "########### input-to-sliders: ~s~%" input-to-sliders)
+
+              (let ((python-command (string-append "ligand_validation_metrics_gui_list_wrapper(" input-to-sliders ")")))
+                (run-python-command python-command))))))))
+
 
 (if (defined? 'coot-main-menubar)
     (let ((menu (coot-menubar-menu "Ligand")))

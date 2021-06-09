@@ -172,6 +172,11 @@
 	       (using-active-atom
 		(display-residue-distortions aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
+            (add-simple-coot-menu-menuitem
+             menu "Quick Ligand Validate" ;; yes/no
+             (lambda ()
+               (gui-ligand-check-dialog-active-residue)))
+
 ; 	    (add-simple-coot-menu-menuitem
 ; 	     menu "write sdf file" 
 ; 	     (lambda ()

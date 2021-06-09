@@ -113,10 +113,15 @@ handle_command_line_data(command_line_data cld) {
 
    // coordinates
 
-   for (unsigned int i=0; i< cld.coords.size(); i++) { 
-      handle_read_draw_molecule(cld.coords[i].c_str()); 
+   for (unsigned int i=0; i< cld.coords.size(); i++) {
+      // don't slide around for 100 ligands
+      short int smooth_scroll_on_state_pre = graphics_info_t::smooth_scroll_on;
+      short int smooth_scroll_state_pre = graphics_info_t::smooth_scroll;
+      graphics_info_t::smooth_scroll_on = 0;
+      handle_read_draw_molecule(cld.coords[i].c_str());
+      graphics_info_t::smooth_scroll_on = smooth_scroll_on_state_pre;
+      graphics_info_t::smooth_scroll    = smooth_scroll_state_pre;
    }
-
 
    // datasets
 

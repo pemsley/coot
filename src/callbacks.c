@@ -8808,6 +8808,7 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *fileselection = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
    set_directory_for_fileselection(fileselection);
    set_filename_for_filechooserselection(fileselection,
@@ -8828,6 +8829,7 @@ on_povray1_activate                    (GtkMenuItem     *menuitem,
 {
 
    GtkWidget *fileselection = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
    set_directory_for_fileselection(fileselection);
    set_filename_for_filechooserselection(fileselection,
@@ -8845,6 +8847,7 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
 {
 
    GtkWidget *fileselection = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
    set_directory_for_fileselection(fileselection);
    set_filename_for_filechooserselection(fileselection,
@@ -8861,8 +8864,7 @@ on_screendump_image_ok_button_clicked  (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button),
-					    "screendump_fileselection");
+   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button), "screendump_fileselection");
    int image_type = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(fileselection)));
    const char *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
 

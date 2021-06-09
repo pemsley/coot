@@ -25,6 +25,14 @@
 
 #include <gtk/gtk.h>
 
+#ifdef USE_GUILE
+#include <libguile.h>
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-density-stats.hh"
@@ -52,9 +60,8 @@ namespace coot {
       int index;
       std::string s;
       bool flag;
-      alias_path_t(int index_in, const std::string &s_in, bool flag_in) {
+      alias_path_t(int index_in, const std::string &s_in, bool flag_in) : s(s_in) {
          index = index_in;
-         s = s_in;
          flag = flag_in;
       }
    };
@@ -199,6 +206,20 @@ PyObject *get_symmetry_py(int imol);
 //!    was no cell and symmetry.
 int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
                           float clash_dist);
+
+void add_molecular_symmetry(int imol,
+                            double r_00, double r_01, double r_02,
+                            double r_10, double r_11, double r_12,
+                            double r_20, double r_21, double r_22,
+                            double about_origin_x,
+                            double about_origin_y,
+                            double about_origin_z);
+
+int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &file_name);
+
+int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
+
+
 //! \}
 
 /*  ---------------------------------------------------------------------- */

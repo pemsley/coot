@@ -27,12 +27,13 @@
 
 #include "string.h"
 
+#include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
 #include "geometry/mol-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
+#include "atom-tree.hh"
 
-#include "compat/coot-sysdep.h"
 
 
 // Return 0 if any of the residues don't have a dictionary entry

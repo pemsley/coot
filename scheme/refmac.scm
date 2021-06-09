@@ -167,31 +167,36 @@
 	    f-col sig-f-col r-free-col)
     (format #t "#### run-refmac-by-filename refmac-extra-params: ~s~%" refmac-extra-params)
 
-	
+    ;; some additional argument jiggery-pokery: convert (("/crystal/thing/R-free")) to ("/crystal/thing/R-free")
+    (if (list? r-free-col)
+        (if (not (null? r-free-col))
+            (if (list? (car r-free-col))
+                (set! r-free-col (car r-free-col)))))
+
     (let* ((local-r-free-col (if (null? r-free-col) '() (car r-free-col)))
-		   ; need to check for f-col being a string or list
+           ;; need to check for f-col being a string or list
 	   (labin-string (if (and (string? f-col) (string=? f-col "")) ""
 				(apply string-append (append
 					   (if (= phase-combine-flag 3)
 						   (list "LABIN" " "
-								 "F+=" (strip-path (car f-col)) " "
-								 "SIGF+=" (strip-path (car sig-f-col)) " "
-								 "F-=" (strip-path (cdr f-col)) " "
-								 "SIGF-=" (strip-path (cdr sig-f-col)))
+                                                         "F+="    (strip-path (car f-col))     " "
+                                                         "SIGF+=" (strip-path (car sig-f-col)) " "
+                                                         "F-="    (strip-path (cdr f-col))     " "
+                                                         "SIGF-=" (strip-path (cdr sig-f-col)))
 						   (if (= (refmac-use-intensities-state) 1)
 							   (list "LABIN" " "
-									 "IP=" (strip-path f-col) " "
-									 "SIGIP=" (strip-path sig-f-col))
+                                                                 "IP="    (strip-path f-col) " "
+                                                                 "SIGIP=" (strip-path sig-f-col))
 							   (list "LABIN" " "
-									 "FP=" (strip-path f-col) " "
-									 "SIGFP=" (strip-path sig-f-col))))
+                                                                 "FP="    (strip-path f-col) " "
+                                                                 "SIGFP=" (strip-path sig-f-col))))
 					   (if (null? local-r-free-col)
 						   '()
 						   (list " FREE=" (strip-path local-r-free-col)))
 					   (if (= phase-combine-flag 1)
 						   ; we have Phi-FOM pair
-						   (list " - \nPHIB=" (strip-path (car phib-fom-pair)) " "
-								 "FOM=" (strip-path (cdr phib-fom-pair))) '())
+						   (list " - \nPHIB="   (strip-path (car phib-fom-pair)) " "
+                                                         "FOM="         (strip-path (cdr phib-fom-pair))) '())
 					   (if (= phase-combine-flag 2)
 						   (let ((hl-list (string->list-of-strings (car phib-fom-pair))))
 							 (list  " - \nHLA=" (strip-path (list-ref hl-list 0)) " "
@@ -199,77 +204,77 @@
 									"HLC=" (strip-path (list-ref hl-list 2)) " "
 									"HLD=" (strip-path (list-ref hl-list 3)))) '())))))
 
-	  (command-line-args
-	   (append
-	    (list 
-	     "XYZIN"  pdb-in-filename
-	     "XYZOUT" pdb-out-filename
-	     "HKLIN"  mtz-in-filename
-	     "HKLOUT" mtz-out-filename)
-	    (if (string=? extra-cif-lib-filename "")
-		(begin
-		  (local-format #t "Not Passing LIBIN to refmac LIBIN~%")
-		  (list)) ; nothing
-		(begin
-		  (local-format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
-		  (list "LIBIN" extra-cif-lib-filename)))))
-      
-	  (data-lines (let* ((std-lines
-			      (list 
-			       "MAKE HYDROGENS NO" ; Garib's suggestion 8 Sept 2003
-			       (if (= (get-refmac-refinement-method) 1)
+           (command-line-args
+            (append
+             (list 
+              "XYZIN"  pdb-in-filename
+              "XYZOUT" pdb-out-filename
+              "HKLIN"  mtz-in-filename
+              "HKLOUT" mtz-out-filename)
+             (if (string=? extra-cif-lib-filename "")
+                 (begin
+                   (local-format #t "Not Passing LIBIN to refmac LIBIN~%")
+                   (list)) ; nothing
+                 (begin
+                   (local-format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
+                   (list "LIBIN" extra-cif-lib-filename)))))
+           
+           (data-lines (let* ((std-lines
+                               (list 
+                                "MAKE HYDROGENS NO" ; Garib's suggestion 8 Sept 2003
+                                (if (= (get-refmac-refinement-method) 1)
 					; rigid body
-				   "REFInement TYPE RIGID"
-				   "")
-			       (if (number? force-n-cycles)
-					   (if (>= force-n-cycles 0)
-						   (string-append
-							(if (= (get-refmac-refinement-method) 1)
-								"RIGIDbody NCYCle "
-								"NCYCLES " )
-							(number->string force-n-cycles))
-						   "")
-					   "")
-			       (if (= (get-refmac-refinement-method) 2)
-				   "REFI TLSC 5"
-				   "")
-			       (if (= (refmac-use-twin-state) 1)
-				   "TWIN"
-				   "")
-			       (if (and (= phase-combine-flag 3) (string=? labin-string ""))
-				   "REFI SAD"
-				   "")
-;			       (if (= (refmac-use-sad-state) 1)
-;					; need to give some information for SAD atom FIXME
-;					; too tricky for now put in a fix one for now
-;					;(let((sad-atom-ls (get-sad-atom-info)))))
-;				   "ANOM FORM SE -8.0 4.0"
-;				   "")
-;			       (if (= (refmac-use-ncs-state) 1)
-;				   ""  ; needs some chains etc FIXME
-;				   "")
-			       ))
-			     (extra-params (get-refmac-extra-params))
-			     (extra-rigid-params (refmac-rigid-params))
-			     (noval (format #t "PE-DEBUG:: extra params ~s~%" extra-params))
-			     (extra-ncs-params   (refmac-ncs-params))
-			     (extra-sad-params   (refmac-sad-params))
-			     )
+                                    "REFInement TYPE RIGID"
+                                    "")
+                                (if (number? force-n-cycles)
+                                    (if (>= force-n-cycles 0)
+                                        (string-append
+                                         (if (= (get-refmac-refinement-method) 1)
+                                             "RIGIDbody NCYCle "
+                                             "NCYCLES " )
+                                         (number->string force-n-cycles))
+                                        "")
+                                    "")
+                                (if (= (get-refmac-refinement-method) 2)
+                                    "REFI TLSC 5"
+                                    "")
+                                (if (= (refmac-use-twin-state) 1)
+                                    "TWIN"
+                                    "")
+                                (if (and (= phase-combine-flag 3) (string=? labin-string ""))
+                                    "REFI SAD"
+                                    "")
+                                        ;			       (if (= (refmac-use-sad-state) 1)
+                                        ;					; need to give some information for SAD atom FIXME
+                                        ;					; too tricky for now put in a fix one for now
+                                        ;					;(let((sad-atom-ls (get-sad-atom-info)))))
+                                        ;				   "ANOM FORM SE -8.0 4.0"
+                                        ;				   "")
+                                        ;			       (if (= (refmac-use-ncs-state) 1)
+                                        ;				   ""  ; needs some chains etc FIXME
+                                        ;				   "")
+                                ))
+                              (extra-params (get-refmac-extra-params))
+                              (extra-rigid-params (refmac-rigid-params))
+                              (noval (format #t "PE-DEBUG:: extra params ~s~%" extra-params))
+                              (extra-ncs-params   (refmac-ncs-params))
+                              (extra-sad-params   (refmac-sad-params))
+                              )
 
-			(if (extra-params-include-weight? extra-params)
-			    (append std-lines
-				    extra-params
-				    extra-rigid-params
-				    extra-ncs-params
-				    extra-sad-params
-				    (list labin-string))
-			    (append std-lines
-				    (list "WEIGHT AUTO 5")
-				    extra-params
-				    extra-rigid-params
-				    extra-ncs-params
-				    extra-sad-params
-				    (list labin-string)))))
+                         (if (extra-params-include-weight? extra-params)
+                             (append std-lines
+                                     extra-params
+                                     extra-rigid-params
+                                     extra-ncs-params
+                                     extra-sad-params
+                                     (list labin-string))
+                             (append std-lines
+                                     (list "WEIGHT AUTO 5")
+                                     extra-params
+                                     extra-rigid-params
+                                     extra-ncs-params
+                                     extra-sad-params
+                                     (list labin-string)))))
 
 	  (nov (format #t "DEBUG:: run-refmac-by-filename refmac-extra-params: ~s~%" (get-refmac-extra-params)))
 	  
@@ -308,7 +313,7 @@
 		(begin 
 		  (local-format #t "refmac failed (no executable)")
 		  (local-format #t " - no new map and molecule available~%")
-		  test-refmac-status)
+		  refmac-status)
 
                 ;; OK, we found the executable, this should be OK then...
                 (let* ((to-screen-flag (if (= make-molecules-flag 0)

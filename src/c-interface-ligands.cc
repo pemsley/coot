@@ -789,6 +789,7 @@ PyObject *execute_ligand_search_py() {
 }
 #endif // USE_PYTHON
 
+#include "utils/ctpl.h"
 
 /*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
 void set_find_ligand_here_cluster(int state) {
@@ -853,9 +854,11 @@ ligand_search_install_wiggly_ligands() {
 	       // optim_geom, fill_vec);
 
 	    } else {
+               unsigned int n_threads = coot::get_max_number_of_threads();
+               ctpl::thread_pool thread_pool(n_threads);
 	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
-						     optim_geom, fill_vec);
+						     optim_geom, fill_vec, &thread_pool, n_threads);
 	    }
 	 }
 	 catch (const std::runtime_error &mess) {
@@ -1072,9 +1075,11 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    bool optim_geom = true;
 	    bool fill_return_vec = false; // would give input molecules (not conformers)
 	    coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
+            unsigned int n_threads = coot::get_max_number_of_threads();
+            ctpl::thread_pool thread_pool(n_threads);
 	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 					       g.ligand_wiggly_ligand_n_samples,
-					       optim_geom, fill_return_vec);
+					       optim_geom, fill_return_vec, &thread_pool, n_threads);
 	 }
 	 catch (const std::runtime_error &mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
@@ -1455,7 +1460,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
       std::string button_name = "monomer_button_";
       // gets embedded as user data (hmm).
-      string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
+      std::string *s = new std::string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
       // std::cout << "Adding button: " << button << " " << button_name << std::endl;
       gtk_widget_ref (button);
@@ -3419,7 +3424,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 
    double pc = -1;
 #ifdef USE_SQLITE3
-   std::string database_name = std::string(PKGDATADIR) + "/data/ligands-2016.db";
+   std::string database_name = coot::package_data_dir() + "/data/ligands-2016.db";
    bool low_is_good = reverse_order;
 
    coot::ligand_metrics lm(database_name);
@@ -3602,7 +3607,7 @@ void coot_all_atom_contact_dots(int imol) {
       colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
 
-      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";

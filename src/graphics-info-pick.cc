@@ -121,8 +121,7 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
 			spg  = xtal.second;
 			spacegroup_ok = 1;
 		     } catch (const std::runtime_error &except) {
-			cout << "!! get_cell_symm() fails in symmetry_atom_pick"
-			     << endl;
+                        std::cout << "!! get_cell_symm() fails in symmetry_atom_pick" << std::endl;
 		     }
 		     if (spacegroup_ok == 1) { 
 			// 		     std::cout << "DEBUG:: Initing clipper::Spacegroup: "

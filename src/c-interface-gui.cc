@@ -1801,7 +1801,7 @@ filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<st
    std::string t;
    for (unsigned int i=0; i<v.size(); i++) {
       islash = v[i].find_last_of("/");
-      if (islash == string::npos) {
+      if (islash == std::string::npos) {
 	 // no slash found:
 	 t = v[i];
       } else {
@@ -2297,7 +2297,7 @@ void handle_get_accession_code(GtkWidget *widget) {
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
 
 #ifdef USE_GUILE
-      string scheme_command;
+      std::string scheme_command;
 
       if (n == 1) {
          get_coords_for_accession_code(text);
@@ -2329,7 +2329,7 @@ void handle_get_accession_code(GtkWidget *widget) {
 #else
 
 #ifdef USE_PYTHON
-      string python_command;
+      std::string python_command;
       if (n == 1) {
 	 get_coords_for_accession_code(text);
       } else {
@@ -2581,6 +2581,7 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
       gtk_widget_set_sensitive(hbox, FALSE);
       gtk_widget_set_sensitive(label_atom_check_button, FALSE);
       gtk_widget_set_sensitive(distance_type_frame, FALSE);
+      graphics_draw();
    }
 }
 
@@ -5728,7 +5729,7 @@ void sequence_view_old_style(int imol) {
 
 	 std::string::size_type islash = g.molecules[imol].name_.find_last_of("/");
 	 std::string tstring;
-	 if (islash == string::npos) {
+	 if (islash == std::string::npos) {
 	    // no slash found
 	    tstring = g.molecules[imol].name_;
 	 } else {
@@ -5737,7 +5738,7 @@ void sequence_view_old_style(int imol) {
 
 	 std::string::size_type ipdb = tstring.rfind(".pdb");
 
-	 if (ipdb == string::npos) {
+	 if (ipdb == std::string::npos) {
 	    std::cout << "INFO .pdb not found in filename" << std::endl;
 	    short_name = tstring;
 	 } else {
@@ -6315,6 +6316,9 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                   int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
+                     std::cout << "WARNING:: rename error: " << strerror(errno) << std::endl;
+                     std::cout << "WARNING:: fall-back: run the script from download-dir: " << dl_fn << std::endl;
+                     run_script(dl_fn.c_str());
                   } else {
                      std::cout << "debug:: BB renaming successful" << std::endl;
                      std::cout << "debug:: BB run_script() called on " << preferences_file_name << std::endl;

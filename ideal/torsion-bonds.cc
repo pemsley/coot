@@ -27,7 +27,7 @@
 
 #include "coot-utils/coot-coord-extras.hh"
 #include "coot-utils/contact-info.hh"
-// #include "simple-restraint.hh"
+#include "coot-utils/atom-tree.hh"
 
 #include "torsion-bonds.hh"
 

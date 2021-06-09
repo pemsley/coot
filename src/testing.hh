@@ -28,6 +28,7 @@
 
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/atom-tree.hh"
 
 
 #define BUILT_IN_TESTING

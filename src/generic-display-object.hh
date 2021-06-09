@@ -11,10 +11,8 @@ namespace coot {
 
    class generic_display_line_t {
    public:
-     std::pair<clipper::Coord_orth, clipper::Coord_orth> coords;
-     generic_display_line_t(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) {
-       coords = coords_in;
-     }
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> coords;
+      explicit generic_display_line_t(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) : coords(coords_in) {}
    };
 
    // a container for lines of the same colour and width
@@ -26,9 +24,7 @@ namespace coot {
      std::vector<generic_display_line_t> lines;
      generic_display_line_set_t(const colour_holder &colour_in,
                                 const std::string &colour_name_in,
-                                const int &width_in) {
-       colour = colour_in;
-       colour_name = colour_name_in;
+                                const int &width_in) : colour(colour_in), colour_name(colour_name_in) {
        width = width_in;
      }
      void add_line(const generic_display_line_t &line) {
@@ -45,9 +41,7 @@ namespace coot {
       std::vector<clipper::Coord_orth> points;
       generic_display_point_set_t(const colour_holder &colour_in,
                                   const std::string &colour_name_in,
-                                  const int &size_in) {
-         colour = colour_in;
-         colour_name = colour_name_in;
+                                  const int &size_in)  : colour(colour_in), colour_name(colour_name_in) {
          size = size_in;
       }
       void add_point(const clipper::Coord_orth &point) {
@@ -62,9 +56,7 @@ namespace coot {
       class arrow_t {
       public:
          arrow_t() { fract_head_size = 0.3;}
-         arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
-            start_point = pt1;
-            end_point = pt2;
+         arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) : start_point(pt1), end_point(pt2) {
             fract_head_size = 0.3;
          }
          clipper::Coord_orth start_point;
@@ -75,8 +67,7 @@ namespace coot {
       class sphere_t {
       public:
          sphere_t() {}
-         sphere_t(const clipper::Coord_orth &centre_in, float r) {
-            centre = centre_in;
+         sphere_t(const clipper::Coord_orth &centre_in, float r) : centre(centre_in) {
             radius = r;
          }
          clipper::Coord_orth centre;
@@ -88,9 +79,7 @@ namespace coot {
          torus_t() {}
          torus_t(const clipper::Coord_orth &pt1,
                  const clipper::Coord_orth &pt2,
-                 float r1, float r2) {
-            start_point = pt1;
-            end_point   = pt2;
+                 float r1, float r2) : start_point(pt1), end_point(pt2) {
             radius_1 = r1;
             radius_2 = r2;
             n_ring_atoms = 6;
@@ -109,17 +98,15 @@ namespace coot {
                const clipper::Coord_orth &start_point_in,
                const clipper::Coord_orth &start_dir_in,
                const clipper::Coord_orth &normal_in,
-               float radius_in, float radius_inner_in) {
-            start_point = start_point_in;
+               float radius_in, float radius_inner_in) :
+            start_point(start_point_in), normal(normal_in), start_dir(start_dir_in) {
             start_angle = start_angle_in;
             end_angle = end_angle_in;
-            normal = normal_in;
-            start_dir = start_dir_in;
             radius = radius_in;
             radius_inner = radius_inner_in;
          }
-         clipper::Coord_orth normal;
          clipper::Coord_orth start_point;
+         clipper::Coord_orth normal;
          clipper::Coord_orth start_dir;
          float start_angle;
          float end_angle;
@@ -130,10 +117,8 @@ namespace coot {
 
       class dodec_t {
       public:
-         dodec_t(const dodec &d_in, double size_in, const clipper::Coord_orth &pos_in) {
-            d = d_in;
+         dodec_t(const dodec &d_in, double size_in, const clipper::Coord_orth &pos_in) : d(d_in), position(pos_in) {
             size = size_in;
-            position = pos_in;
          }
          dodec d;
          double size;
@@ -144,10 +129,8 @@ namespace coot {
       class pentakis_dodec_t { // perhaps this should inherit from above
       public:
          pentakis_dodec_t(const pentakis_dodec &pkdd_in, double size_in,
-                          const clipper::Coord_orth &pos_in) {
-            pkdd = pkdd_in;
+                          const clipper::Coord_orth &pos_in) :pkdd(pkdd_in), position(pos_in) {
             size = size_in;
-            position = pos_in;
          }
          pentakis_dodec pkdd;
          double size;
@@ -172,21 +155,21 @@ namespace coot {
       std::vector<dodec_t> dodecs;
       std::vector<pentakis_dodec_t> pentakis_dodecs;
       std::vector<int> GL_display_list_handles;
-      generic_display_object_t(const std::string &n) {
-         name = n;
+      explicit generic_display_object_t(const std::string &n) : name(n) {
          is_displayed_flag = false;
          is_closed_flag = false;
          opacity = 1.0;
          is_transparent_flag = false;
          imol = UNDEFINED;
+         is_solid_flag = false;
       }
-      generic_display_object_t(int imol_in, const std::string &n) {
-         name = n;
+      generic_display_object_t(int imol_in, const std::string &n) : name(n) {
          is_displayed_flag = false;
          is_closed_flag = false;
          opacity = 1.0;
          is_transparent_flag = false;
          imol = imol_in;
+         is_solid_flag = false;
       }
       void add_line(const colour_holder &colour_in,
                     const std::string &colour_name,
@@ -228,9 +211,8 @@ namespace coot {
      std::string s;
      float x, y, z;
      generic_text_object_t(const std::string &s_in, int handle_in,
-                           float x_in, float y_in, float z_in) {
+                           float x_in, float y_in, float z_in) : s(s_in) {
        handle = handle_in;
-       s = s_in;
        x = x_in;
        y = y_in;
        z = z_in;

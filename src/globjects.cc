@@ -2605,6 +2605,7 @@ adjust_clipping(double d) {
    }
 }
 
+#include "c-interface-ligands-swig.hh"
 
 gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 {
@@ -2861,14 +2862,24 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_1:
    case GDK_KP_1:
-      if (graphics_info_t::moving_atoms_move_chis_flag) {
-         graphics_info_t g;
-         g.setup_flash_bond_using_moving_atom_internal(0);
-	 graphics_info_t::edit_chi_current_chi = 1;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::control_is_pressed) {
+	 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+	 if (aa.first) {
+            coot_all_atom_contact_dots(aa.second.first);
+         }
+         handled = true;
+         break;
+      } else {
+
+         if (graphics_info_t::moving_atoms_move_chis_flag) {
+            graphics_info_t g;
+            g.setup_flash_bond_using_moving_atom_internal(0);
+            graphics_info_t::edit_chi_current_chi = 1;
+            graphics_info_t::in_edit_chi_mode_flag = 1; // on
+         }
+         handled = TRUE;
+         break;
       }
-      handled = TRUE;
-      break;
    case GDK_2:
    case GDK_KP_2:
       if (graphics_info_t::moving_atoms_move_chis_flag) {
@@ -4309,6 +4320,24 @@ set_bond_colour(int i) {
 //
 std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
 
+#if 0
+   if (true) { // print a rotation to colour table
+      int n_cols = 100; // either side
+      for (int i = -n_cols; i<n_cols; i++) {
+         float rotation_size = 0.01f * static_cast<float>(i);
+         std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+         std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+         std::cout << "debug colours::" << rgb_new[0] << " " << rgb_new[1] << " " << rgb_new[2]
+                   << " using rotation_size " << rotation_size << std::endl;
+      }
+
+      // Result:
+      //
+      // if we start at solid green then rotation_size for "no rotation" is 0.0
+      //                                 rotation_size for full rotation is -0.33 (solid red)
+   }
+#endif
+
    std::vector<float> hsv = coot::convert_rgb_to_hsv(rgb);
 
    // add 20 degrees to hue (or whatever)
@@ -4350,7 +4379,7 @@ std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
 
 // i goes upto bond_box.num_colours
 //
-void set_skeleton_bond_colour_random(int i, const vector< vector<float> > &colour_table) {
+void set_skeleton_bond_colour_random(int i, const std::vector<std::vector<float> > &colour_table) {
 
    glColor3f(0.2+0.8*colour_table[i][0],
 	     0.2+0.8*colour_table[i][1],

@@ -435,14 +435,15 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 	       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
 
 	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, &xmap);
-	       int nrestraints =
-		  restraints.make_restraints(imol, geom, flags,
-					     do_residue_internal_torsions,
-					     do_trans_peptide_restraints,
-					     rama_plot_restraint_weight,
-					     do_rama_restraints,
-					     false, false, false,
-					     pseudo_bonds_type);
+               unsigned int n_threads = coot::get_max_number_of_threads();
+               restraints.thread_pool(&g.static_thread_pool, n_threads);
+	       restraints.make_restraints(imol, geom, flags,
+                                          do_residue_internal_torsions,
+                                          do_trans_peptide_restraints,
+                                          rama_plot_restraint_weight,
+                                          do_rama_restraints,
+                                          false, false, false,
+                                          pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
 	       if (gd.size() > 0) {
@@ -495,9 +496,9 @@ SCM residues_distortions_scm(int imol, SCM residue_specs_scm) {
 	 std::vector<mmdb::Residue *> residues;
 	 for (std::size_t i=0; i<residue_specs.size(); i++) {
 	    const coot::residue_spec_t &rs = residue_specs[i];
-	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    mmdb::Residue *resdiue_p = graphics_info_t::molecules[imol].get_residue(rs);
 	    if (r) {
-	       residues.push_back(r);
+	       residues.push_back(resdiue_p);
 	    }
 	 }
 	 if (! residues.empty()) {
@@ -525,14 +526,15 @@ SCM residues_distortions_scm(int imol, SCM residue_specs_scm) {
 
 	       coot::restraints_container_t restraints(local_residues, links, geom, mol,
 						       fixed_atom_specs, &xmap);
+               unsigned int n_threads = coot::get_max_number_of_threads();
+               restraints.thread_pool(&g.static_thread_pool, n_threads);
 	       // don't do auto-secondary structure restraints
-	       int nrestraints =
-		  restraints.make_restraints(imol, geom, flags,
-					     do_residue_internal_torsions,
-					     do_trans_peptide_restraints,
-					     rama_plot_restraint_weight,
-					     do_rama_restraints, false, false, false,
-					     pseudo_bonds_type);
+               restraints.make_restraints(imol, geom, flags,
+                                          do_residue_internal_torsions,
+                                          do_trans_peptide_restraints,
+                                          rama_plot_restraint_weight,
+                                          do_rama_restraints, false, false, false,
+                                          pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       if (gd.size() > 0) {
 		  r = SCM_EOL;

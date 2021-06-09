@@ -54,10 +54,21 @@
 ;;       (user (vector-ref pw-bits 4)))
 ;;
 (let* ((os-type (vector-ref (uname) 0))
-       (user
-	(cond
-	 ((string=? os-type "Windows XP") (getenv "USERNAME"))
-	 (else (vector-ref (getpwnam (getenv "USER")) 4)))))
+       (user (cond
+              ((string=? os-type "Windows XP") (getenv "USERNAME"))
+              (else
+               (let ((pwn "The-Ghost-of-Christmas-Past"))
+                 pwn)))))
+
+  (catch #t
+    (lambda () 
+      (let ((pwn (getpwnam (getenv "USER"))))
+        ;; (format #t "#### pwn ~s~%" pwn)
+        (if (vector? pwn)
+            (set! user (vector-ref (getpwnam (getenv "USER")) 4)))))
+    (lambda (key . parameters)
+      (format (current-error-port) "Uncaught throw to '~a: ~a\n" key parameters) ;; to the terminal
+      #f))
 
   (let* ((time-str (let ((hour (tm:hour (localtime (current-time)))))
 		     (cond

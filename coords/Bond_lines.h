@@ -493,9 +493,9 @@ class Bond_lines {
    std::vector<graphics_line_t> points;
 
  public:
-   Bond_lines(const graphics_line_t &pts);
-   Bond_lines(); 
-   Bond_lines(int col);
+   explicit Bond_lines(const graphics_line_t &pts);
+   Bond_lines() { colour = 0; }
+   explicit Bond_lines(int col) { colour = col; }
 
    void add_bond(const coot::CartesianPair &p,
 		 graphics_line_t::cylinder_class_t cc,

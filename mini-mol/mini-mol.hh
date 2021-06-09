@@ -280,6 +280,8 @@ namespace coot {
 	 // apply a shift of -pos before transforming (then apply shift back again)
 	 void transform(const clipper::RTop_orth &rtop, const clipper::Coord_orth &pos);
 
+         void translate(const clipper::Coord_orth &t);
+
 	 // get the RTop that transforms this molecule onto mol_ref.
 	 // mol_ref is (guaranteed by caller) to be of the same
 	 // structure as this molecule with (potentially) moved atom positions.
