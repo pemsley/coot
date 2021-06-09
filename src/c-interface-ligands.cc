@@ -3424,7 +3424,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 
    double pc = -1;
 #ifdef USE_SQLITE3
-   std::string database_name = std::string(PKGDATADIR) + "/data/ligands-2016.db";
+   std::string database_name = coot::package_data_dir() + "/data/ligands-2016.db";
    bool low_is_good = reverse_order;
 
    coot::ligand_metrics lm(database_name);

@@ -838,8 +838,9 @@ void gui_ligand_metrics_scm(SCM ligand_spec, SCM ligand_metrics, double percenti
 	 int n_bumps = scm_to_int(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
 	 // coot::probe_clash_score_t cs =
 	 //    probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
-	 coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
-	 coot::ligand_report_absolute_t lr(d, m, cs);
+	 coot::probe_clash_score_t pcs(n_bumps, -1, -1, -1, -1);
+         // args: density_correl mogul-z probe_clash_score
+	 coot::ligand_report_absolute_t lr(d, m, pcs);
 
 	 coot::residue_spec_t spec = residue_spec_from_scm(ligand_spec);
 
@@ -847,8 +848,7 @@ void gui_ligand_metrics_scm(SCM ligand_spec, SCM ligand_metrics, double percenti
 	 
       }
    }
-
-} 
+}
 #endif // USE_GUILE
 
 // for "better than the median", percentile_limit should be 0.5 (of course).
@@ -914,6 +914,8 @@ coot::ligands_db_sql_callback(void *param, int argc, char **argv, char **azColNa
 }
 
 
+#include <gsl/gsl_sf_erf.h>
+
 coot::ligand_report_percentiles_t
 coot::ligand_report_absolute_t::make_percentiles() const {
 
@@ -934,7 +936,6 @@ coot::ligand_report_absolute_t::make_percentiles() const {
    } else { 
       sqlite3 *db;
       char *zErrMsg = 0;
-      const char *something;
   
       int rc = sqlite3_open(f.c_str(), &db);
       if (rc) {
@@ -959,13 +960,13 @@ coot::ligand_report_absolute_t::make_percentiles() const {
 
       std::cout << "INFO:: density_correlation_vec.size() "
 		<< lrp.density_correlation_vec.size() << std::endl;
-      std::cout << "INFO:: mogul_z_worst_vec.size() "
-		<< lrp.mogul_z_worst_vec.size() << std::endl;
+      // std::cout << "INFO:: mogul_z_worst_vec.size() "
+      //   	<< lrp.mogul_z_worst_vec.size() << std::endl;
       std::cout << "INFO:: bad_contacts_vec.size() "
 		<< lrp.bad_contacts_vec.size() << std::endl;
 
       std::sort(lrp.density_correlation_vec.begin(), lrp.density_correlation_vec.end());
-      std::sort(lrp.mogul_z_worst_vec.begin(),       lrp.mogul_z_worst_vec.end());
+      // std::sort(lrp.mogul_z_worst_vec.begin(),       lrp.mogul_z_worst_vec.end());
       std::sort(lrp.bad_contacts_vec.begin(),        lrp.bad_contacts_vec.end());
 
       
@@ -977,30 +978,35 @@ coot::ligand_report_absolute_t::make_percentiles() const {
 			      lrp.density_correlation_vec.end(),
 			      density_correlation);
 
+      // // low is good, need to reverse for percentiles
+      // it_m = std::lower_bound(lrp.mogul_z_worst_vec.begin(),
+      //    		      lrp.mogul_z_worst_vec.end(),
+      //   		      mogul_z_score);
+
       // low is good, need to reverse for percentiles
-      it_m = std::lower_bound(lrp.mogul_z_worst_vec.begin(),
-	 		      lrp.mogul_z_worst_vec.end(),
-			      mogul_z_score);
+      // it_gd = std::lower_bound(lrp.mogul_z_worst_vec.begin(),
+      // lrp.mogul_z_worst_vec.end(),
+      // dictionary_geometry_distortion_max);
 
       // low is good, need to reverse for percentiles
        it_b = std::lower_bound(lrp.bad_contacts_vec.begin(),
- 			      lrp.bad_contacts_vec.end(),
- 			      pcs.n_bad_overlaps);
+                               lrp.bad_contacts_vec.end(),
+                               pcs.n_bad_overlaps);
 
-      std::cout << "density:      lower_bound at position of " << density_correlation
-		<< " is "
+      std::cout << "DEBUG:: ############### make_percentiles() density:      lower_bound at position of "
+                << density_correlation << " is "
 		<< (it_d - lrp.density_correlation_vec.begin())
 		<< " of " << lrp.density_correlation_vec.size()
 		<< '\n';
 			      
-      std::cout << "mogul:        lower_bound at position of " << mogul_z_score
-		<< " is "
-		<< (it_m - lrp.mogul_z_worst_vec.begin())
-		<< " of " << lrp.mogul_z_worst_vec.size()
-		<< '\n';
+      // std::cout << "mogul:        lower_bound at position of " << mogul_z_score
+      //   	<< " is "
+      //   	<< (it_m - lrp.mogul_z_worst_vec.begin())
+      //   	<< " of " << lrp.mogul_z_worst_vec.size()
+      //   	<< '\n';
 
-      std::cout << "bad-contacts: lower_bound at position of " << pcs.n_bad_overlaps
-		<< " is "
+      std::cout << "DEBUG:: ############### make_percentiles() bad-contacts: lower_bound at position of "
+                << pcs.n_bad_overlaps << " is "
 		<< (it_b - lrp.bad_contacts_vec.begin())
 		<< " of " << lrp.bad_contacts_vec.size()
 		<< '\n';
@@ -1008,22 +1014,36 @@ coot::ligand_report_absolute_t::make_percentiles() const {
       double frac_d =
 	 double(it_d - lrp.density_correlation_vec.begin())/
 	 double(lrp.density_correlation_vec.size());
-      double frac_m = 1 - 
-	 double(it_m - lrp.mogul_z_worst_vec.begin())/
-	 double(lrp.mogul_z_worst_vec.size());
-      double frac_b = 1 - 
-	 double(it_b - lrp.bad_contacts_vec.begin())/
-	 double(lrp.bad_contacts_vec.size());
+      // double frac_m = 1 - 
+      //    double(it_m - lrp.mogul_z_worst_vec.begin())/
+      //    double(lrp.mogul_z_worst_vec.size());
+      double frac_dg = 1.0 - double(it_m - lrp.mogul_z_worst_vec.begin())/ double(lrp.mogul_z_worst_vec.size());
+      double frac_b  = 1.0 - double(it_b - lrp.bad_contacts_vec.begin())/ double(lrp.bad_contacts_vec.size());
 
       lrp.density_correlation_percentile = frac_d;
-      lrp.mogul_percentile = frac_m;
+      // lrp.mogul_percentile = frac_m;
+      lrp.dictionary_geometry_percentile = frac_dg;
       lrp.probe_clash_percentile = frac_b;
 
-      std::cout << "INFO:: lrp: density_correlation_percentile "
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      // Now let's create a substituary percentile for the geometry
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      //
+      double v = (dictionary_geometry_distortion_max - 9.0)/3.0;
+      double e = gsl_sf_erf_scm(v);
+      double ff = (e + 1.0)/2.0;
+      double g = 1.0 - ff;
+      lrp.dictionary_geometry_percentile = g;
+
+      std::cout << "debug:: v " << v << " e " << e << " f " << f << " g " << g << std::endl;
+
+      std::cout << "INFO:: returning lrp: density_correlation_percentile "
 		<< lrp.density_correlation_percentile << std::endl;
-      std::cout << "INFO:: lrp:               mogul_percentile "
-		<< lrp.mogul_percentile << std::endl;
-      std::cout << "INFO:: lrp:         probe_clash_percentile "
+      std::cout << "INFO:: returning lrp: dictionary_geometry_percentile "
+		<< lrp.dictionary_geometry_percentile << std::endl;
+      std::cout << "INFO:: returning lrp:         probe_clash_percentile "
 		<< lrp.probe_clash_percentile << std::endl;
 
    }
@@ -1037,7 +1057,17 @@ void coot::ligand_check_dialog(coot::residue_spec_t spec,
 
    // convert from absolute metrics to percentiles and then make a gui.
 
+   // make_percentiles creates fractions (i.e. between 0 and 1)!
    coot::ligand_report_percentiles_t lrp = lr.make_percentiles();
+
+   std::cout << "INPUT percentiles " << lr.dictionary_geometry_distortion_max << std::endl;
+   std::cout << "INPUT percentiles " << lr.density_correlation << std::endl;
+   std::cout << "INPUT percentiles " << lr.pcs.n_bad_overlaps << std::endl;
+
+   std::cout << "OUTPUT percentiles " << lrp.dictionary_geometry_percentile << std::endl;
+   std::cout << "OUTPUT percentiles " << lrp.density_correlation_percentile << std::endl;
+   std::cout << "OUTPUT percentiles " << lrp.probe_clash_percentile << std::endl;
+
    ligand_check_percentiles_dialog(spec, lrp, percentile_limit);
 }
 
@@ -1064,10 +1094,10 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
       GtkWidget *bumps_incom_w = lookup_widget(w, "image_incomplete_bumps");
 
       GtkWidget *spec_label = lookup_widget(w, "ligand_check_ligand_spec_label");
-      GtkWidget *db_label   = lookup_widget(w, "ligand_check_db_label");
+      // GtkWidget *db_label   = lookup_widget(w, "ligand_check_db_label");
 
       std::cout << "percentile_limit                  " << percentile_limit << std::endl;
-      std::cout << "lr.mogul_percentile               " << lr.mogul_percentile << std::endl;
+      // std::cout << "lr.mogul_percentile               " << lr.mogul_percentile << std::endl;
       std::cout << "lr.density_correlation_percentile "
 		<< lr.density_correlation_percentile << std::endl;
       std::cout << "lr.probe_clash_percentile         "
@@ -1076,6 +1106,7 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
       std::string l = "Residue: " + spec.chain_id + " " + util::int_to_string(spec.res_no);
       gtk_label_set_text(GTK_LABEL(spec_label), l.c_str());
 
+#if 0
       if (lr.mogul_percentile < percentile_limit) {
 	 // bad ligand
 	 if (lr.mogul_percentile < 0) {
@@ -1092,7 +1123,28 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 	 gtk_widget_hide(mogul_cross_w);
 	 gtk_widget_hide(mogul_incom_w);
       } 
+#endif
 
+      // Modern, dictionary-based
+      
+      if (lr.dictionary_geometry_percentile < percentile_limit) {
+         // bad ligand
+         if (lr.dictionary_geometry_percentile < 0) {
+            // test failed
+            gtk_widget_hide(mogul_tick_w);
+            gtk_widget_hide(mogul_cross_w);
+         } else {
+            // ligand failed percentile test
+            gtk_widget_hide(mogul_tick_w);
+            gtk_widget_hide(mogul_incom_w);
+         }
+      } else {
+         // happy ligand
+         gtk_widget_hide(mogul_incom_w);
+         gtk_widget_hide(mogul_cross_w);
+      }
+
+      
       if (lr.density_correlation_percentile < percentile_limit) {
 	 // bad ligand
 	 if (lr.density_correlation_percentile < -1) {
@@ -1231,3 +1283,124 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
 
    return status;
 }
+
+#include <gsl/gsl_sf_erf.h>
+
+double gsl_sf_erf_scm(double v) {
+   return gsl_sf_erf(v);
+}
+
+
+
+coot::geometry_distortion_info_container_t
+get_ligand_distortion_info(int imol, coot::residue_spec_t &rs) {
+
+   // based on residues_distortions_py
+
+   coot::geometry_distortion_info_container_t r;
+   graphics_info_t g;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(rs);
+      if (residue_p) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         std::vector<std::pair<bool,mmdb::Residue *> > refining_residues;  // not fixed.
+         refining_residues.push_back(std::make_pair(false, residue_p));
+         const coot::protein_geometry &geom = *g.Geom_p();
+         bool do_residue_internal_torsions = false;
+         bool do_trans_peptide_restraints = false;
+         bool do_rama_restraints = false;
+         float rama_plot_restraint_weight = 1.0;
+         coot::pseudo_restraint_bond_type pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
+         std::vector<coot::atom_spec_t> fixed_atom_specs;
+         std::vector<mmdb::Link> links;
+         coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+         clipper::Xmap<float> xmap_dummy;
+         coot::restraints_container_t restraints(refining_residues, links, geom, mol, fixed_atom_specs, &xmap_dummy);
+         unsigned int n_threads = coot::get_max_number_of_threads();
+         restraints.thread_pool(&g.static_thread_pool, n_threads);
+         restraints.make_restraints(imol, geom, flags,
+                                    do_residue_internal_torsions,
+                                    do_trans_peptide_restraints,
+                                    rama_plot_restraint_weight,
+                                    do_rama_restraints,
+                                    false, false, false,
+                                    pseudo_bonds_type);
+         bool keep_distortion_for_hydrogen_atom_restraints = false;
+         r = restraints.geometric_distortions(keep_distortion_for_hydrogen_atom_restraints);
+      }
+   }
+   return r;
+}
+
+
+
+#ifdef USE_GUILE
+//! \brief return the summary info for ligand distortion
+SCM get_ligand_distortion_summary_info_scm(int imol, SCM residue_spec) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs = residue_spec_from_scm(residue_spec);
+      coot::geometry_distortion_info_container_t gdic = get_ligand_distortion_info(imol, rs);
+      unsigned int n_items =  gdic.geometry_distortion.size();
+      if (n_items > 0) {
+         double max_distortion = 0.0;
+         coot::simple_restraint restraint_for_max_distortion;
+         for (const auto &item : gdic.geometry_distortion) {
+            if (item.restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
+               continue;
+            // filter out Bonds and angles for Hydrogen atoms
+            if (item.distortion_score > max_distortion) {
+               max_distortion = item.distortion_score;
+               restraint_for_max_distortion = item.restraint;
+               std::cout << "selected: " << item.restraint << " with distortion " << max_distortion << std::endl;
+            }
+         }
+
+         SCM max_distortion_score_scm = scm_double2num(max_distortion);
+         // does restraint_to_scm belong in graphics_info_t?
+         graphics_info_t g;
+         r = scm_list_2(max_distortion_score_scm, g.restraint_to_scm(restraint_for_max_distortion));
+      }
+   }
+   return r;
+   
+}
+#endif
+
+#ifdef USE_PYTHON
+//! \brief return the summary info for ligand distortion
+PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec) {
+
+   PyObject *r = Py_False;
+  
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs = residue_spec_from_py(residue_spec);
+      coot::geometry_distortion_info_container_t gdic = get_ligand_distortion_info(imol, rs);
+      unsigned int n_items =  gdic.geometry_distortion.size();
+      if (n_items > 0) {
+         double max_distortion = 0.0;
+         coot::simple_restraint restraint_for_max_distortion;
+         for (const auto &item : gdic.geometry_distortion) {
+            if (item.restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
+               continue;
+            if (item.distortion_score > max_distortion) {
+               max_distortion = item.distortion_score;
+               restraint_for_max_distortion = item.restraint;
+            }
+         }
+         graphics_info_t g;
+         r = PyList_New(2);
+         PyList_SetItem(r, 0, PyFloat_FromDouble(max_distortion));
+         PyList_SetItem(r, 1, g.restraint_to_py(restraint_for_max_distortion));
+      }
+   }
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+   return r;
+}
+#endif
+

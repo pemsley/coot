@@ -13,7 +13,11 @@
 
   o FEATURE: Molecular (i.e. not crystallographic) symmetry added
 
+  o FEATURE: coot-find-ligand has a mode to merely generate conformers
+
   o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
+
+  o CHANGE:  Adjust the initial RSR step size (no more wild water refinement)
 
   o CHANGE:  Post-refinement restraints analysis added
 

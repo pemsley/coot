@@ -841,16 +841,16 @@ namespace coot {
    public:
       geometry_distortion_info_t(double distortion_in,
                                  const simple_restraint &rest_in,
-                                 residue_spec_t &residue_spec_in) {
+                                 const residue_spec_t &residue_spec_in) :
+         restraint(rest_in), residue_spec(residue_spec_in) {
          distortion_score = distortion_in;
-         restraint = rest_in;
-         residue_spec = residue_spec_in;
-         set = 1;
+         is_set = true;
       }
       geometry_distortion_info_t() {
-         set = 0;
+         is_set = false;
+         distortion_score = 0.0;
       }
-      bool set;
+      bool is_set;
       double distortion_score;
       simple_restraint restraint;
       std::vector<int> atom_indices;
@@ -875,30 +875,39 @@ namespace coot {
          return (distortion_score > gdi.distortion_score);
 
       }
-      bool initialised_p() const { return set; }
+      bool initialised_p() const { return is_set; }
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 
    class geometry_distortion_info_container_t {
    public:
-      std::string chain_id;
       std::vector<geometry_distortion_info_t> geometry_distortion;
+      std::string chain_id;
       mmdb::PAtom *atom;
       int n_atoms;
       int min_resno;
       int max_resno;
+      geometry_distortion_info_container_t() {
+         atom = 0;
+         n_atoms = 0;
+         max_resno = 0;
+         min_resno = 0;
+      }
       geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in,
                                            mmdb::PAtom *atom_in,
-                                           const std::string &chain_id_in) {
-         geometry_distortion = geometry_distortion_in;
+                                           const std::string &chain_id_in) :
+         geometry_distortion(geometry_distortion_in), chain_id(chain_id_in) {
          atom = atom_in;
-         chain_id = chain_id_in;
+         n_atoms = 0; // this is worrying - why is this not passed. Who uses this constructor?
+         max_resno = 0;
+         min_resno = 0;
       }
       geometry_distortion_info_container_t(mmdb::PAtom *atom_in, int n_atoms_in,
-                                           const std::string &chain_id_in) {
+                                           const std::string &chain_id_in) : chain_id(chain_id_in) {
          atom = atom_in;
          n_atoms = n_atoms_in;
-         chain_id = chain_id_in;
+         max_resno = 0;
+         min_resno = 0;
       }
       void set_min_max(int min_resno_in, int max_resno_in) {
          min_resno = min_resno_in;
@@ -2072,7 +2081,7 @@ namespace coot {
 
       // validation:
       geometry_distortion_info_container_t
-      distortion_vector(const gsl_vector *v) const;
+      distortion_vector(const gsl_vector *v, bool keep_distortion_for_hydrogen_atom_restraintsb) const;
 
       std::vector<bool>  make_fixed_flags(int index1, int index2) const;
       std::vector<bool>  make_non_bonded_fixed_flags(int index1, int index2) const;
@@ -2271,8 +2280,8 @@ namespace coot {
       // geometric_distortions(restraint_usage_Flags flags);
 
       // Here we use the internal flags.  Causes crash currently (no inital atom positions?)
-      // remove const
-      geometry_distortion_info_container_t geometric_distortions();
+      // 
+      geometry_distortion_info_container_t geometric_distortions(bool keep_distortion_for_hydrogen_atom_restraints=true);
 
       omega_distortion_info_container_t
       omega_trans_distortions(const protein_geometry &geom,

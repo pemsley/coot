@@ -2605,6 +2605,7 @@ adjust_clipping(double d) {
    }
 }
 
+#include "c-interface-ligands-swig.hh"
 
 gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 {
@@ -2861,14 +2862,24 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_1:
    case GDK_KP_1:
-      if (graphics_info_t::moving_atoms_move_chis_flag) {
-         graphics_info_t g;
-         g.setup_flash_bond_using_moving_atom_internal(0);
-	 graphics_info_t::edit_chi_current_chi = 1;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::control_is_pressed) {
+	 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+	 if (aa.first) {
+            coot_all_atom_contact_dots(aa.second.first);
+         }
+         handled = true;
+         break;
+      } else {
+
+         if (graphics_info_t::moving_atoms_move_chis_flag) {
+            graphics_info_t g;
+            g.setup_flash_bond_using_moving_atom_internal(0);
+            graphics_info_t::edit_chi_current_chi = 1;
+            graphics_info_t::in_edit_chi_mode_flag = 1; // on
+         }
+         handled = TRUE;
+         break;
       }
-      handled = TRUE;
-      break;
    case GDK_2:
    case GDK_KP_2:
       if (graphics_info_t::moving_atoms_move_chis_flag) {
