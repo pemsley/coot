@@ -28,6 +28,8 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
+// need gtk things
+#include <gtk/gtk.h>
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -35,9 +37,6 @@
 #endif // HAVE_VECTOR
 
 // #include <utils/backward.hpp>
-
-// need gtk things
-#include <gtk/gtk.h>
 
 #if __APPLE__
 #   include <OpenGL/gl.h>
@@ -619,10 +618,10 @@ class graphics_info_t {
    static coot::Cartesian baton_root;
    static coot::Cartesian baton_tip;
    static float baton_length;
-   static std::vector<coot::scored_skel_coord> *baton_next_ca_options;
+   static std::vector<coot::scored_skel_coord> baton_next_ca_options;
    // baton_previous_ca_positions->back() is the point closest to the new
    // baton tip (is the baton root)
-   static std::vector<clipper::Coord_orth> *baton_previous_ca_positions; // up to 3.
+   static std::vector<clipper::Coord_orth> baton_previous_ca_positions; // up to 3.
    coot::Cartesian non_skeleton_tip_pos() const;
    void baton_next_directions(int imol_for_skel, mmdb::Atom *atom, const coot::Cartesian& pos,
 			      const clipper::Coord_grid &cg_start,
@@ -700,8 +699,6 @@ class graphics_info_t {
 			     const clipper::Xmap<float> *xmap_p);
 #endif // HAVE_GSL
 
-   // the mode flag is public:
-   void run_post_manipulation_hook(int imol, int mode);
    // which uses the following...
 #ifdef USE_GUILE
    void run_post_manipulation_hook_scm(int imol, int mode);
@@ -903,6 +900,10 @@ public:
        gtk_widget_draw(glarea_2, NULL);
    }
 
+   // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
+   // is displayed or undisplayed)
+   static bool mol_displayed_toggle_do_redraw; // normally true
+
 
    static bool is_valid_model_molecule(int imol) {
 
@@ -933,11 +934,11 @@ public:
 
    static bool display_mode_use_secondary_p() {
 
-     bool r = 0;
+     bool r = false;
      if ((display_mode == coot::SIDE_BY_SIDE_STEREO) ||
 	 (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
 	 (display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
-       r = 1;
+       r = true;
      }
      return r;
    }
@@ -1295,6 +1296,8 @@ public:
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 
+   void run_post_manipulation_hook(int imol, int mode);
+
    void update_things_on_move();
    void update_things_on_move_and_redraw();
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
@@ -1308,11 +1311,9 @@ public:
    float Y() { return rotation_centre_y; };
    float Z() { return rotation_centre_z; };
 
-   // why isn't this static? Make it static
-   coot::Cartesian RotationCentre() const
-      { return coot::Cartesian(rotation_centre_x,
-			       rotation_centre_y,
-			       rotation_centre_z);}
+   static coot::Cartesian RotationCentre() { return coot::Cartesian(rotation_centre_x,
+                                                                    rotation_centre_y,
+                                                                    rotation_centre_z);}
 
    // we need static, so that we don't need to instance a
    // graphics_info_t for every frame draw.
@@ -1423,10 +1424,10 @@ public:
                                                       // atoms move
 
 #ifdef USE_GUILE
-   SCM refinement_results_to_scm(coot::refinement_results_t &rr);
+   SCM refinement_results_to_scm(const coot::refinement_results_t &rr) const;
 #endif
 #ifdef USE_PYTHON
-   PyObject *refinement_results_to_py(coot::refinement_results_t &rr);
+   PyObject *refinement_results_to_py(const coot::refinement_results_t &rr) const;
 #endif
    static bool cryo_EM_refinement_flag;
 
@@ -1460,7 +1461,7 @@ public:
 
    // 0: never run it
    // 1: ask to run it
-   // 2: alwasy run it
+   // 2: run it without asking
    static short int run_state_file_status;
    static bool state_file_was_run_flag;
    static bool run_startup_scripts_flag;
@@ -1616,6 +1617,9 @@ public:
    pick_info find_atom_index_from_goto_info(int imol);
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
    mmdb::Atom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
+
+   pick_info pick_moving_atoms(const coot::Cartesian &front, const coot::Cartesian &back) const;
+   mmdb::Atom *get_moving_atom(const pick_info &pi) const; // return 0 on lookup failure
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
@@ -1787,12 +1791,14 @@ public:
 		       bool mask_water_flag);
 
    static short int in_residue_info_define; // initially 0
-   static float geometry_vs_map_weight;
+   static float geometry_vs_map_weight; // actually it's the other way around, isn't it? rename this.
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
+   static double torsion_restraints_weight;
    static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
    static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
    static int refine_params_dialog_rama_restraints_weight_combobox_position;
+   static int refine_params_dialog_torsions_weight_combox_position;
    static bool refine_params_dialog_extra_control_frame_is_visible;
 
    // similarly for distance and angles:
@@ -1838,6 +1844,7 @@ public:
 						   const std::string &ins_code_2,
 						   const std::string &altconf,
 						   short int is_water_flag);
+   coot::refinement_results_t get_refinement_results() const;
 
    // used by above:
    void flash_selection(int imol, int resno_1,
@@ -2181,7 +2188,7 @@ public:
    void clear_moving_atoms_object();
    // copy the contents of moving_atoms_asc into the molecule being refined.
    //
-   void accept_moving_atoms();
+   coot::refinement_results_t accept_moving_atoms();
 
    void update_moving_atoms_from_molecule_atoms(const coot::minimol::molecule &mm);
 
@@ -3994,6 +4001,16 @@ string   static std::string sessionid;
    static float pull_restraint_neighbour_displacement_max_radius;
    void pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down); // change above
    static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
+
+   static void poke_the_refinement();
+
+   // by default, user-defined colours are on a colour wheel, but we can overwride that
+   // by setting actual user defined colours for give colour indices
+   //
+   static std::vector<coot::colour_holder> user_defined_colours;
+   static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
+   // run glColor3f())
+   static void set_bond_colour_from_user_defined_colours(int icol);
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

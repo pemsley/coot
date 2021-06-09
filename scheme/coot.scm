@@ -81,7 +81,7 @@
 			   "parse-pisa-xml.scm"
 			   "cns2coot.scm"
 			   "clear-backup.scm"
-			   "tips.scm"
+			   ;; "tips.scm"
 			   "3d-generator-import.scm"
 			   "dictionary-generators.scm"
 			   "cho-restraints-from-models.scm"
@@ -93,7 +93,7 @@
       (let ((scheme-list 
 	     (cond 
 	      ((eq? #t use-gui?) 
-	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
+	       (append pre-list (list "coot-gui.scm") post-list (list ;; "tips-gui.scm"
 								      ;; "check-for-updates.scm"
 								      "gui-hole.scm"
 								      "gui-prosmart.scm"
@@ -106,6 +106,7 @@
 								      "ligand-check.scm"
 								      "acedrg-link.scm"
 								      "sharpen-blur.scm"
+                                                                      "dynamic-atom-overlaps-and-other-outliers.scm"
 								      "interactive-nudge-residues.scm"
 								      "gui-ligand-sliders.scm"
 								      "find-baddies.scm"

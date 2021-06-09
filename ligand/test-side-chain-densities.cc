@@ -1,4 +1,4 @@
-/* coot-utils/residue-and-atom-specs.hh
+/* ligand/test-side-chain-densities.cc
  * 
  * Author: Paul Emsley
  * 
@@ -36,7 +36,7 @@ make_useable_grid_points(int n_steps, float grid_box_radius,
 			 int res_no, const std::string &file_name) {
    
    std::string pdb_file_name("test.pdb");
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
    coot::side_chain_densities scd(n_steps, grid_box_radius, "");
    coot::residue_spec_t spec_this("A", res_no, "");
    coot::residue_spec_t spec_next("A", res_no+1, "");
@@ -56,8 +56,8 @@ check_useable_grid_points(int n_steps, float grid_box_radius,
 			  const std::string &useable_grid_points_file_name,
 			  const std::string &useable_grid_points_mapped_to_residue) {
 
-  std::string pdb_file_name("test.pdb");
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+   std::string pdb_file_name("test.pdb");
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
    coot::residue_spec_t spec_this("A", res_no, "");
    mmdb::Residue *residue_p = coot::util::get_residue(spec_this, asc.mol);
    if (residue_p) {
@@ -76,7 +76,7 @@ check_stats(int n_steps, float grid_box_radius, const std::string &res_name,
 
    // Show me a dotted grids where the size is proportional to the mean
 
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
    coot::residue_spec_t spec_this(chain_id, res_no, "");
    mmdb::Residue *residue_p = coot::util::get_residue(spec_this, asc.mol);
    if (residue_p) {
@@ -103,7 +103,7 @@ test_residue_vs_likelihoods(int n_steps, float grid_box_radius,
       file.open_read(map_file_name);
       clipper::Xmap<float> xmap;
       file.import_xmap(xmap);
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
       if (asc.read_success) {
 	 std::string id_1 = coot::util::name_sans_extension(pdb_file_name);
 	 std::string id = coot::util::file_name_non_directory(id_1);
@@ -153,7 +153,7 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
       file.open_read(map_file_name);
       clipper::Xmap<float> xmap;
       file.import_xmap(xmap);
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
       if (asc.read_success) {
 	 // "analysis" constructor
 	 // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
@@ -161,7 +161,7 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
 	 // scd.set_data_dir("side-chain-data");
          scd.fill_residue_blocks(asc.mol, chain_id, resno_start, resno_end, xmap);
          std::string guessed_sequence =
-            scd.probability_of_each_rotamer_at_each_residue(asc.mol, chain_id, resno_start, resno_end, xmap);
+            scd.guess_the_sequence(asc.mol, chain_id, resno_start, resno_end, xmap);
          std::cout << "guessed sequence " << guessed_sequence << std::endl;
       }
    }
@@ -193,7 +193,8 @@ void test_sequence(int n_steps, float grid_box_radius,
                            coot::side_chain_densities &scd) { // fill scd
 
                           for(unsigned int idx=start_stop_pair.first; idx!=start_stop_pair.second; ++idx) {
-                             scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
+                             // the interface has changed.
+                             // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
                           }
                           
                        };
@@ -207,7 +208,7 @@ void test_sequence(int n_steps, float grid_box_radius,
          file.open_read(map_file_name);
          clipper::Xmap<float> xmap;
          file.import_xmap(xmap);
-         atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+         atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
          if (asc.read_success) {
             // "analysis" constructor
             // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
@@ -232,13 +233,8 @@ void test_sequence(int n_steps, float grid_box_radius,
                threads[i].join();
 #endif
 #if 1 // the single threaded way
-            for (unsigned int idx=0; idx<n_sequences; idx++) {
-               std::string sequence = fam[idx].sequence;
-               std::cout << "Input Sequence:\n" << sequence << std::endl;
-               
-               const std::string &name = fam[idx].name;
-               scd.test_sequence(asc.mol, chain_id, resno_start, resno_end, xmap, name, sequence);
-            }
+
+            coot::get_fragment_sequence_scores(asc.mol, fam, xmap);
 #endif
          }
       }
@@ -492,7 +488,7 @@ int main(int argc, char **argv) {
 	       file.open_read(map_file_name);
 	       clipper::Xmap<float> xmap;
 	       file.import_xmap(xmap);
-	       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+	       atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
 	       if (asc.read_success) {
 		  std::string id_1 = coot::util::name_sans_extension(pdb_file_name);
 		  std::string id = coot::util::file_name_non_directory(id_1);

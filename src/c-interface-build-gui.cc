@@ -298,8 +298,9 @@ void fill_place_atom_molecule_combobox(GtkWidget *combobox) {
 
    graphics_info_t g;
    GCallback callback_func = G_CALLBACK(g.pointer_atom_molecule_combobox_changed);
-   int imol_active = first_coords_imol();
-   g.user_pointer_atom_molecule = imol_active;
+   int imol_active = g.user_pointer_atom_molecule;
+   if (! is_valid_model_molecule(imol_active))
+      imol_active = first_coords_imol();
    g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
 }

@@ -19,7 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
+#ifndef ADDITIONAL_REPRESENTATION_HH
+#define ADDITIONAL_REPRESENTATION_HH
 
+#include "coords/Bond_lines.h"
 
 namespace coot {
 
@@ -41,7 +44,7 @@ namespace coot {
       mmdb::Manager *mol;
       int display_list_handle;
       void update_self() {
-	 if (representation_type != BALL_AND_STICK || representation_type != LIQUORICE) {
+	 if (representation_type == BALL_AND_STICK || representation_type == LIQUORICE) {
 	    fill_bonds_box();
 	 }
       }
@@ -95,3 +98,8 @@ namespace coot {
 
 
 }
+
+
+#endif // ADDITIONAL_REPRESENTATION_HH
+
+

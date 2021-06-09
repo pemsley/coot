@@ -27,14 +27,14 @@
 //
 std::pair<short int, clipper::RTop_orth>
 coot::util::get_lsq_matrix(mmdb::Manager *mol1,
-			   mmdb::Manager *mol2,
-			   const std::vector<coot::lsq_range_match_info_t> &matches,
-			   int every_nth,
-			   bool summary_to_screen) {
+                           mmdb::Manager *mol2,
+                           const std::vector<coot::lsq_range_match_info_t> &matches,
+                           int every_nth,
+                           bool summary_to_screen) {
 
    short int istat = 0;
    clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
-			   clipper::Coord_orth(0,0,0));
+                           clipper::Coord_orth(0,0,0));
    int SelHnd1 = mol1->NewSelection();
    int SelHnd2 = mol2->NewSelection();
    std::vector<int> v1;
@@ -44,12 +44,12 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
    std::vector<clipper::Coord_orth> co2v;
    for (unsigned int i=0; i<matches.size(); i++) {
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > p =
-	get_matching_indices(mol1, mol2, matches[i], every_nth);
+        get_matching_indices(mol1, mol2, matches[i], every_nth);
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
-	 for (unsigned int j=0; j<p.first.size(); j++) {
-	    co1v.push_back(p.first[j]);
-	    co2v.push_back(p.second[j]);
-	 }
+         for (unsigned int j=0; j<p.first.size(); j++) {
+            co1v.push_back(p.first[j]);
+            co2v.push_back(p.second[j]);
+         }
       }
    }
 
@@ -58,44 +58,44 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
    //
    if (co1v.size() > 0) {
       if (co1v.size() > 2) {
-	 if (co2v.size() > 2) {
-	    if (summary_to_screen)
-	       std::cout << "INFO:: LSQ matched " << co1v.size() << " atoms"
-			 << std::endl;
-	    rtop = clipper::RTop_orth(co2v, co1v);
-	    double sum_dist = 0.0;
-	    double sum_dist2 = 0.0;
-	    double mind =  999999999.9;
-	    double maxd = -999999999.9;
-	    double d;
-	    for (unsigned int i=0; i<co2v.size(); i++) {
-	       d = clipper::Coord_orth::length(co1v[i],
-					       clipper::Coord_orth(co2v[i].transform(rtop)));
-	       sum_dist  += d;
-	       sum_dist2 += d*d;
-	       if (d>maxd)
-		  maxd = d;
-	       if (d<mind)
-		  mind = d;
-	    }
-	    double mean = sum_dist/double(co2v.size());
-	    // not variance about mean, variance from 0.
-	    //double var  = sum_dist2/double(co2v.size()) - mean*mean;
-	    double v    = sum_dist2/double(co2v.size());
-	    if (summary_to_screen) 
-	       std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
-			 << "   mean devi: " << mean << "\n"
-			 << "    rms devi: " << sqrt(v) << "\n"
-			 << "    max devi: " << maxd << "\n"
-			 << "    min devi: " << mind << std::endl;
-	    istat = 1;
-	 } else {
-	    std::cout << "WARNING:: not enough points to do matching (matching)"
-		      << std::endl;
-	 }
+         if (co2v.size() > 2) {
+            if (summary_to_screen)
+               std::cout << "INFO:: LSQ matched " << co1v.size() << " atoms"
+                         << std::endl;
+            rtop = clipper::RTop_orth(co2v, co1v);
+            double sum_dist = 0.0;
+            double sum_dist2 = 0.0;
+            double mind =  999999999.9;
+            double maxd = -999999999.9;
+            double d;
+            for (unsigned int i=0; i<co2v.size(); i++) {
+               d = clipper::Coord_orth::length(co1v[i],
+                                               clipper::Coord_orth(co2v[i].transform(rtop)));
+               sum_dist  += d;
+               sum_dist2 += d*d;
+               if (d>maxd)
+                  maxd = d;
+               if (d<mind)
+                  mind = d;
+            }
+            double mean = sum_dist/double(co2v.size());
+            // not variance about mean, variance from 0.
+            //double var  = sum_dist2/double(co2v.size()) - mean*mean;
+            double v    = sum_dist2/double(co2v.size());
+            if (summary_to_screen) 
+               std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
+                         << "   mean devi: " << mean << "\n"
+                         << "    rms devi: " << sqrt(v) << "\n"
+                         << "    max devi: " << maxd << "\n"
+                         << "    min devi: " << mind << std::endl;
+            istat = 1;
+         } else {
+            std::cout << "WARNING:: not enough points to do matching (matching)"
+                      << std::endl;
+         }
       } else { 
-	 std::cout << "WARNING:: not enough points to do matching (reference)"
-		   << std::endl;
+         std::cout << "WARNING:: not enough points to do matching (reference)"
+                   << std::endl;
       }
    } else {
       std::cout << "WARNING:: no points to do matching" << std::endl;
@@ -109,9 +109,9 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
 // 
 std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
 coot::util::get_matching_indices(mmdb::Manager *mol1,
-				 mmdb::Manager *mol2,
-				 const coot::lsq_range_match_info_t &match,
-				 int every_nth) {
+                                 mmdb::Manager *mol2,
+                                 const coot::lsq_range_match_info_t &match,
+                                 int every_nth) {
 
    std::vector<clipper::Coord_orth> v1;
    std::vector<clipper::Coord_orth> v2;
@@ -162,193 +162,193 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
       int nSelResidues_1, nSelResidues_2;
 
       if (false) {
-	 std::cout << "Searching for residue number " << ires << " "
-	           << match.reference_chain_id << " in reference molecule" << std::endl;
-	 std::cout << "Searching for residue number " << ires_matcher << " "
-	           << match.matcher_chain_id << " in matcher molecule" << std::endl;
+         std::cout << "Searching for residue number " << ires << " "
+                   << match.reference_chain_id << " in reference molecule" << std::endl;
+         std::cout << "Searching for residue number " << ires_matcher << " "
+                   << match.matcher_chain_id << " in matcher molecule" << std::endl;
       }
 
       mol1->Select (SelHnd_res1, mmdb::STYPE_RESIDUE,
-		    match.model_number_reference,
-		    match.reference_chain_id.c_str(), // Chain(s)
-		    ires, "*",  // starting res
-		    ires, "*",  // ending res
-		    "*",  // residue name
-		    "*",  // Residue must contain this atom name?
-		    "*",  // Residue must contain this Element?
-		    "*",  // altLocs
-		    mmdb::SKEY_NEW // selection key
-		    );
+                    match.model_number_reference,
+                    match.reference_chain_id.c_str(), // Chain(s)
+                    ires, "*",  // starting res
+                    ires, "*",  // ending res
+                    "*",  // residue name
+                    "*",  // Residue must contain this atom name?
+                    "*",  // Residue must contain this Element?
+                    "*",  // altLocs
+                    mmdb::SKEY_NEW // selection key
+                    );
       mol2->Select (SelHnd_res2, mmdb::STYPE_RESIDUE, // .. TYPE, 
-		    match.model_number_matcher,
-		    match.matcher_chain_id.c_str(), // Chain(s)
-		    ires_matcher, "*",  // starting res
-		    ires_matcher, "*",  // ending res
-		    "*",  // residue name
-		    "*",  // Residue must contain this atom name?
-		    "*",  // Residue must contain this Element?
-		    "*",  // altLocs
-		    mmdb::SKEY_NEW // selection key
-		    );
+                    match.model_number_matcher,
+                    match.matcher_chain_id.c_str(), // Chain(s)
+                    ires_matcher, "*",  // starting res
+                    ires_matcher, "*",  // ending res
+                    "*",  // residue name
+                    "*",  // Residue must contain this atom name?
+                    "*",  // Residue must contain this Element?
+                    "*",  // altLocs
+                    mmdb::SKEY_NEW // selection key
+                    );
 
       mol1->GetSelIndex(SelHnd_res1, SelResidue_1, nSelResidues_1);
       mol2->GetSelIndex(SelHnd_res2, SelResidue_2, nSelResidues_2);
 
       if (nSelResidues_1 == 0 || nSelResidues_2 == 0) {
 
-	 if (nSelResidues_1 == 0) { 
+         if (nSelResidues_1 == 0) { 
             std::string s = "WARNING:: - no residue for reference molecule residue number ";
             s += util::int_to_string(ires);
             s += " for reference chain-id: \"";
             s += match.reference_chain_id;
             s += "\"";
             warnings.push_back(s);
-	 }
-	 if (nSelResidues_2 == 0) { 
+         }
+         if (nSelResidues_2 == 0) { 
             std::string s = "WARNING:: - no residue for moving    molecule residue number ";
             s += util::int_to_string(ires);
             s += " for reference chain-id: \"";
             s += match.reference_chain_id;
             s += "\"";
             warnings.push_back(s);
-	 }
+         }
       } else {
 
-	 // So we have 2 good residues
-	 
-	 // Let's get their residue type:
-	 std::string res_type_1(SelResidue_1[0]->GetResName());
-	 std::string res_type_2(SelResidue_2[0]->GetResName());
+         // So we have 2 good residues
+         
+         // Let's get their residue type:
+         std::string res_type_1(SelResidue_1[0]->GetResName());
+         std::string res_type_2(SelResidue_2[0]->GetResName());
 
-	 // ---------------- CA ----------------------------
+         // ---------------- CA ----------------------------
 
-	 if (match.match_type_flag == COOT_LSQ_CA) {
+         if (match.match_type_flag == COOT_LSQ_CA) {
 
-	    // CA/P names
-	    std::string ca_name;
+            // CA/P names
+            std::string ca_name;
 
-	    mmdb::Atom *at1 = NULL;
-	    mmdb::Atom *at2 = NULL;
-	    if (SelResidue_1[0]->isAminoacid()) {
-	      ca_name = " CA ";
-	    } else {
-	      if (SelResidue_1[0]->isNucleotide()) {
-	         ca_name = " P  ";
-	      } else {
-	        ca_name = " P  ";
-	        std::cout << "WARNING:: residue is not amino acid or nucleotide! "
-	                  << "Assuming non-standard nucleotide." << std::endl;
-	      }
-	    }
-	    at1 = SelResidue_1[0]->GetAtom(ca_name.c_str());
-	    at2 = SelResidue_2[0]->GetAtom(ca_name.c_str());
+            mmdb::Atom *at1 = NULL;
+            mmdb::Atom *at2 = NULL;
+            if (SelResidue_1[0]->isAminoacid()) {
+              ca_name = " CA ";
+            } else {
+              if (SelResidue_1[0]->isNucleotide()) {
+                 ca_name = " P  ";
+              } else {
+                ca_name = " P  ";
+                std::cout << "WARNING:: residue is not amino acid or nucleotide! "
+                          << "Assuming non-standard nucleotide." << std::endl;
+              }
+            }
+            at1 = SelResidue_1[0]->GetAtom(ca_name.c_str());
+            at2 = SelResidue_2[0]->GetAtom(ca_name.c_str());
 
-	    if (at1 == NULL) {
-	      std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
-	                << std::endl;
-	    }
-	    if (at2 == NULL) {
-	      std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
+            if (at1 == NULL) {
+              std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
                         << std::endl;
-	    }
-	    if (at1 && at2) {
-	       v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
-	       v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
-	    }
-	 }
+            }
+            if (at2 == NULL) {
+              std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
+                        << std::endl;
+            }
+            if (at1 && at2) {
+               v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+               v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+            }
+         }
 
 
-	 // ----------------- Mainchain ---------------------
-	 //
-	 if ((match.match_type_flag == COOT_LSQ_MAIN) ||
-	     (match.match_type_flag == COOT_LSQ_ALL && res_type_1 != res_type_2)) {
+         // ----------------- Mainchain ---------------------
+         //
+         if ((match.match_type_flag == COOT_LSQ_MAIN) ||
+             (match.match_type_flag == COOT_LSQ_ALL && res_type_1 != res_type_2)) {
 
             if (SelResidue_1[0]->isNucleotide()) {
                mc_at_names = nmc_at_names;
             } else {
                mc_at_names = amc_at_names;
             }
-	    for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
-	       mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
-	       mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());
-	       if (at1) {
-		  if (!at2) {
-		     std::cout << "WARNING:: no " << mc_at_names[iat]
-			       << " in this moving residue " << ires_matcher
-			       << std::endl;
-		  } else {
-		     v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
-		     v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
-		  }
-	       }
-	    }
-	 }
+            for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
+               mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
+               mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());
+               if (at1) {
+                  if (!at2) {
+                     std::cout << "WARNING:: no " << mc_at_names[iat]
+                               << " in this moving residue " << ires_matcher
+                               << std::endl;
+                  } else {
+                     v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+                     v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+                  }
+               }
+            }
+         }
 
 
-	 // ----------------- All Atom ---------------------
-	 //
-	 if (match.match_type_flag == COOT_LSQ_ALL) {
+         // ----------------- All Atom ---------------------
+         //
+         if (match.match_type_flag == COOT_LSQ_ALL) {
 
-	    if (! match.is_single_atom_match) {
-	       mmdb::PAtom *residue_atoms1 = NULL;
-	       mmdb::PAtom *residue_atoms2 = NULL;
-	       int n_residue_atoms1;
-	       int n_residue_atoms2;
-	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
-	       SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
-	       for (int iat=0; iat<n_residue_atoms1; iat++) {
-		  mmdb::Atom *at1 = residue_atoms1[iat];
-		  std::string at1_name(at1->name);
-		  std::string at1_altconf(at1->altLoc);
-		  for (int jat=0; jat<n_residue_atoms2; jat++) {
-		     mmdb::Atom *at2 = residue_atoms2[jat];
-		     std::string at2_name(at2->name);
-		     std::string at2_altconf(at2->altLoc);
+            if (! match.is_single_atom_match) {
+               mmdb::PAtom *residue_atoms1 = NULL;
+               mmdb::PAtom *residue_atoms2 = NULL;
+               int n_residue_atoms1;
+               int n_residue_atoms2;
+               SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
+               SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
+               for (int iat=0; iat<n_residue_atoms1; iat++) {
+                  mmdb::Atom *at1 = residue_atoms1[iat];
+                  std::string at1_name(at1->name);
+                  std::string at1_altconf(at1->altLoc);
+                  for (int jat=0; jat<n_residue_atoms2; jat++) {
+                     mmdb::Atom *at2 = residue_atoms2[jat];
+                     std::string at2_name(at2->name);
+                     std::string at2_altconf(at2->altLoc);
 
-		     if (at1_name == at2_name) {
-			if (at1_altconf == at2_altconf) {
-			   v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
-			   v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
-			   break;
-			}
-		     }
-		  }
-	       }
-	    } else {
-	       // is single atom match
-	       mmdb::PAtom *residue_atoms1 = NULL;
-	       mmdb::PAtom *residue_atoms2 = NULL;
-	       int n_residue_atoms1;
-	       int n_residue_atoms2;
-	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
-	       SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
-// 	       std::cout << "single atom match: residue: ref: "
-// 			 << coot::residue_spec_t(SelResidue_1[0])
-// 			 << " to " 
-// 			 << coot::residue_spec_t(SelResidue_2[0])
-// 			 << std::endl;
-	       for (int iat=0; iat<n_residue_atoms1; iat++) {
-		  mmdb::Atom *at1 = residue_atoms1[iat];
-		  std::string at1_name(at1->name);
-		  std::string at1_altconf(at1->altLoc);
-		  if (at1_name == match.reference_atom_name) { 
-		     if (at1_altconf == match.reference_alt_conf) { 
-			for (int jat=0; jat<n_residue_atoms2; jat++) {
-			   mmdb::Atom *at2 = residue_atoms2[jat];
-			   std::string at2_name(at2->name);
-			   std::string at2_altconf(at2->altLoc);
-			   if (at2_name == match.matcher_atom_name) { 
-			      if (at2_altconf == match.matcher_alt_conf) {
-				 v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
-				 v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    } 
-	 }
+                     if (at1_name == at2_name) {
+                        if (at1_altconf == at2_altconf) {
+                           v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+                           v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+                           break;
+                        }
+                     }
+                  }
+               }
+            } else {
+               // is single atom match
+               mmdb::PAtom *residue_atoms1 = NULL;
+               mmdb::PAtom *residue_atoms2 = NULL;
+               int n_residue_atoms1;
+               int n_residue_atoms2;
+               SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
+               SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
+//                std::cout << "single atom match: residue: ref: "
+//                          << coot::residue_spec_t(SelResidue_1[0])
+//                          << " to " 
+//                          << coot::residue_spec_t(SelResidue_2[0])
+//                          << std::endl;
+               for (int iat=0; iat<n_residue_atoms1; iat++) {
+                  mmdb::Atom *at1 = residue_atoms1[iat];
+                  std::string at1_name(at1->name);
+                  std::string at1_altconf(at1->altLoc);
+                  if (at1_name == match.reference_atom_name) { 
+                     if (at1_altconf == match.reference_alt_conf) { 
+                        for (int jat=0; jat<n_residue_atoms2; jat++) {
+                           mmdb::Atom *at2 = residue_atoms2[jat];
+                           std::string at2_name(at2->name);
+                           std::string at2_altconf(at2->altLoc);
+                           if (at2_name == match.matcher_atom_name) { 
+                              if (at2_altconf == match.matcher_alt_conf) {
+                                 v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+                                 v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            } 
+         }
       }
 
       // tidy up

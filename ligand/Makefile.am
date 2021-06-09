@@ -35,7 +35,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
 	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
 	scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
-	side-chain-densities.hh
+	side-chain-densities.hh tube-finder.hh smith-waterman.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -45,7 +45,8 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
-        ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc
+        ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc \
+	tube-finder.cc smith-waterman.cc
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords
@@ -55,7 +56,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
-   $(top_builddir)/cootaneer/libcootaneer.la \
+   $(top_builddir)/cootaneer/libcootaneer.la          \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
    $(top_builddir)/geometry/libcoot-geometry.la       \
@@ -65,7 +66,7 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
    $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(RDKIT_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
 
 libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -91,8 +92,9 @@ dist_cootdata_assign_side_chain_data_DATA = useable-grid-points-nstep=5,box_radi
 # this block is a bit dodgy, I feel. It uses tar to install a directory of data files
 .PHONY: install_side_chain_data
 
+# thanks John Bollinger
 install_side_chain_data: install-dist_cootdataDATA
-	$(MKDIR_P) $(cootdata_assign_side_chain_datadir) && $(AMTAR) -x -C $(cootdata_assign_side_chain_datadir) -f $(top_srcdir)/ligand/side-chain-data.tar.gz
+	$(MKDIR_P) $(DESTDIR)$(cootdata_assign_side_chain_datadir) && $(AMTAR) -x -C $(DESTDIR)$(cootdata_assign_side_chain_datadir) -f $(top_srcdir)/ligand/side-chain-data.tar.gz
 
 install-data-local: install_side_chain_data
 
@@ -101,15 +103,20 @@ install-data-local: install_side_chain_data
 #                  test-random test-ligand test-rotamer-tables-sql
 
 check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities \
-		test-ligand
+		test-ligand test-tube-finder
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
 
+test_tube_finder_SOURCES = test-tube-finder.cc
+test_tube_finder_LDADD = ./libcoot-ligand.la          \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+   $(CLIPPER_LIBS)
+
 if OS_WIN32
 bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
 else
-libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db identify-protein-bin
 endif
 
 test_trace_SOURCES = test-trace.cc
@@ -123,7 +130,29 @@ test_trace_LDADD = ./libcoot-ligand.la                \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 coot_make_ligands_db_SOURCES = make-ligands-db.cc
-coot_make_ligands_db_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
+coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
+	$(top_builddir)/ideal/libcoot-ideal.la             \
+        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/db-main/libcoot-db-main.la         \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+        $(top_builddir)/cootaneer/libcootaneer.la          \
+	$(top_builddir)/utils/libcoot-utils.la             \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+        $(top_builddir)/analysis/libcoot-analysis.la	   \
+	$(top_builddir)/compat/libcoot-compat.la
+
+identify_protein_bin_SOURCES = identify-protein.cc
+
+identify_protein_bin_LDADD = ./libcoot-ligand.la          \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la            \
+        $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
@@ -166,7 +195,12 @@ test_ligand_SOURCES = test-ligand.cc
 #	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 test_ligand_LDADD = \
-	./libcoot-ligand.la
+	./libcoot-ligand.la \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(CLIPPER_LIBS)
 
 #test_helix_placement_LDADD = \
 #	./libcoot-ligand.la                                \
@@ -218,11 +252,13 @@ findligand_bin_LDADD = \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+        $(top_builddir)/cootaneer/libcootaneer.la          \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+        $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
@@ -234,15 +270,17 @@ findwaters_bin_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
+        $(top_builddir)/cootaneer/libcootaneer.la          \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+        $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
@@ -260,7 +298,7 @@ findwaters_bin_LDADD = \
 
 # testori_SOURCES = testori.cc
 
-dist_bin_SCRIPTS = findwaters findligand
+dist_bin_SCRIPTS = findwaters findligand coot-identify-protein
 
 #testdunbrack_SOURCES = testdunbrack.cc
 

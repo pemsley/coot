@@ -434,7 +434,7 @@ boost::python::object
 coot::atom_overlaps_from_coordinates_file(const std::string &file_name,
 					  bool add_hydrogens_flag) {
 
-   boost::python::object o(boost::python::handle<>(Py_False)); // return this
+   boost::python::object obj(boost::python::handle<>(Py_False)); // return this
 
    protein_geometry geom;
    geom.set_verbose(false);
@@ -482,8 +482,8 @@ coot::atom_overlaps_from_coordinates_file(const std::string &file_name,
 			       << o.overlap_volume << " r_1 "
 			       << o.r_1 << " r_2 " << o.r_2 << std::endl;
 		  PyObject *item_dict_py = PyDict_New();
-		  py_atom_spec_t spec_1(o.atom_1);
-		  py_atom_spec_t spec_2(o.atom_2);
+		  py_atom_spec_t spec_1(coot::atom_spec_t(o.atom_1));
+		  py_atom_spec_t spec_2(coot::atom_spec_t(o.atom_2));
 		  PyObject *r_1_py = PyFloat_FromDouble(o.r_1);
 		  PyObject *r_2_py = PyFloat_FromDouble(o.r_2);
 		  PyObject *ov_py  = PyFloat_FromDouble(o.overlap_volume);
@@ -494,7 +494,7 @@ coot::atom_overlaps_from_coordinates_file(const std::string &file_name,
 		  PyDict_SetItemString(item_dict_py, "radius-2", r_2_py);
 		  PyList_SetItem(o_py, ii, item_dict_py);
 	       }
-	       o = boost::python::object(boost::python::handle<>(o_py));
+	       obj = boost::python::object(boost::python::handle<>(o_py));
 	    }
 	 }
 
@@ -506,7 +506,7 @@ coot::atom_overlaps_from_coordinates_file(const std::string &file_name,
 	 }
       }
    }
-   return o;
+   return obj;
 }
 
 

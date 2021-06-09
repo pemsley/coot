@@ -202,8 +202,8 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 	 std::string alt_conf = at_close->altLoc;
 	 mmdb::Manager *mol = moving_atoms_asc->mol;
 	 mmdb::Residue *this_res = at_close->residue;
-	 mmdb::Residue *next_res = coot::util::get_following_residue(this_res, mol);
-	 mmdb::Residue *prev_res = coot::util::get_previous_residue(this_res, mol);
+	 mmdb::Residue *next_res = coot::util::get_following_residue(coot::residue_spec_t(this_res), mol);
+	 mmdb::Residue *prev_res = coot::util::get_previous_residue(coot::residue_spec_t(this_res), mol);
 	 int imol_map = Imol_Refinement_Map();
 	 if (is_valid_map_molecule(imol_map)) {
 	    if (this_res && prev_res && next_res) {

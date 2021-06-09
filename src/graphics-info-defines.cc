@@ -1926,7 +1926,7 @@ graphics_info_t::check_if_in_multi_residue_torsion_define(GdkEventButton *event)
       if (naii.success == TRUE) {
 	 int im = naii.imol;
 	 mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	 coot::residue_spec_t residue_spec(at);
+	 coot::residue_spec_t residue_spec(at->GetResidue());
 	 if (std::find(multi_residue_torsion_picked_residue_specs.begin(),
 		       multi_residue_torsion_picked_residue_specs.end(),
 		       residue_spec) ==

@@ -221,7 +221,9 @@
 
 
   (define eds-site "https://www.ebi.ac.uk/pdbe/coordinates")
-  (define eds-core "some://thing") ;; for web pages
+  ;; https://www.ebi.ac.uk/pdbe/entry/pdb/6tje
+  ;; (define eds-core "some://thing") ;; for web pages
+  (define eds-core "https://www.ebi.ac.uk/pdbe/entry/pdb")
   (define eds-coords-site "https://www.ebi.ac.uk/pdbe/entry-files/download")
   ;; now the map mtz files are like this:
   ;; https://www.ebi.ac.uk/pdbe/coordinates/files/zz/4zzn/4zzn_map.mtz
@@ -259,7 +261,7 @@
                      (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
                      ;; (mtz-url (string-append eds-site "/files/" target-mtz-file)) ;; old
                      (mtz-url (string-append eds-site "/files/" (mid-chars down-id) down-id "/" down-id "_map.mtz"))
-		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
+		     (eds-info-page (string-append eds-core "/" down-id)))
 
 		(print-var model-url)
 		(print-var mtz-url)

@@ -2005,7 +2005,7 @@
 				(resno-2-mov-text (gtk-entry-get-text (list-ref frame-info-mov 5)))
 				
 				(radius-text (gtk-entry-get-text radius-entry)))
-				
+
 			    (let ((imol-map (imol-refinement-map))
 				  (resno-1-ref (string->number resno-1-ref-text))
 				  (resno-2-ref (string->number resno-2-ref-text))
@@ -2021,7 +2021,7 @@
 
 				  (if (not (valid-map-molecule? imol-map))
 				      (format #t "Must set the refinement map~%")
-			    
+
 				      (let ((imol-copy (copy-molecule active-mol-mov)))
 					(let ((new-map-number 
 					       (transform-map-using-lsq-matrix 

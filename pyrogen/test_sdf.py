@@ -112,15 +112,15 @@ class compare_types:
                r = self.check(check_coot_amber_type, ref_type, self.Ns)
                return r
            else:
-	       if ele == 'O':
-		   r = self.check(check_coot_amber_type, ref_type, self.Os)
-		   return r
-	       else:
-		   if ele == 'S':
-		       r = self.check(check_coot_amber_type, ref_type, self.Ss)
-		       return r
-		   else:
-		       return match_type.WRONG_ELEMENT # unknown element
+               if ele == 'O':
+                   r = self.check(check_coot_amber_type, ref_type, self.Os)
+                   return r
+               else:
+                   if ele == 'S':
+                       r = self.check(check_coot_amber_type, ref_type, self.Ss)
+                       return r
+                   else:
+                       return match_type.WRONG_ELEMENT # unknown element
 
 
     def __init__(self, atom_in, debug_output=False):
@@ -164,11 +164,11 @@ def get_parmfrosst_types(m, mol_idx, ref_types=None, check_2_chars_only=True, ma
             check_coot_amber_type = coot_amber_type
             if check_2_chars_only:
                 check_coot_amber_type = coot_amber_type[:2]
-		# C -> Ca or Cb or Cc etc is a special case
+                # C -> Ca or Cb or Cc etc is a special case
                 if coot_amber_type in ["Ca", "Cax", "Cb", "Cc", "Cd", "Ce", "Cf", "Cg", "Ch", "Ci", "Cj", "C-"]:
-		    check_coot_amber_type = "C"
+                    check_coot_amber_type = "C"
                 if coot_amber_type in ["Sa", "Sax", "Sb", "Sc", "Sd", "Se", "Sf", "Sg", "Sh", "Si", "Sj"]:
-		    check_coot_amber_type = "S"
+                    check_coot_amber_type = "S"
             if check_coot_amber_type != ref_type:
                 ct = compare_types(atom)
                 match_result = ct.compare(check_coot_amber_type, ref_type)
@@ -194,10 +194,10 @@ def get_parmfrosst_types(m, mol_idx, ref_types=None, check_2_chars_only=True, ma
         except TypeError as e:
             print('TypeError {}'.format(e))
             pass
-	except KeyError as e:
-	    # pf_atom_type was not set on an atom
+        except KeyError as e:
+            # pf_atom_type was not set on an atom
             print('KeyError {}'.format(e))
-	    pass
+            pass
     return aa_types
 
 
@@ -223,6 +223,6 @@ if __name__ == '__main__':
    f.close()
 
    for sdf_index in range(top_n):
-      ref_types_for_mol=ref_types[ref_idx_offset[sdf_index][0]:ref_idx_offset[sdf_index][1]]    
+      ref_types_for_mol=ref_types[ref_idx_offset[sdf_index][0]:ref_idx_offset[sdf_index][1]]
       types = get_amber_types(suppl[sdf_index], sdf_index, ref_types_for_mol, check_2_chars_only=True)
-
+#

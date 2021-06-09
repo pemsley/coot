@@ -214,21 +214,22 @@ int test_internal() {
 int greg_internal_tests() {
    int status = 1;
    std::vector<named_func> functions;
+   functions.push_back(named_func(test_COO_mod, "test COO modification"));
    functions.push_back(named_func(test_OXT_in_restraints, "OXT in restraints?"));
    functions.push_back(named_func(test_relativise_file_name, "Relative file name"));
    functions.push_back(named_func(test_geometry_distortion_info_type, "geometry distortion comparision"));
    functions.push_back(named_func(test_translate_close_to_origin, "test symm trans to origin"));
    functions.push_back(named_func(test_lsq_plane, "test lsq plane"));
-   functions.push_back(named_func(test_COO_mod, "test COO modification"));
    functions.push_back(named_func(test_remove_whitespace, "remove whitespace"));
    functions.push_back(named_func(test_new_comp_id, "New comp_ids are sane"));
    functions.push_back(named_func(test_trailing_slash, "Remove Trailing Slash"));
 
+   status = run_internal_tests(functions);
+   return status;
+
    // restore this at some stage
    // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
 
-   status = run_internal_tests(functions);
-   return status;
 }
 
 // greg runs these tests too, these tests use data from the greg test
@@ -248,7 +249,7 @@ int greg_tests_using_external_data() {
 int test_phi_psi_values() {
 
    std::string filename = greg_test("frag-2wot.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, false, false);
    int n_phi_psi = 0;
    
    int status = 0;
@@ -357,7 +358,7 @@ int test_minimol() {
 
    int status = 0;
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, false, false);
    bool ifound = 0;
 
    // OK, now let's make a minimol
@@ -432,7 +433,7 @@ int test_output_link_distances_are_correct() {
 
    std::string filename = greg_test("pdb4rdq.ent");
    if (coot::file_exists("pdb4rdq.ent")) {
-      atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+      atom_selection_container_t atom_sel = get_atom_selection(filename, true, false, false);
       if (atom_sel.mol) {
 	 mmdb::Residue *r = test_get_residue(atom_sel.mol, "E", 502);
 	 if (! r) {
@@ -449,7 +450,7 @@ int test_output_link_distances_are_correct() {
 	    filename = "pdb4rqd-with-moved-CA.pdb";
 	    coot::write_coords_pdb(atom_sel.mol, filename);
 	    if (coot::file_exists(filename)) {
-	       atom_sel = get_atom_selection(filename, true, true);
+	       atom_sel = get_atom_selection(filename, true, true, false);
 	       if (atom_sel.mol) {
 		  mmdb::Model *model_p = atom_sel.mol->GetModel(1);
 		  int n_links = model_p->GetNumberOfLinks();
@@ -493,7 +494,7 @@ int test_alt_conf_rotamers() {
    int status = 1;
 
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true, false);
    bool ifound = 0;
 
    int imod = 1;
@@ -662,6 +663,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   bool output_numerical_gradients) {
 
 #ifdef HAVE_GSL
+
    long t0 = glutGet(GLUT_ELAPSED_TIME);
    
    // now refine a bit of structure:
@@ -676,7 +678,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    std::string altconf = "";
    short int in_alt_conf_split_flag = 0;
    const char *chn = chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
-	       
+
    std::pair<mmdb::Manager *, int> residues_mol_pair = 
       coot::util::create_mmdbmanager_from_res_selection(atom_sel.mol,
 							SelResidues, nSelResidues, 
@@ -687,15 +689,17 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 							in_alt_conf_split_flag);
    
    clipper::Xmap<float> dummy_xmap;
-   coot::restraints_container_t restraints(resno_mid-side_step,
-					   resno_mid+side_step,
-					   have_flanking_residue_at_start,
-					   have_flanking_residue_at_end,
-					   have_disulfide_residues,
-					   altconf,
-					   chn,
-					   residues_mol_pair.first,
-					   fixed_atom_specs, &dummy_xmap);
+   // coot::restraints_container_t restraints(resno_mid-side_step,
+   //      				   resno_mid+side_step,
+   //      				   have_flanking_residue_at_start,
+   //      				   have_flanking_residue_at_end,
+   //      				   have_disulfide_residues,
+   //      				   altconf,
+   //      				   chn,
+   //      				   residues_mol_pair.first,
+   //      				   fixed_atom_specs, &dummy_xmap);
+
+   coot::restraints_container_t restraints(SelResidues, nSelResidues, chn, atom_sel.mol, &dummy_xmap);
 
    ctpl::thread_pool thread_pool(2);
    restraints.thread_pool(&thread_pool, 2);
@@ -771,7 +775,7 @@ int test_ramachandran_probabilities() {
 
    std::string file_name = greg_test("crashes_on_cootaneering.pdb");
    file_name = "37-41.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(file_name, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(file_name, true, true, false);
 
    if (! atom_sel.read_success)
       throw std::runtime_error(file_name + ": file not found.");
@@ -999,7 +1003,7 @@ test_fragmemt_atom_selection() {
    //          there are 1465 atoms in tutorial-modern.pdb
    
    std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f, true, true);
+   atom_selection_container_t asc = get_atom_selection(f, true, true, false);
    
    std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
       coot::make_mols_from_atom_selection_string(asc.mol, atom_selection_string,
@@ -1023,7 +1027,7 @@ test_fragmemt_atom_selection() {
 int test_peptide_link() {
    
    std::string f = "1h4p.pdb";
-   atom_selection_container_t asc = get_atom_selection(greg_test(f), true, true);
+   atom_selection_container_t asc = get_atom_selection(greg_test(f), true, true, false);
    if (! asc.read_success)
       return 0;
 
@@ -1105,7 +1109,7 @@ restr_res_vector() {
    //    f = "7_and_96_B-a-result.pdb";
 //    f = "6_7_and_96_B.pdb";
 //    f = "6_7.pdb";
-   atom_selection_container_t asc = get_atom_selection(f, true, true);
+   atom_selection_container_t asc = get_atom_selection(f, true, true, false);
 
    std::vector<std::pair<bool,mmdb::Residue *> > residues;
    mmdb::Manager *mol = asc.mol;
@@ -1146,8 +1150,7 @@ restr_res_vector() {
       coot::protein_geometry geom;
       geom.init_standard();
       std::vector<mmdb::Link> links;
-      coot::restraints_container_t
-	 restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.add_map(weight);
       bool do_trans_peptide_restraints = true;
       int imol = 0;
@@ -1165,7 +1168,7 @@ test_add_atom() {
    int status = 0;
 
    std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f, true, true);
+   atom_selection_container_t asc = get_atom_selection(f, true, true, false);
 
    int n_test_residues = 20;
    int pass_count = 0;
@@ -1270,7 +1273,7 @@ test_dipole() {
    std::string res_type = "TYR";
    
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true, false);
 
    std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
       t.geom.get_monomer_restraints(res_type, 0);
@@ -1338,7 +1341,7 @@ int test_segid_exchange() {
    int status = 0;
    
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true, false);
    bool ifound = 0;
 
    std::vector<mmdb::Residue *> residues;
@@ -1460,11 +1463,11 @@ int test_ligand_fit_from_given_point() {
    }
    
    std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f, true, true);
+   atom_selection_container_t asc = get_atom_selection(f, true, true, false);
    if (!asc.read_success)
       return 0;
    std::string l = greg_test("monomer-3GP.pdb");
-   atom_selection_container_t l_asc = get_atom_selection(l, true, true);
+   atom_selection_container_t l_asc = get_atom_selection(l, true, true, false);
    if (!l_asc.read_success)
       return 0;
    
@@ -1534,7 +1537,7 @@ int test_ligand_conformer_torsion_angles() {
    }
    
    std::string l = greg_test("monomer-3GP.pdb");
-   atom_selection_container_t l_asc = get_atom_selection(l, true, true);
+   atom_selection_container_t l_asc = get_atom_selection(l, true, true, false);
    if (!l_asc.read_success)
       return 0;
    
@@ -1703,7 +1706,7 @@ int test_coot_atom_tree() {
 
    // Now get a residue
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true, false);
    bool ifound = 0;
 
    int imod = 1;
@@ -1723,7 +1726,7 @@ int test_coot_atom_tree() {
    if (1) {
       try {
 	 filename = "monomer-3GP.pdb";
-	 atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), true, true);
+	 atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), true, true, false);
 	 if (!atom_sel.read_success) {
 	    std::cout << "monomer-3GP.pdb not read successfully." << std::endl;
 	 } else { 
@@ -1839,7 +1842,7 @@ test_coot_atom_tree_proline() {
 
    int r = 0; 
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true, false);
    mmdb::Residue *res_pro = test_get_residue(atom_sel.mol, "A", 12);
    if (res_pro) {
       coot::protein_geometry geom;
@@ -2009,7 +2012,7 @@ test_rotate_around_vector() {
    int r = 0;
    
    std::string filename = "monomer-3GP.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), true, true, false);
 
    std::string rotate_atom_1 = " N9 ";
    std::string rotate_atom_2 = " C1*";
@@ -2384,7 +2387,7 @@ int test_coordinated_waters() {
    int data_type = COOT_COORDS_FILE_SELECTION;
    std::vector<std::string> file_names = filtered_by_glob("coot-download", data_type);
    for (unsigned int i=0; i<file_names.size(); i++) {
-      atom_selection_container_t atom_sel = get_atom_selection(file_names[i], true, true);
+      atom_selection_container_t atom_sel = get_atom_selection(file_names[i], true, true, false);
       if (atom_sel.mol) { 
 	 coot::util::water_coordination_t wc(atom_sel.mol, 3.3);
 	 std::vector<coot::util::contact_atoms_info_t> water_contacts = 
@@ -2488,7 +2491,7 @@ int test_flev_aromatics() {
    // std::string filename = "test-with-5GP.pdb";
    std::string filename = "test-with-5GP-with-ideal-A37-PHE.pdb";
    // std::string filename = "coot-download/1x8b.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), true, true, false);
    mmdb::Residue *res_ref = coot::util::get_residue("C", 1, "", atom_sel.mol);
    // mmdb::Residue *res_ref = coot::util::get_residue("A", 901, "", atom_sel.mol);
    if (! res_ref) {
@@ -2648,8 +2651,8 @@ int test_residue_atom_renaming() {
    std::string f1 = "coot-ccp4/store-1/prodrg-DRG-with-H.pdb";
    std::string f2 = "coot-ccp4/store-2/prodrg-DRG-with-H.pdb";
 
-   atom_selection_container_t atom_sel_ref = get_atom_selection(f1, true, true);
-   atom_selection_container_t atom_sel_mov = get_atom_selection(f2, true, true);
+   atom_selection_container_t atom_sel_ref = get_atom_selection(f1, true, true, false);
+   atom_selection_container_t atom_sel_mov = get_atom_selection(f2, true, true, false);
 
    std::vector<std::string> orig_atom_names;
    std::vector<std::string> curr_atom_names;
@@ -2712,7 +2715,7 @@ int test_mcd_and_thornton_h_bonds() {
 
    testing_data t;
    t.geom.init_refmac_mon_lib(greg_test("SGP-modified.cif"), 0);
-   atom_selection_container_t asc = get_atom_selection(greg_test("test-hydrogenated-region.pdb"), true, false);
+   atom_selection_container_t asc = get_atom_selection(greg_test("test-hydrogenated-region.pdb"), true, false, false);
    if (asc.read_success) {
 
       int SelHnd_all = asc.mol->NewSelection();
@@ -2738,10 +2741,9 @@ int test_COO_mod() {
    testing_data t;
    int status = 0;
    std::string file_name = greg_test("hideous-OXT.pdb");
-   atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+   atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
 
-   
-   if (!  asc.read_success) {
+   if (! asc.read_success) {
       std::cout << "failed to correctly read hideous-OXT.pdb " << std::endl;
    } else { 
       std::cout << "read " << asc.n_selected_atoms << " atom " << std::endl;
@@ -2750,43 +2752,49 @@ int test_COO_mod() {
       
       mmdb::PResidue *SelResidues = new mmdb::PResidue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
+      mmdb::Residue *refined_res = SelResidues[0];
 
+      // result.residue seems not to be the residue I want.
+      // Fixing this fixes this test's failure
       residue_selection_t result =
-	 testing_func_probabilities_refine_fragment(asc, SelResidues,
-						    1, "A", 93, t.geom, 0, 0, 0, 0);
-      delete [] SelResidues;
+	 testing_func_probabilities_refine_fragment(asc, SelResidues, 1, "A", 93, t.geom, 0, 0, 0, 0);
 
       // now test...
-   
-      std::vector<int> atom_index(3);
-      atom_index[0] = 1; // CA
-      atom_index[1] = 6; // C
-      atom_index[2] = 7; // O
-      for (unsigned int i=0; i<3; i++) {
-	 clipper::Coord_orth pos(result.SelResidues[0]->GetAtom(atom_index[i])->x,
-				 result.SelResidues[0]->GetAtom(atom_index[i])->y,
-				 result.SelResidues[0]->GetAtom(atom_index[i])->z);
 
+      g.lsq_plane_atom_positions->clear();
+      std::vector<int> atom_index = {1,6,7}; //  CA, C, O
+      for (unsigned int i=0; i<3; i++) {
+         // mmdb::Atom *at = result.SelResidues[0]->GetAtom(atom_index[i]);
+         mmdb::Atom *at = refined_res->GetAtom(atom_index[i]);
+	 clipper::Coord_orth pos = coot::co(at);
+         std::cout << "pushing back atom " << i << " " << coot::atom_spec_t(at) << " "
+                   << pos.format() << std::endl;
 	 g.lsq_plane_atom_positions->push_back(pos);
       }
-      clipper::Coord_orth oxt_pos(result.SelResidues[0]->GetAtom(8)->x,
-				  result.SelResidues[0]->GetAtom(8)->y,
-				  result.SelResidues[0]->GetAtom(8)->z);
-      clipper::Coord_orth o_pos(result.SelResidues[0]->GetAtom(7)->x,
-				result.SelResidues[0]->GetAtom(7)->y,
-				result.SelResidues[0]->GetAtom(7)->z);
+      mmdb::Atom *at_oxt = refined_res->GetAtom(8);
+      mmdb::Atom *at_o   = refined_res->GetAtom(7);
+      clipper::Coord_orth oxt_pos = coot::co(at_oxt);
+      clipper::Coord_orth o_pos = coot::co(at_o);
       result.clear_up();
-   
-      std::pair<float,float> d_pair =
-	 coot::lsq_plane_deviation(*g.lsq_plane_atom_positions, oxt_pos);
+
+      std::pair<float,float> d_pair = coot::lsq_plane_deviation(*g.lsq_plane_atom_positions, oxt_pos);
       float d = fabs(d_pair.first);
+      if (false) {
+         std::cout << "Here are the lsq plane atoms " << std::endl;
+         for (unsigned int i=0; i<g.lsq_plane_atom_positions->size(); i++) {
+            std::cout << i << " " << g.lsq_plane_atom_positions->at(i).format() << std::endl;
+         }
+         std::cout << "Here is the OXT atom " << oxt_pos.format() << std::endl;
+      }
       std::cout << "OXT out of plane distance: " << d << std::endl;
       double oxt_dist = clipper::Coord_orth::length(o_pos, oxt_pos);
       std::cout << "OXT->O distance: " << oxt_dist << std::endl;
-   
+
       if (d < 0.02)
 	 if (oxt_dist > 2.0)
 	    status = 1;
+
+      delete [] SelResidues;
 
    }
    return status;

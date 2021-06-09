@@ -8,6 +8,7 @@ chain_id               = chain_id_py
 remarks                = remarks_py
 residue_centre         = residue_centre_py
 coot_sys_build_type    = coot_sys_build_type_py
+accept_moving_atoms    = accept_moving_atoms_py
 molecule_name_stub     = molecule_name_stub_py
 run_clear_backups      = run_clear_backups_py
 het_group_residues     = het_group_residues_py

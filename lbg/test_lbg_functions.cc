@@ -22,10 +22,10 @@
 
 #include <iostream>
 
-#include "lbg.hh"
-
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
+
+#include "lbg.hh"
 
 // #include "graphics-c-interface-functions-blanks.cc"
 
@@ -178,7 +178,8 @@ int test_ccp4srs_graph_search() {
 // this needs to be here (also).  It is in wmolecule.cc and hence the library also.
 // But if this is not here I get unresovled symbol for this destructor when compiling
 // this exectuable on the mac (clang).
-template<class cairo_atom_t, class cairo_bond_t> lig_build::molecule_t<cairo_atom_t, cairo_bond_t>::~molecule_t() {}
+// 20210504-PE No longer needed
+// template<class cairo_atom_t, class cairo_bond_t> lig_build::molecule_t<cairo_atom_t, cairo_bond_t>::~molecule_t() {}
 
 int test_mol_to_cairo(int argc, char **argv) {
 

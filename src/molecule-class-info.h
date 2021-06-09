@@ -63,7 +63,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #endif
 #endif
 
-#include "clipper/ccp4/ccp4_map_io.h"
+#include <clipper/ccp4/ccp4_map_io.h>
 
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
@@ -1334,6 +1334,7 @@ public:        //                      public
    int    add_atom_label(char *chain_id, int iresno, char *atom_id);
    int remove_atom_label(char *chain_id, int iresno, char *atom_id);
    void remove_atom_labels(); // and symm labels
+   int add_atom_labels_for_residue(mmdb::Residue *residue_p);
 
    // xmap information
    //
@@ -1347,6 +1348,7 @@ public:        //                      public
    bool xmap_is_diff_map;
    clipper::NXmap<float> nxmap;
    bool is_patterson;  // for (at least) contour level protection
+   std::string map_name;
 
 
    float contour_level;
@@ -2371,7 +2373,7 @@ public:        //                      public
 
 
    //
-   void set_map_is_difference_map();
+   void set_map_is_difference_map(bool flag);
    short int is_difference_map_p() const;
 
 
@@ -2402,7 +2404,7 @@ public:        //                      public
    // sequence [a -other function]
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
-   std::vector<std::pair<std::string, std::string> > sequence_info() { return input_sequence; };
+   std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
@@ -3253,7 +3255,7 @@ public:        //                      public
    std::vector<coot::chain_mutation_info_container_t>
    sequence_comparison_to_chains(const std::string &sequence) const;
 
-   void rotate_residue(coot::residue_spec_t rs,
+   void rotate_residue(const coot::residue_spec_t &rs,
 		       const clipper::Coord_orth &around_vec,
 		       const clipper::Coord_orth &origin_offset,
 		       double angle);

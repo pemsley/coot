@@ -2624,7 +2624,7 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
       //
       int matrix_id_max = 0;
       std::map<std::pair<int, int>, quad_d_t>::const_iterator it;
-      for (it=biomts.begin(); it!=biomts.end(); it++) {
+      for (it=biomts.begin(); it!=biomts.end(); ++it) {
 	 if (it->first.first > matrix_id_max)
 	    matrix_id_max = it->first.first;
       }
@@ -2668,8 +2668,9 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 }
       }
 
-      std::cout << "in add_molecular_symmetry_matrices() made "
-		<< biomt_matrices.size() << " biomt matrices" << std::endl;
+      if (false)
+         std::cout << "in add_molecular_symmetry_matrices() made "
+                   << biomt_matrices.size() << " biomt matrices" << std::endl;
 
       for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
 	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {

@@ -45,50 +45,60 @@
 //     N  asparagine                      -  gap of indeterminate length
 
 // sequence
-coot::fasta::fasta(const std::string &sequence_chain_id_in, const std::string &fasta_seq_in) {
+coot::fasta::fasta(const std::string &sequence_chain_id_in, const std::string &fasta_seq_in, int type) {
 
    // format "> name\n <sequence>", we ignore everything that is not a
    // letter after the newline.
 
    // sequence is member data.  Let's fill it.
 
-   std::string seq;
+   if (type == SIMPLE_STRING) {
 
-   int nchars = fasta_seq_in.length();
-   short int found_greater = 0;
-   short int found_newline = 0;
-   std::string t;
-
-   for (int i=0; i<nchars; i++) {
-
-      //       std::cout << "checking character: " << seq_in[i] << std::endl;
-
-      if (found_newline && found_greater) {
-	 t = toupper(fasta_seq_in[i]);
-	 if (is_fasta_aa(t)) {
-	    // std::cout << "adding character: " << seq_in[i] << std::endl;
-	    seq += t;
-	 }
-      }
-      if (fasta_seq_in[i] == '>') {
-	 // std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
-	 found_greater = 1;
-      }
-      if (fasta_seq_in[i] == '\n') { 
-	 if (found_greater) {
-	    // std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
-	    found_newline = 1;
-	 }
-      }
-   }
-   
-   if (seq.length() > 0) { 
-      sequence = seq;
       name = sequence_chain_id_in;
+      sequence = fasta_seq_in;
+
    } else {
-      sequence = "";
-      name = "";
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+
+      // FASTA_BLOCK
+
+      std::string seq;
+
+      int nchars = fasta_seq_in.length();
+      short int found_greater = 0;
+      short int found_newline = 0;
+      std::string t;
+
+      for (int i=0; i<nchars; i++) {
+
+         //       std::cout << "checking character: " << seq_in[i] << std::endl;
+
+         if (found_newline && found_greater) {
+            t = toupper(fasta_seq_in[i]);
+            if (is_fasta_aa(t)) {
+               // std::cout << "adding character: " << seq_in[i] << std::endl;
+               seq += t;
+            }
+         }
+         if (fasta_seq_in[i] == '>') {
+            // std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
+            found_greater = 1;
+         }
+         if (fasta_seq_in[i] == '\n') {
+            if (found_greater) {
+               // std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+               found_newline = 1;
+            }
+         }
+      }
+
+      if (seq.length() > 0) {
+         sequence = seq;
+         name = sequence_chain_id_in;
+      } else {
+         sequence = "";
+         name = "";
+         std::cout << "WARNING:: fasta constructor: no sequence found or improper FASTA sequence format\n";
+      }
    }
 }
 
@@ -135,7 +145,6 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
 	    in_name = 1;
 	 }
 	 if (combined_string[i] == '\n') {
-	    in_name = 0;
 	    break;
 	 }
       }
@@ -152,14 +161,14 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
       if (combined_string[i] == '>') {
 	 found_greater = 1;
       }
-      if (combined_string[i] == '\n') { 
+      if (combined_string[i] == '\n') {
 	 if (found_greater) {
 	    found_newline = 1;
 	 }
       }
    }
-   
-   if (seq.length() > 0) { 
+
+   if (seq.length() > 0) {
       sequence = seq;
       name = "unknown";
    } else {

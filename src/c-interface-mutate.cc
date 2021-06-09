@@ -459,7 +459,7 @@ SCM  nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, 
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
-	 r = residue_spec_to_scm(residue_p);
+	 r = residue_spec_to_scm(coot::residue_spec_t(residue_p));
       }
    }
    return r;
@@ -489,7 +489,7 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
-         r = residue_spec_to_py(residue_p);
+         r = residue_spec_to_py(coot::residue_spec_t(residue_p));
       }
    }
    if (PyBool_Check(r)) {
@@ -506,6 +506,7 @@ void resolve_clashing_sidechains_by_deletion(int imol) {
    if (is_valid_model_molecule(imol)) {
       coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
       graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_deletion(geom_p);
+      graphics_draw();
    }
 }
 
@@ -515,7 +516,7 @@ void resolve_clashing_sidechains_by_rebuilding(int imol) {
       coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
       graphics_info_t g;
       int imol_refinement_map = g.Imol_Refinement_Map();
-      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_rebuilding(geom_p,
-                                                                                 imol_refinement_map);
+      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_rebuilding(geom_p, imol_refinement_map);
+      graphics_draw();
    }
 }

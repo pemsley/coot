@@ -35,7 +35,7 @@
 
 widgeted_molecule_t::~widgeted_molecule_t() {}
 
-template<class widgeted_atom_t, class widgeted_bond_t> lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t>::~molecule_t() {}
+//  template<class widgeted_atom_t, class widgeted_bond_t> lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t>::~molecule_t() {}
 
 // Don't forget that this function will be used in
 // render_from_molecule, which will add canvas item.
@@ -51,8 +51,6 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    // the input coordinates are not necessarily centred on (0,0), so
    // let's find the centre of the input molecule first.
    //
-   double centre_x = 0;
-   double centre_y = 0;
    double sum_x = 0;
    double sum_y = 0;
    mol_in_min_y =  9999999;
@@ -76,9 +74,8 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    scale_correction = get_scale_correction(mol_in);
    
    if (mol_in.atoms.size() > 0) {
-      centre_x = sum_x/double(mol_in.atoms.size());
-      centre_y = sum_y/double(mol_in.atoms.size());
-
+      double centre_x = sum_x/double(mol_in.atoms.size());
+      double centre_y = sum_y/double(mol_in.atoms.size());
       centre_correction = lig_build::pos_t(centre_x, centre_y);
 
       if (debug_local)
@@ -1318,22 +1315,28 @@ widgeted_molecule_t::close_atom(int iat, GooCanvasItem *root) {
 bool
 widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 
-   bool status = 0;
+   bool status = false;
 
    std::ofstream of(file_name.c_str());
+
+   if (bonds.empty()) { // clang scan-build fix, so that we don't use mdl_atom_indices[0]
+                        // when there are atom(s) but no bonds
+      std::cout << "OOps:: empty bonds" << std::endl;
+      return status;
+   }
 
    // we need to convert between atoms vector (which have closed
    // atoms) and mdl atoms, which are ordered and start from 1.
    // 
-   int mdl_atoms[bonds.size()];
+   int mdl_atom_indices[bonds.size()];
    int current_index = 1;
    int n_non_closed_atoms = 0;
    int n_non_closed_bonds = 0;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       if (atoms[iat].is_closed()) { 
-	 mdl_atoms[iat] = UNASSIGNED_INDEX;
+	 mdl_atom_indices[iat] = UNASSIGNED_INDEX;
       } else { 
-	 mdl_atoms[iat] = current_index;
+	 mdl_atom_indices[iat] = current_index;
 	 current_index++;
 	 n_non_closed_atoms++;
       }
@@ -1396,7 +1399,6 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
       if (atoms.size() > 0)
 	 centre = centre_sum * (1.0/double(atoms.size()));
 
-      
       // atom table:
       for (unsigned int iat=0; iat<atoms.size(); iat++) {
 	 if (! atoms[iat].is_closed()) {
@@ -1467,7 +1469,7 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	    of << H0_designator;
 	    of << "      ";
 	    of.width(3);
-	    of << mdl_atoms[iat]; // maybe
+	    of << mdl_atom_indices[iat]; // maybe
 	    int inversion_flag = 0;
 	    of.width(3);
 	    of << inversion_flag;
@@ -1494,8 +1496,8 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	    if (bond.get_bond_type() == lig_build::bond_t::OUT_BOND)
 	       bond_stereo = 1;
 	    
-	    int idx_1 = mdl_atoms[bonds[ib].get_atom_1_index()];
-	    int idx_2 = mdl_atoms[bonds[ib].get_atom_2_index()];
+	    int idx_1 = mdl_atom_indices[bonds[ib].get_atom_1_index()];
+	    int idx_2 = mdl_atom_indices[bonds[ib].get_atom_2_index()];
 	    
 	    of.width(3);
 	    of << idx_1;

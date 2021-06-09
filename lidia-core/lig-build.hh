@@ -26,6 +26,7 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <iostream>
 #include <algorithm>
 #include <set>
 #include <stdexcept>
@@ -96,33 +97,32 @@ namespace lig_build {
 	 return pos_t(first.x + frac * d_x,
 				first.y + frac * d_y);
       }
-      static pos_t mid_point(const pos_t &first,
-				       const pos_t &second) {
+      static pos_t mid_point(const pos_t &first, const pos_t &second) {
 	 return fraction_point(first, second, 0.5);
       }
       // angle in degrees
       pos_t rotate(double angle) const {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = x * cos_theta - y * sin_theta;
 	 double new_y = x * sin_theta + y * cos_theta;
 	 return pos_t(new_x, new_y);
       }
 
       pos_t rotate_about(double x_cen, double y_cen, double angle) {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
       
       pos_t rotate_about(const pos_t &cen, double angle) {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = cen.x + (x - cen.x) * cos_theta - (y - cen.y) * sin_theta;
 	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
 	 return pos_t(new_x, new_y);
@@ -190,17 +190,13 @@ namespace lig_build {
    class offset_text_t {
    public:
       enum text_pos_offset_t { HERE=0, UP=-1, DOWN=1};
-      offset_text_t(const std::string &text_in) {
-	 text = text_in;
+      explicit offset_text_t(const std::string &text_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = HERE;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
-      offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
-	 text = text_in;
+      offset_text_t(const std::string &text_in, const text_pos_offset_t &text_pos_offset_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = text_pos_offset_in;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
@@ -212,20 +208,18 @@ namespace lig_build {
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
-   
+
    class atom_id_info_t {
    public:
 
       // simple case
-      atom_id_info_t(const std::string &atom_id_in) {
-	 atom_id = atom_id_in;
+      explicit atom_id_info_t(const std::string &atom_id_in) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 size_hint = 0;
       }
 
       // make a superscript for the formal charge
-      atom_id_info_t(const std::string &atom_id_in, int formal_charge) {
-	 atom_id = atom_id_in;
+      atom_id_info_t(const std::string &atom_id_in, int formal_charge) : atom_id(atom_id_in){
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
@@ -307,18 +301,17 @@ namespace lig_build {
 		       // the atom indexes in the bonds descriptions.
    public:
       pos_t atom_position;
-      std::string element;
       std::string atom_id;
+      std::string element;
       std::string atom_name; // PDB atom names typically
-      int charge;
+      int charge;  // formal
       bool aromatic;
-      atom_t(pos_t pos_in, std::string ele_in, int charge_in) {
-	 atom_position = pos_in;
-	 atom_id = ele_in;
-	 element = ele_in;
-	 charge = charge_in;
+      atom_t(const pos_t &pos_in, const std::string &ele_in, int charge_in) :
+         atom_position(pos_in), atom_id(ele_in), element(ele_in), charge(charge_in) {
 	 is_closed_ = 0;
+         aromatic = false;
       }
+      virtual ~atom_t() {}
       bool over_atom(const double &x_in, const double &y_in) const {
 	 pos_t mouse(x_in, y_in);
 	 double d = pos_t::length(mouse, atom_position);
@@ -447,6 +440,7 @@ namespace lig_build {
 	 centre_pos_ = centre_pos_in;
 	 is_closed_ = 0;
       }
+      virtual ~bond_t() {}
       // mouse is hovering over bond?
       bool over_bond(double x, double y,
 		     const atom_t &atom_1_at, const atom_t &atom_2_at) const;
@@ -991,7 +985,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_internal(start_atom_index,
 						     atom_index_other,
@@ -1059,7 +1053,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_simple_internal(start_atom_index, *it,
 							    local_no_pass_atoms, depth-1);
@@ -1091,7 +1085,7 @@ namespace lig_build {
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
 
-      virtual ~molecule_t() = 0;
+      virtual ~molecule_t() {};
 
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).

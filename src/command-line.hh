@@ -2,6 +2,9 @@
 #ifndef COMMAND_LINE_HH
 #define COMMAND_LINE_HH
 
+#include <string>
+#include <vector>
+
 class command_line_data { 
 
 public:
@@ -14,6 +17,7 @@ public:
    std::vector<std::string> command; // strings to to be evaluated
 				     // from the command line
    std::vector<std::string> accession_codes;
+   std::vector<std::string> emdb_codes;
    std::vector<std::string> comp_ids;
    short int hardware_stereo_flag;
    bool script_is_python_flag;
@@ -33,7 +37,6 @@ public:
    command_line_data() { 
      hardware_stereo_flag = 0; // default off
      port = 0;
-     hostname = "";
      try_listener = 0;
      update_self = 0;
      do_graphics = 1; // use graphics by default
@@ -41,7 +44,6 @@ public:
      script_is_python_flag = 0;
      small_screen_display  = 0; // default is no small screen
      use_splash_screen = 1;
-     alternate_splash_screen_file_name = ""; // unset, tested vs blank.
      run_internal_tests_and_exit = 0;
      em_mode = false;
    }

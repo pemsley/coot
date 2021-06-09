@@ -552,8 +552,8 @@ graphics_info_t::import_all_refmac_cifs() {
 				    }
 				 }
 			      }
-			   }
-			   closedir(sub_dir);
+                              closedir(sub_dir);
+                           }
 			}
 		     } // not "."
 		  }
@@ -700,6 +700,9 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
+
+   if (! is_valid_model_molecule(imol))
+      return;
 
    mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
 
@@ -883,7 +886,7 @@ graphics_info_t::get_closest_atom() const {
    // int index, int imol
 
    std::pair <float, int> dist_info;
-   float dist_min = 999999999;
+   float dist_min = 999999999.0;
    coot::Cartesian rc = RotationCentre();
    int imol_close = -1;
    int index_close = -1;
@@ -1510,11 +1513,13 @@ graphics_info_t::set_refinement_map(int i) {
 // We want to put the moving parts back into the object that we were
 // regularizing (imol_moving_atoms).
 //
-void
+coot::refinement_results_t
 graphics_info_t::accept_moving_atoms() {
 
-   while (continue_threaded_refinement_loop)
+   while (continue_threaded_refinement_loop) {
+      // std::cout << "waiting for continue_threaded_refinement_loop to be false..." << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
 
    if (false) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
@@ -1522,6 +1527,8 @@ graphics_info_t::accept_moving_atoms() {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
                 << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
    }
+
+   coot::refinement_results_t rr = get_refinement_results();
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
@@ -1593,6 +1600,8 @@ graphics_info_t::accept_moving_atoms() {
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
+
+   return rr;
 }
 
 void
@@ -2435,6 +2444,43 @@ graphics_info_t::draw_environment_graphics_object() {
       }
    }
 }
+
+
+#include "pick.h"
+
+pick_info
+graphics_info_t::pick_moving_atoms(const coot::Cartesian &front, const coot::Cartesian &back) const {
+
+   pick_info p_i;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         short int pick_mode = PICK_ATOM_ALL_ATOM;
+         bool verbose_mode = true;
+         pick_info impi = pick_atom(*moving_atoms_asc, -1, front, back, pick_mode, verbose_mode);
+
+         if (impi.success) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[impi.atom_index];
+            if (at) {
+               p_i = impi;
+               p_i.is_intermediate_atoms_molecule = true;
+            }
+         }
+      }
+   }
+   return p_i;
+}
+
+mmdb::Atom *
+graphics_info_t::get_moving_atom(const pick_info &pi) const {
+   mmdb::Atom *at  = 0;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         at = moving_atoms_asc->atom_selection[pi.atom_index];
+      }
+   }
+   return at;
+}
+
 
 // static
 void
@@ -3558,8 +3604,8 @@ graphics_info_t::update_maps() {
       if (! do_threaded_map_updates) {
 	 for (int ii=0; ii<n_molecules(); ii++) {
 	    if (molecules[ii].has_xmap()) {
-	       molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
-                                                                                   // of new rotation centre.
+	       molecules[ii].update_map(auto_recontour_map_flag); // to take account
+                                                           // of new rotation centre.
 	    }
 	 }
 
@@ -3572,7 +3618,7 @@ graphics_info_t::update_maps() {
 	 if (n_threads == 0) {
 	    for (int ii=0; ii<n_molecules(); ii++) {
 	       if (molecules[ii].has_xmap()) {
-		  molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag); // to take account
+		  molecules[ii].update_map(auto_recontour_map_flag); // to take account
 		  // of new rotation centre.
 	       }
 	    }
@@ -3801,19 +3847,19 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    }
 //    std::cout << "DEBUG: in graphics: cg_start: " << cg_start.format() << "  "
 // 	     << use_cg_start << std::endl;
-   *baton_next_ca_options = molecules[imol_for_skel].next_ca_by_skel(previous_ca_positions,
-								     cg_start,
-								     use_cg_start,
-								     3.8,
-								     skeleton_level,
-								     max_skeleton_search_depth);
+   baton_next_ca_options = molecules[imol_for_skel].next_ca_by_skel(previous_ca_positions,
+                                                                    cg_start,
+                                                                    use_cg_start,
+                                                                    3.8,
+                                                                    skeleton_level,
+                                                                    max_skeleton_search_depth);
 
    // Print out the baton_next_ca_options
    //
    std::cout << "-- baton_next_ca_options" << std::endl;
-   for(unsigned int i=0; i<baton_next_ca_options->size(); i++) {
-      std::cout << "   " << (*baton_next_ca_options)[i].score  << "  "
-		<< (*baton_next_ca_options)[i].position.format() << std::endl;
+   for(unsigned int i=0; i<baton_next_ca_options.size(); i++) {
+      std::cout << "   " << baton_next_ca_options[i].score  << "  "
+		<< baton_next_ca_options[i].position.format() << std::endl;
    }
    std::cout << "--" << std::endl;
 
@@ -3821,9 +3867,9 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    //
    std::string molname("Baton Atom Guide Points");
    if (baton_tmp_atoms_to_new_molecule) {
-      create_molecule_and_display(*baton_next_ca_options, molname);
+      create_molecule_and_display(baton_next_ca_options, molname);
    } else {
-      update_molecule_to(*baton_next_ca_options, molname);
+      update_molecule_to(baton_next_ca_options, molname);
    }
 }
 
@@ -4003,10 +4049,10 @@ graphics_info_t::accept_baton_position() {
       std::cout << "Ooops:: must have a skeleton first" << std::endl;
    } else {
       short int use_cg = 1;
-      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options->size() << " "
+      std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options.size() << " "
 		<< baton_next_ca_options_index << std::endl;
-      if (baton_next_ca_options->size() > 0) {
-	 clipper::Coord_grid cg = (*baton_next_ca_options)[baton_next_ca_options_index].near_grid_pos;
+      if (baton_next_ca_options.size() > 0) {
+	 clipper::Coord_grid cg = baton_next_ca_options[baton_next_ca_options_index].near_grid_pos;
 	 baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
       } else {
 	 clipper::Coord_grid cg;
@@ -4035,32 +4081,26 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
    coot::Cartesian tip_pos(0.0, 0.0, 0.0);
    unsigned int uindex = index;
 
-   if (!baton_next_ca_options) {
-      std::cout << "ERROR: baton_next_ca_options is NULL\n";
-   } else {
-      if (uindex >= baton_next_ca_options->size()) {
-	 if ((uindex == 0) && (baton_next_ca_options->size() == 0)) {
+   {
+      if (uindex >= baton_next_ca_options.size()) {
+	 if ((uindex == 0) && (baton_next_ca_options.size() == 0)) {
 	    std::cout << "INFO:: no baton next positions from here\n";
 	    tip_pos = non_skeleton_tip_pos();
 	 } else {
 	    std::cout << "ERROR: bad baton_next_ca_options index: "
-		      << index << " size " << baton_next_ca_options->size()
+		      << index << " size " << baton_next_ca_options.size()
 		      << std::endl;
 	 }
       } else {
 	 // now we want a vector baton_length in the direction starting
 	 // at baton_root to baton_next_ca_options[index]
 	 //
-	 coot::Cartesian target_point = to_cartesian((*baton_next_ca_options)[index].position);
+	 coot::Cartesian target_point = to_cartesian(baton_next_ca_options[index].position);
 	 std::cout << "Ca option " << index << " score: "
-		   << (*baton_next_ca_options)[index].score << std::endl;
-
+		   << baton_next_ca_options[index].score << std::endl;
 	 coot::Cartesian target_dir = target_point - baton_root;
-
 	 target_dir.unit_vector_yourself();
-
 	 target_dir *= baton_length;
-
 	 tip_pos = target_dir + baton_root;
       }
    }
@@ -4122,7 +4162,7 @@ graphics_info_t::baton_tip_try_another() {
    baton_next_ca_options_index++;
 
    // make baton_next_ca_options_index an unsigned int
-   if (baton_next_ca_options_index >= int(baton_next_ca_options->size())) {
+   if (baton_next_ca_options_index >= int(baton_next_ca_options.size())) {
       std::cout << "info: cycling back to start of ca options" << std::endl;
       baton_next_ca_options_index = 0;
    }
@@ -4136,7 +4176,7 @@ void
 graphics_info_t::baton_tip_previous() {
 
    if (baton_next_ca_options_index == 0) {
-      baton_next_ca_options_index = int(baton_next_ca_options->size()-1);
+      baton_next_ca_options_index = int(baton_next_ca_options.size()-1);
    } else {
       baton_next_ca_options_index--;
    }
@@ -6580,4 +6620,28 @@ graphics_info_t::quick_save() {
    save_state_file("0-coot.state.py", il);
 #endif
 
+}
+
+
+// run glColor3f())
+// static
+void
+graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
+
+   if (use_graphics_interface_flag) {
+      int n_user_defined_colours = user_defined_colours.size();
+      if (icol < n_user_defined_colours) {
+         if (icol >= 0) {
+            const coot::colour_holder &ch = user_defined_colours[icol];
+            glColor3f(ch.red, ch.green, ch.blue);
+         } else {
+            coot::colour_holder ch;
+            glColor3f(ch.red, ch.green, ch.blue);
+         }
+      } else {
+         coot::colour_holder ch;
+         glColor3f(ch.red, ch.green, ch.blue);
+      }
+   }
+   
 }

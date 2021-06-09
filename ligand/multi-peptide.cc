@@ -106,7 +106,7 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
 
    bool debugging = false;
    trace t(xmap);
-   std::vector<coot::minimol::fragment> seeds = t.make_seeds();
+   std::vector<minimol::fragment> seeds = t.make_seeds();
    std::cout << "INFO:: Made " << seeds.size() << " seeds " << std::endl;
 
    //kludge for testing backwards building
@@ -150,31 +150,30 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    unsigned int n_seeds_max = 10; // seeds.size();
 
    for (std::size_t iseed=0; iseed<n_seeds_max; iseed++) {
-      coot::minimol::molecule mmm(seeds[iseed]);
+      minimol::molecule mmm(seeds[iseed]);
       mmdb::Manager *mol = mmm.pcmmdbmanager();
-      mmdb::Residue *r = coot::util::get_residue(coot::residue_spec_t("A", 99, ""), mol);
-      mmdb::Residue *r_prev = coot::util::get_previous_residue(r, mol);
+      mmdb::Residue *r = util::get_residue(residue_spec_t("A", 99, ""), mol);
+      mmdb::Residue *r_prev = util::get_previous_residue(residue_spec_t(r), mol);
       float b_fact = 30.0;
       int n_trials = 20010; // 20000 is a reasonable minimal number
+      n_trials = 100;
 
-      if (true) {
-	 coot::minimol::fragment fC =
-	    forwards_2018(iseed, r, r_prev, "A", b_fact, n_trials, geom, xmap, mv, debugging);
-	 if (fC.n_filled_residues() > 2) { // needs tweaking
-	    int build_dir = 1;
-	    add_to_fragment_store(fC, build_dir);
-	 }
+      minimol::fragment fC =
+         forwards_2018(iseed, r, r_prev, "A", b_fact, n_trials, geom, xmap, mv, debugging);
+      if (fC.n_filled_residues() > 2) { // needs tweaking
+         int build_dir = 1;
+         add_to_fragment_store(fC, build_dir);
+      }
 
-	 if (false) { // debug
-	    std::string file_name = "trace-frag-forward-build-from-seed-";
-	    file_name += coot::util::int_to_string(iseed);
-	    file_name += ".pdb";
-	    coot::minimol::molecule mmm_out(fC);
-	    // add cell from map
-	    mmm_out.set_cell(acell);
-	    mmm_out.set_spacegroup(spacegroup_str_hm);
-	    mmm_out.write_file(file_name, 10);
-	 }
+      if (true) { // debug
+         std::string file_name = "trace-frag-forward-build-from-seed-";
+         file_name += util::int_to_string(iseed);
+         file_name += ".pdb";
+         minimol::molecule mmm_out(fC);
+         // add cell from map
+         mmm_out.set_cell(acell);
+         mmm_out.set_spacegroup(spacegroup_str_hm);
+         mmm_out.write_file(file_name, 10);
       }
 
       if (true) {
@@ -189,14 +188,14 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
 
 	 // does this crash when r is null?
 	 mmdb::Residue *r_next = 0;
-	 coot::minimol::fragment fN =
+	 minimol::fragment fN =
 	    backwards_2018(iseed, r, r_next, "A", b_fact, n_trials, geom, xmap, mv, debugging);
 
-	 if (false) { // debug
+	 if (true) { // debug
 	    std::string file_name = "trace-frag-backwards-build-from-seed-";
-	    file_name += coot::util::int_to_string(iseed);
+	    file_name += util::int_to_string(iseed);
 	    file_name += ".pdb";
-	    coot::minimol::molecule mmm_out(fN);
+	    minimol::molecule mmm_out(fN);
 	    // add cell from map
 	    mmm_out.set_cell(acell);
 	    mmm_out.set_spacegroup(spacegroup_str_hm);
@@ -230,14 +229,14 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
       mmm.fragments.push_back(frag);
    }
 
-   // mmm.write_file("built.pdb", 20.0);
+   mmm.write_file("built.pdb", 20.0);
    mmdb::Manager *mol = mmm.pcmmdbmanager();
    clipper::MMDBfile* mmdbfile = static_cast<clipper::MMDBfile*>(mol);
    clipper::MiniMol mm;
    mmdbfile->import_minimol(mm);
    bool r = ProteinTools::globularise(mm);
    mmdbfile->export_minimol(mm);
-   mol->WritePDBASCII("built.pdb");
+   mol->WritePDBASCII("built-2.pdb");
 
 }
 
@@ -761,7 +760,7 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
 
    while (happy_fit) {
 
-      if (false) { // debug
+      if (true) { // debug
 	 std::string file_name = "while-new-";
 	 file_name += coot::util::int_to_string(res_p->GetSeqNum()) + std::string(".pdb");
 	 minimol::molecule mmm(many_residues);

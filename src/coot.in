@@ -18,88 +18,7 @@
 # fi
 
 # you will want to redefine this if you are ccp4
-PYTHON=python
-
-function apply_pending_install { 
-
-   COOT_PREFIX="$1"
-   dir_list="
-bin
-info
-man
-share
-include
-lib"
-
-   old_dir="old"
-   old_dir=revision-$($coot_bin --version | sed -e 's/.*revision //' -e 's/).*//')
-   echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
-
-   if [ -d $COOT_PREFIX/$old_dir ] ; then
-       rm -rf $COOT_PREFIX/$old_dir
-   fi 
-
-   if [ ! -e $COOT_PREFIX/$old_dir ] ; then
-      mkdir $COOT_PREFIX/$old_dir
-
-      if [ -d $COOT_PREFIX/$old_dir ] ; then
-
-	 # set $coot_bin_dir to the newly installed 
-         # coot-something directory in pending-install
-         # (if we can, that is).
-	 #
-         t=$(echo $COOT_PREFIX/pending-install/coot*)
-         if [ -e "$t" ] ; then 
-            coot_bin_dir=$t
-            echo set coot_bin_dir to $coot_bin_dir
-         else 
-            echo situation too complicated to install - clean up pending installs.
-         fi
-
-         if [ -z "$coot_bin_dir" ] ; then 
-           echo coot_bin_dir not set.
-         else 
-            # continue, it's good
-
-	    echo =====================================================================
-	    echo ==================== installing fresh coot ==========================
-	    echo =====================================================================
-
-            # move aside current dirs
-            for dir in $dir_list
-            do
-	      if [ -e "$COOT_PREFIX/$dir" ] ; then 
-                 # echo move out $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
-                 mv $COOT_PREFIX/$dir $COOT_PREFIX/$old_dir/$dir
-              else 
-                 echo on move-out: "$COOT_PREFIX/$dir" does not exist.
-              fi
-            done
-
-
-   	    # move in the new ones
-            for dir in $dir_list
-            do 
-	      # echo debug:: moving in $dir
-	      if [ -e "$coot_bin_dir/$dir" ] ; then 
-                 # echo move-in "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
-                 mv "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
-              else 
-                 echo on move-in: "$coot_bin_dir/$dir" does not exist.
-              fi
-            done
-         fi
-      else 
-         echo WARNING:: $COOT_PREFIX/$old_dir could not be created.
-      fi 
-   else 
-       echo WARNING:: $COOT_PREFIX/$old_dir could not be removed, aborting new binary install
-   fi
-
-   echo  removing pending-install...
-   rm -rf $COOT_PREFIX/pending-install
-
-}
+PYTHON=@PYTHON@
 
 
 function check_for_no_graphics {
@@ -120,17 +39,12 @@ function check_for_no_graphics {
 current_exe_dir=$(dirname $0)
 systype=$(uname)
 
-if [ $systype = Darwin ] ; then 
-   COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
-else 
-   if [ $current_exe_dir = . ] ; then 
-      COOT_PREFIX=$(readlink -f $(dirname $PWD))
-   else 
-      COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
-   fi
-   if test "$COOT_PREFIX" = ""; then
-      COOT_PREFIX=$(dirname "$current_exe_dir")
-   fi
+if [ $systype = Darwin ] ; then
+    COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
+else
+    unlinked_exe=$(readlink -f $0)
+    unlinked_exe_dir=$(dirname $unlinked_exe)
+    COOT_PREFIX=$(dirname $unlinked_exe_dir)
 fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
@@ -166,7 +80,7 @@ PATH=$COOT_PREFIX/bin:$PATH
 SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
 COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
 if [ -z $CLIBD_MON ] ; then
- echo CLIBD_MON not set using COOT_REFMAC_LIB_DIR
+ # echo debug:: CLIBD_MON not set, using COOT_REFMAC_LIB_DIR
  COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
  export COOT_REFMAC_LIB_DIR
 fi
@@ -207,6 +121,13 @@ if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then
 fi
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
+GUILE_BIN=guile
+if [ -e $COOT_PREFIX/bin/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/bin/guile
+fi
+if [ -e $COOT_PREFIX/libexec/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/libexec/guile
+fi
 
 if [ $systype = Linux ] ; then 
    if [ -z "$LD_LIBRARY_PATH" ] ;  then
@@ -221,6 +142,12 @@ if [ $systype = Darwin ] ; then
 	DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib
    else 
 	DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH}
+   fi
+   if [ -z "$LTDL_LIBRARY_PATH" ] ;  then
+	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	OLD_LTDL_LIBRARY_PATH=${LTDL_LIBRARY_PATH}
+	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib:${LTDL_LIBRARY_PATH}
    fi
 fi
 if [ $systype = IRIX ] ; then 
@@ -262,6 +189,7 @@ export COOT_PIXMAPS_DIR
 export COOT_DATA_DIR
 export GUILE_LOAD_PATH
 export DYLD_FALLBACK_LIBRARY_PATH
+export LTDL_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
@@ -272,15 +200,15 @@ if [ "$1" = --check-libs ] ; then
    else
       ldd -r $coot_bin
    fi
-else 
+else
 
    for arg in "$@" ;
    do
       if [ "$arg" = --ccp4-mode ] ; then
          ccp4_mode=true
       fi
-      if [ "$arg" = --libtool-hack ] ; then
-         export LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+      if [ "$arg" = --disable-libtool-hack ] ; then
+         LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
       fi
    done
 
@@ -312,15 +240,15 @@ else
       # unset LD_LIBRARY_PATH
       # only run the crash catcher if coot was compiled with guile
       if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-          if [ -e $COOT_PREFIX/bin/guile ] ; then
+          if [ -e $GUILE_BIN ] ; then
               # diagnose guile if we can
               if [ -e /usr/bin/ldd ] ; then
                   echo ldd -r on guile gives:
-                  ldd -r $COOT_PREFIX/bin/guile
+                  ldd -r $GUILE_BIN
               fi
-              if guile --version ; then
+              if $GUILE_BIN --version ; then
                   echo catching the crash log:
-                  $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+                  $GUILE_BIN -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
               else
                   echo failed to launch the crash catcher - bad guile
             fi

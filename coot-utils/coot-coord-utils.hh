@@ -1217,6 +1217,9 @@ namespace coot {
       std::vector<mmdb::PResidue> get_residues_in_fragment(mmdb::Chain *clicked_residue_chain_p,
 						      residue_spec_t clicked_residue);
 
+      // this can return an empty list if the residues for resno_start or resnoend  are not found
+      std::vector<mmdb::Residue *> get_residues_in_range(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end);
+
       // deleted by calling process
       std::pair<mmdb::Manager *, std::vector<residue_spec_t> >
       get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);
@@ -1372,8 +1375,14 @@ namespace coot {
       // should be called multiple times for residues with alt_confs).
       // Return mutated state.
       //
-      int mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const std::string &alt_conf,
+      int mutate(mmdb::Residue *residue_p, mmdb::Residue *std_res_unoriented, const std::string &alt_conf,
 		 short int shelx_flag, float b_factor=20.0);
+
+      int mutate(mmdb::Residue *residue_p, const std::string &new_res_name);
+
+      // a deep copy
+      mmdb::Residue *get_standard_residue_instance(const std::string &res_name);
+      static std::map<std::string, mmdb::Residue *> standard_residues_map_cache;
 
       // given a std residue oriented over residue, make the mutation
       // to std_residue

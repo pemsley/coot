@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(coot, 0.9.4)
+AC_INIT(coot, 0.9.5.1-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -247,6 +247,12 @@ AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 # FIXME Later.
 AX_BOOST_PYTHON
 
+
+if test -z "$BOOST_PYTHON_LIB" ; then
+   echo BOOST_PYTHON_LIB has not been set. Did you pass --with-boost-libdir\?
+   exit
+fi
+
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
 # How do we use that?  At the moment we want to only use 
 # -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
@@ -264,22 +270,6 @@ else
    fi
 fi
 AC_SUBST(L_BOOST_PYTHON)
-
-# this can go away in 2020 - no one will try to use that old RDKit.
-#
-# was RDKIT used and if it was does it have Cairo support (if it does
-# have cairo support, we can use it to generate molecular (chemical)
-# depictions.
-#
-if test -n "$RDKIT_LIBS" ; then
-
-   case "$RDKIT_LIBS" in
-
-     *MolDraw2D*)
-          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
-          ;;
-   esac
-fi
 
 dnl =========================== GooCanvas ================================
 
@@ -301,21 +291,31 @@ if $coot_enhanced_ligand_additions = true ; then
    fi
 fi
 
-if test x$coot_enhanced_ligand_additions = xtrue ; then
-   ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
-else 	
-   ENHANCED_LIGAND_TOOLS_CFLAGS=""
+AC_ARG_WITH(rdkit-prefix, [location of the RDKit package], rdkit_prefix="$withval", rdkit_prefix="")
+
+if test x$rdkit_prefix = x ; then
+  :
+else
+   rdkit_install_dir="$withval"
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
+   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_serialization -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
 fi
 
-echo ENHANCED_LIGAND_TOOLS_CFLAGS $ENHANCED_LIGAND_TOOLS_CFLAGS
+if test x$coot_enhanced_ligand_additions = xtrue ; then
+   ENHANCED_LIGAND_TOOLS_CPPFLAGS=-DMAKE_ENHANCED_LIGAND_TOOLS
+else
+   ENHANCED_LIGAND_TOOLS_CPPFLAGS=""
+fi
+
+echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
- lidia_only=="no")
+ lidia_only="no")
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
-AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)
+AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
 
 AC_SUBST(RDKIT_CXXFLAGS)
 AC_SUBST(RDKIT_LIBS)
@@ -421,7 +421,6 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-libgtkgraph/Makefile
 goograph/Makefile
 lbg/Makefile
 doc/Makefile

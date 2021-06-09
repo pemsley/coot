@@ -1262,7 +1262,7 @@ on_ok_button_map_name_clicked          (GtkButton       *button,
 						   when destroyed,
 						   scribbles over
 						   filename. */
-   handle_read_ccp4_map(sfile, is_diff_map_flag);
+   handle_read_ccp4_map_internal(sfile, is_diff_map_flag);
    free(sfile);
 }
 
@@ -1746,42 +1746,7 @@ void
 on_phs_cell_choice_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *window;
-   GtkWidget *info_window;
-   int i;
-
-   /* messing about with string variables */
-   gchar *widget_name;
-   gchar *tmp_name;
-
-   widget_name = (gchar *) malloc(25); /* freed */
-
-   window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
-
-   for (i=0; i< graphics_n_molecules(); i++) {
-
-      if (has_unit_cell_state(i)) {
-
-	 strcpy(widget_name, "phs_cell_radiobutton_");
-	 tmp_name = widget_name + strlen(widget_name);
-	 snprintf(tmp_name, 3, "%-d", i);
-
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), widget_name)))) {
-	    printf("proceeding with phs reading using cell from molecule %d.\n", i);
-
-	    read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(i);
-	    break;
-	 }
-      }
-   }
-   free(widget_name);
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "phs_cell_none_radiobutton")))) {
-      printf("special value for none for phs_cell radiobuton active\n");
-      info_window = create_phs_info_box();
-      gtk_widget_show(info_window);
-   }
-   gtk_widget_destroy(window);
+   handle_phs_cell_choice_ok_button_clicked(GTK_WIDGET(button));
 }
 
 
@@ -1817,9 +1782,6 @@ on_scripting_window_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-#if (GTK_MAJOR_VERSION == 1)
-  post_scheme_scripting_window();
-#endif
 }
 
 
@@ -2334,7 +2296,7 @@ on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
   /* Pressing Return while focus is on the Accept/Reject dialog brings us here. */
 
   stop_refinement_internal();
-  accept_moving_atoms();
+  c_accept_moving_atoms();
   save_accept_reject_dialog_window_position(window);
   set_accept_reject_dialog(NULL);
   gtk_widget_destroy(window);
@@ -2359,6 +2321,7 @@ on_accept_reject_refinement_dialog_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data)
 {
+
 
   /* Pressing Escape while focus is on the Accept/Reject dialog brings us here. */
 
@@ -10762,7 +10725,7 @@ on_map_name_filechooserdialog1_response
 						      when destroyed,
 						      scribbles over
 						      filename. */
-      handle_read_ccp4_map(sfile, is_diff_map_flag);
+      handle_read_ccp4_map_internal(sfile, is_diff_map_flag);
       free(sfile);
 
    } else {
@@ -12795,6 +12758,29 @@ on_refine_params_rama_restraints_weight_combobox_changed
 
 
 void
+on_refine_params_torsions_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_torsion_weight_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_overall_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   set_refinement_overall_weight_from_text(t);
+}
+
+
+
+
+void
 on_refine_params_more_control_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
@@ -13050,6 +13036,13 @@ on_label_neighbours1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   label_neighbours();
+}
+
+void
+on_label_atoms_in_residue1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+
+  label_atoms_in_residue();
 }
 
 

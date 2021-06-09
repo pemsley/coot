@@ -76,27 +76,6 @@
 GtkWidget *wrapped_create_libcheck_monomer_dialog() {
 
    GtkWidget *w = create_libcheck_monomer_dialog();
-
-#ifdef USE_GUILE
-
-   std::string c = "(command-in-path? libcheck-exe)";
-   SCM v = safe_scheme_command(c.c_str());
-
-   if (!scm_is_true(v)) {
-      GtkWidget *l = lookup_widget(w, "no_libcheck_frame");
-      if (l) {
-	 gtk_widget_show(l);
-      }
-   } 
-   
-#endif // USE_GUILE
-
-#ifdef USE_PYTHON
-
-   // something similar here.
-   
-#endif // USE_PYTHON   
-   
    return w;
 } 
 

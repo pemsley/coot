@@ -36,8 +36,8 @@ namespace coot {
 	 donor_neigh = NULL;
 	 acceptor_neigh = NULL;
 	 ligand_atom_is_donor = 1;
-	 angle_1 = -1; 
-	 angle_2 = -1; 
+	 angle_1 = -1;
+	 angle_2 = -1;
 	 angle_3 = -1;
 	 hydrogen_is_ligand_atom = 0; // no hydrogen
 	 bond_has_hydrogen_flag = 0;
@@ -50,8 +50,8 @@ namespace coot {
 	 acceptor_neigh = NULL;
 	 ligand_atom_is_donor = 0;
 	 dist = -1;
-	 angle_1 = -1; 
-	 angle_2 = -1; 
+	 angle_1 = -1;
+	 angle_2 = -1;
 	 angle_3 = -1; 
 	 hydrogen_is_ligand_atom = 0; // no hydrogen
 	 bond_has_hydrogen_flag = 0;
@@ -78,7 +78,7 @@ namespace coot {
 	 angle_3 = -1; 
       }
       bool operator<(const h_bond &hb_2) const {
-	 return (residue_spec_t(donor) < residue_spec_t(hb_2.donor));
+	 return (residue_spec_t(atom_spec_t(donor)) < residue_spec_t(atom_spec_t(hb_2.donor)));
       }
       bool operator==(const h_bond &hb_2) const {
 	 atom_spec_t sd1(donor);
@@ -139,15 +139,15 @@ namespace coot {
 	 mmdb::Atom *at;
 	 coot::residue_spec_t at_res_spec;
       public:
-	 atom_sorter(mmdb::Atom *at_in) {
+	 explicit atom_sorter(mmdb::Atom *at_in) {
 	    at = at_in;
-	    at_res_spec = coot::residue_spec_t(at);
+	    at_res_spec = residue_spec_t(at->GetResidue());
 	 }
 	 bool operator()(const std::pair<mmdb::Atom *, float> &p1,
 			 const std::pair<mmdb::Atom *, float> &p2) const {
 	    
-	    coot::residue_spec_t n1_res_spec(p1.first);
-	    coot::residue_spec_t n2_res_spec(p2.first);
+	    coot::residue_spec_t n1_res_spec(p1.first->GetResidue());
+	    coot::residue_spec_t n2_res_spec(p2.first->GetResidue());
 	    
 	    // 
 	    if ((n1_res_spec == at_res_spec) && (n2_res_spec == at_res_spec)) {

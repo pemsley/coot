@@ -1,4 +1,96 @@
 
+  Release 0.9.5.1
+
+  o FEATURE: Middle-mouse and double-clicking on moving atoms is now enabled
+             (for recentre and label)
+
+  o FEATURE: -P mode added to pyrogen (no coordinates optimization)
+
+  o FEATURE: New program coot-identify-protein, identifies a protein from a poly-ALA
+             fragment and a set of sequences
+
+  o FEATURE: model_correlation_stats_per_residue_range() added to the API
+
+  o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
+
+  o CHANGE:  post-refinement restraints analysis added
+
+  o CHANGE:  Increase the initial step size for refinement
+
+  o CHANGE:  API accept_moving_atoms() can now return the refinement results
+
+  o CHANGE:  Remove libcheck as a restraints generator option
+
+  o CHANGE:  turn off EM-mode for PANDDA maps (Frank von Delft)
+
+  o CHANGE:  "Residues with missing atoms" function no longer considers OP3. Additionally,
+             missing atom names are written to the terminal (Lothar Essar)
+
+  o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
+
+  o BUG-FIX: Linking (shell) to the Coot executable now works (Marcin Wodjyr)
+
+  o BUG-FIX: rotamer-fit now runs the post-manipulation hook
+
+  o BUG-FIX: Better crash-catcher diagnostics (thanks Kevin Cowtan)
+
+  o BUG-FIX: Chiral restraints improved in pyrogen (Rob Nicholls)
+
+  o BUG-FIX: add-hydrogen-atoms no longer adds a hydrogen atom to an CYS SG if
+             it is linked
+
+----
+
+  Release 0.9.5
+
+  o FEATURE: Search monomer library has images
+
+  o FEATURE: New comamnd-line program coot-ligand-validation
+
+  o FEATURE: Add "Label Atoms in Residue" menu item
+
+  o FEATURE: Add command line argument --run-state-script
+
+  o FEATURE: Add function set_torsion_restraints_weight() to the API
+
+  o FEATURE: Real space refinement now has dynamic weights (under More Control)
+
+  o CHANGE:  Fall-back to monomer atoms for the chemical diagram when there are missing
+             atoms in the model for hetgroups
+
+  o CHANGE:  Scheme interface to refmac is now non-blocking
+
+  o CHANGE:  set_map_is_difference_map() function now takes an argument (so that you can now
+             say that a map is not a difference map)
+
+  o CHANGE:  Map density histogram is now improved
+
+  o CHANGE:  1-4 Non-bonded contacts adjusted
+
+  o CHANGE:  Chiral volume sigma reduced to 0.1 A^3
+
+  o CHANGE:  Change the configuration of RDKit in configure
+             Now use --with-enhanced-ligand-tools and --with-rdkit-prefix=prfx
+
+  o BUG-FIX: fix up the use of residue-exists? in mutate-it
+
+  o BUG-FIX: installation of side-chain data [thanks John Bollinger]
+
+  o BUG-FIX: refine_zone() on a single residue works again
+
+----
+
+  Release 0.9.4.1
+
+  o BUG-FIX: Fix crash on reading some CCP4/MRC maps
+
+  o BUG-FIX: Colour-by-chain fixed again: now respects the draw-missing-residues-loops
+             setting
+
+  o BUG-FIX: Fix the installation of side-chain-data
+
+----
+
   Release 0.9.4
 
   o FEATURE: Add function for Backrub Rotamer for chain
@@ -7,7 +99,9 @@
 
   o FEATURE: Add "no-recontour on panning" mode
 
-  o FEATURE: Add function add_hydrogens_atoms()
+  o FEATURE: function add_hydrogens_atoms() added to the API
+
+  o FEATURE: function assign_sequence_to_active_fragment() added to the API
 
   o FEATURE: Add "Atom Overlaps" to the Validation menu
 

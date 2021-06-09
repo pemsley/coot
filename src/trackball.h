@@ -53,12 +53,15 @@
  * first paramater.
  */
 
+#ifndef SRC_TRACKBALL_H
+#define SRC_TRACKBALL_H
+ 
 #ifdef __cplusplus
 #define BEGIN_C_DECLS extern "C" {
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS     
 #endif
 
@@ -94,3 +97,6 @@ void
 axis_to_quat(float a[3], float phi, float q[4]);
 
 END_C_DECLS
+
+#endif /* SRC_TRACKBALL_H */
+

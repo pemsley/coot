@@ -15,6 +15,7 @@ public:
    T max_density;
    T min_density;
    T bin_width;
+   int histogram_max; // highest counts number (frequency), avoiding the "white line"
    std::vector<int> bins;
 
    std::size_t size() { return bins.size(); }

@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <system_error>
 #include <chrono>
 
 #include "utils/coot-utils.hh"
@@ -30,15 +31,15 @@ bool
 coot::util::is_basic_em_map_file(const std::string &file_name) {
 
    clipper::Xmap<float> xmap;
-   ctpl::thread_pool *thread_pool_p = 0;
-   return slurp_fill_xmap_from_map_file(file_name, &xmap, thread_pool_p, true);
+   return slurp_fill_xmap_from_map_file(file_name, &xmap, true); // check-only mode
 }
 
 bool
 coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
                                           clipper::Xmap<float> *xmap_p,
-                                          ctpl::thread_pool *thread_pool_p,
                                           bool check_only) { // default arg, false
+
+   // std::cout << "slurp_fill_xmap_from_map_file() callled with check_only " << check_only << std::endl;
 
    bool status = false;
    if (file_exists(file_name)) {
@@ -55,7 +56,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
          if (st_size_2 == 1) {
             // Happy Path
             if (st_size > 1024) {
-               status = slurp_parse_xmap_data(data, xmap_p, thread_pool_p, check_only); // fill xmap
+               status = slurp_parse_xmap_data(data, xmap_p, check_only); // fill xmap
             } else {
                std::cout << "WARNING:: bad read " << file_name << std::endl;
             }
@@ -67,32 +68,37 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
 
-   std::cout << "debug:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
+   // std::cout << "debug:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
    return status;
 }
 
 #include "utils/split-indices.hh"
 
+// return value (status) means "is_basic_EM_map" (that's slurpable)
 bool
 coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
-                                  ctpl::thread_pool *thread_pool_p,
                                   bool check_only) {
 
-   bool status = false;
-   bool debug = true;
+   bool debug = false;
+   bool print_labels = false;
+
+   bool status = false; // return this
    int n_rows = -1;
    int n_cols = -1;
    int n_secs = -1;
    n_cols = *reinterpret_cast<int *>(data);
    n_rows = *reinterpret_cast<int *>(data+4);
    n_secs = *reinterpret_cast<int *>(data+8);
-   std::cout << "n_cols " << n_cols << std::endl;
-   std::cout << "n_rows " << n_rows << std::endl;
-   std::cout << "n_sections " << n_secs << std::endl;
+   if (debug) {
+      std::cout << "n_cols " << n_cols << std::endl;
+      std::cout << "n_rows " << n_rows << std::endl;
+      std::cout << "n_sections " << n_secs << std::endl;
+   }
 
    int mode = -1;
    mode = *reinterpret_cast<int *>(data+12);
-   std::cout << "mode " << mode << std::endl;
+   if (debug)
+      std::cout << "mode " << mode << std::endl;
 
    int nx_start = -1, ny_start = -1, nz_start = -1;
    int mx = -1, my = -1, mz = -1;
@@ -152,7 +158,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    space_group_number = *reinterpret_cast<int *>(data+88);
    if (space_group_number == 0) // EM, maybe chimera maps
       space_group_number = 1;
-   int size_extended_header = -1;
+   int size_extended_header = 0;
    size_extended_header = *reinterpret_cast<int *>(data+92);
    char *extra = data+96; // 100 bytes max
    char *ext_type = data+104; // 1 byte
@@ -186,13 +192,23 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    if (number_of_labels > 10) number_of_labels = 10;
    char *labels = data+224;
 
+   if (print_labels) {
+      for(int i=0; i<number_of_labels; i++) {
+         char *label = labels + i * 80;
+         std::string s(label, 0, 80);
+         std::cout << "   " << s << std::endl;
+      }
+   }
+
    for(int i=0; i<number_of_labels; i++) {
       char *label = labels + i * 80;
       std::string s(label, 0, 80);
-      std::cout << "   " << s << std::endl;
+      if (s.length() >= 8)
+         if (s.substr(0,8) == "PANDDA::")
+            return false;
    }
 
-   char *map_data = data + 1024; // points to the start of the grid (of 4 byte floats)
+   char *map_data = data + size_extended_header + 1024; // points to the start of the grid (of 4 byte floats)
 
    int index_axis_order[3];
    index_axis_order[axis_order_xyz[0]] = mx;
@@ -229,7 +245,8 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                 int n_secs, int n_rows, int n_cols,
                                 int nx_start, int ny_start, int nz_start,
                                 int *axis_order_xyz,
-                                const char *map_data) {
+                                const char *map_data,
+                                std::atomic<bool> &print_lock) {
                                
                                int offset = start_stop_section_index.first * n_rows * n_cols;
                                int crs[3];  // col,row,sec coordinate
@@ -252,12 +269,24 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                      }
                                   }
                                }
+                               
+                               if (false) { // debugging
+                                  bool unlocked = false;
+                                  while (! print_lock.compare_exchange_weak(unlocked, true)) {
+                                     std::this_thread::sleep_for(std::chrono::microseconds(1));
+                                     unlocked = false;
+                                  }
+                                  std::cout << "DEBUG:: slurping: done " << start_stop_section_index.first << " "
+                                            << start_stop_section_index.second << "\n";
+                                  print_lock = false;
+                               }
                             };
 
 
    bool single_thread_slurp = false;
-   if (! thread_pool_p)
-      single_thread_slurp = true;
+   unsigned int n_threads = coot::get_max_number_of_threads();
+
+   if (n_threads < 2) single_thread_slurp = true;
 
    if (single_thread_slurp) {
       int offset = 0;
@@ -281,20 +310,29 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
       }
       status = true;
    } else {
-      unsigned int n_threads = coot::get_max_number_of_threads();
       std::vector<std::pair<unsigned int, unsigned int> > airs = atom_index_ranges(n_secs, n_threads);
       std::vector<std::thread> threads;
-      for (auto air : airs) {
-         // std::cout << "DEBUG:: thread fill sections " << air.first << " to " << air.second << std::endl;
-         threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols, nx_start, ny_start, nz_start,
-                                       axis_order_xyz, map_data));
+      std::atomic<bool> print_lock(false);
+      try {
+         for (auto air : airs) {
+            if (debug)
+               std::cout << "DEBUG:: thread fill sections " << air.first << " to " << air.second << std::endl;
+            threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols, nx_start, ny_start, nz_start,
+                                          axis_order_xyz, map_data, std::ref(print_lock)));
+         }
+         for (std::size_t i=0; i<airs.size(); i++)
+            threads[i].join();
+         if (debug)
+            std::cout << "DEBUG:: thread join finished" << std::endl;
+         status = true;
       }
-      for (std::size_t i=0; i<n_threads; i++)
-         threads[i].join();
-      status = true;
+      catch (const std::system_error &e) {
+         std::cout << "ERROR:: std::system_error: " << e.what() << std::endl;
+      }
    }
 
-   std::cout << "DEBUG:: coot::util::slurp_parse_xmap_data(): returning status " << status << std::endl;
+   if (debug)
+      std::cout << "DEBUG:: coot::util::slurp_parse_xmap_data(): returning status " << status << std::endl;
    return status;
 }
 

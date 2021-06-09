@@ -46,6 +46,8 @@
 #ifndef C_INTERFACE_GTK_WIDGETS_H
 #define C_INTERFACE_GTK_WIDGETS_H
 
+#include <gtk/gtk.h>
+
 /*
   The following extern stuff here because we want to return the
   filename from the file entry box.  That code (e.g.)
@@ -77,7 +79,7 @@
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS
 #endif
 #endif /* BEGIN_C_DECLS */
@@ -863,6 +865,16 @@ void clear_atom_pull_restraint_on_accept_reject_destroy();
 /* Donna's request to do the counts in the Mutate Residue range dialog */
 void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
 					 GtkWidget *text_widget, GtkWidget *label_widget);
+
+
+/*  ----------------------------------------------------------------------- */
+/*                      clean up (reducing code in callbacks.c)             */
+/*  ----------------------------------------------------------------------- */
+void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button);
+
+
+/* handle_read_ccp4_map is now a .hh/c++ interface function, so give the callback an internal c function */
+int handle_read_ccp4_map_internal(const char *fn, int is_difference_map);
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS

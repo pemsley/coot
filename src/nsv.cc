@@ -1260,7 +1260,7 @@ exptl::nsv::get_residue_counts(mmdb::Manager *mol) const {
 	    lowest_resno = res_no;
 	 if (res_no > highest_resno)
 	    highest_resno = res_no;
-	 specs.push_back(residue_p);
+	 specs.push_back(coot::residue_spec_t(residue_p));
       }
       std::sort(specs.begin(), specs.end());
       int prev_resno = lowest_resno - 1;

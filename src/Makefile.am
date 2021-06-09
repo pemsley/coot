@@ -63,6 +63,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
 #	
+#	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la   
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
@@ -70,7 +71,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/goograph/libcoot-goograph.la      	\
-	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/build/libcoot-cabuild.la		\
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\
@@ -80,8 +80,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/coot-surface/libcoot-surface.la  	\
-	$(top_builddir)/surface/libcoot-electrostatics.la 	\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
@@ -132,7 +130,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/validation.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
+	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
 # -proxy  exports the GOOPS wrapper definitions into module.scm
@@ -158,7 +156,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/curlew.hh \
 	                 $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -206,7 +204,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
@@ -366,6 +364,7 @@ coot_bin_SOURCES = \
 	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
+	cc-interface-map-utils.cc \
 	cc-interface-scripting.hh\
 	cc-interface-image.hh    \
 	cc-interface-png.cc      \
@@ -594,25 +593,26 @@ endif
 
 coot_fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/db-main/libcoot-db-main.la      	\
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
-        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+        $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-		$(CLIPPER_LIBS) 	\
-		$(MMDB_LIBS)		\
-		$(PYTHON_LIBS)		\
-		$(CURL_LIBS)		\
-	  	$(RDKIT_LIBS)	        \
-		$(BOOST_LDFLAGS)        \
-		$(L_BOOST_PYTHON)
+	$(CLIPPER_LIBS) 	\
+	$(MMDB_LIBS)		\
+	$(PYTHON_LIBS)		\
+	$(RDKIT_LIBS)	        \
+	$(BOOST_LDFLAGS)        \
+	$(L_BOOST_PYTHON)
 
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)		
@@ -698,13 +698,21 @@ test_coot_align_LDADD =	\
 
 coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
 coot_density_score_by_residue_bin_LDADD  =	\
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
+	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/db-main/libcoot-db-main.la     		\
+	$(top_builddir)/ideal/libcoot-ideal.la    		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
         $(GLOB_LIBS)  		 \
         $(RDKIT_LIBS) 		\
@@ -715,12 +723,21 @@ coot_density_score_by_residue_bin_LDADD  =	\
 dynarama_bin_SOURCES = dynarama-main.cc rama_plot.cc rama_mousey.cc
 dynarama_bin_LDADD = \
         $(top_builddir)/coords/libcoot-coords.la                \
-        $(top_builddir)/utils/libcoot-utils.la                  \
+	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
+	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+	$(top_builddir)/ideal/libcoot-ideal.la    		\
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
         $(top_builddir)/geometry/libcoot-geometry.la            \
-        $(top_builddir)/coot-surface/libcoot-surface.la         \
+	$(top_builddir)/db-main/libcoot-db-main.la     		\
+	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
         $(top_builddir)/compat/libcoot-compat.la                \
+        $(top_builddir)/utils/libcoot-utils.la                  \
         $(CLIPPER_LIBS)         \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \

@@ -385,6 +385,7 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+#include "c-interface-widgets.hh"
 void 
 on_skeleton_color_changed(GtkWidget *w,
 			  GtkColorSelection *colorsel) { 
@@ -1390,6 +1391,7 @@ void
 on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,
 						   gpointer         user_data)
 {
+
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(button))); 
   int idisplay; 
   GtkWidget *active_toggle_button;
@@ -1417,10 +1419,10 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
 
       if (mol_is_displayed(imol)) {
 	// activate the button
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), TRUE);
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), TRUE);
       } else {
 	/* deactivate the button */
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), FALSE);
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), FALSE);
       }
 
 

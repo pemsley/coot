@@ -612,7 +612,6 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 			  const gsl_vector *v,
 			  std::vector<double> &results) { // fill results
 
-   int n_torsion_restr = 0;
    int idx;
 
    idx = 3*(this_restraint.atom_index_1);
@@ -642,13 +641,15 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
       } else {
 
+         const double &w = this_restraint.torsion_restraint_weight;
          double V_jk = 11.0;
          double n_jk = this_restraint.periodicity;
          double phi     = clipper::Util::d2rad(dtg.theta); // variable name change
          double phi0_jk = clipper::Util::d2rad(this_restraint.target_value);
          double dV_dphi = 0.5 * V_jk * (sin(n_jk*(phi - phi0_jk))) * n_jk;
          double tt = dtg.tan_theta; // variable name change
-         double scale = dV_dphi/(1.0 + tt*tt);
+         double scale = w * dV_dphi/(1.0 + tt*tt);
+         // std::cout << w << " " << scale << std::endl;
 
 	 double xP1_contrib = scale * dtg.dD_dxP1;
 	 double xP2_contrib = scale * dtg.dD_dxP2;
@@ -1556,19 +1557,20 @@ coot::process_dfs_rama(const coot::simple_restraint &rama_restraint,
       double multiplier_psi = 1.0;
 
       if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-	      std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
-	         if (false)
+         std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
+         if (false)
 	    std::cout << "debug:: in my_df_rama() rama_plot_residue_type is "
 		      << rama_restraint.rama_plot_residue_type << " gradients "
 		      << zo_rama_pair.first << " " << zo_rama_pair.second
 		      << std::endl;
-
-	 multiplier_phi = -restraints->get_rama_plot_weight()/(1.0 + tan_phir*tan_phir) * zo_rama_pair.first;
-	 multiplier_psi = -restraints->get_rama_plot_weight()/(1.0 + tan_psir*tan_psir) * zo_rama_pair.second;
+         double w_r = restraints->get_rama_plot_weight();
+	 multiplier_phi = -w_r/(1.0 + tan_phir*tan_phir) * zo_rama_pair.first;
+	 multiplier_psi = -w_r/(1.0 + tan_psir*tan_psir) * zo_rama_pair.second;
       } else {
 	 LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
-	 multiplier_phi = 10.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
-	 multiplier_psi = 10.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
+         double w_r = restraints->get_rama_plot_weight();
+	 multiplier_phi = w_r/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
+	 multiplier_psi = w_r/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
       }
 
       double xP1_contrib = multiplier_phi*dtg_phi.dD_dxP1;

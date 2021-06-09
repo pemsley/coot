@@ -19,6 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
+#ifndef MODEL_VIEW_HH
+#define MODEL_VIEW_HH
+
+#include <string>
+#include <mmdb2/mmdb_manager.h>
+#include "geometry/protein-geometry.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 namespace coot { 
    class model_view_residue_button_info_t {
@@ -26,9 +33,8 @@ namespace coot {
       model_view_residue_button_info_t(){} // for new allocator
 
       model_view_residue_button_info_t(const std::string &lab,
-				       mmdb::Residue *res) {
-	 button_label = lab;
-	 residue_spec = res;
+				       mmdb::Residue *res) : button_label(lab) {
+	 residue_spec = residue_spec_t(res);
       } 
       std::string button_label;
       // mmdb::Residue *residue; No. This can go out of date.
@@ -39,9 +45,8 @@ namespace coot {
    public:
       // model_view_atom_tree_item_info_t() {}  // not needed?
       model_view_atom_tree_item_info_t(const std::string &label,
-				       mmdb::Residue *res) {
-	 button_label = label;
-	 residue_spec = res;
+				       mmdb::Residue *res) : button_label(label) {
+	 residue_spec = residue_spec_t(res);
       }
       std::string button_label;
       // mmdb::Residue *residue;
@@ -51,8 +56,7 @@ namespace coot {
    class model_view_atom_tree_chain_t {
    public:
       model_view_atom_tree_chain_t() {} // for new allocator
-      model_view_atom_tree_chain_t(const std::string &chain_id_in) {
-	 chain_id = chain_id_in;
+      model_view_atom_tree_chain_t(const std::string &chain_id_in) : chain_id(chain_id_in) {
       }
       void add_residue(const model_view_atom_tree_item_info_t &res) {
 	 tree_residue.push_back(res);
@@ -66,8 +70,7 @@ namespace coot {
    public:
       model_view_atom_button_info_t() {} // for new allocator
       model_view_atom_button_info_t(const std::string &label,
-				    mmdb::Atom *atom_in) {
-	 button_label = label;
+				    mmdb::Atom *atom_in) : button_label(label) {
 	 atom = atom_in;
       }
       std::string button_label;
@@ -75,3 +78,7 @@ namespace coot {
    };
 
 }
+
+
+#endif // MODEL_VIEW_HH
+

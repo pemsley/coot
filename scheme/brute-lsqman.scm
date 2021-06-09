@@ -33,7 +33,7 @@
                              "app m1 m2"
                              "wr m2 " pdbout-filename
                              "quit"))
-           (lsqman-log (sring-append "coot-lsqman" (number->string lsqman-count) ".log")))
+           (lsqman-log (string-append "coot-lsqman" (number->string lsqman-count) ".log")))
 
       (write-pdb-file pdb1-imol "coot-tmp1.pdb")
       (write-pdb-file pdb2-imol "coot-tmp2.pdb")

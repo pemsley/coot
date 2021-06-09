@@ -70,15 +70,15 @@ simple_refmac_run_refmac(GtkWidget *dialog) {
       int ierr = g.molecules[imol_coords].write_pdb_file(pdb_in_filename);
       if (! ierr) {
          execute_refmac_real(pdb_in_filename, pdb_out_filename,
-            mtz_in_filename, mtz_out_filename,
-            cif_lib_filename,
-            fobs_col, sigfobs_col, r_free_col, sensible_r_free_col,
-            make_molecules_flag,
-            refmac_count_str,
-            g.swap_pre_post_refmac_map_colours_flag,
-            imol_map_refmac,
-            diff_map_flag,
-            false, "", "", "");
+                             mtz_in_filename, mtz_out_filename,
+                             cif_lib_filename,
+                             fobs_col, sigfobs_col, r_free_col, sensible_r_free_col,
+                             make_molecules_flag,
+                             refmac_count_str,
+                             g.swap_pre_post_refmac_map_colours_flag,
+                             imol_map_refmac,
+                             diff_map_flag,
+                             false, "", "", "");
       }
    }
 

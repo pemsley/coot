@@ -110,7 +110,8 @@
 ;; was not found
 ;; 
 (define (run-command/strings cmd args data-list)
-    
+
+  ;; command-in-path? echos the executable name (it does a "which")
   (if (not (command-in-path? cmd))
 
       (begin
@@ -120,29 +121,33 @@
       (begin 
 	(let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
 	       (pid (car cmd-ports))
-	       (output-port (car (cdr cmd-ports)))
-	       (input-port  (cdr (cdr cmd-ports))))
-	  
+	       (input-port (car (cdr cmd-ports)))
+	       (output-port  (cdr (cdr cmd-ports))))
+
+          ;; (format #t "debug: pid: ~s~%" pid)
+          ;; (format #t "debug: output-port: ~s~%" output-port)
+          ;; (format #t "debug: input-port: ~s~%" input-port)
+
 	  (let loop ((data-list data-list))
 	    (if (null? data-list)
 		(begin 
-		  (close input-port))
-		
+		  (close output-port))
+
 		(begin
-		  (format input-port "~a~%" (car data-list))
+		  (format output-port "~a~%" (car data-list))
 		  (loop (cdr data-list)))))
 	  
-	  (let f ((obj (read-line output-port))
+	  (let f ((obj (read-line input-port))
 		  (ls '()))
-	    
+
 	    (if (eof-object? obj)
 		(begin 
 		  (let* ((status-info (waitpid pid))
 			 (status (status:exit-val (cdr status-info))))
 		    ls)) ; return ls
-		
+
 		(begin
-		  (f (read-line output-port) (cons obj ls)))))))))
+		  (f (read-line input-port) (cons obj ls)))))))))
 
 ;; Return #t or #f:
 (define (command-in-path? cmd)
@@ -151,7 +156,7 @@
   ;; 
   (if (string? cmd) 
       (let ((have-command? (run "which" cmd)))
-	
+
 	(= have-command? 0)) ; return #t or #f
       #f))
 
@@ -404,15 +409,20 @@
 		string-list)
       status))
 
+    (define (print-lines output-lines)
+      (for-each (lambda(line)
+                  (display line)
+                  (newline))
+                output-lines))
 
     (format #t "coot-exe: ~s~%" coot-exe)
-    (run-command/strings "ls" (list "-l" coot-exe) '())
+    (print-lines (run-command/strings "ls" (list "-l" coot-exe) '()))
     (format #t "coot-version: ~%" )
-    (run-command/strings coot-exe (list "--version-full") '())
+    (print-lines (run-command/strings coot-exe (list "--version-full") '()))
     (if (> (string-length start-date) 0)
 	(format #t "start-date: ~s~%" start-date))
     (format #t "platform: ~%" )
-    (run-command/strings "uname" (list "-a") '())
+    (print-lines (run-command/strings "uname" (list "-a") '()))
     
     (let ((sl (get-gdb-strings coot-exe)))
       (if (list? sl)

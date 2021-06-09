@@ -121,7 +121,9 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	       atom_spec_py = atom_spec_to_py(at_spec);
 
 	       // needed?
-	       coot::residue_spec_t spec(bonds_box.consolidated_atom_centres[icol].points[i].atom_p);
+               mmdb::Atom *atom_p = bonds_box.consolidated_atom_centres[icol].points[i].atom_p;
+               coot::atom_spec_t atom_spec(atom_p);
+	       coot::residue_spec_t spec(atom_spec);
 	       s = spec.format();
 	    }
 

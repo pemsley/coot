@@ -12,18 +12,6 @@
 // #define GRAPHICS_TESTING
 
 
-#ifdef GRAPHICS_TESTING
-
-static int programID_global = -1;
-static int location_global = -1;
-GLuint VertexArrayID = -1;
-
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-
-#endif // GRAPHICS_TESTING
-
 void
 stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 

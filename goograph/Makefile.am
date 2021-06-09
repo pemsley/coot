@@ -39,5 +39,6 @@ test_goograph_SOURCES = test-goograph.cc
 
 test_goograph_LDADD = libcoot-goograph.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la
-	$(top_builddir)/utils/libcoot-utils.la
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(GTK_LIBS)

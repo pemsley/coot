@@ -32,10 +32,10 @@ pyexec_LTLIBRARIES =
 #
 # ENHANCED_LIGAND_TOOLS_CFLAGS is needed to compile with pli pi-stacking header
 AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) \
-                      $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
+                      $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
 
 SWIG_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CXXFLAGS) \
-                    $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
+                    $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(CAIRO_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 

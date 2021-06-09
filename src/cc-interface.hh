@@ -53,9 +53,9 @@ namespace coot {
       std::string s;
       bool flag;
       alias_path_t(int index_in, const std::string &s_in, bool flag_in) {
-	 index = index_in;
-	 s = s_in;
-	 flag = flag_in;
+         index = index_in;
+         s = s_in;
+         flag = flag_in;
       }
    };
 
@@ -64,10 +64,10 @@ namespace coot {
    class pisa_interface_bond_info_t {
    public:
       pisa_interface_bond_info_t() {
-	 n_h_bonds = 0;
-	 n_salt_bridges = 0;
-	 n_cov_bonds = 0;
-	 n_ss_bonds = 0;
+         n_h_bonds = 0;
+         n_salt_bridges = 0;
+         n_cov_bonds = 0;
+         n_ss_bonds = 0;
       }
       int n_h_bonds;
       int n_salt_bridges;
@@ -86,7 +86,7 @@ namespace coot {
 
 
 std::vector<std::string> filtered_by_glob(const std::string &pre_directory,
-					  int data_type);
+                                          int data_type);
 /*  Return 1 if search appears in list, 0 if not) */
 short int
 string_member(const std::string &search, const std::vector<std::string> &list);
@@ -104,8 +104,8 @@ std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 void
 add_validation_mol_menu_item(int imol, const std::string &name, GtkWidget *menu, GtkSignalFunc callback);
 void create_initial_validation_graph_submenu_generic(GtkWidget *window1,
-						     const std::string &menu_name,
-						     const std::string &sub_menu_name);
+                                                     const std::string &menu_name,
+                                                     const std::string &sub_menu_name);
 
 std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
 
@@ -198,7 +198,7 @@ PyObject *get_symmetry_py(int imol);
 //! -1 means that the residue or molecule could not be found or that there
 //!    was no cell and symmetry.
 int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
-			  float clash_dist);
+                          float clash_dist);
 //! \}
 
 /*  ---------------------------------------------------------------------- */
@@ -221,12 +221,12 @@ std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *filename);
 
 
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
-				  GtkWidget *sub_menu, GtkSignalFunc callback);
+                                  GtkWidget *sub_menu, GtkSignalFunc callback);
 /* Actually this function is generic and could be renamed so. */
 void add_map_scroll_wheel_mol_menu_item(int imol,
-					const std::string &name,
-					GtkWidget *menu,
-					GtkSignalFunc callback);
+                                        const std::string &name,
+                                        GtkWidget *menu,
+                                        GtkSignalFunc callback);
 
 //! \brief make a sharpened or blurred map
 //!
@@ -305,6 +305,14 @@ SCM map_colour_components(int imol);
 //
 PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
+
+/*! \brief read a CCP4 map or a CNS map (despite the name). */
+int read_ccp4_map(const std::string &filename, int is_diff_map_flag);
+
+/*! \brief same function as above - old name for the function. Deleted from the API at some stage */
+int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
+
+int handle_read_emdb_data(const std::string &dir_name);
 //! \}
 
 
@@ -353,23 +361,23 @@ int merge_fragments(int imol);
 //
 void
 execute_refmac_real(std::string pdb_in_filename,
-		    std::string pdb_out_filename,
-		    std::string mtz_in_filename,
-		    std::string mtz_out_filename,
-		    std::string cif_lib_filename, /* use "" for none */
-		    std::string fobs_col_name,
-		    std::string sigfobs_col_name,
-		    std::string r_free_col_name,
-		    short int have_sensible_free_r_flag,
-		    short int make_molecules_flag,
-		    std::string refmac_count_string,
-		    int swap_map_colours_post_refmac_flag,
-		    int imol_refmac_map,
-		    int diff_map_flag,
-		    int phase_combine_flag,
-		    std::string phib_string,
-		    std::string fom_string,
-		    std::string ccp4i_project_dir);
+                    std::string pdb_out_filename,
+                    std::string mtz_in_filename,
+                    std::string mtz_out_filename,
+                    std::string cif_lib_filename, /* use "" for none */
+                    std::string fobs_col_name,
+                    std::string sigfobs_col_name,
+                    std::string r_free_col_name,
+                    short int have_sensible_free_r_flag,
+                    short int make_molecules_flag,
+                    std::string refmac_count_string,
+                    int swap_map_colours_post_refmac_flag,
+                    int imol_refmac_map,
+                    int diff_map_flag,
+                    int phase_combine_flag,
+                    std::string phib_string,
+                    std::string fom_string,
+                    std::string ccp4i_project_dir);
 
 /*! \brief the name for refmac
 
@@ -388,8 +396,8 @@ namespace coot {
    class str_mtime {
    public:
       str_mtime(std::string file_in, time_t mtime_in) {
-	 mtime = mtime_in;
-	 file = file_in;
+         mtime = mtime_in;
+         file = file_in;
       }
       str_mtime() {}
       time_t mtime;
@@ -419,7 +427,7 @@ std::string ccp4_project_directory(const std::string &ccp4_project_name);
 void add_to_history(const std::vector<std::string> &ls);
 void add_to_history_simple(const std::string &cmd);
 void add_to_history_typed(const std::string &command,
-			  const std::vector<coot::command_arg_t> &args);
+                          const std::vector<coot::command_arg_t> &args);
 std::string single_quote(const std::string &s);
 std::string pythonize_command_name(const std::string &s);
 std::string schemize_command_name(const std::string &s);
@@ -503,7 +511,7 @@ PyObject *list_nomenclature_errors_py(int imol);
 
 void
 show_fix_nomenclature_errors_gui(int imol,
-				 const std::vector<std::pair<std::string, coot::residue_spec_t> > &nomenclature_errors);
+                                 const std::vector<std::pair<std::string, coot::residue_spec_t> > &nomenclature_errors);
 
 /*  ----------------------------------------------------------------------- */
 /*                  dipole                                                  */
@@ -606,8 +614,8 @@ PyObject *get_residue_by_type_py(int, const std::string &residue_type);
 //! in this format (list occ temp-factor element x y z).  Return empty
 //! list if atom not found. */
 SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
-			 const char *ins_code, const char *atname,
-			 const char *altconf);
+                         const char *ins_code, const char *atname,
+                         const char *altconf);
 SCM molecule_to_pdb_string_scm(int imol);
 #endif // USE_GUILE
 
@@ -729,7 +737,7 @@ SCM residues_near_position_scm(int imol, SCM pos, float radius);
 //!
 void label_closest_atoms_in_neighbour_residues_scm(int imol, SCM residue_spec_scm, float radius);
 
-#endif	/* USE_GUILE */
+#endif        /* USE_GUILE */
 
 //! \brief find the active residue, find the near residues (within radius)
 //! create a new molecule, run reduce on that, import hydrogens from
@@ -747,8 +755,8 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 //! list if atom not found. */
 #ifdef USE_PYTHON
 PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
-			      const char *ins_code, const char *atname,
-			      const char *altconf);
+                              const char *ins_code, const char *atname,
+                              const char *altconf);
 
 //! \brief
 //!
@@ -769,7 +777,7 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
 
 // the expanded form of this is in c-interface.h
 PyObject *residue_centre_from_spec_py(int imol,
-				      PyObject *spec_py);
+                                      PyObject *spec_py);
 
 PyObject *chain_fragments_py(int imol, short int screen_output_also);
 
@@ -892,7 +900,7 @@ int get_continue_updating_refinement_atoms_state();
 // status bar atom info text here?!
 std::string atom_info_as_text_for_statusbar(int atom_index, int imol);
 std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
-					    const std::pair<symm_trans_t, Cell_Translation> &sts);
+                                            const std::pair<symm_trans_t, Cell_Translation> &sts);
 //! \}
 
 
@@ -927,20 +935,20 @@ std::string mtz_file_name(int imol);
 //! Refine the given residue range
 //!
 SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
-					   int resno1,
-					   const char*inscode_1,
-					   int resno2,
-					   const char*inscode_2,
-					   const char *altconf);
+                                           int resno1,
+                                           const char*inscode_1,
+                                           int resno2,
+                                           const char*inscode_2,
+                                           const char *altconf);
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
 PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
-					   int resno1,
-					   const char*inscode_1,
-					   int resno2,
-					   const char*inscode_2,
-					   const char *altconf);
+                                           int resno1,
+                                           const char*inscode_1,
+                                           int resno2,
+                                           const char*inscode_2,
+                                           const char *altconf);
 #endif // USE_PYTHON
 
 void set_show_intermediate_atoms_rota_markup(short int state);
@@ -948,6 +956,14 @@ void set_show_intermediate_atoms_rama_markup(short int state);
 
 void set_cryo_em_refinement(bool mode);
 bool get_cryo_em_refinement();
+
+#ifdef USE_GUILE
+SCM accept_moving_atoms_scm();
+#endif
+#ifdef USE_PYTHON
+PyObject *accept_moving_atoms_py();
+#endif
+
 
 #ifdef USE_PYTHON
 void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
@@ -985,7 +1001,7 @@ int morph_fit_residues_py( int imol, PyObject *residue_specs, float transformati
 #endif
 //! \brief morph the given residues.
 int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
-		       float transformation_averaging_radius);
+                       float transformation_averaging_radius);
 
 //! \brief morph transformation are based primarily on rigid body refinement
 //! of the secondary structure elements.
@@ -1136,7 +1152,7 @@ void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer use
 /*                  mutate                                                  */
 /*  ----------------------------------------------------------------------- */
 int mutate_internal(int ires, const char *chain_id,
-		    int imol, std::string &target_res_type);
+                    int imol, std::string &target_res_type);
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
@@ -1145,7 +1161,7 @@ int mutate_internal(int ires, const char *chain_id,
 /*  ----------------------------------------------------------------------- */
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
-			 int resno_ref, bool apply_rtop_flag);
+                         int resno_ref, bool apply_rtop_flag);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1219,6 +1235,8 @@ std::string sequence_from_map(int imol, const std::string &chain_id,
 void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end,
                                 int imol_map, const std::string &file_name_for_sequences);
 
+void assign_sequence_to_active_fragment();
+
 //! \}
 
 /*  ----------------------------------------------------------------------- */
@@ -1242,7 +1260,7 @@ SCM inverse_rtop_scm(SCM rtop_scm);
 // expects an expr of length 5, ie: (list chain-id res-no ins-cod atom-name alt-conf)
 coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 SCM atom_spec_to_scm(const coot::atom_spec_t &spec);
-#endif	/* USE_GUILE */
+#endif        /* USE_GUILE */
 
 #ifdef USE_PYTHON
 PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string>&v);
@@ -1261,13 +1279,13 @@ void set_display_control_button_state(int imol, const std::string &button_type, 
 /*  ----------------------------------------------------------------------- */
 
 mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
-							    double m11, double m12, double m13,
-							    double m21, double m22, double m23,
-							    double m31, double m32, double m33,
-							    double tx, double ty, double tz,
-							    int pre_shift_to_origin_na,
-							    int pre_shift_to_origin_nb,
-							    int pre_shift_to_origin_nc);
+                                                            double m11, double m12, double m13,
+                                                            double m21, double m22, double m23,
+                                                            double m31, double m32, double m33,
+                                                            double tx, double ty, double tz,
+                                                            int pre_shift_to_origin_na,
+                                                            int pre_shift_to_origin_nb,
+                                                            int pre_shift_to_origin_nc);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1318,8 +1336,8 @@ std::string get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname);
 // orient the graphics somehow so that the interaction between
 // central_residue and neighbour_residue is perpendicular to screen z.
 void orient_view(int imol,
-		 const coot::residue_spec_t &central_residue_spec, // ligand typically
-		 const coot::residue_spec_t &neighbour_residue_spec);
+                 const coot::residue_spec_t &central_residue_spec, // ligand typically
+                 const coot::residue_spec_t &neighbour_residue_spec);
 
 
 /*  \brief return a list of chiral centre ids as determined from topological
@@ -1335,27 +1353,27 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 /*  ----------------------------------------------------------------------- */
 clipper::Coord_orth
 make_complementary_dotted_surfaces(int imol_1, int imol_2,
-				   std::vector<coot::residue_spec_t> &r1,
-				   std::vector<coot::residue_spec_t> &r2);
+                                   std::vector<coot::residue_spec_t> &r1,
+                                   std::vector<coot::residue_spec_t> &r2);
 #ifdef USE_GUILE
 std::vector<coot::residue_spec_t>
 residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
-					  const std::string &chain_id);
+                                          const std::string &chain_id);
 SCM symbol_value_from_record(SCM record_1, const std::string &symbol);
 #endif
 #ifdef USE_PYTHON
 std::vector<coot::residue_spec_t>
 residue_records_list_py_to_residue_specs(PyObject *mol_1_residue_records,
-					 const std::string &chain_id);
+                                         const std::string &chain_id);
 //PyObject *symbol_value_from_record(PyObject *record_1, const std::string &symbol);
 #endif
 
 void
 add_generic_object_bond(int imol1, int imol2,
-			const coot::atom_spec_t &atom_spec_1,
-			const coot::atom_spec_t &atom_spec_2,
-			int generic_object_number,
-			const std::string &colour);
+                        const coot::atom_spec_t &atom_spec_1,
+                        const coot::atom_spec_t &atom_spec_2,
+                        int generic_object_number,
+                        const std::string &colour);
 
 void
 pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt);
@@ -1370,13 +1388,13 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 //! \{
 
 std::vector<coot::named_rotamer_score> score_rotamers(int imol,
-						      const char *chain_id,
-						      int res_no,
-						      const char *ins_code,
-						      const char *alt_conf,
-						      int imol_map,
-						      int clash_flag,
-						      float lowest_probability);
+                                                      const char *chain_id,
+                                                      int res_no,
+                                                      const char *ins_code,
+                                                      const char *alt_conf,
+                                                      int imol_map,
+                                                      int clash_flag,
+                                                      float lowest_probability);
 
 #ifdef USE_GUILE
 //! \brief return the scores of the rotamers for this residue.
@@ -1385,25 +1403,25 @@ std::vector<coot::named_rotamer_score> score_rotamers(int imol,
 // return a list (possibly empty).
 //
 SCM score_rotamers_scm(int imol,
-		       const char *chain_id,
-		       int res_no,
-		       const char *ins_code,
-		       const char *alt_conf,
-		       int imol_map,
-		       int clash_flag,
-		       float lowest_probability);
+                       const char *chain_id,
+                       int res_no,
+                       const char *ins_code,
+                       const char *alt_conf,
+                       int imol_map,
+                       int clash_flag,
+                       float lowest_probability);
 #endif
 
 #ifdef USE_PYTHON
 // return a list (possibly empty)
 PyObject *score_rotamers_py(int imol,
-			    const char *chain_id,
-			    int res_no,
-			    const char *ins_code,
-			    const char *alt_conf,
-			    int imol_map,
-			    int clash_flag,
-			    float lowest_probability);
+                            const char *chain_id,
+                            int res_no,
+                            const char *ins_code,
+                            const char *alt_conf,
+                            int imol_map,
+                            int clash_flag,
+                            float lowest_probability);
 #endif
 
 //! \}
@@ -1424,8 +1442,8 @@ PyObject *score_rotamers_py(int imol,
 //
 std::pair<std::pair<int, int> , std::vector<int> >
 protein_db_loops(int imol_coords,
-		 const std::vector<coot::residue_spec_t> &residue_specs,
-		 int imol_map, int nfrags, bool preserve_residue_names);
+                 const std::vector<coot::residue_spec_t> &residue_specs,
+                 int imol_map, int nfrags, bool preserve_residue_names);
 // so that we can create a "original loop" molecule from the atom
 // specs picked (i.e. the atom selection string should extend over the
 // range from the smallest residue number to the largest (in the same
@@ -1454,16 +1472,16 @@ export the surface dots.
 
 */
 void hole(int imol,
-	  float start_x, float start_y, float start_z,
-	  float   end_x, float   end_y, float   end_z,
-	  float colour_map_multiplier, float colour_map_offset,
-	  int n_runs, bool show_probe_radius_graph_flag,
-	  std::string export_surface_dots_file_name);
+          float start_x, float start_y, float start_z,
+          float   end_x, float   end_y, float   end_z,
+          float colour_map_multiplier, float colour_map_offset,
+          int n_runs, bool show_probe_radius_graph_flag,
+          std::string export_surface_dots_file_name);
 
 
 // GUI stuff
 void probe_radius_graph_close_callback( GtkWidget *button,
- 					GtkWidget *dialog);
+                                         GtkWidget *dialog);
 void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
@@ -1476,7 +1494,7 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
 //! \brief make a link between the specified atoms
 void
 make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
-	  const std::string &link_name, float length);
+          const std::string &link_name, float length);
 #ifdef USE_GUILE
 void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name, float length);
 // return a list of the links in the given molecule.
@@ -1562,28 +1580,36 @@ void set_map_correlation_atom_radius(float r);
 // 5: side-chain atoms if is standard amino-acid, else nothing
 // 10: atom radius is dependent atom atom B-factor
 SCM map_to_model_correlation_scm(int imol,
-				 SCM residue_specs,
-				 SCM neighb_residue_specs,
-				 unsigned short int atom_mask_mode,
-				 int imol_map);
+                                 SCM residue_specs,
+                                 SCM neighb_residue_specs,
+                                 unsigned short int atom_mask_mode,
+                                 int imol_map);
 SCM map_to_model_correlation_stats_scm(int imol,
-				       SCM residue_specs,
-				       SCM neighb_residue_specs,
-				       unsigned short int atom_mask_mode,
-				       int imol_map);
+                                       SCM residue_specs,
+                                       SCM neighb_residue_specs,
+                                       unsigned short int atom_mask_mode,
+                                       int imol_map);
 #endif
 
 #ifdef USE_PYTHON
 PyObject *map_to_model_correlation_py(int imol,
-				      PyObject *residue_specs,
-				      PyObject *neighb_residue_specs,
-				      unsigned short int atom_mask_mode,
-				      int imol_map);
+                                      PyObject *residue_specs,
+                                      PyObject *neighb_residue_specs,
+                                      unsigned short int atom_mask_mode,
+                                      int imol_map);
 PyObject *map_to_model_correlation_stats_py(int imol,
-				      PyObject *residue_specs,
-				      PyObject *neighb_residue_specs,
-				      unsigned short int atom_mask_mode,
-				      int imol_map);
+                                      PyObject *residue_specs,
+                                      PyObject *neighb_residue_specs,
+                                      unsigned short int atom_mask_mode,
+                                      int imol_map);
+
+PyObject *
+map_to_model_correlation_stats_per_residue_range_py(int imol,
+                                                    const std::string &chain_id,
+                                                    int imol_map,
+                                                    unsigned int n_residue_per_residue_range,
+                                                    short int exclude_NOC_flag);
+
 #endif
 
 //! \brief atom-mask-mode is as follows:
@@ -1596,10 +1622,10 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 // 10: atom radius is dependent atom atom B-factor
 float
 map_to_model_correlation(int imol,
-			 const std::vector<coot::residue_spec_t> &residue_specs,
-			 const std::vector<coot::residue_spec_t> &neigh_residue_specs,
-			 unsigned short int atom_mask_mode,
-			 int imol_map);
+                         const std::vector<coot::residue_spec_t> &residue_specs,
+                         const std::vector<coot::residue_spec_t> &neigh_residue_specs,
+                         unsigned short int atom_mask_mode,
+                         int imol_map);
 
 //! \brief map to model density correlation stats
 //!
@@ -1613,10 +1639,10 @@ map_to_model_correlation(int imol,
 //
 coot::util::density_correlation_stats_info_t
 map_to_model_correlation_stats(int imol,
-			       const std::vector<coot::residue_spec_t> &residue_specs,
-			       const std::vector<coot::residue_spec_t> &neigh_residue_specs,
-			       unsigned short int atom_mask_mode,
-			       int imol_map);
+                               const std::vector<coot::residue_spec_t> &residue_specs,
+                               const std::vector<coot::residue_spec_t> &neigh_residue_specs,
+                               unsigned short int atom_mask_mode,
+                               int imol_map);
 #ifndef SWIG
 
 //! \brief map to model density correlation, reported per residue
@@ -1631,32 +1657,48 @@ map_to_model_correlation_stats(int imol,
 //
 std::vector<std::pair<coot::residue_spec_t,float> >
 map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,
-				     unsigned short int atom_mask_mode,
-				     int imol_map);
+                                     unsigned short int atom_mask_mode,
+                                     int imol_map);
 
 //! \brief map to model density statistics, reported per residue
 std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
 map_to_model_correlation_stats_per_residue(int imol,
-					   const std::vector<coot::residue_spec_t> &residue_specs,
-					   unsigned short int atom_mask_mode,
-					   float atom_radius_for_masking,
-					   int imol_map);
+                                           const std::vector<coot::residue_spec_t> &residue_specs,
+                                           unsigned short int atom_mask_mode,
+                                           float atom_radius_for_masking,
+                                           int imol_map);
+
+//! \brief map to model density statistics, reported per residue, the middle residue
+//!        of a range of residues
+//!
+//! @return the all-atom stats first and side chains stats second
+std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+          std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
+map_to_model_correlation_stats_per_residue_range(int imol, const std::string &chain_id, int imol_map,
+                                                 unsigned int n_residue_per_residue_range,
+                                                 short int exclude_NOC_flag);
+
 #endif // not for swigging.
 
 #ifdef USE_GUILE
 //! \brief map to model correlation
 SCM
 map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
-					 unsigned short int atom_mask_mode,
-					 int imol_map);
+                                         unsigned short int atom_mask_mode,
+                                         int imol_map);
 
 //! \brief map to model stats
 SCM
 map_to_model_correlation_stats_per_residue_scm(int imol,
-					       SCM residue_specs_scm,
-					       unsigned short int atom_mask_mode,
-					       float atom_radius_for_masking,
-					       int imol_map);
+                                               SCM residue_specs_scm,
+                                               unsigned short int atom_mask_mode,
+                                               float atom_radius_for_masking,
+                                               int imol_map);
+
+SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::string &chain_id, int imol_map,
+                                                         unsigned int n_residue_per_residue_range,
+                                                         short int exclude_NOC_flag);
+
 
 //! \brief QQ plot of the model density correlation, reported per residue
 //!
@@ -1669,21 +1711,21 @@ map_to_model_correlation_stats_per_residue_scm(int imol,
 // 5: side-chain atoms if is standard amino-acid, else nothing
 //
 SCM qq_plot_map_and_model_scm(int imol,
-			      SCM residue_specs_scm,
-			      SCM neigh_residue_specs_scm,
-			      unsigned short int atom_mask_mode,
-			      int imol_map);
+                              SCM residue_specs_scm,
+                              SCM neigh_residue_specs_scm,
+                              unsigned short int atom_mask_mode,
+                              int imol_map);
 #endif
 
 #ifdef USE_PYTHON
 PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_specs,
-						  unsigned short int atom_mask_mode,
-						  int imol_map);
+                                                  unsigned short int atom_mask_mode,
+                                                  int imol_map);
 PyObject *qq_plot_map_and_model_py(int imol,
-			      PyObject *residue_specs_py,
-			      PyObject *neigh_residue_specs_py,
-			      unsigned short int atom_mask_mode,
-			      int imol_map);
+                              PyObject *residue_specs_py,
+                              PyObject *neigh_residue_specs_py,
+                              unsigned short int atom_mask_mode,
+                              int imol_map);
 #endif
 
 #ifdef __cplusplus
@@ -1819,7 +1861,7 @@ void resolve_clashing_sidechains_by_rebuilding(int imol);
 /*  ----------------------------------------------------------------------- */
 //! \brief make a simple text dialog.
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
-			int geom_x, int geom_y);
+                        int geom_x, int geom_y);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1827,10 +1869,10 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 /*  ----------------------------------------------------------------------- */
 //! \brief phenix GEO bonds representation
 void graphics_to_phenix_geo_representation(int imol, int mode,
-					   const coot::phenix_geo_bonds &g);
+                                           const coot::phenix_geo_bonds &g);
 //! \brief phenix GEO bonds representation, read from file
 void graphics_to_phenix_geo_representation(int imol, int mode,
-					   const std::string &geo_file_name);
+                                           const std::string &geo_file_name);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Client/Server                                        */
@@ -1846,8 +1888,8 @@ void set_python_draw_function(const std::string &command_string);
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_PYTHON
 PyObject *pathology_data(const std::string &mtz_file_name,
-			 const std::string &fp_col,
-			 const std::string &sigfp_col);
+                         const std::string &fp_col,
+                         const std::string &sigfp_col);
 #endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */

@@ -792,12 +792,12 @@ int swap_difference_map_colours_state() {
 }
 
 /* return success status 0 = failure (imol does not have a map) */
-int set_map_is_difference_map(int imol) {
+int set_map_is_difference_map(int imol, short int  bool_flag) {
 
    int istatus = 0;
    if (imol< graphics_n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
-	 graphics_info_t::molecules[imol].set_map_is_difference_map();
+	 graphics_info_t::molecules[imol].set_map_is_difference_map(bool_flag);
 	 istatus = 1;
 	 graphics_draw();
       } else {
@@ -1264,36 +1264,23 @@ void check_for_dark_blue_density() {
    }
 }
 
-int
-handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
+#include "utils/coot-utils.hh"
 
-   int istate = -1;
-   if (filename) {
-      std::string str(filename);
-      graphics_info_t g;
-      int imol_new = graphics_info_t::create_molecule();
+int handle_read_emdb_data(const std::string &dir_name) {
 
-      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag,
-						   *graphics_info_t::map_glob_extensions);
+   int status = 0;
+   std::string map_dir = coot::util::append_dir_dir(dir_name, "map");
+   std::string pdb_dir = coot::util::append_dir_dir(coot::util::append_dir_dir(dir_name, "fittedModels"), "PDB");
+   std::vector<std::string> map_files = coot::util::glob_files(map_dir, "*.map");
+   std::vector<std::string> pdb_files = coot::util::glob_files(pdb_dir, "*.ent");
+   for (auto map_file : map_files)
+      handle_read_ccp4_map(map_file, 0);
+   for (auto pdb_file : pdb_files)
+      read_pdb(pdb_file.c_str());
 
-      if (istate > -1) { // not a failure
-	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
-	 g.activate_scroll_radio_button_in_display_manager(imol_new);
-      } else {
-	 g.erase_last_molecule();
-	 std::cout << "Read map " << str << " failed" << std::endl;
-	 std::string s = "Read map ";
-	 s += str;
-	 s += " failed.";
-	 g.add_status_bar_text(s);
-      }
-      graphics_draw();
-   } else {
-      // error
-      std::cout << "ERROR:: filename null in handle_read_ccp4_map\n";
-   }
-   return istate;
+   return status;
 }
+
 
 void set_contour_by_sigma_step_by_mol(float f, short int state, int imol) {
 
@@ -1389,11 +1376,17 @@ void map_histogram(int imol_map) {
 	    ignore_pseudo_zeros = true;
 
 	 const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
-	 unsigned int n_bins = 100;
-	 if (ignore_pseudo_zeros) {
-	    n_bins = 400;
-	 }
-	 mean_and_variance<float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
+	 unsigned int n_bins = 400;
+         bool write_output_flag = false;
+	 mean_and_variance<float> mv = map_density_distribution(xmap, n_bins, write_output_flag, ignore_pseudo_zeros);
+
+         if (false) { // debug bin data
+            std::cout << "mv data " << imol_map << std::endl;
+            for (unsigned int i=0; i<mv.bins.size(); i++) {
+               float constr_x = (static_cast<float>(i) + 0.5) * mv.bin_width + mv.min_density;
+               std::cout << i << " constr-x " << constr_x << " " << mv.bins[i] << std::endl;
+            }
+         }
 
 	 if (mv.bins.size() > 0) {
 	    std::vector<std::pair<double, double> > data(mv.bins.size());
@@ -1406,53 +1399,19 @@ void map_histogram(int imol_map) {
 	    coot::goograph* g = new coot::goograph;
 	    int trace = g->trace_new();
 
-	    g->set_plot_title("Density Histogram");
+            std::string title = "Density Histogram for map " + std::to_string(imol_map);
+	    g->set_plot_title(title);
 	    g->set_data(trace, data);
 	    g->set_axis_label(coot::goograph::X_AXIS, "Density Value");
 	    g->set_axis_label(coot::goograph::Y_AXIS, "Counts");
 	    g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
 	    if (ignore_pseudo_zeros) {
-
-	       std::cout << "::::::::: data.size() is " << data.size() << std::endl;
-	       if (data.size() == 0) {
-		  std::cout << "::::::::::::::::: no data!?" << std::endl;
-	       } else {
-		  // find y_max ignoring the peak
-		  double y_max           = -1e100;
-		  double y_max_secondary = -1e100;
-		  unsigned int idata_peak = 0;
-		  for (unsigned int idata=0; idata<data.size(); idata++) {
-		     if (data[idata].second > y_max) {
-			y_max = data[idata].second;
-			idata_peak = idata;
-		     }
-		  }
-		  for (unsigned int idata=0; idata<data.size(); idata++) {
-		     if (idata != idata_peak)
-			if (data[idata].second > y_max_secondary)
-			   y_max_secondary = data[idata].second;
-		  }
-
-		  std::cout << ":::::::::: y_max_secondary " << y_max_secondary << std::endl;
-
-		  g->set_extents(coot::goograph::X_AXIS,
-				 mv.mean-3*sqrt(mv.variance),
-				 mv.mean+3*sqrt(mv.variance)
-				 );
-		  std::cout << "::::: set_extents() X: "
-			    << mv.mean-3*sqrt(mv.variance) << " "
-			    << mv.mean+3*sqrt(mv.variance) << "\n";
-
-		  if (y_max_secondary > 0) {
-		     double y_max_graph = y_max_secondary * 1.4;
-		     g->set_extents(coot::goograph::Y_AXIS,
-				    0,
-				    y_max_graph
-				    );
-		     std::cout << "::::: set_extents() Y: "
-			       << 0 << " " << y_max_graph << std::endl;
-		  }
-	       }
+               float x_range_min = mv.mean-3.0*sqrt(mv.variance);
+               float x_range_max = mv.mean+3.0*sqrt(mv.variance);
+               g->set_extents(coot::goograph::X_AXIS, x_range_min, x_range_max);
+               g->set_extents(coot::goograph::Y_AXIS, 0, mv.histogram_max);
+               std::cout << "::::: set_extents() X: " << x_range_min << " " << x_range_max << "\n";
+               std::cout << "::::: set_extents() Y: " << mv.histogram_max << "\n";
 	    }
 	    g->show_dialog();
 	 }
@@ -1610,7 +1569,7 @@ int difference_map(int imol1, int imol2, float map_scale) {
 	 // int swpcolf = graphics_info_t::swap_difference_map_colours;
 	 bool is_em_flag = graphics_info_t::molecules[imol1].is_EM_map();
 	 graphics_info_t::molecules[imol].install_new_map(dm.first, name, is_em_flag);
-	 graphics_info_t::molecules[imol].set_map_is_difference_map();
+	 graphics_info_t::molecules[imol].set_map_is_difference_map(true);
 
 	 r = imol;
 	 graphics_draw();

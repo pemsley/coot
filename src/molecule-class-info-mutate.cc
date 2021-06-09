@@ -1666,7 +1666,8 @@ molecule_class_info_t::mutate_single_multipart(int ires_serial,
 
 		  if (std::string(res_p->name) == target_res_type) {
 
-		     std::cout << "residue type match for ires = " << ires_serial << std::endl;
+                     if (false) // debug
+                        std::cout << "residue type match for ires = " << ires_serial << std::endl;
 		     istat = 1; // success
 
 		  } else {

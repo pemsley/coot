@@ -57,12 +57,6 @@
 
 #ifdef USE_GUILE
 #include <libguile.h>
-
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-// no fix up needed
-#else
-
-#endif // SCM version
 #endif // USE_GUILE
 
 // Including python needs to come after graphics-info.h, because
@@ -2948,7 +2942,7 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
       set_display_generic_object(idx_cablam, 0); // don't display while we are adding
       if (v.size() > 0) {
          for (it=v.begin(); it!=v.end(); it++) {
-            std::pair<coot::residue_spec_t, double> p(it->residue, it->score);
+            std::pair<coot::residue_spec_t, double> p(coot::residue_spec_t(it->residue), it->score);
             residues_vec.push_back(p);
          }
       }
@@ -3024,3 +3018,20 @@ PyObject *add_cablam_markup_py(int imol, const std::string &cablam_log_file_name
 
 }
 #endif // USE_PYTHON
+
+
+float atom_overlap_score(int imol) {
+
+   float s = -1;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      graphics_info_t g;
+      bool ignore_waters_flag = false;
+      coot::atom_overlaps_container_t ao(mol, g.Geom_p(), ignore_waters_flag);
+      ao.make_all_atom_overlaps();
+      s = ao.score();
+   }
+
+
+   return s;
+}

@@ -29,7 +29,7 @@ pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)                 \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)	\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
@@ -39,8 +39,8 @@ AM_CXXFLAGS = \
 	$(COOT_WINDOWS_CFLAGS)
 
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
-		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
-		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc \
+		 phenix-geo-bonds.cc mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
+		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc \
 		 rotamer-markup.cc \
 		 loop-path.cc
 
@@ -62,10 +62,12 @@ check_PROGRAMS = test-phenix-geo test-transform
 
 test_transform_SOURCES = test-transform.cc
 
-test_transform_LDADD = libcoot-coords.la
+test_transform_LDADD = libcoot-coords.la \
+   $(MMDB_LIBS)
 
 test_phenix_geo_SOURCES = test-phenix-geo.cc
 
 test_phenix_geo_LDADD = libcoot-coords.la \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/utils/libcoot-utils.la           
+   $(top_builddir)/utils/libcoot-utils.la  \
+   $(MMDB_LIBS)

@@ -48,6 +48,7 @@
 #include "rotamer-container.hh"
 #include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
+#include "mmdb-crystal.h"
 
 #include "geometry/bonded-quad.hh"
 
@@ -130,13 +131,11 @@ namespace coot {
       clipper::Coord_orth normal;
       torus_description_t(const clipper::Coord_orth &pt,
 			  const clipper::Coord_orth &normal_in,
-			  double ir1, double ir2, int n1, int n2) {
+			  double ir1, double ir2, int n1, int n2) : centre(pt), normal(normal_in) {
 	 inner_radius = ir1;
 	 outer_radius = ir2;
 	 n_sides = n1;
 	 n_rings = n2;
-	 centre = pt;
-	 normal = normal_in;
       }
    };
 }
@@ -242,7 +241,7 @@ public:
       // 20200608-PE: I did!
       mmdb::Residue *r = atom_p->GetResidue();
       if (r) {
-         std::string res_name = r->GetResName();
+         std::string res_name(r->GetResName());
          if (res_name == "HOH")
             return true;
          if (res_name == "CA")
@@ -274,7 +273,7 @@ public:
    graphical_bonds_points_list() {
       current_count = 0;
       num_points = 0;
-      points = NULL;
+      points = 0;
    }
 
    graphical_bonds_points_list(unsigned int size) {
@@ -284,8 +283,11 @@ public:
    }
 
    void add_point(const T &pt) {
-      points[current_count] = pt;
-      current_count++;
+      if (points) {
+         if (current_count < num_points)
+            points[current_count] = pt;
+         current_count++;
+      }
    } 
 };
 
@@ -756,7 +758,6 @@ class Bond_lines_container {
                           int atom_colour_type,
                           coot::my_atom_colour_map_t *atom_colour_map_p,
                           int draw_hydrogens_flag,
-                          bool draw_missing_loops_flag,
                           bool do_goodsell_colour_mode);
    void add_peptide_bonds(const atom_selection_container_t &asc,
                           int atom_colour_type,
@@ -877,13 +878,13 @@ public:
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
    // Bond_lines_container(const atom_selection_container_t &asc);
-   Bond_lines_container(const atom_selection_container_t &asc,
-			int imol,
-			int include_disulphides=0,
-			int include_hydrogens=1,
-			bool do_rama_markup=false,
-			bool do_rota_markup=false,
-			coot::rotamer_probability_tables *tables_p=0);
+   explicit Bond_lines_container(const atom_selection_container_t &asc,
+                                 int imol,
+                                 int include_disulphides=0,
+                                 int include_hydrogens=1,
+                                 bool do_rama_markup=false,
+                                 bool do_rota_markup=false,
+                                 coot::rotamer_probability_tables *tables_p=0);
 
    // the constructor for bond by dictionary - should use this most of the time.
    // geom_in can be null if you don't have it.
@@ -907,8 +908,7 @@ public:
 
    Bond_lines_container(atom_selection_container_t, int imol, float max_dist);
 
-   Bond_lines_container(atom_selection_container_t asc,
-			int imol,
+   Bond_lines_container(atom_selection_container_t asc, int imol,
 			float min_dist, float max_dist);
 
    // The constructor for ball and stick, this constructor implies that
@@ -945,19 +945,21 @@ public:
 			bool draw_env_distances_to_hydrogens_flag,
 			short int do_symmetry);
 
-   // This is the one for occupancy and B-factor representation
+   // This is the one for user-defined, occupancy and B-factor representation
    // 
    Bond_lines_container (const atom_selection_container_t &SelAtom,
-			 int imol, bond_representation_type by_occ);
+			 int imol, bond_representation_type br_type);
 
-   Bond_lines_container(int col);
-   Bond_lines_container(symm_keys key);
+   explicit Bond_lines_container(int col);
 
+   explicit Bond_lines_container(symm_keys key);
 
    // Used by various CA-mode bonds
    //
-   Bond_lines_container(coot::protein_geometry *protein_geom, bool do_bonds_to_hydrogens_in=true) {
+   explicit Bond_lines_container(coot::protein_geometry *protein_geom, bool do_bonds_to_hydrogens_in=true) {
+      verbose_reporting = false;
       do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
+      do_disulfide_bonds_flag = true;
       b_factor_scale = 1.0;
       have_dictionary = false;
       geom = protein_geom;
@@ -978,11 +980,13 @@ public:
    //
    Bond_lines_container(coot::protein_geometry *protein_geom,
 			const std::set<int> &no_bonds_to_these_atoms_in,
-			bool do_bonds_to_hydrogens_in=true) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+			bool do_bonds_to_hydrogens_in=true) : geom(protein_geom),
+                                                              no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+      verbose_reporting = false;
       do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
+      do_disulfide_bonds_flag = true;
       b_factor_scale = 1.0;
       have_dictionary = false;
-      geom = protein_geom;
       init();
       udd_has_ca_handle = -1;
       if (protein_geom)
@@ -1003,6 +1007,9 @@ public:
    // initial constructor, added to by  addSymmetry_vector_symms from update_symmetry()
    // 
    Bond_lines_container() {
+      verbose_reporting = false;
+      geom = 0;
+      do_disulfide_bonds_flag = true;
       do_bonds_to_hydrogens = 1;  // added 20070629
       b_factor_scale = 1.0;
       have_dictionary = 0;

@@ -944,7 +944,7 @@ SCM residues_near_residues_scm(int imol, SCM residues_in_scm, float radius) {
 	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
 	 for(it=rnrs.begin(); it!=rnrs.end(); it++) {
 	    mmdb::Residue *res_key = it->first;
-	    SCM key_scm = residue_spec_to_scm(res_key);
+	    SCM key_scm = residue_spec_to_scm(coot::residue_spec_t(res_key));
 	    SCM value_scm = SCM_EOL;
 	    const std::set<mmdb::Residue *> &s = it->second;
 	    std::set<mmdb::Residue *>::const_iterator it_s;
@@ -1143,8 +1143,22 @@ void label_neighbours() {
       g.molecules[imol].label_closest_atoms_in_neighbour_atoms(central_residue, radius);
       graphics_draw();
    }
-
 }
+
+/*! \brief Label the atoms in the central residue */
+void label_atoms_in_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      coot::residue_spec_t residue_spec(pp.second.second);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
+      g.molecules[imol].add_atom_labels_for_residue(residue_p);
+      graphics_draw();
+   }
+}
+
 
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
@@ -1194,8 +1208,9 @@ void hydrogenate_region(float radius) {
       coot::residue_spec_t central_residue(pp.second.second);
       std::cout << "----------- hydrogenating " << central_residue
 		<< " in " << imol << std::endl;
+      coot::residue_spec_t res_spec(pp.second.second);
       std::vector<coot::residue_spec_t> v =
-	 graphics_info_t::molecules[imol].residues_near_residue(pp.second.second, radius);
+	 graphics_info_t::molecules[imol].residues_near_residue(res_spec, radius);
       v.push_back(central_residue);
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
@@ -1871,7 +1886,7 @@ PyObject *active_atom_spec_py() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
       PyObject *state_py = Py_True;
       PyObject *mol_no = PyInt_FromLong(r.second.first);
-      PyObject *spec = residue_spec_to_py(r.second.second);
+      PyObject *spec = residue_spec_to_py(coot::residue_spec_t(r.second.second));
       PyObject *tuple_inner = PyTuple_New(2);
    if (! r.first) {
       state_py = Py_False;
@@ -5163,85 +5178,6 @@ void write_ccp4mg_picture_description(const char *filename) {
       mg_stream << "\n";
 
    }
-}
-
-// function to get the atom colours to be displayed in CCP4MG?!
-char *get_atom_colour_from_mol_no(int imol, const char *element) {
-
-   char *r;
-   std::vector<float> rgb(3);
-   float rotation_size = graphics_info_t::molecules[imol].bonds_colour_map_rotation/360.0;
-   while (rotation_size > 1.0) { // no more black bonds?
-      rotation_size -= 1.0;
-   }
-   int i_element;
-   i_element = get_atom_colour_from_element(element);
-   switch (i_element) {
-   case YELLOW_BOND: 
-      rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
-      break;
-   case BLUE_BOND: 
-      rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-      break;
-   case RED_BOND: 
-      rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-      break;
-   case GREEN_BOND:
-      rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
-      break;
-   case GREY_BOND: 
-      rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-      break;
-   case HYDROGEN_GREY_BOND: 
-      rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-      break;
-   case MAGENTA_BOND:
-      rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-      break;
-   case ORANGE_BOND:
-      rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-      break;
-   case CYAN_BOND:
-      rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-      break;
-   case DARK_GREEN_BOND:
-      rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-      break;
-   case DARK_ORANGE_BOND:
-      rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-      break;
-   case DARK_BROWN_BOND:
-      rgb[0] = 0.4; rgb[1] =  0.4; rgb[2] = 0.02;
-      break;
-      
-   default:
-      rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-      rgb = rotate_rgb(rgb, float(imol*26.0/360.0));
-
-   }
-   // "correct" for the +1 added in the calculation of the rotation
-   // size.
-   // 21. is the default colour map rotation
-   rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
-   if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-      if (i_element == YELLOW_BOND) { 
-	 rgb = rotate_rgb(rgb, rotation_size);
-      } 
-   } else {
-//       std::cout << "DEBUG: rotating coordinates colour map by "
-//                 << rotation_size * 360.0 << " degrees " << std::endl;
-         rgb = rotate_rgb(rgb, rotation_size);
-   }
-
-   std::string rgb_list = "[";
-   rgb_list += graphics_info_t::float_to_string(rgb[0]);
-   rgb_list += ", ";
-   rgb_list += graphics_info_t::float_to_string(rgb[1]);
-   rgb_list += ", ";
-   rgb_list += graphics_info_t::float_to_string(rgb[2]);
-   rgb_list += "]";
-   r = (char*)rgb_list.c_str();
-   return r;
 }
 
 

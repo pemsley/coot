@@ -1,4 +1,4 @@
-
+//
 #include <fstream>
 #include <iomanip>
 #include <thread>
@@ -36,10 +36,10 @@ void thread_fill_a_map() {
 
    for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
       std::cout << "checking returned start stops:    " << i << " "
-		<< map_ref_start_stops[i].first.coord().format() << " "
-		<< map_ref_start_stops[i].first.index() << " "
-		<< map_ref_start_stops[i].second.coord().format() << " "
-		<< map_ref_start_stops[i].second.index() << "\n";
+                << map_ref_start_stops[i].first.coord().format() << " "
+                << map_ref_start_stops[i].first.index() << " "
+                << map_ref_start_stops[i].second.coord().format() << " "
+                << map_ref_start_stops[i].second.index() << "\n";
    }
 
    std::vector<std::thread> threads;
@@ -53,9 +53,9 @@ void thread_fill_a_map() {
    for (ix = xmap.first(); !ix.last(); ix.next())
       i_count_basic += 1;
    for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
-      const std::pair<MRI, MRI> &ss = map_ref_start_stops[i];      
+      const std::pair<MRI, MRI> &ss = map_ref_start_stops[i];
       for (MRI ix = ss.first; ix.index() != ss.second.index(); ix.next())
-	 i_count_from_start_stops += 1;
+         i_count_from_start_stops += 1;
    }
 
    unsigned int n_zero = 0;
@@ -63,19 +63,19 @@ void thread_fill_a_map() {
    unsigned int n_greater = 0;
    for (ix = xmap.first(); !ix.last(); ix.next()) {
       if (xmap[ix] < 0.5)
-	 n_zero++;
+         n_zero++;
       else
-	 if (xmap[ix] < 1.001) {
-	    n_greater++;
-	 } else {
-	    n_one++;
-	 }
+         if (xmap[ix] < 1.001) {
+            n_greater++;
+         } else {
+            n_one++;
+         }
    }
    std::cout << "DEBUG:: counts n_zero: " << n_zero << " " << n_one << " " << n_one << std::endl;
-   
+
 
    std::cout << "compare counts: basic: " << i_count_basic << " vs " << i_count_from_start_stops
-	     << std::endl;
+             << std::endl;
 
    // this is for editing the xmap. If you don't want to do that,
    // pass it a const and use std::cref() in the calling function.
@@ -89,10 +89,10 @@ void thread_fill_a_map() {
    };
    for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
       std::cout << "making a thread with start stops: "
-		<< map_ref_start_stops[i].first.coord().format() << " "
-		<< map_ref_start_stops[i].first.index() << " "
-		<< map_ref_start_stops[i].second.coord().format() << " "
-		<< map_ref_start_stops[i].second.index() << "\n";
+                << map_ref_start_stops[i].first.coord().format() << " "
+                << map_ref_start_stops[i].first.index() << " "
+                << map_ref_start_stops[i].second.coord().format() << " "
+                << map_ref_start_stops[i].second.index() << "\n";
       threads.push_back(std::thread(l, std::ref(xmap), std::cref(map_ref_start_stops[i])));
    }
    for (unsigned int i=0; i<map_ref_start_stops.size(); i++)
@@ -111,17 +111,16 @@ void thread_fill_a_map() {
 }
 
 float get_spherically_averaged_density_value(const std::vector<std::pair<double, double> > &sam,
-					     float angstroms_per_bin,
-					     const float &dist);
+                                             float angstroms_per_bin,
+                                             const float &dist);
 
 clipper::Xmap<float>
 convolute_map(const std::vector<std::pair<double, double> > &sam,
-	      float angstroms_per_bin,
-	      const clipper::Xmap<float> &xmap) {
+              float angstroms_per_bin,
+              const clipper::Xmap<float> &xmap) {
 
    clipper::Xmap<float> r = xmap;
    double mol_radius = 26;
-   double dd_crit = mol_radius * mol_radius;
 
    unsigned int count = 0;
    clipper::Xmap_base::Map_reference_index ix_1, ix_2;;
@@ -138,20 +137,20 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
       clipper::Coord_frac cf_1 = cm_1.coord_frac(xmap.grid_sampling());
       clipper::Coord_orth co_1 = cf_1.coord_orth(xmap.cell());
       for (ix_2 = xmap.first(); !ix_2.last(); ix_2.next()) {
-	 clipper::Coord_map  cm_2 = ix_2.coord().coord_map();
-	 clipper::Coord_frac cf_2 = cm_2.coord_frac(xmap.grid_sampling());
-	 clipper::Coord_orth co_2 = cf_2.coord_orth(xmap.cell());
-	 double dd = (co_2-co_1).lengthsq();
-	 if (dd < dd_crit) {
-	    float d = static_cast<float>(std::sqrt(dd));
-	    float cf = get_spherically_averaged_density_value(sam, angstroms_per_bin, d);
-	    r[ix_2] += cf;
-	 }
+         clipper::Coord_map  cm_2 = ix_2.coord().coord_map();
+         clipper::Coord_frac cf_2 = cm_2.coord_frac(xmap.grid_sampling());
+         clipper::Coord_orth co_2 = cf_2.coord_orth(xmap.cell());
+         double dd = (co_2-co_1).lengthsq();
+         if (dd < dd_crit) {
+            float d = static_cast<float>(std::sqrt(dd));
+            float cf = get_spherically_averaged_density_value(sam, angstroms_per_bin, d);
+            r[ix_2] += cf;
+         }
       }
       count++;
       if (count%100 == 0) {
-	 std::cout << count << " ";
-	 std::cout.flush();
+         std::cout << count << " ";
+         std::cout.flush();
       }
    }
 #endif
@@ -174,16 +173,16 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
          clipper::Coord_frac cf_1 = cm_1.coord_frac(xmap.grid_sampling());
          clipper::Coord_orth co_1 = cf_1.coord_orth(xmap.cell());
          for (MRI ix_2 = xmap.first(); !ix_2.last(); ix_2.next()) {
-	    clipper::Coord_map  cm_2 = ix_2.coord().coord_map();
-	    clipper::Coord_frac cf_2 = cm_2.coord_frac(xmap.grid_sampling());
-	    clipper::Coord_orth co_2 = cf_2.coord_orth(xmap.cell());
-	    float dd = (co_2-co_1).lengthsq();
-	    if (dd < dd_crit) {
-	       float d = sqrtf(dd);
-	       float cf = get_spherically_averaged_density_value(sam, angstroms_per_bin, d);
-	       (*r_xmap_p)[ix_1] += xmap[ix_2] * cf;
-	    }
-	 }
+            clipper::Coord_map  cm_2 = ix_2.coord().coord_map();
+            clipper::Coord_frac cf_2 = cm_2.coord_frac(xmap.grid_sampling());
+            clipper::Coord_orth co_2 = cf_2.coord_orth(xmap.cell());
+            float dd = (co_2-co_1).lengthsq();
+            if (dd < dd_crit) {
+               float d = sqrtf(dd);
+               float cf = get_spherically_averaged_density_value(sam, angstroms_per_bin, d);
+               (*r_xmap_p)[ix_1] += xmap[ix_2] * cf;
+            }
+         }
          count++;
          if (count %1000 == 0) std::cout << count << std::endl;
       }
@@ -192,12 +191,12 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
    for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
       const std::pair<MRI, MRI> &ss = map_ref_start_stops[i];
       std::cout << "making a thread with start stops: "
-		<< map_ref_start_stops[i].first.coord().format() << " "
-		<< map_ref_start_stops[i].first.index() << " "
-		<< map_ref_start_stops[i].second.coord().format() << " "
-		<< map_ref_start_stops[i].second.index() << "\n";
+                << ss.first.coord().format() << " "
+                << ss.first.index() << " "
+                << ss.second.coord().format() << " "
+                << ss.second.index() << "\n";
       threads.push_back(std::thread(l, std::cref(xmap), std::cref(map_ref_start_stops[i]),
-				    std::cref(sam), angstroms_per_bin, &r));
+                                    std::cref(sam), angstroms_per_bin, &r));
    }
    for (unsigned int i=0; i<threads.size(); i++)
       threads[i].join();
@@ -209,8 +208,8 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
 
 float
 get_spherically_averaged_density_value(const std::vector<std::pair<double, double> > &sam,
-				       float angstroms_per_bin,
-				       const float &dist) {
+                                       float angstroms_per_bin,
+                                       const float &dist) {
 
    float v = 0.0;
 
@@ -219,9 +218,9 @@ get_spherically_averaged_density_value(const std::vector<std::pair<double, doubl
       int n_bins = sam.size();
       int bin_nearest = static_cast<int>((dist/radius_max) * n_bins +0.5);
       if (bin_nearest < n_bins)
-	 v = sam[bin_nearest].second;
+         v = sam[bin_nearest].second;
       else
-	 std::cout << "error " << bin_nearest << std::endl;
+         std::cout << "error " << bin_nearest << std::endl;
    }
    return v;
 }
@@ -241,101 +240,101 @@ int main(int argc, char **argv) {
       std::string xmap_file_name  = argv[3];
       float border = 40.0;
 
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
       float angstroms_per_bin = 1.0;
 
       std::cout << "asc n_selected_atoms " << asc.n_selected_atoms << std::endl;
       std::pair<bool, clipper::Coord_orth> centre = coot::centre_of_molecule(asc.mol);
       if (centre.first) {
 
-	 std::cout << "DEBUG:: molecule  centre after recentering: "
-		   << centre.first << " " << centre.second.format() << std::endl;
+         std::cout << "DEBUG:: molecule  centre after recentering: "
+                   << centre.first << " " << centre.second.format() << std::endl;
 
-	 // move to origin (!)
-	 asc.apply_shift(centre.second.x(), centre.second.y(), centre.second.z());
+         // move to origin (!)
+         asc.apply_shift(centre.second.x(), centre.second.y(), centre.second.z());
 
-	 std::pair<clipper::Coord_orth, clipper::Coord_orth> e =
-	    coot::util::extents(asc.mol, asc.SelectionHandle);
-	 double x_range = e.second.x() - e.first.x();
-	 double y_range = e.second.y() - e.first.y();
-	 double z_range = e.second.z() - e.first.z();
+         std::pair<clipper::Coord_orth, clipper::Coord_orth> e =
+            coot::util::extents(asc.mol, asc.SelectionHandle);
+         double x_range = e.second.x() - e.first.x();
+         double y_range = e.second.y() - e.first.y();
+         double z_range = e.second.z() - e.first.z();
 
-	 double nr = clipper::Util::d2rad(90.0);
-	 clipper::Cell_descr cell_descr(x_range + 2*border,
-					y_range + 2*border,
-					z_range + 2*border, nr, nr, nr);
-	 clipper::Cell cell = clipper::Cell(cell_descr);
-	 clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
-	 clipper::Resolution reso = clipper::Resolution(3.0);
-	 clipper::Grid_sampling gs(spacegroup, cell, reso);
-	 clipper::Xmap<float> xmap_calc =
-	    coot::util::calc_atom_map(asc.mol, asc.SelectionHandle, cell, spacegroup, gs);
+         double nr = clipper::Util::d2rad(90.0);
+         clipper::Cell_descr cell_descr(x_range + 2*border,
+                                        y_range + 2*border,
+                                        z_range + 2*border, nr, nr, nr);
+         clipper::Cell cell = clipper::Cell(cell_descr);
+         clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+         clipper::Resolution reso = clipper::Resolution(3.0);
+         clipper::Grid_sampling gs(spacegroup, cell, reso);
+         clipper::Xmap<float> xmap_calc =
+            coot::util::calc_atom_map(asc.mol, asc.SelectionHandle, cell, spacegroup, gs);
 
-	 if (true) {
-	    clipper::CCP4MAPfile outmapfile;
-	    outmapfile.open_write("atom_calc.map");
-	    outmapfile.export_xmap(xmap_calc);
-	    outmapfile.close_write();
-	 }
+         if (true) {
+            clipper::CCP4MAPfile outmapfile;
+            outmapfile.open_write("atom_calc.map");
+            outmapfile.export_xmap(xmap_calc);
+            outmapfile.close_write();
+         }
 
-	 // New method:
+         // New method:
 
-	 unsigned int n_bins = 30; // more than 6
-	 unsigned int n_sphere_points = 10000;
-	 double molecule_radius = 30.0; // was 26
-	 double one_over_n_bins = 1.0/static_cast<double>(n_bins);
+         unsigned int n_bins = 30; // more than 6
+         unsigned int n_sphere_points = 10000;
+         double molecule_radius = 30.0; // was 26
+         double one_over_n_bins = 1.0/static_cast<double>(n_bins);
 
-	 std::vector<std::pair<double, double> > vp(n_bins);
-	 std::vector<coot::util::phitheta> phithetas = coot::util::make_phi_thetas(n_sphere_points);
-	 for (unsigned int i=2; i<n_bins; i++) {
-	    float radius = molecule_radius * one_over_n_bins * (static_cast<float>(i) + 0.5);
-	    float average = coot::util::average_of_sample_map_at_sphere_points(centre.second,
-									       radius, phithetas,
-									       xmap_calc);
-	    vp[i].first = radius;
-	    vp[i].second = average;
-	 }
+         std::vector<std::pair<double, double> > vp(n_bins);
+         std::vector<coot::util::phitheta> phithetas = coot::util::make_phi_thetas(n_sphere_points);
+         for (unsigned int i=2; i<n_bins; i++) {
+            float radius = molecule_radius * one_over_n_bins * (static_cast<float>(i) + 0.5);
+            float average = coot::util::average_of_sample_map_at_sphere_points(centre.second,
+                                                                               radius, phithetas,
+                                                                               xmap_calc);
+            vp[i].first = radius;
+            vp[i].second = average;
+         }
 
-	 // smooth out the inner 2 bins - or fft -> low pass filter -> inv-fft
+         // smooth out the inner 2 bins - or fft -> low pass filter -> inv-fft
 
-	 // first give them x values
-	 for (unsigned int i=0; i<2; i++) {
-	    float radius = molecule_radius * one_over_n_bins * (static_cast<float>(i) + 0.5);
-	    vp[i].first = radius;
-	 }
+         // first give them x values
+         for (unsigned int i=0; i<2; i++) {
+            float radius = molecule_radius * one_over_n_bins * (static_cast<float>(i) + 0.5);
+            vp[i].first = radius;
+         }
 
-	 double sum_for_smooth = 0.0;
-	 for (unsigned int i=2; i<6; i++) {
-	    sum_for_smooth += vp[i].second;
-	 }
-	 vp[0].second = 0.25 * sum_for_smooth;
-	 vp[1].second = 0.25 * sum_for_smooth;
+         double sum_for_smooth = 0.0;
+         for (unsigned int i=2; i<6; i++) {
+            sum_for_smooth += vp[i].second;
+         }
+         vp[0].second = 0.25 * sum_for_smooth;
+         vp[1].second = 0.25 * sum_for_smooth;
 
-	 std::vector<std::complex<double> > vp_fft(vp.size());
+         std::vector<std::complex<double> > vp_fft(vp.size());
 
-	 std::ofstream f(table_file_name);
-	 for (std::size_t i=0; i<vp.size(); i++) {
-	    f << "   " << vp[i].first << " " << vp[i].second << std::endl;
-	 }
-	 f.close();
+         std::ofstream f(table_file_name);
+         for (std::size_t i=0; i<vp.size(); i++) {
+            f << "   " << vp[i].first << " " << vp[i].second << std::endl;
+         }
+         f.close();
 
-	 // Read in the reference map to convolute
-	 clipper::Xmap<float> xmap;
-	 try {
-	    clipper::CCP4MAPfile file;
-	    file.open_read(xmap_file_name);
-	    clipper::Grid_sampling fgs = file.grid_sampling();
-	    file.import_xmap(xmap);
-	 }
-	 catch (const clipper::Message_base &exc) {
-	    std::cout << "WARNING:: failed to open " << xmap_file_name << std::endl;
-	 }
-	 clipper::Xmap<float> convoluted_map = convolute_map(vp, angstroms_per_bin, xmap);
+         // Read in the reference map to convolute
+         clipper::Xmap<float> xmap;
+         try {
+            clipper::CCP4MAPfile file;
+            file.open_read(xmap_file_name);
+            clipper::Grid_sampling fgs = file.grid_sampling();
+            file.import_xmap(xmap);
+         }
+         catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << xmap_file_name << std::endl;
+         }
+         clipper::Xmap<float> convoluted_map = convolute_map(vp, angstroms_per_bin, xmap);
 
-	 clipper::CCP4MAPfile outmapfile;
-	 outmapfile.open_write("slow-convolute.map");
-	 outmapfile.export_xmap(convoluted_map);
-	 outmapfile.close_write();
+         clipper::CCP4MAPfile outmapfile;
+         outmapfile.open_write("slow-convolute.map");
+         outmapfile.export_xmap(convoluted_map);
+         outmapfile.close_write();
       }
    }
    return status;

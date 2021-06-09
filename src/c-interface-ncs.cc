@@ -417,7 +417,7 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	       bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
 	       g.molecules[imol].install_new_map(xmaps[i].first, name, is_em_flag);
 	       if (g.molecules[imol_map].is_difference_map_p())
-		  g.molecules[imol].set_map_is_difference_map();
+		  g.molecules[imol].set_map_is_difference_map(true);
 	       nmaps++;
 	    } 
 	 }

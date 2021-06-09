@@ -87,8 +87,9 @@ graphics_info_t::init() {
       directory_for_fileselection = "";
       directory_for_filechooser = "";
 
-      baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
-      baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
+      // these are no longer pointers
+      // baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
+      // baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
 
       // rotamer distortion graph scale
       rotamer_distortion_scale = 0.3;

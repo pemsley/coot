@@ -25,10 +25,10 @@
 
 #include <map>
 
-#include "clipper/core/coords.h"
-#include "clipper/core/xmap.h"
-#include "clipper/core/hkl_data.h"
-#include "clipper/contrib/sfcalc_obs.h"
+#include <clipper/core/coords.h>
+#include <clipper/core/xmap.h>
+#include <clipper/core/hkl_data.h>
+#include <clipper/contrib/sfcalc_obs.h>
 #include "coot-coord-utils.hh"
 #include "coot-density-stats.hh"
 #include <mmdb2/mmdb_manager.h>
@@ -123,6 +123,9 @@ namespace coot {
 
       clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
 
+      // sharpen/blur self
+      void sharpen_blur_map(clipper::Xmap<float> *xmap, float b_factor);
+
       clipper::Xmap<float> sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in, float b_factor,
                                                           float resample_factor);
 
@@ -145,13 +148,13 @@ namespace coot {
          clipper::Coord_orth updated_centre;
          float suggested_contour_level;
          double sum_of_densities; // for scoring origins
-         map_molecule_centre_info_t() { success = false; sum_of_densities = -1;}
+         map_molecule_centre_info_t() { success = false; sum_of_densities = -1; suggested_contour_level = 0.0; }
       };
 
-      coot::util::map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
+      map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
 
       map_molecule_centre_info_t map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap,
-                                                                              const clipper::Coord_orth &current_centre);
+                                                                     const clipper::Coord_orth &current_centre);
 
       // if n_bins is -1, let the function decide how many bins
       //
@@ -232,6 +235,17 @@ namespace coot {
 						 unsigned short int atom_mask_mode,
 						 float atom_radius, // for masking
 						 const clipper::Xmap<float> &xmap);
+
+      // n_residues_per_run should be an odd number more than 2 (say 11)
+      //
+      std::pair<std::map<coot::residue_spec_t, density_correlation_stats_info_t>, std::map<coot::residue_spec_t, density_correlation_stats_info_t> >
+      map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
+                                                     const std::string &chain_id,
+                                                     const clipper::Xmap<float> &xmap,
+                                                     unsigned int n_residues_per_run,
+                                                     bool exclude_CON,
+                                                     float atom_mask_radius=2.8,
+                                                     float NOC_mask_radius=1.8); // optimized on strepavidin
 
       // helper
       std::pair<clipper::Coord_frac, clipper::Coord_frac>
@@ -322,12 +336,22 @@ namespace coot {
 	 void init_making_map_centred_at_origin(const clipper::Xmap<float> &xmap,
 						const clipper::Coord_orth &centre,
 						float radius);
+         float box_radius_a_internal;
+         float box_radius_b_internal;
+         float box_radius_c_internal;
       public:
 	 map_fragment_info_t(const clipper::Xmap<float> &xmap,
 			     const clipper::Coord_orth &centre,
 			     float radius, bool centre_at_origin = false);
 	 clipper::Xmap<float> xmap;
 	 clipper::Coord_grid offset;
+         // transfer xmap (small, at origin) into xmap_p (big)
+         void unshift(clipper::Xmap<float> *xmap_p, const clipper::Coord_orth &centre);
+         void simple_origin_shift(const clipper::Xmap<float> &ip_xmap,
+                                  const clipper::Coord_orth &centre,
+                                  float radius);
+         clipper::Grid_map make_grid_map(const clipper::Xmap<float> &input_xmap,
+                                         const clipper::Coord_orth &centre) const;
       };
 
 
@@ -346,8 +370,7 @@ namespace coot {
 	 simple_residue_triple_t(mmdb::Residue *this_residue_in,
 			         mmdb::Residue *prev_residue_in,
 			         mmdb::Residue *next_residue_in,
-			         std::string alt_conf_in) {
-	    alt_conf = alt_conf_in;
+			         const std::string &alt_conf_in) : alt_conf(alt_conf_in) {
 	    this_residue = this_residue_in;
 	    prev_residue = prev_residue_in;
 	    next_residue = next_residue_in;
@@ -369,8 +392,7 @@ namespace coot {
 	 residue_triple_t(mmdb::Residue *this_residue_in,
 			  mmdb::Residue *prev_residue_in,
 			  mmdb::Residue *next_residue_in,
-			  std::string alt_conf_in) {
-	    alt_conf = alt_conf_in;
+			  const std::string &alt_conf_in) : alt_conf(alt_conf_in) {
 	    this_residue = this_residue_in;
 	    prev_residue = prev_residue_in;
 	    next_residue = next_residue_in;
@@ -400,10 +422,10 @@ namespace coot {
 	 backrub_residue_triple_t(mmdb::Residue *this_residue_in,
 				  mmdb::Residue *prev_residue_in,
 				  mmdb::Residue *next_residue_in,
-				  std::string alt_conf_in) : residue_triple_t(this_residue_in,
-									      prev_residue_in,
-									      next_residue_in,
-									      alt_conf_in) {
+				  const std::string &alt_conf_in) : residue_triple_t(this_residue_in,
+                                                                                     prev_residue_in,
+                                                                                     next_residue_in,
+                                                                                     alt_conf_in) {
 	    trim_this_residue_atoms();
 	    trim_prev_residue_atoms();
 	    trim_next_residue_atoms();

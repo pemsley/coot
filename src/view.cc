@@ -79,8 +79,8 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	    // (and we need the original version of that to go "back")
 	    // g.setRotationCentre(rct);
 	    g.setRotationCentreSimple(rct);
-	    
-	    g.zoom = view1.zoom + pow(f,0.5)*(view2.zoom-view1.zoom);
+	    double df = f; // cast here, not in pow()
+	    g.zoom = view1.zoom + pow(df,0.5)*(view2.zoom-view1.zoom);
 	    // std::cout << "f " << f << " sqrt(t) " << sqrt(f)
 	    // << " zoom " << g.zoom << "   " << rct << std::endl;
 

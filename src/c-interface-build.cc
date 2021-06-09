@@ -259,7 +259,7 @@ int copy_molecule(int imol) {
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       graphics_info_t::molecules[new_mol_number].install_new_map(graphics_info_t::molecules[imol].xmap, label, is_em_flag);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
-         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
+         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map(true);
       }
       iret = new_mol_number;
    }
@@ -4048,7 +4048,7 @@ SCM missing_atom_info_scm(int imol) {
    if (is_valid_model_molecule(imol)) {
       r = SCM_EOL;
       graphics_info_t g;
-      short int missing_hydrogens_flag = 0;
+      bool missing_hydrogens_flag = 0;
       coot::util::missing_atom_info m_i_info =
 	 g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
       for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
@@ -4063,6 +4063,18 @@ SCM missing_atom_info_scm(int imol) {
 	 l = scm_cons(SCM_MAKINUM(resno), l);
 	 l = scm_cons(scm_makfrom0str(chain_id.c_str()), l);
 	 r = scm_cons(l, r);
+
+         std::map<mmdb::Residue *, std::vector<std::string> >::const_iterator it;
+         it = m_i_info.residue_missing_atom_names_map.find(residue_p);
+         if (it != m_i_info.residue_missing_atom_names_map.end()) {
+            const std::vector<std::string> &missing_atom_names = it->second;
+            if (! missing_atom_names.empty()) {
+               std::cout << "INFO:: residue " << coot::residue_spec_t(residue_p) << " has missing atoms ";
+               for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
+                  std::cout << single_quote(missing_atom_names[iat]) << " ";
+               std::cout << std::endl;
+            }
+         }
       }
       r = scm_reverse(r);
    }
@@ -4829,20 +4841,46 @@ int secondary_structure_restraints_type() {
 
 void accept_regularizement() {
 
-   accept_moving_atoms();
+   c_accept_moving_atoms();
 }
 
-void accept_moving_atoms() {
+void c_accept_moving_atoms() {
 
    graphics_info_t g;
+   while (g.continue_threaded_refinement_loop)
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   g.accept_moving_atoms();
+   g.clear_moving_atoms_object();
 
+}
+
+#ifdef USE_GUILE
+SCM accept_moving_atoms_scm() {
+
+   graphics_info_t g;
    while (g.continue_threaded_refinement_loop) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
    }
-
-   g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
+   coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
+   rr.show();
    g.clear_moving_atoms_object();
+   return g.refinement_results_to_scm(rr);
 }
+#endif
+
+#ifdef USE_PYTHON
+PyObject *accept_moving_atoms_py() {
+
+   graphics_info_t g;
+   while (g.continue_threaded_refinement_loop) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
+   coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
+   rr.show();
+   g.clear_moving_atoms_object();
+   return g.refinement_results_to_py(rr);
+}
+#endif
 
 
 /* \brief Experimental interface for Ribosome People. 
@@ -5994,4 +6032,6 @@ void set_auto_h_bond_restraints(int state) {
 
 }
 
-
+void set_refine_hydrogen_bonds(int state) {
+   set_auto_h_bond_restraints(state);
+}

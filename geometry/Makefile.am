@@ -38,10 +38,10 @@ AM_CXXFLAGS = \
 
 
 libcoot_geometry_la_SOURCES = cif-parse.cc protein-geometry.cc protein-geometry-mmdb.cc \
-    read-sbase.cc energy-lib.cc mol-utils.cc  \
+    read-sbase.cc energy-lib.cc mol-utils.cc dictionary-residue.cc link.cc glyco-tools.cc dict-utils.cc \
     chem_mods.cc srs-interface.cc protein-donor-acceptors.cc protein-donor-acceptors.hh \
-    lbg-graph.cc  dreiding.cc dict-utils.cc main-chain.cc residue-and-atom-specs.cc \
-    mol-utils-2.cc hydrophobic.cc
+    lbg-graph.cc  dreiding.cc main-chain.cc residue-and-atom-specs.cc \
+    mol-utils-2.cc hydrophobic.cc cif-parse-link.cc cif-parse-mon-lib.cc
 
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
@@ -68,9 +68,10 @@ test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
 test_ccp4srs_LDADD = ./libcoot-geometry.la
 
-test_geometry_LDADD = ./libcoot-geometry.la
+test_geometry_LDADD = ./libcoot-geometry.la \
+		$(top_builddir)/mini-mol/libcoot-mini-mol.la
 
-test_read_components_LDADD = ./libcoot-geometry.la
+test_read_components_LDADD = ./libcoot-geometry.la $(MMDB_LIBS)
 
 coot_dictionary_bond_distributions_SOURCES = dictionary-bond-distributions.cc
 
@@ -79,14 +80,20 @@ coot_dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 coot_compare_dictionaries_SOURCES = compare-dictionaries.cc
 
 coot_compare_dictionaries_LDADD = ./libcoot-geometry.la \
-        $(top_builddir)/utils/libcoot-utils.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la    \
+        $(top_builddir)/utils/libcoot-utils.la          \
         $(top_builddir)/compat/libcoot-compat.la $(MMDB_LIBS)
 
 coot_make_shelx_restraints_SOURCES = make-shelx-restraints.cc
 
-coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
+coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
+        $(top_builddir)/utils/libcoot-utils.la           \
+        $(CLIPPER_LIBS)
 
 coot_available_comp_id_SOURCES = available-comp-id.cc
 
-coot_available_comp_id_LDADD = ./libcoot-geometry.la 
+coot_available_comp_id_LDADD = ./libcoot-geometry.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+        $(top_builddir)/utils/libcoot-utils.la
 

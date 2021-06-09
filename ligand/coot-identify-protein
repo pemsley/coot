@@ -1,0 +1,69 @@
+#!/bin/sh
+# -*-shell-script-*-
+# coot wrapper script 
+# Copyright 2004, 2005, 2006 Paul Emsley, University of York
+
+#
+current_exe_dir=$(dirname $0)
+systype=$(uname)
+
+if [ $systype = Darwin ] ; then
+    COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
+else
+    unlinked_exe=$(readlink -f $0)
+    unlinked_exe_dir=$(dirname $unlinked_exe)
+    COOT_PREFIX=$(dirname $unlinked_exe_dir)
+fi
+
+# echo COOT_PREFIX is $COOT_PREFIX
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# If the COOT_PREFIX is correct, then these should not need modification
+# i.e.  nothing below here need be changed.
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# 
+prefix=$COOT_PREFIX
+PATH=$COOT_PREFIX/bin:$PATH
+
+SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
+# COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
+COOT_DATA_DIR=$COOT_PREFIX/share/coot
+
+# echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
+
+systype=`uname`
+
+if [ $systype = Linux ] ; then 
+   if [ -z "$LD_LIBRARY_PATH" ] ;  then
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
+   fi
+fi
+
+# some (Intel, I supose) Mac users may need to change
+# DYLD_LIBRARY_PATH to DYLD_FALLBACK_LIBRARY_PATH, if running into
+#  problems with Framwork jpeg libraries (don't forget the export 
+# at the end too).
+#
+if [ $systype = Darwin ] ; then 
+   if [ -z "$DYLD_LIBRARY_PATH" ] ;  then
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
+   fi
+fi
+
+
+export SYMINFO
+export COOT_PREFIX
+# export COOT_REFMAC_LIB_DIR
+export COOT_DATA_DIR
+export DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+export LD_LIBRARYN32_PATH
+
+$COOT_PREFIX/libexec/identify-protein-bin $*
+

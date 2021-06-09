@@ -28,7 +28,7 @@ lib_LTLIBRARIES=libcoot-ideal.la
 EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.cc
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
-	regularize-minimol.hh lograma.h zo-rama.hh phi-psi.hh \
+	regularize-minimol.hh lograma.h zo-rama.hh phi-psi.hh process-dfs-in-range.hh \
 	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
         refinement-lights.hh refinement-results-t.hh rama-types.hh new-linked-residue-t.hh
 
@@ -70,16 +70,16 @@ libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/utils/libcoot-utils.la              \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
-   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS)
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS) -lm
 
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc ng.cc \
+libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squareds.cc \
 	mods.cc distortion.cc chirals.cc flanking.cc gradients.cc extra-restraints.cc \
-	pepflip.cc regularize-minimol.cc lograma.cpp process-dfs-in-range.cc process-dfs-in-range.hh \
-        extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
+	pepflip.cc regularize-minimol.cc lograma.cpp process-dfs-in-range.cc \
+	crankshaft.cc extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
 	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
-	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc neutron.cc
+	write-png.cc zo-rama.cc crankshaft.hh phi-psi.cc neutron.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 
@@ -87,7 +87,7 @@ check_PROGRAMS =  with-geometry logramatest crankshaft-test test-rama-plot
 if OS_WIN32
 bin_PROGRAMS = mini-rsr-bin
 else
-libexec_PROGRAMS = mini-rsr-bin
+libexec_PROGRAMS = mini-rsr-bin coot-ligand-validation-bin
 endif
 
 logramatest_SOURCES = logramatest.cpp
@@ -95,7 +95,11 @@ logramatest_SOURCES = logramatest.cpp
 crankshaft_test_SOURCES = crankshaft-test.cc
 
 crankshaft_test_LDADD = ./libcoot-ideal.la \
-        $(top_builddir)/compat/libcoot-compat.la
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/utils/libcoot-utils.la            \
+        $(top_builddir)/compat/libcoot-compat.la -lm -lpthread
 
 with_geometry_SOURCES = with-geometry.cc
 
@@ -104,6 +108,19 @@ mini_rsr_bin_SOURCES = mini-rsr.cc
 test_rama_plot_SOURCES = test-rama-plot.cc
 
 test_rama_plot_LDADD = ./libcoot-ideal.la
+
+coot_ligand_validation_bin_SOURCES = lv.cc
+
+coot_ligand_validation_bin_LDADD = ./libcoot-ideal.la      \
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(top_builddir)/utils/libcoot-utils.la             \
+        $(top_builddir)/compat/libcoot-compat.la -lpthread
 
 # test_indexing_SOURCES = test-indexing.cc
 
@@ -171,4 +188,5 @@ logramatest_LDADD = \
 	$(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(GSL_LIBS)
 
-dist_bin_SCRIPTS = coot-mini-rsr
+dist_bin_SCRIPTS = coot-mini-rsr coot-ligand-validation
+

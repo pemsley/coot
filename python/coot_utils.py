@@ -1441,6 +1441,9 @@ def transform_map(*args):
 
     ret = None
     def tf(imol, mat, trans, about_pt, radius, space_group, cell):
+
+        print("here in tf with ", imol, mat, trans, about_pt, radius, space_group, cell)
+
         return transform_map_raw(imol,
                                  mat[0], mat[1], mat[2],
                                  mat[3], mat[4], mat[5],
@@ -1452,6 +1455,8 @@ def transform_map(*args):
                                  cell[0], cell[1], cell[2],
                                  cell[3], cell[4], cell[5])
 
+    print("len args is", len(args))
+
     # main line
     if (len(args)==7):
        ret = tf(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
@@ -1461,9 +1466,11 @@ def transform_map(*args):
         ret = tf(imol, args[1], args[2], args[3], args[4],
                  space_group(imol), cell(imol))
     # no matrix specified:
-    elif (len(args)==4): 
+    elif (len(args)==4):
         imol = args[0]
-        ret = tf(imol, identity_matrix(), args[1], args[2], args[3],
+        print("calling tf with ", imol, identity_matrix(), args[1], args[2], args[3], space_group(imol), cell(imol))
+        r = 0.5 * cell(imol)[0]
+        ret = tf(imol, identity_matrix(), [args[1], args[2], args[3]], rotation_centre(), r,
                  space_group(imol), cell(imol))
     # no matrix or about point specified:
     elif (len(args)==3):

@@ -373,8 +373,8 @@ short int graphics_info_t::draw_baton_flag = 0; // off initially
 short int graphics_info_t::baton_mode = 0;      // rotation mode
 coot::Cartesian graphics_info_t::baton_root = coot::Cartesian(0.0, 0.0, 0.0);
 coot::Cartesian graphics_info_t::baton_tip =  coot::Cartesian(0.0, 0.0, 3.8);
-std::vector<coot::scored_skel_coord> *graphics_info_t::baton_next_ca_options = NULL;
-std::vector<clipper::Coord_orth> *graphics_info_t::baton_previous_ca_positions = NULL;
+std::vector<coot::scored_skel_coord> graphics_info_t::baton_next_ca_options;
+std::vector<clipper::Coord_orth> graphics_info_t::baton_previous_ca_positions;
 short int graphics_info_t::baton_build_direction_flag = 1; // forwards by default
 int graphics_info_t::baton_build_start_resno = 1;
 short int graphics_info_t::baton_build_params_active = 0; // not active initially.
@@ -782,6 +782,7 @@ float graphics_info_t::geometry_vs_map_weight = 60.0;
 int graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position    = 3;
 int graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position  = 3;
 int graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = 3;
+int graphics_info_t::refine_params_dialog_torsions_weight_combox_position = 2;
 bool graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = false;
 
 int   graphics_info_t::rama_n_diffs = 50;
@@ -1161,7 +1162,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 // smaller is smoother and less jerky - especially for big molecules
-int       graphics_info_t::dragged_refinement_steps_per_frame = 6;
+int       graphics_info_t::dragged_refinement_steps_per_frame = 10;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
@@ -3834,12 +3835,32 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       if (state & my_button1_mask) {
 	 // instead do a label atom:
 	 pick_info nearest_atom_index_info = atom_pick(event);
-	 if ( nearest_atom_index_info.success == GL_TRUE ) {
+	 if (nearest_atom_index_info.success == GL_TRUE) {
 	    int im = nearest_atom_index_info.imol;
-	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
-	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
-	    info.setup_graphics_ligand_view(im, r, alt_conf);
+            if (is_valid_model_molecule(im)) {
+               info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+               mmdb::Residue *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+               std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
+               info.setup_graphics_ligand_view(im, r, alt_conf);
+            } else {
+               if (im == -1) {
+                  // this is intermediate atoms double click, but let's add protection any way
+                  mmdb::Atom *at = info.get_moving_atom(nearest_atom_index_info);
+                  if (at) {
+                     std::string s= "Atom picked: ";
+                     s += at->GetChainID();
+                     s += " ";
+                     s += std::to_string(at->residue->GetSeqNum());
+                     s += " ";
+                     s += at->residue->GetInsCode();
+                     s += " (";
+                     s += at->residue->GetResName();
+                     s += ") ";
+                     s += at->GetAtomName();
+                     add_status_bar_text(s.c_str());
+                  }
+               }
+            }
 	 } else {
 	    if (graphics_info_t::show_symmetry) {
 	       coot::Symm_Atom_Pick_Info_t symm_atom_info = info.symmetry_atom_pick();
@@ -3952,8 +3973,7 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 	 // c.f. event->x vs mouse_clicked_begin.first
 	 //      event->y vs mouse_clicked_begin.second
 
-	 pick_info nearest_atom_index_info;
-	 nearest_atom_index_info = atom_pick(event);
+	 pick_info nearest_atom_index_info = atom_pick(event);
 
 	 double delta_x = g.GetMouseClickedX() - x_as_int;
 	 double delta_y = g.GetMouseClickedY() - y_as_int;
@@ -3970,11 +3990,17 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 	       if (nearest_atom_index_info.success == GL_TRUE) {
 
 		  int im = nearest_atom_index_info.imol;
-		  std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
-
-
-		  g.setRotationCentre(nearest_atom_index_info.atom_index,
-				      nearest_atom_index_info.imol);
+                  if (is_valid_model_molecule(nearest_atom_index_info.imol)) {
+                     std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
+                     g.setRotationCentre(nearest_atom_index_info.atom_index,
+                                         nearest_atom_index_info.imol);
+                  } else {
+                     mmdb::Atom *at = g.get_moving_atom(nearest_atom_index_info);
+                     if (at) {
+                        coot::Cartesian c(at->x, at->y, at->z);
+                        g.setRotationCentre(c);
+                     }
+                  }
 
 		  // Lets display the coordinate centre change
 		  // *then* update the map, so we can see how fast

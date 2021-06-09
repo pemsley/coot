@@ -332,7 +332,7 @@ void rotamer_tables() {
 
 int test_torsion(const std::string &pdb_filename) {
 
-   atom_selection_container_t asc = get_atom_selection(pdb_filename, false, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, true, false, false);
    int retval = test_torsion_general(asc, pdb_filename);
    return retval;
 }
@@ -344,7 +344,7 @@ int test_spherical(const std::string &pdb_filename,
 
    int r = 0;
 
-   atom_selection_container_t asc = get_atom_selection(pdb_filename, false, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, true, false, false);
    clipper::Xmap<float> xmap;
    std::string f_col   = "FWT";
    std::string phi_col = "PHWT";

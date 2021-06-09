@@ -50,10 +50,10 @@ namespace coot {
       int end_resno; // inclusive
       residue_range_t(const std::string &chain_id_in,
 		      int start_resno_in,
-		      int end_resno_in) {
-	 chain_id = chain_id_in;
+		      int end_resno_in) : chain_id(chain_id_in) {
 	 start_resno = start_resno_in;
 	 end_resno = end_resno_in;
+         chain_id_index = 0;
       }
       int length() const { return end_resno - start_resno + 1; }
    };
@@ -100,9 +100,8 @@ namespace coot {
 	 // assignment (1.0 is sure).
 	 // 
 	 std::vector<std::pair<side_chain_name_index, float> > residue_info;
-	 sequence_info_t(const std::string chain_id_in,
-			 const std::vector<side_chain_name_index> &a) {
-	    chain_id = chain_id_in;
+	 sequence_info_t(const std::string &chain_id_in,
+			 const std::vector<side_chain_name_index> &a) : chain_id(chain_id_in) {
 	    residue_info.resize(a.size());
 	    for (unsigned int i=0; i<a.size(); i++) {
 	       residue_info[i].first = a[i];
@@ -124,8 +123,7 @@ namespace coot {
 	 // return -1 on no outstanding slider position.
 	 int outstanding_slider_position(const std::vector<float> &s) const;
       public:
-	 scored_chain_info_t(const std::string &chin, int n_residues) {
-	    chain_name_ = chin;
+	 scored_chain_info_t(const std::string &chin, int n_residues) : chain_name_(chin) {
 	    residue_side_chain_score.resize(n_residues+1);
 	 }
 	 // address the residue number (resno) directly.  Index 0 is
@@ -160,6 +158,8 @@ namespace coot {
 	 // and a test to see if the above was valid:
 	 bool is_valid_residue_type(const side_chain_name_index &i) const {
 	    // return (i<999 ? 1 : 0);  20140308 : what did I mean!?
+            if (i < 0)
+               return false;
 	    return true;
 	 }
 	 // isn't auto_fit_score using a mmdb::Residue a better fit?
@@ -202,7 +202,7 @@ namespace coot {
       public:
       // Let's make chains 0-indexed and residues 1-indexed.
 	 std::vector<scored_chain_info_t> side_chain_score;
-	 side_chain_score_t() { udd_assigned_handle = -1;};
+	 side_chain_score_t() { udd_assigned_handle = -1; xmap = 0; mol = 0; };
 	 void add_new_chain(const std::string &chain_name, int n_residues) {
 	    side_chain_score.push_back(scored_chain_info_t(chain_name, n_residues));
 	 }
@@ -212,14 +212,12 @@ namespace coot {
 			int max_resno_in_chain,
 			int residue_idx, // enum side_chain_name_index
 			double score);
-			
-			
+
 	 void debug() const;
 	 void add_fasta_sequence(const std::string &sequence_chain_id_in,
 				 const std::string &seq);
 	 void slider() const;
-	 void generate_scores(mmdb::Manager *mol,
-			      const clipper::Xmap<float> &xmap);
+	 void generate_scores(mmdb::Manager *mol, const clipper::Xmap<float> &xmap);
 
 	 void test_residue_range_marking();
       };

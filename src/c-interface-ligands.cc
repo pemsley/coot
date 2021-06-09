@@ -1266,12 +1266,12 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       std::cout << "No model in molecule number " << map_mol_no << std::endl;
 	    } else {
 	       short int mask_waters_flag; // treat the waters like protein atoms?
-	       mask_waters_flag = graphics_info_t::find_ligand_mask_waters_flag;
+	       mask_waters_flag = g.find_ligand_mask_waters_flag;
 	       lig.import_map_from(g.molecules[map_mol_no].xmap);
 	       int selectionhandle = g.molecules[coord_mol_no].atom_sel.mol->NewSelection();
 
-	       if (graphics_info_t::map_mask_atom_radius > 0) {
-		  lig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	       if (g.map_mask_atom_radius > 0) {
+		  lig.set_map_atom_mask_radius(g.map_mask_atom_radius);
 	       }
 
 	       // make a selection:
@@ -1286,10 +1286,10 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 
 	       lig.mask_map(g.molecules[coord_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
-	       imol_new_map = graphics_info_t::create_molecule();
+	       imol_new_map = g.create_molecule();
 	       std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
-	       bool is_em_map_flag = graphics_info_t::molecules[map_mol_no].is_EM_map();
-	       std::string old_name = graphics_info_t::molecules[map_mol_no].name_; // use get_name()
+	       bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
+	       std::string old_name = g.molecules[map_mol_no].get_name();
 	       std::string new_name = "Masked Map from " + old_name;
 	       g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
 	       graphics_draw();
@@ -1311,18 +1311,17 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 	 coot::ligand lig;
 	 lig.import_map_from(g.molecules[map_mol_no].xmap);
 
-	 if (graphics_info_t::map_mask_atom_radius > 0) {
-	    lig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	 if (g.map_mask_atom_radius > 0) {
+	    lig.set_map_atom_mask_radius(g.map_mask_atom_radius);
 	 }
 	 int selectionhandle = g.molecules[coords_mol_no].atom_sel.mol->NewSelection();
 	 g.molecules[coords_mol_no].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM,
-							 (char *) mmdb_atom_selection,
-							 mmdb::SKEY_NEW);
+							 mmdb_atom_selection, mmdb::SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);
-	 imol_new_map = graphics_info_t::create_molecule();
-	 std::string name = graphics_info_t::molecules[map_mol_no].name_;
+	 imol_new_map = g.create_molecule();
+	 std::string name = g.molecules[map_mol_no].name_;
 	 std::string new_name = name + " Masked Map";
-	 bool is_em_map_flag = graphics_info_t::molecules[map_mol_no].is_EM_map();
+	 bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
 	 g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
 	 graphics_draw();
       } else {
@@ -1441,6 +1440,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
       int imol = 0; // dummy
       GtkWidget *wp = 0; // = get_image_widget_for_comp_id(v[i].first, imol);
+
+      wp = get_image_widget_for_comp_id(v[i].first, imol);
 
       // gtk_image_new_from_file("test.png");
 
@@ -2141,7 +2142,7 @@ int read_small_molecule_data_cif(const char *file_name) {
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
 	 g.molecules[imol_diff].install_new_map(maps.second, map_name, is_em_map_flag);
-	 g.molecules[imol_diff].set_map_is_difference_map();
+	 g.molecules[imol_diff].set_map_is_difference_map(true);
       }
       graphics_draw();
    }
@@ -2178,7 +2179,7 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
 	 g.molecules[imol_diff].install_new_map(maps.second, map_name, false);
-	 g.molecules[imol_diff].set_map_is_difference_map();
+	 g.molecules[imol_diff].set_map_is_difference_map(true);
       }
    }
    return imol_map;
@@ -2544,7 +2545,7 @@ SCM new_molecule_sans_biggest_ligand_scm(int imol) {
    SCM r = SCM_BOOL_F;
    std::pair<mmdb::Residue *, int> res = new_molecule_sans_biggest_ligand(imol);
    if (res.first) {
-      r = scm_list_2(SCM_MAKINUM(res.second), residue_spec_to_scm(res.first));
+      r = scm_list_2(SCM_MAKINUM(res.second), residue_spec_to_scm(coot::residue_spec_t(res.first)));
    }
    return r;
 }
@@ -2558,7 +2559,7 @@ PyObject *new_molecule_sans_biggest_ligand_py(int imol) {
    if (res.first) {
       r = PyList_New(2);
       PyList_SetItem(r, 0, PyLong_FromLong(res.second));
-      PyList_SetItem(r, 1, residue_spec_to_py(res.first));
+      PyList_SetItem(r, 1, residue_spec_to_py(coot::residue_spec_t(res.first)));
    }
    if (PyBool_Check(r)) {
       Py_INCREF(r);
@@ -3450,6 +3451,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
    graphics_info_t g;
    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
+
    if (residue_p) {
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
@@ -3498,6 +3500,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
 				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
       }
+
       set_display_generic_object(clashes_obj, 1);
 
    } else {
@@ -3561,6 +3564,8 @@ coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
    coot::residue_spec_t res_spec = residue_spec_from_scm(ligand_spec_scm);
    if (is_valid_model_molecule(imol)) {
       coot_contact_dots_for_ligand_internal(imol, res_spec);
+   } else {
+      std::cout << "WARNING:: Not a valid molecule " << imol << std::endl;
    }
 }
 #endif

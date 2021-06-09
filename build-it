@@ -1,5 +1,5 @@
 # 
-# -*-shell-script-*-s
+# -*-shell-script-*-
 #
 # Copyright 2004, 2005, 2006, 2007, 2008 by The University of York
 # Copyright 2009, 2010, 2011, 2012 by The University of York
@@ -402,7 +402,11 @@
 # 5.45 20210110 Bump the python version again - no2 2.7.18
 # 5.46 20210110 Add a test for the version of cmake
 # 5.47 20210111 Use the correct name for the libtinfo dev package
-script_version=5.47
+# 5.48 20210407 Add to the PKG_CONFIG_PATH for 64 bit builds
+# 5.49 20210407 find mmdb libs in lib64 maybe for SSM.
+# 5.50 20210407 fix previous fix
+# 5.51 20210407 adjust LIBS for clipper configure for lib64 usage
+script_version=5.51
 
 
 
@@ -1916,11 +1920,21 @@ case "$architecture" in
      ;; 
 esac
 if [ -z "$PKG_CONFIG_PATH" ] ; then 
-  # I think that the standard dir is not needed.
-  # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
-else 
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+    # I think that the standard dir is not needed.
+    # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
+    PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+    case "$architecture" in
+        x86_64*) 
+           PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig
+           ;;
+    esac
+else
+    PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+    case "$architecture" in
+        x86_64*) 
+           PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+           ;;
+    esac
 fi
 
 if [ -e /opt/X11/lib/pkgconfig ] ; then
@@ -2014,7 +2028,7 @@ if test -e ${install_top_dir}/lib/libltdl.la ; then
 fi
 if test -z "$build_libtool" ; then
     echo installation has libtool
-else 
+else
     echo libtool should be built
 fi
 
@@ -2415,7 +2429,7 @@ if [ -e $install_top_dir/include/$ssm_include_dir/ssm_align.h ] ; then
       if grep --silent "MINOR_VERSION = [4-9]" $install_top_dir/include/$ssm_include_dir/ssm_defs.h ; then
          echo SSM is found.
          build_ssmlib=
-      else       
+      else
          echo we need a newer SSM.
          build_ssmlib=1
       fi
@@ -2585,7 +2599,11 @@ date
 # gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
 tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
 cd ssm-$ssm_version
-./configure $generic_prefix  --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
+mmdb_lib_dir=$install_top_dir/lib
+if [ -e $install_top_dir/lib64/libmmdb2.so ] ; then
+    mmdb_lib_dir=$install_top_dir/lib64
+fi
+./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$mmdb_lib_dir
 if $MAKE ; then 
    $MAKE install
 fi
@@ -2697,17 +2715,23 @@ if test -n "$build_clipper" ; then
     # if /usr/lib64/lib(r)fftw.so exists, clipper will link to them
     # despite our having build fftw for ourselves - I need to stop
     # that (because of clipper's m4/fftw.m4)
-    
+
     save_libs="$LIBS"
     export LIBS="-L$install_top_dir/lib:$LIBS"
     if [ -z "$LIBS" ] ; then
       save_libs=
       export LIBS=-L$install_top_dir/lib
+      if [ -e $install_top_dir/lib64 ] ; then
+          export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib"
+      fi
     else 
       save_libs="$LIBS"
       export LIBS=-L$install_top_dir/lib:$LIBS
+      if [ -e $install_top_dir/lib64 ] ; then
+         export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib $LIBS"
+      fi
     fi
-    echo now we have LIBS $LIBS
+    echo for clipper configure now we have LIBS $LIBS
 
     echo ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \
@@ -2972,7 +2996,7 @@ if [ "$build_libgnomecanvas" = 1 ] ; then
    # not to self: it seems, from my centos7 build that libgnomecanvas doesn't
    # correctly pick up the libart above - I did a system install of libart before I thought about it.
 
-   if [ -e $install_top_dir/include/thing/thing.h ] ; then
+   if [ -e $install_top_dir/include/libgnomecanvas-2.0/libgnomecanvas/libgnomecanvas.h ] ; then
       echo not building libgnomecanvas
    else
       libgnomecanvas_version=2.30.3
@@ -3370,6 +3394,24 @@ if [ true = true ] ; then
    fi
 fi
 
+# need to install Pillow (for depictions to work):
+# https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
+
+if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; then
+   echo not building Pillow:
+else
+    pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
+    $(WGET) $pillow_url
+    if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
+        tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
+        cd Pillow-6.2.2
+        python setup.py build
+        python setup.py install
+        cd -
+    fi
+fi
+
+
 # this is a hack for charybdis   - we need cmake version 3.1 or later
 export PATH=$HOME/cmake/bin:$PATH
 
@@ -3413,7 +3455,7 @@ if [ "$build_rdkit" = true ] ; then
    
       if [ $(uname) = Darwin ] ; then
          echo LD_LIBRARY_FALLBACK_PATH  $LD_LIBRARY_FALLBACK_PATH
-	 # what is unexport in bash?
+         # what is unexport in bash?
          export LD_LIBRARY_PATH=
       fi
 
@@ -3487,7 +3529,7 @@ if [ "$build_rdkit" = true ] ; then
       which cmake
 
       # No help:  -DBoost_INCLUDE_DIR=$install_top_dir/include 
-      # Cmake policy:	 -DMACOSX_RPATH=ON
+      # Cmake policy:    -DMACOSX_RPATH=ON
 
       # old verisons of boost (before 1.60?) can't find boost python
       # with new (github Feb 2016) rdkit
@@ -3539,11 +3581,11 @@ if [ "$build_rdkit" = true ] ; then
 
       echo will configure with cmake like this:
       echo cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
+         -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
          -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7 \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+         -DRDK_TEST_MULTITHREADED=OFF    \
          -DRDK_BUILD_THREADSAFE_SSS=OFF  \
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
@@ -3551,11 +3593,11 @@ if [ "$build_rdkit" = true ] ; then
 
 
       if cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
+         -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
          -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7 \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+         -DRDK_TEST_MULTITHREADED=OFF    \
          -DRDK_BUILD_THREADSAFE_SSS=OFF  \
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
@@ -3711,7 +3753,7 @@ ${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
 if [ "$dist_name" = "debian" ] ; then
    llp_save=$LD_LIBRARY_PATH
    unset LD_LIBRARY_PATH
-   extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save"
+   extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save --disable-error-on-warning"
 fi
 
 if [ $OS = Darwin ] ; then
@@ -3736,6 +3778,7 @@ else
    additional_unused_arg=
 fi
 
+export GUILE_ERROR_ON_WARNING=no
 # arg to guile's configure
 ./configure $generic_prefix \
      $extra_flags_for_darwin \
@@ -4526,6 +4569,7 @@ unset PKG_CONFIG_PATH
 # new style
 mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 refmac_mon_lib=refmac-monomer-library.tar.gz
+refmac_mon_lib=refmac-monomer-library-20210105.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library

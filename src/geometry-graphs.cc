@@ -272,9 +272,10 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    mmdb::realtype occ_1, occ_2, occ_3;
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
 
-      std::cout << "now examining restraint number " << i << " type "
-                << dc.geometry_distortion[i].restraint.restraint_type << std::endl;
-      
+      if (false)
+         std::cout << "now examining restraint number " << i << " type "
+                   << dc.geometry_distortion[i].restraint.restraint_type << std::endl;
+
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::BOND_RESTRAINT) {
 	 idx_1 = dc.geometry_distortion[i].restraint.atom_index_1;
 	 idx_2 = dc.geometry_distortion[i].restraint.atom_index_2;

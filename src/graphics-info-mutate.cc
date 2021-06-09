@@ -138,12 +138,16 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 			residue_p = coot::util::get_last_residue_in_chain(chain);
 		  }
 
+                  if (terminus_type == "singleton")
+                     residue_p = coot::util::get_last_residue_in_chain(chain);
+
+                  if (false)
+                     std::cout << "------- add_side_chain_to_terminal_res() here with residue_p "
+                               << coot::residue_spec_t(residue_p) << std::endl;
+
 		  if (residue_p) {
 
 		     //
-		     if (false)
-			std::cout << "------- here with residue_p " << coot::residue_spec_t(residue_p)
-				  << std::endl;
 
 		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
@@ -163,7 +167,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 			};
 
 			bool verb = false;
-			if (verb) { 
+			if (verb) {
 			   std::cout << "Mutate Atom Tables" << std::endl;
 			   std::cout << "Before" << std::endl;
 			   for(int i=0; i<nResidueAtoms; i++) {
@@ -340,10 +344,10 @@ graphics_info_t::read_standard_residues() {
 	 // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
       } else { 
 	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, false, true);
+	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
       }
    } else { 
-      standard_residues_asc = get_atom_selection(filename, false, true);
+      standard_residues_asc = get_atom_selection(filename, true, false, false);
    }
 } 
 

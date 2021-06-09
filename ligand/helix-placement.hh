@@ -29,8 +29,7 @@ namespace coot {
    public:
       minimol::molecule mol;
       float score;
-      scored_helix_info_t(const minimol::molecule &mol_in, float score_in) {
-	 mol = mol_in;
+      scored_helix_info_t(const minimol::molecule &mol_in, float score_in):mol(mol_in) {
 	 score = score_in;
       }
       scored_helix_info_t() { score = -9999999.9;}
@@ -44,10 +43,8 @@ namespace coot {
       std::vector<double> eigen_values;
       eigen_info_t(const clipper::RTop_orth &rtop_in,
 		   int best_eigen_index_in,
-		   const std::vector<double> &eigen_values_in) {
-	 rtop = rtop_in;
+		   const std::vector<double> &eigen_values_in) : rtop(rtop_in), eigen_values(eigen_values_in) {
 	 best_eigen_value_index = best_eigen_index_in;
-	 eigen_values = eigen_values_in;
       }
    };
 
@@ -60,7 +57,7 @@ namespace coot {
       std::string failure_message;
       helix_placement_info_t(const minimol::molecule &mol_in,
 			     short int success_in,
-			     const std::string f_message_in) {
+			     const std::string &f_message_in) {
 	 mol.clear();
 	 mol.push_back(mol_in);
 	 success = success_in;
@@ -68,10 +65,8 @@ namespace coot {
       }
       helix_placement_info_t(const std::vector<minimol::molecule> &mol_v,
 			     short int success_in,
-			     const std::string f_message_in) {
-	 mol = mol_v;
+			     const std::string &f_message_in) :mol(mol_v), failure_message(f_message_in) {
 	 success = success_in;
-	 failure_message = f_message_in;
       }
    };
       
@@ -91,8 +86,8 @@ namespace coot {
 					       const clipper::RTop_orth &axis_ori,
 					       const clipper::Coord_orth &helix_point) const;
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> >
-      decompose_helix_by_cbeta(coot::minimol::molecule &m) const;
-      util::density_stats_info_t score_residue(const coot::minimol::residue &residue) const;
+      decompose_helix_by_cbeta(minimol::molecule &m) const;
+      util::density_stats_info_t score_residue(const minimol::residue &residue) const;
       util::density_stats_info_t score_atoms(const std::vector<clipper::Coord_orth> &atom_pos) const;
       std::pair<int, int> trim_ends(minimol::fragment *m, float min_density_limit) const; // modify m by chopping off residues
       int trim_end(minimol::fragment *m, short int end_type, float min_density_limit) const;
@@ -120,20 +115,18 @@ namespace coot {
 				 double cyl_len, double cyl_rad,
 				 float density_level) const; // uses member data xmap
 
-      scored_helix_info_t fit_strand(const coot::minimol::molecule &mol,
+      scored_helix_info_t fit_strand(const minimol::molecule &mol,
 				     const clipper::RTop_orth &rtop,
 				     int imol,
 				     float map_rmsd) const;
       
-      std::vector<coot::scored_helix_info_t>
-      find_strand_candidates_by_shift_sampling(const coot::minimol::molecule &mol,
+      std::vector<scored_helix_info_t>
+      find_strand_candidates_by_shift_sampling(const minimol::molecule &mol,
 					       const clipper::RTop_orth &rtop) const;
 
       
    public:
-      helix_placement(const clipper::Xmap<float> &xmap_in) {
-	 xmap = xmap_in;
-      }
+      explicit helix_placement(const clipper::Xmap<float> &xmap_in) : xmap(xmap_in) { }
       void discrimination_map() const; //debugging
 
       // Pass the initial testing helix length.  Typically start with

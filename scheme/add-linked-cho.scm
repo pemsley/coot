@@ -249,7 +249,7 @@
 	#f)
       (if (not (pair? res-pair))
 	  (begin
-	    (format #t "Oops - not a residue-link string pair when adding res-pair~%" res-pair)
+	    (format #t "WARNING:: Oops - not a residue-link string pair when adding res-pair: ~s~%" res-pair)
 	    #f)
 	  ;; OK! go!
 	  (let ((new-link     (car res-pair))

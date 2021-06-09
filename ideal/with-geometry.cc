@@ -98,7 +98,7 @@ main(int argc, char **argv) {
 
 	    geom.init_standard();
 	    std::string pdb_file_name(argv[2]);
-	    atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1, 0); 
+	    atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false); 
 	    int imol = 0; // dummy
 	    coot::model_bond_deltas deltas(asc.mol, imol, &geom);
 	    deltas.resolve();
@@ -112,7 +112,7 @@ main(int argc, char **argv) {
 	 std::string pdb_file_name(argv[1]);
 
 	 // if pdb_file_name does not exist -> crash?
-	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1, 0); 
+	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
 	 //coot::restraints_container_t restraints(asc);
 
 	 // So, we provide easy(?) access to the atoms of next and

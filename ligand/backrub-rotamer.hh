@@ -26,6 +26,8 @@
 
 #include <clipper/core/xmap.h>
 #include "mini-mol/mini-mol.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 namespace coot {
 
@@ -114,6 +116,9 @@ namespace coot {
       // maybe we need to delete a water or two to get a good fit for the side chain?
       std::vector<atom_spec_t> waters_for_deletion() const;
    };
+
+   void backrub_molecule(mmdb::Manager *mol, const clipper::Xmap<float> *xmap_p,
+                        const coot::protein_geometry &pg);
 
 }
 

@@ -544,8 +544,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
             GLuint display_list_index = 0; // bad
 
             // These conditions have been validated by reversing them.
-            if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT ||
-                main_or_secondary == IN_STEREO_MONO)
+            if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT || main_or_secondary == IN_STEREO_MONO)
                display_list_index = theMapContours.first;
             if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_RIGHT)
                display_list_index = theMapContours.second;
@@ -555,8 +554,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
                   // 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
                   glCallList(display_list_index);
             } else {
-                  std::cout << "ERROR:: using display list " << display_list_index
-                  << " when main_or_secondary is " << main_or_secondary << std::endl;
+               if (true) // too noisy
+                  std::cout << "ERROR:: using display list index " << display_list_index
+                            << " when main_or_secondary is " << main_or_secondary << std::endl;
             }
 
 
@@ -754,12 +754,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
                                  contour_level, dy_radius, centre,
                                  isample_step);
 
-	 // if "cut-glass mode", then make re-wire to use map GLSL triangles
-	 //
-	 if (graphics_info_t::do_flat_shading_for_solid_density_surface) {
-	    setup_glsl_map_rendering(); // turn tri_con into buffers.
-	 }
-
 	 if (xmap_is_diff_map) {
 	    tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
 									     -contour_level,
@@ -825,66 +819,6 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    catch (const std::out_of_range &oor) {
       std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
    }
-}
-
-#ifdef GRAPHICS_TESTING
-
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-
-#endif // GRAPHICS_TESTING
-
-void
-molecule_class_info_t::setup_glsl_map_rendering() {
-
-#ifdef GRAPHICS_TESTING
-
-   // This is called from update_map_triangles().
-
-   // using coot::density_contour_triangles_container_t tri_con;
-
-   // transfer the points
-   float *points = new float[3 * tri_con.points.size()];
-   for (std::size_t i=0; i<tri_con.points.size(); i++) {
-      points[3*i  ] = tri_con.points[i].x();
-      points[3*i+1] = tri_con.points[i].y();
-      points[3*i+2] = tri_con.points[i].z();
-   }
-
-   // transfer the indices
-   n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
-   int *indices = new int[n_vertices_for_VertexArray];
-   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-      indices[6*i  ] = tri_con.point_indices[i].pointID[0];
-      indices[6*i+1] = tri_con.point_indices[i].pointID[1];
-      indices[6*i+2] = tri_con.point_indices[i].pointID[1];
-      indices[6*i+3] = tri_con.point_indices[i].pointID[2];
-      indices[6*i+4] = tri_con.point_indices[i].pointID[2];
-      indices[6*i+5] = tri_con.point_indices[i].pointID[0];
-   }
-
-   glGenVertexArrays(1, &m_VertexArrayID);
-   glBindVertexArray(m_VertexArrayID);
-
-   GLuint vertexbuffer;
-   glGenBuffers(1, &vertexbuffer);
-   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * tri_con.points.size(), &points[0], GL_STATIC_DRAW);
-   glEnableVertexAttribArray(0);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   unsigned int ibo;
-   glGenBuffers(1, &ibo);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
-		&indices[0], GL_STATIC_DRAW);
-
-   delete [] points;
-   delete [] indices;
-
-#endif // GRAPHICS_TESTING
-
 }
 
 
@@ -2006,15 +1940,16 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    bool bad_read = false; // so far
    bool em = false;
+   map_name = filename;
 
-   if ( map_file_type == CCP4 ) {
+   if (map_file_type == CCP4) {
 
       bool done = false;
       if (coot::util::is_basic_em_map_file(filename)) {
          // fill xmap
          auto tp_1 = std::chrono::high_resolution_clock::now();
-         ctpl::thread_pool *thread_pool_p = &graphics_info_t::static_thread_pool;
-         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, thread_pool_p);
+         bool check_only = false;
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
          std::cout << "INFO:: map read " << d21 << " milliseconds" << std::endl;
@@ -2023,6 +1958,12 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             file.open_read(filename);
             set_is_em_map(file); // sets is_em_map_cached_flag
             em = is_em_map_cached_flag;
+            if (imol_no == 0) {
+               clipper::Cell c = file.cell();
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+               graphics_info_t g;
+               g.setRotationCentre(m);
+            }
 
          }
          catch (const clipper::Message_base &exc) {
@@ -2082,9 +2023,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             //
             if (imol_no == 0) {
                clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(),
-               0.5*c.descr().b(),
-               0.5*c.descr().c());
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                new_centre.first = true;
                new_centre.second = m;
                std::cout << "INFO:: map appears to be EM map."<< std::endl;
@@ -2118,7 +2057,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, is_anomalous_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
+      auto tp_0 = std::chrono::high_resolution_clock::now();
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = chrono::duration_cast<chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
 
       float mean = mv.mean;
       float var = mv.variance;
@@ -2268,7 +2211,7 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
    std::cout << "INFO:: Make a map from " << phs_filename << " using "
 	     << pdb_filename << " for the cell and symmetry information " << std::endl;
 
-   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, true, true);
+   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, true, false, false);
 
    if (SelAtom.read_success == 1) { // success
       try {
@@ -3437,10 +3380,10 @@ molecule_class_info_t::change_contour(int direction) {
 
 //
 void
-molecule_class_info_t::set_map_is_difference_map() {
+molecule_class_info_t::set_map_is_difference_map(bool flag) {
 
    if (has_xmap() || has_nxmap()) {
-      xmap_is_diff_map = 1;
+      xmap_is_diff_map = flag;
       // we should update the contour level...
       set_initial_contour_level();
       // and set the right colors

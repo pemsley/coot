@@ -1,17 +1,17 @@
 # Copyright 2012 by the University of Oxford
 # Copyright 2015 by Medical Research Council
 # Author: Paul Emsley
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -25,6 +25,9 @@ from rdkit import Chem
 # Note that atom_type properties can also have been set in hydrogen_transformations():
 #
 def set_atom_type(match, match_atom_index, mol, atom_type, types_type='Refmac'):
+
+    # Refmac and monomer_library mean the same thing.
+
     prop_str = 'type_energy'
     if types_type == 'Parm@Frosst':
         prop_str = 'pf_atom_type'
@@ -55,7 +58,7 @@ def ele_to_smart(v):
 # those not handled by hand-coding
 def smarts_by_element():
    eles = [
-      "He", "Li", "Be", "B",  "Ne", "Na", "Mg", "Al", 
+      "He", "Li", "Be", "B",  "Ne", "Na", "Mg", "Al",
       "Ar", "K", "Ca",  "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
       "Zn", "Ga", "Ge", "As", "Se",      "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc",
       "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La",
@@ -63,8 +66,8 @@ def smarts_by_element():
       "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At",
       "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U"]
    return map(ele_to_smart, eles)
-   
-def set_atom_types(mol):
+
+def set_monomer_library_atom_types(mol):
     smarts_list = [
 
         # Full coverage for C, H, O.
@@ -85,7 +88,7 @@ def set_atom_types(mol):
         # OHB no examples
         # OHC no examples
         # OC2 no exmampes
-        
+
         # Fallback oxygen
         ('O',   'O',   0),
 
@@ -123,11 +126,11 @@ def set_atom_types(mol):
         ('CT',   '[CX4H0]', 0),     # single bonded to 4 things not hydrogen
         ('CH3',  '[C;H3;^3]',   0), # bonded to something via single bond and 3 Hs
         ('CH2',  '[C;^3;H2]',   0), # standard aliphatic C.
-        ('CH1',  '*[C;H1](*)*', 1), # bonded to H and 3 things 
+        ('CH1',  '*[C;H1](*)*', 1), # bonded to H and 3 things
 
-        # sp??? needs sorting 
+        # sp??? needs sorting
         ('CH2',  '[CH2]',   0), # bonded to 2 hydrogens
-        
+
         # Carbon fallback
         ('C', '[C,c]', 0),
 
@@ -135,13 +138,13 @@ def set_atom_types(mol):
         ('HCH1', '[H][CH1]',    0),
         ('HCH2', '[H][C;H2^3]', 0),
         ('HCH3', '[H][CH3]',    0),
-        ('HNC1', '[H][N;H1;^2]~C(~N)~N', 0), # H of N of N=C ? 
+        ('HNC1', '[H][N;H1;^2]~C(~N)~N', 0), # H of N of N=C ?
         ('HNC2', '[H][NX3;H2;^2]', 0), # H on a NC2 (NH1 and NH2 of ARG)
         ('HNC3', '[H][NX3;H3;^2]', 0), # guess - no examples
         ('HNT1', '[H][NX4;H1;^3]', 0),
         ('HNT1', '[H][NX3;H1;^3]', 0),
         ('HNT2', '[H][NX3;H2;^3]', 0), # H connected to type NT2
-        ('HNT3', '[N^3;H3][H]', 1), # NH3+ 
+        ('HNT3', '[N^3;H3][H]', 1), # NH3+
         ('HNH2', '[H][NH2;^2]', 0), # NH2 is sp2
         ('HNH1', '[H][NX3;H1;^2]',    0),
         ('HCR6', '[H][cr6;H1]', 0),
@@ -157,7 +160,7 @@ def set_atom_types(mol):
         ('HOH1', '[H][OH1]',    0),
         ('HOH2', '[H][OH2][H]', (0,2)), # H of HOH - water
         ('H',    '[H]',         0),
-        
+
         # Nitrogen, SP3
 
         ('NT1', '[NX4;H1;^3]',  0),
@@ -169,13 +172,13 @@ def set_atom_types(mol):
 
         # NE-CZ in ARG should be deloc (guandino) - also NC1-C
         # single (as is in ARG.cif) is not found in ener_lib!
-       
+
         # Nitrogen, SP2
         ('NR66', 'c12aaaan1aaaa2', 5), # (second) 66 atom is an N.
         ('NR56', 'c12aaaan1aaa2',  5), # (second) 56 atom is an N.
         ('NR55', 'c12aaan1aaa2',   4), # (second) 55 atom is an N.
         ('NC2',  '[NX3;H2^2]', 0),     # N of sp2 NH2 (as in ARG).
-        ('NH2',  '[NX3^2][CX3^2]=[N^2;X3+]', (0,2)), # amidinium (charged)... 
+        ('NH2',  '[NX3^2][CX3^2]=[N^2;X3+]', (0,2)), # amidinium (charged)...
         ('NR15', '[nr5;X3;H1]',    0),
         ('NR5',  '[nr5;X3;H0]',    0),
         ('NR5',  '[NR;X3;H0;^2]',  0), # [NR5;X3;H0;^2] fails on 14C (also at daylight)
@@ -184,9 +187,9 @@ def set_atom_types(mol):
         ('NR16', '[nr6;H1]',    0),
         ('NRD6', 'a:[nr6;X2;H0]:a',  1), # aromatic N with no H, i.e. one double one single
         ('NR6',  '[nr6]',    0),
-        ('NC1',  '[H][N;H1;^2]~C(~N)~N', 1), 
+        ('NC1',  '[H][N;H1;^2]~C(~N)~N', 1),
         ('NC1',  '[NX3;H1;^2]C(~N)~N', 0), # N, as in NE in ARG
-        ('NC1',  '[NX2;H1;^2]', 0),  # N of N=C ? 
+        ('NC1',  '[NX2;H1;^2]', 0),  # N of N=C ?
         ('NH1',  '[NX3;H1;^2]', 0),
         ('NH2',  '[NX3;H2;^2]', 0),  # sp2, e.g. ND2 of an ASP
         ('NT',   '*n1~[o]~[o]1', 1), # guess from 16X dioxaziridine (bleugh)
@@ -195,15 +198,15 @@ def set_atom_types(mol):
         # NC3 no examples
         # NPA no examples
         # NPB no examples
-        
+
 
         # Nitrogen SP1
         ('NS',   '[N^1]', 0),
         # NS1 no examples
-        
+
 
         # fall-back nitrogen
-        ('N',    '[N,n]',      0),  
+        ('N',    '[N,n]',      0),
 
         # Phosphorus
         ('P',    'P', 0),
@@ -239,9 +242,9 @@ def set_atom_types(mol):
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
-	    if False:
-		print("SMARTS ", smarts)
-		print("  ", atom_type, ": ", matches)
+            if False:
+                print("SMARTS ", smarts)
+                print("  ", atom_type, ": ", matches)
             for match in matches:
                 set_atom_type(match, match_atom_index, mol, atom_type)
         else:
@@ -260,6 +263,54 @@ def set_atom_types(mol):
           return False
     # we got to the end, good
     return True
+
+def set_amber_atom_types(mol):
+    smarts_list = [
+
+        ('C',   '[CX3]=[OX1]', 0), # sp2 C carbonyl group
+        ('CA',  'c', 0), # aromatic C
+        ('CB',  'c', 0), # aromatic C of fused 5,6 membered rings
+        ('CC',  '[cr5;H1]', 0), # C in HIS
+        ('CD',  'C=C-C=C', 1), # CD in C=CD-CD=C
+        ('CK',  'n[cr5]n', 1), # C in the 5 membered ring of purines
+        ('CM',  '[cr6;H1]n', 0), # C in pyrmidines, positions 5,6
+        ('CM',  '[cr6;H1]c', 0), # C in pyrmidines, positions 5,6
+        ('CN',  '[cr6]n[cr5]', 0), # aromatic C 5,6 membered rings. Is that enough?
+        ('CQ',  'n[cr5]n', 1), # C of 5 membered ring in purines N-C-N
+        ('CR',  'c[cr5]n', 1), # as above but in HIS
+        ('CT',  '[CX4]', 0), # sp3 C aliphatic
+        ('CV',  'c', 0), # arom 5 membered ring with 1 N and 1 H (HIS)
+        ('CW',  'c', 0), # arom 5 membered ring with 1 N-H and 1 H (HIS)
+        ('C*',  'c', 0), # arom 5 membered ring with 1 subst. (TRP)
+        ('C*',  'c', 0),  # arom 5 membered ring with 1 subst. (TRP)
+        ('CY',  'C#N', 0), # nitrile C
+        ('CZ',  'A=C=A', 1), # sp C
+        ('CZ',  'C#A', 1), # sp C
+
+        ('O',  'O=C',  0) # carbonyl oxygen
+        ('OH',  'COH', 1) # alcohol oxygen
+        ('OS',  'C(=O)OA', 2) # ethyl or ester oxygen
+        ('OW',  'HOY', 1) # water oxygen
+        ('O2',  'O=CO', 1) # carboxyl oxygen
+        ('O2',  'O=PO', 1) # phosphate
+
+        ('SI',   '[Si]',    0)  # Si any other
+        ]
+
+    full_list = smarts_list
+    for smarts_info in full_list:
+        atom_type, smarts, match_atom_index = smarts_info
+        pattern = Chem.MolFromSmarts(smarts)
+        if mol.HasSubstructMatch(pattern):
+            matches = mol.GetSubstructMatches(pattern)
+            if False:
+                print("Amber SMARTS ", smarts)
+                print("  ", atom_type, ": ", matches)
+            for match in matches:
+                set_atom_type(match, match_atom_index, mol, atom_type)
+        else:
+            # print "SMARTS ", smarts, " --- No hits  "
+            pass
 
 
 def set_parmfrosst_atom_types(mol):
@@ -302,8 +353,8 @@ def set_parmfrosst_atom_types(mol):
         ('HC', '[H][c,CH2]',     0),
 
         # Amber weirdness:
-        # H-O&x2-C&sp3-O&x2-H	> HX * * * HX	; {acetal hydroxyl must have vdW rad}
-        # H-O&x2-C&sp3-N&sp3	> HX * * *	; {acetal hydroxyl must have vdW rad}
+        # H-O&x2-C&sp3-O&x2-H        > HX * * * HX        ; {acetal hydroxyl must have vdW rad}
+        # H-O&x2-C&sp3-N&sp3        > HX * * *        ; {acetal hydroxyl must have vdW rad}
         ('HXa', '[H]-[OX2]-[C^3]-[OX2]-[H]',  (0,4)), # these are by the book
         ('HXb', '[H]-[OX2]-[C^3]-[N^3]',      0),
         ('HXc', '[H]-[OX2]-[C^3](N)(N)',      0), # this is to match H14 in PF-113 -
@@ -323,10 +374,10 @@ def set_parmfrosst_atom_types(mol):
         ('H', '[H]',    0),
 
         # ------------------------------- pathological specialities ------------------------------
-	#
-	# fused 5,6 unsat systems
-	# the v and ws go together (the same SMART) for normal 5,6 ring and "his-like" sets:
-	# normal 5,6 ring
+        #
+        # fused 5,6 unsat systems
+        # the v and ws go together (the same SMART) for normal 5,6 ring and "his-like" sets:
+        # normal 5,6 ring
         ('CBv', 'c12aaaac1ccn2',  (0,5)), # indole, hit the C[5,6] carbons
         ('CCv', 'c12aaaac1ccn2',  6),     # indole, hits a non-fused carbon
         ('CWv', 'c12aaaac1ccn2',  7),     # indole, hits a non-fused carbon
@@ -349,22 +400,22 @@ def set_parmfrosst_atom_types(mol):
         # ('CWw', 'c12aaaac1aca2',  7),     # hits a non-fused carbon
 
         # 5,6 ring with "HIS-like" 5-ring (does this hit anything? second ring is 5 (or 4???))
-	('CBx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', (0,5)),
-	('CRx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', 7),
+        ('CBx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', (0,5)),
+        ('CRx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', 7),
 
         # 5-ring of indole:  { 5-ring unsat }
         ('CR-indole', '[c;r5;H1]1n[c;R2][c;R2]c1',  0),
         # ('NB-indole', 'c1nccc1',  1),
 
         # PF_5
-	('CCj', '[cr5]1(N)[cr5][ar5][cr5][cr5]1', 0),
-	('CWj', '[cr5]1(N)[cr5][ar5][cr5][cr5]1', 2), # account for branch atom
+        ('CCj', '[cr5]1(N)[cr5][ar5][cr5][cr5]1', 0),
+        ('CWj', '[cr5]1(N)[cr5][ar5][cr5][cr5]1', 2), # account for branch atom
 
         # PF_3
-	('CWi', '[cr5]1[cr5][cr5][sr5][sr5]1', 0),
-	('CCi', '[cr5]1[cr5][cr5][sr5][sr5]1', 1),
+        ('CWi', '[cr5]1[cr5][cr5][sr5][sr5]1', 0),
+        ('CCi', '[cr5]1[cr5][cr5][sr5][sr5]1', 1),
 
-	# real histidine-like
+        # real histidine-like
         # note: [nH] is not the matched by [n], this HIS Nitrogen atoms are different
         # and will match differently with different routes round the ring.
         #
@@ -374,15 +425,15 @@ def set_parmfrosst_atom_types(mol):
         ('CWy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 0), # HIS
         ('CWy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+'[nH]1', 0), # HIS
         ('CRy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 3), # HIS # success - all hits!
-	#
-	# maybe we should allow CWy to match CC and CCy to match CW - 2 way rounds an imidazole
+        #
+        # maybe we should allow CWy to match CC and CCy to match CW - 2 way rounds an imidazole
 
         # * * * CR * ; { 5-ring unsat }
         ('CR-5ring-A', g+'1'+g+'N=C'+g+'1', 0), # what does this catch?
         ('CR-5ring-B', '[C;H0;X3]1=NC=CC1', 0), # H0 may not be needed.
         ('NB-5ring-B', '[C;H0;X3]1=NC=CC1', 1), # H0 may not be needed.
 
-        # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1	-> CR NB * * * (above the comment)
+        # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1        -> CR NB * * * (above the comment)
         #
         # the C=N double bond above is tested for here by X2 on the N (atom index 1)
         ('CR-5ring-a',  '[C,c;^2;R1]1~[n;R1;X2]~[r5;^2;R1;!n]~[ar5;R1]~[C,c;^2;R1]1', 0),
@@ -417,11 +468,11 @@ def set_parmfrosst_atom_types(mol):
         ('NB-5ring-i',  '[c;R1]1~[n;R1;H0]~[n;R2;X3]([c;r6])~[c;R2]~[n;R1;H0]1', 1), # N3 in PF14,  but not N2 in PF_4
         ('NB-5ring-j',  '[c;R1]1~[n;R1]~[n;R1]~[c;R1]~[c;R1]1', 2), # N1 in PF15?
 
-	# 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
+        # 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
         ('CW-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (0,3)),
         ('CC-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (1,2)),
 
-        # 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1	> CW CC CC CW
+        # 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1        > CW CC CC CW
         ('CWc',  '[cr5;R1]1[cr5][cr5][cr5][nr5]1', (0,3)),
         ('CCc',  '[cr5;R1]1[cr5][cr5][cr5][nr5]1', (1,2)),
         ('CWg',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (0,3)),
@@ -434,7 +485,7 @@ def set_parmfrosst_atom_types(mol):
         ('CW-5ring-d',  '[c;r5]1[c;r5][c;r5][n;r5][n;r5]1', 2), # symmetry of above
         ('CC-5ring-d',  '[c;r5]1[c;r5][c;r5][n;r5][n;r5]1', 1),
 
-	# 5-ring unsat, NB has no H, NA has H, i.e. HIS C=N-C vs C-N(H)-C
+        # 5-ring unsat, NB has no H, NA has H, i.e. HIS C=N-C vs C-N(H)-C
         ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', 3),
         ('NAz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', 0), # does this find anything?
         ('CRz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', (1,2)),
@@ -452,16 +503,16 @@ def set_parmfrosst_atom_types(mol):
 
         # non-aromatic (a ring carbon atom has 2 hydrogens)
 
-	# 5-ring unsat, NB has no H, NA has H, i.e. HIS C=N-C vs C-N(H)-C
+        # 5-ring unsat, NB has no H, NA has H, i.e. HIS C=N-C vs C-N(H)-C
         ('NBna',  '[N;r5;R1]1=[C;r5;R1][C;r5;R1][N;r5;R1;X2]=[A;r5;R1]1', (0,3)),
         ('CRna',  '[N;r5;R1]1=[C;r5;R1][C;r5;R1][N;r5;R1;X2]=[C;r5;R1]1', 4), # PF20, non-arom though
 
-	# ------------------------------ back to sanity ---------------------------
+        # ------------------------------ back to sanity ---------------------------
 
         # Carbon
 
-	# carbon order: CP {rings/fused-rings} C CR CB C* CA CM C2 CJ CT
-	#
+        # carbon order: CP {rings/fused-rings} C CR CB C* CA CM C2 CJ CT
+        #
 
         ('CPa', '[cr6]-[cr6]', 0), # biphenyl bridge
         ('CPb', '[cr5]-[cr5]', 0), # biphenyl bridge
@@ -485,7 +536,7 @@ def set_parmfrosst_atom_types(mol):
         ('Ce',  '[H][CR0]=[N]',  1), # also conyl
         ('Cf',  '[!C][CR0]=[N]', 1), # also conyl
 
-	# CB is fused aromatic bridge-head
+        # CB is fused aromatic bridge-head
         ('CBa', 'c12aaaac1aaa2', 0), # doesn't hit anything
         ('CBb', 'c12aaaac1aaaa2', (0,5)),
         ('CBc', 'c12aaaac1aan2',  (0,5)), # indole
@@ -503,7 +554,7 @@ def set_parmfrosst_atom_types(mol):
         ('CAg', '[C^2]1~[C^2]~[C^2]~[C^2]~[C^2]~[C^2]1',  (0,1,2,3,4,5)),
         ('CAh', '[C^2]1~[C^2]~[C^2]~[C^2]~[C^2]~N1',  (0,1,2,3,4)),
 
-	# SMARTS put an atom in a 5 ring before a 6 ring. but CA is 6-ring
+        # SMARTS put an atom in a 5 ring before a 6 ring. but CA is 6-ring
         ('C*', '[cr5;^2;X3]', 0),
         ('C*', '[C;X3;^2]1C(=O)[NH]~cc1', 0), # C8 in PF_12 is not aromatic (by rdkit) but is a PF C*. Grr!
                                               # So provide the specified ring.
@@ -521,9 +572,9 @@ def set_parmfrosst_atom_types(mol):
         ('CWd', '[cr5;X3;^2][c]=O', 0),
         ('CWa', 'n[cr5;R2][cr5;R2]c', 1), # C4 in PF4
 
-	# cyclopropyl and epoxide
-	('CJa',   '[CX4]1[CX4][CX4]1',  (0,1,2)),
-	('CJb',   '[CX4]1[CX4]A1', (0,1)), # remove unindex symmetry
+        # cyclopropyl and epoxide
+        ('CJa',   '[CX4]1[CX4][CX4]1',  (0,1,2)),
+        ('CJb',   '[CX4]1[CX4]A1', (0,1)), # remove unindex symmetry
 
         ('CT', '[CX4]', 0), # bonded to 4 things
         # Carbon fallback
@@ -591,28 +642,28 @@ def set_parmfrosst_atom_types(mol):
 
 
         # Nitrogen
-	#
-	# Order: NJ NL N3 NC N2 NB N N2 N NA N3 N2 N3 ND N2 N N* N3 Nu
         #
-        # N(-H)-C=O,S		> N * * *	; {explicitly reset amide N to type N}
+        # Order: NJ NL N3 NC N2 NB N N2 N NA N3 N2 N3 ND N2 N N* N3 Nu
+        #
+        # N(-H)-C=O,S                > N * * *        ; {explicitly reset amide N to type N}
 
-        # N=N-C&x4-@1 > NJ NJ *	; {aziridine}
+        # N=N-C&x4-@1 > NJ NJ *        ; {aziridine}
         ('NJ',    'N=N[CX4]',      (0,1)),
 
-        # N&x1#g > NL *		; {univalent triple-bonded N}
+        # N&x1#g > NL *                ; {univalent triple-bonded N}
         ('NL',   '[NX1]#A',   0), # triple bond N
 
-        # N&x4 > N3		; {+ve tetrahedral N}
+        # N&x4 > N3                ; {+ve tetrahedral N}
         ('N3b',   '[N^3;X3]',    0),
         ('N3c',   '[NX4;+]',     0),
 
-        # g=N&ar6-g		> * NC *	; {pyridine N}
+        # g=N&ar6-g                > * NC *        ; {pyridine N}
         ('NC',   '[nr6;X2;H0]',  0), # pyridine
 
         # N&x3(-H)-Acy2-C         > N2 * C        ; {protonated imine}
         ('N2b',   '[NX3;H](=C)C',   0),   # fixme - don-t forget the C here too.
 
-        # N&x3-C!ar=N&x3		> N2 C N2	; {amidine}
+        # N&x3-C!ar=N&x3                > N2 C N2        ; {amidine}
         ('N2ax',   'A[C;^2](=N)N',   (2,3)),
         ('Cax',    'A[C;^2](=N)N',   1),  # NOTE! C here
 
@@ -637,20 +688,20 @@ def set_parmfrosst_atom_types(mol):
         # ('N2d', '[a][n;H]a', 1), # was ('N2d', '[a][N;H]a', 1), # not this - catches N3 in PF_15 (should be N)
         # ('N2e', '[a][n](-[a,A])a', 1), # not this - catches N3 in PF_15 (should be N)
 
-        # g&ar-Acy1-N(-!H)-!H	> * N3 * *      ; {disubst aniline-type N apr2005 CIBayly}
+        # g&ar-Acy1-N(-!H)-!H        > * N3 * *      ; {disubst aniline-type N apr2005 CIBayly}
         ('N3d', 'a[N;H0]([!H])[!H]', 1),
 
-        # g&sp2-N!ar-H	> * N  * ; {sp2 amino N}
+        # g&sp2-N!ar-H        > * N  * ; {sp2 amino N}
         ('N', '[A;^2][N][H]', 1),
         ('N', '[c][nH][c](=O)', 1), # N3 in PF_15
 
         # g&ar-N!ar > * N2 ; {sp2 amino N}
         ('N2g', g_and_ar + '-[N]', 1),
 
-        # N&ar > Nstar		; {sp2 N}
+        # N&ar > Nstar                ; {sp2 N}
         ('N*', 'n', 0),
 
-        # N&sp3	> N3		; {regular sp3 N, not charged}
+        # N&sp3        > N3                ; {regular sp3 N, not charged}
         ('N3', '[N;0;^3]', 0),
 
         # fall-back nitrogen
@@ -698,13 +749,13 @@ def set_parmfrosst_atom_types(mol):
 
     for smarts_info in smarts_list:
         atom_type, smarts, match_atom_index = smarts_info
-	# print("SMARTS: {}".format(smarts))
+        # print("SMARTS: {}".format(smarts))
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
-	    if False:
-		print("SMARTS ", smarts)
-		print("  ", atom_type, ": ", matches)
+            if False:
+                print("SMARTS ", smarts)
+                print("  ", atom_type, ": ", matches)
             for match in matches:
                 # print('set_atom_type', match, match_atom_index, mol, pattern, atom_type)
                 set_atom_type(match, match_atom_index, mol, atom_type, types_type='Parm@Frosst')

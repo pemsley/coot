@@ -1175,3 +1175,38 @@ coot::on_column_label_combobox_changed(GtkComboBox *combobox, gpointer user_data
    }
 
 }
+
+
+void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button) {
+
+   /* messing about with string variables */
+   gchar widget_name[25];
+
+   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
+
+   for (int i=0; i< graphics_n_molecules(); i++) {
+
+      if (has_unit_cell_state(i)) {
+
+         std::string widget_name = "phs_cell_radiobutton_";
+         widget_name += std::to_string(i);
+         GtkWidget *t_button = lookup_widget(GTK_WIDGET(button), widget_name.c_str());
+         if (t_button) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_button))) {
+               printf("proceeding with phs reading using cell from molecule %d.\n", i);
+               read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(i);
+               break;
+            }
+	 }
+      }
+   }
+
+   GtkWidget *t_button = lookup_widget(button, "phs_cell_none_radiobutton");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_button))) {
+      std::cout << "special value for none for phs_cell radiobuton active" << std::endl;
+      GtkWidget *info_window = create_phs_info_box();
+      gtk_widget_show(info_window);
+   }
+   gtk_widget_destroy(window);
+
+}

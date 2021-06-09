@@ -401,8 +401,8 @@ graphics_info_t::map_secondary_structure_headers(ssm::Align *SSMAlign,
 		  if (t_index < SSMAlign->nsel2 && t_index >= 0) {
 		     int s_index = SSMAlign->Ca2[t_index];
 		     if (s_index == i1) {
-			coot::residue_spec_t matched_atom_res_ref(atom_selection1[i1]); // SSM match, that is
-			coot::residue_spec_t matched_atom_res_mov(atom_selection2[t_index]);
+			coot::residue_spec_t matched_atom_res_ref(atom_selection1[i1]->GetResidue()); // SSM match, that is
+			coot::residue_spec_t matched_atom_res_mov(atom_selection2[t_index]->GetResidue());
 			// if we find it in mov, save the ref!  Weird...
 			if (ref_start_res == matched_atom_res_mov) {
 			   std::cout << "found start " << ref_start_res << " -> " << matched_atom_res_ref 

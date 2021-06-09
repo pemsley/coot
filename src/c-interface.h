@@ -70,6 +70,8 @@ p  So we need to have this function external for c++ linking.
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
+#include <gtk/gtk.h>
+
 #ifndef BEGIN_C_DECLS
 
 #ifdef __cplusplus
@@ -77,7 +79,7 @@ p  So we need to have this function external for c++ linking.
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS
 #endif
 #endif /* BEGIN_C_DECLS */
@@ -1576,10 +1578,11 @@ int  esoteric_depth_cue_state();
    red is positive and green is negative. */
 void set_swap_difference_map_colours(int i);
 int swap_difference_map_colours_state();
+
 /*! \brief post-hoc set the map of molecule number imol to be a
   difference map
   @return success status, 0 -> failure (imol does not have a map) */
-int set_map_is_difference_map(int imol);
+int set_map_is_difference_map(int imol, short int bool_flag);
 
 /*! \brief map is difference map? */
 int map_is_difference_map(int imol);
@@ -2600,33 +2603,6 @@ void set_skeleton_box_size(float f);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                        Skeleton                                          */
-/*  ----------------------------------------------------------------------- */
-/* section Skeleton Colour */
-/*! \name  Skeleton Colour */
-/* \{ */
-/* MOVE-ME to c-interface-gtk-widgets.h */
-void handle_skeleton_colour_change(int mol, gdouble* map_col);
-/*! \brief set the skeleton colour */
-void set_skeleton_colour(int imol, float r, float g, float b);
-
-/* MOVE-ME to c-interface-gtk-widgets.h */
-gdouble* get_skeleton_colour();
-
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
-/*                         read a ccp4 map                                  */
-/*  ----------------------------------------------------------------------- */
-/* section Read Maps */
-/*! \name  Read Maps */
-/* \{ */
-
-/*! \brief read a CCP4 map or a CNS map (despite the name). */
-int handle_read_ccp4_map(const char* filename, int is_diff_map_flag);
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
 /*                        save coordinates                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Save Coordinates */
@@ -2712,8 +2688,6 @@ given "x,y,z ; -x,y+1/2,-z" */
 
 void
 graphics_store_phs_filename(const gchar *phs_filename);
-
-const char* graphics_get_phs_filename();
 
 short int possible_cell_symm_for_phs_file();
 
@@ -3285,7 +3259,8 @@ void add_omega_torsion_restriants();
 void remove_omega_torsion_restriants();
 
 /*! \brief add or remove auto H-bond restraints */
-void set_auto_h_bond_restraints(int state);
+void set_refine_hydrogen_bonds(int state);
+
 
 /*! \brief set immediate replacement mode for refinement and
   regularization.  You need this (call with istate=1) if you are
@@ -3306,7 +3281,7 @@ void set_residue_selection_flash_frames_number(int i);
 
     If you are scripting refinement and/or regularization, this is the
     function that you need to call after refine-zone or regularize-zone.  */
-void accept_moving_atoms();
+void c_accept_moving_atoms();
 
 /*! \brief a hideous alias for the above  */
 void accept_regularizement();
@@ -3498,13 +3473,21 @@ void set_refine_ramachandran_restraints_weight(float w);
 @return weight as a float */
 float refine_ramachandran_restraints_weight();
 
-/* \brief set the state for using rotamer restraints "drive" mode */
+/* not ready yet \brief set the weight for torsion restraints (default 1.0)*/
+void set_torsion_restraints_weight(double w);
+
+/*! \brief set the state for using rotamer restraints "drive" mode
+
+1 in on, 0 is off (off by default) */
 void set_refine_rotamers(int state);
 
-void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
-void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
-void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
+void set_refinement_geman_mcclure_alpha_from_text(int combobox_item_idx, const char *t);
+void set_refinement_lennard_jones_epsilon_from_text(int combobox_item_idx, const char *t);
+void set_refinement_ramachandran_restraints_weight_from_text(int combobox_item_idx, const char *t);
+void set_refinement_overall_weight_from_text(const char *t);
+void set_refinement_torsion_weight_from_text(int combobox_item_index, const char *t);
 void set_refine_params_dialog_more_control_frame_is_active(int state);
+
 
 int refine_ramachandran_angles_state();
 
@@ -3852,6 +3835,9 @@ void set_environment_distances_label_atom(int state);
 /*! \brief Label the atoms in the residues around the central residue */
 void label_neighbours();
 
+/*! \brief Label the atoms in the central residue */
+void label_atoms_in_residue();
+
 
 
 /*! \brief Add a geometry distance between points in a given molecule
@@ -4150,6 +4136,7 @@ void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
 void setup_multi_residue_torsion();  /* show the pick dialog */
 
 
+float atom_overlap_score(int imol);
 
 /* \} */
 
@@ -4215,7 +4202,23 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 /* \{ */
 /*! \brief display the sequence view dialog for molecule number imol */
 void do_sequence_view(int imol);
+
+/*!  \brief display the sequence view for molecule number imol */
+void nsv(int imol);
+/*!  \brief control where the sequence view is displayed
+
+in the main application or a new dialog */
+void set_sequence_view_is_docked(short int state);
+
+/*!  \brief set the pixel limit for sequence view windows */
+void set_nsv_canvas_pixel_limit(int cpl);
+
+/*!  \brief show old style sequence view */
+void sequence_view_old_style(int imol);
+
+/* this is a widget function, it shouldn't be here */
 void add_on_sequence_view_choices();
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -6722,8 +6725,6 @@ void set_add_ccp4i_projects_to_file_dialogs(short int state);
 
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
-/*! \brief get element colour for imol as Python formatted list char*/
-char *get_atom_colour_from_mol_no(int imol, const char *element);
 
 /* \} */
 
@@ -7139,18 +7140,8 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
-
-/*!  \brief display the sequence view for molecule number imol */
-void nsv(int imol);
-/*!  \brief control where the sequence view is displayed
-
-in the main application or a new dialog */
-void set_sequence_view_is_docked(short int state);
-
-/*!  \brief set the pixel limit for sequence view windows */
-void set_nsv_canvas_pixel_limit(int cpl);
-
-void sequence_view_old_style(int imol);
+/*! \name Experimental */
+/* \{ */
 
 void add_ligand_builder_menu_item_maybe();
 

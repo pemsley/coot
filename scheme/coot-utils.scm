@@ -615,9 +615,9 @@
   (cond 
    ((eq? type 'flat) (vt-surface 1))
    ((eq? type 'spherical-surface) (vt-surface 0))
-   (else 
+   (else
 					; usually not output anywhere
-    (format #t "virtual trackball type ~s not understood~%"))))
+    (format #t "virtual trackball type ~s not understood~%" type))))
     
 ;; Is @var{ls} a list of strings?  Return #t or #f
 ;; 
@@ -1467,7 +1467,7 @@
    ((eq? axis 'y) (list 0 length 0))
    ((eq? axis 'z) (list 0 0 length))
    (else 
-    (format #t "symbol axis: ~s incomprehensible~%")
+    (format #t "symbol axis: ~s incomprehensible~%" axis)
     #f)))
 
 ;; Rotate degrees about screen axis, where axis is either 'x, 'y or 'z.
@@ -1519,7 +1519,7 @@
    ((eq? axis 'y) (mult view-matrix (simple-rotation-y (deg-to-rad degrees))))
    ((eq? axis 'z) (mult view-matrix (simple-rotation-z (deg-to-rad degrees))))
    (else
-    (format #t "symbol axis: ~s incomprehensible~%")
+    (format #t "symbol axis: ~s incomprehensible~%" axis)
     #f)))
 
 ;; Support for old toggle functions.  (consider instead the raw
@@ -1609,9 +1609,9 @@
 
     (define tf
       (lambda (imol mat trans about-pt radius space-group cell)
-	
-;	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
-;		imol mat trans about-pt radius space-group cell)
+
+	(format #t "DEBUG:: tf was passed imol: ~s, mat: ~s trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
+		imol mat trans about-pt radius space-group cell)
 
 	(transform-map-raw imol 
 			   (list-ref mat 0) 
@@ -1637,7 +1637,8 @@
 			   (list-ref cell 3) 
 			   (list-ref cell 4) 
 			   (list-ref cell 5))))
-    
+
+    (format #t  "debug:: transform-map was passed ~s~%" args)
 
     ;; main line
     (cond 
@@ -1662,9 +1663,12 @@
       (let ((imol (car args)))
 	(tf imol
 	    (identity-matrix)
-	    (list-ref args 1)
-	    (list-ref args 2)
-	    (list-ref args 3)
+            (list
+             (list-ref args 1)
+             (list-ref args 2)
+             (list-ref args 3))
+            (rotation-centre)
+            (list-ref (cell imol) 0)
 	    (space-group imol)
 	    (cell imol))))
      ((= (length args) 3) ; no matrix or about point specified
@@ -1717,10 +1721,17 @@
   (let ((space-group (symmetry-operators->xHM 
 		      (symmetry-operators imol-ref)))
 	(cell-params (cell imol-ref)))
+
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-ref ~s~%" imol-ref)
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-mov ~s~%" imol-mov)
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-map ~s~%" imol-map)
+    (format #t "debug:: transform-map-using-lsq-matrix: symmetry-operators imol-ref ~s~%" (symmetry-operators imol-ref))
+    (format #t "debug:: transform-map-using-lsq-matrix: space-group ~s~%" space-group)
+    (format #t "debug:: transform-map-using-lsq-matrix: cell-params ~s~%" cell-params)
     
     (if (not (and space-group cell-params))
-	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
-			       cell space-group imol-ref)))
+	(let ((message (format #f "Bad cell or symmetry ~s ~s for molecule ~s~%"
+			       cell-params space-group imol-ref)))
 	  message) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
@@ -1951,15 +1962,19 @@
   ;; chi squareds will be about 1.0).
   ;; 
   (define (weight-scale-from-refinement-results rr)
+
     (if (not (list? rr))
 	#f
-	(let* ((nnb-list (no-non-bonded (list-ref rr 2)))
-	       (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
-	       (n (length chi-squares))
-	       (sum (apply + chi-squares)))
-	  (if (= n 0)
-	      #f
-	      (/ sum n)))))
+        (let ((results-inner (list-ref rr 2)))
+          (if (null? results-inner)
+              #f
+              (let* ((nnb-list (no-non-bonded results-inner))
+                     (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
+                     (n (length chi-squares))
+                     (sum (apply + chi-squares)))
+                (if (= n 0)
+                    #f
+                    (/ sum n)))))))
 
   
   ;; main body
@@ -2615,7 +2630,7 @@
 		(overlap-ligands imol-ligand imol chain-id-in resno))
 
             (if (is-nucleotide? imol chain-id-in resno)
-                (if (residue-exists? imol chain-id-in (- resno 1))
+                (if (residue-exists? imol chain-id-in (- resno 1) "")
                     (delete-atom imol-ligand "A" 1 "" " OP3" "")))
 
             (if (and (is-nucleotide? imol-ligand "A" 1)
@@ -3500,7 +3515,7 @@
 				   set-file-name-func)
 	 (set! continue-status #f))
        coot-updates-error-handler)
-    
+
       (while continue-status
 	     (if (string? file-name-for-progress-bar)
 		 (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
@@ -4249,11 +4264,18 @@
 
 (define (template-keybindings-to-preferences)
 
-  (let* ((pkg-data-dir 
-          (if (file-exists? (pkgdatadir))
-              (pkgdatadir)
-              (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
-  (let* ((bindings-file-name "template-key-bindings.scm")
+  ;; (let* ((pkg-data-dir
+  ;;         (if (file-exists? (pkgdatadir))
+  ;;             (pkgdatadir)
+  ;;             (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
+
+  (let ((pkg-data-dir
+         (let ((coot-prefix-dir (getenv "COOT_PREFIX"))) ;; try this first
+           (if (string? coot-prefix-dir)
+               (append-dir-dir (append-dir-dir coot-prefix-dir "share") "coot")
+               (pkgdatadir))))) ;; self-install directory
+
+    (let* ((bindings-file-name "template-key-bindings.scm")
 	 (scm-dir (append-dir-dir pkg-data-dir "scheme"))
 	 (ref-scm (append-dir-file scm-dir bindings-file-name)))
     (if (not (string? ref-scm))
@@ -4411,7 +4433,7 @@
         (clustalw2-output-file-name "clustalw2-output-file.log"))
 
     (if (file-exists? aligned-sequence-pir-file)
-        (delete-file aligned-sequence-pir-file)
+        (delete-file aligned-sequence-pir-file))
     (if (file-exists? "aligned-sequence.dnd")
         (delete-file "aligned-sequence.dnd"))
     (if (file-exists? "current-sequence.dnd")
@@ -4444,4 +4466,4 @@
     (apply-pir-alignment imol chain-id)
     (simple-fill-partial-residues imol)
     (resolve-clashing-sidechains-by-deletion imol)
-    )))
+    ))
