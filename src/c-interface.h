@@ -5411,11 +5411,12 @@ PyObject *rotamer_graphs_py(int imol);
 /*! \name 180 Flip Side chain */
 /* \{ */
 
-/*! \brief rotate 180 degrees round the last chi angle */
+/*! \brief rotate 180 degrees around the last chi angle */
 void do_180_degree_side_chain_flip(int imol, const char* chain_id, int resno,
 				   const char *inscode, const char *altconf);
 
 void setup_180_degree_flip(short int state);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

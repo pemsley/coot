@@ -205,6 +205,8 @@ bool enhanced_ligand_coot_p();
 //! \brief JED-Flip the bond of the active atoms
 int jed_flip_intermediate_atoms();
 
+//! \brief side-chain 180 flip on the active atom
+int side_chain_flip_180_intermediate_atoms();
 
 // No here - this file  is for swigging
 // #include "ideal/simple-restraint.hh"

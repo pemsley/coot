@@ -9689,3 +9689,18 @@ Thu  3 Jun 17:25:58 BST 2021
 Sun  6 Jun 2021 04:54:53 BST
 
    1abr has a nice 3-10 helix
+
+
+-----
+Thu 10 Jun 16:14:17 BST 2021
+
+https://stackoverflow.com/questions/14346090/importerror-no-module-named-backend-gdk
+
+In addition to Haldean Brown's answer, note that if you really need to use pip you can force it to recompile matplotlib locally and get "the deep magic that setup.py does" with the --no-binary option:
+
+pip uninstall matplotlib
+pip install matplotlib --no-binary=matplotlib
+
+As you want to use the GTKAgg backend, Using pip may prove useful in the future to freeze matplotlib at a version where it is supported (the deprecation warning states it will be dropped in 3.0):
+
+pip install matplotlib==2.2.2 --no-binary=matplotlib

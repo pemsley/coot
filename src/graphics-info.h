@@ -1321,6 +1321,8 @@ public:
    static coot::Cartesian RotationCentre() { return coot::Cartesian(rotation_centre_x,
                                                                     rotation_centre_y,
                                                                     rotation_centre_z);}
+   // modern API
+   static coot::Cartesian get_rotation_centre() { return RotationCentre(); }
 
    // we need static, so that we don't need to instance a
    // graphics_info_t for every frame draw.
@@ -3965,8 +3967,15 @@ string   static std::string sessionid;
 			   const std::string &version);
    std::string get_version_for_extension(const std::string &extension_name) const;
 
+   // Use this in future. Can return NULL.
+   static mmdb::Atom *get_moving_atoms_active_atom(const coot::Cartesian &rc, float within_radius_limit);
+
    static int jed_flip_intermediate_atoms();
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
+   static int side_chain_flip_180_intermediate_atoms();
+   // this one is used by clicking on the fip-180 modelling tooglebutton and then picking on an active atom
+   void side_chain_flip_180_moving_atoms_residue(const coot::residue_spec_t &spec,
+                                                 const std::string &alt_conf);
 
    static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
    void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);

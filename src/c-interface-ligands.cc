@@ -1231,6 +1231,11 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
 }
 
 
+//! \brief side-chain 180 flip on the active atom
+int side_chain_flip_180_intermediate_atoms() {
+   graphics_info_t g;
+   return g.side_chain_flip_180_intermediate_atoms();
+}
 
 
 /*  ----------------------------------------------------------------------- */
