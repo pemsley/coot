@@ -2959,6 +2959,8 @@ public:
 								      const atom_selection_container_t &asc,
 								      short int is_regular_residue_flag) const;
 
+   static bool all_atom_contact_dots_ignore_water_flag; // false by default
+
    // Do 180 degree sidechain flip stuff
    //
    static short int in_180_degree_flip_define;
@@ -3970,7 +3972,7 @@ string   static std::string sessionid;
    // Use this in future. Can return NULL.
    static mmdb::Atom *get_moving_atoms_active_atom(const coot::Cartesian &rc, float within_radius_limit);
 
-   static int jed_flip_intermediate_atoms();
+   static int jed_flip_intermediate_atoms(bool invert_atom_selection);
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
    static int side_chain_flip_180_intermediate_atoms();
    // this one is used by clicking on the fip-180 modelling tooglebutton and then picking on an active atom

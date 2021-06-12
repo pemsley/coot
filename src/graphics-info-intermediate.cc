@@ -557,7 +557,7 @@ graphics_info_t::side_chain_flip_180_moving_atoms_residue(const coot::residue_sp
 
 // static
 int
-graphics_info_t::jed_flip_intermediate_atoms() {
+graphics_info_t::jed_flip_intermediate_atoms(bool invert_selection) {
 
    int status = 0;
 
@@ -586,7 +586,6 @@ graphics_info_t::jed_flip_intermediate_atoms() {
 	 if (active_atom) {
 	    mmdb::Residue *residue_p = active_atom->residue;
 	    int imol = imol_moving_atoms;
-	    bool invert_selection = false;
 	    coot::util::jed_flip(imol, residue_p, active_atom, invert_selection, Geom_p());
 
 	    // add_drag_refine_idle_function();

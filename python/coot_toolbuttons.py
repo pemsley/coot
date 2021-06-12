@@ -637,6 +637,7 @@ def list_of_toolbar_functions():
          ['Cis<->Trans', "do_cis_trans_conversion_setup(1)", "Convert peptide: cis->trans or trans->cis", "flip-peptide.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["Validation",
+         ["Update Atom Overlaps", atom_overlaps_for_this_model, "Update the Atom Overlap representation", "auto-fit-rotamer.svg"],
          ["Interactive dots", toggle_interactive_probe_dots,
           "Show dots after refinement and for chi/rotamer changes",
           "probe-clash.svg", True, True],

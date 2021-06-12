@@ -168,9 +168,8 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
       for (int ichain=0; ichain<n_chains; ichain++) {
          chain_p = model_p->GetChain(ichain);
          int nres = chain_p->GetNumberOfResidues();
-         mmdb::Residue *residue_p;
          for (int ires=0; ires<nres; ires++) {
-            residue_p = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
             if (residue_p) {
                neighbours.push_back(residue_p);
                std::string residue_name(residue_p->GetResName());
@@ -312,7 +311,6 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                   }
                }
             } else {
-               std::string atom_name(n_at->name);
                std::string energy_type = dict.type_energy(atom_name);
                energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
                hb_t hb_type = ela.hb_type;
@@ -338,7 +336,6 @@ coot::atom_overlaps_container_t::fill_ligand_atom_neighbour_map() {
    if (mol) {
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
-      float min_dist = 0.01;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
@@ -568,6 +565,7 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
       std::cout << "No dictionary" << std::endl;
       return;
    }
+
    if (mol) {
       mmdb::realtype max_dist = 1.75 + 1.75 + 2 * probe_radius; // max distance for an interaction
       mmdb::realtype min_dist = 0.01;
@@ -637,6 +635,15 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
                         clipper::Coord_orth co_at_2 = co(at_2);
                         double ds = (co_at_1 - co_at_2).lengthsq();
                         double d = std::sqrt(ds);
+                        if (false) { // debug
+                           std::string resname_1(at_1->GetResName());
+                           std::string resname_2(at_2->GetResName());
+                           if (resname_1 == "HOH") {
+                              if (resname_2 == "HOH") {
+                                 std::cout << "HOH-HOH " << d << " " << r_1 << " " << r_2 << " " << r_1 + r_2 << std::endl;
+                              }
+                           }
+                        }
                         if (d < (r_1 + r_2)) {
                            if (! kludge_filter(at_1, at_2)) {
                               double ovl = get_overlap_volume(d, r_2, r_1);
@@ -742,6 +749,25 @@ coot::atom_overlaps_container_t::is_h_bond_H_and_acceptor(mmdb::Atom *ligand_ato
    }
    return std::pair<bool, bool> (status, H_on_ligand);
 }
+
+std::string
+coot::atom_overlaps_container_t::h_bond_info_t::format() const {
+
+   std::string s;
+   s += "is_H-bond_and_acceptor: ";
+   s += is_h_bond_H_and_acceptor ? "true" : "false";
+   s += " is_h_bond_donor_and_acceptor: ";
+   s += is_h_bond_donor_and_acceptor ? "true" : "false";
+   s += " H_is_first_atom_flag ";
+   s += H_is_first_atom_flag ?  "true" : "false";
+   s += " H_is_second_atom_flag ";
+   s += H_is_second_atom_flag ?  "true" : "false";
+   s += " donor_is_second_atom_flag: ";
+   s += donor_is_second_atom_flag ?  "true" : "false";
+
+   return s;
+}
+
 
 coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand_atom,
                                                               mmdb::Atom *env_atom,
@@ -1356,8 +1382,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
                                                                               mmdb::realtype max_dist,
                                                                               bool make_vdw_surface) {
 
+   bool exclude_mc_flag = true; // pass this?
+
    coot::atom_overlaps_dots_container_t ao;
-   bool exclude_mc_flag = true;
 
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
@@ -1587,6 +1614,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
                                                                              mmdb::realtype max_dist,
                                                                              bool make_vdw_surface) {
 
+   std::cout << "------------------------ all_atom_contact_dots_internal_multi_thread() " << std::endl;
+
    coot::atom_overlaps_dots_container_t ao;
 
    bool exclude_mc_flag = true;
@@ -1630,12 +1659,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
          // initialize contact_map and bonded_map - not sure if this speeds things up - but it
          // doesn't seem to slow things down.
          //
-         for (int iat=0; iat<n_selected_atoms; iat++) {
+         for (int iat=0; iat<n_selected_atoms; iat++)
             contact_map[iat].reserve(12);
-         }
-         for (int iat=0; iat<n_selected_atoms; iat++) {
+         for (int iat=0; iat<n_selected_atoms; iat++)
             bonded_map[iat].reserve(4);
-         }
 
          for (int i=0; i<n_contacts; i++) {
             if (pscontact[i].id1 < pscontact[i].id2) {
@@ -1665,14 +1692,14 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
             std::cout << "done contact_map and bonded_map " << std::endl;
             std::cout << "     contact map: " << contact_map.size() << std::endl;
             std::map<int, std::vector<int> >::const_iterator it;
-            for (it=contact_map.begin(); it!=contact_map.end(); it++) {
+            for (it=contact_map.begin(); it!=contact_map.end(); ++it) {
                for (unsigned int jj=0; jj<it->second.size(); jj++) {
                   std::cout << "   " << atom_spec_t(atom_selection[it->first]) << " contact to "
                             << atom_spec_t(atom_selection[it->second[jj]]) << std::endl;
                }
             }
             std::cout << "     bonded map: " << bonded_map.size() << std::endl;
-            for (it=bonded_map.begin(); it!=bonded_map.end(); it++) {
+            for (it=bonded_map.begin(); it!=bonded_map.end(); ++it) {
                for (unsigned int jj=0; jj<it->second.size(); jj++) {
                   std::cout << "   " << atom_spec_t(atom_selection[it->first]) << " bonded to "
                             << atom_spec_t(atom_selection[it->second[jj]]) << std::endl;
@@ -1715,7 +1742,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
                std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
                for (it =results_container_vec[i_thread].dots.begin();
                     it!=results_container_vec[i_thread].dots.end();
-                    it++) {
+                    ++it) {
                   std::cout << "thread  " << i_thread << " results size "
                             << it->first << " " << it->second.size() << std::endl;
                }
@@ -1757,7 +1784,7 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
    for (int iat=iat_start; iat<iat_end; iat++) {
 
       ao->add(contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius,
-                                       udd_h_bond_type_handle, molecule_has_hydrogens,
+                                udd_h_bond_type_handle, molecule_has_hydrogens,
                                 probe_radius, dot_density_in, clash_spike_length, make_vdw_surface));
    }
 }
@@ -1797,7 +1824,6 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
    mmdb::Atom *at = atom_selection[iat];
 
    clipper::Coord_orth pt_at_1 = co(at);
-   double dot_density = dot_density_in;
 
    int n_sphere_points       = static_cast<int>(dot_density_in * 900);
    int n_sphere_points_for_H = static_cast<int>(dot_density_in * 440);
@@ -1869,8 +1895,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
          }
 
          if (atom_with_biggest_overlap) {
-            double d_surface_pt_to_atom_sqrd =
-               (co(atom_with_biggest_overlap) - pt_at_surface).lengthsq();
+            double d_surface_pt_to_atom_sqrd = (co(atom_with_biggest_overlap) - pt_at_surface).lengthsq();
             double d_surface_pt_to_atom = sqrt(d_surface_pt_to_atom_sqrd);
             double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
             // first is yes/no, second is H-is-on-ligand?
@@ -1878,7 +1903,6 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
             // std::pair<bool, bool> might_be_h_bond_flag =
             // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
             h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-            const bool &is_h_bond_HA = hbi.is_h_bond_H_and_acceptor;
 
             // std::pair<std::string, std::string> c_type_col =
             // overlap_delta_to_contact_type(overlap_delta, is_h_bond);
@@ -1897,12 +1921,14 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
             // const std::string &c_type = c_type_col.first;
             // const std::string &col    = c_type_col.second;
 
-            std::pair<std::string, std::string> c_type_col =
-               overlap_delta_to_contact_type(overlap_delta, hbi, molecule_has_hydrogens);
+            std::pair<std::string, std::string> c_type_col = overlap_delta_to_contact_type(overlap_delta, hbi, molecule_has_hydrogens);
             const std::string &c_type = c_type_col.first;
             const std::string &col    = c_type_col.second;
 
-            clipper::Coord_orth pt_spike_inner = pt_at_surface;
+            if (false)
+               std::cout << "at: " << atom_spec_t(at) << " " << atom_spec_t(atom_with_biggest_overlap)
+                         << " delta " << std::setw(10) << overlap_delta << " hbi: " << hbi.format() << " "
+                         << c_type << " " << col << std::endl;
 
             if (c_type != "clash") {
 
@@ -2161,7 +2187,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
       if (! molecule_has_hydrogens_flag) {
          if (hbi.is_h_bond_donor_and_acceptor) {
             done = true;
-            delta -= 0.6; // where does this number come from?
+            delta -= 0.4; // where does this number come from?
             if (delta > 0.4) {
                type = "clash";
                colour = "hotpink";
@@ -2336,7 +2362,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
    mmdb::Residue *res_2 = at_2->GetResidue();
 
    if (res_1 != res_2) {
-      if (are_bonded_residues(res_1, res_2)) { // just checks seqNums
+      if (are_bonded_residues(res_1, res_2)) { // just checks seqNums, should check residue index
          if (is_main_chain_p(at_1)) {
             if (is_main_chain_p(at_2)) {
                ait = BONDED; // :-) everything mainchain is bonded to each other (for dot masking)
@@ -2379,6 +2405,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       } else {
          std::string res_name_1 = res_1->GetResName();
          std::string res_name_2 = res_2->GetResName();
+
          if (res_name_1 == res_name_2) {
             if (res_name_1 == "HOH") {
                if (ignore_water_contacts_flag) {
@@ -2390,6 +2417,12 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
          } else {
             ait = CLASHABLE;
          }
+
+         if (false) { // debug
+            std::cout << "------------------ in bonded_angle_or_ring_related() with res names " << res_name_1 << " " << res_name_2
+                      << " and ignore_water_contacts_flag " << ignore_water_contacts_flag << " ait: " << ait << std::endl;
+         }
+         
       }
    } else {
 

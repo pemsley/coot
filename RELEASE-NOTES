@@ -28,7 +28,7 @@
   o CHANGE:  Trans-peptide restraints added/removed as needed for cis-trans conversion
              of intermediate atoms
 
-  o CHANGE:  Increase the initial step size for refinement
+  o CHANGE:  Increase the initial step size for refinement for large fragments
 
   o CHANGE:  API accept_moving_atoms() can now return the refinement results
 
@@ -40,6 +40,8 @@
              missing atom names are written to the terminal (Lothar Essar)
 
   o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
+
+  o CHANGE:  Atom Overlaps optional toolbutton added
 
   o BUG-FIX: Linking (shell) to the Coot executable now works (Marcin Wodjyr)
 
