@@ -134,8 +134,6 @@ glarea_tick_func(GtkWidget *widget,
 void
 on_glarea_realize(GtkGLArea *glarea) {
 
-   std::cout << "debug:: ---------------------- on_glarea_realize() here with glarea " << glarea << std::endl;
-
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;

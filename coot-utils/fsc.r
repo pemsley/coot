@@ -11,7 +11,7 @@ reciprocal_resolution_scale_plot <- function(a, max_reso, reso_step) {
    axis(1, at=rr, labels=ln)
    # resolution_lines(seq(3, 1.5, -0.1))
    abline(h=0, col='lightgrey')
-   abline(h=1, col='grey')
+   abline(h=1, col='grey720')
    # points(a$r, a$fsc, cex=0.3, col='black', pch=19, type='l', lwd=2)
 }
 

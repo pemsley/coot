@@ -301,7 +301,7 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-coot_bin_SOURCES = main.cc glade-callbacks.cc
+coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc
 
 coot_bin_LDADD = $(top_builddir)/utils/libcoot-utils.la \
                  libcootsumo.la $(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)

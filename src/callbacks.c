@@ -9896,7 +9896,6 @@ on_model_toolbar_rotamers_togglebutton_toggled
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_edit_chi_angles_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9910,7 +9909,6 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled
     set_show_chi_angle_bond(0);
   }
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
 void

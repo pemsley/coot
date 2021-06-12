@@ -1794,7 +1794,7 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
    // the use_gtk_builder flag really means "was invoked from the path that..."
 
 
-   std::cout << "------------------------------------------------ create_and_pack_gtkglarea() start " << std::endl;
+   std::cout << "debug:: ------------------------------- create_and_pack_gtkglarea() start " << std::endl;
    GtkWidget *w = gtk_gl_area_new();
 
    // allow the user to set the major and minor version (for debugging)
@@ -1817,11 +1817,11 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
    gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
    std::cout << "----------- set OpenGL required version done" << std::endl;
 
-   unsigned int dimensions = 400;
+   unsigned int dimensions = 700;
    if (! use_gtk_builder) dimensions = 900;
    gtk_widget_set_size_request(w, dimensions, dimensions);
-   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 2);
-   std::cout << "------------------------------------------------ create_and_pack_gtkglarea() done " << std::endl;
+   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
+   std::cout << "debug:: --------------------------- create_and_pack_gtkglarea() done " << std::endl;
    return w;
 }
 
