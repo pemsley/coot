@@ -206,7 +206,7 @@ bool enhanced_ligand_coot_p();
 int jed_flip_intermediate_atoms();
 
 //! \brief side-chain 180 flip on the active atom
-int side_chain_flip_180_intermediate_atoms();
+// int side_chain_flip_180_intermediate_atoms(); moved because button in gui, unlike JED flip
 
 // No here - this file  is for swigging
 // #include "ideal/simple-restraint.hh"
