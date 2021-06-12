@@ -4,6 +4,8 @@
 #include "coot-coord-utils.hh"
 #include "contact-info.hh"
 
+#include "map-index.hh"
+
 // This contact_info constructor does not take the alt conf(s) into
 // account.  That is becuase (in the current scenario) the alt conf
 // selection has already taken place before we get here.  If you want

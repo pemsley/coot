@@ -8890,8 +8890,9 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *vbox330;
   GtkWidget *accept_reject_flip_this_peptide_button;
   GtkWidget *accept_reject_flip_next_peptide_button;
-  GtkWidget *accept_reject_crankshaft_button;
   GtkWidget *accept_reject_backrub_rotamer_button;
+  GtkWidget *accept_reject_side_chain_180_flip;
+  GtkWidget *accept_reject_crankshaft_button;
   GtkWidget *label824;
   GtkWidget *dialog_action_area9;
   GtkWidget *hbox41;
@@ -9189,13 +9190,17 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (accept_reject_flip_next_peptide_button);
   gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_flip_next_peptide_button, FALSE, FALSE, 0);
 
-  accept_reject_crankshaft_button = gtk_button_new_with_mnemonic ("Crankshaft Peptide Optimise");
-  gtk_widget_show (accept_reject_crankshaft_button);
-  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_crankshaft_button, FALSE, FALSE, 0);
-
   accept_reject_backrub_rotamer_button = gtk_button_new_with_mnemonic ("Backrub Rotamer Fit");
   gtk_widget_show (accept_reject_backrub_rotamer_button);
   gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_backrub_rotamer_button, FALSE, FALSE, 0);
+
+  accept_reject_side_chain_180_flip = gtk_button_new_with_mnemonic ("Side-chain Flip 180\302\260");
+  gtk_widget_show (accept_reject_side_chain_180_flip);
+  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_side_chain_180_flip, FALSE, FALSE, 0);
+
+  accept_reject_crankshaft_button = gtk_button_new_with_mnemonic ("Crankshaft Peptide Optimise");
+  gtk_widget_show (accept_reject_crankshaft_button);
+  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_crankshaft_button, FALSE, FALSE, 0);
 
   label824 = gtk_label_new ("<b>Active Refinement</b>");
   gtk_widget_show (label824);
@@ -9270,11 +9275,14 @@ create_accept_reject_refinement_dialog (void)
   g_signal_connect ((gpointer) accept_reject_flip_next_peptide_button, "clicked",
                     G_CALLBACK (on_accept_reject_flip_next_peptide_button_clicked),
                     NULL);
-  g_signal_connect ((gpointer) accept_reject_crankshaft_button, "clicked",
-                    G_CALLBACK (on_accept_reject_crankshaft_button_clicked),
-                    NULL);
   g_signal_connect ((gpointer) accept_reject_backrub_rotamer_button, "clicked",
                     G_CALLBACK (on_accept_reject_backrub_rotamer_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) accept_reject_side_chain_180_flip, "clicked",
+                    G_CALLBACK (on_accept_reject_side_chain_180_flip_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) accept_reject_crankshaft_button, "clicked",
+                    G_CALLBACK (on_accept_reject_crankshaft_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) accept_reject_refinement_accept_button, "clicked",
                     G_CALLBACK (on_accept_reject_refinement_accept_button_clicked),
@@ -9336,8 +9344,9 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox330, "vbox330");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_flip_this_peptide_button, "accept_reject_flip_this_peptide_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_flip_next_peptide_button, "accept_reject_flip_next_peptide_button");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_crankshaft_button, "accept_reject_crankshaft_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_backrub_rotamer_button, "accept_reject_backrub_rotamer_button");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_side_chain_180_flip, "accept_reject_side_chain_180_flip");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_crankshaft_button, "accept_reject_crankshaft_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label824, "label824");
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox41, "hbox41");
@@ -28726,7 +28735,7 @@ create_mogul_geometry_results_table_dialog (void)
 
   mogul_geometry_results_table_dialog = gtk_dialog_new ();
   gtk_widget_set_size_request (mogul_geometry_results_table_dialog, 600, 400);
-  gtk_window_set_title (GTK_WINDOW (mogul_geometry_results_table_dialog), "Mogul Results");
+  gtk_window_set_title (GTK_WINDOW (mogul_geometry_results_table_dialog), "Geometry Dist.");
   gtk_window_set_type_hint (GTK_WINDOW (mogul_geometry_results_table_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
   // gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_results_table_dialog), FALSE);
 
@@ -28993,7 +29002,7 @@ create_ligand_check_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label779), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label779), 0, 4);
 
-  label780 = gtk_label_new ("Mogul\nZ-worst");
+  label780 = gtk_label_new ("Geometry\nDistortion");
   gtk_widget_show (label780);
   gtk_table_attach (GTK_TABLE (table7), label780, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),

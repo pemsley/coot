@@ -1655,56 +1655,73 @@ graphics_info_t::check_if_in_edit_chi_angles_define(GdkEventButton *event) {
    }
 }
 
+#include "ligand/side-chain.hh"
+
 
 void
 graphics_info_t::check_if_in_180_degree_flip_define(GdkEventButton *event) {
 
    if (in_180_degree_flip_define) {
-      pick_info naii = atom_pick(event);
-      if (naii.success == GL_TRUE) {
-	 mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	 int resno = at->GetSeqNum();
-	 mmdb::Residue *residue = at->residue;
-	 std::string chain_id = at->GetChainID();
-	 std::string inscode  = at->GetInsCode();
-	 std::string alt_conf = at->altLoc;
-	 std::string resname  = at->GetResName();
-	 int istatus =
-	    molecules[naii.imol].do_180_degree_side_chain_flip(chain_id, resno,
-								 inscode, alt_conf, Geom_p());
-	 std::string s;
-	 if (istatus) { 
-	    s = "Chi angle on residue ";
-	    s += chain_id;
-	    s += graphics_info_t::int_to_string(resno);
-	    s += " ";
-	    s += resname;
-	    s += " successfully flipped.";
-	    // update graphs here
-	    // make a molecule from the residue so that we can call
-	    // update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	    std::pair<mmdb::Manager *, int> mp = 
-	       coot::util::create_mmdbmanager_from_res_selection(molecules[naii.imol].atom_sel.mol,
-								 &residue, 1, 0, 0,
-								 alt_conf, chain_id, 0);
-	    atom_selection_container_t asc = make_asc(mp.first);
-	    asc.UDDOldAtomIndexHandle = mp.second;
-	    update_geometry_graphs(asc, naii.imol);
-	    graphics_draw();
-	 } else {
-	    s = "Problem flipping chi angle on residue ";
-	    s += chain_id;
-	    s += graphics_info_t::int_to_string(resno);
-	    s += " ";
-	    s += resname;
-	    s += ". Not done.";
-	 }
-	 add_status_bar_text(s);
-	 
-	 in_180_degree_flip_define = 0;
-	 pick_pending_flag = 0;
-	 normal_cursor();
- 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
+
+      if (moving_atoms_displayed_p()) {
+
+         pick_info nearest_intermediate_atom_info = pick_intermediate_atom(*moving_atoms_asc);
+         if (nearest_intermediate_atom_info.success == GL_TRUE) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[nearest_intermediate_atom_info.atom_index];
+            std::string alt_conf(at->altLoc);
+            coot::atom_spec_t at_spec(at);
+            coot::residue_spec_t spec(at_spec);
+            side_chain_flip_180_moving_atoms_residue(spec, alt_conf);
+            
+         }
+
+      } else {
+         pick_info naii = atom_pick(event);
+         if (naii.success == GL_TRUE) {
+            mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+            int resno = at->GetSeqNum();
+            mmdb::Residue *residue = at->residue;
+            std::string chain_id = at->GetChainID();
+            std::string inscode  = at->GetInsCode();
+            std::string alt_conf = at->altLoc;
+            std::string resname  = at->GetResName();
+            int istatus =
+               molecules[naii.imol].do_180_degree_side_chain_flip(chain_id, resno,
+                                                                  inscode, alt_conf, Geom_p());
+            std::string s;
+            if (istatus) {
+               s = "Chi angle on residue ";
+               s += chain_id;
+               s += graphics_info_t::int_to_string(resno);
+               s += " ";
+               s += resname;
+               s += " successfully flipped.";
+               // update graphs here
+               // make a molecule from the residue so that we can call
+               // update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+               std::pair<mmdb::Manager *, int> mp =
+                  coot::util::create_mmdbmanager_from_res_selection(molecules[naii.imol].atom_sel.mol,
+                                                                    &residue, 1, 0, 0,
+                                                                    alt_conf, chain_id, 0);
+               atom_selection_container_t asc = make_asc(mp.first);
+               asc.UDDOldAtomIndexHandle = mp.second;
+               update_geometry_graphs(asc, naii.imol);
+               graphics_draw();
+            } else {
+               s = "Problem flipping chi angle on residue ";
+               s += chain_id;
+               s += graphics_info_t::int_to_string(resno);
+               s += " ";
+               s += resname;
+               s += ". Not done.";
+            }
+            add_status_bar_text(s);
+
+            in_180_degree_flip_define = 0;
+            pick_pending_flag = 0;
+            normal_cursor();
+            model_fit_refine_unactive_togglebutton("model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
+         }
       }
    }
 }
@@ -1724,19 +1741,19 @@ graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
 	    torsion_general_atom_index_1 = nearest_atom_index_info.atom_index;
 	    torsion_general_atom_index_1_mol_no = im;
 	    in_torsion_general_define = 2;
-	 } else { 
+	 } else {
 	    if (in_torsion_general_define == 2) {
 	       std::cout << " 2" << std::endl;
 	       torsion_general_atom_index_2 = nearest_atom_index_info.atom_index;
 	       torsion_general_atom_index_2_mol_no = im;
 	       in_torsion_general_define = 3;
-	    } else { 
+	    } else {
 	       if (in_torsion_general_define == 3) {
 		  std::cout << " 3" << std::endl;
 		  torsion_general_atom_index_3 = nearest_atom_index_info.atom_index;
 		  torsion_general_atom_index_3_mol_no = im;
 		  in_torsion_general_define = 4;
-	       } else { 
+	       } else {
 		  if (in_torsion_general_define == 4) {
 		     std::cout << " 4" << std::endl;
 		     torsion_general_atom_index_4 = nearest_atom_index_info.atom_index;
@@ -1756,7 +1773,7 @@ graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
 }
 
 
-void 
+void
 graphics_info_t::check_if_in_edit_backbone_torsion_define(GdkEventButton *event) {
 
    if (in_backbone_torsion_define) { 

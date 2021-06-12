@@ -116,6 +116,8 @@ graphics_info_t::init() {
       geom_p->add_planar_peptide_restraint();
       convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
+      use_harmonic_approximation_for_NBCs = false; // Hard-mode by default
+
       geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
 
       // rotamer probabilitiles

@@ -41,7 +41,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
 	pepflip-using-difference-map.hh \
-	polar-atoms.hh 3d-texture.hh fragment-container.hh
+	polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils

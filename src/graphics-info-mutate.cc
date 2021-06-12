@@ -149,7 +149,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 		     //
 
-		     istat = molci.move_std_residue(std_res_copy, residue_p);
+		     int istat = molci.move_std_residue(std_res_copy, residue_p);
 
 		     if (istat) {
 

@@ -402,7 +402,9 @@ coot::geometry_distortion_info_container_t::distortion() const {
 }
 
 coot::geometry_distortion_info_container_t
-coot::restraints_container_t::geometric_distortions() {
+coot::restraints_container_t::geometric_distortions(bool keep_distortion_for_hydrogen_atom_restraints) {
+
+   // default argument keep_distortion_for_hydrogen_atom_restraints defaults true
 
    // we don't want to do this if it has already been done. Hmmm.
    //
@@ -427,7 +429,7 @@ coot::restraints_container_t::geometric_distortions() {
 #ifdef HAVE_CXX_THREAD
       restraints_lock = false; // unlock
 #endif
-   return distortion_vector(x);
+      return distortion_vector(x, keep_distortion_for_hydrogen_atom_restraints);
 }
 
 
@@ -445,7 +447,7 @@ coot::operator<<(std::ostream &s, geometry_distortion_info_container_t gdic) {
 std::ostream&
 coot::operator<<(std::ostream &s, geometry_distortion_info_t gdi) {
 
-   if (gdi.set) {
+   if (gdi.is_set) {
       s << gdi.restraint << " " << gdi.residue_spec << " distortion: " << gdi.distortion_score;
    } else {
       s << "{geometry_distortion_info-unset}";
@@ -740,8 +742,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
    coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
    double local_sum = 0.0;
 
-   double d = 0;
-   std::vector<std::size_t>::const_iterator it;
+   double d = 0.0;
+
 //   for (it=restraint_indices.begin(); it!=restraint_indices.end(); it++) {
 //      int i = *it;
 
@@ -794,8 +796,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
          if ( this_restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	         double d =  coot::distortion_score_trans_peptide(i, this_restraint, v);
-	         local_sum += d;
+	         double dtp = coot::distortion_score_trans_peptide(i, this_restraint, v);
+	         local_sum += dtp;
 	         // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
 	         continue;
 	      }
@@ -803,9 +805,9 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if (this_restraint.restraint_type == coot::TORSION_RESTRAINT) {
-	    double d =  coot::distortion_score_torsion(i, this_restraint, v);
+	    double dt =  coot::distortion_score_torsion(i, this_restraint, v);
 	    // std::cout << "dsm: torsion " << thread_id << " idx " << i << " " << d << std::endl;
-	    local_sum += d;
+	    local_sum += dt;
 	    continue;
 	 }
       }
@@ -960,9 +962,10 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
          bool all_pushed = false;
          unsigned int n_dispatched_restraints_sets = 0; // not all (40) of the restraints sets might
                                                         // get dispatched (say we are refining a single GLY)
-// for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) { // not really threads now
+
+         // for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) { // not really threads now
          for (unsigned int idx=0; idx<restraints_p->restraints_indices.size(); idx++) {
-	         auto time_point_1 = std::chrono::high_resolution_clock::now();
+            // auto time_point_1 = std::chrono::high_resolution_clock::now();
 
             int idx_start = idx * n_per_set;
             int idx_end   = idx_start + n_per_set;
@@ -1008,12 +1011,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    if (all_pushed) break;
 	 }
 
-         // we don't want to wait for all thread in the thread pool to complete because the
-         // thread pool may be being using for other parts of the program that (that may have
-         // (much) longer-lived threads).
-
 	 while (done_count_for_threads != n_dispatched_restraints_sets) {
-	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	    std::this_thread::sleep_for(std::chrono::nanoseconds(80));
 	 }
 
 	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++)
@@ -1080,13 +1079,13 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 }
 
 coot::geometry_distortion_info_container_t
-coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
+coot::restraints_container_t::distortion_vector(const gsl_vector *v, bool keep_distortion_for_hydrogen_atom_restraints) const {
 
    std::string chainid("blank");
    if (n_atoms > 0)
       chainid = atom[0]->GetChainID();
 
-   coot::geometry_distortion_info_container_t distortion_vec_container(atom, n_atoms, chainid);
+   geometry_distortion_info_container_t distortion_vec_container(atom, n_atoms, chainid);
    double distortion = 0.0;
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
@@ -1211,10 +1210,25 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	 }
 
 	 if (atom_index != -1) {
-	    coot::residue_spec_t rs(atom[atom_index]->GetResidue());
-	    coot::geometry_distortion_info_t gdi(distortion, rest, rs);
-	    gdi.atom_indices = atom_indices;
-	    distortion_vec_container.geometry_distortion.push_back(gdi);
+            bool add_it = true;
+            if (!keep_distortion_for_hydrogen_atom_restraints) {
+               // if any of those atoms were hydrogen atoms, then set add_it to false
+               int atom_is_hydrogen_size = atom_is_hydrogen.size();
+               for (auto idx : atom_indices) {
+                  if (idx < atom_is_hydrogen_size) {
+                     if (atom_is_hydrogen[idx]) {
+                        add_it = false;
+                        break;
+                     }
+                  }
+               }
+            }
+            if (add_it) {
+               coot::residue_spec_t rs(atom[atom_index]->GetResidue());
+               coot::geometry_distortion_info_t gdi(distortion, rest, rs);
+               gdi.atom_indices = atom_indices;
+               distortion_vec_container.geometry_distortion.push_back(gdi);
+            }
 	 }
       }
    }
@@ -1996,9 +2010,12 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
    //
    // so if target_value is say 3.4A, lj_sigma is 3.4 sigma
    // and lj_r_min ~ 3.4 * 1.122 = 3.82
-   double lj_sigma = nbc_restraint.target_value;
+   // double lj_sigma = nbc_restraint.target_value;
    // double lj_r_min = std::pow(2.0, 1.0/6.0) * lj_sigma;
-   double lj_r_min = 1.122462048309373 * lj_sigma;
+   // double lj_r_min = 1.122462048309373 * lj_sigma;
+
+   const double &lj_r_min = nbc_restraint.target_value;
+   double lj_sigma = lj_r_min * 0.89089871814033929;
 
    int idx_1 = 3*(nbc_restraint.atom_index_1);
    int idx_2 = 3*(nbc_restraint.atom_index_2);
@@ -2039,7 +2056,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
    double max_dist = 2.5 * lj_sigma; // r_max
 
-   max_dist = 999.9; // does this match the 2 in the derivatives
+   max_dist = 999.9; // does this match the 2 in the derivatives?
 
    if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 
@@ -2060,19 +2077,42 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
       // the process was always on this line
       // double V_lj_old = lj_epsilon * (std::pow(alpha, 12) - 2.0 * std::pow(alpha, 6));
 
-      if (dist_sq < 1.00) dist_sq = 1.00;
-      double alpha_sqrd = lj_r_min*lj_r_min/dist_sq;
-      double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
-      double alpha_up_12 = alpha_up_6 * alpha_up_6;
-      V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
+
+      // 
 
       // offset the Vlj so that it is zero at r_max (beyond which we no longer
       // consider contributions to the distortion)
 
       double Vlj_at_rmax = -0.016316891136 * lj_epsilon; // see Lennard-Jones truncated and shifted for
 
-      V_lj += Vlj_at_rmax;
+      if (dist_sq < 1.00) dist_sq = 1.00;
+      double alpha_sqrd = lj_r_min*lj_r_min/dist_sq;
+      double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
+      double alpha_up_12 = alpha_up_6 * alpha_up_6;
+      V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
 
+      if (false) {
+         clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
+                                gsl_vector_get(v,idx_1+1),
+                                gsl_vector_get(v,idx_1+2));
+
+         clipper::Coord_orth a2(gsl_vector_get(v,idx_2),
+                                gsl_vector_get(v,idx_2+1),
+                                gsl_vector_get(v,idx_2+2));
+         double b_i_sqrd = (a1-a2).lengthsq();
+         double lj_r = std::sqrt(b_i_sqrd);
+
+         std::cout << "adding NBC distortion: "
+                   << std::setw(2) << nbc_restraint.atom_index_1 << " "
+                   << std::setw(2) << nbc_restraint.atom_index_2 << " "
+                   << " target: " << std::setw(5) << std::setprecision(2) << std::fixed << std::right << lj_r_min
+                   << " actual "  << std::setw(5) << std::setprecision(2) << std::fixed << std::right << lj_r
+                   << " distortion_pre_offset: " << std::fixed << std::right << V_lj
+                   << " added-offset-corr: " << std::fixed << std::right << Vlj_at_rmax
+                   << std::endl;
+      }
+
+      V_lj += Vlj_at_rmax;
 
    }
 

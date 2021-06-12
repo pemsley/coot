@@ -471,12 +471,101 @@ void graphics_info_t::run_post_intermediate_atoms_moved_hook_maybe() {
 }
 #endif
 
+// static
+mmdb::Atom *
+graphics_info_t::get_moving_atoms_active_atom(const coot::Cartesian &rc, float within_radius_limit) {
+   mmdb::Atom *at_moving = 0;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         float min_dist_sqrd = 4.0;
+         float best_dist_sqrd = min_dist_sqrd;
+         for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+            coot::Cartesian atom_pos(at->x, at->y, at->z);
+            coot::Cartesian diff = atom_pos - rc;
+            if (diff.amplitude_squared() < best_dist_sqrd) {
+               if (diff.amplitude_squared() < min_dist_sqrd) {
+                  min_dist_sqrd = diff.amplitude_squared();
+                  at_moving = at;
+                  best_dist_sqrd = diff.amplitude_squared();
+               }
+            }
+         }
+      }
+   }
+   return at_moving;
+};
+
+
+#include "ligand/side-chain.hh"
+
+//static
+int
+graphics_info_t::side_chain_flip_180_intermediate_atoms() {
+
+   int status = 0;
+
+   std::cout << "start side_chain_flip_180_intermediate_atoms()" << std::endl;
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+	 status = 1;
+         coot::Cartesian rc = get_rotation_centre_cart();
+         float within_radius_limit = 9.0;
+         mmdb::Atom *at = get_moving_atoms_active_atom(rc, within_radius_limit);
+         if (at) {
+
+            // do I need to get the refinement lock here?
+
+            std::cout << "found at " << at << std::endl;
+            coot::atom_spec_t atom_spec(at);
+            coot::residue_spec_t spec(atom_spec);
+            std::string alt_conf(at->altLoc);
+            mmdb::Manager *mol = moving_atoms_asc->mol;
+            coot::do_180_degree_side_chain_flip(spec, alt_conf, mol, Geom_p());
+	    refinement_of_last_restraints_needs_reset();
+	    thread_for_refinement_loop_threaded();
+            graphics_draw();
+         } else {
+            std::cout << "Failed to find active atom in moving atoms " << std::endl;
+         }
+      } else {
+         std::cout << "INFO:: no moving atoms - this should not happen" << std::endl;
+      }
+   } else {
+      std::cout << "INFO:: no moving atoms " << std::endl;
+   }
+   return status;
+}
+
+
+// Note that this works different to all other button operattions!
+// This is not a key-binding/active atom style action either
+//
+// This operation allows you to pick on intermediate atoms (to activate the flip)
+//
+// I am not sure that I like it or want it.
+//
+void
+graphics_info_t::side_chain_flip_180_moving_atoms_residue(const coot::residue_spec_t &spec,
+                                                          const std::string &alt_conf) {
+
+   if (moving_atoms_displayed_p()) {
+
+      coot::do_180_degree_side_chain_flip(spec, alt_conf, moving_atoms_asc->mol, Geom_p());
+      graphics_draw();
+      pick_pending_flag = 0;
+      normal_cursor();
+      model_fit_refine_unactive_togglebutton("model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
+   }
+}
+
 
 #include "coot-utils/jed-flip.hh"
 
 // static
 int
-graphics_info_t::jed_flip_intermediate_atoms() {
+graphics_info_t::jed_flip_intermediate_atoms(bool invert_selection) {
 
    int status = 0;
 
@@ -505,7 +594,6 @@ graphics_info_t::jed_flip_intermediate_atoms() {
 	 if (active_atom) {
 	    mmdb::Residue *residue_p = active_atom->residue;
 	    int imol = imol_moving_atoms;
-	    bool invert_selection = false;
 	    coot::util::jed_flip(imol, residue_p, active_atom, invert_selection, Geom_p());
 
 	    // add_drag_refine_idle_function();

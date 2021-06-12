@@ -509,7 +509,6 @@ void find_waters(int imol_for_map,
 	 std::cout << "DEBUG::  new_waters_mol_flag: " << new_waters_mol_flag << std::endl;
 	 if (new_waters_mol_flag) { 
 	    if (! water_mol.is_empty()) {
-	       float bf = graphics_info_t::default_new_atoms_b_factor;
 	       atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager());
 	       // We need to make the atoms in asc HETATMs
 	       for (int iat=0; iat<asc.n_selected_atoms; iat++)
@@ -525,6 +524,7 @@ void find_waters(int imol_for_map,
 	    // waters added to masking molecule
 	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
 	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
+            g.update_geometry_graphs(imol_for_protein);
 	 }
       }
    }

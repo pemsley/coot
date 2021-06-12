@@ -68,15 +68,21 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
          }
       }
       coot::restraints_container_t restraints(residues, geom, mol, &dummy_xmap);
+      restraints.set_quiet_reporting();
 
       int n_threads_max = get_max_number_of_threads();
       int n_threads = n_threads_max -1;
       if (n_threads < 1) n_threads = 1;
+      // might it be a good idea, if we are optimizing several ligands at the same time
+      // that each ligand uses just one thread?
+      // n_threads = 1; // apparently not. I don't understand why. I don't understand
+      // what gdb info threads is telling me. Perhaps that thread_pool.push() is slow?
+      n_threads = 1;
       ctpl::thread_pool tp(n_threads);
-      std::cout << "set thread pool " << n_threads << std::endl;
+      // std::cout << "set thread pool " << n_threads << std::endl;
       restraints.thread_pool(&tp, n_threads);
 
-      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_PLANES;
       bool do_residue_internal_torsions = false;
       bool do_trans_peptide_restraints = true;
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;

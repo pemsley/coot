@@ -618,13 +618,17 @@ int test_wiggly_ligands () {
    coot::minimol::molecule mmol;
    mmol.read_file(greg_test("monomer-BUA.pdb"));
    unsigned int wiggly_ligand_n_samples = 10;
-   try {
-      bool optim_geom = 0;
-      bool fill_vec = 1;
+   try { 
+      bool optim_geom = true;
+      bool fill_vec = false;
       int imol = 0; // dummy
-      std::vector<coot::installed_wiggly_ligand_info_t> ms =
+
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      ctpl::thread_pool thread_pool(n_threads);
+
+      std::vector<coot::installed_wiggly_ligand_info_t> ms = 
 	 wlig.install_simple_wiggly_ligands(&geom, mmol, imol, wiggly_ligand_n_samples,
-					    optim_geom, fill_vec);
+					    optim_geom, fill_vec, &thread_pool, n_threads);
 
       // jump out if no returned molecules
       if (ms.size() != wiggly_ligand_n_samples) {
@@ -1493,7 +1497,9 @@ int test_ligand_fit_from_given_point() {
    bool fill_vec = 0;
    coot::minimol::molecule mmol(l_asc.mol);
    int imol = 0; // dummy
-   wlig.install_simple_wiggly_ligands(&t.geom, mmol, imol, n_conformers, optim_geom, fill_vec);
+   unsigned int n_threads = coot::get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads);
+   wlig.install_simple_wiggly_ligands(&t.geom, mmol, imol, n_conformers, optim_geom, fill_vec, &thread_pool, n_threads);
    short int mask_waters_flag = 1;
    wlig.mask_map(asc.mol, mask_waters_flag);
    clipper::Coord_orth pt(55.06, 10.16, 21.73); // close to 3GP peak (not in it).
@@ -1548,9 +1554,11 @@ int test_ligand_conformer_torsion_angles() {
    int n_conformers = 200;
    coot::minimol::molecule mmol(l_asc.mol);
    int imol = 0; // dummy
-   std::vector<coot::installed_wiggly_ligand_info_t> conformer_info =
+   unsigned int n_threads = coot::get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads);
+   std::vector<coot::installed_wiggly_ligand_info_t> conformer_info = 
       wlig.install_simple_wiggly_ligands(&t.geom, mmol, imol, n_conformers,
-					 optim_geom, fill_vec);
+					 optim_geom, fill_vec, &thread_pool, n_threads);
    std::cout << "INFO:: there were " << conformer_info.size()
 	     << " returned conformers" << std::endl;
    for (unsigned int i=0; i<conformer_info.size(); i++) {

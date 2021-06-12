@@ -2406,6 +2406,7 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
       gtk_widget_set_sensitive(hbox, FALSE);
       gtk_widget_set_sensitive(label_atom_check_button, FALSE);
       gtk_widget_set_sensitive(distance_type_frame, FALSE);
+      graphics_draw();
    }
 }
 

@@ -741,7 +741,7 @@ def sphere_refine_regularize_generic(use_map=True, radius=3, expand=False):
 
             # extend?
             if expand:
-                print("in sphere_refine_regularize_generic, coot_utils.all_residues is", all_residues)
+                print("in sphere_refine_regularize_generic, all_residues is", all_residues, "using radius", radius)
                 coot_utils.all_residues.sort()
                 tmp_ls = coot_utils.all_residues[:]
                 for res in tmp_ls:
@@ -763,8 +763,8 @@ def sphere_refine_regularize_generic(use_map=True, radius=3, expand=False):
                                                                  '#soft-mode/hard-mode', False, False)
             else:
                 coot.regularize_residues_py(imol, coot_utils.all_residues)
-        
-# Sphere refinement (around radius)
+
+                # Sphere refinement (around radius)
 #
 def sphere_refine(radius=4.5, expand=False):
     sphere_refine_regularize_generic(True, radius, expand)

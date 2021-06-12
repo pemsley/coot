@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
             file.import_xmap(xmap);
             file.close_read();
 
-            if (is_cryo_em)
-               clipper::ScatteringFactors::selectScattteringFactorsType(clipper::SF_ELECTRON);
+            // if (is_cryo_em)
+            //    clipper::ScatteringFactors::selectScattteringFactorsType(clipper::SF_ELECTRON);
 
             bool exclude_NOC = true;
             float atom_mask_radius = 2.8;

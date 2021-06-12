@@ -312,7 +312,7 @@
 ;; return refmac-result or #f 
 ;; 
 (define (refmac-calc-sfs-make-mtz-with-columns pdb-in-file-name mtz-file-name mtz-refmaced-file-name f-col sigf-col r-free-col)
-  
+
   (let* ((refmac-stub (append-dir-file "coot-refmac"
 				       (strip-path 
 					(file-name-sans-extension pdb-in-file-name))))
@@ -327,7 +327,7 @@
 	 (phib-fom-pair #f)
 	 (force-n-cycles 0)
 	 (make-molecules-flag 0)) ;; don't make molecules, this may be a sub-thread.
-        
+
     (let ((save-refmac-extra-params refmac-extra-params))
       
       (if (list? refmac-extra-params)
@@ -337,21 +337,38 @@
       (format #t "########################### save-refmac-extra-params: ~s~%" save-refmac-extra-params)
       (format #t "########################### refmac-extra-params:      ~s~%" refmac-extra-params)
 
+      ;; ;; this has now gone multi-threaded and that is not what I want.
+      ;; (let ((refmac-result
+      ;;        (run-refmac-by-filename pdb-in-file-name 
+      ;;   			     pdb-out-file-name 
+      ;;   			     mtz-file-name mtz-out-file-name
+      ;;   			     extra-cif-lib-filename 
+      ;;   			     imol-refmac-count
+      ;;   			     swap-map-colours-post-refmac? 
+      ;;   			     imol-mtz-molecule 
+      ;;   			     show-diff-map-flag
+      ;;   			     phase-combine-flag 
+      ;;   			     phib-fom-pair 
+      ;;   			     force-n-cycles
+      ;;   			     make-molecules-flag
+      ;;   			     "" f-col sigf-col r-free-col)))
+      ;;                                ;; ccp4i-project-dir f-col sig-f-col . r-free-col
+
       (let ((refmac-result
-	     (run-refmac-by-filename pdb-in-file-name 
-				     pdb-out-file-name 
-				     mtz-file-name mtz-out-file-name
-				     extra-cif-lib-filename 
-				     imol-refmac-count
-				     swap-map-colours-post-refmac? 
-				     imol-mtz-molecule 
-				     show-diff-map-flag
-				     phase-combine-flag 
-				     phib-fom-pair 
-				     force-n-cycles
-				     make-molecules-flag
-				     "" f-col sigf-col r-free-col)))
-	                             ;; ccp4i-project-dir f-col sig-f-col . r-free-col
+             (run-refmac-by-filename-inner ; this blocks until termination
+              pdb-in-file-name
+              pdb-out-file-name
+              mtz-file-name mtz-out-file-name
+              extra-cif-lib-filename
+              imol-refmac-count
+              swap-map-colours-post-refmac?
+              imol-mtz-molecule
+              show-diff-map-flag
+              phase-combine-flag 
+              phib-fom-pair
+              force-n-cycles
+              make-molecules-flag
+              "" f-col sigf-col r-free-col)))
 
 	;; restore refmac-extra-params to what it used to be
 	;;

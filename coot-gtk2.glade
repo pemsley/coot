@@ -18316,14 +18316,14 @@ checks the value of this checkbutton</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="accept_reject_crankshaft_button">
+			    <widget class="GtkButton" id="accept_reject_backrub_rotamer_button">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Crankshaft Peptide Optimise</property>
+			      <property name="label" translatable="yes">Backrub Rotamer Fit</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
-			      <signal name="clicked" handler="on_accept_reject_crankshaft_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:49:09 GMT"/>
+			      <signal name="clicked" handler="on_accept_reject_backrub_rotamer_button_clicked" last_modification_time="Tue, 01 Jan 2019 17:14:33 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -18333,14 +18333,31 @@ checks the value of this checkbutton</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="accept_reject_backrub_rotamer_button">
+			    <widget class="GtkButton" id="accept_reject_side_chain_180_flip">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Backrub Rotamer Fit</property>
+			      <property name="label" translatable="yes">Side-chain Flip 180°</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
-			      <signal name="clicked" handler="on_accept_reject_backrub_rotamer_button_clicked" last_modification_time="Tue, 01 Jan 2019 17:14:33 GMT"/>
+			      <signal name="clicked" handler="on_accept_reject_side_chain_180_flip_clicked" last_modification_time="Sat, 12 Jun 2021 10:33:21 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_crankshaft_button">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Crankshaft Peptide Optimise</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_crankshaft_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:49:09 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -60317,7 +60334,7 @@ Look out for information in the console output.</property>
   <property name="width_request">600</property>
   <property name="height_request">400</property>
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Mogul Results</property>
+  <property name="title" translatable="yes">Geometry Dist.</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -60998,8 +61015,8 @@ Correlation</property>
 	      <child>
 		<widget class="GtkLabel" id="label780">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Mogul
-Z-worst</property>
+		  <property name="label" translatable="yes">Geometry
+Distortion</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_CENTER</property>

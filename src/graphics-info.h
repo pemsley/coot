@@ -1262,7 +1262,8 @@ public:
    static short int display_lists_for_maps_flag;
 
    // expose this so that it can be seen in draw();
-   static short int smooth_scroll_on;
+   static short int smooth_scroll_on; // flag used to show wirecube centre
+                                      // (not anything else so rename it?)
    std::vector<int> displayed_map_imols() const;
 
    // expose so that they can be used in c-interface.cc
@@ -1379,6 +1380,8 @@ public:
    static coot::Cartesian RotationCentre() { return coot::Cartesian(rotation_centre_x,
                                                                     rotation_centre_y,
                                                                     rotation_centre_z);}
+   // modern API
+   static coot::Cartesian get_rotation_centre_cart() { return RotationCentre(); }
 
    // we need static, so that we don't need to instance a
    // graphics_info_t for every frame draw.
@@ -2039,6 +2042,11 @@ public:
 
    coot::refinement_results_t refine_molecule(int imol, mmdb::Manager *mol);
    coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);
+
+   static bool use_harmonic_approximation_for_NBCs;
+   void set_use_harmonic_approximations_for_nbcs(bool flag) {
+      use_harmonic_approximation_for_NBCs = flag;
+   }
 
    // on reading a pdb file, we get a list of residues, use these to
    // load monomers from the dictionary
@@ -3039,6 +3047,8 @@ public:
    std::vector<std::vector<int> > get_contact_indices_from_restraints(mmdb::Residue *residue,
 								      const atom_selection_container_t &asc,
 								      short int is_regular_residue_flag) const;
+
+   static bool all_atom_contact_dots_ignore_water_flag; // false by default
 
    // Do 180 degree sidechain flip stuff
    //
@@ -4089,9 +4099,16 @@ string   static std::string sessionid;
 			   const std::string &version);
    std::string get_version_for_extension(const std::string &extension_name) const;
 
-   void eigen_flip_active_residue();
-   static int jed_flip_intermediate_atoms();
+   void eigen_flip_active_residue(); // is this right?
+   // Use this in future. Can return NULL.
+   static mmdb::Atom *get_moving_atoms_active_atom(const coot::Cartesian &rc, float within_radius_limit);
+
+   static int jed_flip_intermediate_atoms(bool invert_atom_selection);
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
+   static int side_chain_flip_180_intermediate_atoms();
+   // this one is used by clicking on the fip-180 modelling tooglebutton and then picking on an active atom
+   void side_chain_flip_180_moving_atoms_residue(const coot::residue_spec_t &spec,
+                                                 const std::string &alt_conf);
 
    // ---------------------------------------------
 

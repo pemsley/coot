@@ -1,26 +1,34 @@
 
-  Release 0.9.5.1
+  Release 0.9.6
 
   o FEATURE: Middle-mouse and double-clicking on moving atoms is now enabled
              (for recentre and label)
 
   o FEATURE: -P mode added to pyrogen (no coordinates optimization)
 
-  o FEATURE: New program coot-identify-protein, identifies a protein from a poly-ALA
-             fragment and a set of sequences
-
   o FEATURE: model_correlation_stats_per_residue_range() added to the API
 
   o FEATURE: Molecular (i.e. not crystallographic) symmetry added
 
+  o FEATURE: coot-find-ligand has a mode to merely generate conformers
+
+  o FEATURE: added function to the API to flip the side-chain of the active atom
+             of the moving atoms: side-chain-flip-180-intermediate-atoms
+             [Oliver Clarke]
+
+  o FEATURE: New program coot-identify-protein, identifies a protein from a poly-ALA
+             fragment and a set of sequences
+
   o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
+
+  o CHANGE:  Adjust the initial RSR step size (no more wild water refinement)
 
   o CHANGE:  Post-refinement restraints analysis added
 
   o CHANGE:  Trans-peptide restraints added/removed as needed for cis-trans conversion
              of intermediate atoms
 
-  o CHANGE:  Increase the initial step size for refinement
+  o CHANGE:  Increase the initial step size for refinement for large fragments
 
   o CHANGE:  API accept_moving_atoms() can now return the refinement results
 
@@ -32,6 +40,8 @@
              missing atom names are written to the terminal (Lothar Essar)
 
   o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
+
+  o CHANGE:  Atom Overlaps optional toolbutton added
 
   o BUG-FIX: Linking (shell) to the Coot executable now works (Marcin Wodjyr)
 

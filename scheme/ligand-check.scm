@@ -158,24 +158,24 @@
   (define (get-ligand-difference-map-stats stub-name)
     (set! refmac-extra-params #f) ;; reset - no ligand exclusion
     
-    (let* ((refmac-out-sfs-file-name 
-            (local-refmac (string-append stub-name "-for-ligand-diff-map")))
-           (ligand-spec (list chain-id res-no ins-code))
-           (neighbs (residues-near-residue imol ligand-spec 4)))
+    (let* ((refmac-out-sfs-file-name (local-refmac (string-append stub-name "-for-ligand-diff-map"))))
 
-      (if (not (string? refmac-out-sfs-file-name))
+      (let* ((ligand-spec (list chain-id res-no ins-code))
+             (neighbs (residues-near-residue imol ligand-spec 4)))
 
-	  refmac-out-sfs-file-name
+        (if (not (string? refmac-out-sfs-file-name))
 
-	  ;; happy path
-	  (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
-					     "DELFWT" "PHDELWT" "" 0 1)))
-	    ;; now do some stats on the map at the ligand site
+            refmac-out-sfs-file-name
 
-            (let ((c (map-to-model-correlation-stats-scm imol (list ligand-spec) neighbs 10 imol-map)))
+            ;; happy path
+            (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
+                                               "DELFWT" "PHDELWT" "" 0 1)))
+              ;; now do some stats on the map at the ligand site
+
+              (let ((c (map-to-model-correlation-stats-scm imol (list ligand-spec) neighbs 10 imol-map)))
                 (format #t "### residue ~s density statistics ~s~%~!" ligand-spec c)
                 c)
-	    ))))
+              )))))
 
   ;; Return an error status (not a list) or a improper pair
   ;; (mogul-z-worst . mogul-out-file-name) on success.
@@ -202,6 +202,12 @@
 				      'mogul-no-stats
 				      (apply max mogul-results-list)))))
 	    (cons mogul-score run-result)))))
+
+  (define (get-ligand-dictionary-based-geometry-stats)
+    (let ((ligand-spec (list chain-id res-no ins-code)))
+      (let ((summary-info (get-ligand-distortion-summary-info-scm imol ligand-spec)))
+        (format #t "##### we got summary-info ~s~%" summary-info)
+        summary-info)))
 
   ;; return a list: n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts n_wide_contacts
   ;; 
@@ -231,33 +237,33 @@
 	      env-residues))
 
     (define (median number-list)
-      (print-var number-list)
+      ;; (print-var number-list)
       (if (not (list? number-list))
-         1.0
-         (let ((numbers
-	        (let loop ((number-list number-list)
-			(nums '()))
-	          (cond
-	             ((null? number-list) nums)
-                     ((not (number? (car number-list)))
-                        (loop (cdr number-list) nums))
-                  (else
+          1.0
+          (let ((numbers
+                 (let loop ((number-list number-list)
+                            (nums '()))
+                   (cond
+                    ((null? number-list) nums)
+                    ((not (number? (car number-list)))
+                     (loop (cdr number-list) nums))
+                    (else
                      (loop (cdr number-list) (cons (car number-list) nums)))))))
-           (print-var numbers)
-	   (let* ((sorted-nums (sort-list numbers >))
-	          (n (length sorted-nums))
-	          (mid (/ n 2))
-                  (nov (print-var sorted-nums))
-	          (median (if (= (remainder n 2) 0)
-			   (begin
-			     ;; (format #t "averaging mid: ~s  n: ~s ~%" mid n)
-			     ;; (format #t "idx: ~s  idx: ~s ~%" (/ n 2) (- (/ n 2) 1))
-			     (/ (+ (list-ref sorted-nums (/ n 2))
-				   (list-ref sorted-nums (- (/ n 2) 1))) 2))
-			   (begin
-			     ;; (format #t "simple take: ~s~%" mid)
-			     (list-ref sorted-nums (/ (- n 1) 2))))))
-	     median))))
+            ;;(print-var numbers)
+            (let* ((sorted-nums (sort-list numbers >))
+                   (n (length sorted-nums))
+                   (mid (/ n 2))
+                   ;; (nov (print-var sorted-nums))
+                   (median (if (= (remainder n 2) 0)
+                               (begin
+                                 ;; (format #t "averaging mid: ~s  n: ~s ~%" mid n)
+                                 ;; (format #t "idx: ~s  idx: ~s ~%" (/ n 2) (- (/ n 2) 1))
+                                 (/ (+ (list-ref sorted-nums (/ n 2))
+                                       (list-ref sorted-nums (- (/ n 2) 1))) 2))
+                               (begin
+                                 ;; (format #t "simple take: ~s~%" mid)
+                                 (list-ref sorted-nums (/ (- n 1) 2))))))
+              median))))
 
 
     ;; Return a list of length 2: 
@@ -296,8 +302,8 @@
       (print-var ligand-spec)
 
       (let* ((lig-env-temp-factors (ligand-environment-temperature-factors imol ligand-spec 5)))
-         (format #t "$$$$$$$$$$$$\n")
-         (print-var lig-env-temp-factors)
+         (format #t "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+         ;; (print-var lig-env-temp-factors)
          (if (not (list? lig-env-temp-factors))
              (begin
                 (format #t  "Ligand env temp factors not a list\n")
@@ -314,17 +320,58 @@
 
                          (let ((v1 (car lig-env-temp-factors))
 	                       (v2 (cadr lig-env-temp-factors)))
-	                    (format #t "b-factor kolmogorov-smirnov lig: ~s ~s ~s~%~!" stub-name ligand-spec (car lig-env-temp-factors))
-	                    (format #t "b-factor kolmogorov-smirnov env: ~s ~s ~s~%~!" stub-name ligand-spec (cadr lig-env-temp-factors))
+                           ;; (format #t "b-factor kolmogorov-smirnov lig: ~s ~s ~s~%~!"
+                           ;; stub-name ligand-spec (car lig-env-temp-factors))
+                           ;; (format #t "b-factor kolmogorov-smirnov env: ~s ~s ~s~%~!"
+                           ;; stub-name ligand-spec (cadr lig-env-temp-factors))
 	                    (let ((kolmogorov-smirnov-result (kolmogorov-smirnov v1 (apply append v2))))
 	                      (list temp-factor-median-ratio 
 		                    (median (car lig-env-temp-factors))
 		                    (median (apply append (cadr lig-env-temp-factors)))
 		                    kolmogorov-smirnov-result)))))))))))
 
+  (define (fake-get-ligand-difference-map-stats stub)
+    "some-fake-value-here")
+
+  ;; main line of get-metrics-for-ligand
+  ;;
+
+  (let* ((stub-name (molecule-name-stub imol 0)))
+    (let ((b-factor-info (get-b-factor-distribution-metrics stub-name)))
+
+      (format #t "####################### b-factor-info: ~s~%~!" b-factor-info)
+      (let ((correlation-score (get-correlation stub-name)))
+        (format #t "#####################!!! correlation-score: ~s~%~!" correlation-score)
+        (let ((dict-based-stats (get-ligand-dictionary-based-geometry-stats)))
+          (format #t "####################### dict-based-stats: ~s~%~!" dict-based-stats)
+          (let ((bmp (get-bump-score)))
+            (format #t "####################### bmp: ~s~%~!" bmp)
+            (let ((difference-map-stats (get-ligand-difference-map-stats stub-name)))
+              (format #t "####################### difference-map-stats: ~s~%~!" difference-map-stats)
+              
+              (let ((rv (list correlation-score dict-based-stats bmp difference-map-stats b-factor-info)))
+
+                ;; (format #t "#################### get-metrics-for-ligand returns rv ~s~%" rv)
+                rv))))))))
+
+
+  ;; -------------------------------------------------------------------
+  
+  ;; (let* ((stub-name (molecule-name-stub imol 0)))
+  ;;   (let ((b-factor-info (get-b-factor-distribution-metrics stub-name)))
+  ;;     (let ((correlation-score (get-correlation stub-name)))
+  ;;       (if (not (number? correlation-score))
+  ;;           correlation-score ;; error symbol
+  ;;           (let ((difference-map-stats (get-ligand-difference-map-stats (stub-name))))
+  ;;             (if (not (list? difference-map-stats))
+  ;;                 difference-map-stats ;; error symbol
+  ;;                 (let ((dict-based-stats (get-ligand-dictionary-based-geometry-stats)))
+  ;;                   (let ((bmp ((get-bump-score))))
+  ;;                     (list corr dict-based-stats bmp difference-map-stats b-factor-info))))))))))
+
 
 ;   pre-20150803-PE  
-;   ;; main line of get-metrics-for-ligand
+;   ;; main line of get-metrics-for-ligand (mogul-using version)
 ;   ;; 
 ;   (let* ((stub-name (molecule-name-stub imol 0)))
 ;     (let ((cor (get-correlation stub-name)))
@@ -339,30 +386,27 @@
 ; 	  cor)))) ;; error symbol/string
 
 
-  ;; main line of get-metrics-for-ligand
-  ;; 
-  (let* ((stub-name (molecule-name-stub imol 0)))
+      ;; ================= Code that uses Mogul ===================
+      ;; ;; 
+      ;; (let ((b-factor-info (get-b-factor-distribution-metrics stub-name)))
+      ;; (let ((cor (get-correlation stub-name)))
+      ;;   (if (number? cor)
+      ;;       (let ((dms (get-ligand-difference-map-stats stub-name)))
+      ;;         (if (not (list? dms))
+      ;;   	  dms ;; error symbol
+      ;;   	  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
+      ;;   	    (if (pair? mog)
+      ;;   		(let ((bmp (get-bump-score)))
 
-    (let ((b-factor-info (get-b-factor-distribution-metrics stub-name)))
+      ;;   		  ;; (format #t "------------- bmp: ~s~%" bmp)
+      ;;   		  (if (list? bmp)
+      ;;   		      (list cor mog bmp dms b-factor-info)
+      ;;   		      bmp)) ;; error symbol/string
+      ;;   		mog)))) ;; error symbol/string
+      ;;       cor))))) ;; error symbol/string
 
-      ;; add error checking to this 
-      ;; 
-      (let ((cor (get-correlation stub-name)))
-	(if (number? cor)
-	    (let ((dms (get-ligand-difference-map-stats stub-name)))
-	      (if (not (list? dms))
-		  dms ;; error symbol
-		  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
 
-		    (if (pair? mog)
-			(let ((bmp (get-bump-score)))
-
-			  ;; (format #t "------------- bmp: ~s~%" bmp)
-			  (if (list? bmp)
-			      (list cor mog bmp dms b-factor-info)
-			      bmp)) ;; error symbol/string
-			mog)))) ;; error symbol/string
-	    cor))))) ;; error symbol/string
+                    
 
 
 ;; only look at ligands in maps with resolution worse than this:
@@ -382,3 +426,24 @@
 	      (not (or (string-match "HOH" rn)
 		       (string-match "WAT" rn)))))
 	  env-residues))
+
+
+
+;; the Yes/No tick/cross dialog
+(define (gui-ligand-check-dialog-wrapper imol imol-map ligand-spec)
+
+  (let ((neighbs '()))
+    (let ((correl (map-to-model-correlation imol (list ligand-spec) neighbs 0 imol-map)))
+        (let ((cs (contact-score-ligand imol ligand-spec)))
+          (let* ((n-bumps (car cs))
+                 (geom-dist-max 1.1)
+                 (ligand-metrics (list correl geom-dist-max n-bumps))
+                 (percentile-limit 0.5)) ;; it's a fraction
+            (gui-ligand-metrics-scm ligand-spec ligand-metrics percentile-limit))))))
+
+;; the Yes/No tick/cross dialog
+(define (gui-ligand-check-dialog-active-residue)
+  (using-active-atom
+   (gui-ligand-check-dialog-wrapper aa-imol (imol-refinement-map) aa-res-spec)))
+
+

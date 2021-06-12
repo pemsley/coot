@@ -798,6 +798,7 @@ PyObject *execute_ligand_search_py() {
 }
 #endif // USE_PYTHON
 
+#include "utils/ctpl.h"
 
 /*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
 void set_find_ligand_here_cluster(int state) {
@@ -862,9 +863,11 @@ ligand_search_install_wiggly_ligands() {
 	       // optim_geom, fill_vec);
 
 	    } else {
+               unsigned int n_threads = coot::get_max_number_of_threads();
+               ctpl::thread_pool thread_pool(n_threads);
 	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
-						     optim_geom, fill_vec);
+						     optim_geom, fill_vec, &thread_pool, n_threads);
 	    }
 	 }
 	 catch (const std::runtime_error &mess) {
@@ -1081,9 +1084,11 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    bool optim_geom = true;
 	    bool fill_return_vec = false; // would give input molecules (not conformers)
 	    coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
+            unsigned int n_threads = coot::get_max_number_of_threads();
+            ctpl::thread_pool thread_pool(n_threads);
 	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 					       g.ligand_wiggly_ligand_n_samples,
-					       optim_geom, fill_return_vec);
+					       optim_geom, fill_return_vec, &thread_pool, n_threads);
 	 }
 	 catch (const std::runtime_error &mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
@@ -1211,7 +1216,11 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
 // 1 for intermediate atoms were shown (but not necessarily flipped
 //
 int jed_flip_intermediate_atoms() {
-   return graphics_info_t::jed_flip_intermediate_atoms();
+   return graphics_info_t::jed_flip_intermediate_atoms(false);
+}
+
+int reverse_jed_flip_intermediate_atoms() {
+   return graphics_info_t::jed_flip_intermediate_atoms(true);
 }
 
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
@@ -1235,6 +1244,11 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
 }
 
 
+//! \brief side-chain 180 flip on the active atom
+int side_chain_flip_180_intermediate_atoms() {
+   graphics_info_t g;
+   return g.side_chain_flip_180_intermediate_atoms();
+}
 
 
 /*  ----------------------------------------------------------------------- */
@@ -3436,7 +3450,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 
    double pc = -1;
 #ifdef USE_SQLITE3
-   std::string database_name = std::string(PKGDATADIR) + "/data/ligands-2016.db";
+   std::string database_name = coot::package_data_dir() + "/data/ligands-2016.db";
    bool low_is_good = reverse_order;
 
    coot::ligand_metrics lm(database_name);
@@ -3716,6 +3730,14 @@ coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
 }
 #endif
 
+//! \brief set if all atom contact should ignore water-water interactions (default off)
+void set_all_atom_contact_dots_ignore_water(short int state) {
+
+   graphics_info_t::all_atom_contact_dots_ignore_water_flag = state;
+
+}
+
+
 // all-atom contact dots.  This is not the place for this definition (not a ligand function)
 //
 void coot_all_atom_contact_dots_old(int imol) {
@@ -3724,8 +3746,8 @@ void coot_all_atom_contact_dots_old(int imol) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       // spike-length ball-radius
-      bool ignore_waters = true;
-      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
+      bool ignore_waters = g.all_atom_contact_dots_ignore_water_flag;
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25); // spike length, ball radius
       // dot density
       float dd = graphics_info_t::contact_dots_density;
       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dd, true);

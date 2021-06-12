@@ -2,6 +2,7 @@
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
+
 #include "graphics-info.h"
 
 bool graphics_info_t::coot_is_a_python_module = true;
@@ -232,4 +233,8 @@ bool graphics_info_t::mol_displayed_toggle_do_redraw = true; // normally true
 
 double graphics_info_t::torsion_restraints_weight = 1.0;
 
+bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
+
 std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
+
+bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;

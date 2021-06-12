@@ -79,13 +79,13 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
                    << n << std::endl;
 	 for(int i=0; i<n; i++) {
 
-            std::cout << "debug:: ################ chemical_feature_clusters_py() here with i " << i << std::endl;
+            // std::cout << "debug:: ################ chemical_feature_clusters_py() here with i " << i << std::endl;
 	    PyObject *o = PyList_GetItem(solvated_ligand_info_py, i);
 
 	    // o should be a list of molecule-idx, residue-spec
 	    if (PyList_Check(o)) {
 	       int no = PyObject_Length(o);
-               std::cout << "debug:: ################ chemical_feature_clusters_py() here with no " << no << std::endl;
+               // std::cout << "debug:: ################ chemical_feature_clusters_py() here with no " << no << std::endl;
 	       if (no == 2) {
 		  PyObject *mol_idx_py  = PyList_GetItem(o, 0);
 		  PyObject *lig_spec_py = PyList_GetItem(o, 1);
@@ -101,8 +101,9 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 			std::vector<coot::residue_spec_t> neighbs_waters; // fill this
 			std::vector<coot::residue_spec_t> neighbs_raw =
 			   coot::residues_near_residue(ligand_spec, mol, radius_1);
-                        std::cout << "debug:: ##### in chemical_feature_clusters_py() neighbs_raw size is "
-                                  << neighbs_raw.size() << std::endl;
+                        if (false)
+                           std::cout << "debug:: ##### in chemical_feature_clusters_py() neighbs_raw size is "
+                                     << neighbs_raw.size() << std::endl;
 
 			for (unsigned int i_neighb=0; i_neighb<neighbs_raw.size(); i_neighb++) { 
 			   mmdb::Residue *res = coot::util::get_residue(neighbs_raw[i_neighb], mol);
