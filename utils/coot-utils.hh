@@ -37,6 +37,8 @@ namespace coot {
    // Use this to find things in $prefix/share/coot
    std::string package_data_dir();
 
+   std::string prefix_dir(); // base, i.e. $HOME/coot-build
+
    // Use this to find things in $prefix/share/RDKit
    std::string rdkit_package_data_dir();
 

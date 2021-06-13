@@ -70,8 +70,26 @@ void setup_python(int argc, char **argv) {
 
 #endif // USE_PYMAC_INIT
 
-   std::string pkgpydirectory = PKGPYTHONDIR;
-   std::string pydirectory = PYTHONDIR;
+   auto get_pythondir = [] () {
+                           std::string p = coot::prefix_dir();
+                           std::string dp   = coot::util::append_dir_dir(p,   "lib");
+                           std::string ddp  = coot::util::append_dir_dir(dp,  "python3.9");
+                           std::string dddp = coot::util::append_dir_dir(ddp, "site-package");
+                           return dddp;
+                        };
+   auto get_pkgpythondir = [get_pythondir] () {
+                              std::string d = get_pythondir();
+                              std::string dp   = coot::util::append_dir_dir(d, "coot");
+                              return dp;
+                           };
+
+   // std::string pkgpydirectory = PKGPYTHONDIR;
+   // std::string pydirectory = PYTHONDIR;
+   // use ${prefix}/lib/python3.9/site-package for PYTHONDIR
+   // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
+
+   std::string pkgpydirectory = get_pkgpythondir();
+   std::string pydirectory = get_pythondir();
 
    if (false) {
       std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;

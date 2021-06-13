@@ -872,6 +872,23 @@ coot::is_mmcif_filename(const std::string &filename) {
    return i;
 }
 
+// base, i.e. $HOME/coot-build
+std::string
+coot::prefix_dir() {
+
+   std::string s;
+   char *env = getenv("COOT_PREFIX");
+   if (env) {
+      s = env;
+   } else {
+      std::string dds = package_data_dir();
+      std::string ds = get_directory(dds);
+      s = get_directory(ds);
+   }
+   return s;
+}
+
+
 
 // The user can set COOT_DATA_DIR (in fact this is the usual case
 // when using binaries) and that should over-ride the built-in
