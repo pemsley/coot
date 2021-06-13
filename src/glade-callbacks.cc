@@ -1706,8 +1706,8 @@ on_scheme_window_close_button_clicked_gtkbuilder_callback  (GtkButton       *but
 
 extern "C" G_MODULE_EXPORT
 void
-on_get_pdb_using_code1_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_fetch_pdb_using_code1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                       gpointer         user_data)
 {
 
   GtkWidget *window;
@@ -1720,7 +1720,7 @@ on_get_pdb_using_code1_activate_gtkbuilder_callback        (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_get_pdb_and_sf_using_code1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+on_fetch_pdb_and_sf_using_code1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *window;
@@ -1730,12 +1730,25 @@ on_get_pdb_and_sf_using_code1_activate_gtkbuilder_callback (GtkMenuItem     *men
   gtk_widget_show(window);
 }
 
+
 extern "C" G_MODULE_EXPORT
 void
-on_fetch_pdb_and_map_using_pdbredo1_activate_gtkbuilder_callback
+on_fetch_pdb_and_map_using_eds1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                              gpointer         user_data)
+{
+  GtkWidget *window;
+  int n = COOT_ACCESSION_CODE_WINDOW_EDS;
+  window = create_accession_code_window();
+  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+  gtk_widget_show(window);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_pdb_and_map_using_pdb_redo1_activate_gtkbuilder_callback
                                         (GtkMenuItem     *menuitem,
 					 gpointer         user_data) {
-
   GtkWidget *window;
   int n = 3;
   window = create_accession_code_window();
@@ -10685,8 +10698,8 @@ on_refine_params_weight_matrix_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_remarks_browser1_activate_gtkbuilder_callback           (GtkMenuItem     *menuitem,
-                                        gpointer         user_data) {
+on_remarks_browser1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                  gpointer         user_data) {
 
   GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
   gtk_widget_show(w);
