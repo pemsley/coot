@@ -90,10 +90,11 @@ void setup_python(int argc, char **argv) {
       // std::cout << "sys imported" << std::endl;
    }
    PyObject *coot = PyImport_ImportModule("coot");
+
    if (! coot) {
       std::cout << "ERROR:: setup_python() Null coot" << std::endl;
    } else {
-      // std::cout << "coot imported" << std::endl;
+      std::cout << "Now calling initcoot_python_gobject() " << std::endl;
       initcoot_python_gobject(); // this is not a good name for this function. We need to say
                                  // this this is the module that wraps the glue to get
                                  // the status-bar, menu-bar etc.

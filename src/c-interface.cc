@@ -1622,32 +1622,6 @@ void set_show_modelling_toolbar(short int state) {
 
 
 
-GtkWidget *main_menubar() {
-
-   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "menubar1");
-   return w;
-}
-
-GtkWidget *main_statusbar() {
-   return graphics_info_t::statusbar;
-}
-
-GtkWidget *main_toolbar() {
-
-   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "main_toolbar");
-   return w;
-}
-
-GtkWidget *main_hbox() {
-
-   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "main_window_hbox");
-   return w;
-
-}
-
-
-
-
 
 /*  ------------------------------------------------------------------------ */
 /*                         file selection                                    */

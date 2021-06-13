@@ -1286,8 +1286,7 @@ def coot_menubar_menu(menu_label):
             menuitem.show()
             return menu
     except:
-        print("""BL WARNING:: A could not import coot_gui_api module!!\n
-                    Some things, esp. extensions, may be crippled!""")
+        print("ERROR:: coot_main_menubar() an error occurs using coot_gui_api")
 
 
 # Given that we have a menu (e.g. one called "Extensions") provide a

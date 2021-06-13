@@ -529,6 +529,7 @@ class graphics_info_t {
    static coot::Cartesian angle_tor_pos_3;
    static coot::Cartesian angle_tor_pos_4;
 
+   static GtkBuilder *gtkbuilder; // use this for widget lookups
    //
    static GtkWidget *display_control_window_;
 
@@ -980,10 +981,14 @@ public:
    }
 
 
+   // New-style gtkbuilder!
+   static void set_gtkbuilder(GtkBuilder *builder) { gtkbuilder = builder; }
+   static GtkWidget *get_widget_from_builder(const std::string &w_name); // use gtkbuilder to do new-style lookup_widget();
+   static bool gui_from_gtkbuilder() { return (gtkbuilder == NULL) ? false : true; }
+
    enum {GL_CONTEXT_MAIN = 0, GL_CONTEXT_SECONDARY = 1};
 
    static void make_gl_context_current(bool gl_context_current_request_index);
-
 
    // ------------- main window -----------------------
    static GtkWidget *main_window;

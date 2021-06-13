@@ -43,6 +43,47 @@
 
 #include "generic-display-objects-c.h"
 
+
+GtkWidget *main_menubar() {
+
+   // GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   GtkWidget *w = 0;
+   if (graphics_info_t::gui_from_gtkbuilder())
+      w = graphics_info_t::get_widget_from_builder("main_window_menubar");
+   else
+      w = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   return w;
+}
+
+GtkWidget *main_statusbar() {
+
+   return graphics_info_t::statusbar; // special case, is set when builder is read
+
+}
+
+GtkWidget *main_toolbar() {
+
+   GtkWidget *w = 0;
+   if (graphics_info_t::gui_from_gtkbuilder())
+      w = graphics_info_t::get_widget_from_builder("main_window_toolbar");
+   else
+      w = lookup_widget(graphics_info_t::statusbar, "main_toolbar");
+   return w;
+}
+
+GtkWidget *main_hbox() {
+
+   GtkWidget *w = 0;
+   if (graphics_info_t::gui_from_gtkbuilder())
+      w = graphics_info_t::get_widget_from_builder("main_window_hbox");
+   else
+      w = lookup_widget(graphics_info_t::statusbar, "main_window_hbox");
+   return w;
+
+}
+
+
+
 void do_rot_trans_adjustments(GtkWidget *dialog) {
    graphics_info_t g;
    g.do_rot_trans_adjustments(dialog);

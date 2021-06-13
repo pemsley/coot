@@ -23,6 +23,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+
 import coot_gui_api
 import coot
 import time
@@ -45,9 +46,9 @@ def register_coot_icons():
         name = os.path.basename(full_name)
         icon_info_ls.append([name, full_name])
     for stock_id, filename in icon_info_ls:
+        print("####################### register icon: ", stock_id, filename)
         # only load image files when our stock_id is not present
-        if ((stock_id not in stock_ids) and not
-                ('phenixed' in filename)):
+        if ((stock_id not in stock_ids) and not ('phenixed' in filename)):
             if os.path.isfile(filename):
                 pixbuf = Gtk.gdk.pixbuf_new_from_file(filename)
                 iconset = Gtk.IconSet(pixbuf)
@@ -88,7 +89,7 @@ if True:  # test for python
 
     if coot_gui_api.main_toolbar():
 
-        register_coot_icons()
+        # register_coot_icons()
 
         def activate_menuitem(widget, item):
             try:

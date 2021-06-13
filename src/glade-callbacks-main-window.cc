@@ -362,4 +362,3 @@ on_model_toolbar_refmac_button_clicked_gtkbuilder_callback (GtkToolButton   *too
   wrapped_create_simple_refmac_dialog();
 
 }
-

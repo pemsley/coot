@@ -348,13 +348,20 @@ void init_from_gtkbuilder() {
 
    if (graphics_hbox) {
 
+      graphics_info_t::set_gtkbuilder(builder); // store for future widget queries
+
       GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
-      std::cout << "debug:: main_window " << main_window << std::endl;
+      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
+
+      std::cout << "debug:: main_window "   << main_window << std::endl;
       std::cout << "debug:: graphics_hbox " << graphics_hbox << std::endl;
+      std::cout << "debug:: statusbar "     << sb << std::endl;
 
       if (main_window)
          graphics_info_t::set_main_window(main_window);
+
+      graphics_info_t::statusbar = sb;
       GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, true);
       if (glarea) {
          graphics_info_t::glareas.push_back(glarea);
@@ -407,8 +414,13 @@ main (int argc, char *argv[]) {
    cld.handle_immediate_settings();
 
 #ifdef USE_PYTHON
-   setup_python(argc, argv);
-   // setup_python_classes();
+
+   // When using the builder, we need to setup python after setting up gtk (and storing the widgets)
+   if (! cld.use_gtkbuilder) {
+      setup_python(argc, argv);
+      // setup_python_classes();
+   }
+
 #endif
 
 #ifdef WITH_SOUND
@@ -468,6 +480,10 @@ main (int argc, char *argv[]) {
          std::cout << "............ done setup signals and events " << std::endl;
          on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
                                                  // without this.
+#ifdef USE_PYTHON
+         // std::cout << "------------------------- calling setup_python" << std::endl;
+         setup_python(argc, argv);
+#endif
       }
 
    }

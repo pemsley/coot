@@ -10072,7 +10072,7 @@ Do you want to continue?
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkMenuBar" id="menubar1">
+              <object class="GtkMenuBar" id="main_window_menubar">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -10691,19 +10691,21 @@ Do you want to continue?
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
-                                  <object class="GtkMenuItem" id="scripting_python1">
+                                  <object class="GtkMenuItem" id="calculate_scripting_python1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="label" translatable="yes">Python...</property>
                                     <property name="use_underline">True</property>
+                                    <signal name="activate" handler="on_calculate_scripting_python1_activate_gtkbuilder_callback" swapped="no"/>
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkMenuItem" id="scripting_scheme1">
+                                  <object class="GtkMenuItem" id="calculate_scripting_scheme1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="label" translatable="yes">Scheme...</property>
                                     <property name="use_underline">True</property>
+                                    <signal name="activate" handler="on_calculate_scripting_scheme1_activate_gtkbuilder_callback" swapped="no"/>
                                   </object>
                                 </child>
                               </object>
@@ -11212,7 +11214,7 @@ Do you want to continue?
               </packing>
             </child>
             <child>
-              <object class="GtkToolbar" id="toolbar1">
+              <object class="GtkToolbar" id="main_window_toolbar">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="toolbar_style">both</property>
@@ -11409,7 +11411,7 @@ Do you want to continue?
             <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <child>
-              <object class="GtkToolbar">
+              <object class="GtkToolbar" id="main_window_model_toolbar">
                 <property name="height_request">380</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -19698,6 +19700,15 @@ just the cell and symmetry)
                               <object class="GtkTable" id="residue_info_atom_table">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>

@@ -23,7 +23,8 @@ std::string graphics_info_t::mtz_file_for_refmac;
 
 bool graphics_info_t::convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
-GtkWidget *graphics_info_t::main_window = NULL;
+GtkBuilder *graphics_info_t::gtkbuilder  = NULL;
+GtkWidget  *graphics_info_t::main_window = NULL;
 
 // now the clipping planes are scale, not offsets
 float graphics_info_t::clipping_front = 1.0;

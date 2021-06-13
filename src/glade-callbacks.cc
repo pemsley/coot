@@ -9061,8 +9061,8 @@ on_toolbar_display_manager_molecules_all_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_scripting_python1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
-                                        gpointer         user_data) {
+on_calculate_scripting_python1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                             gpointer         user_data) {
 
   post_python_scripting_window();
 
@@ -9071,8 +9071,8 @@ on_scripting_python1_activate_gtkbuilder_callback          (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_scripting_scheme1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
-                                        gpointer         user_data) {
+on_calculate_scripting_scheme1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                               gpointer         user_data) {
   post_scheme_scripting_window();
 
 }

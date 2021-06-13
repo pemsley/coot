@@ -175,12 +175,10 @@ static struct PyModuleDef moduledef = {
 PyObject *
 PyInit_coot_gui_api(void) {
 
-   // std::cout << "starting PyInit_coot_gui_api() " << std::endl;
-
    PyObject *module = PyModule_Create(&moduledef);
 
    if (! module) {
-         std::cout << "in PyInit_coot_gui_api() module null" << std::endl;
+      std::cout << "in PyInit_coot_gui_api() module null" << std::endl;
    }
 
    if (module == NULL)
@@ -197,7 +195,7 @@ PyInit_coot_gui_api(void) {
    if (PyErr_Occurred())
       PyErr_PrintEx(0);
 
-   // std::cout << "in PyInit_coot_gui_api() returning module " << module << std::endl;
+   // std::cout << "--------------------- in PyInit_coot_gui_api() returning module " << module << std::endl;
    return module;
 }
 
