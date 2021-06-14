@@ -282,11 +282,11 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		  commands.push_back(state_command(active_strings, il));
 	       }
 
-	       if (molecules[i].bond_thickness() != default_bond_width) {
+	       if (molecules[i].get_bond_thickness() != default_bond_width) {
 		  display_strings.clear();
 		  display_strings.push_back("set-bond-thickness");
 		  display_strings.push_back(int_to_string(molecule_count));
-		  display_strings.push_back(int_to_string(molecules[i].bond_thickness()));
+		  display_strings.push_back(int_to_string(molecules[i].get_bond_thickness()));
 		  commands.push_back(state_command(display_strings, il));
 	       }
 

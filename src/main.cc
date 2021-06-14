@@ -82,6 +82,7 @@
 #include "clipper/core/test_core.h"
 #include "clipper/contrib/test_contrib.h"
 
+#include "utils/coot-utils.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
 
@@ -338,7 +339,18 @@ void on_glarea_realize(GtkGLArea *glarea);
 
 void init_from_gtkbuilder() {
 
-   std::string glade_file_full = "a6.glade"; // do this properly at some stage
+   // get the right file first...
+
+   std::string dir = coot::package_data_dir();
+   std::string glade_file_full = coot::util::append_dir_file(dir, "a6.glade");
+
+   if (coot::file_exists("a6.glade"))  // Hack for now
+      glade_file_full = "a6.glade";
+
+   const char *env = getenv("COOT_GLADE");
+   if (env)
+      glade_file_full = std::string(env);
+
    GtkBuilder *builder = gtk_builder_new();
 
    guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
@@ -587,7 +599,7 @@ void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
 void load_gtk_resources() {
 
 #if 0
-   std::string gtkrcfile = PKGDATADIR;
+   std::string gtkrcfile = coot::package_data_dir();
    gtkrcfile += "/cootrc";
 
    // over-ridden by user?
@@ -609,7 +621,7 @@ void
 setup_splash_screen() {
 
    // default location:
-   std::string splash_screen_pixmap_dir = PKGDATADIR;
+   std::string splash_screen_pixmap_dir = coot::package_data_dir();
    splash_screen_pixmap_dir += "/";
    splash_screen_pixmap_dir += "pixmaps";
 

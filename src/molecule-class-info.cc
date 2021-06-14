@@ -3651,7 +3651,6 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
           glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
           glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
           glm::vec3 screen_up_dir = glm::normalize(y_vec - base);
-          float rama_ball_pos_offset_scale = 0.6f;
           std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > rama_bits =
              make_generic_vertices_for_rama_balls(atom_radius_scale_factor, screen_up_dir);
           vertices.insert(vertices.end(), rama_bits.first.begin(), rama_bits.first.end());

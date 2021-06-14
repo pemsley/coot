@@ -2171,7 +2171,7 @@ public:        //                      public
 
    //
    void set_bond_thickness(float t) { bond_width = t; }
-   int bond_thickness() const { return int(bond_width); }
+   int get_bond_thickness() const { return int(bond_width); }
 
    //
    void apply_atom_edit(const coot::select_atom_info &sai);

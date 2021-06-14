@@ -3653,7 +3653,7 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
 
    int current_bond_width = 3;
    if (is_valid_model_molecule(imol))
-      current_bond_width = molecules[imol].bond_thickness();
+      current_bond_width = molecules[imol].get_bond_thickness();
 
    std::cout << "debug current_bond_width " << current_bond_width << std::endl;
 

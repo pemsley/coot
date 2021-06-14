@@ -250,7 +250,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
                       << err << std::endl;
 
-   std::cout << "------------------------ reaize() done " << std::endl;
+   std::cout << "------------------------ realize() done " << std::endl;
 
 }
 
