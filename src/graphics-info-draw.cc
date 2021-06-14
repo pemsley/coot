@@ -1797,6 +1797,16 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
    std::cout << "debug:: ------------------------------- create_and_pack_gtkglarea() start " << std::endl;
    GtkWidget *w = gtk_gl_area_new();
 
+   auto get_gl_widget_dimension_scale_factor  = [] () {
+                                                   int sf = 1;
+                                                   char *e = getenv("COOT_OPENGL_WIDGET_SCALE_FACTOR");
+                                                   if (e) {
+                                                      std::string ee(e);
+                                                      sf = std::stoi(ee);
+                                                   }
+                                                   return sf;
+                                                };
+
    // allow the user to set the major and minor version (for debugging)
 
    int opengl_major_version = 3;
@@ -1819,7 +1829,10 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 
    unsigned int dimensions = 700;
    if (! use_gtk_builder) dimensions = 900;
-   gtk_widget_set_size_request(w, dimensions, dimensions);
+   int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
+   gtk_widget_set_size_request(w,
+                               gl_widget_dimension_scale_factor * dimensions,
+                               gl_widget_dimension_scale_factor * dimensions);
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
    std::cout << "debug:: --------------------------- create_and_pack_gtkglarea() done " << std::endl;
    return w;
