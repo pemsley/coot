@@ -36,7 +36,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
  case $ac_cv_build_alias in 
 
   *-mingw*)
-    COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
+    COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS -D_USE_MATH_DEFINES"
     # BL says:: may need rethink for shared compilation of course!!
     COOT_WINDOWS_LDFLAGS="-shared-libgcc -static-libstdc++"
     if test $enable_shared = yes ; then

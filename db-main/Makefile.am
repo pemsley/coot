@@ -6,7 +6,7 @@ AM_CXXFLAGS = \
 	-DDATADIR='"$(datadir)"'
 
 AM_CPPFLAGS = -I$(top_srcdir) \
-   $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
+   $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 pkginclude_HEADERS = db-main.hh db-strands.hh
 pkgincludedir = $(includedir)/coot/db-main

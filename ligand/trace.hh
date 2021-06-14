@@ -29,10 +29,6 @@
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
 
-#ifndef M_PI
-#define M_PI       3.141592653589793238466
-#endif
-
 namespace coot {
 
 
