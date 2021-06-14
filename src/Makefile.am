@@ -667,6 +667,8 @@ libcootsumo_la_SOURCES = \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \
+	widget-from-builder.hh   \
+	widget-from-builder.cc   \
         json.hpp
 
 

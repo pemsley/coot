@@ -1378,6 +1378,27 @@ coot_checked_exit(int retval) {
    args.push_back(retval);
    add_to_history_typed(cmd, args);
    if (i_unsaved == 0) { // no unsaved.
+      coot_real_exit(retval);
+   }
+   return TRUE; // path where there were unsaved changes, we don't
+		// want to exit.
+}
+
+// return TRUE if we don't want the window destroyed.
+gboolean
+coot_checked_exit_gtk2(int retval) {
+
+   graphics_info_t g;
+
+   // 20200822-PE save the (new) python history
+   g.command_history.write_history();
+
+   int i_unsaved = g.check_for_unsaved_changes();
+   std::string cmd = "coot-checked-exit";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(retval);
+   add_to_history_typed(cmd, args);
+   if (i_unsaved == 0) { // no unsaved.
 #ifdef USE_GUILE
 #  ifdef USE_GUILE_GTK
       run_clear_backups(retval);
@@ -1397,6 +1418,7 @@ coot_checked_exit(int retval) {
    return TRUE; // path where there were unsaved changes, we don't
 		// want to exit.
 }
+
 
 #ifdef USE_GUILE
 void run_clear_backups(int retval) {

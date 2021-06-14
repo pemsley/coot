@@ -76,7 +76,16 @@ void inner_main(void *closure, int argc, char **argv) {
    SCM thunk = scm_c_eval_string(thunk_str.c_str());
 
    scm_catch(SCM_BOOL_T, thunk, handler);
-   
+
+  if (run_startup_scripts_state()) {
+     try_load_scheme_extras_dir();
+     try_load_dot_coot_and_preferences();
+  }
+
+   run_command_line_scripts(); // i.e. -c '(do-something)'
+   run_state_file_maybe();
+   // pre_load_rotamer_tables(); what's this?
+
    if (use_graphics_flag)
       gtk_main();
    else

@@ -19799,6 +19799,9 @@ just the cell and symmetry)
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -21195,7 +21198,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   </object>
   <object class="GtkDialog" id="run_state_file_dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">saved state dialog</property>
+    <property name="title" translatable="yes">Coot Previously-Saved State</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox29">
@@ -21351,17 +21354,17 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="can_focus">False</property>
                 <property name="xpad">30</property>
                 <property name="ypad">15</property>
-                <property name="label" translatable="yes">There is a coot auto-save state file here. </property>
+                <property name="label" translatable="yes">There is a coot auto-save state file here</property>
                 <property name="justify">center</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
-            </child>
-            <child>
-              <placeholder/>
             </child>
             <child>
               <object class="GtkBox" id="mols_vbox">
@@ -21381,6 +21384,18 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">6</property>
                 <property name="position">2</property>
               </packing>
             </child>

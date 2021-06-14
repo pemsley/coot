@@ -47,6 +47,9 @@
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
 
+#include "widget-from-builder.hh"
+
+
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
 #include "support.h"
@@ -4746,8 +4749,9 @@ void
 on_run_state_file_ok_button_clicked_gtkbuilder_callback    (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "run_state_file_dialog");
-  gtk_widget_destroy(dialog);
+   // GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "run_state_file_dialog");    // old glade style
+  GtkWidget *dialog = widget_from_builder("run_state_file_dialog");
+  gtk_widget_hide(dialog);
   run_state_file();
 }
 
@@ -4757,7 +4761,9 @@ void
 on_run_state_file_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
 					 gpointer         user_data)
 {
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "run_state_file_dialog");
+   // GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "run_state_file_dialog"); // old glade style
+  GtkWidget *dialog = widget_from_builder("run_state_file_dialog");
+  gtk_widget_hide(dialog);
   gtk_widget_destroy(dialog);
 }
 
@@ -4770,7 +4776,7 @@ on_edit_backbone_torsions_dialog_destroy_gtkbuilder_callback
 {
   clear_moving_atoms_object();
   /* FIXME: also clear out the edib backbone ramaplot, if it exists. */
-/*   destroy_edit_backbone_rama_plot(); */
+  /*   destroy_edit_backbone_rama_plot(); */
 }
 
 

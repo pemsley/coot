@@ -7127,19 +7127,27 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
 #endif // python
 #endif // USE_GUILE
    short int il = 1;
-   GtkWidget *w = create_run_state_file_dialog();
-
-   GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
+   // GtkWidget *w = create_run_state_file_dialog();
+   GtkWidget *w = graphics_info_t::get_widget_from_builder("run_state_file_dialog");
+   // GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
+   GtkWidget *vbox_mols = graphics_info_t::get_widget_from_builder("mols_vbox");
+   if (w) {
+      std::cout << "got widget w " << w << std::endl;
+   } else {
+      std::cout << "widget w was null " << std::endl;
+   }
 
    graphics_info_t g;
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);
    for (unsigned int i=0; i<v.size(); i++) {
-      //       std::cout << "Got molecule: " << v[i] << std::endl;
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+
+      gtk_label_set_xalign(GTK_LABEL(label), 0.0);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
+
       gtk_widget_show(label);
    }
    return w;
