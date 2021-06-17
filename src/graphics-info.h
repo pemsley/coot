@@ -4195,7 +4195,7 @@ string   static std::string sessionid;
    static unsigned int framebuffer_scale;
 
    // ---------------------------------------------
-   void init_shaders();
+   bool init_shaders(); // return status (true = OK)
 
    // draw-2 functions
    void init_screen_quads();

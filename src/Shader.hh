@@ -26,6 +26,7 @@ private:
    std::string VertexSource;
    std::string FragmentSource;
    Entity_t entity_type;
+   bool success_status;
 public:
    Shader();
    Shader(const std::string &file_name, Entity_t e);
@@ -60,6 +61,7 @@ public:
                     const lights_info_t &light,
                     const glm::mat4 &view_rotation_matrix); // mouse trackball rotation
    void close();
+   bool get_success_status() const { return success_status; }
 };
 
 #endif // SHADER_HH

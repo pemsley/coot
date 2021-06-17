@@ -7127,17 +7127,29 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
 #endif // python
 #endif // USE_GUILE
    short int il = 1;
+   graphics_info_t g;
    // GtkWidget *w = create_run_state_file_dialog();
-   GtkWidget *w = graphics_info_t::get_widget_from_builder("run_state_file_dialog");
    // GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
-   GtkWidget *vbox_mols = graphics_info_t::get_widget_from_builder("mols_vbox");
-   if (w) {
-      std::cout << "got widget w " << w << std::endl;
+
+   GtkWidget *w = NULL;
+   GtkWidget *vbox_mols = NULL;
+
+   if (graphics_info_t::gui_from_gtkbuilder()) {
+      w = graphics_info_t::get_widget_from_builder("run_state_file_dialog");
+      vbox_mols = graphics_info_t::get_widget_from_builder("mols_vbox");
+      if (w) {
+         std::cout << "wrapped_create_run_state_file_dialog():: got widget w " << w << std::endl;
+      } else {
+         std::cout << "wrapped_create_run_state_file_dialog():: widget w was null " << std::endl;
+      }
    } else {
-      std::cout << "widget w was null " << std::endl;
+
+      // Old style
+
+      w = create_run_state_file_dialog();
+      vbox_mols = lookup_widget(w, "mols_vbox");
    }
 
-   graphics_info_t g;
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);
    for (unsigned int i=0; i<v.size(); i++) {
       std::string s = "    ";

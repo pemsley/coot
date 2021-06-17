@@ -9,7 +9,7 @@
 #include "graphics-info.h"
 
 
-void
+bool
 graphics_info_t::init_shaders() {
 
    std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
@@ -34,6 +34,9 @@ graphics_info_t::init_shaders() {
                                                            shader_for_ligand_view,
                                                            shader_for_screen,
                                                            shader_for_blur};
+
+   bool status = true;  // success
+
    std::string p = coot::package_data_dir();
    std::string d = coot::util::append_dir_dir(p, "shaders");
    if (false)
@@ -67,6 +70,14 @@ graphics_info_t::init_shaders() {
    // shader_for_screen to convert that framebuffer to the screen buffer.
    shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
    shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
+
+   for (it=shaders.begin(); it!=shaders.end(); ++it) {
+      if (! it->get().get_success_status()) {
+         status = false;
+      }
+   }
+
+   return status;
 
 }
 

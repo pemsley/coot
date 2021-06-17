@@ -884,6 +884,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    // This is called from update_map_triangles().
 
+   if (false)
+      std::cout << "#### setup_glsl_map_rendering() start: map_colour " << imol_no << " "
+                << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
+
    bool debug = false;
 
    if (true) { // real map
@@ -901,7 +905,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       unsigned int sum_tri_con_normals = 0;
       unsigned int sum_tri_con_triangles = 0;
 
-      auto tp_0 = std::chrono::high_resolution_clock::now();
+      // auto tp_0 = std::chrono::high_resolution_clock::now();
       std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
@@ -1225,6 +1229,9 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
                      colours[4*idx_for_colours+3] = 1.0f;
                   } else {
                      // basic/standard single colour map
+
+                     // std::cout << "#### map colour " << imol_no << " "
+                     // << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
 
                      if ((4*idx_for_colours) < (4 * n_colours)) {
                         colours[4*idx_for_colours  ] = map_colour.red;

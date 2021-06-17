@@ -175,82 +175,91 @@ on_glarea_realize(GtkGLArea *glarea) {
    }
 
    graphics_info_t g;
-   g.init_shaders();
-   g.init_buffers();
-   err = glGetError();
-   if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
+   bool status = g.init_shaders();
 
-   graphics_info_t::shader_for_screen.Use(); // needed?
+   if (status == true) {
+      // happy path
 
-   err = glGetError();
-   if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
+      g.init_buffers();
+      err = glGetError();
+      if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
-   if (graphics_info_t::use_framebuffers) {
-      unsigned int index_offset = 0;
-      graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
-      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
-                                             << err << std::endl;
-      index_offset = 1;
-      graphics_info_t::blur_framebuffer.init(w,h, index_offset, "blur");
-      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
-                                             << err << std::endl;
+      graphics_info_t::shader_for_screen.Use(); // needed?
 
-      graphics_info_t::shader_for_screen.Use();
-      err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
-      graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
-      err = glGetError(); if (err) std::cout << "on_glarea_realize() C screen framebuffer err " << err << std::endl;
-      graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
-      err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
+      err = glGetError();
+      if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
 
-      graphics_info_t::shader_for_blur.Use();
-      err = glGetError(); if (err) std::cout << "on_glarea_realize() blur shader-framebuffer B err " << err << std::endl;
-      graphics_info_t::shader_for_blur.set_int_for_uniform("screenTexture", 0);
-      err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
-      graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
-      err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
+      if (graphics_info_t::use_framebuffers) {
+         unsigned int index_offset = 0;
+         graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 1;
+         graphics_info_t::blur_framebuffer.init(w,h, index_offset, "blur");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+                                                << err << std::endl;
+
+         graphics_info_t::shader_for_screen.Use();
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
+         graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() C screen framebuffer err " << err << std::endl;
+         graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
+
+         graphics_info_t::shader_for_blur.Use();
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() blur shader-framebuffer B err " << err << std::endl;
+         graphics_info_t::shader_for_blur.set_int_for_uniform("screenTexture", 0);
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
+         graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
+      }
+
+      setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
+      setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
+
+      gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
+
+      glEnable(GL_DEPTH_TEST);
+
+      // At some stage, enable this.  Currently (I think) the winding on the atoms is the wrong
+      // way around - replace with octaspheres and octahemispheres.
+      // I have just now changed the winding on the "solid" map triangles - and now it looks
+      // fine.
+      // 
+      // glEnable(GL_CULL_FACE); // if I enable this, then I get to see the back side
+      // of the atoms. It's a weird look.
+
+      // Make antialised lines - not in this
+      if (false) {
+         glEnable (GL_BLEND);
+         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glEnable(GL_LINE_SMOOTH);
+      }
+
+      g.setup_lights();
+
+      float x_scale = 4.4;  // what are these numbers!?
+      float y_scale = 1.2;
+      g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels, x_scale, y_scale);
+
+      g.setup_hud_geometry_bars();
+
+      g.setup_rama_balls();
+
+      g.setup_key_bindings();
+
+      g.setup_draw_for_happy_face_residue_markers_init();
+
+      err = glGetError();
+      if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
+                         << err << std::endl;
+
+      std::cout << "------------------------ realize() done " << std::endl;
+
+   } else {
+      std::cout << "ERROR:: Shader compilation failed " << std::endl;
+      exit(1);
    }
-
-   setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
-   setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
-
-   gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
-
-   glEnable(GL_DEPTH_TEST);
-
-   // At some stage, enable this.  Currently (I think) the winding on the atoms is the wrong
-   // way around - replace with octaspheres and octahemispheres.
-   // I have just now changed the winding on the "solid" map triangles - and now it looks
-   // fine.
-   // 
-   // glEnable(GL_CULL_FACE); // if I enable this, then I get to see the back side
-                              // of the atoms. It's a weird look.
-
-   // Make antialised lines - not in this
-   if (false) {
-      glEnable (GL_BLEND);
-      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      glEnable(GL_LINE_SMOOTH);
-   }
-
-   g.setup_lights();
-
-   float x_scale = 4.4;  // what are these numbers!?
-   float y_scale = 1.2;
-   g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels, x_scale, y_scale);
-
-   g.setup_hud_geometry_bars();
-
-   g.setup_rama_balls();
-
-   g.setup_key_bindings();
-
-   g.setup_draw_for_happy_face_residue_markers_init();
-
-   err = glGetError();
-   if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
-                      << err << std::endl;
-
-   std::cout << "------------------------ realize() done " << std::endl;
 
 }
 

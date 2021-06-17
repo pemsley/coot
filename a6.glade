@@ -11225,7 +11225,8 @@ Do you want to continue?
                     <child>
                       <object class="GtkButton" id="reset_view_button">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">False</property>
                         <signal name="clicked" handler="on_reset_view_button_clicked_gtkbuilder_callback" swapped="no"/>
                         <child>
@@ -11283,7 +11284,8 @@ Do you want to continue?
                     <child>
                       <object class="GtkButton" id="display_manager_button">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">False</property>
                         <signal name="clicked" handler="on_display_manager_button_clicked_gtkbuilder_callback" swapped="no"/>
                         <child>
@@ -19700,6 +19702,9 @@ just the cell and symmetry)
                               <object class="GtkTable" id="residue_info_atom_table">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>

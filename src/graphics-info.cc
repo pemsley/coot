@@ -5003,6 +5003,7 @@ void graphics_info_t::draw_chi_angles_flash_bond() {
 void
 graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 
+   // first find the last map:
    int imap = -1;
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_xmap()) {

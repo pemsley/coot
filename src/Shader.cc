@@ -43,10 +43,10 @@ Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name)
 
 void Shader::init(const std::string &file_name, Shader::Entity_t e) {
 
+   success_status = true; // initially
    // clear then go
    VertexSource.clear();
    FragmentSource.clear();
-   std::string::size_type pos = file_name.find_first_of(".shader");
    name = file_name;
    std::string message;
 
@@ -57,14 +57,21 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
          std::pair<unsigned int, std::string> create_results = create();
          program_id = create_results.first;
          message = create_results.second;
-         Use();
-         set_uniform_locations();
-         set_attribute_locations();
+         if (message == "error") {
+            success_status = false;
+         } else {
+            // happy path
+            Use();
+            set_uniform_locations();
+            set_attribute_locations();
+         }
       } else {
          std::cout << "Empty Fragment Shader source\n";
+         success_status = false;
       }
    } else {
       std::cout << "Empty Vertex Shader source\n";
+      success_status = false;
    }
    std::string fn = file_name;
    std::stringstream ss;
@@ -381,7 +388,7 @@ Shader::create() const {
    GLuint err = glGetError();
    if (err) {
       std::cout << "Shader::create() err " << err << std::endl;
-      message = "error";
+      message = "error"; // this value is tested in init().
    } else {
       // std::cout << "   Shader::create() link was good " << std::endl;
       message = "success";

@@ -53,21 +53,21 @@ molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 void
 molecule_class_info_t::handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag) {
 
-   std::vector<float> orig_colours(3);
+   std::vector<float> orig_colours(3); // type swap
    orig_colours[0] = map_colour.red;
    orig_colours[1] = map_colour.green;
    orig_colours[2] = map_colour.blue;
-   // Usually (by default) the colours for the difference map are
-   // green and red.  Some people like red and
-   // green. set_last_map_colour() calls this function and it is
-   // here that we decide on the second (negative level) colour.
+
+   // Usually (by default) the colours for the difference map are  green and red. Some people like red and
+   // green. set_last_map_colour() calls this function and it is here that we decide on the second (negative
+   // level) colour.
    float rotation_size = rotate_colour_map_for_difference_map/360.0;
    if (swap_difference_map_colours_flag)
       rotation_size = (360.0 - rotate_colour_map_for_difference_map)/360.0;
    std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-   map_colour.red   = rgb_new[0];
-   map_colour.green = rgb_new[1];
-   map_colour.blue  = rgb_new[2];
+   map_colour_negative_level.red   = rgb_new[0];
+   map_colour_negative_level.green = rgb_new[1];
+   map_colour_negative_level.blue  = rgb_new[2];
 }
 
 void
@@ -77,8 +77,8 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                                                 clipper::Coord_orth centre,
                                                 float radius) {
 
-   if (true)
-      std::cout << "debug:: handle_map_colour_change() handle change to colour "
+   if (false)
+      std::cout << "debug:: handle_map_colour_change() handle change to map colour "
                 << map_col_in.red << " "
                 << map_col_in.green << " "
                 << map_col_in.blue << std::endl;
@@ -90,8 +90,11 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
    // map_colour.green = map_col_in.green/65535.0;
    // map_colour.blue  = map_col_in.blue /65535.0;
 
-   if (xmap_is_diff_map)
+   if (xmap_is_diff_map) {
+      // std::cout << "calling handle_map_colour_change_rotate_difference_map() map colour for " << imol_no
+      // << " with swap flag " << swap_difference_map_colours_flag << std::endl;
       handle_map_colour_change_rotate_difference_map(swap_difference_map_colours_flag);
+   }
 
    // ideally, just change the colour buffer, but this will do for now.
 
