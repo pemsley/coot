@@ -1064,6 +1064,8 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
    ignored_go_to_ligand_residue_types.push_back("MSE");
    ignored_go_to_ligand_residue_types.push_back("ACE");
    ignored_go_to_ligand_residue_types.push_back("PCA");
+   ignored_go_to_ligand_residue_types.push_back("GOL");
+   ignored_go_to_ligand_residue_types.push_back("SO4");
 
    std::vector<std::pair<clipper::Coord_orth, coot::residue_spec_t> > ligand_centres;
 
