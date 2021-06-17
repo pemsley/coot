@@ -4863,3 +4863,8 @@ void
 on_refine_params_overall_weight_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data);
+
+void
+on_accept_reject_side_chain_180_flip_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

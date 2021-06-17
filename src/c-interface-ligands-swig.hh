@@ -155,6 +155,9 @@ bool comprised_of_organic_set_p(const std::string &rn);
 //! remove contact dots objects using the Generic Display Objects dialog
 void coot_all_atom_contact_dots(int imol);
 
+//! \brief set if all atom contact should ignore water-water interactions (default off)
+void set_all_atom_contact_dots_ignore_water(short int state);
+
 #ifdef USE_PYTHON
 void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
 // change HE2 to HD1 and vice versa
@@ -205,6 +208,11 @@ bool enhanced_ligand_coot_p();
 //! \brief JED-Flip the bond of the active atoms
 int jed_flip_intermediate_atoms();
 
+//! \brief JED-Flip the bond of the active atoms using reversed atom selection (wag the dog)
+int reverse_jed_flip_intermediate_atoms();
+
+//! \brief side-chain 180 flip on the active atom
+// int side_chain_flip_180_intermediate_atoms(); moved because button in gui, unlike JED flip
 
 // No here - this file  is for swigging
 // #include "ideal/simple-restraint.hh"

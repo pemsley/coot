@@ -3170,6 +3170,11 @@ else
     echo not building python:
 fi
 
+#################################################################
+#################################################################
+# should I use pip to install other packages? (skilearn)
+
+
 
 
 if test -n "$build_pygobject" ; then 
