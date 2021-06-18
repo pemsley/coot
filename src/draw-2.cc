@@ -128,7 +128,7 @@ glarea_tick_func(GtkWidget *widget,
 }
 
 
-
+#include <gdk/gdk.h>
 #include "screendump-tga.hh"
 
 void
@@ -254,6 +254,9 @@ on_glarea_realize(GtkGLArea *glarea) {
       if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
                          << err << std::endl;
 
+      GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
+      gboolean legacy_flag = gdk_gl_context_is_legacy(context);
+      std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;
       std::cout << "------------------------ realize() done " << std::endl;
 
    } else {
