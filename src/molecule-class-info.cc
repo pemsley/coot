@@ -133,6 +133,7 @@ molecule_class_info_t::setup_internal() {
    xskel_is_filled = 0; // not filled.
    skeleton_treenodemap_is_filled = 0;
 
+   this_molecule_has_crystallographic_symmetry = false;
    draw_hydrogens_flag = 1;
    bond_width = 3.0;
    atom_radius_scale_factor = 1.0; // used in making balls for atoms
@@ -1411,6 +1412,7 @@ molecule_class_info_t::update_symmetry() {
                                               do_intermolecular_symmetry_bonds);
 
             make_glsl_symmetry_bonds();
+            this_molecule_has_crystallographic_symmetry = true;
 
          } else {
             Bond_lines_container bonds(NO_SYMMETRY_BONDS);
@@ -3884,8 +3886,9 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
 
    if (draw_it)
       if (show_symmetry)
-         mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
-                                               eye_position, background_colour, do_depth_fog);
+         if (this_molecule_has_crystallographic_symmetry)
+            mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
+                                                  eye_position, background_colour, do_depth_fog);
 }
 
  

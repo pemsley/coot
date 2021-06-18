@@ -3558,6 +3558,7 @@ public:        //                      public
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
    Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
    // And now symmetry atoms are displayed as a Mesh
+   bool this_molecule_has_crystallographic_symmetry;
    Mesh mesh_for_symmetry_atoms;
 
    // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
