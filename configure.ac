@@ -57,12 +57,15 @@ GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
 
 m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
+m4_define([v_git_commit], m4_esyscmd([git rev-parse HEAD | tr -d '\n']))
 #dnl m4_define([vxx_git_revision_count], m4_esyscmd([git rev-list --count HEAD]))
 # old gits can't use count with HEAD.
 # we need to make the src and pyrogen directories if they do not exist
 if test ! -d src     ; then mkdir src     ; fi
 if test ! -d pyrogen ; then mkdir pyrogen ; fi
 echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
+echo "#include <string>" >> src/git-revision-count.cc
+echo 'std::string git_commit() { return "v_git_commit"; }' >> src/git-revision-count.cc
 echo 'def revision_count():
       return ' v_git_revision_count > pyrogen/coot_git.py
 

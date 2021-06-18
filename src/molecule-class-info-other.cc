@@ -9367,14 +9367,19 @@ molecule_class_info_t::set_torsion(const std::string &chain_id,
          make_backup();
          coot::atom_tree_t tree(restraints_info.second, residue_p, alt_conf);
 
-         r = tree.set_dihedral(atom_name_1,
-                               atom_name_2,
-                               atom_name_3,
-                               atom_name_4,
-                               tors);
-         atom_sel.mol->FinishStructEdit();
-         make_bonds_type_checked(); // calls update_ghosts()
-         have_unsaved_changes_flag = 1;
+         try {
+            r = tree.set_dihedral(atom_name_1,
+                                  atom_name_2,
+                                  atom_name_3,
+                                  atom_name_4,
+                                  tors);
+            atom_sel.mol->FinishStructEdit();
+            make_bonds_type_checked(); // calls update_ghosts()
+            have_unsaved_changes_flag = 1;
+         }
+         catch(const std::runtime_error &rte) {
+            std::cout << "in set_torsion:: set_dihedral() error: " << rte.what() << std::endl;
+         }
       }
    }
    return r;

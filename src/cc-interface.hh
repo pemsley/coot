@@ -93,6 +93,7 @@ namespace coot {
 
 }
 
+std::string git_commit();
 
 std::vector<std::string> filtered_by_glob(const std::string &pre_directory, int data_type);
 /*  Return 1 if search appears in list, 0 if not) */

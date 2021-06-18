@@ -182,6 +182,11 @@ std::string coot_version_extra_info() {
       version_string += "\n";
    }
 
+   s = git_commit();
+   version_string += "git commit: ";
+   version_string += s;
+   version_string += "\n";
+
    s = COOT_SYS_BUILD_TYPE;
    if (! s.empty()) {
       version_string += "Binary type: ";
