@@ -14651,6 +14651,7 @@ into Molecule:
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="dialog-action_area94">
             <property name="visible">True</property>
@@ -14800,6 +14801,7 @@ Move Molecule Here:</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
+                <property name="padding">8</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -19702,6 +19704,9 @@ just the cell and symmetry)
                               <object class="GtkTable" id="residue_info_atom_table">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>

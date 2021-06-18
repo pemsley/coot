@@ -4118,7 +4118,7 @@ graphics_info_t::nudge_active_residue(guint direction) {
    if (active_atom.first) {
       clipper::Coord_orth shift(0,0,0);
       clipper::Mat33<double> mat(1,0,0,0,1,0,0,0,1);
-      double shift_scale_factor = 0.01 * zoom; // needs to be 0.04 for funny mode?
+      double shift_scale_factor = 0.02 * zoom; // needs to be 0.04 for funny mode?
       coot::ScreenVectors screen_vectors;
 
       if (direction == GDK_KEY_Left) {
@@ -4180,15 +4180,17 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
       if (direction == GDK_KEY_Left)
 	 angle = -angle;
       if (direction == GDK_KEY_Up)
-	 angle *=5;
+	 angle *= 3.0;
       if (direction == GDK_KEY_Down)
-	 angle *= -5;
+	 angle *= -3.0;
       coot::Cartesian rc = g.RotationCentre();
       clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
-      glm::vec4 front_centre = unproject(0.0);
-      glm::vec4  back_centre = unproject(1.0);
-      glm::vec4 ftb = back_centre - front_centre;
+      glm::vec3 front_centre = unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f,  1.0f));
+      glm::vec3  back_centre = unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, -1.0f));
+      glm::vec3 ftb = back_centre - front_centre;
+      ftb = -ftb; // seems more sensible this way round
       clipper::Coord_orth around_vec(ftb.x, ftb.y, ftb.z);
+      std::cout << "nudge_active_residue_by_rotate() around_vec " << around_vec.format() << std::endl;
       coot::residue_spec_t res_spec(coot::atom_spec_t(active_atom.second.second));
       g.molecules[imol].rotate_residue(res_spec, around_vec, origin_offset, angle);
       graphics_draw();
