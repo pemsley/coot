@@ -193,7 +193,7 @@ class graphical_bonds_container {
    int n_rotamer_markups;
    rotamer_markup_container_t *rotamer_markups;
    
-   graphical_bonds_container() { 
+   graphical_bonds_container() {
       num_colours = 0; 
       bonds_ = NULL;
       symmetry_has_been_created = 0; 
@@ -302,6 +302,10 @@ class graphical_bonds_container {
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size(); }
    bool empty() const { return (bonds_ == NULL); }
+
+   unsigned int n_bonds() const; // count them up
+   unsigned int n_atoms() const;
+
    void add_cis_peptide_markup(const std::vector<coot::util::cis_peptide_quad_info_t> &cis_peptide_quads);
 };
 

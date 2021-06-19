@@ -446,7 +446,7 @@ molecule_class_info_t::bonds_no_waters_representation() {
       bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
       bonds_box = bonds.make_graphical_bonds();
       bonds_box_type = coot::BONDS_NO_WATERS;
-      make_glsl_bonds_type_checked();
+      make_glsl_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -458,7 +458,7 @@ molecule_class_info_t::bonds_sec_struct_representation() {
       bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
-      make_glsl_bonds_type_checked();
+      make_glsl_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -472,7 +472,7 @@ molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_g
                                                     graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
 }
 
@@ -488,7 +488,7 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
         draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
         bonds_box = bonds.make_graphical_bonds_no_thinning();
         bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
-        make_glsl_bonds_type_checked();
+        make_glsl_bonds_type_checked(__FUNCTION__);
 
     }
 
@@ -501,7 +501,7 @@ molecule_class_info_t::b_factor_representation() {
    Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 void
@@ -516,7 +516,7 @@ molecule_class_info_t::b_factor_representation_as_cas() {
                                   draw_hydrogens_flag); // pass a dictionary
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 void
@@ -528,7 +528,7 @@ molecule_class_info_t::occupancy_representation() {
    Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 
@@ -571,7 +571,7 @@ molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::
    }
    have_unsaved_changes_flag = 1;
    atom_sel.mol->FinishStructEdit();
-   make_bonds_type_checked(); // calls update_ghosts()
+   make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
    return istate;
 }
 
@@ -610,7 +610,7 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
       }
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
-      make_bonds_type_checked(); // calls update_ghosts()
+      make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
    }
    return istate;
 }
@@ -676,7 +676,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
          }
          have_unsaved_changes_flag = 1;
          atom_sel.mol->FinishStructEdit();
-         make_bonds_type_checked(); // calls update_ghosts()
+         make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
       }
    }
    return istate;
@@ -752,7 +752,7 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
 
    if (iresult) {
       // std::cout << "INFO:: flipped " << resno << " " << chain_id << std::endl;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       have_unsaved_changes_flag = 1;
 
    } else {
@@ -1128,7 +1128,7 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
    have_unsaved_changes_flag = 1;
    if (show_symmetry)
       update_symmetry();
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
    return 1;
 }
 
@@ -1214,7 +1214,7 @@ molecule_class_info_t::delete_residue(int model_number,
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked(); // calls update_ghosts()
+      make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
       //
       trim_atom_label_table();
       update_symmetry();
@@ -1335,7 +1335,7 @@ molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       //
       trim_atom_label_table();
       update_symmetry();
@@ -1496,7 +1496,7 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
 
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       update_symmetry();
    }
 //    std::cout << "DEBUG:: End of delete-residue-with-altconf n-atoms: "
@@ -1541,7 +1541,7 @@ molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &
       trim_atom_label_table();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       update_symmetry();
    }
    return something_deleted;
@@ -1620,7 +1620,7 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
       unalt_conf_residue_atoms(residue_for_deletion);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked(); // calls update_ghosts()
+      make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
    }
    return was_deleted;
 }
@@ -1717,7 +1717,7 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked(); // calls update_ghosts()
+      make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
       trim_atom_label_table();
       update_symmetry();
    }
@@ -1873,7 +1873,7 @@ molecule_class_info_t::delete_atom(const std::string &chain_id,
 
 
       atom_sel = make_asc(atom_sel.mol);
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       have_unsaved_changes_flag = 1;
       // unlikely to be necessary:
       trim_atom_label_table();
@@ -1924,7 +1924,7 @@ molecule_class_info_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_s
    if (was_deleted) {
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       have_unsaved_changes_flag = 1;
       // unlikely to be necessary:
       trim_atom_label_table();
@@ -1980,7 +1980,7 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
 
          atom_sel.mol->FinishStructEdit();
          atom_sel = make_asc(atom_sel.mol);
-         make_bonds_type_checked();
+         make_bonds_type_checked(__FUNCTION__);
          have_unsaved_changes_flag = 1;
          // unlikely to be necessary:
          trim_atom_label_table();
@@ -2028,7 +2028,7 @@ molecule_class_info_t::delete_waters() {
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
    return waters_to_be_deleted.size();
 }
@@ -2573,7 +2573,7 @@ molecule_class_info_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmd
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
    return i_done;
 }
@@ -3243,7 +3243,7 @@ molecule_class_info_t::apply_atom_edits(const std::vector<coot::select_atom_info
 
    if (made_edit) {
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -4943,7 +4943,7 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
       coot::util::fit_to_map_by_simplex_rigid(local_SelAtom, nSelAtoms,
                                               graphics_info_t::molecules[imol_for_map].xmap);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 
    atom_sel.mol->DeleteSelection(selHnd);
@@ -6557,7 +6557,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
                coot::residue_spec_t old_spec(chain_id, current_resno, current_inscode_str);
                coot::residue_spec_t new_spec(chain_id, new_resno, new_inscode_str);
                update_any_link_containing_residue(old_spec, new_spec);
-               make_bonds_type_checked();
+               make_bonds_type_checked(__FUNCTION__);
             }
          }
       }
@@ -7275,7 +7275,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
             //
             if (bonds_box_type == coot::UNSET_TYPE)
                bonds_box_type = coot::NORMAL_BONDS;
-            make_bonds_type_checked();
+            make_bonds_type_checked(__FUNCTION__);
          }
 
          // debug();
@@ -7658,7 +7658,7 @@ molecule_class_info_t::set_occupancy_residue_range(const std::string &chain_id, 
       }
       atom_sel.mol->DeleteSelection(SelHnd);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -7700,7 +7700,7 @@ molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
       }
       atom_sel.mol->DeleteSelection(SelHnd);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -7776,7 +7776,7 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
     }
   }
   have_unsaved_changes_flag = 1;
-  make_bonds_type_checked();
+  make_bonds_type_checked(__FUNCTION__);
 }
 
 // all atoms of specified
@@ -7800,7 +7800,7 @@ molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::r
    }
    have_unsaved_changes_flag = 1;
    atom_sel.mol->FinishStructEdit();
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 }
 
 void
@@ -7817,7 +7817,7 @@ molecule_class_info_t::set_b_factor_residue(coot::residue_spec_t spec, float bf)
    }
    have_unsaved_changes_flag = 1;
    atom_sel.mol->FinishStructEdit();
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 }
 
 
@@ -7910,7 +7910,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
                            atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
                            atom_sel.mol->FinishStructEdit();
                            atom_sel = make_asc(atom_sel.mol);
-                           make_bonds_type_checked();
+                           make_bonds_type_checked(__FUNCTION__);
                         }
                      }
                   }
@@ -8066,7 +8066,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
                      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
                      atom_sel.mol->FinishStructEdit();
                      atom_sel = make_asc(atom_sel.mol);
-                     make_bonds_type_checked();
+                     make_bonds_type_checked(__FUNCTION__);
                   }
                }
             }
@@ -8169,7 +8169,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
                            atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
                            atom_sel.mol->FinishStructEdit();
                            atom_sel = make_asc(atom_sel.mol);
-                           make_bonds_type_checked();
+                           make_bonds_type_checked(__FUNCTION__);
                         }
                      }
                   }
@@ -8307,7 +8307,7 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
                         found = 1;
                         r = cis_trans_conversion(at, false, standard_residues_mol);
                         if (r)
-                           make_bonds_type_checked();
+                           make_bonds_type_checked(__FUNCTION__);
                      }
                      if (found)
                         break;
@@ -8459,7 +8459,7 @@ molecule_class_info_t::reverse_direction_of_fragment(const std::string &chain_id
          atom_sel = make_asc(mol);
 
          have_unsaved_changes_flag = 1;
-         make_bonds_type_checked();
+         make_bonds_type_checked(__FUNCTION__);
       }
    }
    return istat;
@@ -8616,7 +8616,7 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
             }
 
             have_unsaved_changes_flag = 1;
-            make_bonds_type_checked();
+            make_bonds_type_checked(__FUNCTION__);
 
          } else {
             std::cout << "No flipping allowed for residue type " << resname
@@ -9200,7 +9200,7 @@ molecule_class_info_t::replace_molecule(mmdb::Manager *mol) {
       delete atom_sel.mol;
       atom_sel = make_asc(mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked(); // calls update_ghosts()
+      make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
       trim_atom_label_table();
       update_symmetry();
       was_changed = 1;
@@ -9267,7 +9267,7 @@ molecule_class_info_t::replace_models(std::deque<mmdb::Model *> model_list) {
 
       atom_sel = make_asc(mol);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked(); // calls update_ghosts()
+      make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
       trim_atom_label_table();
       update_symmetry();
       was_changed = 1;
@@ -9374,7 +9374,7 @@ molecule_class_info_t::set_torsion(const std::string &chain_id,
                                   atom_name_4,
                                   tors);
             atom_sel.mol->FinishStructEdit();
-            make_bonds_type_checked(); // calls update_ghosts()
+            make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
             have_unsaved_changes_flag = 1;
          }
          catch(const std::runtime_error &rte) {
@@ -9421,7 +9421,7 @@ molecule_class_info_t::match_torsions(mmdb::Residue *res_reference,
             coot::match_torsions mt(res_ligand, res_reference, ligand_restraints_info.second);
             n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
             atom_sel.mol->FinishStructEdit();
-            make_bonds_type_checked(); // calls update_ghosts()
+            make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
             have_unsaved_changes_flag = 1;
          } else {
             std::cout << "WARNING torsion restraints of ligand: size 0" << std::endl;
@@ -9449,7 +9449,7 @@ molecule_class_info_t::lsq_improve(mmdb::Manager *mol_ref, const std::string &re
          std::cout << "rtop:\n" << rtop.format() << std::endl;
          coot::util::transform_mol(atom_sel.mol, rtop);
          have_unsaved_changes_flag = 1;
-         make_bonds_type_checked(); // calls update_ghosts()
+         make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
       }
       catch (const std::runtime_error &rte) {
          std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;

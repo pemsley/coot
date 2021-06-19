@@ -454,7 +454,7 @@ graphics_info_t::clear_up_glsl_buffers_for_moving_atoms() {
 void
 graphics_info_t::clear_up_moving_atoms_wrapper() {
 
-   rebond_molecule_corresponding_to_moving_atoms();
+   rebond_molecule_corresponding_to_moving_atoms(); // in clear_up_moving_atoms_wrapper()
 
    // poke a value into the threaded refinement loop, to stop
    if (continue_threaded_refinement_loop) {
@@ -1580,6 +1580,9 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
    // This also rebonds the imol_moving_atoms molecule
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: in make_moving_atoms_asc()-- start --\n"; // hmm were was thig from?
+
    atom_selection_container_t local_moving_atoms_asc;
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
    local_moving_atoms_asc.UDDOldAtomIndexHandle = residues_mol->GetUDDHandle(mmdb::UDR_ATOM, "old atom index");
@@ -1642,10 +1645,15 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
       }
    }
 
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: in make_moving_atoms_asc()-- before end --\n";
+
    // now rebond molecule imol without bonds to atoms in atom_set
-   if (atom_set.size())
-      if (regenerate_bonds_needs_make_bonds_type_checked_flag)
-         molecules[imol_moving_atoms].make_bonds_type_checked(atom_set);
+   if (atom_set.size() > 0) {
+      if (regenerate_bonds_needs_make_bonds_type_checked_flag) {
+         molecules[imol_moving_atoms].make_bonds_type_checked(atom_set, __FUNCTION__);
+      }
+   }
 
    return local_moving_atoms_asc;
 }

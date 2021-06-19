@@ -481,7 +481,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
          //
          if (bonds_box_type == coot::UNSET_TYPE)
             bonds_box_type = coot::NORMAL_BONDS;
-         make_bonds_type_checked();
+         make_bonds_type_checked(__FUNCTION__);
       }
 
       draw_it = 1;
@@ -3254,6 +3254,9 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 
    // debug_atom_selection_container(atom_sel);
 
+
+   std::cout << "---------------------------------- makebonds() A " << std::endl;
+
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3261,18 +3264,19 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
 
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
 }
 
 void
 molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
 
+   std::cout << "---------------------------------- makebonds() B " << std::endl;
    Bond_lines_container bonds(atom_sel, max_dist, graphics_info_t::draw_missing_loops_flag);
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 // we remove the argument for add_residue_indices because they are no longer useful.
@@ -3282,20 +3286,30 @@ void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
                                  const std::set<int> &no_bonds_to_these_atoms) {
 
+   if (false)
+      std::cout << "---------------------------------- makebonds() C "
+                << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
+                << std::endl;
+
    // come back to this
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: in makebonds() C -- start A --\n";
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: in makebonds() C -- start B --\n";
 
    std::set<int>::const_iterator it;
    if (false) { // debug no_bonds_to_these_atoms
       for (it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
          int idx = *it;
          mmdb::Atom *at = atom_sel.atom_selection[idx];
-         std::cout << "No bond to    " << idx << " " << coot::atom_spec_t(at) << std::endl;
+         std::cout << "   makebonds() C: No bond to " << idx << " " << coot::atom_spec_t(at) << std::endl;
       }
    }
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
-   bool do_sticks_for_waters = true;
+   bool do_sticks_for_waters = false;
 
    if (single_model_view_current_model_number != 0)
       model_number = single_model_view_current_model_number;
@@ -3303,13 +3317,22 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
                               geom_p, do_disulphide_flag, draw_hydrogens_flag,
                               graphics_info_t::draw_missing_loops_flag,
-                              model_number, "dummy", false, false, false);
+                              model_number, "dummy", false, false, do_sticks_for_waters);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
+
+   if (false) { // debug
+      int n_atoms = bonds_box.n_atoms();
+      int n_bonds = bonds_box.n_bonds();
+      std::cout << "########### makebonds() C: bonds_box from make_graphical_bonds() contains "
+                << n_bonds << " bonds" << " and " << n_atoms << " atoms " <<  std::endl;
+   }
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
-   make_glsl_bonds_type_checked();
+   if (true)
+      std::cout << "   makebonds() C calls make_glsl_bonds_type_checked() " << std::endl;
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
 }
 
@@ -3323,7 +3346,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
    // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
    // << bonds_box_type << std::endl;
 
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
 }
 
@@ -3335,7 +3358,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
 }
 
@@ -3354,7 +3377,7 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
                                   graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
@@ -3368,7 +3391,7 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
                                                  graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
@@ -3399,7 +3422,7 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
    if (goodsell_mode)
       bonds_box_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
    // I don't think that this should be here - it should be in caller function
    //
@@ -3416,7 +3439,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
    bonds.do_colour_by_molecule_bonds(atom_sel, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_MOLECULE_BONDS;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
    // Put this in the caller
    // if (graphics_info_t::glarea)
@@ -3427,17 +3450,18 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 
-
+// caller is an optional argument
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = false;
+   bool debug = true;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
    if (debug)
-      std::cout << "debug:: make_bonds_type_checked() --------start--------- called by "
-                << caller << "()" << std::endl;
+      std::cout << "debug:: plain make_bonds_type_checked() --------start--------- called by "
+                << caller << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
+                << std::endl;
    if (debug)
       std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "
@@ -3534,7 +3558,7 @@ void
 molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
    
    atom_radius_scale_factor = sf;
-   make_glsl_bonds_type_checked();
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 void
@@ -3583,19 +3607,20 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (false)
-      std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller
-                << "()" << std::endl;
+   if (true)
+      std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
+                << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
+                << std::endl;
 
-   if (false)
-      if (! is_intermediate_atoms_molecule)
+   if (true)
+      // if (! is_intermediate_atoms_molecule)
          std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 
    GLenum err = glGetError();
-   if (err) std::cout << "error in make_glsl_bonds_type_checked() -- start --\n";
+   if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() -- start A --\n";
 
    err = glGetError();
-   if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
+   if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() -- start B --\n";
 
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
@@ -3762,7 +3787,6 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
        bool do_thinning = false;
        if (ll.thin_lines_flag) do_thinning = true;
 
-       unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
        for (int j=0; j< ll.num_lines; j++) {
 
           glm::vec3 start(cartesian_to_glm(ll.pair_list[j].positions.getStart()));
@@ -3789,7 +3813,10 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
        }
     }
-    if (vertices.empty()) return;
+
+    // if (vertices.empty()) return; // no because we want to setup_buffers() with a empty molecule
+                                     // so that is it undisplayed (while the intermediate atmos are displayed)
+
     err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 4\n";
 
 
@@ -3844,6 +3871,8 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
     if (write_model_vertices_and_triangles_to_file_mode) {
        export_these_as_3d_object(vertices, triangles);
     } else {
+       // std::cout << "----------- calling setup_glsl_bonds_buffers() with vertices size "
+       //           << vertices.size() << " and triangles size " << triangles.size() << std::endl;
        setup_glsl_bonds_buffers(vertices, triangles);
     }
 }
@@ -3908,8 +3937,9 @@ molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_ro
        std::cout << "debug:: in setup_glsl_bonds_buffers() with vertices size " << vertices.size()
                  << " and triangles size " << triangles.size() << std::endl;
 
-   if (triangles.empty()) return;
-   if (vertices.empty()) return;
+    // Nope. We need to clear the old molecule representation with nothing sometimes 20210619-PE
+    // if (triangles.empty()) return;
+    // if (vertices.empty()) return;
 
    graphics_info_t::shader_for_models.Use(); // is this called from the outside before we get here?
 
@@ -4006,14 +4036,24 @@ molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_ro
    model_mesh_first_time = false;
 }
 
+// caller is an optional argument
 void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
 
    if (false)
-      std::cout << "debug::make_bonds_type_checked(no-bonds-set) "
+      std::cout << "debug::make_bonds_type_checked() no-bonds-to-these_atoms-set size "
                 << no_bonds_to_these_atom_indices.size() << " called by "
                 << caller << std::endl;
+
+   if (false) {
+      for (auto it=no_bonds_to_these_atom_indices.begin();
+           it!=no_bonds_to_these_atom_indices.end(); ++it) {
+         mmdb::Atom *at = atom_sel.atom_selection[*it];
+         std::cout << "   make_bonds_type_checked(): No bond to atom " << coot::atom_spec_t(at) << std::endl;
+      }
+   }
+      
 
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
@@ -4038,7 +4078,7 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
                if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS) {
                   make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
                } else {
-                  make_bonds_type_checked(); // function above
+                  make_bonds_type_checked(__FUNCTION__); // function above
                }
             }
          }
@@ -5201,7 +5241,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
       update_symmetry();
    }
 
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 
 }
 
@@ -5864,7 +5904,7 @@ molecule_class_info_t::move_O_atom_of_added_to_residue(mmdb::Residue *res_p, con
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 
 }
@@ -6019,7 +6059,7 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 
    have_unsaved_changes_flag = 1;
 
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
    // std::cout << "DEBUG:: ---------------- done add_coords ----------- " << std::endl;
 }
 
@@ -6691,7 +6731,7 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
       std::cout << atom_p << " added to molecule" << std::endl;
 
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -6785,7 +6825,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                atom_sel.mol->FinishStructEdit();
                atom_sel = make_asc(atom_sel.mol);
                have_unsaved_changes_flag = 1;
-               make_bonds_type_checked();
+               make_bonds_type_checked(__FUNCTION__);
 
             } else {
                // There was no water chain
@@ -6801,7 +6841,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                atom_sel.mol->FinishStructEdit();
                atom_sel = make_asc(atom_sel.mol);
                have_unsaved_changes_flag = 1;
-               make_bonds_type_checked();
+               make_bonds_type_checked(__FUNCTION__);
             }
          }
       } else {
@@ -6859,7 +6899,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
             atom_sel.mol->FinishStructEdit();
             atom_sel = make_asc(atom_sel.mol);
             have_unsaved_changes_flag = 1;
-            make_bonds_type_checked();
+            make_bonds_type_checked(__FUNCTION__);
          } else {
             std::cout << "WARNING:: Can't find new chain for new atom\n";
          }
@@ -6887,7 +6927,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
          atom_sel.mol->FinishStructEdit();
          atom_sel = make_asc(atom_sel.mol);
          have_unsaved_changes_flag = 1;
-         make_bonds_type_checked();
+         make_bonds_type_checked(__FUNCTION__);
       } else {
          std::cout << "WARNING:: Can't find new chain for new atom\n";
       }
@@ -8394,7 +8434,7 @@ molecule_class_info_t::update_molecule_after_additions() {
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel = make_asc(atom_sel.mol); // does the udd stuff too.
    have_unsaved_changes_flag = 1;
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 }
 
 std::string
@@ -8801,7 +8841,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       lig.install_ligand(ligand);
       m = lig.flip_ligand(ligand_flip_number);
 
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       have_unsaved_changes_flag = 1;
 
       replace_coords(make_asc(m.pcmmdbmanager()), 0, 1);
@@ -8901,7 +8941,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
                   catch (const std::runtime_error &rte) {
                      std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
                   }
-                  make_bonds_type_checked();
+                  make_bonds_type_checked(__FUNCTION__);
                }
             }
          }
@@ -9027,7 +9067,7 @@ molecule_class_info_t::translate_by(float x, float y, float z) {
          atom_sel.atom_selection[i]->y += y;
          atom_sel.atom_selection[i]->z += z;
       }
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
       have_unsaved_changes_flag = 1;
    }
 }
@@ -9183,7 +9223,7 @@ molecule_class_info_t::transform_by(mmdb::mat44 mat) {
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 #endif // HAVE_GSL
 }
@@ -9230,7 +9270,7 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -9245,7 +9285,7 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residu
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -9547,7 +9587,7 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
          }
       }
    }
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 }
 
 std::pair<bool, std::string>
@@ -9704,7 +9744,7 @@ molecule_class_info_t::move_waters_to_around_protein() {
    make_backup();
    int r = coot::util::move_waters_around_protein(atom_sel.mol);
    have_unsaved_changes_flag = 1;
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
    return r;
 }
 
@@ -9714,7 +9754,7 @@ molecule_class_info_t::move_hetgroups_to_around_protein() {
    make_backup();
    coot::util::move_hetgroups_around_protein(atom_sel.mol);
    have_unsaved_changes_flag = 1;
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 }
 
 

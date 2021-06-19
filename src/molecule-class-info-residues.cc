@@ -300,7 +300,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
    return r;
 }
@@ -543,7 +543,7 @@ molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int 
       coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0, match_hydrogens_also);
       gm.match_names(res_mov);
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -776,7 +776,7 @@ molecule_class_info_t::hetify_residue_atoms(const std::string &chain_id,
       if (n_atoms > 0)
 	 r = 1;
       have_unsaved_changes_flag = 1;
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
    return r;
 }
@@ -1883,7 +1883,7 @@ molecule_class_info_t::rotate_residue(const coot::residue_spec_t &rs,
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -2135,7 +2135,7 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
 				       have_unsaved_changes_flag = 1;
 				       atom_sel.mol->FinishStructEdit();
 				       atom_sel = make_asc(atom_sel.mol);
-				       make_bonds_type_checked();
+				       make_bonds_type_checked(__FUNCTION__);
 				    }
 				 }
 
@@ -2439,7 +2439,7 @@ void molecule_class_info_t::spin_N(const coot::residue_spec_t &residue_spec, flo
 	 have_unsaved_changes_flag = 1;
 	 atom_sel.mol->FinishStructEdit();
 	 atom_sel = make_asc(atom_sel.mol);
-	 make_bonds_type_checked();
+	 make_bonds_type_checked(__FUNCTION__);
 
       }
    }
@@ -2468,7 +2468,7 @@ molecule_class_info_t::move_atom(const std::string &atom_name_in, mmdb::Residue 
 	 have_unsaved_changes_flag = 1;
 	 atom_sel.mol->FinishStructEdit();
 	 atom_sel = make_asc(atom_sel.mol);
-	 make_bonds_type_checked();
+	 make_bonds_type_checked(__FUNCTION__);
 	 done = true;
 	 break;
       }
@@ -2492,7 +2492,7 @@ molecule_class_info_t::merge_fragments() {
    have_unsaved_changes_flag = 1;
    atom_sel.mol->FinishStructEdit();
    atom_sel = make_asc(atom_sel.mol);
-   make_bonds_type_checked();
+   make_bonds_type_checked(__FUNCTION__);
 
    return status;
 
@@ -2649,7 +2649,7 @@ molecule_class_info_t::resolve_clashing_sidechains_by_deletion(const coot::prote
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }
 
@@ -2705,6 +2705,6 @@ molecule_class_info_t::resolve_clashing_sidechains_by_rebuilding(const coot::pro
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
-      make_bonds_type_checked();
+      make_bonds_type_checked(__FUNCTION__);
    }
 }

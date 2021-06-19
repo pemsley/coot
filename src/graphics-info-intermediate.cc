@@ -709,7 +709,7 @@ graphics_info_t::rebond_molecule_corresponding_to_moving_atoms() {
       //
       if (is_valid_model_molecule(imol_moving_atoms)) {
 	 std::set<int> empty_set;
-	 graphics_info_t::molecules[graphics_info_t::imol_moving_atoms].make_bonds_type_checked(empty_set);
+	 graphics_info_t::molecules[graphics_info_t::imol_moving_atoms].make_bonds_type_checked(empty_set, __FUNCTION__);
       }
    }
 }

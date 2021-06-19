@@ -157,12 +157,14 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
 
    if (false) {
-      std::cout << "######################## Bond_lines_container::Bond_lines_container() A "
-                << SelAtom.mol << " " << no_bonds_to_these_atoms_in.size() << std::endl;
+      std::cout << "############# Bond_lines_container::Bond_lines_container() A "
+                << SelAtom.mol << " " << no_bonds_to_these_atoms.size() << std::endl;
+      std::cout << "   no_bonds_to_these_atoms set size: " << no_bonds_to_these_atoms.size() << std::endl;
       std::cout << "--------------------- no bonds to these atoms ------------------"  << std::endl;
       std::set<int>::const_iterator it;
-      for(it=no_bonds_to_these_atoms_in.begin(); it!=no_bonds_to_these_atoms_in.end(); it++) {
-         std::cout << "  " << *it << std::endl;
+      for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
+         mmdb::Atom *at = SelAtom.atom_selection[*it];
+         std::cout << "   Bond_lines_container constructor A " << *it << " " << coot::atom_spec_t(at) << std::endl;
       }
    }
 
@@ -188,10 +190,18 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
 
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0,
-                      draw_missing_loops_flag,
-                      model_number,
-		      do_rama_markup, do_rota_markup);
+   // If *every* atom is excluted, e.g. a ligand - or chain-refine
+   // then do nothing
+   unsigned int n_selected_atoms = SelAtom.n_selected_atoms; // signedness change
+   if (n_selected_atoms == no_bonds_to_these_atoms.size()) {
+      // do nothing
+   } else {
+      // sphere refine or some sucn
+      construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0,
+                         draw_missing_loops_flag,
+                         model_number,
+                         do_rama_markup, do_rota_markup);
+   }
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 }
@@ -1349,6 +1359,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 					     short int have_udd_handle,
 					     int udd_bond_handle,
 					     int udd_atom_index_handle) {
+
+   // std::cout << "################## add_bonds_het_residues --- start ---" << std::endl;
 
    coot::my_atom_colour_map_t atom_colour_map;
 
@@ -3727,6 +3739,25 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
    return trans_selection;
 }
 
+unsigned int
+graphical_bonds_container::n_bonds() const { // count them up
+
+   int count = 0;
+   for (int idx_col=0; idx_col<num_colours; idx_col++) {
+      count += bonds_[idx_col].num_lines;
+   }
+   return count;
+
+}
+
+unsigned int
+graphical_bonds_container::n_atoms() const {
+
+   int count = n_atom_centres_;
+   return count;
+}
+
+
 // This function used by skeletonization (and nothing else)
 void
 graphical_bonds_container::add_colour(const std::vector<graphics_line_t> &a) {
@@ -3934,7 +3965,6 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
    box.bonds_ = new graphical_bonds_lines_list<graphics_line_t>[n_bond_colours];
 
    std::map<mmdb::Residue *, int> residue_index_map;
-   int residue_idx = 0; // at start
    mmdb::Residue *null_residue = 0; // for compiler to get the correct type in the next line
    residue_index_map[null_residue] = -1;
 

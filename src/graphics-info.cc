@@ -445,7 +445,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
    // Redraw all molecules! Yikes!
    for (unsigned int i=0; i<molecules.size(); i++) {
       if (is_valid_model_molecule(i)) {
-    molecules[i].make_bonds_type_checked();
+         molecules[i].make_bonds_type_checked(__FUNCTION__);
       }
    }
    // return rmit.n_atoms;
@@ -461,7 +461,7 @@ graphics_info_t::redraw_molecules_with_residue(const std::string &res_name) {
    for (unsigned int i=0; i<molecules.size(); i++) {
       if (is_valid_model_molecule(i)) {
     if (molecules[i].has_residue_with_name(res_name)) {
-       molecules[i].make_bonds_type_checked();
+       molecules[i].make_bonds_type_checked(__FUNCTION__);
     }
       }
    }
@@ -2077,9 +2077,9 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       std::set<int> dummy;
       bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
-				 do_disulphide_flag, draw_hydrogens_flag,
+                                 do_disulphide_flag, draw_hydrogens_flag,
                                  draw_missing_loops_flag, 0, "dummy",
-				 do_rama_markup, do_rota_markup, do_sticks_for_waters, tables_pointer);
+                                 do_rama_markup, do_rota_markup, do_sticks_for_waters, tables_pointer);
       unsigned int unlocked = false;
       while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
          std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -2102,7 +2102,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    shader_for_models.Use();
-   moving_atoms_molecule.make_glsl_bonds_type_checked();
+   moving_atoms_molecule.make_glsl_bonds_type_checked(__FUNCTION__);
 
    setup_atom_pull_restraints_glsl();
 
@@ -4336,7 +4336,7 @@ graphics_info_t::set_bond_thickness(int imol, float t) {
       if (imol >= 0) {
     if (graphics_info_t::molecules[imol].has_model()) {
        molecules[imol].set_bond_thickness(t);
-       molecules[imol].make_bonds_type_checked();
+       molecules[imol].make_bonds_type_checked(__FUNCTION__);
        graphics_draw();
     }
       }
