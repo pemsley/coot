@@ -9297,6 +9297,8 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (accept_reject_refinement_atom_pull_autoclear_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox325), accept_reject_refinement_atom_pull_autoclear_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (accept_reject_refinement_atom_pull_autoclear_checkbutton), 4);
+  GTK_WIDGET_UNSET_FLAGS (accept_reject_refinement_atom_pull_autoclear_checkbutton, GTK_CAN_FOCUS);
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_refinement_atom_pull_autoclear_checkbutton), FALSE);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (accept_reject_refinement_atom_pull_autoclear_checkbutton), TRUE);
 
   accept_reject_atom_pull_clear_button = gtk_button_new_with_mnemonic ("Clear Atom Pull Restraint");
