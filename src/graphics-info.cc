@@ -2071,10 +2071,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          if (moving_atoms_asc->atom_selection) {
 
             // moving_atoms_lock is a bool
-            bool unlocked = false;
-            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            bool unlocked_ma = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked_ma, 1) && !unlocked_ma) {
                  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                 unlocked = false;
+                 unlocked_ma = false;
             }
 
             regularize_object_bonds_box.clear_up();
@@ -2096,10 +2096,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          if (moving_atoms_asc->atom_selection) {
 
             // moving_atoms_lock is a bool
-            bool unlocked = false;
-            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            bool unlocked_ma = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked_ma, 1) && !unlocked) {
                  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                 unlocked = false;
+                 unlocked_ma = false;
             }
 
             regularize_object_bonds_box.clear_up();
@@ -2139,9 +2139,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          draw_hydrogens_flag = 1;
       std::set<int> dummy;
       bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
+      bool draw_missing_loops_flag_local = false;
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
 				 do_disulphide_flag, draw_hydrogens_flag,
-                                 draw_missing_loops_flag, 0, "dummy",
+                                 draw_missing_loops_flag_local, 0, "dummy",
 				 do_rama_markup, do_rota_markup, do_sticks_for_waters, tables_pointer);
       unsigned int unlocked = false;
       while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
