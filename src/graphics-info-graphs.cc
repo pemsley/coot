@@ -1524,12 +1524,11 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 	    mmdb::Model *model_p = asc.mol->GetModel(imod);
 	    mmdb::Chain *chain_p;
 	    int nchains = model_p->GetNumberOfChains();
-	    const char *chain_id;
 	 
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	    
 	       chain_p = model_p->GetChain(ichain);
-	       chain_id = chain_p->GetChainID();
+               const char *chain_id = chain_p->GetChainID();
 
 	       // Maybe we could do a chain->GetResidueTable() here
 	       // instead of a selection.
@@ -1551,8 +1550,7 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
 	       std::vector<coot::geometry_graph_block_info_generic> v = 
-		  graphics_info_t::density_fit_from_residues(SelResidues, nSelResidues,
-							     imol_moving_atoms, imol_map);
+		  density_fit_from_residues(SelResidues, nSelResidues, imol_moving_atoms, imol_map);
 
 	       for (unsigned int i=0; i<v.size(); i++)
 		  drv.push_back(v[i]);
@@ -1582,13 +1580,13 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 					   int imol_for_map) const {
 
    std::vector<coot::geometry_graph_block_info_generic> v;
-   float distortion_max = 132.0;
    if (nSelResidues > 0) {
       int max_resno = -9999;
       double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap);
 
       for (int ir=0; ir<nSelResidues; ir++) {
-	 int this_resno = SelResidues[ir]->GetSeqNum();
+         mmdb::Residue *residue_p = SelResidues[ir];
+	 int this_resno = residue_p->GetSeqNum();
 	 if (this_resno > max_resno)
 	    max_resno = this_resno;
 
@@ -1603,35 +1601,41 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 				  molecules[imol_for_map].xmap, 1);
 	 double occ_sum = coot::util::occupancy_sum(residue_atoms, n_residue_atoms);
 	 if (occ_sum > 0) {
+            float distortion_max_abs = 132.0;
+            float distortion_max = distortion_max_abs;
 	    residue_density_score /= occ_sum;
 	    std::string str = int_to_string(this_resno);
-	    str += SelResidues[ir]->GetChainID();
+	    str += residue_p->GetChainID();
 	    str += " ";
-	    str += SelResidues[ir]->name;
+	    str += residue_p->name;
 	    str += " ";
 	    str += float_to_string(residue_density_score);
 
-	    if (residue_density_score < 0.01)
-	       residue_density_score = 0.01;
+	    if (residue_density_score < 0.0001)
+	       residue_density_score = 0.0001;
 
 	    // std::cout << "DEBUG::          max_grid_factor " << max_grid_factor
 	    // << " score " << residue_density_score << std::endl;
 	    double sf = residue_density_fit_scale_factor * 1.25;
 	    // high resolution maps have high grid factors (say 0.5) and high
 	    // residue_density_ scores (say 2.0)
-	    double distortion =  sf/(pow(max_grid_factor,3) * residue_density_score); 
-	    distortion =  sf/(pow(max_grid_factor,4) * residue_density_score); // seems reasonable!
+	    // double distortion = sf/(pow(max_grid_factor,3) * residue_density_score);
+	    double distortion = sf/(pow(max_grid_factor,4) * residue_density_score);  // Hmm.
+
+            std::cout << " residue " << coot::residue_spec_t(residue_p) << " distortion: " << distortion
+                      << " vs distortion_max " << distortion_max
+                      << " and distortion_max_abs " << distortion_max_abs
+                      << std::endl;
 
 	    // distortion *= distortion; // non-linear, provides distinction.
 
 	    if (distortion > distortion_max)
 	       distortion = distortion_max;
-	    // use intelligent atom name here, if you can.
-	    std::string chain_id = SelResidues[ir]->GetChainID();
-	    coot::atom_spec_t atom_spec(chain_id, this_resno,
-					"",
-					coot::util::intelligent_this_residue_mmdb_atom(SelResidues[ir])->name,
-					"");
+	    // use intelligent atom name here
+	    std::string chain_id = residue_p->GetChainID();
+            std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+            coot::atom_spec_t atom_spec(chain_id, this_resno, "", atom_name, "");
+            // std::cout << "creating block with distortion " << distortion << std::endl;
 	    v.push_back(coot::geometry_graph_block_info_generic(imol, this_resno, atom_spec, distortion, str));
 	 }
       }
