@@ -864,13 +864,23 @@ graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpo
 
 }
 
-
 void
 graphics_info_t::show_select_map_dialog() {
 
+   if (gui_from_gtkbuilder()) {
+      show_select_map_dialog_gtkbuilder();
+   } else {
+      show_select_map_dialog_old_style();
+   }
+
+}
+
+void
+graphics_info_t::show_select_map_dialog_old_style() {
+
    if (use_graphics_interface_flag) {
 
-      GtkWidget *widget = create_select_fitting_map_dialog();
+      GtkWidget *dialog = create_select_fitting_map_dialog();
 
       int imol_map = Imol_Refinement_Map();
 
@@ -886,22 +896,29 @@ graphics_info_t::show_select_map_dialog() {
          }
       }
 
-      GtkWidget *combobox = lookup_widget(widget, "select_map_for_fitting_combobox");
+      GtkWidget *combobox = lookup_widget(dialog, "select_map_for_fitting_combobox");
       GCallback callback = G_CALLBACK(select_refinement_map_combobox_changed);
       fill_combobox_with_map_options(combobox, callback, imol_refinement_map);
 
       // now fill the weight entry:
-      GtkWidget *weight_entry = lookup_widget(widget, "select_fitting_map_dialog_weight_entry");
+      GtkWidget *weight_entry = lookup_widget(dialog, "select_fitting_map_dialog_weight_entry");
       std::string ws = std::to_string(geometry_vs_map_weight);
-      gtk_entry_set_text(GTK_ENTRY(weight_entry), ws.c_str());
+      if (weight_entry)
+         gtk_entry_set_text(GTK_ENTRY(weight_entry), ws.c_str());
+      else
+         std::cout << "ERROR:: show_select_map_dialog() failed to get weight entry" << std::endl;
 
       // add a callback for the weight estimate button
-      GtkWidget *estimate_buton = lookup_widget(widget, "select_fitting_map_dialog_estimate_button");
-      g_signal_connect(G_OBJECT(estimate_buton), "clicked",
-                       G_CALLBACK(on_select_fitting_map_dialog_estimate_weight_button_clicked),
-                       weight_entry);
+      GtkWidget *estimate_buton = lookup_widget(dialog, "select_fitting_map_dialog_estimate_button");
+      if (estimate_buton) {
+         g_signal_connect(G_OBJECT(estimate_buton), "clicked",
+                          G_CALLBACK(on_select_fitting_map_dialog_estimate_weight_button_clicked),
+                          weight_entry);
+      } else {
+         std::cout << "ERROR:: show_select_map_dialog() failed to get estimate button" << std::endl;
+      }
 
-      gint resp = gtk_dialog_run(GTK_DIALOG(widget));
+      gint resp = gtk_dialog_run(GTK_DIALOG(dialog));
       if (resp == GTK_RESPONSE_DELETE_EVENT) {
           if (imol_map == -1) {
               // unset refinement map if it has not been set previously
@@ -909,16 +926,80 @@ graphics_info_t::show_select_map_dialog() {
           }
       }
       if (resp == GTK_RESPONSE_OK) {
-         std::string t = gtk_entry_get_text(GTK_ENTRY(weight_entry));
-         float f = coot::util::string_to_float(t);
-         geometry_vs_map_weight = f;
+         if (weight_entry) {
+            std::string t = gtk_entry_get_text(GTK_ENTRY(weight_entry));
+            float f = coot::util::string_to_float(t);
+            geometry_vs_map_weight = f;
+         }
       }
 
-      gtk_widget_destroy (widget);
+      gtk_widget_destroy(dialog);
 
    }
 }
 
+void
+graphics_info_t::show_select_map_dialog_gtkbuilder() {
+
+   if (use_graphics_interface_flag) {
+
+      GtkWidget *dialog = get_widget_from_builder("select_fitting_map_dialog");
+
+      int imol_map = Imol_Refinement_Map();
+
+      // If no map has been set before, set the map to the top of the
+      // list (if there are maps in the list)
+      //
+      if (imol_map == -1) {
+         for (int imol=0; imol<n_molecules(); imol++) {
+            if (molecules[imol].has_xmap()) {
+               imol_refinement_map = imol;
+               break;
+            }
+         }
+      }
+
+      GtkWidget *combobox = get_widget_from_builder("select_map_for_fitting_combobox");
+      GCallback callback = G_CALLBACK(select_refinement_map_combobox_changed);
+      fill_combobox_with_map_options(combobox, callback, imol_refinement_map);
+
+      // now fill the weight entry:
+      GtkWidget *weight_entry = get_widget_from_builder("select_fitting_map_dialog_weight_entry");
+      std::string ws = coot::util::float_to_string_using_dec_pl(geometry_vs_map_weight, 3);
+      if (weight_entry)
+         gtk_entry_set_text(GTK_ENTRY(weight_entry), ws.c_str());
+      else
+         std::cout << "ERROR:: show_select_map_dialog_gtkbuilder() failed to get weight entry" << std::endl;
+
+      // add a callback for the weight estimate button
+      GtkWidget *estimate_buton = get_widget_from_builder("select_fitting_map_dialog_estimate_button");
+      if (estimate_buton) {
+         g_signal_connect(G_OBJECT(estimate_buton), "clicked",
+                          G_CALLBACK(on_select_fitting_map_dialog_estimate_weight_button_clicked),
+                          weight_entry);
+      } else {
+         std::cout << "ERROR:: show_select_map_dialog_gtkbuilder() failed to get estimate button" << std::endl;
+      }
+
+      gint resp = gtk_dialog_run(GTK_DIALOG(dialog));
+      if (resp == GTK_RESPONSE_DELETE_EVENT) {
+          if (imol_map == -1) {
+              // unset refinement map if it has not been set previously
+              set_refinement_map(-1);
+          }
+      }
+      if (resp == GTK_RESPONSE_OK) {
+         if (weight_entry) {
+            std::string t = gtk_entry_get_text(GTK_ENTRY(weight_entry));
+            float f = coot::util::string_to_float(t);
+            geometry_vs_map_weight = f;
+         }
+      }
+
+      gtk_widget_hide(dialog);
+
+   }
+}
 
 
 GtkWidget *

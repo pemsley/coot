@@ -776,16 +776,17 @@ void fill_about_window(GtkWidget *widget) {
 
 void add_coot_references_button(GtkWidget *widget) {
 
-  GtkWidget *hbox;
-  GtkWidget *button;
+   std::cout << "----------------- add_coot_references_button() start " << std::endl;
+
   // hbox = GTK_DIALOG(widget)->action_area;
-  hbox = gtk_dialog_get_header_bar(GTK_DIALOG(widget));
-  button = gtk_button_new_with_label("References");
+  GtkWidget *hbox = gtk_dialog_get_header_bar(GTK_DIALOG(widget));
+  GtkWidget *button = gtk_button_new_with_label("References");
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
   gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(hbox), button, TRUE);
   gtk_box_reorder_child(GTK_BOX(hbox), button, 2);
   g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(wrapped_create_coot_references_dialog), NULL);
   gtk_widget_show(button);
+   std::cout << "----------------- add_coot_references_button() done " << std::endl;
 
 }
 
