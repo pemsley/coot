@@ -156,7 +156,9 @@ identify_protein_bin_LDADD = ./libcoot-ligand.la          \
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
-ligand_percentiles_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
+ligand_percentiles_LDADD = ./libcoot-ligand.la     \
+	$(top_builddir)/utils/libcoot-utils.la     \
+	$(top_builddir)/compat/libcoot-compat.la
 
 test_side_chain_densities_SOURCES = test-side-chain-densities.cc
 test_side_chain_densities_LDADD = \
