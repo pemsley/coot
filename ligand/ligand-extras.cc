@@ -743,6 +743,8 @@ coot::ligand::flood() {
 void
 coot::ligand::flood2(float n_sigma) {
 
+   bool ignore_pseudo_zeros = true; // because cryo-EM maps - maybe pass this?
+
    bool debug = false;
 
    int n_rounds = 20/map_atom_mask_radius; // 1.4 default.
@@ -757,12 +759,12 @@ coot::ligand::flood2(float n_sigma) {
 
    std::vector<clipper::Coord_orth> water_list;
 
-   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked, 40, 0);
+   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked, 40, false, ignore_pseudo_zeros);
 
    int n_added_waters=0;
    for (int iround=0; iround<n_rounds; iround++) {
 
-      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, 0);
+      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, false, ignore_pseudo_zeros);
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
 
       if (debug)
@@ -782,7 +784,7 @@ coot::ligand::flood2(float n_sigma) {
       }
       
       if (peaks.size() == 0) {
-	 std::cout << "No peaks: breaking on round "
+	 std::cout << "INFO:: No extra peaks: breaking on round "
 		   << iround << " of " << n_rounds << std::endl;
 	 break;
       }
@@ -808,7 +810,7 @@ coot::ligand::flood2(float n_sigma) {
       moved_waters = move_waters_close_to_protein(water_list, sampled_protein_coords);
    else 
       moved_waters = water_list; // unomved waters
-   
+
    std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);

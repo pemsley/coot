@@ -125,6 +125,7 @@ namespace coot {
       }
    }
 
+   // this should be rotate_to()
    void colour_t::rotate(float amount) {
       std::vector<float> hsv = convert_to_hsv();
       hsv[0] += amount;

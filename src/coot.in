@@ -167,7 +167,9 @@ fi
 
 
 # For installation using a non-local python
-if ! [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
+if [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
+    : # as it should be
+else
   unset PYTHONHOME
   # pth in PYTHONPATH are ignored, insert gtk-2.0 and coot explicitly
   site_packages="$COOT_PREFIX/lib/python2.7/site-packages"
