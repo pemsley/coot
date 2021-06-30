@@ -216,16 +216,21 @@ align_to_closest_chain = align_to_closest_chain_py
 key_sym_code           = key_sym_code_py
 
 # c-interface-ligands-swig.hh:
-# new_molecule_sans_biggest_ligand = new_molecule_sans_biggest_ligand_py # comment out hack to load this smoothly.
-# gui_ligand_metrics     = gui_ligand_metrics_py # comment out hack to load this smoothly.
-residues_torsions_match = residues_torsions_match_py
+if (use_gui_qm != 2):
+  new_molecule_sans_biggest_ligand = new_molecule_sans_biggest_ligand_py # comment out hack to load this smoothly.
+  gui_ligand_metrics     = gui_ligand_metrics_py # comment out hack to load this smoothly.
+residues_distortions   = residues_distortions_py
 get_intermediate_atoms_distortions = get_intermediate_atoms_distortions_py
 ligand_atom_overlaps   = ligand_atom_overlaps_py
 residues_torsions_match = residues_torsions_match_py
 kolmogorov_smirnov     = kolmogorov_smirnov_py
 kolmogorov_smirnov_vs_normal = kolmogorov_smirnov_vs_normal_py
 kullback_liebler       = kullback_liebler_py
+coot_contact_dots_for_ligand =coot_contact_dots_for_ligand_py
+switch_HIS_protonation = switch_HIS_protonation_py
 linked_residues        = linked_residues_py
+get_ligand_distortion_summary_info = get_ligand_distortion_summary_info_py
+
 add_target_position_restraint_for_intermediate_atom = add_target_position_restraint_for_intermediate_atom_py
 add_target_position_restraints_for_intermediate_atoms = add_target_position_restraints_for_intermediate_atoms_py
 

@@ -5477,13 +5477,10 @@ def add_module_cryo_em_gui():
       def ass_seq_assoc_seq():
          assign_sequence_to_active_fragment()
 
-      add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
-                                    lambda func: add_mol_sym_mtrix())
-
       add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())
 
-      add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
+      add_simple_coot_menu_menuitem(menu, "Multi-sharpen using Refmac...",
                                     lambda func: refmac_multi_sharpen_gui())
 
       add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
@@ -5498,6 +5495,9 @@ def add_module_cryo_em_gui():
       add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
 
+      add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
+                                    lambda func: add_mol_sym_mtrix())
+
       add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
                                     lambda func:
                                     generic_chooser_entry_and_file_selector(
@@ -5509,6 +5509,9 @@ def add_module_cryo_em_gui():
                                        lambda imol, chain_id, target_sequence_pif_file:
                                        run_clustalw_alignment(imol, chain_id,
                                                               target_sequence_pif_file)))
+
+      add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
+                                    lambda func: ass_seq_assoc_seq())
 
       add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map",
                                     lambda func: auto_assign_sequence_from_map())

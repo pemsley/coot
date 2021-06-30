@@ -60,54 +60,49 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
               -8.86567375069092e-10, -0.0025144037621947, 0.117837198078632, 0.120915851909265],
              [0.952432048573266, 13.3150000572205, 13.9800000190735, 0.176323987538941]]
 
-        if (not isinstance(m, list)):
-            # unhappy path
-            print "BL WARNING:: no ligand metrics found."
-        else:
-            # happy path ;-)
-            diff_d = 0.05
-            d = m[0]
-            mwz = m[1]           # Mogul Z
-            contact_info = m[2]  # number of bad contacts
-            bc = contact_info[0]
-            low_is_good = 1
-            high_id_good = 0
+    if (not isinstance(m, list)):
+        # unhappy path
+        print "BL WARNING:: no ligand metrics found."
+    else:
+        # happy path ;-)
+        diff_d = 0.05
+        d = m[0]
+        dict_stats = m[1]    # Acedrg-based dict-based stats
+        contact_info = m[2]  # number of bad contacts
+        bc = contact_info[0]
+        low_is_good = 1
+        high_id_good = 0
 
-            # if mogul ran OK, then we can display the mogul markup
-            #
-            if (isinstance(mwz, list)):
-                mogul_out_file_name = mwz[1]
-                mogul_markup(imol, chain_id, res_no, ins_code,
-                             mogul_out_file_name)
-                mwz = mwz[0]
+        percentile_d = get_ligand_percentile("density_correlation",
+                                             d, high_id_good)
+        percentile_diff_d = get_ligand_percentile("coot_diff_map_correlation",
+                                                  diff_d, low_is_good)
+        # percentile_dbgs = get_ligand_percentile("dictionary_based_geometry_stats",
+        # dict_stats, low_is_good)
+        percentile_bc = get_ligand_percentile("bumps_1", bc, low_is_good)
 
-            percentile_d = get_ligand_percentile("density_correlation", d, high_id_good)
-            percentile_diff_d = get_ligand_percentile("coot_diff_map_correlation", diff_d, low_is_good)
-            percentile_mwz = get_ligand_percentile("mogul_z_worst", mwz, low_is_good)
-            percentile_bc = get_ligand_percentile("bumps_1", bc, low_is_good)
+        #  make an "informed guess" for the percentile value for dictionary-based-geometry
+        v = (dict_stats[0] - 9) /3. # the first element is the distortion
+        percentile_dbgs = ((gsl_sf_erf_scm(v) * 1. + 1 )/ 2. - 1.) * 100  # could make a py name...
 
-            if (percentile_d < 0):
-                # just an example, but means we do not have ligands-2016.db
-                txt = "BL INFO:: we dont have ligands-2016.db, so \n" + \
-                      "percentiles are no available and graph meaningless!"
-                info_dialog(txt)
-            input_to_sliders = [["Direct map density correl.", percentile_d, d],
-                                [" Diff map density correl.", percentile_diff_d, diff_d],
-                                ["            Mogul Z-worst", percentile_mwz, mwz],
-                                ["             Bad contacts", percentile_bc, bc]]
+        if (percentile_d < 0):
+            # just an example, but means we do not have ligands-2016.db
+            txt = "BL INFO:: we dont have ligands-2016.db, so \n" + \
+                  "percentiles are no available and graph meaningless!"
+            info_dialog(txt)
+        input_to_sliders = [["Direct map density correl.", percentile_d, d],
+                            [" Diff map density correl.", percentile_diff_d, diff_d],
+                            # ["            Mogul Z-worst", percentile_mwz, mwz],
+                            ["Dictionary-based-geom.", percentile_dbgs, dict_stats[0]],
+                            ["             Bad contacts", percentile_bc, bc]]
 
-            ligand_validation_metrics_gui_list_wrapper(input_to_sliders)
-                
-            
-        
-        
-#if (use_gui_qm != 2):
-# disable for now since I cannot run mogul and test it in real...
-if (0):
+        ligand_validation_metrics_gui_list_wrapper(input_to_sliders)
+
+if (use_gui_qm != 2):
     menu = coot_menubar_menu("Ligand")
 
     def ligand_metric_slider_func():
-        
+
         imol_map = imol_refinement_map()
 
         if (not valid_map_molecule_qm(imol_map)):
@@ -133,7 +128,7 @@ if (0):
                     refmac_input_mtz_file_name,
                     f_col_label, sigf_col_label, r_free_col_label,
                     refmac_dir)
-        
+
     add_simple_coot_menu_menuitem(
         menu, "Ligand Metric Sliders",
         lambda func: ligand_metric_slider_func())

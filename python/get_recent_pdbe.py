@@ -286,8 +286,25 @@ def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
         refmac_extra_params.append("MAKE NEWLIGAND CONTINUE")
     else:
         refmac_extra_params = ["MAKE NEWLIGAND CONTINUE"]
-        
-    refmac_result = run_refmac_by_filename(pdb_in_file_name,
+
+    # this has now gone multi-threaded and that is not what Paule want.
+    # refmac_result = run_refmac_by_filename(pdb_in_file_name,
+    #                                        pdb_out_file_name,
+    #                                        mtz_file_name, mtz_out_file_name,
+    #                                        extra_cif_lib_filename,
+    #                                        imol_refmac_count,
+    #                                        swap_map_colours_post_refmac,
+    #                                        imol_mtz_molecule,
+    #                                        show_diff_map_flag,
+    #                                        phase_combine_flag,
+    #                                        phib_fom_pair,
+    #                                        force_n_cycles,
+    #                                        make_molecules_flag,
+    #                                        "", f_col, sigf_col, r_free_col)
+    # # ccp4i-project-dir, f-col, sig-f-col, r-free-col
+
+    # this function blocks until termination
+    refmac_result = run_refmac_by_filename_inner(pdb_in_file_name,
                                            pdb_out_file_name,
                                            mtz_file_name, mtz_out_file_name,
                                            extra_cif_lib_filename,
@@ -300,7 +317,6 @@ def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
                                            force_n_cycles,
                                            make_molecules_flag,
                                            "", f_col, sigf_col, r_free_col)
-    # ccp4i-project-dir, f-col, sig-f-col, r-free-col
 
     # restore refmac-extra-params to what it used to be
     #

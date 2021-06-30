@@ -8,9 +8,15 @@ def deactivate_molecules_except(imol):
 
 
 # This will hydrogenate the active residue, not imol
-# returns the probe clash score
+# returns the probe clash score or False if no probe
 #
 def contact_score_ligand(imol, res_spec):
+
+    global probe_command
+
+    if not command_in_path_qm(probe_command):
+        print "BL INFO:: no probe command find, so no contact score"
+        return False
 
     deactivate_molecules_except(imol)
 
