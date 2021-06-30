@@ -973,7 +973,7 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
          clipper::Coord_orth dir   = pa3 - pa2;
          clipper::Coord_orth pos   = pa4;
          clipper::Coord_orth shift = pa3;
-         clipper::Coord_orth co = rotate_around_vector(dir, pos, shift, theta);
+         clipper::Coord_orth co = rotate_around_vector(dir, pos, shift, clipper::Util::d2rad(theta));
          float this_d = density_at_point(xmap, co);
          if (this_d > best_d) {
             best_d = this_d;
