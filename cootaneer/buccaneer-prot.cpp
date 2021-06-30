@@ -481,12 +481,12 @@ bool ProteinTools::globularise( clipper::MiniMol& mol, const clipper::Coord_frac
                }
             }
             // apply the shifts
-            std::cout << "apply the shifts with res " << res << std::endl;
+            // std::cout << "apply the shifts with res " << res << std::endl;
             for ( int r1 = res0; r1 <= res; r1++ ) {
-               std::cout << "r1 size " << mol[chn][r1].size() << std::endl;
+               // std::cout << "r1 size " << mol[chn][r1].size() << std::endl;
                for ( int a1 = 0; a1 < mol[chn][r1].size(); a1++ ) {
                   clipper::MAtom mat = mol[chn][r1][a1];
-                  std::cout << "   " << mat.id_tidy("a") << std::endl;
+                  // std::cout << "   " << mat.id_tidy("a") << std::endl;
                   clipper::Coord_orth co_at = mat.coord_orth();
                   cf1 = co_at.coord_frac( cell );
                   cf1 = spgr.symop(symin) * cf1 + cfmin;
