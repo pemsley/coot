@@ -210,6 +210,7 @@ namespace coot {
       colour_holder(double value, double min, double max,
 		    const std::string &dum); // somewhere between green and red
       std::string hex() const;
+      void rotate_by(float angle); // fractions of a circle
       friend std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
    };
    std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
