@@ -678,6 +678,23 @@ coot::minimol::residue::at(const std::string &atname) {
    return atoms[0]; 
 }
 
+// more robust, but involves a copy:
+std::pair<bool, coot::minimol::atom>
+coot::minimol::residue::get_atom(const std::string &atom_name) const {
+
+   bool status = false;
+   atom at;
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i].name == atom_name) {
+         at = atoms[i];
+         status = true;
+         break;
+      }
+   }
+   return std::make_pair(status, at);
+}
+
+
 // return a negative on a problem
 double
 coot::minimol::residue::lsq_overlay_rmsd(const residue &r) const {
@@ -764,7 +781,7 @@ coot::minimol::fragment::operator[](int i) {
 	 
 	 // set the inital residue number of these residues
 	 for (unsigned int ires=0; ires<new_residues.size(); ires++) {
-	    if (false)
+	    if (true)
 	       std::cout << "setting new_residue[" << ires << "] to "
 			 << ires << " + " << offset_diff << std::endl;
 	    new_residues[ires].seqnum = ires + offset_diff;
@@ -786,7 +803,7 @@ coot::minimol::fragment::operator[](int i) {
 	 //
 	 residues = new_residues;
 	 residues_offset = new_offset;
-	 
+
       } else {
 	 // adding to C terminus;
 	 residues.resize(i+1-residues_offset);
@@ -1248,7 +1265,7 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::residue res) {
    if (res.seqnum == mmdb::MinInt4) 
       s << "residue is undefined! ";
    if (res.atoms.size() > 0) 
-      s << res.name << " contains " << res.atoms.size() << " atoms";
+      s << res.seqnum << " " << res.name << " contains " << res.atoms.size() << " atoms";
    return s;
 }
 
