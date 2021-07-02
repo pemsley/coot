@@ -783,7 +783,7 @@ coot::minimol::fragment::operator[](int i) {
 	 
 	 // set the inital residue number of these residues
 	 for (unsigned int ires=0; ires<new_residues.size(); ires++) {
-	    if (true)
+	    if (false)
 	       std::cout << "setting new_residue[" << ires << "] to "
 			 << ires << " + " << offset_diff << std::endl;
 	    new_residues[ires].seqnum = ires + offset_diff;
