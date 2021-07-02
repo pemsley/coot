@@ -1300,7 +1300,7 @@ coot::restraints_container_t::setup_minimize() {
 
    m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
-   double step_size_multiplier = 2.0;
+   double step_size_multiplier = 1.0;
    // std::cout << "setting step_size_multiplier with n_atoms " << n_atoms << std::endl;
 
    // this is a bit "heuristic" - actually I want the number of non-fixed atoms.

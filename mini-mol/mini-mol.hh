@@ -90,6 +90,8 @@ namespace coot {
 	 atom&       operator[](int i) {return atoms[i];}
 	 atom& at(const std::string &atname) ; // look it up, return atom 
                                                // with name "FAIL" if the atom is not there.
+         // more robust, but involves a copy:
+         std::pair<bool, atom> get_atom(const std::string &atom_name) const;
 	 void addatom(std::string atom_name, std::string element,
 		      float x, float y, float z, const std::string &altloc, float bf, float occupancy);
 	 void addatom(std::string atom_name, std::string element,
@@ -187,7 +189,7 @@ namespace coot {
 	 // residue_type is usually, "HOH" or "DUM".
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
-		  std::string chain_id);
+		  std::string chain_id, const std::string &ele=" O");
 	 explicit molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
 	 explicit molecule(const fragment &frag);
 

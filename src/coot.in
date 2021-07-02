@@ -167,7 +167,9 @@ fi
 
 
 # For installation using a non-local python
-if ! [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
+if [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
+    : # as it should be
+else
   unset PYTHONHOME
   # pth in PYTHONPATH are ignored, insert gtk-2.0 and coot explicitly
   site_packages="$COOT_PREFIX/lib/python2.7/site-packages"
@@ -204,12 +206,15 @@ else
 
    for arg in "$@" ;
    do
-      if [ "$arg" = --ccp4-mode ] ; then
-         ccp4_mode=true
-      fi
-      if [ "$arg" = --disable-libtool-hack ] ; then
-         LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
-      fi
+       if [ "$arg" = --ccp4-mode ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --ccp4 ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --disable-libtool-hack ] ; then
+           LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
+       fi
    done
 
    # which rsvg-convert
@@ -222,11 +227,11 @@ else
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
    if [ -z "$ccp4_mode" ] ; then
-      # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
-      $coot_bin "$@"
-      status=$?
+       # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+       $coot_bin "$@"
+       status=$?
    else
-      shift
+      # shift # --ccp4 is removed in the python coot_output_to_window script
       coot_py_dir=$COOT_PREFIX/lib/python2.7/site-packages/coot
       $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
       status=$?

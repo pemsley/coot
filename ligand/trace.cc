@@ -420,7 +420,7 @@ coot::trace::ks_test() {
 coot::minimol::molecule
 coot::trace::get_flood_molecule() const {
 
-   bool debug = false;
+   bool debug = true;
    coot::ligand lig;
 
    lig.set_cluster_size_check_off();

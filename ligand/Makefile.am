@@ -103,7 +103,7 @@ install-data-local: install_side_chain_data
 #                  test-random test-ligand test-rotamer-tables-sql
 
 check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities \
-		test-ligand test-tube-finder
+		test-ligand test-tube-finder res-tracer
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
@@ -112,6 +112,17 @@ test_tube_finder_SOURCES = test-tube-finder.cc
 test_tube_finder_LDADD = ./libcoot-ligand.la          \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(CLIPPER_LIBS)
+
+res_tracer_SOURCES = res-tracer.cc
+
+res_tracer_LDADD = ./libcoot-ligand.la                \
+   $(top_builddir)/cootaneer/libcootaneer.la          \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la    \
+   $(top_builddir)/geometry/libcoot-geometry.la       \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+   $(top_builddir)/utils/libcoot-utils.la             \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 if OS_WIN32
 bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
@@ -156,7 +167,9 @@ identify_protein_bin_LDADD = ./libcoot-ligand.la          \
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
-ligand_percentiles_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
+ligand_percentiles_LDADD = ./libcoot-ligand.la     \
+	$(top_builddir)/utils/libcoot-utils.la     \
+	$(top_builddir)/compat/libcoot-compat.la
 
 test_side_chain_densities_SOURCES = test-side-chain-densities.cc
 test_side_chain_densities_LDADD = \

@@ -420,9 +420,9 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
       } else {
          std::string chain_id = residue_p->GetChainID();
          int res_no = residue_p->GetSeqNum();
-         error_message = "ERROR:: missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+         error_message = "ERROR:: setup-test_sequence(): missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
          if (! found_CB)
-            error_message = "ERROR:: missing atom CB in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+            error_message = "ERROR:: setup_test_sequence(): missing atom CB in residue " + chain_id + std::string(" ") + std::to_string(res_no);
       }
    }
 

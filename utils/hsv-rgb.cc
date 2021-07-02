@@ -41,7 +41,7 @@ coot::convert_rgb_to_hsv(const std::vector<float> &in_vals) {
 	    cols[0] = 4.0 + gc-rc;
 	 }
       }
-      cols[0] = cols[0]/6.0- floorf(cols[0]/6.0);
+      cols[0] = cols[0]/6.0 - floorf(cols[0]/6.0);
    }
    return cols; 
 }
@@ -170,7 +170,36 @@ coot::colour_holder::colour_holder(double value, double min_z, double max_z,
    red = powf(f, 0.2);
    green = powf(1.0-f, 0.2);
 
-} 
+}
+
+void
+coot::colour_holder::rotate_by(float angle) {
+
+   auto convert_to_hsv = [] (float red, float green, float blue) {
+                            std::vector<float> v = { red, green, blue};
+                            return convert_rgb_to_hsv(v);
+                         };
+
+   // references to member functions
+   auto convert_from_hsv = [] (const std::vector<float> &v, float &red, float &green, float &blue) {
+                              std::vector<float> o = convert_hsv_to_rgb(v);
+                              red   = o[0];
+                              green = o[1];
+                              blue  = o[2];
+                           };
+
+   std::vector<float> hsv = convert_to_hsv(red, green, blue);
+   hsv[0] += angle;
+   while (hsv[0] > 1.0)
+      hsv[0] -= 1.0;
+
+   // not sure that this does any good. I need to test what convert_rgb_to_hsv() returns
+   // for some sane and non-sane input values.
+   while (hsv[0] < 0.0)
+      hsv[0] += 1.0;
+
+   convert_from_hsv(hsv, red, green, blue); // modify red, green, blue
+}
 
 
 
