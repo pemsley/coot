@@ -1207,7 +1207,11 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
 // 1 for intermediate atoms were shown (but not necessarily flipped
 //
 int jed_flip_intermediate_atoms() {
-   return graphics_info_t::jed_flip_intermediate_atoms();
+   return graphics_info_t::jed_flip_intermediate_atoms(false);
+}
+
+int reverse_jed_flip_intermediate_atoms() {
+   return graphics_info_t::jed_flip_intermediate_atoms(true);
 }
 
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
@@ -1231,6 +1235,11 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
 }
 
 
+//! \brief side-chain 180 flip on the active atom
+int side_chain_flip_180_intermediate_atoms() {
+   graphics_info_t g;
+   return g.side_chain_flip_180_intermediate_atoms();
+}
 
 
 /*  ----------------------------------------------------------------------- */
@@ -3575,6 +3584,14 @@ coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
 }
 #endif
 
+//! \brief set if all atom contact should ignore water-water interactions (default off)
+void set_all_atom_contact_dots_ignore_water(short int state) {
+
+   graphics_info_t::all_atom_contact_dots_ignore_water_flag = state;
+
+}
+
+
 // all-atom contact dots.  This is not the place for this definition (not a ligand function)
 //
 void coot_all_atom_contact_dots(int imol) {
@@ -3583,8 +3600,9 @@ void coot_all_atom_contact_dots(int imol) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       // spike-length ball-radius
-      bool ignore_waters = true;
-      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
+      // bool ignore_waters = true;
+      bool ignore_waters = g.all_atom_contact_dots_ignore_water_flag;
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25); // spike length, ball radius
       // dot density // was 0.95
       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.5, true);
 

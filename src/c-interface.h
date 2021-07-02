@@ -5411,11 +5411,16 @@ PyObject *rotamer_graphs_py(int imol);
 /*! \name 180 Flip Side chain */
 /* \{ */
 
-/*! \brief rotate 180 degrees round the last chi angle */
+/*! \brief rotate 180 degrees around the last chi angle */
 void do_180_degree_side_chain_flip(int imol, const char* chain_id, int resno,
 				   const char *inscode, const char *altconf);
 
 void setup_180_degree_flip(short int state);
+
+/* ! \brief side-chain 180 flip the terminal chi angle of the residue of the active atom */
+int side_chain_flip_180_intermediate_atoms();
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5712,6 +5717,7 @@ void setup_residue_partial_alt_locs(short int state);
 int backrub_rotamer(int imol, const char *chain_id, int res_no,
 		    const char *ins_code, const char *alt_conf);
 
+/*! \brief apply rotamer backrub to the active atom of the intermediate atoms */
 int backrub_rotamer_intermediate_atoms();
 
 /*! \} */

@@ -199,6 +199,7 @@ namespace coot {
 	 h_bond_info_t(mmdb::Atom *ligand_atom,
 		       mmdb::Atom *env_atom,
 		       int udd_h_bond_type_handle);
+         std::string format() const;
       };
 
       hb_t get_h_bond_type(mmdb::Atom *at);
@@ -219,6 +220,7 @@ namespace coot {
       bool is_inside_another_ligand_atom(int idx,
 					 const clipper::Coord_orth &probe_pos,
 					 const clipper::Coord_orth &pt_idx_at) const;
+
       // for all-atom contacts
       static
       bool is_inside_another_atom_to_which_its_bonded(int atom_idx,

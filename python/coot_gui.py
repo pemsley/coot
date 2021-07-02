@@ -5635,7 +5635,15 @@ def toggle_backrub_rotamers(widget=None):
       # need to be able to get the state of search mode.
       # easily added. FIXME
       print "BL WARNING:: no widget"
-   
+
+def atom_overlaps_for_this_model():
+   """Display Atom overlaps for active atom"""
+   active_atom = active_residue()
+   if active_atom:
+      aa_imol = active_atom[0]
+      coot_all_atom_contact_dots(aa_imol)
+
+      
 def toggle_hydrogen_display(widget=None):
       """Toggle function to display all hydrogens or not.
 

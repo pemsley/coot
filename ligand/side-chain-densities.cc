@@ -528,12 +528,14 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
       int sequence_length = sequence.length();
       int offset_max = sequence.length() - n_residues; // n_residues is the size of a run of residues
 
-      std::cout << "debug:: testing sequence " << sequence << std::endl;
-      std::cout << "debug::   model sequence " << true_sequence << std::endl;
-      std::cout << "debug:: offset_max " << offset_max << std::endl;
+      if (false) {
+         std::cout << "debug:: testing sequence " << sequence << std::endl;
+         std::cout << "debug::   model sequence " << true_sequence << std::endl;
+         std::cout << "debug:: offset_max " << offset_max << std::endl;
+      }
 
       for (int offset=0; offset<=offset_max; offset++) {
-         std::cout << "trying loop with offset " << offset << std::endl;
+         // std::cout << "trying loop with offset " << offset << std::endl;
          int n_scored_residues = 0;
          double sum_score = 0;
          std::string running_sequence;

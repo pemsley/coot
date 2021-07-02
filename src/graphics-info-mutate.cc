@@ -87,7 +87,6 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		<< std::endl;
 
    atom_selection_container_t rasc = asc; 
-   int istat;
    molecule_class_info_t molci;
    short int display_in_display_control_widget_status = 0;
    molci.install_model(0, asc, Geom_p(), "terminal residue", display_in_display_control_widget_status);
@@ -149,7 +148,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 		     //
 
-		     istat = molci.move_std_residue(std_res_copy, residue_p);
+		     int istat = molci.move_std_residue(std_res_copy, residue_p);
 
 		     if (istat) {
 

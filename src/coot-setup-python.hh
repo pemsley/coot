@@ -37,4 +37,4 @@ SWIGEXPORT(void) SWIG_init(void);
 
 void setup_python(int argc, char **argv);
 // which calls:
-void try_load_dot_coot_py_and_preferences(const std::string &home_directory);
+void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory);

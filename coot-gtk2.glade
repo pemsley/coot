@@ -18251,11 +18251,10 @@ checks the value of this checkbutton</property>
 			    <widget class="GtkCheckButton" id="accept_reject_refinement_atom_pull_autoclear_checkbutton">
 			      <property name="border_width">4</property>
 			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Auto-clear</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">True</property>
 			      <property name="inconsistent">False</property>
 			      <property name="draw_indicator">True</property>
@@ -18381,14 +18380,14 @@ checks the value of this checkbutton</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="accept_reject_crankshaft_button">
+			    <widget class="GtkButton" id="accept_reject_backrub_rotamer_button">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Crankshaft Peptide Optimise</property>
+			      <property name="label" translatable="yes">Backrub Rotamer Fit</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
-			      <signal name="clicked" handler="on_accept_reject_crankshaft_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:49:09 GMT"/>
+			      <signal name="clicked" handler="on_accept_reject_backrub_rotamer_button_clicked" last_modification_time="Tue, 01 Jan 2019 17:14:33 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -18398,14 +18397,31 @@ checks the value of this checkbutton</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="accept_reject_backrub_rotamer_button">
+			    <widget class="GtkButton" id="accept_reject_side_chain_180_flip">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Backrub Rotamer Fit</property>
+			      <property name="label" translatable="yes">Side-chain Flip 180°</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
-			      <signal name="clicked" handler="on_accept_reject_backrub_rotamer_button_clicked" last_modification_time="Tue, 01 Jan 2019 17:14:33 GMT"/>
+			      <signal name="clicked" handler="on_accept_reject_side_chain_180_flip_clicked" last_modification_time="Sat, 12 Jun 2021 10:33:21 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_crankshaft_button">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Crankshaft Peptide Optimise</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_crankshaft_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:49:09 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
