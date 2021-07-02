@@ -71,18 +71,20 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
 
             // match_set is filled now. Find the best one.
 
-            std::cout << "in mergeable_atom_selections() match_set size " << match_set.matches.size() << std::endl;
+            if (false)
+               std::cout << "in mergeable_atom_selections() match_set size " << match_set.matches.size() << std::endl;
 
             // which is the closest matching residue with more than 2 matches?
             // find_best_match() returns null for res_1 on failure
             match_container_for_residues_t best_match = match_set.find_best_match();
-            std::cout << "debug:: in mergeable_atom_selections() best_match residue_1: " << best_match.residue_1
-                      << " residue_2 " << best_match.residue_2 << std::endl;
+            if (false)
+               std::cout << "debug:: in mergeable_atom_selections() best_match residue_1: " << best_match.residue_1
+                         << " residue_2 " << best_match.residue_2 << std::endl;
             best_match.debug();
             if (best_match.residue_1) {
                m = best_match;
                status = true;
-               if (true)
+               if (false)
                   std::cout << "in mergeable_atom_selections() best_match "
                             << residue_spec_t(best_match.residue_1) << " " << residue_spec_t(best_match.residue_2) << std::endl;
             }
@@ -254,8 +256,9 @@ coot::merge_atom_selections(mmdb::Manager *mol, int selection_handle_1, int sele
    bool done_merge = false;
    std::pair<bool, match_container_for_residues_t> m = mergeable_atom_selections(mol, selection_handle_1, selection_handle_2);
 
-   std::cout << "DEBUG:: in merge_atom_selections(): for handles " << selection_handle_1 << " " << selection_handle_2
-             << " found mergeable selections status: " << m.first << std::endl;
+   if (false)
+      std::cout << "DEBUG:: in merge_atom_selections(): for handles " << selection_handle_1 << " " << selection_handle_2
+                << " found mergeable selections status: " << m.first << std::endl;
 
    if (m.first) {
       // either upstream or downstream of selection_handle_1 or selection_handle_2 is a short fragment.
@@ -392,7 +395,7 @@ void
 coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool from_first,
                                                       int selection_handle_1, int selection_handle_2) {
 
-   std::cout << "DEBUG:: ------------------ starting delete_upstream() " << std::endl;
+   // std::cout << "DEBUG:: ------------------ starting delete_upstream() " << std::endl;
 
    if (false) { // debugging
       std::cout << "in delete_upstream here are the atom pairs " << std::endl;
@@ -440,12 +443,13 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
 
    if (delete_these_residues.size() > 0) {
       std::vector<mmdb::Residue *>::iterator it;
-      for (it = delete_these_residues.begin(); it != delete_these_residues.end(); it++) {
+      for (it = delete_these_residues.begin(); it != delete_these_residues.end(); ++it) {
          mmdb::Residue *residue_p = *it;
          // chain_p->DeleteResidue(r->GetSeqNum(), r->GetInsCode());
          if (residue_p != matchers_residue) {
-            std::cout << "DEBUG:: in delete_upstream() really deleting residue "
-                      << residue_spec_t(residue_p) << std::endl;
+            if (false)
+               std::cout << "DEBUG:: in delete_upstream() really deleting residue "
+                         << residue_spec_t(residue_p) << std::endl;
             delete residue_p;
          }
          chain_p->TrimResidueTable();
@@ -453,7 +457,7 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
       mol->FinishStructEdit();      
    }
 
-   std::cout << "DEBUG:: ------------------ done delete_upstream() " << std::endl;
+   // std::cout << "DEBUG:: ------------------ done delete_upstream() " << std::endl;
 
 }
 
@@ -461,9 +465,9 @@ void
 coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool from_first,
                                                         int selection_handle_1, int selection_handle_2) {
 
-   std::cout << "--------- start delete_downsteam ------------ " << std::endl;
+   // std::cout << "--------- start delete_downsteam ------------ " << std::endl;
 
-   bool debug = true;
+   bool debug = false;
 
    // delete downstream in selection
    bool found_matchers= false;
@@ -506,12 +510,12 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
    if (delete_these_residues.size() > 0) {
       std::vector<mmdb::Residue *>::iterator it;
       if (false) {
-         for (it= delete_these_residues.begin(); it != delete_these_residues.end(); it++) {
+         for (it= delete_these_residues.begin(); it != delete_these_residues.end(); ++it) {
             mmdb::Residue *r = *it;
             std::cout << "debug:: in delete_downstream() delete " << residue_spec_t(r) << std::endl;
          }
       }
-      for (it=delete_these_residues.begin(); it != delete_these_residues.end(); it++) {
+      for (it=delete_these_residues.begin(); it != delete_these_residues.end(); ++it) {
          mmdb::Residue *residue_p = *it;
          std::cout << "debug:: in delete_downstream() about to delete residue " << residue_spec_t(residue_p) << std::endl;
          delete residue_p;
@@ -520,7 +524,7 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
       mol->FinishStructEdit();
    }
 
-   std::cout << "--------- done delete_downsteam ------------ " << std::endl;
+   // std::cout << "--------- done delete_downsteam ------------ " << std::endl;
 
 }
 
