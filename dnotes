@@ -3987,7 +3987,8 @@ INFO::
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
-     Use configure-it-for-release
+     rm src/coot_wrap*.cc
+     configure iwth configure-it-for-release
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
         all the files before commit: cd ../build-test-dist and untar it there, copy into
@@ -9704,3 +9705,15 @@ pip install matplotlib --no-binary=matplotlib
 As you want to use the GTKAgg backend, Using pip may prove useful in the future to freeze matplotlib at a version where it is supported (the deprecation warning states it will be dropped in 3.0):
 
 pip install matplotlib==2.2.2 --no-binary=matplotlib
+
+----
+Thu  1 Jul 18:26:44 BST 2021
+
+Failed to load module "appmenu-gtk-module"
+
+$ sudo apt install appmenu-gtk2-module
+
+Failed to load module "canberra-gtk-module"
+
+$ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
