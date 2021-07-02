@@ -479,10 +479,6 @@ coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
 
    clipper::Coord_orth new_centre;
    std::vector<clipper::Coord_orth> water_list;
-   std::vector<clipper::Coord_orth> this_round_water_list;
-   std::vector<clipper::Coord_orth> raw_water_list;
-
-   short int found_waters_prev_round_flag = 1;
 
    if (xmap_masked_stats.first == 0) { 
       clipper::Map_stats stats(xmap_cluster);
@@ -495,9 +491,9 @@ coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
    
    std::cout << "INFO:: found " << water_list.size()
 	     << " waters in water fitting"
-      
 	     << std::endl;
    std::cout.flush();
+
    std::string ch = protein_atoms.unused_chain_id("W");
    coot::minimol::molecule mol(water_list, "HOH", " O  ", ch);
    
@@ -814,7 +810,8 @@ coot::ligand::flood2(float n_sigma) {
    std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
-   coot::minimol::molecule mol(moved_waters, "DUM", " DUM", ch);
+   std::string ele = "NA";
+   coot::minimol::molecule mol(moved_waters, "DUM", " DUM", ch, ele);
    mol.set_cell(xmap_masked.cell());
    std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
    mol.set_spacegroup(spg);

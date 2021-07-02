@@ -10,6 +10,7 @@
 #include "cootaneer/buccaneer-prot.h"  // for clipper's globuarise()
 #include "mini-mol/mini-mol.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/merge-atom-selections.hh"
 #include "scored-node.hh"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
@@ -376,7 +377,7 @@ spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &atom
                  const clipper::Xmap<float> &xmap,
                  mmdb::Manager *mol, mmdb::Atom **atom_selection, int n_selected_atoms) {
 
-   unsigned int n_top = 400; // top-scoring spin-score pairs for tracing. Pass this, or compute it
+   unsigned int n_top = 2000; // top-scoring spin-score pairs for tracing. Pass this, or compute it
 
    // apwd : atom (index) pairs within distance
 
@@ -1213,6 +1214,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
    auto filter_trees = [] (std::vector<scored_tree_t> &scored_trees,
                            const std::map<unsigned int, std::set<unsigned int> > &tree_copies) {
 
+                          // delete tree with better scoring copies
+                          //
                           for (auto &st : scored_trees) {
                              std::map<unsigned int, std::set<unsigned int> >::const_iterator it = tree_copies.find(st.index);
                              if (it != tree_copies.end()) {
@@ -1222,13 +1225,20 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                    const unsigned int &idx_other_tree = *it_set;
                                    if (scored_trees[idx_other_tree].score > st.score) {
                                       st.marked_for_deletion = true;
-                                      std::cout << "marking tree " << st.index << " for deleteion" << std::endl;
+                                      // std::cout << "marking tree " << st.index << " for deleteion" << std::endl;
                                    }
                                 }
                              } else {
                                 // that tree had no copies
                              }
                           }
+
+                          // also, delete trees with just one or 2 peptides
+                          for (auto &st : scored_trees) {
+                             if (st.tree.size() <= 2)
+                                st.marked_for_deletion = true;
+                          }
+
                           auto tree_eraser = [] (const scored_tree_t &st) { return st.marked_for_deletion; };
                           scored_trees.erase(std::remove_if(scored_trees.begin(), scored_trees.end(), tree_eraser), scored_trees.end());
                        };
@@ -1251,7 +1261,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                                    int n_selected_atoms = 0;
                                                    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
-                                                   if (true) {
+                                                   if (false) {
                                                       for (int iat=0; iat<n_selected_atoms; iat++) {
                                                          mmdb::Atom *at = atom_selection[iat];
                                                          std::cout << "selected-atoms " << iat << " " << coot::atom_spec_t(at) << " at " << coot::co(at).format() << std::endl;
@@ -1338,7 +1348,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                        std::cout << "debug:: in make_scores_for_chain_ids() scored_trees size: " << scored_trees.size() << std::endl;
                                        for (unsigned int i=0; i<scored_trees.size(); i++) {
                                           const auto &scored_tree = scored_trees[i];
-                                          std::cout << "tree: " << i << "  chain_id " << scored_tree.chain_id << " score " << scored_tree.score << std::endl;
+                                          std::cout << "tree: " << i << "  chain_id " << scored_tree.chain_id << " score " << scored_tree.score
+                                                    << " from " << scored_tree.tree.size() << " peptides " << std::endl;
                                           scores_for_chain_ids[scored_tree.chain_id] = scored_tree.score;
                                        }
                                        return scores_for_chain_ids;
@@ -1427,6 +1438,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
    }
 
    coot::minimol::molecule m;
+   m.set_cell(xmap.cell());
+   m.set_spacegroup(xmap.spacegroup().symbol_hm());
    for (unsigned int i=0; i<scored_trees.size(); i++) {
       if (i > top_n_trees) continue;
       try {
@@ -1438,7 +1451,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
          add_CBs_to_residues(mc_fragment);
 
          coot::minimol::molecule fragmol(mc_fragment);
-         std::string fn = "mc-fragment-" + std::to_string(i) + ".pdb";
+         std::string chain_id = mc_fragment.fragment_id;
+         std::string fn = "mc-fragment-" + chain_id + ".pdb";
          fragmol.write_file(fn, 30.0);
 
          unsigned int frag_idx = m.fragment_for_chain(mc_fragment.fragment_id);
@@ -1449,7 +1463,9 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
       }
    }
 
-   std::string fn = "all-poly-ALA-fragments.pdb";
+   std::string fn = "all-poly-ALA-fragments-pre-CN-merge.pdb";
+   merge_fragments_by_joining_close_C_and_N(m);
+   fn = "all-poly-ALA-fragments-post-CN-merge.pdb";
    m.write_file(fn, 30.0);
 
    if (true) // debug the trees, write them out so that I can see them (c.f. the real model)
@@ -1463,19 +1479,24 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
    }
 
    mmdb::Manager *mol = m.pcmmdbmanager();
-   float big_overlap_fraction_limit = 0.3;
+   float big_overlap_fraction_limit = 0.8;
    std::map<std::string, std::set<std::string> > overlapping_chains_map =
       find_chains_that_overlap_other_chains(mol, big_overlap_fraction_limit);
    std::map<std::string, double> scores_for_chain_ids = make_scores_for_chain_ids(scored_trees);
 
-   if (true) {
+   if (false) {
       std::cout << "debug::scores for chain_ids" << std::endl;
       std::map<std::string, double>::const_iterator it;
       for(it=scores_for_chain_ids.begin(); it!=scores_for_chain_ids.end(); ++it)
          std::cout << "scores-for-chain_ids " << it->first << " " << it->second << std::endl;
    }
 
+   mol->WritePDBASCII("pre-overlapping-chains-filter.pdb");
    filter_chains(mol, overlapping_chains_map, scores_for_chain_ids);
+   mol->WritePDBASCII("post-overlapping-chains-filter.pdb");
+
+   coot::merge_atom_selections(mol);
+   mol->WritePDBASCII("post-merge-chains.pdb");
 
    if (false) {
       for(const auto &item : overlapping_chains_map) {
@@ -1525,7 +1546,8 @@ globularize(mmdb::Manager *mol, const clipper::Xmap<float> &xmap) {
          clipper::Coord_orth mean(f * sum); // fine for cryo, not good for crystallography
 
          // hack for testing tutorial modern
-         mean = clipper::Coord_orth(60, 5, 12);
+         // mean = clipper::Coord_orth(60, 5, 12);
+         mean = clipper::Coord_orth(0, 20, 19); // 1gwd
 
          const clipper::Spacegroup spgr = xmap.spacegroup();
          const clipper::Cell       cell = xmap.cell();
@@ -1646,6 +1668,39 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
 
    double variation = 0.5; // make bigger at lower resolutions (maybe up to 0.5?) pass this
 
+   auto debug_scored_spin_pairs = [] (const std::vector<std::pair<unsigned int, coot::scored_node_t> > &scored_pairs,
+                                      mmdb::Atom **atom_selection, int n_selected_atoms) {
+
+                                     double max_score = 12.0; // for 1gwd
+
+                                     auto score_to_colour = [max_score] (double score) {
+                                                               float f = score/max_score;
+                                                               if (f < 0.0) f = 0.0;
+                                                               if (f > 1.0) f = 1.0;
+                                                               if (f < 0.7) f = 0.0;
+                                                               float ff = -1.6 * f;
+                                                               coot::colour_holder ch(0.9, 0.2, 0.2);
+                                                               ch.rotate_by(ff);
+                                                               return ch;
+                                                            };
+
+                                     std::ofstream f("debug-scored-peptides.table");
+                                     for (unsigned int i=0; i<scored_pairs.size(); i++) {
+                                        const auto &scored_pair = scored_pairs[i];
+                                        clipper::Coord_orth pt_1 = coot::co(atom_selection[scored_pair.first]);
+                                        clipper::Coord_orth pt_2 = coot::co(atom_selection[scored_pair.second.atom_idx]);
+                                        double score = scored_pair.second.spin_score;
+                                        coot::colour_holder ch = score_to_colour(score);
+                                        if (score > 4.0) {
+                                           f << "scored-peptide "
+                                             << pt_1.x() << " " << pt_1.y() << " " << pt_1.z() << " "
+                                             << pt_2.x() << " " << pt_2.y() << " " << pt_2.z() << " "
+                                             << score <<  " col " << ch.red << " " << ch.green << " " << ch.blue
+                                             << " for fraction " << score/max_score << "\n";
+                                        }
+                                     }
+                                  };
+
    // somewhere here - not sure before or after action_mol is created, I want to globularize the molecule
    mmdb::Manager *action_mol = flood_mol.pcmmdbmanager();
    globularize(action_mol, xmap); // move around the atoms so they they are arranged in space in a sphere rather
@@ -1669,14 +1724,18 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
    std::cout << "INFO:: selected " << n_selected_atoms << " for distance pair check" << std::endl;
    std::vector<std::pair<unsigned int, unsigned int> > apwd =
       atom_pairs_within_distance(action_mol, atom_selection, n_selected_atoms, 3.81, variation);
+
    std::cout << "spin_score_pairs..." << std::endl;
    // the first of the scores is the index of the first atom
-   std::vector<std::pair<unsigned int, coot::scored_node_t> > scores =
+   std::vector<std::pair<unsigned int, coot::scored_node_t> > scored_pairs =
       spin_score_pairs(apwd, xmap, action_mol, atom_selection, n_selected_atoms);
    std::cout << "spin_score_pairs done" << std::endl;
+   if (true)
+      debug_scored_spin_pairs(scored_pairs, atom_selection, n_selected_atoms);
+
 
    // scores = make_some_fake_scored_pairs();
-   mmdb::Manager *mol = make_fragments(scores, atom_selection, xmap);
+   mmdb::Manager *mol = make_fragments(scored_pairs, atom_selection, xmap);
    action_mol->DeleteSelection(selhnd);
    return mol;
 }
@@ -1744,10 +1803,12 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, float 
 
    coot::minimol::molecule flood_molecule = get_flood_molecule(xmap, rmsd_cut_off);
    mmdb::Manager *mol = find_connected_fragments(flood_molecule, xmap);
+   mol->WritePDBASCII("not-yet-sequenced.pdb");
+
    coot::protein_geometry pg;
    pg.init_standard();
-   apply_sequence_to_fragments(mol, xmap, fam, pg); // mutate mol
-   mol->WritePDBASCII("sequenced.pdb");
+   // apply_sequence_to_fragments(mol, xmap, fam, pg); // mutate mol
+   // mol->WritePDBASCII("sequenced.pdb");
 
 }
 
@@ -1759,12 +1820,21 @@ int main(int argc, char **argv) {
    std::string hklin_file_name = "rnasa-1.8-all_refmac1.mtz";
    std::string f_col_label = "FWT";
    std::string phi_col_label = "PHWT";
-
-   // hklin_file_name = "../src/tm-A-1.0.mtz";
-   // f_col_label   = "FC";
-   // phi_col_label = "PHIC";
-
    std::string pir_file_name = "../src/rnase.pir";
+
+   if (false) {
+      hklin_file_name = "../src/tm-A-1.0.mtz";
+      f_col_label   = "FC";
+      phi_col_label = "PHIC";
+   }
+
+   if (true) {
+      hklin_file_name = "coot-download/1gwd_map.mtz";
+      f_col_label   = "FWT";
+      phi_col_label = "PHWT";
+      pir_file_name = "1gwd.pir";
+   }
+
    coot::fasta_multi fam;
    fam.read(pir_file_name);
 
