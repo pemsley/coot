@@ -35,15 +35,17 @@ coot::minimol::molecule::molecule(mmdb::Manager *mol, bool udd_atom_index_to_use
 }
 
 
+// ele is an optiona arg (default " O")
 coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_list,
 				  const std::string& residue_type,
 				  std::string atom_name,
-				  std::string chain_id) {
+				  std::string chain_id,
+                                  const std::string &ele) {
 
    // Constructing a fragment from a chain_id sets residues_offset to 0
    // but doesn't add any residues
    fragments.push_back(fragment(chain_id));
-   std::string element(" O");
+   std::string element = ele;
 
    // Each atom goes in its own residue (residue number offset by one
    // c.f. the atom vector index)

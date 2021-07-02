@@ -189,7 +189,7 @@ namespace coot {
 	 // residue_type is usually, "HOH" or "DUM".
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
-		  std::string chain_id);
+		  std::string chain_id, const std::string &ele=" O");
 	 explicit molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
 	 explicit molecule(const fragment &frag);
 
