@@ -288,6 +288,12 @@ Section "!WinCoot" SEC01
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\gunzip"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\gzip.exe"
   File "${src_dir}\bin\iconv.exe"
+  ; render (or more?) from raster3d?!
+  File "${src_dir}\bin\render.exe"
+  ;gunzip needed?? dont think so
+  File "C:\msys64\home\bernhard\autobuild\extras\gunzip"
+  File "C:\msys64\home\bernhard\autobuild\extras\gzip.exe"
+>>>>>>> 8216c40e1... Windows fix to pyrogen and raster3d
   File "${src_dir}\bin\lidia.exe"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\msvcr90.dll"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\Microsoft.VC90.CRT.manifest"
@@ -731,6 +737,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\iconv.exe"
   Delete "$INSTDIR\bin\lidia.exe"
   Delete "$INSTDIR\bin\mini-rsr-bin.exe"
+  Delete "$INSTDIR\bin\render.exe"
   Delete "$INSTDIR\bin\Microsoft.VC90.CRT.manifest"
   Delete "$INSTDIR\bin\pango-querymodules.exe"
   Delete "$INSTDIR\bin\pango-view.exe"
