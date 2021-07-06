@@ -408,7 +408,8 @@
 # 5.51 20210407 adjust LIBS for clipper configure for lib64 usage
 # 5.52 20210511 rework the coot configure
 # 5.53 20210706 use jfrog.io for boost
-script_version=5.53
+# 5.54 20210706 build sqllite3
+script_version=5.54
 
 
 
@@ -1243,15 +1244,7 @@ if [ "$systype" = x86_64-rhel-4 ] ; then
     export PATH
 fi
 
-# Do we link with sqlite (for the ligands database)?
-# We allow the calling script to set use_sqlite=yes
-use_sqlite=${use_sqlite:=no}
-
-if [ "$use_sqlite" = "yes" ] ; then
-    sqlite_config_args=--with-sqlite3
-else
-    sqlite_config_args=
-fi
+sqlite_config_args=--with-sqlite3
 
 # We want to add some compiler info in the directory name.
 # If CC is set, use that,
@@ -2777,6 +2770,19 @@ else
     echo not building clipper:
 fi
 
+if [ -e $install_top_dir/lib/libsqlite3.so ] ; then
+    echo libsqlite3 is installed
+else
+    ${WGET} https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+    gzip -dc ${AUTOBUILD_SOURCES}/sqlite-autoconf-3360000.tar.gz | tar xf -
+    cd sqlite-autoconf-3360000
+    if ./configure --prefix=$install_top_dir ; then
+        $MAKE
+        make install
+    fi
+    cd -
+fi
+
 
 
 # freeglut
@@ -3333,13 +3339,17 @@ if [ "$build_boost" = true ] ; then
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 
       gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
-      cd boost_$boost_version
-      # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
-      ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
-      # bjam no longer exists
-      ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
-      echo b2 install into $install_top_dir complete
-      cd -
+      if [ -e boost_$boost_version ] ; then
+         cd boost_$boost_version
+         # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
+         ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
+         # bjam no longer exists
+         ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+         echo b2 install into $install_top_dir complete
+         cd -
+      else
+         echo boost untar failed - maybe download failed.
+      fi
 
    ) > $HOSTLOGDIR/16-boost.txt 2>&1
 fi
