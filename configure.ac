@@ -226,39 +226,15 @@ else
   PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
 fi
 
+# goocanvas for GTK4?
 PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0])
 
 
-
+# this needs a rethink
 MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
 AC_SUBST(MAKE_COOTRC_CMD)
 
 
-dnl ============================ OPENGL ===================
-#
-if test "$have_windows_mingw" = yes; then
-  AC_CHECK_HEADER([GL/gl.h], [], AC_MSG_ERROR([GL header not found]))
-  AC_CHECK_LIB(opengl32, main, COOT_OPENGL_LIBS="-lopengl32", AC_MSG_ERROR([GL lib required]))
-else
-  AC_CHECK_LIB(GL, glLineWidth, COOT_OPENGL_LIBS="-lGL")
-fi
-AC_SUBST([COOT_OPENGL_LIBS], [${COOT_OPENGL_LIBS}])
-
-dnl =========================== GLUT ================================
-
-dnl goodbye glut
-dnl Check for GLUT
-#
-dnl AM_PATH_GLUT(, [echo You need the GLUT utility library; exit 1], AC_MSG_ERROR([Cannot find proper GLUT version]))
-
-
-dnl =========================== Python ======================
-
-# AM_WITH_GUILE_GTK
-# AM_PATH_GUILE_GTK
-
-# AM_WITH_PYTHON
-# AM_PATH_PYTHON
 
 AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
