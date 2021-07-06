@@ -407,7 +407,8 @@
 # 5.50 20210407 fix previous fix
 # 5.51 20210407 adjust LIBS for clipper configure for lib64 usage
 # 5.52 20210511 rework the coot configure
-script_version=5.52
+# 5.53 20210706 use jfrog.io for boost
+script_version=5.53
 
 
 
@@ -3326,6 +3327,7 @@ if [ "$build_boost" = true ] ; then
       python_version_extention=2.7 # extract this
 
       boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source
       boost_version=1_71_0
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
