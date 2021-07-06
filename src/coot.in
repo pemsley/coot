@@ -207,7 +207,7 @@ else
    else
        shift
        libdir=lib # lib64?
-       coot_py_dir=$COOT_PREFIX/$libdir/python$python_major.$python_minor/site-packages/coot
+       coot_py_dir=$COOT_PREFIX/$libdir/python@PYTHON_VERSION@/site-packages/coot
        $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
        status=$?
    fi
