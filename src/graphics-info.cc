@@ -4380,9 +4380,11 @@ graphics_info_t::pick_cursor_real() {
       GdkCursor *cursor;
       // cursor = gdk_cursor_new (c);
       cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
+#if (GTK_MAJOR_VERSION < 4)
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
+#endif
    }
 }
 
@@ -4392,13 +4394,15 @@ graphics_info_t::normal_cursor() {
 
    if (use_graphics_interface_flag) {
       if (control_key_for_rotate_flag) {
-    GdkCursorType c = GDK_LEFT_PTR;
-    GdkCursor *cursor;
-    //cursor = gdk_cursor_new (c);
-    cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
-    GdkWindow *window = gtk_widget_get_window(glareas[0]);
-    gdk_window_set_cursor(window, cursor);
-    // gdk_cursor_destroy (cursor);
+         GdkCursorType c = GDK_LEFT_PTR;
+         GdkCursor *cursor;
+         //cursor = gdk_cursor_new (c);
+#if (GTK_MAJOR_VERSION < 4)
+         cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
+         GdkWindow *window = gtk_widget_get_window(glareas[0]);
+         gdk_window_set_cursor(window, cursor);
+         // gdk_cursor_destroy (cursor);
+#endif
       }
    }
 }
@@ -4411,13 +4415,15 @@ graphics_info_t::watch_cursor() {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
       // cursor = gdk_cursor_new (c);
+#if (GTK_MAJOR_VERSION < 4)
       cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
       while (gtk_events_pending()) {
-    gtk_main_iteration();
+         gtk_main_iteration();
       }
+#endif
    }
 }
 
@@ -4429,10 +4435,12 @@ graphics_info_t::fleur_cursor() {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
       // cursor = gdk_cursor_new (c);
+#if (GTK_MAJOR_VERSION < 4)
       cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy (cursor);
+#endif
    }
 }
 

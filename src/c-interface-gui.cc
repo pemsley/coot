@@ -4589,12 +4589,13 @@ GtkWidget *wrapped_create_goto_atom_window() {
    GtkWidget *widget = graphics_info_t::go_to_atom_window;
    if (widget) {
 
+#if (GTK_MAJOR_VERSION < 4)
       if (!gtk_widget_get_mapped(widget))
 	 gtk_widget_show(widget);
       else
          gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(widget))); // can I just cast it like this?
-
       std::cout << "GTK-FIXME no raise wrapped_create_goto_atom_window()" << std::endl;
+#endif
    } else {
       widget = create_goto_atom_window();
       graphics_info_t::go_to_atom_window = widget;
@@ -4807,11 +4808,12 @@ GtkWidget *wrapped_create_display_control_window() {
 
    if (widget) {
 
+#if (GTK_MAJOR_VERSION < 4)
       if (!gtk_widget_get_mapped(widget))
  	 gtk_widget_show(widget);
       else
          gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(widget)));
-
+#endif
    } else {
 
       // OK, so create (then store) a new one.
@@ -5341,8 +5343,10 @@ void nsv(int imol) {
                if (true) {
 		  gtk_widget_show(widget);
 	       } else {
+#if (GTK_MAJOR_VERSION < 4)
                   GdkWindow *w = gtk_widget_get_window(widget);
 		  gdk_window_raise(w);
+#endif
 	       }
 	    }
 	 }

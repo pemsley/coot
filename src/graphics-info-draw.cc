@@ -168,26 +168,31 @@ graphics_info_t::handle_delete_item_curor_change(GtkWidget *widget) {
          graphics_info_t g;
 	 pick_info naii = g.atom_pick_gtk3(false);
          GdkDisplay *display = gdk_display_get_default();
-         GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(widget));
-         GdkCursor *current_cursor = gdk_window_get_cursor(window);
-         // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
-	 if (naii.success == GL_TRUE) {
-            int imol = naii.imol;
-            molecule_class_info_t &m = graphics_info_t::molecules[imol];
-            std::string res_name = m.atom_sel.atom_selection[naii.atom_index]->GetResName();
-            if (res_name == "HOH") {
-               GdkCursor *c = gdk_cursor_new_from_name (display, "crosshair");
-               // std::cout << "crosshair type " << gdk_cursor_get_cursor_type(c) << std::endl;
-               gdk_window_set_cursor(window, c);
+         GdkWindow *window = 0;
+#if (GTK_MAJOR_VERSION < 4)
+         window = gtk_widget_get_window(GTK_WIDGET(widget));
+#endif
+         if (window) {
+            GdkCursor *current_cursor = gdk_window_get_cursor(window);
+            // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
+            if (naii.success == GL_TRUE) {
+               int imol = naii.imol;
+               molecule_class_info_t &m = graphics_info_t::molecules[imol];
+               std::string res_name = m.atom_sel.atom_selection[naii.atom_index]->GetResName();
+               if (res_name == "HOH") {
+                  GdkCursor *c = gdk_cursor_new_from_name (display, "crosshair");
+                  // std::cout << "crosshair type " << gdk_cursor_get_cursor_type(c) << std::endl;
+                  gdk_window_set_cursor(window, c);
+               } else {
+                  GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
+                  // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+                  gdk_window_set_cursor(window, c);
+               }
             } else {
                GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
                // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
                gdk_window_set_cursor(window, c);
             }
-         } else {
-            GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
-            // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
-            gdk_window_set_cursor(window, c);
          }
       }
    }

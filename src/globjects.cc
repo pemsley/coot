@@ -3755,7 +3755,8 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    int x_as_int, y_as_int;
    GdkModifierType state;
-   GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(widget));
+
+   GdkWindow *window = 0; // was: gtk_widget_get_window(GTK_WIDGET(widget));
 
    // gdk_window_get_pointer(window, &x_as_int, &y_as_int, &state);
 
@@ -3921,7 +3922,7 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
       int x_as_int = 0, y_as_int = 0;
       GdkModifierType state;
-      GdkWindow *window = gtk_widget_get_window(widget);
+      GdkWindow *window = 0; // was gtk_widget_get_window(widget);
 
       std::cout << "FIX button release (frustrated) " << std::endl;
       // GdkDeviceManager *device_manager = gdk_display_get_default_seat(gtk_widget_get_display(widget));

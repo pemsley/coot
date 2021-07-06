@@ -4786,11 +4786,13 @@ on_edit_backbone_torsion_rotate_peptide_button_pressed_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  int ix, iy;
-  GdkModifierType state;
-  GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
-  gdk_window_get_pointer(window, &ix, &iy, &state);
-  set_backbone_torsion_peptide_button_start_pos(ix, iy);
+#if (GTK_MAJOR_VERSION < 4)
+   int ix, iy;
+   GdkModifierType state;
+   GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
+   gdk_window_get_pointer(window, &ix, &iy, &state);
+   set_backbone_torsion_peptide_button_start_pos(ix, iy);
+#endif 
 }
 
 
@@ -4811,12 +4813,14 @@ on_edit_backbone_torsion_rotate_peptide_button_motion_notify_event_gtkbuilder_ca
                                         GdkEventMotion  *event,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION < 4)
   int ix, iy;
   GdkModifierType state;
   GdkWindow *window = gtk_widget_get_window(widget);
   gdk_window_get_pointer(window, &ix, &iy, &state);
   change_peptide_peptide_by_current_button_pos(ix, iy);
   return FALSE;
+#endif
 }
 
 
@@ -4826,12 +4830,13 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_pressed_gtkbuilder_callb
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION < 4)
   int ix, iy;
   GdkModifierType state;
   GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
   gdk_window_get_pointer(window, &ix, &iy, &state);
   set_backbone_torsion_carbonyl_button_start_pos(ix, iy);
-
+#endif
 }
 
 
@@ -4852,7 +4857,7 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_motion_notify_event_gtkb
                                         GdkEventMotion  *event,
                                         gpointer         user_data)
 {
-
+#if (GTK_MAJOR_VERSION < 4)
   int ix, iy;
   GdkModifierType state;
   GdkWindow *window = gtk_widget_get_window(widget);
@@ -4860,6 +4865,7 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_motion_notify_event_gtkb
 /*   printf("button moved to %d %d \n", ix, iy); */
 
   change_peptide_carbonyl_by_current_button_pos(ix, iy);
+#endif
   return FALSE;
 }
 

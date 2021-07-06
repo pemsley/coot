@@ -279,7 +279,9 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
      if (true) {
         gtk_widget_show(rama_widget);
      } else {
+#if (GTK_MAJOR_VERSION < 4)
         gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
+#endif
      }
   }
 
@@ -1206,7 +1208,6 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
 
   widget = patch_frame;
 
-
   widget = gtk_drawing_area_new();
   widget_thing = lookup_widget(GTK_WIDGET(patch_frame), "single_map_colour_hbox");
   widget_thing = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -1216,7 +1217,14 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   gtk_container_add(GTK_CONTAINER(widget_thing), widget);
 
   // printf("gdk_gc_new\n");
-  GdkWindow *window = gtk_widget_get_window(widget);
+  GdkWindow *window = 0;
+#if (GTK_MAJOR_VERSION < 4)
+  window = gtk_widget_get_window(widget);
+#endif
+
+  if (! window)
+     return;
+
   // gc = gdk_gc_new(window);
 
   printf("get window size\n");

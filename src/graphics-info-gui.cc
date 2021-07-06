@@ -579,8 +579,10 @@ graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
    // and make the c-interface.cc just a one line which calls this
    // function.
 
+#if (GTK_MAJOR_VERSION < 4)
+
    gint upositionx, upositiony;
-   GdkWindow *window = gtk_widget_get_window(widget);
+   GdkWindow *window = gtk_widget_get_window(widget); // missing function in 4.
    gdk_window_get_root_origin(window, &upositionx, &upositiony);
 
    if (window_type == COOT_EDIT_CHI_DIALOG) {
@@ -592,6 +594,8 @@ graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
       graphics_info_t::rotamer_selection_dialog_x_position = upositionx;
       graphics_info_t::rotamer_selection_dialog_y_position = upositiony;
    }
+#endif
+
 }
 
 // static
@@ -649,22 +653,27 @@ graphics_info_t::add_status_bar_text(const std::string &text) const {
 	 unsigned int max_width = 130;
 	 GtkWidget *main_window = get_main_window();
 	 // some conversion between the window width and the max text length
-	 GdkWindow *window = gtk_widget_get_window(main_window);
-	 GtkAllocation allocation;
-	 gtk_widget_get_allocation(main_window, &allocation);
-	 max_width = allocation.width/4 -38;
-	 if (sbt.length() > max_width) { // some number
-	    // -------------------------
-	    //        |                |
-	    //     200-130            200
-	    int l = sbt.length();
-	    std::string short_text = text.substr(l-max_width, max_width);
-	    // std::cout << "short_text length: " << short_text.length() << std::endl;
-	    sbt = "..." + short_text;
-	 }
-	 gtk_statusbar_push(GTK_STATUSBAR(statusbar),
-			    statusbar_context_id,
-			    sbt.c_str());
+	 GdkWindow *window = 0;
+#if (GTK_MAJOR_VERSION < 4)
+         window = gtk_widget_get_window(main_window);
+#endif
+         if (window) {
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(main_window, &allocation);
+            max_width = allocation.width/4 -38;
+            if (sbt.length() > max_width) { // some number
+               // -------------------------
+               //        |                |
+               //     200-130            200
+               int l = sbt.length();
+               std::string short_text = text.substr(l-max_width, max_width);
+               // std::cout << "short_text length: " << short_text.length() << std::endl;
+               sbt = "..." + short_text;
+            }
+            gtk_statusbar_push(GTK_STATUSBAR(statusbar),
+                               statusbar_context_id,
+                               sbt.c_str());
+         }
       }
    }
 }
