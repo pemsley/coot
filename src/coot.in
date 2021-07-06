@@ -49,13 +49,17 @@ fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
 
+python_major=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(major))')
+python_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(minor))')
+python_major_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}{}".format(major, minor))')
+
 # we need this for movable/slim directory usage
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
    # BL says:: is there some better cleverness possible?!
    # I could use (if we have new bash)
    # if [[ $systype == MINGW* ]] ; then
    coot_bin=$COOT_PREFIX/bin/coot-bin
-   PYTHONHOME=$COOT_PREFIX/python27
+   PYTHONHOME=$COOT_PREFIX/python$python_major_minor
    PATH=$PATH:$PYTHONHOME
 else
    coot_bin=$COOT_PREFIX/libexec/coot-bin
@@ -89,13 +93,6 @@ COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
- 
-if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
-    # this needs fixing
-    COOT_PYTHON_DIR=$COOT_PREFIX/python27/lib/site-packages/coot
-else
-    COOT_PYTHON_DIR=$COOT_PREFIX/lib/python3.6/site-packages/coot
-fi
 
 # Added 20090429 - take this out when trying internationalization.
 LANG=C
@@ -106,20 +103,19 @@ export LC_ALL
 export LC_NUMERIC
 
 
-
+# this surely is not needed these days? 20210706-PE?
 # Reluctantly, I kludge in 1.8 to the GUILE_LOAD_PATH because I don't
 # know why it is failing to be set correctly from Coot's configure in
 # Kevin's Ubuntu.  Needless to say, it works fine on my Ubuntu
 # (Gutsy).  Must fix later.
 #
-GUILE_LOAD_PATH=\
-$COOT_PREFIX/share/guile/1.8:$COOT_PREFIX/share/guile/@GUILE_VERSION@:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
-GUILE_WARN_DEPRECATED=no
-export GUILE_WARN_DEPRECATED
+# GUILE_LOAD_PATH=\
+# $COOT_PREFIX/share/guile/1.8:$COOT_PREFIX/share/guile/@GUILE_VERSION@:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
+# if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
+#    GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
+# fi
 
-if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
-    GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
-fi
+export GUILE_WARN_DEPRECATED=no
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
 GUILE_BIN=guile
@@ -150,30 +146,6 @@ if [ $systype = Darwin ] ; then
 	OLD_LTDL_LIBRARY_PATH=${LTDL_LIBRARY_PATH}
 	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib:${LTDL_LIBRARY_PATH}
    fi
-fi
-if [ $systype = IRIX ] ; then 
-   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
-   else 
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
-   fi
-fi
-if [ $systype = IRIX64 ] ; then 
-   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
-   else 
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
-   fi
-fi
-
-
-# For installation using a non-local python
-if ! [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
-  unset PYTHONHOME
-  # pth in PYTHONPATH are ignored, insert gtk-2.0 and coot explicitly
-  site_packages="$COOT_PREFIX/lib/python2.7/site-packages"
-  extra_pypath="$site_packages:$site_packages/coot:$site_packages/gtk-2.0"
-  export PYTHONPATH="$extra_pypath:${extra_pypath//lib/lib64}:$PYTHONPATH"
 fi
 
 if [ -z "$GI_TYPELIB_PATH" ] ; then
@@ -233,10 +205,11 @@ else
       $coot_bin "$@"
       status=$?
    else
-      shift
-      coot_py_dir=$COOT_PREFIX/lib/python2.7/site-packages/coot
-      $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
-      status=$?
+       shift
+       libdir=lib # lib64?
+       coot_py_dir=$COOT_PREFIX/$libdir/python$python_major.$python_minor/site-packages/coot
+       $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
+       status=$?
    fi
    if [ $status != 0 ] ; then
       echo . ------ Coot crashed - trying to diagnose -----
