@@ -337,9 +337,12 @@ do_self_tests() {
 
 void on_glarea_realize(GtkGLArea *glarea);
 
-void init_from_gtkbuilder() {
+// return success status
+bool init_from_gtkbuilder() {
 
    // get the right file first...
+
+   bool status = true;
 
    std::string dir = coot::package_data_dir();
    std::string glade_file_full = coot::util::append_dir_file(dir, "a6.glade");
@@ -354,7 +357,8 @@ void init_from_gtkbuilder() {
    GtkBuilder *builder = gtk_builder_new();
 
    guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
-   std::cout << "add_from_file_status " << add_from_file_status << std::endl;
+   std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << glade_file_full
+             << " add_from_file_status: " << add_from_file_status << std::endl;
 
    GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
 
@@ -395,11 +399,14 @@ void init_from_gtkbuilder() {
          }
 
       } else {
-         std::cout << "init_main_window() glarea null" << std::endl;
+         std::cout << "WARNING:: init_from_gtkbuilder(): glarea null" << std::endl;
+         status = false;
       }
    } else {
-      std::cout << "graphics_hbox was null" << std::endl;
+      std::cout << "WARNING:: init_from_gtkbuilder(): graphics_hbox was null" << std::endl;
+      status = false;
    }
+   return status;
 }
 
 
@@ -486,21 +493,22 @@ main (int argc, char *argv[]) {
       }
 
       if (cld.use_gtkbuilder) {
-         init_from_gtkbuilder();
-         GtkWidget *glarea = graphics_info_t::glareas[0];
-	 setup_application_icon(GTK_WINDOW(graphics_info_t::get_main_window()));
+         bool success = init_from_gtkbuilder();
+         if (success) {
+            GtkWidget *glarea = graphics_info_t::glareas[0];
+            setup_application_icon(GTK_WINDOW(graphics_info_t::get_main_window()));
 
-         gtk_widget_show(glarea);
-         my_glarea_add_signals_and_events(glarea);
-         std::cout << "............ done setup signals and events " << std::endl;
-         on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
-                                                 // without this.
-#ifdef USE_PYTHON
-         // std::cout << "------------------------- calling setup_python" << std::endl;
-         setup_python(argc, argv);
-#endif
+            gtk_widget_show(glarea);
+            my_glarea_add_signals_and_events(glarea);
+            std::cout << "............ done setup signals and events " << std::endl;
+            on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
+            // without this.
+            // std::cout << "------------------------- calling setup_python" << std::endl;
+            setup_python(argc, argv);
+         } else {
+            std::cout << "WARNING:: init_from_gtkbuilder() failed " << std::endl;
+         }
       }
-
    }
 
    // Mac users often start somewhere where they can't write files
