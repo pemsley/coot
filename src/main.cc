@@ -366,9 +366,11 @@ void init_from_gtkbuilder() {
 
       GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
 
-      std::cout << "debug:: main_window "   << main_window << std::endl;
-      std::cout << "debug:: graphics_hbox " << graphics_hbox << std::endl;
-      std::cout << "debug:: statusbar "     << sb << std::endl;
+      if (false) {
+         std::cout << "debug:: main_window "   << main_window << std::endl;
+         std::cout << "debug:: graphics_hbox " << graphics_hbox << std::endl;
+         std::cout << "debug:: statusbar "     << sb << std::endl;
+      }
 
       if (main_window)
          graphics_info_t::set_main_window(main_window);
