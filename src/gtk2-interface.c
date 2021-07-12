@@ -25477,7 +25477,7 @@ create_coords_filechooserdialog1 (void)
 
   dialog_action_area99 = gtk_dialog_get_content_area( coords_filechooserdialog1 );
   gtk_widget_show (dialog_action_area99);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area99), GTK_BUTTONBOX_END);
+  /* gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area99), GTK_BUTTONBOX_END); causes problems */
 
   button5 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button5);
