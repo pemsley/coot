@@ -151,11 +151,11 @@ framebuffer::generate_colourtexture(unsigned int width, unsigned int height) {
    err = glGetError();
    if (err) std::cout << "ERROR generate_colourtexture() D "
 		      << name << " err is " << err << std::endl;
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    err = glGetError();
    if (err) std::cout << "ERROR generate_colourtexture() E "
 		      << name << " err is " << err << std::endl;
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
    err = glGetError();
    if (err) std::cout << "ERROR generate_colourtexture() F "
 		      << name << " err is " << err << std::endl;
@@ -175,8 +175,8 @@ framebuffer::generate_depthtexture(unsigned int width, unsigned int height) {
    glBindTexture(GL_TEXTURE_2D, texture_depth);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
    // std::cout << "in framebuffer::generate_depthtexture() with texture_depth " << texture_depth << std::endl;
    
