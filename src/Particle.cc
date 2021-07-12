@@ -6,6 +6,7 @@
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include "Particle.hh"
+#include "utils/coot-utils.hh"
 
 void
 Particle::update() {
@@ -44,7 +45,7 @@ float
 particle_container_t::random() const {
 
    const float d = static_cast<float>(RAND_MAX);
-   long int r = ::random();
+   long int r = coot::util::random();
    return static_cast<float>(r)/d;
 }
 

@@ -705,6 +705,13 @@ libcootsumo_la_SOURCES = \
 EXTRA_DIST += coot_wrap_python_pre.cc
 dist_python_PYTHON = coot.py coot.pth
 
+if OS_WIN32
+# Python .pyd modules are simply DLLs, but they have to be called .pyd for
+# python to find them, and libtool only creates .dll.
+install-exec-hook:
+	mv $(pyexecdir)/_coot-0.dll $(pyexecdir)/_coot.pyd
+endif
+
 # testcartesian_SOURCES = testcartesian.cc
 
 # graphics_crash_test_SOURCES = graphics-crash-test.cc graphics-crash-test.h
@@ -781,6 +788,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS)       \
 		-lfreetype \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@ \
+		$(SHARED_LDFLAGS)       \
 		-lpthread
 
 # make freetype a configure variable FREETYPE_LIBS

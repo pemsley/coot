@@ -29,6 +29,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
  SHARED_LDFLAGS=
  have_windows_mingw=no
  windows=false
+ have_win64=no
 
  # BL: workaround needed for new MinGW
  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
@@ -55,7 +56,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
     ;;
   esac
 
-AM_CONDITIONAL([OS_WIN32], [test x$windows    = xtrue])
+AM_CONDITIONAL([OS_WIN32], [test x$windows = xtrue])
 AM_CONDITIONAL([OS_WIN64], [test x$have_win64 = xyes])
 AC_MSG_RESULT([$have_windows_mingw])
 AC_SUBST(COOT_WINDOWS_CFLAGS)

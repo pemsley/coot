@@ -3,6 +3,8 @@
 #include "Python.h"
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include "graphics-info.h"
 
 // static

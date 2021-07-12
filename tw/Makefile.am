@@ -41,6 +41,8 @@ pkgincludedir = $(includedir)/coot/tw
 
 libcoot_tw_la_SOURCES = tw.cc
 
+libcoot_tw_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 check_PROGRAMS = coot-tiddly
 
 coot_tiddly_SOURCES = tiddly.cc

@@ -23,6 +23,7 @@
 #endif
 
 #include "compat/coot-sysdep.h"
+#include "graphics-info.h"
 
 
 #include <cstring>
@@ -33,7 +34,6 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #endif
-#include "graphics-info.h"
 #include "lbg/lbg.hh"
 
 #include "lbg-interface.hh"
