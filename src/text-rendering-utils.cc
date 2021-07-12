@@ -53,7 +53,8 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader, bool for
    shader.Use();
    if (for_atom_label_flag) {
 
-      GLuint projection_uniform_location = shader.atom_label_projection_uniform_location;
+      // GLuint projection_uniform_location = shader.atom_label_projection_uniform_location;
+      GLuint projection_uniform_location = shader.mvp_uniform_location;
       glUniformMatrix4fv(projection_uniform_location, 1, GL_FALSE, glm::value_ptr(projection));
 
       err = glGetError();
