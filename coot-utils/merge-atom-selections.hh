@@ -24,9 +24,9 @@ namespace coot {
       match_container_for_residues_t() : residue_1(NULL), residue_2(NULL) {}
       void add(mmdb::Atom *at_1, mmdb::Atom *at_2);
       // atom_selection_1(true) vs atom_selection_2(false) and upstream(true) vs downstream (false)
-      std::pair<bool, bool> find_short_fragment_around_overlap(mmdb::Manager *mol,
-                                                               int selection_handle_1,
-                                                               int selection_handle_2) const;
+      std::tuple<bool, bool, bool> find_short_fragment_around_overlap(mmdb::Manager *mol,
+                                                                      int selection_handle_1,
+                                                                      int selection_handle_2) const;
       void delete_upstream(mmdb::Manager *mol, bool from_first, int selection_handle_1, int selection_handle_2);
       void delete_downstream(mmdb::Manager *mol, bool from_first, int selection_handle_1, int selection_handle_2);
       // merge_flags used as in find_short_fragment_around_overlap()
@@ -62,6 +62,11 @@ namespace coot {
 
    // maybe be a regular coot-util function?
    void renumber_chains_start_at_least_at_1(mmdb::Manager *mol);
+
+   // not by finding overlapping fragments, try to merge using close N and C terminii and fitting
+   // a possible missing residue or two between the N and C terminii and using symmetry
+   //
+   void merge_C_and_N_termii(mmdb::Manager *mol, bool use_symmetry=true, bool using_missing_loop_fit=true);
 
 }
 

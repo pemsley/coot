@@ -7,6 +7,7 @@
 //
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/fragment-container.hh"
 #include "utils/coot-fasta.hh"
 
 namespace coot {
@@ -371,7 +372,7 @@ namespace coot {
       bool test_grid_point_to_coords_interconversion() const;
    };
 
-   std::vector<coot::side_chain_densities::results_t>
+   std::vector<std::pair<fragment_container_t::fragment_range_t, std::vector<side_chain_densities::results_t> > >
    get_fragment_sequence_scores(mmdb::Manager *mol,
                                 const fasta_multi &fam,
                                 const clipper::Xmap<float> &xmap);

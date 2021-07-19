@@ -389,6 +389,38 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
 
    // What is the probability of each rotamer at each residue?
 
+   auto calculate_CB_ideal_pos = [] (mmdb::Residue *residue_p) {
+                                    mmdb::Atom *cb_atom = residue_p->GetAtom(" CB ");
+                                    bool status = false;
+                                    clipper::Coord_orth pos;
+                                    if (! cb_atom) {
+                                       auto CA = residue_p->GetAtom(" CA ");
+                                       auto C  = residue_p->GetAtom(" C  ");
+                                       auto N  = residue_p->GetAtom(" N  ");
+                                       if (CA) {
+                                          if (C) {
+                                             if (N) {
+                                                clipper::Coord_orth N_pos = co(N);
+                                                clipper::Coord_orth C_pos = co(C);
+                                                clipper::Coord_orth CA_pos = co(CA);
+                                                clipper::Coord_orth C_to_N = N_pos - C_pos;
+                                                clipper::Coord_orth C_to_N_mid_point(0.5 * (N_pos + C_pos));
+                                                clipper::Coord_orth CA_to_CN_mid_point = C_to_N_mid_point - CA_pos;
+                                                clipper::Coord_orth CA_to_CN_mid_point_uv(CA_to_CN_mid_point.unit());
+                                                clipper::Coord_orth perp(clipper::Coord_orth::cross(C_to_N, CA_to_CN_mid_point));
+                                                clipper::Coord_orth perp_uv(perp.unit());
+                                                // guess and fiddle these - good enough
+                                                clipper::Coord_orth CB_pos(CA_pos + 1.21 * perp_uv - 0.95 * CA_to_CN_mid_point_uv);
+                                                pos = CB_pos;
+                                                status =  true;
+                                             }
+                                          }
+                                       }
+                                    }
+                                    return std::make_pair(status, pos);
+                                 };
+   
+
    std::vector<mmdb::Residue *> a_run_of_residues = make_a_run_of_residues(mol, chain_id, resno_start, resno_end);
 
    if (! a_run_of_residues.empty())
@@ -418,11 +450,22 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
       if (found_N && found_C && found_O && found_CA && found_CB) {
          // happy path
       } else {
-         std::string chain_id = residue_p->GetChainID();
-         int res_no = residue_p->GetSeqNum();
-         error_message = "ERROR:: setup-test_sequence(): missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
-         if (! found_CB)
-            error_message = "ERROR:: setup_test_sequence(): missing atom CB in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+         if (found_N && found_C && found_O && found_CA) {
+            // invent a CB and add it into the residue
+            auto cb_pos = calculate_CB_ideal_pos(residue_p);
+            if (cb_pos.first) {
+               mmdb::Atom *cb = new mmdb::Atom;
+               cb->SetCoordinates(cb_pos.second.x(), cb_pos.second.y(), cb_pos.second.z(), 1.0f, 20.0f);
+               cb->SetAtomName(" CB ");
+               cb->SetElementName(" C");
+               residue_p->AddAtom(cb);
+               mol->FinishStructEdit();
+            }
+         } else {
+            std::string chain_id = residue_p->GetChainID();
+            int res_no = residue_p->GetSeqNum();
+            error_message = "ERROR:: setup-test_sequence(): missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+         }
       }
    }
 
@@ -2274,10 +2317,12 @@ coot::side_chain_densities::set_magic_number(const std::string &mn_name, double 
 // This function seems to crash if I put it into side-chain-densities (which gets added to the
 // coot-ligand library)
 //
-std::vector<coot::side_chain_densities::results_t>
+
+std::vector<std::pair<coot::fragment_container_t::fragment_range_t, std::vector<coot::side_chain_densities::results_t> > >
 coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                              const coot::fasta_multi &fam,
                              const clipper::Xmap<float> &xmap) {
+
 
    // score blocks of sequences (of which there are, say, 21000)
    auto proc_threads = [] (const std::pair<unsigned int, unsigned int> &start_stop_pair,
@@ -2292,21 +2337,25 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                           }
                        };
 
-   std::vector<coot::side_chain_densities::results_t> results;
+   std::vector<std::pair<coot::fragment_container_t::fragment_range_t, std::vector<coot::side_chain_densities::results_t> > > results_vec;
 
    unsigned int n_sequences = fam.size();
    // "analysis" constructor
    // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
    // scd.set_data_dir("side-chain-data");
-   coot::side_chain_densities scd;
 
    coot::fragment_container_t fc = make_fragments(mol);
 
-   std::cout << "INFO:: n_sequences: " << n_sequences << std::endl;
+   std::cout << "get_fragment_sequence_scores() debug fragments" << std::endl;
+   fc.print_fragments();
+
+   std::cout << "INFO:: number of sequences in sequence file: " << n_sequences << std::endl;
 
    for (const auto &range : fc.ranges) {
-      // std::cout << "new-range" << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::: new-range" << std::endl;
       auto tp_0 = std::chrono::high_resolution_clock::now();
+      coot::side_chain_densities scd;
+      std::vector<coot::side_chain_densities::results_t> results;
       std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
          scd.setup_test_sequence(mol, range.chain_id, range.start_res.res_no, range.end_res.res_no, xmap);
       auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -2415,8 +2464,9 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                    << d10 << " setup likelihoods: " << d21 << " proc_theads: " << d32 << " consolidate: " << d43
                    << " milliseconds" << std::endl;
       }
+      results_vec.push_back(std::make_pair(range, results));
    }
 
-   return results;
+   return results_vec; // results for each range/fragment
 }
 

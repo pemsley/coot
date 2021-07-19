@@ -572,12 +572,14 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
             add(BOND_RESTRAINT, index_1, index_2, fixed_flags_1, ideal_dist_i_4, pseudo_bond_esd, 1.2);
             add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
 
-            std::cout << "INFO:: Alpha Helix Bond restraint ("
-               << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-               << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
-            std::cout << "INFO:: Alpha Helix Bond restraint ("
-               << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-               << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
+            if (verbose_geometry_reporting != QUIET) {
+               std::cout << "INFO:: Alpha Helix Bond restraint ("
+                         << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+                         << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+               std::cout << "INFO:: Alpha Helix Bond restraint ("
+                         << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+                         << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
+            }
             n_helical_restraints += 2;
          } else {
 	    if (at_1 && at_3) {
@@ -587,10 +589,12 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 	       double ideal_dist_i_3 = 3.18;
 	       add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
 
-	       std::cout << "INFO:: Alpha Helix Bond restraint ("
-			 << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-			 << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
-	       n_helical_restraints += 1;
+               if (verbose_geometry_reporting != QUIET) {
+                  std::cout << "INFO:: Alpha Helix Bond restraint ("
+                            << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+                            << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+               }
+               n_helical_restraints += 1;
 	    }
 	 }
       }

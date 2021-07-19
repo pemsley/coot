@@ -9249,3 +9249,64 @@ coot::interface_residues(mmdb::Manager *mol,
    }
    return p;
 }
+
+
+// copy the chain and add it to a new molecule hierarchy
+std::pair<mmdb::Chain *, mmdb::Manager *>
+coot::util::copy_chain(mmdb::Chain *chain_p) {
+
+   mmdb::Chain *new_chain = new mmdb::Chain;
+   new_chain->Copy(chain_p);
+   mmdb::Manager *mol = new mmdb::Manager;
+   mmdb::Model *model_p = new mmdb::Model;
+   model_p->AddChain(new_chain);
+   mol->AddModel(model_p);
+   mol->FinishStructEdit();
+   coot::util::pdbcleanup_serial_residue_numbers(mol);
+   return std::make_pair(new_chain, mol);
+}
+
+
+// to be used with
+
+void
+coot::util::copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain) {
+
+   // This will scramble atoms if the are not in exactly the same order
+
+   int n_residues_1 = from_chain->GetNumberOfResidues();
+   int n_residues_2 =   to_chain->GetNumberOfResidues();
+   if (n_residues_2 == n_residues_1) {
+      for (int ires=0; ires<n_residues_1; ires++) {
+         mmdb::Residue *residue_from_p = from_chain->GetResidue(ires);
+         mmdb::Residue *residue_to_p   =   to_chain->GetResidue(ires);
+         int n_atoms_1 = residue_from_p->GetNumberOfAtoms();
+         int n_atoms_2 =   residue_to_p->GetNumberOfAtoms();
+         if (n_atoms_2 == n_atoms_1) {
+            for (int iat=0; iat<n_atoms_1; iat++) {
+               mmdb::Atom *at_from = residue_from_p->GetAtom(iat);
+               mmdb::Atom *at_to   =   residue_to_p->GetAtom(iat);
+               at_to->x = at_from->x;
+               at_to->y = at_from->y;
+               at_to->z = at_from->z;
+            }
+         } else {
+            std::cout << "ERROR:: mismatching atom count in copy_atoms_from_chain_to_chain() " << std::endl;
+         }
+      }
+   } else {
+      std::cout << "ERROR:: mismatching residue count in copy_atoms_from_chain_to_chain() " << std::endl;
+   }
+}
+
+
+// add or delete residues and atoms as needed.
+void
+coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_chain, mmdb::Chain *orig_to_chain) {
+
+   // say I have copied a chain and then changed it by trimming or addition of residues, I want
+   // to now update orig_to_chain with the contents of orig_to_chain
+
+}
+
+

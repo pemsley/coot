@@ -1486,31 +1486,38 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
 	 if (status != GSL_SUCCESS) {
-	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate at iter " << iter << std::endl;
+
+            if (verbose_geometry_reporting != QUIET)
+               std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate at iter " << iter << std::endl;
 	    if (status == GSL_ENOPROG) {
-	       std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate() result was GSL_ENOPROG" << std::endl; 
-	       if (true)
+               if (verbose_geometry_reporting != QUIET)
+                  std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate() result was GSL_ENOPROG" << std::endl; 
+	       if (verbose_geometry_reporting != QUIET)
 		  std::cout << "Error:: iter: " << iter << " f " << m_s->f << " "
 			    << gsl_multimin_fdfminimizer_minimum(m_s)
 			    << " pnorm " << pnorm << " g0norm " << g0norm << "\n";
 
-	       // write out gradients here - with numerical gradients for comparison
-	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
-               analyze_for_bad_restraints();
+               if (verbose_geometry_reporting != QUIET) {
+                  // write out gradients here - with numerical gradients for comparison
+                  lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
+                  analyze_for_bad_restraints();
+               }
 
 	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-		  std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
-			    << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+                  if (verbose_geometry_reporting != QUIET)
+                     std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
+                               << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
 	       } else {
-		  std::cout << "INFO:: somehow the worst restraint was not set (no-progress)"
-			    << std::endl;
+                  if (verbose_geometry_reporting != QUIET)
+                     std::cout << "INFO:: somehow the worst restraint was not set (no-progress)" << std::endl;
 	       }
 
                // debugging/analysis
-               std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
+               if (verbose_geometry_reporting != QUIET)
+                  std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
 
                // follwing is useful - but not for everyone
                // gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()

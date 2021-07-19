@@ -1128,7 +1128,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
    std::set<unsigned int> fixed_atom_flags_set; // signed to unsigned conversion - bleugh.
    std::set<int>::const_iterator it;
-   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
       fixed_atom_flags_set.insert(*it);
 
    // I think that contacts_by_bricks should take a set of ints
@@ -1140,10 +1140,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
-      std::set<unsigned int>::const_iterator it;
-      for (it=n_set.begin(); it!=n_set.end(); it++) {
+      std::set<unsigned int>::const_iterator it_inner;
+      for (it_inner=n_set.begin(); it_inner!=n_set.end(); ++it_inner) {
 
-         const unsigned int &j = *it;
+         const unsigned int &j = *it_inner;
 
          if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
             continue;
@@ -1155,7 +1155,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
          mmdb::Atom *at_2 = atom[j];
 
          if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
-            if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+            if (fixed_atom_indices.find(j) != fixed_atom_indices.end())
                continue;
 
          if (j < i) /* only add NBC one way round */

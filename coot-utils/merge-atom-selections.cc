@@ -26,12 +26,12 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
    bool status = false;
    match_container_for_residues_t m;
 
-   mmdb::realtype max_dist = 2.2; // where did this number come from?
+   // mmdb::realtype max_dist = 2.2; // where did this number come from? Was I trying to force a merge?
+   mmdb::realtype max_dist = 0.6; // I think that that's a better number.
 
    if (mol) {
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
-      float min_dist = 0.01;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
@@ -49,7 +49,7 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
 
       mol->SeekContacts(atom_selection_1, n_atoms_1,
                         atom_selection_2, n_atoms_2,
-                        0, max_dist,
+                        0.0, max_dist,
                         0, // in same residue
                         pscontact, n_contacts,
                         0, &my_matt, i_contact_group);
@@ -159,10 +159,16 @@ coot::match_container_t::find_best_match() const {
 
 
 // atom_selection_1(true) vs atom_selection_2(false)  and  upstream(true) vs downstream (false)
-// @return short-fragment-is-in-first-selection, short_fragment_is_upstream_fragment
+// @return is-mergeable short-fragment-is-in-first-selection, short_fragment_is_upstream_fragment
 //
-std::pair<bool, bool>
+std::tuple<bool,bool, bool>
 coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::Manager *mol, int selection_handle_1, int selection_handle_2) const {
+
+   // these fragments are *not* mergeable if the same fragment is short on *both* sides.
+   // Consider the case of a fragment 1-20 and a fragment that matches 5-12. We don't want
+   // to merge that - just delete the short fragment.
+
+   bool is_mergeable = true;
 
    bool is_first_selection = true;
    bool is_upstream = true;
@@ -219,6 +225,16 @@ coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::M
    // idx == 3: is_in_first = false; is_upstream = true
    // idx == 4: is_in_first = false; is_upstream = false
 
+   // these fragments should *not* mergeable if the same fragment is short on *both* sides.
+   // (or as tested here) the same fragment is long on both sides
+   //
+   if (atom_sel_1_n_below >= atom_sel_2_n_below)
+      if (atom_sel_1_n_above >= atom_sel_2_n_above)
+         is_mergeable = false;
+   if (atom_sel_2_n_below >= atom_sel_1_n_below)
+      if (atom_sel_2_n_above >= atom_sel_1_n_above)
+         is_mergeable = false;
+
    int idx = 1;
    if (atom_sel_1_n_below <= atom_sel_1_n_above)
       if (atom_sel_1_n_below <= atom_sel_2_n_above)
@@ -245,7 +261,7 @@ coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::M
                 << "atom_sel_2_n_above " << atom_sel_2_n_above
                 << " with idx " << idx << "\n";
 
-   return std::pair<bool, bool>(is_first_selection, is_upstream);
+   return std::tuple<bool, bool, bool>(is_mergeable, is_first_selection, is_upstream);
 
 }
 
@@ -265,40 +281,46 @@ coot::merge_atom_selections(mmdb::Manager *mol, int selection_handle_1, int sele
       // delete that, which means that we keep the other fragment for that selection
       // which means that we know we keep the same stream of the other selection (and delete the other)
       // @return short-fragment-is-in-first-selection, short_fragment_is_upstream_fragment
-      std::pair<bool,bool> r = m.second.find_short_fragment_around_overlap(mol, selection_handle_1, selection_handle_2);
+      std::tuple<bool,bool,bool> r = m.second.find_short_fragment_around_overlap(mol, selection_handle_1, selection_handle_2);
 
-      // the boolean in the delete_downstream() and delete_upstream() functions denote that
-      // the deletions should be made from the first selection (or not).
-      if (r.first) {
-         if (r.second) {
-            std::cout << "merge_atom_selections(): --- Block A ---" << std::endl;
-            m.second.delete_upstream(mol,   true,  selection_handle_1, selection_handle_2);
-            m.second.delete_downstream(mol, false, selection_handle_1, selection_handle_2);
-            // m.second.delete_downstream(mol, true,  selection_handle_1);
-            // m.second.delete_upstream(mol,   false, selection_handle_2);
-            m.second.meld(mol, r);
+      if (std::get<0>(r)) {
+         // the boolean in the delete_downstream() and delete_upstream() functions denote that
+         // the deletions should be made from the first selection (or not).
+         if (std::get<1>(r)) {
+            if (std::get<2>(r)) {
+               std::cout << "merge_atom_selections(): --- Block A ---" << std::endl;
+               m.second.delete_upstream(mol,   true,  selection_handle_1, selection_handle_2);
+               m.second.delete_downstream(mol, false, selection_handle_1, selection_handle_2);
+               // m.second.delete_downstream(mol, true,  selection_handle_1);
+               // m.second.delete_upstream(mol,   false, selection_handle_2);
+               std::pair<bool,bool> rr(std::get<1>(r), std::get<2>(r));
+               m.second.meld(mol, rr);
+            } else {
+               std::cout << "merge_atom_selections(): --- Block B ---" << std::endl;
+               m.second.delete_downstream(mol, true, selection_handle_1, selection_handle_2);
+               m.second.delete_upstream(mol,  false, selection_handle_1, selection_handle_2);
+               std::pair<bool,bool> rr(std::get<1>(r), std::get<2>(r));
+               m.second.meld(mol, rr);
+            }
          } else {
-            std::cout << "merge_atom_selections(): --- Block B ---" << std::endl;
-            m.second.delete_downstream(mol, true, selection_handle_1, selection_handle_2);
-            m.second.delete_upstream(mol,  false, selection_handle_1, selection_handle_2);
-            m.second.meld(mol, r);
-         }
-      } else {
 
-         if (r.second) {
-            std::cout << "merge_atom_selections(): --- Block C ---" << std::endl;
-            m.second.delete_upstream(mol,   false, selection_handle_1, selection_handle_2);
-            m.second.delete_downstream(mol,  true, selection_handle_1, selection_handle_2);
-            m.second.meld(mol, r);
-         } else {
-            std::cout << "merge_atom_selections(): --- Block D ---" << std::endl;
-            m.second.delete_downstream(mol, false, selection_handle_1, selection_handle_2);
-            m.second.delete_upstream(mol,    true, selection_handle_1, selection_handle_2);
-            m.second.meld(mol, r);
+            if (std::get<2>(r)) {
+               std::cout << "merge_atom_selections(): --- Block C ---" << std::endl;
+               m.second.delete_upstream(mol,   false, selection_handle_1, selection_handle_2);
+               m.second.delete_downstream(mol,  true, selection_handle_1, selection_handle_2);
+               std::pair<bool,bool> rr(std::get<1>(r), std::get<2>(r));
+               m.second.meld(mol, rr);
+            } else {
+               std::cout << "merge_atom_selections(): --- Block D ---" << std::endl;
+               m.second.delete_downstream(mol, false, selection_handle_1, selection_handle_2);
+               m.second.delete_upstream(mol,    true, selection_handle_1, selection_handle_2);
+               std::pair<bool,bool> rr(std::get<1>(r), std::get<2>(r));
+               m.second.meld(mol, rr);
+            }
          }
       }
 
-      delete_the_matched_residues_matched_residue(mol, m.second, r.first);
+      delete_the_matched_residues_matched_residue(mol, m.second, std::get<1>(r));
 
       renumber_chains_start_at_least_at_1(mol);
 
