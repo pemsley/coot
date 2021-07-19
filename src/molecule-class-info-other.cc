@@ -5616,21 +5616,17 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
                // fine, continue
 
                // Add the chains of the new molecule to this atom_sel, chain by chain.
-               mmdb::Model *model_p;
-               mmdb::Model *this_model_p;
-               mmdb::Chain *chain_p;
-               mmdb::Chain *copy_chain_p;
                int i_add_model = 1;
                int i_this_model = 1;
 
-               model_p = add_molecules[imol].mol->GetModel(i_add_model);
-               this_model_p = atom_sel.mol->GetModel(i_this_model);
+               mmdb::Model *model_p = add_molecules[imol].mol->GetModel(i_add_model);
+               mmdb::Model *this_model_p = atom_sel.mol->GetModel(i_this_model);
 
                int n_add_chains = model_p->GetNumberOfChains();
 
                for (int iaddchain=0; iaddchain<n_add_chains; iaddchain++) {
-                  chain_p = model_p->GetChain(iaddchain);
-                  copy_chain_p = new mmdb::Chain;
+                  mmdb::Chain *chain_p = model_p->GetChain(iaddchain);
+                  mmdb::Chain *copy_chain_p = new mmdb::Chain;
                   copy_chain_p->Copy(chain_p);
                   copy_chain_p->SetChainID(mapped_chains[iaddchain].c_str());
                   this_model_p->AddChain(copy_chain_p);

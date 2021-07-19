@@ -45,7 +45,7 @@ molecule_class_info_t::protein_db_loops(const std::vector<coot::residue_spec_t> 
    std::vector<clipper::Coord_orth> clash_coords;
 
    ProteinDB::Chain chain = make_fragment_chain(residue_specs);
-   
+
    ProteinDB::ProteinDBSearch protein_db_search(file_name);
    std::vector<ProteinDB::Chain> chains = protein_db_search.search(chain, nfrags, xmap, clash_coords);
 

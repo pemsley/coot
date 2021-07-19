@@ -620,7 +620,7 @@ do_mutation(const char *type, short int stub_button_state_flag) {
    graphics_info_t g;
    // use g.mutate_residue_atom_index and g.mutate_residue_imol
    g.do_mutation(type, stub_button_state_flag);
-   std::string cmd = "do-mutatation";
+   std::string cmd = "do-mutation";
    std::vector<coot::command_arg_t> args;
    args.push_back(coot::util::single_quote(type));
    args.push_back(stub_button_state_flag);

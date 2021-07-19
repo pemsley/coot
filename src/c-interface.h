@@ -1042,7 +1042,7 @@ void set_pick_cursor_index(int icursor_index);
 /*  --------------------------------------------------------------------- */
 /* section Model/Fit/Refine Functions  */
 /*! \name Model/Fit/Refine Functions  */
-/* \{ */
+/*! \{ */
 /*! \brief display the Model/Fit/Refine dialog */
 void post_model_fit_refine_dialog();
 /*! \brief unset model/fit/refine dialog */
@@ -1339,7 +1339,7 @@ int average_map_py(PyObject *map_number_and_scales);
 /*  ----------------------------------------------------------------------- */
 /* section Density Increment */
 /*! \name  Density Increment */
-/* \{ */
+/*! \{ */
 
 char* get_text_for_iso_level_increment_entry(int imol); /* const gchar *text */
 char* get_text_for_diff_map_iso_level_increment_entry(int imol); /* const gchar *text */
@@ -1696,7 +1696,7 @@ PyObject *cell_py(int imol);
 /*  ------------------------------------------------------------------------ */
 /* section PDB Functions */
 /*! \name  PDB Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief write molecule number imol as a PDB to file file_name */
 /*  return 0 on success, 1 on error. */
@@ -1720,17 +1720,15 @@ int write_chain_to_pdb_file(int imol, const char *chainid, const char *filename)
 /*! \brief save all modified coordinates molecules to the default
   names and save the state too. */
 int quick_save();
-/*! \} */
-
 
 /*! \brief return the state of the write_conect_records_flag.
   */
 int get_write_conect_record_state();
-/*! \} */
 
 /*! \brief set the flag to write (or not) conect records to the PDB file.
-  */
+*/
 void set_write_conect_record_state(int state);
+
 /*! \} */
 
 
@@ -3038,7 +3036,7 @@ void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py);
 /*  ----------------------------------------------------------------------- */
 /* section Align and Mutate */
 /*! \name  Align and Mutate */
-/* \{ */
+/*! \{ */
 
 /*! \brief align and mutate the given chain to the given sequence  */
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
@@ -3064,7 +3062,7 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
 #endif /* USE_PYTHON */
 #endif  /* c++ */
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                         Renumber residue range                           */
@@ -3072,7 +3070,7 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
 /* section Renumber Residue Range */
 /*! \name Renumber Residue Range */
 
-/* \{ */
+/*! \{ */
 /*! \brief renumber the given residue range by offset residues */
 int renumber_residue_range(int imol, const char *chain_id,
 			   int start_res, int last_res, int offset);
@@ -3081,12 +3079,14 @@ int renumber_residue_range(int imol, const char *chain_id,
 /*! \brief change chain id, residue number or insertion code for given
   residue  */
 int change_residue_number(int imol, const char *chain_id, int current_resno, const char *current_inscode, int new_resno, const char *new_inscode);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                         Change chain id                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Change Chain ID */
+/*! \name Change Chain ID */
+/*! \{ */
 
 /*! \brief change the chain id of the specified residue */
 void  change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id,
@@ -3101,6 +3101,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, short int use_res_range_flag, int from_resno, int to_resno);
 #endif /* USE_PYTHON */
 #endif  /* c++ */
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */
@@ -6923,14 +6924,14 @@ void pisa_clear_interfaces();
 #endif /* c++ */
 
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  Jiggle fit                                              */
 /*  ----------------------------------------------------------------------- */
 /*! \name Jiggle Fit */
-/* \{ */
+/*! \{ */
 /*!  \brief jiggle fit to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this residue.  */
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
@@ -6954,14 +6955,14 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  * @return < -100 if not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  SBase interface                                         */
 /*  ----------------------------------------------------------------------- */
 /*! \name SBase interface */
-/* \{ */
+/*! \{ */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief return a list of compoundIDs of in SBase of which the
@@ -6985,7 +6986,7 @@ int get_ccp4srs_monomer_and_dictionary(const char *comp_id);
 /*! \brief same as above but using old name for back-compatibility */
 int get_sbase_monomer(const char *comp_id);
 
-/* \} */
+/*! \} */
 
 
 /* Needs a/the correct section */
@@ -7017,7 +7018,7 @@ void set_add_linked_residue_do_fit_and_refine(int state);
 /*               Flattened Ligand Environment View  Interface               */
 /*  ----------------------------------------------------------------------- */
 /*! \name FLE-View */
-/* \{ */
+/*! \{ */
 void fle_view_internal(int imol, const char *chain_id, int res_no,
 		       const char *ins_code,
 		       int imol_ligand_fragment,
@@ -7051,7 +7052,7 @@ void fle_view_set_water_dist_max(float dist_max);
 default 3.9 A.  */
 void fle_view_set_h_bond_dist_max(float h_bond_dist_max);
 
-/* Add hydrogens to specificied residue
+/*! \brief Add hydrogens to specificied residue
 
 @return success status.
 
@@ -7059,14 +7060,14 @@ use RDKit for enterprise version
  */
 int sprout_hydrogens(int imol, const char *chain_id, int res_no, const char *ins_code);
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*               LSQ-improve                                                */
 /*  ----------------------------------------------------------------------- */
 /*! \name LSQ-improve */
-/* \{ */
+/*! \{ */
 /*! \brief an slightly-modified implementation of the "lsq_improve"
   algorithm of Kleywegt and Jones (1997).
 
@@ -7081,7 +7082,7 @@ int sprout_hydrogens(int imol, const char *chain_id, int res_no, const char *ins
 void lsq_improve(int imol_ref, const char *ref_selection,
 		 int imol_moving, const char *moving_selection,
 		 int n_res, float dist_crit);
-/* \} */
+/*! \} */
 
 
 
@@ -7108,7 +7109,7 @@ void load_tutorial_model_and_data();
 /*                         single-model view                                */
 /*  ----------------------------------------------------------------------- */
 /*! \name single-model view */
-/* \{ */
+/*! \{ */
 /*! \brief put molecule number imol to display only model number imodel */
 void single_model_view_model_number(int imol, int imodel);
 /*! \brief the current model number being displayed
@@ -7124,7 +7125,7 @@ int single_model_view_next_model_number(int imol);
 
 return 0 on non-multimodel-molecule. */
 int single_model_view_prev_model_number(int imol);
-/* \} */
+/*! \} */
 
 
 
@@ -7144,19 +7145,19 @@ void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 /*                    graphics ligand view                                  */
 /*  ----------------------------------------------------------------------- */
 /*! \name graphics 2D ligand view */
-/* \{ */
+/*! \{ */
 /*! \brief set the graphics ligand view state
 
  (default is 1 (on)). */
 void set_show_graphics_ligand_view(int state);
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 /*! \name Experimental */
-/* \{ */
+/*! \{ */
 
 void add_ligand_builder_menu_item_maybe();
 
@@ -7182,7 +7183,6 @@ molecules (chains/domains) that are dispersed throughout the unit cell.
   */
 void globularize(int imol);
 
-#ifdef __cplusplus
 /*!
 
     20100616 This doesn't get into the doxygen documentation for some
@@ -7196,20 +7196,16 @@ void globularize(int imol);
       n_clicked atom picks.  func is called with a list of atom
       specifiers - with leading molecule number.
 */
+#ifdef __cplusplus
 #ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func);
 #endif
 #ifdef USE_PYTHON
 void user_defined_click_py(int n_clicks, PyObject *func);
 #endif /* PYTHON */
-#endif /* c++ */
+#endif /* __cplusplus */
 
-
-#ifdef WII_INTERFACE_WIIUSE
-int setup_wii();
-void stop_wii();
-void wii_status();
-#endif
+/*! \} */
 
 void full_screen(int mode);
 
