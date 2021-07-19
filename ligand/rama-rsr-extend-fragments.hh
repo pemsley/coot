@@ -7,6 +7,6 @@
 #include "geometry/protein-geometry.hh"
 
 void rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, ctpl::thread_pool  *thread_pool_p, unsigned int n_threads,
-                               float weight, const coot::protein_geometry &geom);
+                               float weight, unsigned int n_phi_psi_trials, const coot::protein_geometry &geom);
 
 #endif // RAMA_RSR_EXTEND_FRAGMENTS_HH

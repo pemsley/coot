@@ -80,7 +80,7 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
             if (false)
                std::cout << "debug:: in mergeable_atom_selections() best_match residue_1: " << best_match.residue_1
                          << " residue_2 " << best_match.residue_2 << std::endl;
-            best_match.debug();
+            // best_match.debug();
             if (best_match.residue_1) {
                m = best_match;
                status = true;

@@ -142,6 +142,33 @@ float coot::get_random_float() {
    return f;
 }
 
+
+// Xoroshiro128+
+uint64_t shuffle_table[4];
+
+void init_xoroshiro128plus() {
+   for(unsigned int i=0; i<4; i++) shuffle_table[i] = i;
+}
+
+uint64_t xoroshiro128plus_next() {
+    uint64_t s1 = shuffle_table[0];
+    uint64_t s0 = shuffle_table[1];
+    uint64_t result = s0 + s1;
+    shuffle_table[0] = s0;
+    s1 ^= s1 << 23;
+    shuffle_table[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5);
+    return result;
+}
+
+float get_random_float() {
+
+   uint64_t ii = xoroshiro128plus_next();
+   float sf = 4.66e-10;
+   float f = sf * static_cast<float>(ii);
+   return f;
+
+}
+
 // static beacuse used in threads.
 coot::phi_psi_t
 coot::new_residue_by_3_phi_psi::get_phi_psi_by_random(const clipper::Ramachandran &rama_local,
@@ -771,8 +798,9 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::pair<bool,double> phi_current = current_res_pos.get_phi();
       // forwards,  we have a phi and need to generate a psi to place the N
 
-      std::cout << "debug:: best_fit_phi_psi(): C extension current_phi: " << coot::residue_spec_t(residue_p) << " phi: "
-                << phi_current.first << " " << phi_current.second << std::endl;
+      if (false)
+         std::cout << "debug:: best_fit_phi_psi(): C extension current_phi: " << coot::residue_spec_t(residue_p) << " phi: "
+                   << phi_current.first << " " << phi_current.second << std::endl;
 
       std::atomic<unsigned int> count(0);
 
@@ -799,7 +827,6 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
             score_for_best_frag = best_frag_vec[ir].second;
          }
       }
-         
    }
 
    if (terminus_type == "N") {

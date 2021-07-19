@@ -59,7 +59,7 @@ float get_average_density_per_atom(mmdb::Manager *mol, const clipper::Xmap<float
 
 void
 rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, ctpl::thread_pool  *thread_pool_p, unsigned int n_threads,
-                          float weight, const coot::protein_geometry &geom) {
+                          float weight, unsigned int n_phi_psi_trials, const coot::protein_geometry &geom) {
 
    // return the sum and the count
    auto get_density_sum_for_new_residues = [&xmap] (const coot::minimol::molecule &m) { // capture xmap by reference
@@ -162,11 +162,12 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                chain_p->AddResidue(residue_plus_1_p);
                                                chain_p->AddResidue(residue_plus_2_p);
                                                chain_p->AddResidue(residue_plus_3_p);
-                                               std::cout << "debug:: add_residues_to_chain() seq_num_of_anchor_residue " << seq_num_of_anchor_residue
-                                                         << " add_residues "
-                                                         << coot::residue_spec_t(residue_plus_1_p) << " "
-                                                         << coot::residue_spec_t(residue_plus_2_p) << " "
-                                                         << coot::residue_spec_t(residue_plus_3_p) << std::endl;
+                                               if (false)
+                                                  std::cout << "debug:: add_residues_to_chain() seq_num_of_anchor_residue " << seq_num_of_anchor_residue
+                                                            << " add_residues "
+                                                            << coot::residue_spec_t(residue_plus_1_p) << " "
+                                                            << coot::residue_spec_t(residue_plus_2_p) << " "
+                                                            << coot::residue_spec_t(residue_plus_3_p) << std::endl;
                                             } else {
                                                status = false;
                                                std::cout << "in add_residues_to_chain() C failed to get residues " << residue_plus_1_p << "  " << residue_plus_2_p
@@ -324,8 +325,8 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                               auto tp_1 = std::chrono::high_resolution_clock::now();
                               auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
                               std::cout << "Timings: refine_quad(): " << chain_id << " " << seqnum << " " << d10 << " milliseconds" << std::endl;
-                              std::cout << "INFO:: in refine_quad() refinement finished for " << residues.size() << " residues " << std::endl;
-                              if (true) {
+                              // std::cout << "INFO:: in refine_quad() refinement finished for " << residues.size() << " residues " << std::endl;
+                              if (false) {
                                  std::string file_name = "refine-quad-term-" + terminus_type + "-chain-" + chain_id + "-" + std::to_string(seqnum) + ".pdb";
                                  mol->WritePDBASCII(file_name.c_str());
                               }
@@ -385,7 +386,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                         auto tp_1 = std::chrono::high_resolution_clock::now();
                                         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
                                         std::cout << "Timings: refine_isolated_quad(): " << chain_id << " " << seqnum << " " << d10 << " milliseconds" << std::endl;
-                                        std::cout << "INFO:: in refine_isolated_quad() refinement finished for " << ref_residues.size() << " residues " << std::endl;
+                                        // std::cout << "INFO:: in refine_isolated_quad() refinement finished for " << ref_residues.size() << " residues " << std::endl;
 
                                         // copy atoms back into original chain
                                         for (unsigned int i=0; i<4; i++) {
@@ -411,16 +412,14 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                   } else {
                                      std::cout << "ERROR:: in refine_isolated_quad(): specs size " << specs.size() << std::endl;
                                   }
-                                  
-                                  
                                };
 
    // delete the added residue (because it was bad)
    auto delete_extra_residue = [] (int seqnum, mmdb::Chain *chain_p, mmdb::Manager *mol, const std::string &terminus_type) {
                                   // Dangerous beacuse no checking?
                                   if (terminus_type == "N") {
-                                     mmdb::Residue *residue_p = chain_p->GetResidue(0);
-                                     std::cout << "debug:: in delete_extra_residue() deleting residue " << coot::residue_spec_t(residue_p)  << std::endl;
+                                     // mmdb::Residue *residue_p = chain_p->GetResidue(0);
+                                     // std::cout << "debug:: in delete_extra_residue() deleting residue " << coot::residue_spec_t(residue_p)  << std::endl;
                                      chain_p->DeleteResidue(0);
                                      mol->FinishStructEdit();
                                   }
@@ -437,7 +436,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                    // Dangerous beacuse no checking?
                                    if (terminus_type == "N") {
                                       mmdb::Residue *residue_p = chain_p->GetResidue(0);
-                                      std::cout << "debug:: in delete_extra_residue() deleting residue " << coot::residue_spec_t(residue_p)  << std::endl;
+                                      // std::cout << "debug:: in delete_extra_residue() deleting residue " << coot::residue_spec_t(residue_p)  << std::endl;
                                       chain_p->DeleteResidue(1);
                                       chain_p->DeleteResidue(0);
                                       mol->FinishStructEdit();
@@ -548,7 +547,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                                         0, &my_matt, i_contact_group);
 
                                                       if (n_contacts > 0) {
-                                                         std::cout << "debug:: Selection had " << n_contacts << " CA-CA contacts" << std::endl;
+                                                         // std::cout << "debug:: Selection had " << n_contacts << " CA-CA contacts" << std::endl;
                                                          if (pscontact) {
                                                             unsigned int n_clash = 0;
                                                             for (int i=0; i<n_contacts; i++) {
@@ -573,14 +572,15 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                             if (n_clash > 2) // will need validation
                                                                status = true;
 
-                                                            std::cout << "debug:: new_residue_crashing_into_other_chain() " << coot::residue_spec_t(residue_p)
-                                                                      << " n_clash " << n_clash << std::endl;
+                                                            if (false)
+                                                               std::cout << "debug:: new_residue_crashing_into_other_chain() " << coot::residue_spec_t(residue_p)
+                                                                         << " n_clash " << n_clash << std::endl;
                                                          }
                                                       }
                                                       mol->DeleteSelection(SelHnd_1);
                                                       mol->DeleteSelection(SelHnd_2);
                                                    }
-                                                   // return status;
+                                                   // return status; // reinstate the correct return value at some stage.
                                                    return false;
                                                 };
 
@@ -590,7 +590,8 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                              thread_pool_p, n_threads, xmap] (mmdb::Chain *chain_p, mmdb::Manager *mol,
                                                               const std::string &terminus_type,
                                                               float average_density_per_atom_for_molecule,
-                                                              float weight, const coot::protein_geometry &geom) {
+                                                              float weight, unsigned int n_phi_psi_trials,
+                                                              const coot::protein_geometry &geom) {
 
                                bool status = false; // initially no residue added.
                                int n_res = chain_p->GetNumberOfResidues();
@@ -613,7 +614,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                      float b_factor = 20.0;
                                      coot::residue_by_phi_psi rphipsi(terminus_type, residue_p, chain_id, residue_type, b_factor);
                                      rphipsi.thread_pool(thread_pool_p, n_threads);
-                                     coot::minimol::molecule m = rphipsi.best_fit_phi_psi(10000, false, true, xmap);
+                                     coot::minimol::molecule m = rphipsi.best_fit_phi_psi(n_phi_psi_trials, false, true, xmap);
                                      if (false) {
                                         std::string file_name = "rama-trial-" + terminus_type + "-" + chain_id + ".pdb";
                                         m.write_file(file_name, b_factor);
@@ -667,16 +668,62 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                return status;
                             };
 
+   auto add_udd_atom_index_to_molecule = [] (mmdb::Manager *mol) {
+
+                                            int imod = 1;
+                                            mmdb::Model *model_p = mol->GetModel(imod);
+                                            if (model_p) {
+                                               int udd_atom_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "atom index");
+
+                                               if (false) {
+                                                  int udd_atom_index_handle_test = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+                                                  std::cout << "debug:: add_udd_atom_index_to_molecule(): " << mol << " udd_atom_index_handle_test "
+                                                            << udd_atom_index_handle_test << std::endl;
+                                               }
+
+                                               int n_chains = model_p->GetNumberOfChains();
+                                               int atom_index = 0;
+                                               for (int ichain=0; ichain<n_chains; ichain++) {
+                                                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                                  int n_res = chain_p->GetNumberOfResidues();
+                                                  for (int ires=0; ires<n_res; ires++) {
+                                                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                                     if (residue_p) {
+                                                        int n_atoms = residue_p->GetNumberOfAtoms();
+                                                        for (int iat=0; iat<n_atoms; iat++) {
+                                                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                                                           int ierr = at->PutUDData(udd_atom_index_handle, atom_index);
+                                                           if (ierr != mmdb::UDDATA_Ok) {
+                                                              std::cout << "ERROR:: giving udd data atom index to atom residue " << coot::atom_spec_t(at) << std::endl;
+                                                           }
+                                                           ierr = at->GetUDData(udd_atom_index_handle, atom_index);
+                                                           if (false) { // debugging
+                                                              if (ierr == mmdb::UDDATA_Ok) {
+                                                                 std::cout << "debug:: add_udd_atom_index_to_molecule() atom " << at << " " << coot::atom_spec_t(at)
+                                                                           << " had index " << atom_index << std::endl;
+                                                              } else {
+                                                                 std::cout << "debug:: add_udd_atom_index_to_molecule() atom " << at << " failed to get uddata" << std::endl;
+                                                              }
+                                                           }
+                                                           atom_index++;
+                                                        }
+                                                     }
+                                                  }
+                                               }
+                                            }
+                                         };
+
 
    // This its the 3-residue version of extend_this_chain
    //
    // return a bool - for success status (residue added).
-   auto build_3_keep_1 = [get_density_score_for_new_residues_frag, add_residues_to_chain,
+   auto build_3_keep_1 = [get_density_score_for_new_residues_frag, add_residues_to_chain, add_udd_atom_index_to_molecule,
                           refine_isolated_quad, delete_extra_residue, delete_extra_residues, new_residue_is_deformed, new_residue_crashing_into_other_chain,
                           thread_pool_p, n_threads, xmap] (mmdb::Chain *chain_p, mmdb::Manager *mol,
                                                            const std::string &terminus_type,
                                                            float average_density_per_atom_for_molecule,
-                                                           float weight, const coot::protein_geometry &geom) {
+                                                           float weight, unsigned int n_phi_psi_trials,
+                                                           const coot::protein_geometry &geom) {
 
                             float crit_sf = 0.3; // the critcal ratio between the density for the new fragment and the average density for the model so far
                             bool status = false; // initially no residue added.
@@ -690,12 +737,13 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                }
                                mmdb::Residue *residue_p  = chain_p->GetResidue(residue_index);
                                mmdb::Residue *res_prev_p = chain_p->GetResidue(residue_index-1);
-                               std::cout << "debug:: in build_3_keep_1() for chain-id " << chain_id << " terminus type " << terminus_type
-                                         << " current n_residues_in_chain " << n_residues_in_chain <<  " residue_p with index : "
-                                         << residue_index << " " << coot::residue_spec_t(residue_p) << std::endl;
+                               if (false)
+                                  std::cout << "DEBUG:: in build_3_keep_1(): for chain-id " << chain_id << " terminus type " << terminus_type
+                                            << " current n_residues_in_chain " << n_residues_in_chain <<  " residue_p with index : "
+                                            << residue_index << " " << coot::residue_spec_t(residue_p) << std::endl;
                                if (!residue_p) {
 
-                                  std::cout << "debug:: in build_3_keep_1(): NULL residue_p" << std::endl;
+                                  std::cout << "DEBUG:: in build_3_keep_1(): NULL residue_p" << std::endl;
 
                                } else {
                                   // happy path
@@ -710,7 +758,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                   }
                                   nr3phipsi.add_thread_pool(thread_pool_p, n_threads);
                                   auto tp_0 = std::chrono::high_resolution_clock::now();
-                                  coot::minimol::fragment frag = nr3phipsi.best_fit_phi_psi(200000, xmap);
+                                  coot::minimol::fragment frag = nr3phipsi.best_fit_phi_psi(n_phi_psi_trials, xmap);
                                   auto tp_1 = std::chrono::high_resolution_clock::now();
                                   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
                                   std::cout << "Timings: from build_3_keep_1(): best_fit_phi_psi() " << d10 << " milliseconds" << std::endl;
@@ -726,25 +774,32 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                      std::cout << "ERROR:: build_3_keep_1(): too few atoms in residue: " << n_atoms_in_new_residues << std::endl;
                                   } else {
                                      float av = density_score_for_new_residues.first;
-                                     std::cout << "debug:: in build_3_keep_1 " << chain_id << " terminus type " << terminus_type
-                                               << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
-                                               << " densities " << average_density_per_atom_for_molecule
-                                               << " crit: " << crit_sf * average_density_per_atom_for_molecule << " this_residue_av: " << av << std::endl;
                                      coot::minimol::molecule m(frag); // because I don't want to rewrite add_CB_to_residue_maybe() and add_residues_to_chain()
-                                     if (av < crit_sf * average_density_per_atom_for_molecule) {
-                                        std::cout << "build_3_keep_1() low density " << chain_id << " terminus type " << terminus_type
+
+                                     if (true) {
+                                        std::cout << "DEBUG:: in build_3_keep_1(): chain " << chain_id << " terminus type " << terminus_type
                                                   << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
                                                   << " densities " << average_density_per_atom_for_molecule
-                                                  << " crit: " << crit_sf * average_density_per_atom_for_molecule << " this_residue_av: " << av << std::endl;
+                                                  << " crit: " << crit_sf * average_density_per_atom_for_molecule << " this_residue_av: " << av << " ";
+                                        if (av < crit_sf * average_density_per_atom_for_molecule)
+                                           std::cout << "Low density" << std::endl;
+                                        else
+                                           std::cout << std::endl;
+                                     }
+
+                                     if (av < crit_sf * average_density_per_atom_for_molecule) {
+                                        // Sadge.
                                      } else {
                                         // add_CB_to_residue_maybe(&m, xmap, average_density_per_atom_for_molecule); // already has one now
                                         int n_residues_pre = chain_p->GetNumberOfResidues();
                                         add_residues_to_chain(m, chain_p, residue_seqnum, terminus_type, 3);
                                         mol->FinishStructEdit(); // because mol is not passed to add_residue_to_chain. Perhaps it should be.
                                         coot::util::pdbcleanup_serial_residue_numbers(mol);
+                                        add_udd_atom_index_to_molecule(mol); // so that coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
+                                                                             // doesn't complain about it missing.
                                         int n_residues_post = chain_p->GetNumberOfResidues();
                                         if (n_residues_post == n_residues_pre) {
-                                           std::cout << "ERROR:: build_3_keep_1(): residue was not added to chain " << chain_id << std::endl;
+                                           std::cout << "ERROR:: in build_3_keep_1(): residue was not added to chain " << chain_id << std::endl;
                                            status = false;
                                         } else {
                                            // happy path
@@ -756,20 +811,21 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                            if (n_residues_post == n_residues_pre)
                                               status = false;
                                            if (new_residue_is_deformed(residue_p, terminus_type, mol)) {
-                                              std::cout << "INFO:: build_3_keep_1(): stop trace because new residue is deformed" << " "
+                                              std::cout << "INFO:: in build_3_keep_1(): stop trace because new residue is deformed" << " "
                                                         << coot::residue_spec_t(residue_p) << std::endl;
                                               delete_extra_residue(residue_seqnum, chain_p, mol, terminus_type);
                                               status = false;
                                            } else {
                                               if (new_residue_crashing_into_other_chain(residue_p, terminus_type, mol)) {
-                                                 std::cout << "INFO:: build_3_keep_1(): stop trace because new residue overlaps other chain "
+                                                 std::cout << "INFO:: in build_3_keep_1(): stop trace because new residue overlaps other chain "
                                                            << " " << coot::residue_spec_t(residue_p) << std::endl;
                                                  delete_extra_residue(residue_seqnum, chain_p, mol, terminus_type);
                                                  status = false;
                                               } else {
                                                  status = true; // keep going!
-                                                 std::cout << "DEBUG:: in build_3_keep_1() status: keep going! " << coot::residue_spec_t(residue_p)
-                                                           << " " << status << std::endl;
+                                                 std::cout << "DEBUG:: in build_3_keep_1(): chain " << chain_id << " terminus type " << terminus_type
+                                                           << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
+                                                           << " status: keep going! " << " " << status << std::endl;
                                               }
                                            }
                                         }
@@ -805,7 +861,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
             const std::string &terminus_type(*it);
             do {
                // status = extend_this_chain(chain_p, mol, terminus_type, average_density_per_atom_for_molecule, weight, geom);
-               status = build_3_keep_1(chain_p, mol, terminus_type, average_density_per_atom_for_molecule, weight, geom);
+               status = build_3_keep_1(chain_p, mol, terminus_type, average_density_per_atom_for_molecule, weight, n_phi_psi_trials, geom);
             } while (status);
          }
       }

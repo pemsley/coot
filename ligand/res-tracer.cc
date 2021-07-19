@@ -763,7 +763,7 @@ find_chains_that_overlap_other_chains(mmdb::Manager *mol, float big_overlap_frac
 
    std::cout << "debug:: Selection found " << n_selected_atoms << " CAs" << std::endl;
    if (n_contacts > 0) {
-      std::cout << "debug:: Selection had " << n_contacts << " CA-CA contacts" << std::endl;
+      // std::cout << "debug:: Selection had " << n_contacts << " CA-CA contacts" << std::endl;
       if (pscontact) {
          for (int i=0; i<n_contacts; i++) {
             mmdb::Atom *at_1 = atom_selection[pscontact[i].id1];
@@ -1094,19 +1094,28 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                                              if (tree_node_b.first == scored_pair.second.atom_idx) {
                                                                 // skip the trivial reverse
                                                              } else {
-                                                                // CA(n-1) to CA(n+1) is shortest for helicies (5.3)
-                                                                // I had written // maybe this access needs locking?
-                                                                // And after a week of testing, I discovered that it lokck in in one case. So Add the locking.
+
+#if 0
+                                                                // I had written: // maybe this access needs locking?
+                                                                // And after a week of testing, I discovered that it hung here in one case. So Add the locking.
+                                                                //
                                                                 get_dont_add_lock();
                                                                 bool dont_add = (dont_adds[j].find(i) == dont_adds[j].end());
                                                                 release_dont_add_lock();
-                                                                if (dont_add) {
+
+#endif
+                                                                // but maybe I can get away with not needing the lock here?
+                                                                auto it_end_for_dont_add = dont_adds[j].end();
+                                                                bool dont_add_flag = (dont_adds[j].find(i) == it_end_for_dont_add);
+
+                                                                if (dont_add_flag) { // OK to add then!
+                                                                   // CA(n-1) to CA(n+1) is shortest for helicies (5.3)
                                                                    if (distance_check_min(tree_node_b.first, scored_pair.second.atom_idx, 5.0)) { // 5.3 with some room for noise
                                                                       if (! node_is_already_in_tree(scored_pair, scored_tree.tree)) {
                                                                          if (! node_is_similar_to_another_node(scored_pair, scored_tree.tree)) {
                                                                             addition_t addition(j, i, addition_t::BACK);
                                                                             if (false)
-                                                                               std::cout << "adding to tree front! tree-index: " << j << " this-tree size " << scored_tree.tree.size()
+                                                                               std::cout << "adding to tree back with tree-index: " << j << " this-tree size " << scored_tree.tree.size()
                                                                                          << " tree_node_f indices " << tree_node_f.first << " " << tree_node_f.second.atom_idx
                                                                                          << " scored-pair indices : " << scored_pair.first << " " << scored_pair.second.atom_idx
                                                                                          << " spin-score: " << scored_pair.second.spin_score << std::endl;
@@ -1247,7 +1256,9 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                  }
                               }
 
-                              std::cout << "Trees size " << trees.size() << std::endl;
+                              if (true)
+                                 if ((trees.size() %100) == 0)
+                                    std::cout << "Trees size " << trees.size() << std::endl;
 
                            } while (trees.size() > loop_begin_tree_size);
 
@@ -2216,7 +2227,7 @@ peptide_is_twisted(mmdb::Residue *residue_with_CO, mmdb::Residue *residue_with_N
       if (torsion_deg > (-180.0 + deformation_limit_deg))
          if (torsion_deg < (180.0 - deformation_limit_deg))
             status = true;
-      if (true) { // debug
+      if (false) { // debug
          std::cout << "Torsion check  "
                    << std::setw(10) << coot::residue_spec_t(residue_with_CO) << " "
                    << std::setw(10) << coot::residue_spec_t(residue_with_N) << " torsion "
@@ -2225,6 +2236,12 @@ peptide_is_twisted(mmdb::Residue *residue_with_CO, mmdb::Residue *residue_with_N
             std::cout << " Baddie\n";
          else
             std::cout << "\n";
+      }
+      if (status) {
+         std::cout << "Torsion check  "
+                   << std::setw(10) << coot::residue_spec_t(residue_with_CO) << " "
+                   << std::setw(10) << coot::residue_spec_t(residue_with_N) << " torsion "
+                   << torsion << " in degs: " << torsion_deg << "Baddie\n";
       }
    } else {
       std::cout << "ERROR:: peptide_is_twisted(): missing atoms torsion " << std::endl;
@@ -2391,7 +2408,7 @@ apply_sequence_to_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap
 
 void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double variation,
           unsigned int n_top_spin_pairs, unsigned int n_top_fragments,
-          float rmsd_cut_off_for_flood, float flood_atom_mask_radius, float weight) {
+          float rmsd_cut_off_for_flood, float flood_atom_mask_radius, float weight, unsigned int n_phi_psi_trials) {
 
    auto density_and_omega_based_trim_chain_terminii = [] (mmdb::Manager *mol, const clipper::Xmap<float> &xmap) {
 
@@ -2602,7 +2619,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
                                       }
                                    }
 
-                                   if (true) {
+                                   if (false) {
                                       std::string chain_id(chain_p->GetChainID());
                                       std::cout << "in refine_isolated_chain(): chain " << chain_id
                                                 << " n_atoms_for_refinement: " << n_atoms_for_refinement << std::endl;
@@ -2766,7 +2783,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
          mol->WritePDBASCII("stage-6-delete-chains-that-are-too-short.pdb");
 
-         if (true) {
+         if (false) {
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
                mmdb::Chain *chain_p = model_p->GetChain(ichain);
@@ -2783,7 +2800,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
          auto deletable_chains_map = find_chains_that_overlap_other_chains(mol, big_overlap_fraction_limit, scores_for_chain_ids);
          filter_similar_chains(mol, deletable_chains_map); // don't think - just do.
 
-         if (true) {
+         if (false) {
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
                mmdb::Chain *chain_p = model_p->GetChain(ichain);
@@ -2802,7 +2819,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
          mol->WritePDBASCII("stage-8-post-twisted-peptide-chain-filter.pdb");
 
-         if (true) {
+         if (false) {
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
                mmdb::Chain *chain_p = model_p->GetChain(ichain);
@@ -2821,7 +2838,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
          std::cout << "Timings: proc(): 2nd round filtering and merging " << d21 << " milliseconds" << std::endl;
 
-         if (true) {
+         if (false) {
             if (model_p) {
                int n_chains = model_p->GetNumberOfChains();
                for (int ichain=0; ichain<n_chains; ichain++) {
@@ -2837,7 +2854,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
          mol->WritePDBASCII("stage-9-post-merge-fragments.pdb");
 
          auto tp_3 = std::chrono::high_resolution_clock::now();
-         rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, geom);
+         rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom);
          auto tp_4 = std::chrono::high_resolution_clock::now();
          mol->WritePDBASCII("stage-10-post-extensions.pdb");
          auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
@@ -2906,16 +2923,17 @@ int main(int argc, char **argv) {
                            // make bigger at lower resolutions (maybe up to 1.0?)
    variation = 0.4; // speed
 
-   unsigned int n_top_spin_pairs = 4000; // Use for tracing at most this many spin score pairs (which have been sorted).
+   unsigned int n_top_spin_pairs = 2000; // Use for tracing at most this many spin score pairs (which have been sorted).
                                           // This and variation affect the run-time (and results?)
    n_top_spin_pairs = 1000;
 
-   unsigned int n_top_fragments = 4000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
+   unsigned int n_top_fragments = 2000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
 
    // pass the atom radius from here too
 
    float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
 
+   unsigned int n_phi_psi_trials = 5000;
 
    float weight = 60.0f; // calculate this (using rmsd)
    // weight = 6.0; // for emd 22898
@@ -2950,7 +2968,7 @@ int main(int argc, char **argv) {
       }
       if (! xmap.is_null()) {
          float rmsd_cuffoff = 2.3;
-         proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius, weight);
+         proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius, weight, n_phi_psi_trials);
       } else {
          if (test_from_map)
             std::cout << "Map from " << map_file_name << " is null" << std::endl;
@@ -2968,7 +2986,7 @@ int main(int argc, char **argv) {
             coot::fasta_multi fam;
             fam.read(pir_file_name);
             file.import_xmap(xmap);
-            proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight);
+            proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials);
          } else {
             std::cout << "No such file " << map_file_name << std::endl;
          }

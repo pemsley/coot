@@ -3692,15 +3692,13 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
                               int idx = -1;
                               if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
                                  at_new->PutUDData(udd_old_atom_index_handle, idx);
-                                 if (false)
-                                    std::cout << "debug:: giving at " << atom_spec_t(at_new)
-                                              << " the old index " << idx << std::endl;
                               } else {
-                                 std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+                                 std::cout << "WARNING:: " <<  __FUNCTION__ << "(): oops extracting idx from input old_mol atom "
+                                           << at_old << " " << coot::atom_spec_t(at_old)  << " old_mol " << old_mol
+                                           << " and udd_old_atom_index_handle " << udd_old_atom_index_handle << std::endl;
                               }
                            } else {
-                              std::cout << "debug:: oops " << __FUNCTION__ << " mismatch altconf reject "
-                                        << atom_spec_t(at_old) << std::endl;
+                              std::cout << "DEBUG:: oops " << __FUNCTION__ << "(): mismatch altconf reject " << atom_spec_t(at_old) << std::endl;
                            }
                         }
                      } else {
