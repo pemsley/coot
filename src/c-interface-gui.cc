@@ -1489,6 +1489,12 @@ coot_no_state_real_exit(int retval) {
 void
 coot_save_state_and_exit(int retval, int save_state_flag) {
 
+   // wait for refinement to finish (c.f conditionally_wait_for_refinement_to_finish())
+
+   while (graphics_info_t::restraints_lock) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(30));
+   }
+
    if (save_state_flag) {
       save_state(); // we get error message in save_state()
    }
