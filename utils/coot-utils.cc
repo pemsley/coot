@@ -868,6 +868,20 @@ coot::is_mmcif_filename(const std::string &filename) {
 }
 
 
+std::string
+coot::get_home_dir() {
+   const char *s = getenv("HOME");
+   if (s) {
+      return std::string(s);
+   } else {
+      s = getenv("COOT_HOME");
+      if (s)
+         return std::string(s);
+   }
+   return ""; //empty
+}
+
+
 // The user can set COOT_DATA_DIR (in fact this is the usual case
 // when using binaries) and that should over-ride the built-in
 // PKGDATADIR.

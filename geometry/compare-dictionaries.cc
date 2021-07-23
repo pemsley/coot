@@ -61,7 +61,6 @@ compare_dictionaries(const std::string &type,
 		     bool quiet) {
 
    int status = 0;
-   std::string dir = ".";
    // bool found_type_in_dictionary_1 = true; // not used
    bool found_type_in_dictionary_2 = true;
 
@@ -79,7 +78,6 @@ compare_dictionaries(const std::string &type,
    std::pair<bool, coot::dictionary_residue_restraints_t> r2 = 
       pg_2.get_monomer_restraints(type, coot::protein_geometry::IMOL_ENC_ANY);
 
-   
 
    if (!r1.first) { 
       std::cout << "Failed to find restraints for type " << type << " in "
@@ -126,7 +124,6 @@ compare_dictionaries(const std::string &type,
       std::cout << "Trying Graph matching..." << std::endl;
 
       if (pg_2.size() == 1) {
-	 int zeroth = 0;
 	 std::string ref_type = pg_2[0].second.comp_id();
 	 std::cout << "getting dictionary for " << ref_type << " from " << file_name_2 << std::endl;
 	 r2 = pg_2.get_monomer_restraints(ref_type, coot::protein_geometry::IMOL_ENC_ANY);
