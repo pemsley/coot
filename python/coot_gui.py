@@ -5533,9 +5533,6 @@ def add_module_ccp4_gui():
       add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
                                     lambda func: acedrg_link_generation_control_window())
 
-<<<<<<< HEAD
-   
-=======
 def add_module_pdbe_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("PDBe")
@@ -5563,7 +5560,6 @@ def add_module_pdbe_gui():
                                               "include-sfs", text.rstrip().lstrip())))
 
 
->>>>>>> 187621fb9... Bring pythonic Coot modules in order
 #### BL stuff
    
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
