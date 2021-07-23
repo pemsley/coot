@@ -255,6 +255,7 @@ auto_fit_best_rotamer(int resno,
       int mode = graphics_info_t::rotamer_search_mode;
       if (! is_valid_map_molecule(imol_map)) {
 	 std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
+         imol_map = -1;
 	 f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
 									   resno, altloc, ins,
 									   chain, imol_map,

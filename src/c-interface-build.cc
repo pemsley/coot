@@ -1486,7 +1486,6 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
    SCM rv = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
       g.residue_type_selection_was_user_picked_residue_range = false;
       coot::refinement_results_t rr =
@@ -1612,6 +1611,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 	 if (residues.size() > 0) {
 	    graphics_info_t g;
 	    int imol_map = g.Imol_Refinement_Map();
+
 	    if (! is_valid_map_molecule(imol_map)) { 
 	       add_status_bar_text("Refinement map not set");
 	    } else {

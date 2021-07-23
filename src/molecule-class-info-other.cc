@@ -2019,13 +2019,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
       do_backrub = true;
 
    if (rotamer_search_mode == ROTAMERSEARCHAUTOMATIC) {
-      if (1) { // test imol_map. Yuck.
-         if (graphics_info_t::molecules[imol_map].has_xmap()) {
-            float r = graphics_info_t::molecules[imol_map].data_resolution();
-            if (r > backrub_reso_limit)
-               do_backrub = 1;
-         }
-         if (graphics_info_t::molecules[imol_map].has_nxmap())
+      if (graphics_info_t::is_valid_map_molecule(imol_map)) {
+         float r = graphics_info_t::molecules[imol_map].data_resolution();
+         if (r > backrub_reso_limit)
             do_backrub = 1;
       }
    }
@@ -2067,9 +2063,11 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
    //
 
    // First check that imol_map has a map.
-   short int have_map_flag = 1;
+   bool have_map_flag = true;
    if (imol_map < 0)
-      have_map_flag = 0;
+      have_map_flag = false;
+   if (! graphics_info_t::is_valid_map_molecule(imol_map))
+      have_map_flag = false;
 
    float f = -99.9;
    float clash_score_limit = 20.0; // Rotamers must have a clash score
