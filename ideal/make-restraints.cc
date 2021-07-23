@@ -1041,8 +1041,6 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
       return local;
    }
 
-   int i_no_res_atoms;
-   mmdb::PPAtom res_selection = NULL;
    std::string pdb_resname(residue_p->name);
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
@@ -1056,8 +1054,6 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
    if (idr >= 0) {
-
-      const dictionary_residue_restraints_t &dict = geom[idr].second;
 
       // if (geom[idr].comp_id == pdb_resname) {
       // old style comp_id usage
@@ -1075,6 +1071,8 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
       // (SelResidue[i]) and compare them to the atoms in
       // geom[idr].bond_restraint[ib].
 
+      int i_no_res_atoms = 0;
+      mmdb::PPAtom res_selection = NULL;
       residue_p->GetAtomTable(res_selection, i_no_res_atoms);
 
       if (i_no_res_atoms > 0) {
@@ -1144,7 +1142,13 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 
    const dictionary_residue_restraints_t &dict = geom[idr].second;
 
-   for (unsigned int ib=0; ib<geom[idr].second.bond_restraint.size(); ib++) {
+   if (debug) {
+      std::cout << "debug:: dictionary index idr " << idr << std::endl;
+      std::cout << "debug:: idr indexes dictionary with name " << dict.residue_info.comp_id << " "
+                << dict.residue_info.three_letter_code << " " << dict.residue_info.name << std::endl;
+   }
+
+   for (unsigned int ib=0; ib<dict.bond_restraint.size(); ib++) {
       for (int iat=0; iat<i_no_res_atoms; iat++) {
 	 std::string pdb_atom_name1(res_selection[iat]->name);
 
@@ -1164,7 +1168,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			    << ": with (dict) :"
 			    << dict.bond_restraint[ib].atom_id_2_4c()
 			    << ":" << std::endl;
-	       
+
 	       if (pdb_atom_name2 == dict.bond_restraint[ib].atom_id_2_4c()) {
 
 		  // check that the alt confs aren't different

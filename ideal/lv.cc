@@ -9,9 +9,10 @@ void show_usage() {
 
    std::cout << "Usage: " << prog_name << "\n"
 	     << "       --pdbin pdb-in-filename\n"
-	     << "       --chain-id chid\n"
-	     << "       --res-no rn\n"
-	     << "       --dictionary dictionary-file-name\n"
+	     << "       --chain-id ligand-chain-id\n"
+	     << "       --res-no ligand-residue-number\n"
+	     << "       --dictionary cif-dictionary-file-name\n"
+             << "       --pocket       # include interactions to the binding pocket\n"
              << std::endl;
 }
 
@@ -134,7 +135,7 @@ validate_ligand(const std::string &pdb_file_name,
    std::vector<std::pair<bool,mmdb::Residue *> > residues;
    residues.push_back(std::pair<bool, mmdb::Residue *>(false, residue_p));
 
-   std::cout << "debug include_environment_contacts_flag " << include_environment_contacts_flag << std::endl;
+   std::cout << "INFO:: include_environment_contacts_flag " << include_environment_contacts_flag << std::endl;
    if (include_environment_contacts_flag) {
    } else {
       // We need to create a molecule (and replace mol) that is just the ligand then.
@@ -144,7 +145,7 @@ validate_ligand(const std::string &pdb_file_name,
       if (mol_new.first) {
          mol = mol_new.second;
       } else {
-         std::cout << "Failure to isolate ligand " << std::endl;
+         std::cout << "ERROR:: Failure to isolate ligand " << std::endl;
          return;
       }
    }
@@ -168,7 +169,7 @@ validate_ligand(const std::string &pdb_file_name,
                                                 pseudos);
 
    if (nrestraints > 0) {
-      restraints.analyze_for_bad_restraints();
+      restraints.analyze_for_bad_restraints(coot::restraints_container_t::BAD_RESTRAINT_ANALYSIS_INCLUDE_ANGLES);
       coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
       double d = gdic.distortion();
       const double k = 350;  // ratio derived from mon-lib analysis
@@ -212,30 +213,26 @@ read_data_validate_ligand(const input_data_t &input_data) {
          mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
          if (residue_p) {
             if (coot::file_exists(input_data.dictionary)) {
+
                coot::protein_geometry geom;
                geom.set_verbose(false);
                if (input_data.use_pocket)
                   geom.init_standard();
-               int read_number = 1;
+               int read_number = 44;
+               std::vector<std::string> nsr = coot::util::non_standard_residue_types_in_molecule(mol);
+               for (const auto &res_type : nsr)
+                  geom.try_dynamic_add(res_type, read_number++);
+
                int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
                geom.init_refmac_mon_lib(input_data.dictionary, read_number, imol_enc);
-               std::string monomer_type = residue_p->GetResName();
-               std::pair<bool, coot::dictionary_residue_restraints_t> mr =
-                  geom.get_monomer_restraints(monomer_type, imol_enc);
-               if (mr.first) {
-                  bool include_environment_contacts_flag = false;
-                  if (input_data.use_pocket)
-                     include_environment_contacts_flag = true;
 
-                  // load up the dictionaries for any non-standard residues
-                  std::vector<std::string> nsr = coot::util::non_standard_residue_types_in_molecule(mol);
-                  int read_number = 44;
-                  for (const auto &res_type : nsr)
-                     geom.try_dynamic_add(res_type, read_number++);
-                  validate_ligand(pdb_file_name, residue_p, mol, include_environment_contacts_flag, geom);
-               } else {
-                  std::cout << "Failed to find the restraints for " << monomer_type << std::endl;
-               }
+               bool include_environment_contacts_flag = false;
+               if (input_data.use_pocket)
+                  include_environment_contacts_flag = true;
+               validate_ligand(pdb_file_name, residue_p, mol, include_environment_contacts_flag, geom);
+
+            } else {
+                  std::cout << "Failed to find the restraints file " << input_data.dictionary << std::endl;
             }
          } else {
             std::cout << "residue not found " << input_data.pdb_file_name << " " << input_data.chain_id

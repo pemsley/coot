@@ -2253,11 +2253,13 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 }
 
 void
-coot::restraints_container_t::analyze_for_bad_restraints() {
+coot::restraints_container_t::analyze_for_bad_restraints(analyze_bad_restraints_mode mode) {
 
    double interesting_distortion_limit = 5.0;
    analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(              BOND_RESTRAINT,     interesting_distortion_limit);
+   if (mode == BAD_RESTRAINT_ANALYSIS_INCLUDE_ANGLES)
+      analyze_for_bad_restraints(          ANGLE_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT,     interesting_distortion_limit);
    analyze_for_bad_restraints(GEMAN_MCCLURE_DISTANCE_RESTRAINT, interesting_distortion_limit);
 
@@ -2318,7 +2320,6 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::setw(4) << std::right << std::get<3>(d) << "\n";
       }
 
-      // How can I know if this was a Hydrogen bond restraint?
       if (r_type == BOND_RESTRAINT) {
          std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
@@ -2329,6 +2330,16 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::setw(6) << std::get<3>(d);
          if (rest.is_hydrogen_bond) std::cout << " H";
          std::cout << "\n";
+      }
+
+      if (r_type == ANGLE_RESTRAINT) {
+         std::cout << "INFO:: Model: Bad Angle: " << std::setw(5)
+                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
+                   << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
+                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
+                   << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
+                   << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
+                   << " distortion " << std::setw(6) << std::get<3>(d) << "\n";
       }
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)

@@ -2156,7 +2156,7 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 					     double *result,
 					     std::atomic<unsigned int> &done_count_for_threads) {
 
-   auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
 
    // We weight and sum to get the score and negate.
    //
@@ -2179,6 +2179,9 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 				      gsl_vector_get(v,idx+1),
 				      gsl_vector_get(v,idx+2));
 
+               //               std::cout << "ao:" << ao.format() << std::endl; // prograam terminated before
+                                                                                // sphere-refine had finished.
+
 	       score += restraints_p->Map_weight() *
 		  restraints_p->atom_z_occ_weight[iat] *
 		  restraints_p->electron_density_score_at_point(ao);
@@ -2191,8 +2194,8 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
       }
    }
 
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
+   // auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
    // return -score;
 
@@ -3813,6 +3816,20 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
          double delta = d - target_value;
          double z = delta/sigma;
          double distortion = z*z/(1+alpha*z*z);
+         distortion_pair.first = distortion;
+         distortion_pair.second = delta;
+      }
+   }
+
+   if (restraint_type == ANGLE_RESTRAINT) {
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      mmdb::Atom *at_3 = atoms[atom_index_3];
+      if (at_1 && at_2 && at_3) {
+         double angle_deg = coot::angle(at_1, at_2, at_3);
+         double delta = angle_deg - target_value;
+         double z = delta/sigma;
+         double distortion = z*z;
          distortion_pair.first = distortion;
          distortion_pair.second = delta;
       }

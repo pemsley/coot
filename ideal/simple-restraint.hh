@@ -2740,7 +2740,8 @@ namespace coot {
 
       double get_distortion_score() const;
 
-      void analyze_for_bad_restraints();
+      enum analyze_bad_restraints_mode { NORMAL_BAD_RESTRAINTS_ANALYSIS, BAD_RESTRAINT_ANALYSIS_INCLUDE_ANGLES };
+      void analyze_for_bad_restraints(analyze_bad_restraints_mode mode = NORMAL_BAD_RESTRAINTS_ANALYSIS);
 
    };
 
