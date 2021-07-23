@@ -2879,10 +2879,54 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
 }
 
+void
+test_best_fit_phi_psi_func() {
+
+   std::string hklin_file_name = "coot-download/1gwd_map.mtz";
+   std::string    f_col_label   = "FWT";
+   std::string phi_col_label = "PHWT";
+   std::string pir_file_name = "1gwd.pir";
+   std::string pdb_files = "1gwd-A-no-sidechains.pdb";
+
+   clipper::Xmap<float> xmap;
+   coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", 0, 0);
+
+   mmdb::Manager *mol = new mmdb::Manager;
+   mmdb::ERROR_CODE err = mol->ReadCoorFile("1gwd-A-no-sidechains.pdb");
+   if (err) {
+      std::cout << "ERROR:: reading pdb file " << std::endl;
+   } else {
+      coot::residue_spec_t spec("A", 5, "");
+      mmdb::Residue *residue_sel_1_p = coot::util::get_residue(spec, mol);
+      mmdb::Residue *residue_sel_2_p = coot::util::get_residue(spec.next(), mol);
+
+      if (residue_sel_1_p && residue_sel_2_p) {
+
+         std::vector<mmdb::Residue *> residues = {residue_sel_1_p, residue_sel_2_p };
+         auto mol_for_residue = coot::util::create_mmdbmanager_from_residue_vector(residues, mol);
+         if (mol_for_residue.first) {
+            unsigned int n_threads = coot::get_max_number_of_threads();
+            ctpl::thread_pool thread_pool(n_threads);
+            float weight = 60.0;
+            unsigned int n_phi_psi_trials = 1000;
+            coot::protein_geometry geom;
+            geom.init_standard();
+            rama_rsr_extend_fragments(mol_for_residue.second, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom);
+            mol_for_residue.second->WritePDBASCII("test_best_fit_phi_psi_result.pdb");
+         } else {
+            std::cout << "No mol_for_residue" << std::endl;
+         }
+      } else {
+         std::cout << "No mol for residue " << spec << std::endl;
+      }
+   }
+}
+
 #include <clipper/ccp4/ccp4_map_io.h>
 
 int main(int argc, char **argv) {
    int status = 0;
+   bool test_best_fit_phi_psi = false;
 
    std::string hklin_file_name = "rnasa-1.8-all_refmac1.mtz";
    std::string f_col_label = "FWT";
@@ -2911,88 +2955,98 @@ int main(int argc, char **argv) {
       pir_file_name = "all-e-coli.fasta";
    }
 
-   coot::fasta_multi fam;
-   fam.read(pir_file_name);
+   if (argc > 1)
+      if (std::string(argv[1]) == "test-best-fit-phi-psi")
+         test_best_fit_phi_psi = true;
 
-   bool test_from_crystallography = true;
-   bool test_from_map = true;
+   if (test_best_fit_phi_psi) {
+      test_best_fit_phi_psi_func();
 
-   double variation = 0.8; // how much is a CA-CA distance allowed to vary from 3.81
-                           // before it is too long or short to be considered a potential
-                           // peptide?
-                           // make bigger at lower resolutions (maybe up to 1.0?)
-   variation = 0.4; // speed
+   } else {
 
-   unsigned int n_top_spin_pairs = 2000; // Use for tracing at most this many spin score pairs (which have been sorted).
-                                          // This and variation affect the run-time (and results?)
-   n_top_spin_pairs = 1000;
+      coot::fasta_multi fam;
+      fam.read(pir_file_name);
 
-   unsigned int n_top_fragments = 2000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
+      bool test_from_crystallography = true;
+      bool test_from_map = true;
 
-   // pass the atom radius from here too
+      double variation = 0.8; // how much is a CA-CA distance allowed to vary from 3.81
+      // before it is too long or short to be considered a potential
+      // peptide?
+      // make bigger at lower resolutions (maybe up to 1.0?)
+      variation = 0.4; // speed
 
-   float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
+      unsigned int n_top_spin_pairs = 2000; // Use for tracing at most this many spin score pairs (which have been sorted).
+      // This and variation affect the run-time (and results?)
+      n_top_spin_pairs = 1000;
 
-   unsigned int n_phi_psi_trials = 5000;
+      unsigned int n_top_fragments = 2000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
 
-   float weight = 60.0f; // calculate this (using rmsd)
-   // weight = 6.0; // for emd 22898
+      // pass the atom radius from here too
 
-   if (test_from_crystallography) {
+      float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
 
-      clipper::Xmap<float> xmap;
-      if (test_from_map) {
-         if (coot::file_exists(map_file_name)) {
-            clipper::CCP4MAPfile file;
-            file.open_read(map_file_name);
-            file.import_xmap(xmap);
-            std::cout << "Imported map from file " << map_file_name << std::endl;
+      unsigned int n_phi_psi_trials = 5000;
+
+      float weight = 60.0f; // calculate this (using rmsd)
+      // weight = 6.0; // for emd 22898
+
+      if (test_from_crystallography) {
+
+         clipper::Xmap<float> xmap;
+         if (test_from_map) {
+            if (coot::file_exists(map_file_name)) {
+               clipper::CCP4MAPfile file;
+               file.open_read(map_file_name);
+               file.import_xmap(xmap);
+               std::cout << "Imported map from file " << map_file_name << std::endl;
+            } else {
+               std::cout << "Map file does not exist " << map_file_name << std::endl;
+            }
          } else {
-            std::cout << "Map file does not exist " << map_file_name << std::endl;
-         }
-      } else {
 
-         if (! f_col_label.empty()) {
-            if (! phi_col_label.empty()) {
-               try {
-                  std::cout << "Read mtz file " << hklin_file_name << " " << f_col_label << " " << phi_col_label << std::endl;
-                  bool use_weights = false;
-                  bool is_diff_map = false;
-                  coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights, is_diff_map);
-               }
-               catch (clipper::Message_fatal &rte) {
-                  std::cout << "ERROR::" << rte.text() << std::endl;
+            if (! f_col_label.empty()) {
+               if (! phi_col_label.empty()) {
+                  try {
+                     std::cout << "Read mtz file " << hklin_file_name << " " << f_col_label << " " << phi_col_label << std::endl;
+                     bool use_weights = false;
+                     bool is_diff_map = false;
+                     coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights, is_diff_map);
+                  }
+                  catch (clipper::Message_fatal &rte) {
+                     std::cout << "ERROR::" << rte.text() << std::endl;
+                  }
                }
             }
          }
-      }
-      if (! xmap.is_null()) {
-         float rmsd_cuffoff = 2.3;
-         proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius, weight, n_phi_psi_trials);
-      } else {
-         if (test_from_map)
-            std::cout << "Map from " << map_file_name << " is null" << std::endl;
-      }
-   } else {
-      try {
-         std::string map_file_name = "emd_22898.map";
-         if (coot::file_exists(map_file_name)) {
-
-            std::cout << "::::::::: emd_22898.map path" << std::endl;
-            clipper::CCP4MAPfile file;
-            file.open_read(map_file_name);
-            clipper::Xmap<float> xmap;
-            std::string pir_file_name = "7kjr.seq";
-            coot::fasta_multi fam;
-            fam.read(pir_file_name);
-            file.import_xmap(xmap);
-            proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials);
+         if (! xmap.is_null()) {
+            float rmsd_cuffoff = 2.3;
+            proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius, weight, n_phi_psi_trials);
          } else {
-            std::cout << "No such file " << map_file_name << std::endl;
+            if (test_from_map)
+               std::cout << "Map from " << map_file_name << " is null" << std::endl;
          }
-      }
-      catch (clipper::Message_fatal &rte) {
-         std::cout << "ERROR::" << rte.text() << std::endl;
+      } else {
+         try {
+            std::string map_file_name = "emd_22898.map";
+            if (coot::file_exists(map_file_name)) {
+
+               std::cout << "::::::::: emd_22898.map path" << std::endl;
+               clipper::CCP4MAPfile file;
+               file.open_read(map_file_name);
+               clipper::Xmap<float> xmap;
+               std::string pir_file_name = "7kjr.seq";
+               coot::fasta_multi fam;
+               fam.read(pir_file_name);
+               file.import_xmap(xmap);
+               proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials);
+            } else {
+               std::cout << "No such file " << map_file_name << std::endl;
+            }
+         }
+         catch (clipper::Message_fatal &rte) {
+            std::cout << "ERROR::" << rte.text() << std::endl;
+         }
       }
    }
 

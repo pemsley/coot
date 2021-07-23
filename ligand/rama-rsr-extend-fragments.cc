@@ -763,7 +763,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
                                   std::cout << "Timings: from build_3_keep_1(): best_fit_phi_psi() " << d10 << " milliseconds" << std::endl;
 
-                                  if (false) {
+                                  if (true) {
                                      std::string file_name = "rama-trial-b3k1-" + terminus_type + "-" + chain_id + ".pdb";
                                      frag.write_file(file_name);
                                   }

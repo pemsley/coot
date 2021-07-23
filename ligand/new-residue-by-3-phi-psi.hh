@@ -114,7 +114,8 @@ namespace coot {
                                         const clipper::Xmap<float> &xmap);
       static float score_fragment_using_peptide_fingerprint(const minimol::fragment &frag,
                                                             const connecting_atoms_t &current_res_pos,
-                                                            const clipper::Xmap<float> &xmap);
+                                                            const clipper::Xmap<float> &xmap,
+                                                            int res_no_base, int i_trial); // pass i_trial for debugging
 
    public:
       new_residue_by_3_phi_psi(const std::string &terminus_type, mmdb::Residue *residue_p, const std::string &chain_id);

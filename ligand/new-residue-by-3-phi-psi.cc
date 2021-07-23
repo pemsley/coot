@@ -290,11 +290,14 @@ coot::new_residue_by_3_phi_psi::score_fragment_basic(const minimol::fragment &fr
    return score/w_sum;
 }
 
+#include <fstream>
+
 // static
 float
 coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const minimol::fragment &frag,
                                                                          const connecting_atoms_t &current_res_pos,
-                                                                         const clipper::Xmap<float> &xmap) {
+                                                                         const clipper::Xmap<float> &xmap,
+                                                                         int res_no_base, int i_trial) {
 
    float score = 0.0;
    float w_sum = 0.0;
@@ -319,15 +322,16 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
                                 print_lock = false;
                              };
    
-   auto fingerprint_score = [&xmap, roll_off] (const clipper::Coord_orth &ca_pos_1,
+   auto fingerprint_score = [&xmap, roll_off, i_trial, res_no_base] (const clipper::Coord_orth &ca_pos_1,
                                                const clipper::Coord_orth &ca_pos_2,
-                                               const clipper::Coord_orth &o_pos_1) {
+                                               const clipper::Coord_orth &o_pos_1,
+                                               int ires) { // pass ires for debugging (writing out positions)
 
                                // these need to be optimized somehow - sounds fun
-                               float scale_CO       =  1.4;
+                               float scale_CO       =  0.2; // we are already counting the O position in the normal scoring
                                float scale_CO_low   = -0.8;
                                float scale_CO_anti  = -0.3;
-                               float scale_N        =  1.0;
+                               float scale_N        =  0.2; // and the N position
                                float scale_N_low    = -1.0;
                                float scale_perp     = -0.9;
 
@@ -404,6 +408,22 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
                                   scale_perp    * roll_off(rho_perp_1)  +
                                   scale_perp    * roll_off(rho_perp_2);
                                s = this_score;
+
+                               if (true) {
+                                  std::string fn = "fp/peptide-fingerprint-" + std::to_string(res_no_base) + "/fp-" + std::to_string(ires) + "-" + std::to_string(i_trial) + ".points";
+                                  std::ofstream f(fn.c_str());
+                                  if (f) {
+                                     f << " CO      " << p_CO.x()      << " " << p_CO.y()      << " " << p_CO.z()      << "\n";
+                                     f << " CO_low  " << p_CO_low.x()  << " " << p_CO_low.y()  << " " << p_CO_low.z()  << "\n";
+                                     f << " CO_anti " << p_CO_anti.x() << " " << p_CO_anti.y() << " " << p_CO_anti.z() << "\n";
+                                     f << " N       " << p_N.x()       << " " << p_N.y()       << " " <<       p_N.z() << "\n";
+                                     f << " N_low   " << p_N_low.x()   << " " << p_N_low.y()   << " " <<   p_N_low.z() << "\n";
+                                     f << " p_2     " << p_2.x()       << " " << p_2.y()       << " " <<       p_2.z() << "\n";
+                                     f << " p_3     " << p_3.x()       << " " << p_3.y()       << " " <<       p_3.z() << "\n";
+                                     f << " score " << this_score << "\n";
+                                     f.close();
+                                  }
+                               }
                                return s;
                             };
 
@@ -433,12 +453,12 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
             const clipper::Coord_orth &pt_1 = at_1.second.pos;
             const clipper::Coord_orth &pt_2 = at_2.second.pos;
             const clipper::Coord_orth &pt_3 = at_3.second.pos;
-            float fps = fingerprint_score(pt_1, pt_3, pt_2); // CA, CA, O
+            float fps = fingerprint_score(pt_1, pt_3, pt_2, ires); // CA, CA, O
             // std::cout << "fingerprint_score " << fps << " cf score " << score << "\n";
             score += fps;
             w_sum += at_1.second.occupancy * 1.0; // or so - because multiple fingerprint positions
          } else {
-            std::cout << "Failed to CA or O atom from residue - heyho " << ires << std::endl;
+            std::cout << "Failed to extract CA or O atom from residue - heyho " << ires << std::endl;
          }
          release_print_lock();
       }
@@ -615,9 +635,7 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::strin
 				     rand_lim * 0.5 * get_random_float(),
 				     rand_lim * 0.5 * get_random_float());
 
-   // in radians
-   std::pair<bool, double> phi_current = current_res_pos.get_phi();
-   if (phi_current.first) {
+   if (true) {
       minimol::residue res_1 = construct_next_res_from_rama_angles(pp_1.phi, psi_conditional_deg, pp_1.tau, seq_num + 1, current_res_pos, 1.0);
 
       connecting_atoms_t just_built_res_1(res_1[" N  "].pos, res_1[" CA "].pos, res_1[" C  "].pos);
@@ -668,9 +686,6 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::strin
 	 std::cout << "ERROR:: make_3_res_joining_frag_new_building_forwards() "
 		   << rte.what() << std::endl;
       }
-
-   } else {
-      std::cout << "Funny - no phi_current"  << std::endl;
    }
    return frag;
 }
@@ -689,10 +704,7 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
    clipper::Coord_orth current_n  = current_res_pos.N_pos;
    clipper::Coord_orth current_ca = current_res_pos.CA_pos;
 
-   // in radians
-   std::pair<bool, double> psi_current = current_res_pos.get_psi();
-
-   if (psi_current.first) {
+   if (true) {
 
       // add a bit of jitter
       double rand_lim = 0.1;
@@ -724,8 +736,6 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
 		   << rte.what() << std::endl;
       }
 
-   } else {
-      std::cout << "Funny - no psi_current"  << std::endl;
    }
    return frag;
 }
@@ -753,10 +763,17 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
 
                                    minimol::fragment frag = make_3_res_joining_frag_forward(chain_id, current_res_pos, clipper::Util::rad2d(psi_conditional),
                                                                                             pp_1, pp_2, pp_3, seq_num);
-                                   float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap);
+                                   float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
+                                   float score_basic = score_fragment_basic(frag, current_res_pos, *xmap);
                                    if (score > best_score) {
+                                      std::cout << "residue " << seq_num << " i_trial " << i_trial << " score_basic " << score_basic << " score-with-fp " << score << std::endl;
+                                      best_score = score;
                                       best_frag_result.first = frag;
                                       best_frag_result.second = score;
+                                      if (true) {
+                                         std::string fn = "run_forward_trials_" + std::to_string(seq_num) + "_" + std::to_string(i_trial) + ".pdb";
+                                         frag.write_file(fn);
+                                      }
                                    }
                                 }
                                 count++;
@@ -777,10 +794,12 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
                                    phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false);
                                    phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false);
 
-                                   minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos, clipper::Util::rad2d(phi_conditional),
+                                   minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos,
+                                                                                             clipper::Util::rad2d(phi_conditional),
                                                                                              pp_1, pp_2, pp_3, seq_num);
-                                   float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap);
+                                   float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
                                    if (score > best_score) {
+                                      best_score = score;
                                       best_frag_result.first = frag;
                                       best_frag_result.second = score;
                                    }
@@ -798,7 +817,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::pair<bool,double> phi_current = current_res_pos.get_phi();
       // forwards,  we have a phi and need to generate a psi to place the N
 
-      if (false)
+      if (true)
          std::cout << "debug:: best_fit_phi_psi(): C extension current_phi: " << coot::residue_spec_t(residue_p) << " phi: "
                    << phi_current.first << " " << phi_current.second << std::endl;
 
@@ -829,7 +848,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       }
    }
 
-   if (terminus_type == "N") {
+   if (terminus_type == "---N") {
       // backwards we have a psi and need to generate a phi to place the C
 
       connecting_atoms_t current_res_pos = get_connecting_residue_atoms();

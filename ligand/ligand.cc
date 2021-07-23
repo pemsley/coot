@@ -187,9 +187,8 @@ coot::ligand::import_map_from(const clipper::Xmap<float> &map_in) {
    float sum_mean = 0;
    float sum_sq = 0;
    int n = 0;
-   float v;
    for (ix = map_in.first(); !ix.last(); ix.next() )  { // iterator index.
-      v = map_in[ix];
+      float v = map_in[ix];
       sum_mean += v;
       sum_sq += v * v;
       n++;
