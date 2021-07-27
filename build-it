@@ -409,7 +409,8 @@
 # 5.52 20210511 rework the coot configure
 # 5.53 20210706 use jfrog.io for boost
 # 5.54 20210706 build sqllite3
-script_version=5.54
+# 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
+script_version=5.55
 
 
 
@@ -952,7 +953,8 @@ fi
 mkdir -p $LOGS
 
 
-shared_static_flag="--disable-shared"
+shared_static_flag="--disable-shared" # what!? 20210727-PE
+shared_static_flag="--enable-shared"
 shared_lib_ext=so
 systype=unknown 
 
@@ -2447,10 +2449,15 @@ if [ -z "$build_mmdb" ] ; then
        # test for new ccp4-based clipper (for mtz and maps)
        if [ -e $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h ] ; then
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
-	     build_clipper=
+             if grep PrePro2 $install_top_dir/include/clipper/core/ramachandran.h ; then
+                build_clipper=
+             else
+                 echo $install_top_dir/include/clipper/core/ramachandran.h is old, building clipper
+                 build_clipper=1
+             fi
           else
-            echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
-  	     build_clipper=1
+             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
+ 	     build_clipper=1
           fi
        else 
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
