@@ -36,7 +36,8 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
 	scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
 	side-chain-densities.hh tube-finder.hh smith-waterman.hh side-chain.hh \
-	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh
+	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh \
+	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -114,7 +115,7 @@ test_tube_finder_LDADD = ./libcoot-ligand.la          \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(CLIPPER_LIBS)
 
-res_tracer_SOURCES = res-tracer.cc rama-rsr-extend-fragments.cc new-residue-by-3-phi-psi.cc
+res_tracer_SOURCES = res-tracer.cc rama-rsr-extend-fragments.cc new-residue-by-3-phi-psi.cc dSFMT.c
 
 res_tracer_LDADD = ./libcoot-ligand.la                \
    $(top_builddir)/ideal/libcoot-ideal.la             \

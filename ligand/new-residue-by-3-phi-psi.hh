@@ -12,10 +12,15 @@
 
 #include "ligand.hh"
 
+#define DSFMT_MEXP 19937
+#include "dSFMT.h"
+
 namespace coot {
 
    // probably there is a better hhome for this function
    //
+   float get_random_float_rd(); // betwween 0 and 1
+   float get_random_float_mt(dsfmt_t *dsfmt); 
    float get_random_float(); // betwween 0 and 1
    
    class new_residue_by_3_phi_psi {
@@ -81,15 +86,16 @@ namespace coot {
       // When we are building backwards, we have psi for the selected residue, but not phi.
       // To be clear, we only have psi, when we have also have the downstream (higher residue number) residue
       // as well.
-      static double get_phi_by_random_given_psi(double psi, const clipper::Ramachandran &rama); // phi and psi in radians
+      static double get_phi_by_random_given_psi(double psi, const clipper::Ramachandran &rama, dsfmt_t *dsfmt); // phi and psi in radians
       // When we are building forward, we have phi for the selected residue, but not psi.
       // To be clear, we only have phi, when we have also have the upstream (lower residue number) residue
       // as well.
       static double get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama); // phi and psi in radians
 
       static phi_psi_t get_phi_psi_by_random(const clipper::Ramachandran &rama,
-				      const float &rama_max,
-				      bool is_pro_rama);
+                                             const float &rama_max,
+                                             bool is_pro_rama,
+                                             dsfmt_t *dsfmt);
 
       static
       minimol::fragment make_3_res_joining_frag_forward(const std::string &chain_id, const connecting_atoms_t &current_res_pos,
@@ -120,7 +126,8 @@ namespace coot {
    public:
       new_residue_by_3_phi_psi(const std::string &terminus_type, mmdb::Residue *residue_p, const std::string &chain_id);
       void add_thread_pool(ctpl::thread_pool  *thread_pool_p, unsigned int n_threads);
-      minimol::fragment best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap) const;
+      minimol::fragment best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap,
+                                         float min_density_level_for_connecting_atom) const;
       void set_downstream_neighbour(mmdb::Residue *r) { downstream_neighbour_residue_p = r; }
       void set_upstream_neighbour(mmdb::Residue *r) { upstream_neighbour_residue_p = r; }
    };

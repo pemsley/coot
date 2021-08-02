@@ -11,6 +11,7 @@
 #include "mini-mol/mini-mol.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/merge-atom-selections.hh"
+#include "coot-utils/merge-C-and-N-terminii.hh"
 #include "scored-node.hh"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
@@ -30,10 +31,13 @@ public:
    double forward_score;
    double backward_score;
    bool marked_for_deletion;
+   bool checked;
    std::set<unsigned int> live_progenitor_index_set;
    scored_tree_t(unsigned int idx, const std::string &chain_id_in, const tree_t &tree_in, const std::set<unsigned int> &lpis, double sf, double sb) :
-      index(idx), chain_id(chain_id_in), tree(tree_in), forward_score(sf), backward_score(sb), live_progenitor_index_set(lpis)  { marked_for_deletion = false; }
-   scored_tree_t() { index = 0; marked_for_deletion = false; forward_score = 0.0; backward_score = 0.0; }
+      index(idx), chain_id(chain_id_in), tree(tree_in), forward_score(sf), backward_score(sb), live_progenitor_index_set(lpis)  {
+      marked_for_deletion = false;
+      checked = false; }
+   scored_tree_t() { index = 0; marked_for_deletion = false; checked = false; forward_score = 0.0; backward_score = 0.0; }
 };
 
 coot::minimol::molecule
@@ -149,9 +153,10 @@ spin_score(unsigned int idx_1, unsigned int idx_2, mmdb::Atom **atom_selection,
    //
    auto roll_off = [inv_rmsd] (const float rho) {
                       float f = inv_rmsd * rho;
-                      // return f + f * f * f * f * f * -0.002f;
+                      // return f + f * f * f * f * f * -0.003f; // was 0.002
+                      return f + f * f * f * f * f * -0.0003f; // was 0.002
                       // std::cout << "debug f: " << f << std::endl;
-                      return f;
+                      // return f;
                    };
 
 #if 0 // original scales
@@ -765,6 +770,7 @@ find_chains_that_overlap_other_chains(mmdb::Manager *mol, float big_overlap_frac
    if (n_contacts > 0) {
       // std::cout << "debug:: Selection had " << n_contacts << " CA-CA contacts" << std::endl;
       if (pscontact) {
+         std::cout << "debug:: Selection found " << n_contacts << " contacts" << std::endl;
          for (int i=0; i<n_contacts; i++) {
             mmdb::Atom *at_1 = atom_selection[pscontact[i].id1];
             mmdb::Atom *at_2 = atom_selection[pscontact[i].id2];
@@ -774,7 +780,7 @@ find_chains_that_overlap_other_chains(mmdb::Manager *mol, float big_overlap_frac
                std::string chain_id_2(at_2->GetChainID());
                contact_counts_for_chain_pair[chain_id_1][chain_id_2].add(at_1, at_2);
 
-               if (false)
+               if (n_contacts%1000==0)
                   std::cout << "debug:: contact_counts_for_chain_pair " << chain_id_1 << " " << chain_id_2
                             << " : " << contact_counts_for_chain_pair[chain_id_1][chain_id_2].sum
                             << contact_counts_for_chain_pair[chain_id_1][chain_id_2].count << " "
@@ -890,7 +896,7 @@ find_chains_that_overlap_other_chains_inner(mmdb::Manager *mol, float big_overla
 
    mmdb::Atom **atom_selection = 0; // member data - cleared on destruction
    int n_selected_atoms = 0;
-   int selhnd = mol->NewSelection();
+   int selhnd = mol->NewSelection(); // d
    mol->SelectAtoms(selhnd, 0, "*",
                            mmdb::ANY_RES, // starting resno, an int
                            "*", // any insertion code
@@ -915,6 +921,7 @@ find_chains_that_overlap_other_chains_inner(mmdb::Manager *mol, float big_overla
          }
       }
    }
+   mol->DeleteSelection(selhnd);
 }
 
 
@@ -1136,23 +1143,88 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
    auto filter_out_old_traces_from_progenitors = [] (std::vector<scored_tree_t> &traces) {
 
-                                                   for (unsigned int i=0; i<traces.size(); i++) {
-                                                      const auto &trace = traces[i];
-                                                      unsigned int this_trace_length = trace.tree.size();
-                                                      std::set<unsigned int>::const_iterator it_set;
-                                                      for (it_set=trace.live_progenitor_index_set.begin(); it_set!=trace.live_progenitor_index_set.end(); ++it_set) {
-                                                         const unsigned int &progenitor_index = *it_set;
-                                                         unsigned int progenitor_trace_length = traces[progenitor_index].tree.size();
-                                                         if (this_trace_length > (progenitor_trace_length + 4)) {
-                                                            traces[progenitor_index].marked_for_deletion = true;
-                                                            std::cout << "DEBUG:: filter_out_old_traces_from_progenitors() marking trace " << progenitor_index
-                                                                      << " for deletionn" << std::endl;
-                                                         }
-                                                      }
-                                                   }
-                                                };
+                                                    // I need only check the traces that I haven't checked before. Hmm
 
-   auto grow_trees_v4 = [get_additions_for_this_range_of_trees,
+                                                    for (unsigned int i=0; i<traces.size(); i++) {
+                                                       auto &trace = traces[i];
+                                                       if (trace.marked_for_deletion) continue;
+                                                       // if (trace.checked) continue; // hmm - I think I should be able to do this, but if I enable this line, I get different results!
+                                                       trace.checked = true; // it is now
+                                                       unsigned int this_trace_length = trace.tree.size();
+                                                       // std::cout << "debug:: i " << i << " this_trace_length: " << this_trace_length
+                                                       // << " trace.live_progenitor_index_set() " << trace.live_progenitor_index_set.size() << std::endl;
+                                                       std::set<unsigned int>::const_iterator it_set;
+                                                       for (it_set=trace.live_progenitor_index_set.begin(); it_set!=trace.live_progenitor_index_set.end(); ++it_set) {
+                                                          const unsigned int &progenitor_index = *it_set;
+                                                          unsigned int progenitor_trace_length = traces[progenitor_index].tree.size();
+                                                          if (false)
+                                                             std::cout << "debug:: trace " << i << " comparing this_trace_length " << this_trace_length
+                                                                       << " with progenitor_trace_length " << progenitor_trace_length
+                                                                       << " delta " << this_trace_length-progenitor_trace_length << std::endl;
+                                                          if (! traces[progenitor_index].marked_for_deletion) {
+                                                             if (this_trace_length > (progenitor_trace_length + 4)) {
+                                                                traces[progenitor_index].marked_for_deletion = true;
+                                                                if (false)
+                                                                   std::cout << "DEBUG:: trace " << i << " filter_out_old_traces_from_progenitors() marking trace "
+                                                                          << progenitor_index << " for deletion" << std::endl;
+                                                             }
+                                                          }
+                                                       }
+                                                    }
+                                                 };
+
+
+   // this can be abstracted (with a bit of edting)
+   //
+   auto trace_length_histogram = [] (const std::vector<scored_tree_t> &sorted_traces) {
+
+                                    auto stars = [] (unsigned int n) {
+                                                    unsigned int n_stars = static_cast<int>(static_cast<float>(n)/30.0);
+                                                    for (unsigned int i=0; i<n_stars; i++)
+                                                       std::cout << "*";
+                                                    };
+                                    unsigned int trace_length_max = 0;
+                                    for (const auto &trace : sorted_traces) {
+                                       unsigned int l = trace.tree.size();
+                                       if (l > trace_length_max) {
+                                          trace_length_max = l;
+                                       }
+                                    }
+                                    // so now we have set trace_length_max
+                                    const unsigned int n_bins = 20;
+                                    std::vector<unsigned int> length_bins(n_bins, 0);
+                                    for (const auto &trace : sorted_traces) {
+                                       unsigned int l = trace.tree.size();
+                                       float f  = static_cast<float>(l)/static_cast<float>(trace_length_max);
+                                       float fb = static_cast<unsigned int>(f * static_cast<float>(n_bins));
+                                       unsigned int bin_index = static_cast<unsigned int>(fb);
+                                       if (bin_index == 20) bin_index = 19;
+                                       length_bins[bin_index]++;
+                                    }
+                                    std::cout << ":::: Trace Length Histogram:\n";
+                                    for (unsigned int i=0; i<n_bins; i++) {
+                                       float abl = (static_cast<float>(i) + 0.5) * static_cast<float>(trace_length_max) / static_cast<float>(n_bins);
+                                       int abl_i = static_cast<int>(abl);
+                                       std::cout << std::setw(2) << abl_i << " : " << std::setw(5) << length_bins[i] << " ";
+                                       stars(length_bins[i]);
+                                       std::cout << "\n";
+                                    }
+                                 };
+
+   auto tree_report = [trace_length_histogram] (const std::vector<scored_tree_t> &trees) {
+                         unsigned int n_trees = trees.size();
+                         // (trees can be changing size as we do this) - so be a bit careful
+                         std::vector<scored_tree_t> trees_copy(n_trees);
+                         for (unsigned int i=0; i<n_trees; i++)
+                            trees_copy[i] = trees[i];
+
+                         // put this in a detached thread?
+                         // trace_length_histogram(trees_copy);
+                         std::thread t(trace_length_histogram, std::cref(trees_copy));
+                         t.detach();
+                   };
+
+   auto grow_trees_v4 = [get_additions_for_this_range_of_trees, tree_report,
                          filter_out_old_traces_from_progenitors] (const std::vector<std::pair<unsigned int, coot::scored_node_t> > &scored_pairs_in) {
 
                            auto there_are_additions_to_be_made = [] (const std::vector<std::vector<addition_t> > &additions_vec) {
@@ -1165,6 +1237,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                                                     }
                                                                     return status;
                                                                  };
+
+                           unsigned int max_number_of_trees = 14000; // so that we don't keep going for millions of trees
 
                            std::cout << "grow_trees_v4" << std::endl;
 
@@ -1196,7 +1270,6 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
                               auto tp_0 = std::chrono::high_resolution_clock::now();
 
-
                               // make a non-thread version of this for testing/timing
                               //
                               std::vector<std::pair<unsigned int, unsigned int> > ranges = coot::atom_index_ranges(loop_begin_tree_size, n_threads);
@@ -1225,7 +1298,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                        else
                                           new_tree.tree.push_back(scored_pair);
                                        unsigned int new_index = trees.size();
-                                       std::set<unsigned int> progenitor_list = trees[addition.tree_index].live_progenitor_index_set; // and then we add to it.
+                                       std::set<unsigned int> &progenitor_list = trees[addition.tree_index].live_progenitor_index_set; // and then we add to it.
                                        progenitor_list.insert(addition.tree_index);
                                        new_tree.index = new_index;
                                        trees.push_back(new_tree);
@@ -1257,10 +1330,12 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                               }
 
                               if (true)
-                                 if ((trees.size() %100) == 0)
+                                 if ((trees.size() %100) == 0) {
                                     std::cout << "Trees size " << trees.size() << std::endl;
+                                    tree_report(trees);
+                                 }
 
-                           } while (trees.size() > loop_begin_tree_size);
+                           } while ((trees.size() > loop_begin_tree_size) && (trees.size() < max_number_of_trees) );
 
                            // now erase the earlier copies (which we since extended), starting from the end.
                            // all the keys need to be deleted. Let's make a vector of the tree indices to be deleted.
@@ -1298,11 +1373,11 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
                            // add to the list-of-delete_these_indices those that are marked for deletion
                            for (unsigned int i=0; i<trees.size(); i++)
-                              if (trees[i].marked_for_deletion)
-                                 if (std::find(delete_these_indices.begin(), delete_these_indices.end(), i) == delete_these_indices.end()) {
+                              if (trees[i].marked_for_deletion) {
+                                 if (std::find(delete_these_indices.begin(), delete_these_indices.end(), i) == delete_these_indices.end())
                                     delete_these_indices.push_back(i);
-                                    n_delete_from_marked_for_deletion ++;
-                                 }
+                                 n_delete_from_marked_for_deletion ++;
+                              }
 
                            // sort delete_these_indices so that high values are first
 
@@ -1907,34 +1982,36 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
       return 0; // null pointer - nothing to build on!
    } else {
 
-      // sort trees by length
-      auto tree_sorter = [] (const scored_tree_t &tree_1, const scored_tree_t &tree_2) { return tree_2.tree.size() < tree_1.tree.size(); };
-      std::sort(trees.begin(), trees.end(), tree_sorter); // sorted by length
-      std::vector<scored_tree_t> &sorted_trees = trees; //so that it's clear they have been sorted!
+      // sort traces by length
+      auto trace_sorter = [] (const scored_tree_t &tree_1, const scored_tree_t &tree_2) { return tree_2.tree.size() < tree_1.tree.size(); };
+      std::sort(trees.begin(), trees.end(), trace_sorter); // sorted by length
+      std::vector<scored_tree_t> &sorted_traces = trees; //so that it's clear they have been sorted!
 
-      eigenfilter_traces(sorted_trees); // let's call them traces.
+      eigenfilter_traces(sorted_traces); // let's call them traces.
 
       // debug_trees(sorted_trees);
 
-      std::vector<scored_tree_t> scored_trees = make_scored_trees(sorted_trees); // add a chain-id also.
+      trace_length_histogram(sorted_traces);
 
-      if (false) {
-         for (const auto &st : scored_trees) {
+      std::vector<scored_tree_t> scored_traces = make_scored_trees(sorted_traces); // add a chain-id also.
+
+      if (true) {
+         for (const auto &st : scored_traces) {
             double delta = st.forward_score - st.backward_score;
-            std::cout << "scored_tree " << st.chain_id << " has forward_score " << std::setw(5) << st.forward_score
+            std::cout << "INFO:: scored_trace " << st.chain_id << " has forward_score " << std::setw(5) << st.forward_score
                       << " backward_score " << st.backward_score << " delta " << delta << std::endl;
          }
       }
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
-      coot::minimol::molecule m = scored_trees_to_multi_fragment(scored_trees, top_n_fragments, xmap);
+      coot::minimol::molecule m = scored_trees_to_multi_fragment(scored_traces, top_n_fragments, xmap);
       auto tp_3 = std::chrono::high_resolution_clock::now();
       std::string fn = "stage-1-post-make_fragments-all-fragments.pdb";
       m.write_file(fn, 30.0);
 
       float big_overlap_fraction_limit = 0.89;
       mmdb::Manager *mol = m.pcmmdbmanager();
-      auto scores_for_chain_ids = make_scores_for_chain_ids(scored_trees);
+      auto scores_for_chain_ids = make_scores_for_chain_ids(scored_traces);
       auto tp_4 = std::chrono::high_resolution_clock::now();
       std::cout << "PROGRESS calling find_chains_that_overlap_other_chains()" << std::endl;
       auto deletable_chains_map = find_chains_that_overlap_other_chains(mol, big_overlap_fraction_limit, scores_for_chain_ids);
@@ -2050,6 +2127,224 @@ globularize(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, const clipper:
    }
 }
 
+// name this?
+bool
+this_and_next_are_close(mmdb::Residue *residue_this_p, mmdb::Residue *residue_next_p) {
+
+   bool status = false;
+
+   if (residue_this_p && residue_next_p) {
+      int n_atoms_in_this_res = residue_this_p->GetNumberOfAtoms();
+      for (int iat=0; iat<n_atoms_in_this_res; iat++) {
+         mmdb::Atom *at_this = residue_this_p->GetAtom(iat);
+         if (! at_this->isTer()) {
+            std::string atom_name(at_this->GetAtomName());
+            if (atom_name == " C  ") {
+               clipper::Coord_orth c_pos_this = coot::co(at_this);
+               int n_atoms_in_next_res = residue_next_p->GetNumberOfAtoms();
+               for (int jat=0; jat<n_atoms_in_next_res; jat++) {
+                  mmdb::Atom *at_next = residue_next_p->GetAtom(jat);
+                  if (! at_next->isTer()) {
+                     std::string atom_name_next(at_next->GetAtomName());
+                     if (atom_name_next == " N  ") {
+                        clipper::Coord_orth n_pos_next = coot::co(at_next);
+                        double dd = (n_pos_next-c_pos_this).lengthsq();
+                        double d = std::sqrt(dd);
+                        std::cout << "debug this_and_next_are_close() "
+                                  << coot::atom_spec_t(at_this) << " " << coot::atom_spec_t(at_next) << " " << d << std::endl;
+                        if (d < 5.0) { // !! what number here?
+                           status = true;
+                        }
+                        break;
+                     }
+                  }
+               }
+               if (status) break;
+            }
+         }
+      }
+   }
+
+   std::cout << "debug:: this_and_next_are_close(): "  << coot::residue_spec_t(residue_this_p) << " " << coot::residue_spec_t(residue_next_p)
+             << " close-status: " << status << std::endl;
+
+   return status;
+}
+
+
+void
+bring_together_consecutive_C_and_N_by_symmetry_transformation(mmdb::Manager *mol, const clipper::Xmap<float> &xmap) {
+
+   class simple_symm_info_t {
+   public:
+      int isym;
+      int i_tr_x;
+      int i_tr_y;
+      int i_tr_z;
+      simple_symm_info_t(int isym, int i_tr_x, int i_tr_y, int i_tr_z) : isym(isym), i_tr_x(i_tr_x), i_tr_y(i_tr_y), i_tr_z(i_tr_z) {}
+      simple_symm_info_t() : isym(0), i_tr_x(0), i_tr_y(0), i_tr_z(0) {}
+   };
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      const clipper::Spacegroup &spgr = xmap.spacegroup();
+      const clipper::Cell       &cell = xmap.cell();
+
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<(nres-1); ires++) {
+            mmdb::Residue *residue_this_p = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
+            if (residue_this_p && residue_next_p) {
+
+               int res_no_this = residue_this_p->GetSeqNum();
+               int res_no_next = residue_next_p->GetSeqNum();
+               if (res_no_next != (res_no_this + 1))
+                  continue;
+
+               int n_atoms_in_this_res = residue_this_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms_in_this_res; iat++) {
+                  mmdb::Atom *at_this = residue_this_p->GetAtom(iat);
+                  if (! at_this->isTer()) {
+                     std::string atom_name(at_this->GetAtomName());
+                     if (atom_name == " C  ") {
+                        clipper::Coord_orth c_pos_this = coot::co(at_this);
+                        int n_atoms_in_next_res = residue_next_p->GetNumberOfAtoms();
+                        for (int jat=0; jat<n_atoms_in_next_res; jat++) {
+                           mmdb::Atom *at_next = residue_next_p->GetAtom(jat);
+                           if (! at_next->isTer()) {
+                              std::string atom_name_next(at_next->GetAtomName());
+                              if (atom_name_next == " N  ") {
+                                 clipper::Coord_orth n_pos_next = coot::co(at_next);
+                                 clipper::Coord_orth n_pos_frac(n_pos_next.coord_frac(cell));
+                                 double dd = (n_pos_next-c_pos_this).lengthsq();
+                                 double d = std::sqrt(dd);
+
+                                 if (d > 5.0) { // !! what number here?
+                                    std::cout << "bring_together_consecutive_C_and_N_by_symmetry_transformation() found a discrepancy that needs fixing "
+                                              << coot::residue_spec_t(residue_this_p) << " " << coot::residue_spec_t(residue_next_p)
+                                              << " " << d << std::endl;
+                                    clipper::Coord_orth pos_best = n_pos_next;
+                                    double d_best_sqrd = dd;
+                                    simple_symm_info_t sym_best;
+                                    for(int i_tr_x=-3; i_tr_x<=3; i_tr_x++) {
+                                       for(int i_tr_y=-3; i_tr_y<=3; i_tr_y++) {
+                                          for(int i_tr_z=-3; i_tr_z<=3; i_tr_z++) {
+                                             for (int i_symm=0; i_symm<spgr.num_symops(); i_symm++) {
+                                                clipper::Coord_frac t(i_tr_x, i_tr_y, i_tr_z);
+                                                // clipper::Coord_frac cpt(n_pos_frac + t);
+                                                // clipper::Coord_frac cfs(spgr.symop(i_symm) * cpt);
+                                                clipper::Coord_frac cfs(spgr.symop(i_symm) * n_pos_frac + t);
+                                                clipper::Coord_orth p(cfs.coord_orth(cell));
+                                                double d_this_sqrd = (c_pos_this -p).lengthsq();
+                                                if (false)
+                                                   std::cout << "sym for test: " <<  i_symm << " " << i_tr_x << " " << i_tr_y << " " << i_tr_z
+                                                             << " dist " << std::sqrt(d_this_sqrd) << std::endl;
+                                                if (d_this_sqrd < d_best_sqrd) {
+                                                   d_best_sqrd = d_this_sqrd;
+                                                   pos_best = p;
+                                                   sym_best = simple_symm_info_t(i_symm, i_tr_x, i_tr_y, i_tr_z);
+                                                   if (false)
+                                                      std::cout << "updating sym_best " <<  i_symm << " " << i_tr_x << " " << i_tr_y << " " << i_tr_z
+                                                                << " " << std::sqrt(d_best_sqrd) << std::endl;
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                    if (d_best_sqrd < dd) {
+
+                                       if (sqrt(d_best_sqrd) > 10.0) { // don't bother moving stuff if it doesn't anneal
+
+                                          std::cout << "bring_together_consecutive_C_and_N_by_symmetry_transformation() no move stuff "
+                                                    << " because best " << std::sqrt(d_best_sqrd) << " orig " << d << " doesn't anneal "
+                                                    << std::endl;
+                                          
+                                       } else {
+
+                                          // happy path
+
+                                          // now lets make a vector (now a set) of residues in the same fragment as this residue_next_p
+                                          std::cout << "bring_together_consecutive_C_and_N_by_symmetry_transformation() Let's move some stuff "
+                                                    << " because " << std::sqrt(d_best_sqrd) << " beats " << d << std::endl;
+                                          std::set<mmdb::Residue *> fragment_residues;
+
+                                          if (true) {
+                                             for (int i_res_frag=(ires+1); i_res_frag<(nres-1); i_res_frag++) {
+                                                mmdb::Residue *r_this_p = chain_p->GetResidue(i_res_frag);
+                                                std::cout << "chain_p residue sanity check " << coot::residue_spec_t(r_this_p) << std::endl;
+                                             }
+                                          }
+                                       
+                                          for (int i_res_frag=(ires+1); i_res_frag<(nres-1); i_res_frag++) {
+                                             mmdb::Residue *r_this_p = chain_p->GetResidue(i_res_frag);
+                                             mmdb::Residue *r_next_p = chain_p->GetResidue(i_res_frag+1);
+
+                                             int rres_no_this = r_this_p->GetSeqNum();
+                                             int rres_no_next = r_next_p->GetSeqNum();
+                                             if (rres_no_next != (rres_no_this + 1))
+                                                break;
+                                             
+                                             if (this_and_next_are_close(r_this_p, r_next_p)) {
+                                                std::cout << "inserting 1 into fragment_residues: " << coot::residue_spec_t(r_this_p) << std::endl;
+                                                std::cout << "inserting 2 into fragment_residues: " << coot::residue_spec_t(r_next_p) << std::endl;
+                                                fragment_residues.insert(r_this_p);
+                                                fragment_residues.insert(r_next_p);
+                                             } else {
+                                                break;
+                                             }
+                                          }
+
+                                          std::cout << "bring_together_consecutive_C_and_N_by_symmetry_transformation() fragment_residues size "
+                                                    << fragment_residues.size() << std::endl;
+
+                                          if (true) {
+                                             std::set<mmdb::Residue *>::iterator it;
+                                             for (it=fragment_residues.begin(); it!=fragment_residues.end(); ++it) {
+                                                mmdb::Residue *residue_p(*it);
+                                                std::cout << "deubg:: fragment residue " << coot::residue_spec_t(residue_p) << std::endl;
+                                             }
+                                          }
+
+                                          if (! fragment_residues.empty()) {
+                                             std::set<mmdb::Residue *>::iterator it;
+                                             for (it=fragment_residues.begin(); it!=fragment_residues.end(); ++it) {
+                                                mmdb::Residue *residue_p(*it);
+                                                int n_atoms = residue_p->GetNumberOfAtoms();
+                                                for (int iat_res=0; iat_res<n_atoms; iat_res++) {
+                                                   mmdb::Atom *at_res = residue_p->GetAtom(iat_res);
+                                                   clipper::Coord_orth at_pos = coot::co(at_res);
+                                                   clipper::Coord_orth at_pos_frac(at_pos.coord_frac(cell));
+                                                   clipper::Coord_frac t(sym_best.i_tr_x, sym_best.i_tr_y, sym_best.i_tr_z);
+                                                   // clipper::Coord_frac cpt(at_pos_frac + t);
+                                                   // clipper::Coord_frac cfs(spgr.symop(sym_best.isym) * cpt);
+                                                   clipper::Coord_frac cfs(spgr.symop(sym_best.isym) * at_pos_frac + t);
+                                                   clipper::Coord_orth p(cfs.coord_orth(cell));
+                                                   std::cout << "Moving " << coot::atom_spec_t(at_res) << " from "
+                                                             << at_res->x << " " << at_res->y << " " << at_res->z << " to "
+                                                             << p.x() << " " << p.y() << " " << p.z() << std::endl;
+                                                   at_res->x = p.x(); at_res->y = p.y(); at_res->z = p.z(); 
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
 
 std::vector<std::pair<unsigned int, coot::scored_node_t> >
 make_some_fake_scored_pairs() {
@@ -2141,7 +2436,7 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
 
                                      std::ofstream f("debug-scored-peptides.table");
                                      for (unsigned int i=0; i<scored_pairs.size(); i++) {
-                                        if (i> 10) continue;
+                                        // if (i> 10) continue;
                                         const auto &scored_pair = scored_pairs[i];
                                         clipper::Coord_orth pt_1 = coot::co(atom_selection[scored_pair.first]);
                                         clipper::Coord_orth pt_2 = coot::co(atom_selection[scored_pair.second.atom_idx]);
@@ -2150,8 +2445,8 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
                                         if (score > 2.0) {
                                            f << "scored-peptide idx_1 " << scored_pair.first << " idx_2 " << scored_pair.second.atom_idx << " "
                                              << std::setw(9) << pt_1.x() << " " << std::setw(9) << pt_1.y() << " " << std::setw(9) << pt_1.z() << " "
-                                             << std::setw(9) << pt_2.x() << " " << std::setw(9) << pt_2.y() << " " << std::setw(9) << pt_2.z() << "   "
-                                             << score <<  " col " << ch.red << " " << ch.green << " " << ch.blue
+                                             << std::setw(9) << pt_2.x() << " " << std::setw(9) << pt_2.y() << " " << std::setw(9) << pt_2.z()
+                                             << "  score: " << score <<  " col " << ch.red << " " << ch.green << " " << ch.blue
                                              << "  for score-ratio " << score/max_score << "\n";
                                         }
                                      }
@@ -2165,7 +2460,8 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
    // mean = clipper::Coord_orth(0, 20, 19); // 1gwd
    // mean = clipper::Coord_orth(109, 109, 110); // emd-22898
 
-   //clipper::Coord_orth hack_centre = clipper::Coord_orth(109, 109, 110); // emd-22898
+   // clipper::Coord_orth hack_centre = clipper::Coord_orth(109, 109, 110); // emd-22898
+   // clipper::Coord_orth hack_centre = clipper::Coord_orth(40, 9, 13); // tutorial modern
    clipper::Coord_orth hack_centre = clipper::Coord_orth(0, 20, 19); // 1gwd
    bool use_hack_centre = true;
 
@@ -2176,7 +2472,7 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
 
    mmdb::Atom **atom_selection = 0; // member data - cleared on destruction
    int n_selected_atoms = 0;
-   int selhnd = action_mol->NewSelection();
+   int selhnd = action_mol->NewSelection(); // d
    action_mol->SelectAtoms(selhnd, 0, "*",
                            mmdb::ANY_RES, // starting resno, an int
                            "*", // any insertion code
@@ -2203,6 +2499,17 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
    // scores = make_some_fake_scored_pairs();
    mmdb::Manager *mol = make_fragments(scored_pairs, atom_selection, xmap, n_top_fragments);
 
+   float acell[6];
+   acell[0] = xmap.cell().descr().a();
+   acell[1] = xmap.cell().descr().b();
+   acell[2] = xmap.cell().descr().c();
+   acell[3] = clipper::Util::rad2d(xmap.cell().descr().alpha());
+   acell[4] = clipper::Util::rad2d(xmap.cell().descr().beta());
+   acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
+   std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
+   mol->SetCell(acell[0], acell[1], acell[2], acell[3], acell[4], acell[5]);
+   mol->SetSpaceGroup(spacegroup_str_hm.c_str());
+
    action_mol->DeleteSelection(selhnd); // finished with this now
 
    return mol;
@@ -2227,21 +2534,11 @@ peptide_is_twisted(mmdb::Residue *residue_with_CO, mmdb::Residue *residue_with_N
       if (torsion_deg > (-180.0 + deformation_limit_deg))
          if (torsion_deg < (180.0 - deformation_limit_deg))
             status = true;
-      if (false) { // debug
-         std::cout << "Torsion check  "
-                   << std::setw(10) << coot::residue_spec_t(residue_with_CO) << " "
-                   << std::setw(10) << coot::residue_spec_t(residue_with_N) << " torsion "
-                   << torsion << " in degs: " << torsion_deg;
-         if (status)
-            std::cout << " Baddie\n";
-         else
-            std::cout << "\n";
-      }
       if (status) {
          std::cout << "Torsion check  "
-                   << std::setw(10) << coot::residue_spec_t(residue_with_CO) << " "
-                   << std::setw(10) << coot::residue_spec_t(residue_with_N) << " torsion "
-                   << torsion << " in degs: " << torsion_deg << "Baddie\n";
+                   << coot::residue_spec_t(residue_with_CO) << " "
+                   << coot::residue_spec_t(residue_with_N) << " torsion "
+                   << std::setw(7) << torsion << " in degs: " << std::setw(7) << torsion_deg << " Baddie\n";
       }
    } else {
       std::cout << "ERROR:: peptide_is_twisted(): missing atoms torsion " << std::endl;
@@ -2343,9 +2640,37 @@ delete_chains_that_are_too_short(mmdb::Manager *mol, int n_res_min) {
 }
 
 
-// mutate mol
-void
-apply_sequence_to_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, const coot::protein_geometry &pg) {
+// mutate mol, returning the map of the chain id to the index in the fam of the sequnece that
+// it was assigned
+//
+std::map<std::string, unsigned int>
+apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam,
+                            const coot::protein_geometry &pg) {
+
+   // This needs some clear thinking about what to do when there are 2 sequnces in the fam.
+   // which sequnce should be applied?
+   // Perhaps the sequence loop should be inside the chain loop, and then we can gather the scores
+   // from each of the chains?  Also, try to consider if the chain is sufficiently ambiguous that
+   // it is not assignable - get_result() should provide that information.
+
+   auto print_atoms_in_chain = [] (const std::string &tag, mmdb::Chain *chain_p) {
+                                  int n_res = chain_p->GetNumberOfResidues();
+                                  for (int ires=0; ires<n_res; ires++) {
+                                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                     std::string res_name(residue_p->GetResName());
+                                     if (residue_p) {
+                                        int n_atoms = residue_p->GetNumberOfAtoms();
+                                        for (int iat=0; iat<n_atoms; iat++) {
+                                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                                           if (! at->isTer()) {
+                                              std::cout << tag << " " << "atom: " << coot::atom_spec_t(at) << " " << res_name << std::endl;
+                                           }
+                                        }
+                                     }
+                                  }
+                               };
+
+   std::map<std::string, unsigned int> chain_id_to_fam_index;
 
    unsigned int n_sequences = fam.size();
    std::cout << "debug:: apply_sequence_to_fragments(): with n_sequences " << n_sequences << std::endl;
@@ -2356,7 +2681,7 @@ apply_sequence_to_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap
          const std::string &name = fam[idx].name;
 
          int imod = 1;
-         mmdb::Model *model_p = mol->GetModel(imod);
+         mmdb::Model *model_p = mol_in->GetModel(imod);
          if (model_p) {
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
@@ -2368,38 +2693,83 @@ apply_sequence_to_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap
                   int resno_end   = chain_p->GetResidue(n_res-1)->GetSeqNum();
 
                   coot::side_chain_densities scd;
+
+                  std::pair<mmdb::Chain *, mmdb::Manager *> chain_mol_pair = coot::util::copy_chain(chain_p); // add it into a molecule hierarchy
+                  
                   std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
-                     scd.setup_test_sequence(mol, chain_id, resno_start, resno_end, xmap);
-                  std::cout << "debug:: a run of residues: " << a_run_of_residues.first << " with " << a_run_of_residues.second.size()
-                            << " residues" << std::endl;
+                     scd.setup_test_sequence(chain_mol_pair.second, chain_id, resno_start, resno_end, xmap);
+
+                  scd.fill_residue_blocks(a_run_of_residues.second, xmap); // return fast if already filled, uses atomic locking.
+
+                  std::cout << "debug:: apply_sequence_to_fragments(): a run of residues: " << a_run_of_residues.first << " with "
+                            << a_run_of_residues.second.size() << " residues" << std::endl;
                   if (a_run_of_residues.first.empty()) {
                      scd.test_sequence(a_run_of_residues.second, xmap, name, sequence);
                   } else {
-                     std::cout << "ERROR:: when generating a run of residues " << std::endl;
-                     std::cout << a_run_of_residues.first << std::endl;
+                     std::cout << "ERROR:: apply_sequence_to_fragments(): when generating a run of residues:" << std::endl;
+                     std::cout << "        " << a_run_of_residues.first << std::endl;
                   }
-                  coot::side_chain_densities::results_t new_sequence_result = scd.get_result();
+
+                  // I want get_result() to give me the the rotamer name of each of the sidechains too!
+                  bool probable_only = true;
+                  coot::side_chain_densities::results_t new_sequence_result = scd.get_result(probable_only);
                   std::string new_sequence = new_sequence_result.sequence;
-                  std::cout << "debug:: new_sequence " << new_sequence << std::endl;
+                  std::cout << "debug:: apply_sequence_to_fragments(): new_sequence " << new_sequence << std::endl;
                   if (! new_sequence.empty()) {
                      int sl = new_sequence.length();
                      if (sl == n_res) {
+
+                        // OK, so attach this chain-ID to ths fam index
+                        chain_id_to_fam_index[chain_id] = idx;
+
+                        // Find the offset of the sequence - so that I can get the residue numbers correct (even if the chains
+                        // are fragmented and overlaying here)
+                        std::string::size_type seq_pos = sequence.find(new_sequence);
+                        
                         for (int ires=0; ires<n_res; ires++) {
-                           mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                           mmdb::Residue *residue_p = chain_mol_pair.first->GetResidue(ires);
                            if (residue_p) {
                               char letter = new_sequence[ires];
                               std::string new_residue_type = coot::util::single_letter_to_3_letter_code(letter);
                               coot::util::mutate(residue_p, new_residue_type);
+                           } else {
+                              std::cout << "WARNING:: null residue in apply_sequence_to_fragments() " << ires << std::endl;
                            }
                         }
+                        // now copy the atoms of chain_copy_p into chain_p
+                        coot::util::replace_chain_contents_with_atoms_from_chain(chain_p, mol_in, chain_mol_pair.first); // (to_chain, from_chain)
+                        std::cout << "debug:: apply_sequence_to_fragments(): seq_pos " << seq_pos << std::endl;
+                        if (seq_pos != std::string::npos) {
+                           n_res = chain_p->GetNumberOfResidues();
+                           for (int ires=0; ires<n_res; ires++) {
+                              mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                              residue_p->seqNum = seq_pos + ires + 1;
+                              // std::cout << "new seqnum for residue with index " << ires << " " << residue_p->seqNum << std::endl;
+                           }
+                           mol_in->FinishStructEdit();
+                        }
+
+                        // std::string fn = "post-mutate-and-renumber-" + std::to_string(ichain) + ".pdb";
+                        // mol_in->WritePDBASCII(fn.c_str());
+                        
+                     } else {
+                        std::cout << "WARNING:: Ooops sl != n_res " << sl << " " << n_res << std::endl;
                      }
+                  } else {
+                     std::cout << "WARNING:: OOops new sequence is empty" << std::endl;
                   }
+               } else {
+                  std::cout << "WARNING:: Skip trace n_res > 5 test failed " << n_res << std::endl;
                }
             }
-            coot::backrub_molecule(mol, &xmap, pg);
+
+            // we can't do backrub here - we have not filtered out the overlapping chains.
+            // Hmm... maybe there should be "ignore clashes" mode?
+            // coot::backrub_molecule(mol_in, &xmap, pg); 
          }
       }
    }
+   return chain_id_to_fam_index;
 }
 
 #include "residue_by_phi_psi.hh"
@@ -2408,7 +2778,8 @@ apply_sequence_to_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap
 
 void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double variation,
           unsigned int n_top_spin_pairs, unsigned int n_top_fragments,
-          float rmsd_cut_off_for_flood, float flood_atom_mask_radius, float weight, unsigned int n_phi_psi_trials) {
+          float rmsd_cut_off_for_flood, float flood_atom_mask_radius, float weight, unsigned int n_phi_psi_trials,
+          bool with_ncs) {
 
    auto density_and_omega_based_trim_chain_terminii = [] (mmdb::Manager *mol, const clipper::Xmap<float> &xmap) {
 
@@ -2499,8 +2870,8 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
                                                                                            status = true;
                                                                                      if (true) { // debug
                                                                                         std::cout << "Torsion check  "
-                                                                                                  << std::setw(20) << coot::residue_spec_t(residue_with_CO) << " "
-                                                                                                  << std::setw(20) << coot::residue_spec_t(residue_with_N) << " torsion "
+                                                                                                  << coot::residue_spec_t(residue_with_CO) << " "
+                                                                                                  << coot::residue_spec_t(residue_with_N) << " torsion "
                                                                                                   << torsion << " in degs: " << torsion_deg;
                                                                                         if (status)
                                                                                            std::cout << " Baddie\n";
@@ -2714,7 +3085,8 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
                            }
                         };
 
-   auto multi_refine_individual_chains = [refine_chains] (mmdb::Manager *mol, const coot::protein_geometry &geom, ctpl::thread_pool *thread_pool_p, unsigned int n_threads, float weight) {
+   auto multi_refine_individual_chains = [refine_chains] (mmdb::Manager *mol, const coot::protein_geometry &geom,
+                                                          ctpl::thread_pool *thread_pool_p, unsigned int n_threads, float weight) {
 
                                             mmdb::Model *model_p = mol->GetModel(1);
                                             if (model_p) {
@@ -2731,6 +3103,622 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
                                             }
                                          };
 
+   auto is_simply_insertable_fragment = [] (mmdb::Chain *master_chain, mmdb::Chain *insertable_chain) {
+
+                                           // insertable_chain is a contiguous chain, but master_chain may not be.
+                                           // (hmmm... how am I going to make sure that that is true?)
+
+                                           bool status = true;
+                                           int res_no_min_insert =  9999;
+                                           int res_no_max_insert = -9999;
+                                           int n_res_insert = insertable_chain->GetNumberOfResidues();
+                                           for (int ires=0; ires<n_res_insert; ires++) {
+                                              mmdb::Residue *residue_p = insertable_chain->GetResidue(ires);
+                                              if (residue_p) {
+                                                 int res_no = residue_p->GetSeqNum();
+                                                 if (res_no < res_no_min_insert) res_no_min_insert = res_no;
+                                                 if (res_no > res_no_max_insert) res_no_max_insert = res_no;
+                                              }
+                                           }
+
+                                           int n_res_master = master_chain->GetNumberOfResidues();
+                                           for (int ires=0; ires<n_res_master; ires++) {
+                                              mmdb::Residue *residue_p = master_chain->GetResidue(ires);
+                                              if (residue_p) {
+                                                 int res_no = residue_p->GetSeqNum();
+                                                 if (res_no >= res_no_min_insert) {
+                                                    if (res_no <= res_no_max_insert) {
+                                                       status = false;
+                                                    }
+                                                 }
+                                              }
+                                           }
+                                           return status;
+                                        };
+
+   auto get_chains = [] (const std::string &chain_id_1, const std::string &chain_id_2, mmdb::Manager *mol) {
+                           mmdb::Chain *chain_1 = 0;
+                           mmdb::Chain *chain_2 = 0;
+                           mmdb::Model *model_p = mol->GetModel(1);
+                           if (model_p) {
+                              int n_chains = model_p->GetNumberOfChains();
+                              for (int ichain=0; ichain<n_chains; ichain++) {
+                                 mmdb::Chain *this_chain_p = model_p->GetChain(ichain);
+                                 if (this_chain_p) {
+                                    std::string this_chain_id(this_chain_p->GetChainID());
+                                    if (this_chain_id == chain_id_1) chain_1 = this_chain_p;
+                                    if (this_chain_id == chain_id_2) chain_2 = this_chain_p;
+                                 }
+                              }
+                           }
+                           return std::make_pair(chain_1, chain_2);
+                   };
+
+   auto add_or_insert_residue = [] (mmdb::Residue *residue_p, mmdb::Chain *chain_p) {
+                                   int res_no_insert = residue_p->GetSeqNum();
+                                   int n_res_master = chain_p->GetNumberOfResidues();
+                                   mmdb::Residue *best_contender = 0;
+                                   int idx_best_contender = -1;
+                                   for (int ires=0; ires<n_res_master; ires++) {
+                                      mmdb::Residue *contender_residue_p = chain_p->GetResidue(ires);
+                                      if (contender_residue_p) {
+                                         int res_no_contender = contender_residue_p->GetSeqNum();
+                                         if (res_no_contender > res_no_insert) {
+                                            best_contender = residue_p;
+                                            idx_best_contender = ires;
+                                            break;
+                                         }
+                                      }
+                                   }
+                                   if (best_contender) {
+                                      chain_p->InsResidue(residue_p, idx_best_contender);
+                                   } else {
+                                      // OK, we were not able to insert - let's add
+                                      chain_p->AddResidue(residue_p);
+                                   }
+                                };
+
+   auto simply_insert_chain = [add_or_insert_residue] (mmdb::Chain *chain_master, mmdb::Chain *insertable_chain, mmdb::Manager *mol) {
+
+                                 int n_res_insert = insertable_chain->GetNumberOfResidues();
+                                 for (int ires=0; ires<n_res_insert; ires++) {
+                                    mmdb::Residue *residue_p = insertable_chain->GetResidue(ires);
+                                    if (residue_p) {
+                                       mmdb::Residue *rc = coot::util::deep_copy_this_residue(residue_p);
+                                       if (rc) {
+                                          add_or_insert_residue(rc, chain_master);
+                                       }
+                                    }
+                                 }
+                                 mol->FinishStructEdit();
+                              };
+   
+   // I need something more complex because I need to use the model_p to get the chains from the chain-ids.
+   // auto chain_length_sorter = [] (const std::string &chain_id_1, const std::string &chain_id_2) {
+   // bool status = true;
+   // return status;
+   // };
+
+   class chain_length_sorter {
+   public:
+      mmdb::Model *model_p;
+      explicit chain_length_sorter(mmdb::Model *model_p_in) : model_p(model_p_in) {}
+      bool operator()(const std::string &chain_id_1, const std::string &chain_id_2) const {
+         bool status = false;
+         mmdb::Chain *chain_1 = model_p->GetChain(chain_id_1.c_str());
+         mmdb::Chain *chain_2 = model_p->GetChain(chain_id_2.c_str());
+         if (chain_1 && chain_2) {
+            int n_res_1 = chain_1->GetNumberOfResidues();
+            int n_res_2 = chain_2->GetNumberOfResidues();
+            if (n_res_1 > n_res_2)
+               return true;
+         }
+         return status;
+      }
+   };
+
+   // insert residues from other chain if they are not in master chain
+   //
+   auto insert_residues_from_other_chains_using_chains = [add_or_insert_residue] (mmdb::Manager *mol,
+                                                                                  mmdb::Chain *master_chain, mmdb::Chain *other_chain) {
+                                                            if (other_chain) {
+                                                               int n_res = other_chain->GetNumberOfResidues();
+                                                               if (n_res > 0) {
+                                                                  int min_res_no =  9999;
+                                                                  int max_res_no = -9999;
+                                                                  for (int ires=0; ires<n_res; ires++) {
+                                                                     mmdb::Residue *residue_p = other_chain->GetResidue(ires);
+                                                                     if (residue_p) {
+                                                                        int res_no = residue_p->GetSeqNum();
+                                                                        if (res_no > max_res_no) max_res_no = res_no;
+                                                                        if (res_no < min_res_no) min_res_no = res_no;
+                                                                     }
+                                                                  }
+
+                                                                  for (int res_no = min_res_no; res_no <= max_res_no; res_no++) {
+                                                                     mmdb::Residue *residue_p = master_chain->GetResidue(res_no, "");
+                                                                     if (! residue_p) {
+                                                                        // OK can we find this residue other_chain?
+                                                                        mmdb::Residue *rem_residue_p = other_chain->GetResidue(res_no, "");
+                                                                        if (rem_residue_p) {
+                                                                           mmdb::Residue *residue_copy_p = coot::util::deep_copy_this_residue(rem_residue_p);
+                                                                           add_or_insert_residue(residue_copy_p, master_chain);
+                                                                           mol->FinishStructEdit();
+                                                                           break;
+                                                                        }
+                                                                     }
+                                                                  }
+                                                               }
+                                                            }
+                                                         };
+
+   auto insert_residues_from_other_chains = [add_or_insert_residue] (mmdb::Manager *mol, const std::vector<std::string> &chain_ids) {
+
+                                               int imol = 1;
+                                               mmdb::Model *model_p = mol->GetModel(imol);
+                                               if (!model_p) return;
+
+                                               // Which chains are left?
+                                               int n_chains = model_p->GetNumberOfChains();
+                                               int min_res_no =  99999;
+                                               int max_res_no = -99999;
+                                               std::vector<mmdb::Chain *> remaining_chains;
+                                               for (int ichain=0; ichain<n_chains; ichain++) {
+                                                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                                  std::string chain_id(chain_p->GetChainID()); // do I need to check that this is in chain_ids?
+                                                  if (chain_p) {
+                                                     if (std::find(chain_ids.begin(), chain_ids.end(), chain_id) != chain_ids.end()) {
+                                                        remaining_chains.push_back(chain_p);
+                                                        std::cout << "Remaining chain (for this sequence) " << chain_id << std::endl;
+                                                        int n_res = chain_p->GetNumberOfResidues();
+                                                        for (int ires=0; ires<n_res; ires++) {
+                                                           mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                                           if (residue_p) {
+                                                              int res_no = residue_p->GetSeqNum();
+                                                              if (res_no > max_res_no) max_res_no = res_no;
+                                                              if (res_no < min_res_no) min_res_no = res_no;
+                                                           }
+                                                        }
+                                                     }
+                                                  }
+                                               }
+                                               if (remaining_chains.size() > 1) {
+                                                  int n_remaining_chains = remaining_chains.size();
+                                                  mmdb::Chain *master_chain = remaining_chains[0];
+                                                  for (int res_no = min_res_no; res_no <= max_res_no; res_no++) {
+                                                     mmdb::Residue *residue_p = master_chain->GetResidue(res_no, "");
+                                                     if (! residue_p) {
+                                                        // OK can we find this residue in another chain?
+                                                        for (int ich=1; ich<n_remaining_chains; ich++) {
+                                                           mmdb::Chain *rem_chain_p = remaining_chains[ich];
+                                                           if (rem_chain_p) {
+                                                              mmdb::Residue *rem_residue_p = rem_chain_p->GetResidue(res_no, "");
+                                                              if (rem_residue_p) {
+                                                                 mmdb::Residue *residue_copy_p = coot::util::deep_copy_this_residue(rem_residue_p);
+                                                                 add_or_insert_residue(residue_copy_p, master_chain);
+                                                                 mol->FinishStructEdit();
+                                                                 break;
+                                                              }
+                                                           }
+                                                        }
+                                                     }
+                                                  }
+                                                  // now delete all other chains other than the master chain
+                                                  for (int ich=1; ich<n_remaining_chains; ich++) {
+                                                     mmdb::Chain *rem_chain_p = remaining_chains[ich];
+                                                     std::string chain_id(rem_chain_p->GetChainID());
+                                                     model_p->DeleteChain(chain_id.c_str());
+                                                  }
+                                                  mol->FinishStructEdit();
+                                               }
+                                            };
+
+   auto merge_and_delete_sequenced_fragments_into_single_chain = [get_chains, is_simply_insertable_fragment, simply_insert_chain, insert_residues_from_other_chains,
+                                               &xmap, &fam] (mmdb::Manager *mol,
+                                                             const std::map<std::string, unsigned int> &chain_id_to_fam_index) {
+                                                 // non-trivial function
+
+                                                 mmdb::Model *model_p = mol->GetModel(1);
+                                                 if (! model_p) return;
+
+                                                 // first convert the fam indexing
+                                                 std::map<std::string, unsigned int>::const_iterator it;
+                                                 std::map<unsigned int, std::vector<std::string> > fam_index_to_chain_ids;
+                                                 for (it=chain_id_to_fam_index.begin(); it!=chain_id_to_fam_index.end(); ++it) {
+                                                    const std::string &chain_id = it->first;
+                                                    unsigned int fam_index = it->second;
+                                                    fam_index_to_chain_ids[fam_index].push_back(chain_id);
+                                                 }
+
+                                                 // now sort the chain ids in those vectors by length (number of residues)
+                                                 std::map<unsigned int, std::vector<std::string> >::iterator it_seq;
+                                                 for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
+                                                    std::vector<std::string> &chain_ids = it_seq->second;
+                                                    std::sort(chain_ids.begin(), chain_ids.end(), chain_length_sorter(model_p));
+                                                 }
+
+                                                 for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
+                                                    const std::vector<std::string> &chain_ids(it_seq->second);
+                                                    std::set<std::string> done_chains;
+                                                    for (const auto &chain_id_1 : chain_ids) {
+                                                       if (done_chains.find(chain_id_1) == done_chains.end()) {
+                                                          for (const auto &chain_id_2 : chain_ids) {
+                                                             if (done_chains.find(chain_id_2) == done_chains.end()) {
+                                                                if (chain_id_1 != chain_id_2) {
+                                                                   std::pair<mmdb::Chain *, mmdb::Chain *> chain_pair = get_chains(chain_id_1, chain_id_2, mol);
+                                                                   if (chain_pair.first && chain_pair.second) {
+                                                                      std::cout << "    testing chains " << chain_id_1 << " " << chain_id_2 << std::endl;
+                                                                      if (is_simply_insertable_fragment(chain_pair.first, chain_pair.second)) {
+                                                                         std::cout << "     insert chain " << chain_id_2 << " into " << chain_id_1 << std::endl;
+                                                                         simply_insert_chain(chain_pair.first, chain_pair.second, mol);
+                                                                         model_p->DeleteChain(chain_id_2.c_str());
+                                                                         mol->FinishStructEdit();
+                                                                         done_chains.insert(chain_id_2);
+                                                                      }
+                                                                   }
+                                                                }
+                                                             }
+                                                          }
+                                                       }
+                                                    }
+
+                                                    insert_residues_from_other_chains(mol, chain_ids);
+                                                 }
+                                              };
+
+
+   class chain_overap_info_t {
+   public:
+      bool status;
+      int n_residues_first_chain;
+      int n_residues_second_chain;
+      int n_match_res_no_and_res_type;
+      chain_overap_info_t() { status = false; n_residues_first_chain = 0; n_residues_second_chain = 0; n_match_res_no_and_res_type = 0; }
+      explicit chain_overap_info_t(bool status_in) : status(status_in) { n_residues_first_chain = 0; n_residues_second_chain = 0; n_match_res_no_and_res_type = 0; }
+      void set_match_info(int n_residues_1st_chain, int n_residues_2nd_chain, int n_matches) {
+         n_residues_first_chain  = n_residues_1st_chain;
+         n_residues_second_chain = n_residues_2nd_chain;
+         n_match_res_no_and_res_type = n_matches;
+      }
+      std::tuple<bool, float, float> get_match_fraction() const {
+         bool c_status = false;
+         bool f_1 = 0.0f;
+         bool f_2 = 0.0f;
+         if (n_residues_first_chain > 0) {
+            if (n_residues_second_chain > 0) {
+               f_1 = static_cast<float>(n_match_res_no_and_res_type)/static_cast<float>(n_residues_first_chain);
+               f_2 = static_cast<float>(n_match_res_no_and_res_type)/static_cast<float>(n_residues_second_chain);
+               c_status = true;
+            }
+         }
+         return std::tuple<bool, float, float>(c_status, f_1, f_2);
+      }
+   };
+
+   auto get_chains_overlap_info = [] (mmdb::Chain *chain_first, mmdb::Chain *chain_second, mmdb::Manager *mol, float big_overlap_fraction_limit) {
+
+                                     bool status = false;
+                                     mmdb::Contact *pscontact = NULL;
+                                     int n_contacts;
+                                     long i_contact_group = 1;
+                                     mmdb::mat44 my_matt;
+                                     for (int i=0; i<4; i++)
+                                        for (int j=0; j<4; j++)
+                                           my_matt[i][j] = 0.0;
+                                     for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+                                     //
+
+                                     std::string chain_first_chain_id(chain_first->GetChainID());
+                                     std::string chain_second_chain_id(chain_second->GetChainID());
+                                     mmdb::Atom **atom_selection_1 = 0; // member data - cleared on destruction
+                                     mmdb::Atom **atom_selection_2 = 0; // member data - cleared on destruction
+                                     int n_selected_atoms_1 = 0;
+                                     int n_selected_atoms_2 = 0;
+                                     int selhnd_1 = mol->NewSelection();
+                                     int selhnd_2 = mol->NewSelection();
+                                     mol->SelectAtoms(selhnd_1, 0, chain_first_chain_id.c_str(),
+                                                      mmdb::ANY_RES, // starting resno, an int
+                                                      "*", // any insertion code
+                                                      mmdb::ANY_RES, // ending resno
+                                                      "*", // ending insertion code
+                                                      "*", // any residue name
+                                                      "*", // atom name
+                                                      "*", // elements
+                                                      "");
+                                     mol->SelectAtoms(selhnd_2, 0, chain_second_chain_id.c_str(),
+                                                      mmdb::ANY_RES, // starting resno, an int
+                                                      "*", // any insertion code
+                                                      mmdb::ANY_RES, // ending resno
+                                                      "*", // ending insertion code
+                                                      "*", // any residue name
+                                                      "*", // atom name
+                                                      "*", // elements
+                                                      "");
+                                     mol->GetSelIndex(selhnd_1, atom_selection_1, n_selected_atoms_1);
+                                     mol->GetSelIndex(selhnd_2, atom_selection_2, n_selected_atoms_2);
+
+                                     if (n_selected_atoms_1 == 0) return chain_overap_info_t(false);
+                                     if (n_selected_atoms_2 == 0) return chain_overap_info_t(false);
+
+                                     mol->SeekContacts(atom_selection_1, n_selected_atoms_1,
+                                                       atom_selection_2, n_selected_atoms_2,
+                                                       0.0f, 1.0f,
+                                                       1,        // seqDist 0 -> in same res also
+                                                       pscontact, n_contacts,
+                                                       0, &my_matt, i_contact_group);
+
+                                     unsigned int n_match_res_no_and_res_type = 0;
+
+                                     if (n_contacts > 0) {
+                                        float contact_fract_1 = static_cast<float>(n_contacts)/static_cast<float>(n_selected_atoms_1);
+                                        float contact_fract_2 = static_cast<float>(n_contacts)/static_cast<float>(n_selected_atoms_2);
+                                        if (contact_fract_1 > big_overlap_fraction_limit) status = true;
+                                        if (contact_fract_2 > big_overlap_fraction_limit) status = true;
+                                        if (false)
+                                           std::cout << "debug:: in chains_substantially_overlay() "
+                                                     << chain_first_chain_id << " " << chain_second_chain_id << " "
+                                                     << n_contacts << " " << n_selected_atoms_1 << " " << n_selected_atoms_2 << " "
+                                                     << contact_fract_1 << " " <<  contact_fract_2 << std::endl;
+                                        if (pscontact) {
+                                           for (int i=0; i<n_contacts; i++) {
+                                              mmdb::Atom *at_1 = atom_selection_1[pscontact[i].id1];
+                                              mmdb::Atom *at_2 = atom_selection_2[pscontact[i].id2];
+                                              int res_no_1 = at_1->GetSeqNum();
+                                              int res_no_2 = at_2->GetSeqNum();
+                                              if (res_no_2 == res_no_1) {
+                                                 std::string res_type_1(at_1->GetResName());
+                                                 std::string res_type_2(at_2->GetResName());
+                                                 if (res_type_2 == res_type_1) {
+                                                    std::string atom_name_1(at_1->GetAtomName());
+                                                    std::string atom_name_2(at_2->GetAtomName());
+                                                    if (atom_name_1 == " CA ")
+                                                       if (atom_name_2 == " CA ")
+                                                          n_match_res_no_and_res_type += 1;
+                                                 }
+                                              }
+                                           }
+                                        }
+                                     }
+                                     mol->DeleteSelection(selhnd_1);
+                                     mol->DeleteSelection(selhnd_2);
+                                     if (false)
+                                        std::cout << "debug:: chains_substantially_overlay(): "
+                                                  << chain_first << " " << chain_second << " "
+                                                  << chain_first_chain_id << " " << chain_second_chain_id
+                                                  << " " << status << std::endl;
+                                     chain_overap_info_t coi(status);
+                                     coi.set_match_info(chain_first->GetNumberOfResidues(), chain_second->GetNumberOfResidues(), n_match_res_no_and_res_type);
+                                     return coi;
+                                  };
+
+   auto chains_substantially_overlap = [get_chains_overlap_info] (mmdb::Chain *chain_first, mmdb::Chain *chain_second, mmdb::Manager *mol,
+                                                                  float big_overlap_fraction_limit) {
+                                          chain_overap_info_t coi = get_chains_overlap_info(chain_first, chain_second, mol, big_overlap_fraction_limit);
+                                          return coi.status;
+                                       };
+
+   // this version we deal with NCS. A fragment doesn't always want to try to be placed in the longest chain - it could be the NCS related
+   // copy of this chain
+   //
+   auto merge_and_delete_sequenced_fragments = [get_chains, get_chains_overlap_info, insert_residues_from_other_chains_using_chains]
+      (mmdb::Manager *mol, const std::map<std::string, unsigned int> &chain_id_to_fam_index) {
+
+                                                  mmdb::Model *model_p = mol->GetModel(1);
+                                                  if (! model_p) return;
+
+                                                  // first convert the fam indexing
+                                                  std::map<std::string, unsigned int>::const_iterator it;
+                                                  std::map<unsigned int, std::vector<std::string> > fam_index_to_chain_ids;
+                                                  for (it=chain_id_to_fam_index.begin(); it!=chain_id_to_fam_index.end(); ++it) {
+                                                     const std::string &chain_id = it->first;
+                                                     unsigned int fam_index = it->second;
+                                                     fam_index_to_chain_ids[fam_index].push_back(chain_id);
+                                                  }
+
+                                                  // now sort the chain ids in those vectors by length (number of residues)
+                                                  std::map<unsigned int, std::vector<std::string> >::iterator it_seq;
+                                                  for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
+                                                     std::vector<std::string> &chain_ids = it_seq->second;
+                                                     std::sort(chain_ids.begin(), chain_ids.end(), chain_length_sorter(model_p));
+                                                  }
+
+                                                  for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
+                                                     const std::vector<std::string> &chain_ids(it_seq->second);
+
+                                                     // first we want to delete fragments - say there are 2 or more fragments that overlay to
+                                                     // to some large extent - there are 2 cases:
+                                                     // 1: the sequences match
+                                                     // 2: the sequences don't match
+                                                     //
+                                                     //
+                                                     // This is only considering chains that were sequnced from the same sequence.
+                                                     // Models that have multiple sequences will need a different merge/delete algorithm
+
+                                                     if (chain_ids.size() > 1) {
+                                                        for (const auto &chain_id_1 : chain_ids) {
+                                                           for (const auto &chain_id_2 : chain_ids) {
+                                                              if (chain_id_1 != chain_id_2) {
+                                                                 std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2 << std::endl;
+                                                                 std::pair<mmdb::Chain *, mmdb::Chain *> chain_pair = get_chains(chain_id_1, chain_id_2, mol);
+                                                                 if (chain_pair.first && chain_pair.second) {
+                                                                    float bof = 0.5; // big overlap fraction
+                                                                    chain_overap_info_t coi = get_chains_overlap_info(chain_pair.first, chain_pair.second, mol, bof);
+                                                                    std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
+                                                                              << " coi status " << coi.status << std::endl;
+                                                                    if (coi.status) {
+                                                                       auto results = coi.get_match_fraction();
+                                                                       if (std::get<0>(results)) {
+                                                                          float frac_1 = std::get<1>(results);
+                                                                          float frac_2 = std::get<2>(results);
+                                                                          if (frac_1 > 0.0) {
+                                                                             if (frac_2 > 0.0) {
+                                                                                if (coi.n_match_res_no_and_res_type > 1) {
+                                                                                   std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
+                                                                                             << " insert_residues_from_other_chains_using_chains() " << std::endl;
+                                                                                   insert_residues_from_other_chains_using_chains(mol, chain_pair.first, chain_pair.second);
+                                                                                   std::cout << "Delete Chain " << chain_id_2 << std::endl;
+                                                                                   model_p->DeleteChain(chain_id_2.c_str());
+                                                                                   mol->FinishStructEdit();
+                                                                                }
+                                                                             }
+                                                                          }
+
+                                                                          if (coi.n_match_res_no_and_res_type == 0) {
+                                                                             // OK, they overlapped but not overlapping residue numbers.
+                                                                             // i.e. we have a disagreement about the trace
+                                                                             std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
+                                                                                       << " overlapping but disagree about directionn - delete chain "
+                                                                                       << chain_id_2 << std::endl;
+                                                                             model_p->DeleteChain(chain_id_2.c_str());
+                                                                          }
+                                                                       }
+                                                                    }
+                                                                 }
+                                                              }
+                                                           }
+                                                        }
+                                                     }
+                                                  }
+                                               };
+
+   auto is_poly_ala_chain = [] (mmdb::Chain *chain_p) {
+                               bool status = true;
+                               int n_res = chain_p->GetNumberOfResidues();
+                               for (int ires=0; ires<n_res; ires++) {
+                                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                  if (residue_p) {
+                                     std::string res_name(residue_p->GetResName());
+                                     if (res_name != "ALA") {
+                                        status = false;
+                                        break;
+                                     }
+                                  }
+                               }
+                               return status;
+                            };
+
+   auto delete_poly_ala_chains_that_overlap_on_sequenced_chains = [is_poly_ala_chain, chains_substantially_overlap] (mmdb::Manager *mol,
+                                                                                                                     float big_overlap_fraction_limit) {
+
+                                                                     int imodel = 1;
+                                                                     mmdb::Model *model_p = mol->GetModel(imodel);
+                                                                     if (model_p) {
+
+                                                                        bool continue_looping = false;
+                                                                        do {
+                                                                           continue_looping = false;
+                                                                           int n_chains = model_p->GetNumberOfChains();
+                                                                           for (int ichain=0; ichain<n_chains; ichain++) {
+                                                                              mmdb::Chain *i_chain_p = model_p->GetChain(ichain);
+                                                                              std::string chain_id(i_chain_p->GetChainID());
+                                                                              bool poly_ala = is_poly_ala_chain(i_chain_p);
+                                                                              if (poly_ala) {
+                                                                                 for (int jchain=0; jchain<n_chains; jchain++) {
+                                                                                    if (ichain != jchain) {
+                                                                                       mmdb::Chain *j_chain_p = model_p->GetChain(jchain);
+                                                                                       if (chains_substantially_overlap(i_chain_p, j_chain_p, mol,
+                                                                                                                        big_overlap_fraction_limit)) {
+                                                                                          std::cout << "INFO:: delete poly-ala chain " << chain_id << std::endl;
+                                                                                          model_p->DeleteChain(ichain);
+                                                                                          mol->FinishStructEdit();
+                                                                                          continue_looping = true;
+                                                                                          break;
+                                                                                       }
+                                                                                    }
+                                                                                 }
+                                                                              }
+                                                                              if (continue_looping) break;
+                                                                           }
+                                                                        } while (continue_looping);
+                                                                     }
+                                                                  };
+
+
+   auto score_atom_positions = [] (const std::vector<clipper::Coord_orth> &atom_positions,
+                                   const clipper::Coord_orth &CA_this,
+                                   const clipper::Coord_orth &CA_next,
+                                   const clipper::Xmap<float> &xmap) {
+
+                                  // Add peptide fingerprinting!
+
+                                  float sum = 0.0f;
+                                  for (const auto &pos : atom_positions)
+                                     sum += coot::util::density_at_point(xmap, pos);
+                                  return sum;
+                               };
+
+   auto apply_pepflips = [score_atom_positions] (mmdb::Manager *mol, const clipper::Xmap<float> &xmap) {
+                            int imod = 1;
+                            mmdb::Model *model_p = mol->GetModel(imod);
+                            if (model_p) {
+                               int n_chains = model_p->GetNumberOfChains();
+                               for (int ichain=0; ichain<n_chains; ichain++) {
+                                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                  int n_res = chain_p->GetNumberOfResidues();
+                                  for (int ires=0; ires<(n_res-1); ires++) {
+                                     mmdb::Residue *residue_this_p = chain_p->GetResidue(ires);
+                                     mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
+                                     if (residue_this_p) {
+                                        if (residue_next_p) {
+                                           mmdb::Atom *at_CA_this = residue_this_p->GetAtom(" CA ");
+                                           mmdb::Atom *at_C_this  = residue_this_p->GetAtom(" C  ");
+                                           mmdb::Atom *at_O_this  = residue_this_p->GetAtom(" O  ");
+                                           mmdb::Atom *at_N_next  = residue_next_p->GetAtom(" N  ");
+                                           mmdb::Atom *at_CA_next = residue_next_p->GetAtom(" CA ");
+                                           if (at_CA_this && at_C_this && at_O_this && at_N_next && at_CA_next) {
+                                              clipper::Coord_orth pos_CA_this = coot::co(at_CA_this);
+                                              clipper::Coord_orth pos_C_this  = coot::co(at_C_this);
+                                              clipper::Coord_orth pos_O_this  = coot::co(at_O_this);
+                                              clipper::Coord_orth pos_N_next  = coot::co(at_N_next);
+                                              clipper::Coord_orth pos_CA_next = coot::co(at_CA_next);
+
+                                              std::vector<clipper::Coord_orth> atom_positions;
+                                              atom_positions.push_back(pos_C_this);
+                                              atom_positions.push_back(pos_O_this);
+                                              atom_positions.push_back(pos_N_next);
+                                              float d_current = score_atom_positions(atom_positions, pos_CA_this, pos_CA_next, xmap);
+
+                                              // spin C,O,N position 180 around CA-CA
+                                              //
+                                              clipper::Coord_orth axis = pos_CA_next - pos_CA_this;
+                                              pos_C_this = coot::util::rotate_around_vector(axis, pos_C_this, pos_CA_this, M_PI);
+                                              pos_O_this = coot::util::rotate_around_vector(axis, pos_O_this, pos_CA_this, M_PI);
+                                              pos_N_next = coot::util::rotate_around_vector(axis, pos_N_next, pos_CA_this, M_PI);
+
+                                              atom_positions.clear();
+                                              atom_positions.push_back(pos_C_this);
+                                              atom_positions.push_back(pos_O_this);
+                                              atom_positions.push_back(pos_N_next);
+                                              float d_spun = score_atom_positions(atom_positions, pos_CA_this, pos_CA_next, xmap);
+
+                                              if (d_spun > d_current) {
+                                                 at_C_this->x = pos_C_this.x(); at_C_this->y = pos_C_this.y(); at_C_this->z = pos_C_this.z();
+                                                 at_O_this->x = pos_O_this.x(); at_O_this->y = pos_O_this.y(); at_O_this->z = pos_O_this.z();
+                                                 at_N_next->x = pos_N_next.x(); at_N_next->y = pos_N_next.y(); at_N_next->z = pos_N_next.z();
+                                              }
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
+                            }
+                         };
+
+   // this could/should be a general-purpose function
+   //
+   auto rsr_molecule = [refine_isolated_chain] (mmdb::Manager *mol, const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom,
+                           ctpl::thread_pool *thread_pool_p, unsigned int n_threads, float weight) {
+                          int imod = 1;
+                          mmdb::Model *model_p = mol->GetModel(imod);
+                          if (model_p) {
+                             int n_chains = model_p->GetNumberOfChains();
+                             for (int ichain=0; ichain<n_chains; ichain++) {
+                                mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                refine_isolated_chain(chain_p, mol, geom, thread_pool_p, n_threads, weight);
+                             }
+                          }
+                       };
+
    // ---------------------------------------------------------------------------------------
 
    coot::protein_geometry geom;
@@ -2744,9 +3732,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
    if (mol) {
       mol->WritePDBASCII("stage-3-post-find-connected-fragments.pdb");
-
-      coot::protein_geometry pg;
-      pg.init_standard();
+      unsigned int update_count = 0; // functions that modify mol, update this count
 
       unsigned int n_threads = coot::get_max_number_of_threads();
       ctpl::thread_pool thread_pool(n_threads);
@@ -2763,6 +3749,7 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
          }
 #endif
 #if 1
+         std::cout << "multi-refine chains: " << n_chains_post_find_connected_fragments << " chains..." << std::endl;
          multi_refine_individual_chains(mol, geom, &thread_pool, n_threads, weight);
 #endif
          auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -2778,10 +3765,10 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
          mol->WritePDBASCII("stage-5-post-omega-and-density-check-trim.pdb");
 
-         int n_res_min = 3;
+         int n_res_min = 2;
          delete_chains_that_are_too_short(mol, n_res_min);
 
-         mol->WritePDBASCII("stage-6-delete-chains-that-are-too-short.pdb");
+         mol->WritePDBASCII("stage-6-post-delete-chains-that-are-too-short.pdb");
 
          if (false) {
             int n_chains = model_p->GetNumberOfChains();
@@ -2825,38 +3812,26 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
                mmdb::Chain *chain_p = model_p->GetChain(ichain);
                std::string chain_id(chain_p->GetChainID());
                std::cout << "Write post-twisted-peptide-chain-filter chain " << chain_id << std::endl;
-               std::string file_name = "post-twisted-peptide-chain-filter-chain" + chain_id + ".cif";
+               std::string file_name = "post-twisted-peptide-chain-filter-chain-" + chain_id + ".cif";
                write_chain(chain_p, mol, file_name, true);
             }
          }
 
-         // merge fragments can merge 2 chains that go in different directions! That's bad.
-         //
-         coot::merge_atom_selections(mol); // i.e. merge_fragments()
-
-         auto tp_2 = std::chrono::high_resolution_clock::now();
-         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-         std::cout << "Timings: proc(): 2nd round filtering and merging " << d21 << " milliseconds" << std::endl;
-
-         if (false) {
-            if (model_p) {
-               int n_chains = model_p->GetNumberOfChains();
-               for (int ichain=0; ichain<n_chains; ichain++) {
-                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                  std::string chain_id(chain_p->GetChainID());
-                  std::cout << "Write post-merge chain " << chain_id << std::endl;
-                  std::string file_name = "post-merge-chain-" + chain_id + ".pdb";
-                  write_chain(chain_p, mol, file_name);
-               }
-            }
-         }
-
-         mol->WritePDBASCII("stage-9-post-merge-fragments.pdb");
-
          auto tp_3 = std::chrono::high_resolution_clock::now();
-         rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom);
+         rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
          auto tp_4 = std::chrono::high_resolution_clock::now();
-         mol->WritePDBASCII("stage-10-post-extensions.pdb");
+
+         // this is the right thing to do generally of course, but not when I am trying to debug tracing.
+         if (false)
+            coot::renumber_chains_start_at_least_at_1(mol); // make this verbose, so I can track the residue numbers?
+
+         auto tp_5 = std::chrono::high_resolution_clock::now();
+         mol->WritePDBASCII("stage-9-post-extensions.pdb");
+
+         coot::merge_C_and_N_terminii_0_gap(mol);
+
+         mol->WritePDBASCII("stage-10-post-merge-C_and_N_terminii.pdb");
+
          auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
          std::cout << "Timings: proc(): Rama-RSR chain extensions: " << d43 << " milliseconds" << std::endl;
 
@@ -2864,17 +3839,101 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
          //
          // first I want a sorted list of mergeable chains (sort by distance of terminii)
 
-         //   apply_sequence_to_fragments(mol, xmap, fam, pg);
+         std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, fam, geom);
 
-         // mol->WritePDBASCII("stage-11-post-sequence-fragments.pdb");
+         mol->WritePDBASCII("stage-11-post-sequence-fragments.pdb");
+         mol->WriteCIFASCII("stage-11-post-sequence-fragments.cif");
 
-         // resolve classing side-chains by deletion?
+         if (true) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               std::cout << "Write post-sequence-fragment chain " << chain_id << std::endl;
+               std::string file_name = "post-sequence-fragment-chain-" + chain_id + ".cif";
+               write_chain(chain_p, mol, file_name, true);
+            }
+         }
 
-         // add calculation of difference map and pepflips here.
+         float big_overlap_fraction_limit_for_poly_ala = 0.2;
+         delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol, big_overlap_fraction_limit_for_poly_ala);
+
+         mol->WritePDBASCII("stage-12-post-delete-overlapping-poly-ala.pdb");
+         mol->WriteCIFASCII("stage-12-post-delete-overlapping-poly-ala.cif");
+
+         if (true) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               std::cout << "Write post-delete-overlapping-poly-ala " << chain_id << std::endl;
+               std::string file_name = "post-delete-overlapping-poly-ala-" + chain_id + ".cif";
+               write_chain(chain_p, mol, file_name, true);
+            }
+         }
+
+         std::cout << "::::::::::::::::: merge and delete sequenced fragments into single chain " << std::endl;
+         if (! with_ncs)
+            merge_and_delete_sequenced_fragments_into_single_chain(mol, chain_id_to_fam_index_map);
+         else
+            merge_and_delete_sequenced_fragments(mol, chain_id_to_fam_index_map);
+
+         mol->WritePDBASCII("stage-13-post-merge-sequence-fragments.pdb");
+
+         if (false) {
+            // print out the residue numbers so that I can see that they are sane
+            // (they are)
+            std::cout << "Sanity check" << std::endl;
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     std::cout << "   " << coot::residue_spec_t(residue_p) << std::endl;
+                  }
+               }
+            }
+         }
+
+         // Look for big gaps between N and C of consecutive residues - in those cases there is a fragment
+         // drawn in a different asymmetric unit.
+
+         bring_together_consecutive_C_and_N_by_symmetry_transformation(mol, xmap);
+
+         mol->WritePDBASCII("stage-14-post-sequencing-bring-together-consecutive-Cs-and-Ns.pdb");
+
+         // delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol);
+
+         // mol->WritePDBASCII("stage-14-post-delete-overlapping-poly-als.pdb");
+
+         std::cout << "backrub-1" << std::endl;
+         coot::backrub_molecule(mol, &xmap, geom);
+         std::cout << "backrub-2" << std::endl;
+         coot::backrub_molecule(mol, &xmap, geom);
+         //
+         mol->WritePDBASCII("stage-15-post-backrub-chain.pdb");
+
+         // resolve clashing side-chains by deletion?
+
+         // add calculation of difference map and pepflips here. - maybe a difference map is not needed
+         // Just a fingerprinted flip search - which should be fast.
+
+         std::cout << "pepflips" << std::endl;
+         apply_pepflips(mol, xmap);
+
+         mol->WritePDBASCII("stage-16-post-pepflips.pdb");
+
+         std::cout << "RSR" << std::endl;
+         coot::util::pdbcleanup_serial_residue_numbers(mol);
+         rsr_molecule(mol, xmap, geom, &thread_pool, n_threads, weight); // chain by chain actually
+
+         mol->WritePDBASCII("stage-17-post-rsr.pdb");
 
       }
 
-      std::cout << "Done proc()" << std::endl;
+      std::cout << "--- done proc() ---" << std::endl;
    }
 
 }
@@ -2911,7 +3970,8 @@ test_best_fit_phi_psi_func() {
             unsigned int n_phi_psi_trials = 1000;
             coot::protein_geometry geom;
             geom.init_standard();
-            rama_rsr_extend_fragments(mol_for_residue.second, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom);
+            unsigned int update_count = 0;
+            rama_rsr_extend_fragments(mol_for_residue.second, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
             mol_for_residue.second->WritePDBASCII("test_best_fit_phi_psi_result.pdb");
          } else {
             std::cout << "No mol_for_residue" << std::endl;
@@ -2927,6 +3987,7 @@ test_best_fit_phi_psi_func() {
 int main(int argc, char **argv) {
    int status = 0;
    bool test_best_fit_phi_psi = false;
+   bool with_ncs = false;
 
    std::string hklin_file_name = "rnasa-1.8-all_refmac1.mtz";
    std::string f_col_label = "FWT";
@@ -2941,14 +4002,14 @@ int main(int argc, char **argv) {
       phi_col_label = "PHIC";
    }
 
-   if (false) {
+   if (true) {
       hklin_file_name = "coot-download/1gwd_map.mtz";
       f_col_label   = "FWT";
       phi_col_label = "PHWT";
       pir_file_name = "1gwd.pir";
    }
 
-   if (true) { // this is hard
+   if (false) { // this is hard
       hklin_file_name = "65_bucc3atest3_fphiout_acorn.mtz";
       f_col_label   = "F";
       phi_col_label = "PHI";
@@ -2960,6 +4021,7 @@ int main(int argc, char **argv) {
          test_best_fit_phi_psi = true;
 
    if (test_best_fit_phi_psi) {
+
       test_best_fit_phi_psi_func();
 
    } else {
@@ -2968,7 +4030,7 @@ int main(int argc, char **argv) {
       fam.read(pir_file_name);
 
       bool test_from_crystallography = true;
-      bool test_from_map = true;
+      bool test_from_map = false;
 
       double variation = 0.8; // how much is a CA-CA distance allowed to vary from 3.81
       // before it is too long or short to be considered a potential
@@ -2976,20 +4038,37 @@ int main(int argc, char **argv) {
       // make bigger at lower resolutions (maybe up to 1.0?)
       variation = 0.4; // speed
 
-      unsigned int n_top_spin_pairs = 2000; // Use for tracing at most this many spin score pairs (which have been sorted).
+      unsigned int n_top_spin_pairs = 500; // Use for tracing at most this many spin score pairs (which have been sorted).
       // This and variation affect the run-time (and results?)
-      n_top_spin_pairs = 1000;
+      // n_top_spin_pairs = 1000; // was 1000
 
-      unsigned int n_top_fragments = 2000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
+      unsigned int n_top_fragments = 1000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
 
       // pass the atom radius from here too
 
       float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
 
-      unsigned int n_phi_psi_trials = 5000;
+      unsigned int n_phi_psi_trials = 7000; // was 5000
 
-      float weight = 60.0f; // calculate this (using rmsd)
-      // weight = 6.0; // for emd 22898
+      float weight = 8.0f; // calculate this (using rmsd)
+
+      if (false) {     // EMD-22898
+         weight = 6.0;
+         flood_atom_mask_radius = 0.75;
+         n_top_fragments = 7000;
+         n_top_spin_pairs = 16000;
+         variation = 0.6;
+      }
+
+      // for RNAse test
+      if (false) {
+         n_phi_psi_trials = 10000;
+         n_top_spin_pairs =  3000;
+         n_top_fragments  =  5000;
+         flood_atom_mask_radius = 0.8;
+         variation = 0.3;
+         with_ncs = true;
+      }
 
       if (test_from_crystallography) {
 
@@ -3021,7 +4100,7 @@ int main(int argc, char **argv) {
          }
          if (! xmap.is_null()) {
             float rmsd_cuffoff = 2.3;
-            proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius, weight, n_phi_psi_trials);
+            proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius, weight, n_phi_psi_trials, with_ncs);
          } else {
             if (test_from_map)
                std::cout << "Map from " << map_file_name << " is null" << std::endl;
@@ -3039,7 +4118,7 @@ int main(int argc, char **argv) {
                coot::fasta_multi fam;
                fam.read(pir_file_name);
                file.import_xmap(xmap);
-               proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials);
+               proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials, with_ncs);
             } else {
                std::cout << "No such file " << map_file_name << std::endl;
             }

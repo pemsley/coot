@@ -254,6 +254,7 @@ namespace coot {
          double sum_score;
          unsigned int n_scored_residues;
          std::string sequence;
+         std::vector<std::pair<std::string, std::string> > sequence_residue_type_and_rotamer_name;
          std::string sequence_name;
          std::string true_sequence; // for testing/analysis
          results_t() {
@@ -351,7 +352,7 @@ namespace coot {
                                                              const clipper::Xmap<float> &xmap);
 
       // find the best result stored by the above function.
-      results_t get_result() const;
+      results_t get_result(bool only_return_result_if_probably_correct) const;
 
       // return the "guessed" sequence
       std::string

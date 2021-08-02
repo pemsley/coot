@@ -132,7 +132,7 @@ coot::new_residue_by_3_phi_psi::get_connecting_residue_atoms() const {
 std::random_device rd;
 
 // between -1 and 1
-float coot::get_random_float() {
+float coot::get_random_float_rd() {
 
    // this function is slow when used with threads.
 
@@ -141,6 +141,19 @@ float coot::get_random_float() {
    float f = sf * static_cast<float>(num);
    return f;
 }
+
+
+float coot::get_random_float_mt(dsfmt_t *dsfmt) {
+   double d = dsfmt_genrand_close_open(dsfmt);
+   // std::cout << "in get_random_float_mt() d " << d << " from dsfmt " << dsfmt << std::endl;
+   float f = static_cast<float>(d);
+   return f; // between 0 and 1
+}
+
+float coot::get_random_float() {
+   return get_random_float_rd();
+}
+
 
 
 // Xoroshiro128+
@@ -173,15 +186,16 @@ float get_random_float() {
 coot::phi_psi_t
 coot::new_residue_by_3_phi_psi::get_phi_psi_by_random(const clipper::Ramachandran &rama_local,
                                                       const float &rama_max_local,
-                                                      bool is_pro_rama) {
+                                                      bool is_pro_rama,
+                                                      dsfmt_t *dsfmt) {
    float phi = 0.0f;
    float psi = 0.0f;
    // bool force_positive_phi = false; // not sure if this will be needed.
    for (;;) {
-      phi = 360.0f * fabs(get_random_float());
-      psi = 360.0f * fabs(get_random_float());
+      phi = 360.0f * fabs(get_random_float_mt(dsfmt));
+      psi = 360.0f * fabs(get_random_float_mt(dsfmt));
 
-      float r = rama_max_local * get_random_float();
+      float r = rama_max_local * get_random_float_mt(dsfmt);
       float prob = rama_local.probability(clipper::Util::d2rad(phi),
 					  clipper::Util::d2rad(psi));
 
@@ -190,9 +204,10 @@ coot::new_residue_by_3_phi_psi::get_phi_psi_by_random(const clipper::Ramachandra
       if (prob > r)
          break;
    }
-   float u1 = get_random_float();
-   float u2 = u1; // -1 -> 1.
-   float tau = 111.2 + u2 * 6.2; // 4.0 needs investigation
+   float u1 = get_random_float_mt(dsfmt);
+   // std::cout << "debug get_phi_psi_by_random(): u1 " << u1 << std::endl;
+   float u2 = 2.0f *  u1 - 1.0; // -1 -> 1.
+   float tau = 111.2 + u2 * 6.2; // 6.2 needs investigation
    return phi_psi_t(phi, psi, tau);
 }
 
@@ -202,7 +217,9 @@ coot::new_residue_by_3_phi_psi::get_phi_psi_by_random(const clipper::Ramachandra
 // as well.
 // static
 double
-coot::new_residue_by_3_phi_psi::get_phi_by_random_given_psi(double psi, const clipper::Ramachandran &rama) {
+coot::new_residue_by_3_phi_psi::get_phi_by_random_given_psi(double psi,
+                                                            const clipper::Ramachandran &rama,
+                                                            dsfmt_t *dsfmt) {
 
    double phi;
 
@@ -218,8 +235,8 @@ coot::new_residue_by_3_phi_psi::get_phi_by_random_given_psi(double psi, const cl
    }
    
    for (;;) {
-      phi = 2.0 * M_PI * fabsf(get_random_float());
-      double r = conditional_pr_rama_max * fabsf(get_random_float());
+      phi = 2.0 * M_PI * fabsf(get_random_float_mt(dsfmt));
+      double r = conditional_pr_rama_max * fabsf(get_random_float_mt(dsfmt));
       double prob = rama.probability(phi, psi);
       if (prob > r) {
 	 break;
@@ -741,15 +758,21 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
 }
 
 coot::minimol::fragment
-coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap) const {
+coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap,
+                                                 float min_density_level_for_connecting_atom) const {
 
    auto run_forward_trials = [] (int thread_id, std::pair<unsigned int, unsigned int> trial_start_stop, 
                                  double phi_current, const clipper::Ramachandran &rama, float rama_max,
                                  const std::string &chain_id, const connecting_atoms_t &current_res_pos, int seq_num,
-                                 const clipper::Xmap<float> *xmap, std::pair<minimol::fragment, float> &best_frag_result,
+                                 const clipper::Xmap<float> *xmap, float min_density_level_for_connecting_atom,
+                                 std::pair<minimol::fragment, float> &best_frag_result,
                                  std::atomic<unsigned int> &count) {
 
                                 float best_score = -9999.9;
+                                dsfmt_t dsfmt;
+                                uint32_t seed = 1;
+                                dsfmt_gv_init_gen_rand(seed);
+                                dsfmt_init_gen_rand(&dsfmt, seed);
 
                                 for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
 
@@ -757,20 +780,22 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
 
                                    double psi_conditional = get_psi_by_random_given_phi(phi_current, rama); // in radians
 
-                                   phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false);
-                                   phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false);
-                                   phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false);
+                                   phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+                                   phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+                                   phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
 
                                    minimol::fragment frag = make_3_res_joining_frag_forward(chain_id, current_res_pos, clipper::Util::rad2d(psi_conditional),
                                                                                             pp_1, pp_2, pp_3, seq_num);
                                    float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
                                    float score_basic = score_fragment_basic(frag, current_res_pos, *xmap);
                                    if (score > best_score) {
-                                      std::cout << "residue " << seq_num << " i_trial " << i_trial << " score_basic " << score_basic << " score-with-fp " << score << std::endl;
+
+                                      // std::cout << "residue " << seq_num << " i_trial " << i_trial << " score_basic " << score_basic
+                                      // << " score-with-fp " << score << std::endl;
                                       best_score = score;
                                       best_frag_result.first = frag;
                                       best_frag_result.second = score;
-                                      if (true) {
+                                      if (false) {
                                          std::string fn = "run_forward_trials_" + std::to_string(seq_num) + "_" + std::to_string(i_trial) + ".pdb";
                                          frag.write_file(fn);
                                       }
@@ -780,31 +805,57 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
                              };
 
    auto run_backward_trials = [] (int thread_id, std::pair<unsigned int, unsigned int> trial_start_stop, 
-                                 double psi_current, const clipper::Ramachandran &rama, float rama_max,
-                                 const std::string &chain_id, const connecting_atoms_t &current_res_pos, int seq_num,
-                                 const clipper::Xmap<float> *xmap, std::pair<minimol::fragment, float> &best_frag_result,
-                                 std::atomic<unsigned int> &count) {
-                      
-                                float best_score = -9999.9;
-                                for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
+                                  double psi_current, const clipper::Ramachandran &rama, float rama_max,
+                                  const std::string &chain_id, const connecting_atoms_t &current_res_pos, int seq_num,
+                                  const clipper::Xmap<float> *xmap, float min_density_level_for_connecting_atom,
+                                  std::pair<minimol::fragment, float> &best_frag_result,
+                                  std::atomic<unsigned int> &count) {
 
-                                   double phi_conditional = get_phi_by_random_given_psi(psi_current, rama); // in radians
+                                 dsfmt_t dsfmt;
+                                 uint32_t seed = 1;
+                                 dsfmt_gv_init_gen_rand(seed);
+                                 dsfmt_init_gen_rand(&dsfmt, seed);
+                                 float best_score = -9999.9;
+                                 for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
 
-                                   phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false);
-                                   phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false);
-                                   phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false);
+                                    double phi_conditional = get_phi_by_random_given_psi(psi_current, rama, &dsfmt); // in radians
 
-                                   minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos,
-                                                                                             clipper::Util::rad2d(phi_conditional),
-                                                                                             pp_1, pp_2, pp_3, seq_num);
-                                   float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
-                                   if (score > best_score) {
-                                      best_score = score;
-                                      best_frag_result.first = frag;
-                                      best_frag_result.second = score;
-                                   }
-                                }
-                                count++;
+                                    phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+                                    phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+                                    phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+
+                                    minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos,
+                                                                                              clipper::Util::rad2d(phi_conditional),
+                                                                                              pp_1, pp_2, pp_3, seq_num);
+                                    // inital previous-residue C density test:
+                                    // don't bother with scoring the triple peptide if this is not at least 1 rmsd (min density level for connecting atom)
+                                    // We can do this *after* make_3_res_joining_frag_backward if make_3_res_joining_frag_backward() is fast
+                                    // otherwise we put this test *inside* make_3_res_joining_frag_backward()
+                                    //
+                                    // Put this in the forward build too
+                                    //
+                                    std::pair<bool, coot::minimol::atom> pos_pair = frag[seq_num-1].get_atom(" C  ");
+                                    if (pos_pair.first) {
+                                       float f = coot::util::density_at_point(*xmap, pos_pair.second.pos);
+                                       if (f < min_density_level_for_connecting_atom)
+                                          continue;
+                                    } else {
+                                       std::cout << "Hideous failure in run_backward_trials() " << std::endl;
+                                    }
+                                    
+                                    float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
+                                    if (score > best_score) {
+                                       best_score = score;
+                                       best_frag_result.first = frag;
+                                       best_frag_result.second = score;
+                                       if (false) {
+                                          std::string fn = "run_backward_trials_" + chain_id + "-" + std::to_string(seq_num) + "_" +
+                                             std::to_string(i_trial) + ".pdb";
+                                          frag.write_file(fn);
+                                      }
+                                    }
+                                 }
+                                 count++;
                               };
 
    coot::minimol::fragment best_frag;
@@ -817,7 +868,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::pair<bool,double> phi_current = current_res_pos.get_phi();
       // forwards,  we have a phi and need to generate a psi to place the N
 
-      if (true)
+      if (false)
          std::cout << "debug:: best_fit_phi_psi(): C extension current_phi: " << coot::residue_spec_t(residue_p) << " phi: "
                    << phi_current.first << " " << phi_current.second << std::endl;
 
@@ -834,7 +885,8 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::vector<std::pair<minimol::fragment, float> > best_frag_vec(ranges.size()); // best frag for that thread/trial-range
       for (unsigned int ir=0; ir<ranges.size(); ir++) {
          thread_pool_p->push(run_forward_trials, ranges[ir], phi_current.second, std::cref(rama), rama_max, std::cref(chain_id),
-                             std::cref(current_res_pos), seq_num, &xmap, std::ref(best_frag_vec[ir]), std::ref(count));
+                             std::cref(current_res_pos), seq_num, &xmap, min_density_level_for_connecting_atom,
+                             std::ref(best_frag_vec[ir]), std::ref(count));
       }
       while (count != ranges.size()) {
          // std::cout << "waiting for trial sets: done " << count << " of " << ranges.size() << " ranges " << std::endl;
@@ -848,7 +900,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       }
    }
 
-   if (terminus_type == "---N") {
+   if (terminus_type == "N") {
       // backwards we have a psi and need to generate a phi to place the C
 
       connecting_atoms_t current_res_pos = get_connecting_residue_atoms();
@@ -868,7 +920,9 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::vector<std::pair<minimol::fragment, float> > best_frag_vec(ranges.size()); // best frag for that thread/trial-range
       for (unsigned int ir=0; ir<ranges.size(); ir++) {
          thread_pool_p->push(run_backward_trials, ranges[ir], psi_current.second, std::cref(rama), rama_max, std::cref(chain_id),
-                             std::cref(current_res_pos), seq_num, &xmap, std::ref(best_frag_vec[ir]), std::ref(count));
+                             std::cref(current_res_pos), seq_num, &xmap,
+                             min_density_level_for_connecting_atom,
+                             std::ref(best_frag_vec[ir]), std::ref(count));
       }
       while (count != ranges.size()) {
          // std::cout << "waiting for trial sets: done " << count << " of " << ranges.size() << " ranges " << std::endl;
