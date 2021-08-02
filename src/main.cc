@@ -380,15 +380,15 @@ bool init_from_gtkbuilder() {
          graphics_info_t::set_main_window(main_window);
 
       graphics_info_t::statusbar = sb;
+
       GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, true);
       if (glarea) {
          graphics_info_t::glareas.push_back(glarea);
 
-         // gtk_gl_area_make_current(GTK_GL_AREA(glarea));
          GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
          if (err)
-            std::cout << "ERROR in init()" << err << std::endl;
-         
+            std::cout << "ERROR:: GL error in init_from_gtkbuilder()" << err << std::endl;
+
          gtk_builder_connect_signals(builder, main_window);
          gtk_widget_show(main_window);
 
