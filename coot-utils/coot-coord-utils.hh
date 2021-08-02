@@ -1173,7 +1173,7 @@ namespace coot {
       void copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain);
 
       // add or delete residues and atoms as needed.
-      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain);
+      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain, mmdb::Manager *from_mol_orig, mmdb::Chain *to_chain);
 
       // utility function for above:
       mmdb::Residue* deep_copy_this_residue_add_chain(mmdb::Residue *residue,
