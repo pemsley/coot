@@ -1252,12 +1252,14 @@ coot::restraints_container_t::n_atom_pull_restraints() const {
 
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
-// 
+//
+// n_steps_max = 1000 default arg
+//
 coot::refinement_results_t
-coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
+coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, int n_steps_max) {
 
    short int print_chi_sq_flag = 1;
-   refinement_results_t rr = minimize(usage_flags, 1000, print_chi_sq_flag);
+   refinement_results_t rr = minimize(usage_flags, n_steps_max, print_chi_sq_flag);
    // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
    return rr;
 
