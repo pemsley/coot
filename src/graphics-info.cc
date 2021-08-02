@@ -2056,6 +2056,11 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7,
                                         draw_missing_loops_flag, draw_hydrogens_flag);
 
+         // 20210725-PE I got a lock-up with one of these locks (not sure which) when playing with
+         //             the fun start GM demo model and dragging a CA model around. Something
+         //             somewhere else was not unlocking? I think that it may be a pull atom
+         //             restraint.
+
          unsigned int unlocked = 0;
          // Neither of these seems to make a difference re: the intermediate atoms python representation
          // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {

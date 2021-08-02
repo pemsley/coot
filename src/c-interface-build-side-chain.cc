@@ -1186,7 +1186,8 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
                   add_status_bar_text(a_run_of_residues.first.c_str());
                }
             }
-            coot::side_chain_densities::results_t new_sequence_result = scd.get_result();
+            bool only_probable = true;
+            coot::side_chain_densities::results_t new_sequence_result = scd.get_result(only_probable);
             std::string new_sequence = new_sequence_result.sequence;
             std::cout << "debug:: new_sequence " << new_sequence << std::endl;
             int offset = new_sequence_result.offset;

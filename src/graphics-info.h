@@ -3987,6 +3987,8 @@ string   static std::string sessionid;
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
 
+   static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
+
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement

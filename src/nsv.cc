@@ -793,7 +793,7 @@ exptl::nsv::rect_button_event(GooCanvasItem *item,
                               GdkEventButton *event,
                               gpointer data) {
 
-   std::cout << "rect button event" << std::endl;
+   // std::cout << "rect button event" << std::endl;
    exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
    exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
    set_go_to_atom_molecule(spec_obj.mol_no);
@@ -808,13 +808,13 @@ exptl::nsv::rect_event (GtkObject *obj,
 			GdkEvent *event,
 			gpointer data) {
 
-   std::cout << "debug:: rect_event(): " << std::endl;
+   // std::cout << "debug:: rect_event(): " << std::endl;
 
    exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
    exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
 
    if (event->type == GDK_BUTTON_RELEASE) {
-      std::cout << "rect button release " << std::endl;
+      // std::cout << "rect button release " << std::endl;
       set_go_to_atom_molecule(spec_obj.mol_no);
       set_go_to_atom_from_spec(spec_obj.atom_spec);
       

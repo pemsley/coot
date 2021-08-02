@@ -8910,6 +8910,7 @@ molecule_class_info_t::renumber_waters() {
       short int changes_made = 0;
       int n_models = atom_sel.mol->GetNumberOfModels();
       make_backup();
+      unsigned int n_solvent_chains = 0;
       for (int imod=1; imod<=n_models; imod++) {
 
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
@@ -8926,11 +8927,12 @@ molecule_class_info_t::renumber_waters() {
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in renumber_waters" << std::endl;
+                  std::cout << "WARNING:: renumbered_waters() NULL chain " << ichain << std::endl;
                } else {
 
                   if (chain_p->isSolventChain()) {
 
+                     n_solvent_chains++;
                      int resno = 1;
                      int nres = chain_p->GetNumberOfResidues();
                      mmdb::PResidue residue_p;
@@ -8940,6 +8942,9 @@ molecule_class_info_t::renumber_waters() {
                         changes_made = 1;
                         resno++;  // for next residue
                      }
+                  } else {
+                     std::string chain_id(chain_p->GetChainID());
+                     std::cout << "INFO:: in renumbered_waters() chain " << chain_id << " is not a SolvenChain" << std::endl;
                   }
                }
             }
@@ -8950,6 +8955,10 @@ molecule_class_info_t::renumber_waters() {
          have_unsaved_changes_flag = 1;
          renumbered_waters = 1;
       }
+
+      // maybe return this so it can be displayed in the GUI? 20210727-PE FIXME
+      if (n_solvent_chains == 0)
+         std::cout << "WARNING:: no SolventChains in the model " << std::endl;
    }
    return renumbered_waters;
 }
