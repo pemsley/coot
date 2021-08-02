@@ -1,4 +1,20 @@
 
+  Pre-Release 0.9.6-1
+
+
+  o Window build script updates
+
+  o Python GUI and updates to match scheme version - now pyrogen work on Windows
+
+  o Add angles in coot-ligand-validation
+
+  o Fix gui simple mutation crash [John Bollinger].
+
+  o Fix crash when coot tries to exit while the program is still refining [James Holton]
+
+----
+
+
   Release 0.9.6
 
   o FEATURE: Middle-mouse and double-clicking on moving atoms is now enabled

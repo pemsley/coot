@@ -9825,3 +9825,21 @@ Sat 17 Jul 15:40:16 BST 2021
 
   called by API function map_from_mtz_by_calc_phases()
 
+
+----
+Mon  2 Aug 22:18:50 BST 2021
+
+Different genomes have been sequenced by different institutes with
+different motivations and interests. As such there is no single site
+where you can find all the genome information that you may want.
+
+Thus said the NCBI is a good place to start as they curate GenBank
+database whose contents get mirrored and exchanged with other
+meta-genomic warehouses such as EMBL and DDBJ.
+
+Please have a look at this as well
+http://www.ncbi.nlm.nih.gov/sites/genome and this to download genome
+data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
+
+   -- hadasa https://www.biostars.org/p/9202/
+
