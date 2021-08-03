@@ -114,56 +114,68 @@ def with_auto_accept(*funcs):
 
 def using_active_atom(*funcs):
 
-    from types import ListType
     active_atom = closest_atom_simple()
-    if (not active_atom):
+    if not active_atom:
         coot.add_status_bar_text("No residue found")
     else:
+        def convert_arg(arg):
+            try:
+                c_arg = aa_dict[arg]
+                return c_arg
+            except KeyError as e:
+                return arg
 
-        def arg_to_append(item):
-            aa_dict = {"aa_imol":      active_atom[0],
-                       "aa_chain_id":  active_atom[1],
-                       "aa_res_no":    active_atom[2],
-                       "aa_ins_code":  active_atom[3],
-                       "aa_atom_name": active_atom[4],
-                       "aa_alt_conf":  active_atom[5],
-                       "aa_res_spec":  [active_atom[1],  # chain_id
-                                        active_atom[2],  # res_no
-                                        active_atom[3]]} # ins_code
+        aa_dict = {"aa_imol":      active_atom[0],
+                   "aa_chain_id":  active_atom[1],
+                   "aa_res_no":    active_atom[2],
+                   "aa_ins_code":  active_atom[3],
+                   "aa_atom_name": active_atom[4],
+                   "aa_alt_conf":  active_atom[5],
+                   "aa_res_spec":  [active_atom[1],  # chain_id
+                                    active_atom[2],  # res_no
+                                    active_atom[3]]} # ins_code
 
-            if isinstance(item, list):
-                arg_ls = []
-                for ele in item:
-                    arg_ls.append(arg_to_append(ele))
-                return arg_ls
-            else:
-                if item in aa_dict:
-                    return aa_dict[item]
-                else:
-                    return item
+        if True:
+            func = funcs[0]
+            args = funcs[1:]
+            c_args = [convert_arg(item) for item in args]
+            func(*c_args)
 
-        if (len(funcs) == 1):
-            # we have a list of functions
-            # so use
-            ls_funcs = funcs[0]
-        elif (type(funcs[0]) is ListType):
-            # we have a range of lists
-            # use as is
-            ls_funcs = funcs
-        else:
-            # we have a single function with args
-            # make into list
-            ls_funcs = [funcs]
 
-        for ele in ls_funcs:
-            func = ele[0]
-            func_args = ele[1:]
-            args = []
-            for arg in func_args:
-                ins = arg_to_append(arg)
-                args.append(ins)
-            ret = func(*args)
-        return ret
+# #  This is what using_active_atom() used to be - I don't like it
+            # if isinstance(item, list):
+            #     arg_ls = []
+            #     for ele in item:
+            #         arg_ls.append(arg_to_append(ele))
+            #     return arg_ls
+            # else:
+            #     if item in aa_dict:
+            #         return aa_dict[item]
+            #     else:
+            #         return item
+
+#         if (len(funcs) == 1):
+#             # we have a list of functions
+#             # so use
+#             ls_funcs = funcs[0]
+#         elif (type(funcs[0]) is ListType):
+#             # we have a range of lists
+#             # use as is
+#             ls_funcs = funcs
+#         else:
+#             # we have a single function with args
+#             # make into list
+#             ls_funcs = [funcs]
+
+#         for ele in ls_funcs:
+#             func = ele[0]
+#             func_args = ele[1:]
+#             args = []
+#             for arg in func_args:
+#                 ins = arg_to_append(arg)
+#                 args.append(ins)
+#             ret = func(*args)
+#         return ret
 
 # here some truely pythonic version of the macros. Should replace
 # them in usage too:
