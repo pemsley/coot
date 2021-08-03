@@ -1,7 +1,7 @@
 
-#include "bonded-atoms.hh"
-
+#include "compat/coot-sysdep.h"
 #include "coot-coord-utils.hh"
+#include "bonded-atoms.hh"
 
 // called for atoms in different residues - we already know
 // that at_2 will be in a different residue to at_1.

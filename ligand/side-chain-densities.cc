@@ -4,10 +4,10 @@
 #include <thread>
 #include <chrono>
 
-
 #include <boost/math/distributions/skew_normal.hpp>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 
+#include "compat/coot-sysdep.h"
 #include "analysis/stats.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"

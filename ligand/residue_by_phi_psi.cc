@@ -22,10 +22,8 @@
 #include <fstream>
 #include <atomic>
 
+#include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
-// no dependency on coords files
-// #include "coords/mmdb-extras.h"
-// #include "coords/mmdb.h"
 
 #include "coot-utils/coot-coord-utils.hh" // for co()
 #include "residue_by_phi_psi.hh"

@@ -32,11 +32,13 @@ pkginclude_HEADERS = coot-utils.hh coot-fasta.hh dodec.hh win-compat.hh ctpl_stl
 
 pkgincludedir = $(includedir)/coot/utils
 
-
-# for simple things:
 libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 	gdk-keysyms.cc hsv-rgb.cc dodec.cc win-compat.cc threads.cc align-utils.cc \
-	pir-alignment.cc split-indices.cc radix.cc logging.cc backward.cpp
+	pir-alignment.cc split-indices.cc radix.cc logging.cc
+if OS_WIN32
+else
+libcoot_utils_la_SOURCES += backward.cpp
+endif
 
 libcoot_utils_la_LIBADD = \
 	$(GLOB_LIBS)
