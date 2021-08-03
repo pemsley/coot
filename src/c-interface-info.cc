@@ -1,3 +1,4 @@
+
 /* src/c-interface.cc
  *
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
@@ -85,20 +86,9 @@
 #include "c-interface-gtk-widgets.h"
 #include "coot-database.hh"
 
-#include "guile-fixups.h"
+#include "widget-from-builder.hh"
 
-// Including python needs to come after graphics-info.h, because
-// something in Python.h (2.4 - chihiro) is redefining FF1 (in
-// ssm_superpose.h) to be 0x00004000 (Grrr).
-//
-#ifdef USE_PYTHON
-#include "Python.h"
-#if (PY_MINOR_VERSION > 4)
-// no fixup needed
-#else
-#define Py_ssize_t int
-#endif
-#endif // USE_PYTHON
+#include "guile-fixups.h"
 
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
@@ -187,12 +177,13 @@ void do_residue_info_dialog() {
 
    if (graphics_info_t::residue_info_edits->size() > 0) {
 
-      std::string s =  "You have pending (un-Applied) residue edits\n";
+      std::string s =  "WARNING:: You have pending (un-Applied) residue edits\n";
       s += "Deal with them first.";
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
    } else {
-      std::cout << "Click on an atom..." << std::endl;
+      std::cout << "INFO:: Click on an atom..." << std::endl;
+      add_status_bar_text("Click on an atom");
       graphics_info_t g;
       g.in_residue_info_define = 1;
       pick_cursor_maybe();
@@ -276,105 +267,15 @@ PyObject *sequence_info_py(int imol) {
 //
 void output_residue_info_dialog(int imol, int atom_index) {
 
-   if (graphics_info_t::residue_info_edits->size() > 0) {
-
-      std::string s =  "You have pending (un-Applied) residue edits.\n";
-      s += "Deal with them first.";
-      GtkWidget *w = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(w);
-
-   } else {
-
-      if (imol <graphics_info_t::n_molecules()) {
-         if (graphics_info_t::molecules[imol].has_model()) {
-            if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) {
-
-               graphics_info_t g;
-               output_residue_info_as_text(atom_index, imol);
-               mmdb::Atom *selected_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
-               std::string residue_name = selected_atom->GetResName();
-               mmdb::PPAtom atoms;
-               int n_atoms;
-               selected_atom->residue->GetAtomTable(atoms,n_atoms);
-               GtkWidget *widget = wrapped_create_residue_info_dialog();
-
-               mmdb::Residue *residue = selected_atom->residue;
-               coot::residue_spec_t *res_spec_p =
-                  new coot::residue_spec_t(residue->GetChainID(),
-                                           residue->GetSeqNum(),
-                                           residue->GetInsCode());
-
-               // fill the master atom
-               GtkWidget *master_occ_entry =
-                  lookup_widget(widget, "residue_info_master_atom_occ_entry");
-               GtkWidget *master_b_factor_entry =
-                  lookup_widget(widget, "residue_info_master_atom_b_factor_entry");
-
-               g_signal_connect (G_OBJECT (master_occ_entry), "changed",
-                                   G_CALLBACK (graphics_info_t::on_residue_info_master_atom_occ_changed),
-                                   NULL);
-               g_signal_connect (G_OBJECT (master_b_factor_entry),
-                                   "changed",
-                                   G_CALLBACK (graphics_info_t::on_residue_info_master_atom_b_factor_changed),
-                                   NULL);
-
-
-               gtk_entry_set_text(GTK_ENTRY(master_occ_entry), "1.00");
-               gtk_entry_set_text(GTK_ENTRY(master_b_factor_entry),
-                                  graphics_info_t::float_to_string(graphics_info_t::default_new_atoms_b_factor).c_str());
-
-               g_object_set_data(G_OBJECT(widget), "res_spec_p",  res_spec_p);
-               g.fill_output_residue_info_widget(widget, imol, residue_name, atoms, n_atoms);
-               gtk_widget_show(widget);
-               g.reset_residue_info_edits();
-
-               try {
-                  coot::primitive_chi_angles chi_angles(residue);
-                  std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
-                  GtkWidget *chi_angles_frame = lookup_widget(widget, "chi_angles_frame");
-                  gtk_widget_show(chi_angles_frame);
-                  if (chis.size() > 0) {
-                     unsigned int i_chi_set = 0;
-                     for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-
-                        int ic = chis[i_chi_set].chi_angles[ich].first;
-                        std::string label_name = "residue_info_chi_";
-                        label_name += coot::util::int_to_string(ic);
-                        label_name += "_label";
-                        GtkWidget *label = lookup_widget(widget, label_name.c_str());
-                        if (label) {
-                           std::string text = "Chi ";
-                           text += coot::util::int_to_string(ic);
-                           text += ":  ";
-                           if (chis[i_chi_set].alt_conf != "") {
-                              text += " alt conf: ";
-                              text += chis[i_chi_set].alt_conf;
-                              text += " ";
-                           }
-                           text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
-                           text += " degrees";
-                           gtk_label_set_text(GTK_LABEL(label), text.c_str());
-                           gtk_widget_show(label);
-                        } else {
-                           std::cout << "WARNING:: chi label not found " << label_name << std::endl;
-                        }
-                     }
-                  }
-               }
-               catch (const std::runtime_error &mess) {
-                  std::cout << mess.what() << std::endl;
-               }
-            }
-         }
-      }
-   }
-
+   graphics_info_t g;
+   g.output_residue_info_dialog(imol, atom_index);
    std::string cmd = "output-residue-info";
    std::vector<coot::command_arg_t> args;
    args.push_back(atom_index);
    args.push_back(imol);
    add_to_history_typed(cmd, args);
 }
+
 
 void
 residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {
@@ -398,108 +299,18 @@ residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_c
    }
 }
 
-
-// 23 Oct 2003: Why is this so difficult?  Because we want to attach
-// atom info (what springs to mind is a pointer to the atom) for each
-// entry, so that when the text in the entry is changed, we know to
-// modify the atom.
-//
-// The problem with that is that behind our backs, that atom could
-// disappear (e.g close molecule or delete residue, mutate or
-// whatever), we are left with a valid looking (i.e. non-NULL)
-// pointer, but the memory to which is points is invalid -> crash when
-// we try to reference it.
-//
-// How shall we get round this?  refcounting?
-//
-// Instead, let's make a trivial class that contains the information
-// we need to do a SelectAtoms to find the pointer to the atom, that
-// class shall be called select_atom_info, it shall contain the
-// molecule number, the chain id, the residue number, the insertion
-// code, the atom name, the atom altconf.
-//
-
-
-void output_residue_info_as_text(int atom_index, int imol) {
-
-   // It would be cool to flash the residue here.
-   // (heh - it is).
-   //
+// change this argument order one day. Care needed.
+void
+output_residue_info_as_text(int atom_index, int imol) {
    graphics_info_t g;
-   mmdb::Atom *picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
-
-   if (picked_atom) {
-
-      g.flash_selection(imol,
-                        picked_atom->residue->seqNum,
-                        picked_atom->GetInsCode(),
-                        picked_atom->residue->seqNum,
-                        picked_atom->GetInsCode(),
-                        picked_atom->altLoc,
-                        picked_atom->residue->GetChainID());
-
-      mmdb::PAtom *atoms = NULL;
-      int n_atoms = 0;
-      mmdb::Residue *residue_p = picked_atom->residue;
-      if (residue_p) {
-         residue_p->GetAtomTable(atoms,n_atoms);
-         if (atoms) {
-            for (int i=0; i<n_atoms; i++) {
-               mmdb::Atom *at = atoms[i];
-               if (at) {
-                  std::string segid = atoms[i]->segID;
-                  std::cout << "(" << imol << ") \""
-                            << at->name << "\"/"
-                            << at->GetModelNum()
-                            << "/\""
-                            << at->GetChainID()  << "\"/"
-                            << at->GetSeqNum()   << "/\""
-                            << at->GetResName()
-                            << "\", \""
-                            << segid
-                            << "\" occ: "
-                            << at->occupancy
-                            << " with B-factor: "
-                            << at->tempFactor
-                            << " element: \""
-                            << at->element
-                            << "\""
-                            << " at " << "("
-                            << at->x << ","
-                            << at->y << ","
-                            << at->z << ")" << std::endl;
-               }
-            }
-         }
-      }
-
-      // chi angles:
-      coot::primitive_chi_angles chi_angles(picked_atom->residue);
-      try {
-         std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
-         if (chis.size() > 0) {
-            unsigned int i_chi_set = 0;
-            std::cout << "   Chi Angles:" << std::endl;
-            for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-               std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
-                         << chis[i_chi_set].chi_angles[ich].second
-                         << " degrees" << std::endl;
-            }
-         } else {
-            std::cout << "No Chi Angles for this residue" << std::endl;
-         }
-      }
-      catch (const std::runtime_error &mess) {
-         std::cout << mess.what() << std::endl;
-      }
-
-   }
+   g.output_residue_info_as_text(atom_index, imol);
    std::string cmd = "output-residue-info-as-text";
    std::vector<coot::command_arg_t> args;
    args.push_back(atom_index);
    args.push_back(imol);
    add_to_history_typed(cmd, args);
 }
+
 
 // Actually I want to return a scheme object with occ, pos, b-factor info
 //

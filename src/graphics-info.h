@@ -2530,6 +2530,10 @@ public:
 			       const coot::residue_spec_t &res_2);
    void delete_active_residue();
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
+
+   static void output_residue_info_as_text(int atom_index, int imol);
+
+   static void output_residue_info_dialog(int imol, int atom_index);
    //
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,

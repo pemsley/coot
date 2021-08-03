@@ -3314,7 +3314,8 @@ void
 on_residue_info_ok_button_clicked_gtkbuilder_callback      (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "residue_info_dialog");
+   // GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "residue_info_dialog");
+   GtkWidget *widget = widget_from_builder("residue_info_dialog");
    apply_residue_info_changes(widget);
 /*    gtk_widget_destroy(widget); not now that it's the Apply button*/
 
@@ -3324,13 +3325,16 @@ on_residue_info_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
 extern "C" G_MODULE_EXPORT
 void
 on_residue_info_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *button,
-                                        gpointer         user_data)
+                                                            gpointer         user_data)
 {
-   GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "residue_info_dialog");
-   residue_info_release_memory(widget);
-   gtk_widget_destroy(widget);
-   unset_residue_info_widget();
+   // GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "residue_info_dialog");
+   GtkWidget *widget = widget_from_builder("residue_info_dialog");
 
+   residue_info_release_memory(widget);  // Hmmm! that seems dangerous
+
+   // gtk_widget_destroy(widget); not now we use builder
+   gtk_widget_hide(widget);
+   unset_residue_info_widget();
 }
 
 extern "C" G_MODULE_EXPORT
@@ -7437,17 +7441,18 @@ on_residue_info_occ_apply_all_checkbutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *entry = lookup_widget(GTK_WIDGET(togglebutton),
-				   "residue_info_master_atom_occ_entry");
-  GtkWidget *alt_conf_checkbutton = lookup_widget(GTK_WIDGET(togglebutton),
-						  "residue_info_occ_apply_to_altconf_checkbutton");
+   // GtkWidget *entry = lookup_widget(GTK_WIDGET(togglebutton), "residue_info_master_atom_occ_entry");
+   // GtkWidget *alt_conf_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "residue_info_occ_apply_to_altconf_checkbutton");
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    gtk_widget_set_sensitive(entry, TRUE);
-  } else {
-    if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(alt_conf_checkbutton)))
-      gtk_widget_set_sensitive(entry, FALSE);
-  }
+   GtkWidget *entry = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      gtk_widget_set_sensitive(entry, TRUE);
+   } else {
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(alt_conf_checkbutton)))
+         gtk_widget_set_sensitive(entry, FALSE);
+   }
 }
 
 
@@ -7458,17 +7463,19 @@ on_residue_info_occ_apply_to_altconf_checkbutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *occ_entry = lookup_widget(GTK_WIDGET(togglebutton),
-				       "residue_info_master_atom_occ_entry");
-  GtkWidget *alt_conf_entry = lookup_widget(GTK_WIDGET(togglebutton),
-					    "residue_info_occ_apply_to_alt_conf_entry");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    gtk_widget_set_sensitive(occ_entry,      TRUE);
-    gtk_widget_set_sensitive(alt_conf_entry, TRUE);
-  } else {
-    gtk_widget_set_sensitive(occ_entry,      FALSE);
-    gtk_widget_set_sensitive(alt_conf_entry, FALSE);
-  }
+   // GtkWidget *occ_entry = lookup_widget(GTK_WIDGET(togglebutton), "residue_info_master_atom_occ_entry");
+   // GtkWidget *alt_conf_entry = lookup_widget(GTK_WIDGET(togglebutton), "residue_info_occ_apply_to_alt_conf_entry");
+
+   GtkWidget *occ_entry      = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_entry = widget_from_builder("residue_info_occ_apply_to_alt_conf_entry");
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      gtk_widget_set_sensitive(occ_entry,      TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, TRUE);
+   } else {
+      gtk_widget_set_sensitive(occ_entry,      FALSE);
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
+   }
 
 }
 
@@ -7482,8 +7489,9 @@ on_residue_info_b_factor_apply_all_checkbutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *entry = lookup_widget(GTK_WIDGET(togglebutton),
-				   "residue_info_master_atom_b_factor_entry");
+   // GtkWidget *entry = lookup_widget(GTK_WIDGET(togglebutton), "residue_info_master_atom_b_factor_entry");
+
+   GtkWidget *entry = widget_from_builder("residue_info_master_atom_b_factor_entry");
 
   if (gtk_toggle_button_get_active(togglebutton))
     gtk_widget_set_sensitive(entry, TRUE);
@@ -7499,9 +7507,11 @@ on_other_modelling_tools_close_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = lookup_widget(GTK_WIDGET(button),
-				"other_model_tools_dialog");
-   gtk_widget_destroy(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "other_model_tools_dialog");
+   GtkWidget *w = widget_from_builder("other_model_tools_dialog");
+
+   // gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 }
 
 
