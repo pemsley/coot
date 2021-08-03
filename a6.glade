@@ -10326,12 +10326,112 @@ Do you want to continue?
                       <object class="GtkMenu" id="edit1_menu">
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkMenuItem" id="align_&amp;_mutate1">
+                          <object class="GtkImageMenuItem" id="change_chain_ids2">
+                            <property name="label" translatable="yes">Change Chain IDs...</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Align &amp; Mutate...</property>
                             <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_align_and_mutate1_activate_gtkbuilder_callback" swapped="no"/>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_change_chain_ids2_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="edit_copy_molecule">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Copy Molecule...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_edit_copy_molecule_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="edit_copy_fragment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Copy Fragment...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_edit_copy_fragment_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="merge_molecules1">
+                            <property name="label" translatable="yes">Merge Molecules...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_merge_molecules1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="move_molecule_here1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Move Molecule Here...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_move_molecule_here1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="mutate_molecule1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Mutate Residue Range...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_mutate_molecule1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="edit_replace_fragment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Replace Fragment...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_edit_replace_fragment_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="edit_replace_residue">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Replace Residue...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_edit_replace_residue_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="renumber_residues1">
+                            <property name="label" translatable="yes">Renumber Residues...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_renumber_residues1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="residue_info2">
+                            <property name="label" translatable="yes">Residue Info...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_residue_info2_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="edit_restraints">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Restraints...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_edit_restraints_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSeparatorMenuItem">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                           </object>
                         </child>
                         <child>
@@ -10391,16 +10491,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="change_chain_ids2">
-                            <property name="label" translatable="yes">Change Chain IDs...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_change_chain_ids2_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="map_colour1">
                             <property name="label" translatable="yes">Map Colour...</property>
                             <property name="visible">True</property>
@@ -10418,54 +10508,6 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_density_size1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="merge_molecules1">
-                            <property name="label" translatable="yes">Merge Molecules...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_merge_molecules1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="move_molecule_here1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Move Molecule Here...</property>
-                            <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_move_molecule_here1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="mutate_molecule1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Mutate Residue Range...</property>
-                            <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_mutate_molecule1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="residue_info2">
-                            <property name="label" translatable="yes">Residue Info...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_residue_info2_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="renumber_residues1">
-                            <property name="label" translatable="yes">Renumber Residues...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_renumber_residues1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -10548,6 +10590,15 @@ Do you want to continue?
                       <object class="GtkMenu" id="calculate1_menu">
                         <property name="can_focus">False</property>
                         <child>
+                          <object class="GtkMenuItem" id="calculate_align_and_mutate">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Align &amp; Mutate...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_calculate_align_and_mutate_activat_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkMenuItem" id="calculate_all_molecule">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -10563,16 +10614,6 @@ Do you want to continue?
                             <property name="label" translatable="yes">Fit Loop...</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_fit_loop1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="frames/sec1">
-                            <property name="label" translatable="yes">Frames/Sec...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_fps1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -10649,6 +10690,14 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="calculate_modules">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Modules...</property>
+                            <property name="use_underline">True</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="ncs_maps1">
                             <property name="label" translatable="yes">NCS Maps...</property>
                             <property name="visible">True</property>
@@ -10659,6 +10708,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="calculate_ncs_tools">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">NCS Tools...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_calculate_ncs_tools_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="other_modelling_tools1">
                             <property name="label" translatable="yes">Other Modelling Tools...</property>
                             <property name="visible">True</property>
@@ -10666,6 +10724,15 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_other_modelling_tools1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="calculate_pisa">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">PISA...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_calculate_pisa_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -10735,6 +10802,15 @@ Do you want to continue?
                       <object class="GtkMenu" id="draw1_menu">
                         <property name="can_focus">False</property>
                         <child>
+                          <object class="GtkMenuItem" id="draw_additional_representations">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Additional Representations....</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_additional_representations_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="anisotropic_atoms1">
                             <property name="label" translatable="yes">Anisotropic Atoms...</property>
                             <property name="visible">True</property>
@@ -10742,26 +10818,6 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_anisotropic_atoms1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="map_and_mol_control1">
-                            <property name="label" translatable="yes">Display Manager...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_map_and_mol_control1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="undo_last_navigation1">
-                            <property name="label" translatable="yes">Undo Last Navigation</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_undo_last_navigation1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -10785,6 +10841,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="draw_central_atom_label">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Central Atom Label...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_central_atom_label_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkMenuItem" id="clipping1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -10801,6 +10866,24 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_crosshairs1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="draw_display_only_active">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Display Only Active</property>
+                            <property name="use_underline">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="frames/sec1">
+                            <property name="label" translatable="yes">Frames/Sec...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_fps1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -10824,6 +10907,24 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="draw_label_atoms_in_residue">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Label Atoms in Residue</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_label_atoms_in_residue_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="draw_label_neighbours">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Label Neighbours</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_label_neighbours_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="ncs_ghost_control1">
                             <property name="label" translatable="yes">NCS Ghost Control...</property>
                             <property name="visible">True</property>
@@ -10831,6 +10932,34 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_ncs_ghost_control1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="draw_representation_tools">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Representation Tools...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_representation_tools_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="spin_view_on/off1">
+                            <property name="label" translatable="yes">Spin View On/Off</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_spin_view_on_off1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="draw_rock_view">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Rock View...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_rock_view_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -10885,16 +11014,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="spin_view_on/off1">
-                            <property name="label" translatable="yes">Spin View On/Off</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_spin_view_on_off1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="stereo1">
                             <property name="label" translatable="yes">Stereo...</property>
                             <property name="visible">True</property>
@@ -10902,6 +11021,16 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_stereo1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="undo_last_navigation1">
+                            <property name="label" translatable="yes">Undo Last Navigation</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_undo_last_navigation1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -19704,6 +19833,9 @@ just the cell and symmetry)
                               <object class="GtkTable" id="residue_info_atom_table">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>

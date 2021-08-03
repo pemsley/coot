@@ -5034,6 +5034,15 @@ on_clear_atom_labels1_activate_gtkbuilder_callback         (GtkMenuItem     *men
 }
 
 
+extern "C" G_MODULE_EXPORT
+void
+on_select_fitting_map_dialog_estimate_button_clicked_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                                          gpointer         user_data)
+{
+   std::cout << "on_select_fitting_map_dialog_estimate_button_clicked_gtkbuilder_callback()" << std::endl;
+}
+
+
 
 extern "C" G_MODULE_EXPORT
 void
@@ -11138,8 +11147,8 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled_gtkbuilder_callba
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_copy_molecule1_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_edit_copy_molecule_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
+                                                           gpointer         user_data)
 {
 
   do_edit_copy_molecule();
@@ -11148,7 +11157,7 @@ on_edit_copy_molecule1_activate_gtkbuilder_callback        (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_copy_fragment1_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
+on_edit_copy_fragment_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   do_edit_copy_fragment();
@@ -11157,7 +11166,7 @@ on_edit_copy_fragment1_activate_gtkbuilder_callback        (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_replace_residue1_activate_gtkbuilder_callback      (GtkMenuItem     *menuitem,
+on_edit_replace_residue_activate_gtkbuilder_callback      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   do_edit_replace_residue();
@@ -11166,7 +11175,7 @@ on_edit_replace_residue1_activate_gtkbuilder_callback      (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_replace_fragment1_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
+on_edit_replace_fragment_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   do_edit_replace_fragment();
@@ -11175,7 +11184,7 @@ on_edit_replace_fragment1_activate_gtkbuilder_callback     (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_renumber_residues1_activate_gtkbuilder_callback    (GtkMenuItem     *menuitem,
+on_edit_renumber_residues_activate_gtkbuilder_callback    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
@@ -11192,6 +11201,15 @@ on_edit_change_chain_ids1_activate_gtkbuilder_callback     (GtkMenuItem     *men
 
    GtkWidget *w = wrapped_create_change_chain_id_dialog();
    gtk_widget_show(w);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_edit_restraints_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+   std::cout << "on_edit_restraints_activate_gtkbuilder_callback() " << std::endl;
 }
 
 
@@ -11438,6 +11456,7 @@ on_calculate_pisa_activate_gtkbuilder_callback             (GtkMenuItem     *men
 }
 
 
+
 extern "C" G_MODULE_EXPORT
 void
 on_draw_representation_tools_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
@@ -11449,10 +11468,51 @@ on_draw_representation_tools_activate_gtkbuilder_callback  (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_calculate_views_activate_gtkbuilder_callback            (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_draw_rock_view_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
+                                                 gpointer         user_data)
 {
+   std::cout << "draw rock view " << std::endl;
+}
 
+
+
+extern "C" G_MODULE_EXPORT
+void
+ on_draw_central_atom_label_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                          gpointer         user_data)
+{
+   std::cout << "draw central atom " << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_label_neighbours_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
+                                                 gpointer         user_data)
+{
+   std::cout << "draw label neighbours " << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_label_atoms_in_residue_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
+                                                              gpointer         user_data)
+{
+   std::cout << "draw label residue atoms " << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_additional_representations_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
+                                                 gpointer         user_data)
+{
+   std::cout << "draw additional representations " << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_calculate_align_and_mutate_activat_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                           gpointer         user_data) {
+   std::cout << ".... calculate -> align & Mutate activate here!" << std::endl;
 }
 
 
