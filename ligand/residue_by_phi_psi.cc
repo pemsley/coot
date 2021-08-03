@@ -23,10 +23,8 @@
 #include <atomic>
 
 #include "residue_by_phi_psi.hh"
+#include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
-// no dependency on coords files
-// #include "coords/mmdb-extras.h"
-// #include "coords/mmdb.h"
 
 #include "coot-utils/coot-coord-utils.hh" // for co()
 #include "mini-mol/mini-mol-utils.hh"
@@ -229,6 +227,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	    if (false)
 	       std::cout << "DEBUG:: fit_terminal_residue_generic() dispatching trial set "
 			 << trial_idx_start << " to " << trial_idx_end << "\n";
+
 	    thread_pool_p->push(fit_terminal_residue_generic_trial_inner_multithread,
 				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
 				terminus_type, residue_type, b_factor,
@@ -865,9 +864,9 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
 void
 coot::residue_by_phi_psi::init_phi_psi_plot() {
 
-   rama.init(clipper::Ramachandran::Gly5);
+   rama.init(clipper::Ramachandran::All2);
 
-   rama_pro.init(clipper::Ramachandran::Pro5);
+   rama_pro.init(clipper::Ramachandran::Pro2);
 
    rama_max = 0.0;
    rama_max_pro = 0.0;

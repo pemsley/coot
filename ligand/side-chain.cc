@@ -6,6 +6,8 @@
 
 #include "chi-angles.hh"
 
+#include "compat/coot-sysdep.h"
+
 void
 coot::do_180_degree_side_chain_flip(const coot::residue_spec_t &spec,
                                     const std::string &alt_conf,

@@ -27,7 +27,7 @@ def povray_args():
 
 # run raster3d
 #
-def render_image():
+def render_image(use_popen=False):
     import os
     import webbrowser
     import sys
@@ -46,14 +46,19 @@ def render_image():
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
        r3d_call = r3d_exe + image_format + " -labels " + coot_image_file_name + " < " + coot_r3d_file_name
-       print("BL DEBUG:: r3d_call is ", r3d_call)
+       print("DEBUG:: r3d_call is ", r3d_call)
        print("calling render...")
 
        major, minor, micro, releaselevel, serial = sys.version_info
        if (major >= 2 and minor >=4):
            # new style
            import subprocess
-           status = subprocess.call(r3d_call, shell=True)
+           if not use_popen:
+               status = subprocess.call(r3d_call, shell=True)
+           else:
+               status = popen_command(r3d_exe,
+                                      ["-labels", "-png", coot_image_file_name],
+                                      coot_r3d_file_name, "r3d.log", 1)
            if status:
                # something went wrong with raster3d
                # maybe same for system call?!?
@@ -98,7 +103,7 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
        image_file_name_mod, source_file_name_mod, space_flag = \
        check_file_names_for_space_and_move(image_file_name, source_file_name)
        r3d_call = r3d_exe + image_format + " -labels" + image_file_name_mod + " < " + source_file_name_mod
-       print("BL DEBUG:: r3d_call is ", r3d_call)
+       print("DEBUG:: r3d_call is ", r3d_call)
        print("calling render...")
 
        major, minor, micro, releaselevel, serial = sys.version_info
@@ -256,35 +261,23 @@ def raster3d_version():
                     version_string = line[9:]
                     tmp = version_string.split(".")
                     try:
-                        major_version = int(tmp[0])
+                        minor = int(tmp_min[0])
+                        micro = int(tmp_min[1])
                     except:
-                        print("BL INFO:: problem extracting major version " + \
-                              "from raster3d")
+                        print("WARNING:: problem extracting major version from raster3d")
                         return False
-                    if ("-" in tmp[1]):
-                        # have new style version
-                        tmp_min = tmp[1].split("-")
-                        try:
-                            minor = int(tmp_min[0])
-                            micro = int(tmp_min[1])
-                        except:
-                            print("BL INFO:: problem extracting minor version " + \
-                                  "from raster3d")
-
-                            return False
-                        return [major, minor, micro]
+                    return [major, minor, micro]
+                else:
+                    # old style
+                    if (len(tmp[1]) != 2):
+                        print("WARNING:: cannot deal with this version.")
+                        return False
                     else:
-                        # old style
-                        if (len(tmp[1]) != 2):
-                            print("BL INFO:: cannot deal with this version.")
+                        try:
+                            minor = int(tmp[1][0])
+                        except:
+                            print("WARNING:: problem extracting minor version from raster3d")
                             return False
-                        else:
-                            try:
-                                minor = int(tmp[1][0])
-                            except:
-                                print("BL INFO:: problem extracting minor " + \
-                                      "version of raster3d (old style).")
-                                return False
-                            micro = tmp[1][1]
-                            return [major, minor, micro]
+                        micro = tmp[1][1]
+                        return [major, minor, micro]
             return False

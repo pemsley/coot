@@ -18186,11 +18186,10 @@ checks the value of this checkbutton</property>
 			    <widget class="GtkCheckButton" id="accept_reject_refinement_atom_pull_autoclear_checkbutton">
 			      <property name="border_width">4</property>
 			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Auto-clear</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">True</property>
 			      <property name="inconsistent">False</property>
 			      <property name="draw_indicator">True</property>
@@ -26550,7 +26549,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.9.5.png</property>
+      <property name="pixbuf">coot-0.9.6.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>

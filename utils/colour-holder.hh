@@ -35,6 +35,7 @@ namespace coot {
                     bool use_deuteranomaly_mode,
 		    const std::string &dum); // somewhere between green and red
       std::string hex() const;
+      void rotate_by(float angle); // fractions of a circle
       void scale_intensity(float scale);
       void brighten(float brighten_amount); // presumes at full saturation, so no  simple scale of intensity
       friend std::ostream& operator<< (std::ostream& s, const colour_holder &ch);

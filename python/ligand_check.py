@@ -142,6 +142,12 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                     mogul_score = max(mogul_results_list)
                 return [mogul_score, run_result]
 
+    def get_ligand_dictionary_based_geometry_stats():
+        ligand_spec = [chain_id, res_no, ins_code]
+        summary_info = get_ligand_distortion_summary_info(imol, ligand_spec)
+        print("##### we got summary-info", summary_info)
+        return summary_info
+
     # return a list: n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts n_wide_contacts
     #
     def get_bump_score():
@@ -216,6 +222,12 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
         #
         ligand_spec = [chain_id, res_no, ins_code]
         lig_env_temp_factors = ligand_environment_temperature_factors(imol, ligand_spec, 5)
+        if not isinstance(lig_env_temp_factors, list):
+            print("Ligand env temp factors not a list\n")
+            return False
+        if len(lig_env_temp_factors[1]) == 0:
+            print("WARNING:: No values in Ligand env temp factors\n")
+            return False
 
         v1 = lig_env_temp_factors[0]
         v2 = lig_env_temp_factors[1]
@@ -233,7 +245,9 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
 
     b_factor_info = get_b_factor_distribution_metrics(stub_name)
 
-    # add error checking to this
+    print("DEBUG:: ####################### b-factor-info:", b_factor_info)
+
+    # add error checking to this (maybe more?!)
     #
     cor = get_correlation(stub_name)
     if (coot_utils.isNumber(cor)):
@@ -252,8 +266,40 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                 return False
     else:
         return False
-            
-            
+
+# remove residues that are waters from env-residues
+#
+def filter_out_waters(imol, env_residues):
+    def is_not_water(residue_item):
+        rn = residue_name(imol,
+                          residue_spec_to_chain_id(residue_item),
+                          residue_spec_to_res_no(residue_item),
+                          residue_spec_to_ins_code(residue_item))
+        return (rn != "HOH" and rn != "WAT")
+    return [res_item for res_item in env_residues if is_not_water(res_item)]
+
+# the Yes/No tick/cross dialog
+#
+def gui_ligand_check_dialog_wrapper(imol, imol_map, ligand_spec):
+
+    neighbs = []
+    correl = map_to_model_correlation(imol, [ligand_spec], neighbs, 0, imol_map)
+    cs = contact_score_ligand (imol, ligand_spec)
+    n_bumps = -1
+    if cs:
+        n_bumps = cs[0]
+    geom_dist_max = 1.1
+    ligand_metrics = [correl, geom_dist_max, n_bumps]
+    percentile_limit = 0.5 # it's a fraction
+    gui_ligand_metrics(ligand_spec, ligand_metrics, percentile_limit)
+
+# the Yes/No tick/cross dialog
+def gui_ligand_check_dialog_active_residue():
+    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                   aa_ins_code, aa_atom_name, aa_alt_conf,
+                                   aa_res_spec]:
+        gui_ligand_check_dialog_wrapper(aa_imol, imol_refinement_map(),
+                                        aa_res_spec)
 
 def run_mogul(mode, imol, chain_id, res_no, ins_code, prefix_str, use_cache_qm):
     # dummy since I cannot test mogul
@@ -263,4 +309,4 @@ def run_mogul(mode, imol, chain_id, res_no, ins_code, prefix_str, use_cache_qm):
         return [2, "dummy"]
     else:
         return False
-    
+

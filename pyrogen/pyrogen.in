@@ -20,6 +20,11 @@ else
    export LD_LIBRARY_PATH=$prfx/lib
 fi
 
+# need to add rdkit dlls (in lib)
+if [[ "$systype" == MINGW* ]] ; then
+   PATH=$prfx/lib:$PATH
+fi
+
 # no point in --check-libs - we are running python and dynamically loading the libs
 
 # echo DYLD_FALLBACK_LIBRARY_PATH $DYLD_FALLBACK_LIBRARY_PATH

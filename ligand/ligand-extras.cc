@@ -479,10 +479,6 @@ coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
 
    clipper::Coord_orth new_centre;
    std::vector<clipper::Coord_orth> water_list;
-   std::vector<clipper::Coord_orth> this_round_water_list;
-   std::vector<clipper::Coord_orth> raw_water_list;
-
-   short int found_waters_prev_round_flag = 1;
 
    if (xmap_masked_stats.first == 0) { 
       clipper::Map_stats stats(xmap_cluster);
@@ -495,9 +491,9 @@ coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
    
    std::cout << "INFO:: found " << water_list.size()
 	     << " waters in water fitting"
-      
 	     << std::endl;
    std::cout.flush();
+
    std::string ch = protein_atoms.unused_chain_id("W");
    coot::minimol::molecule mol(water_list, "HOH", " O  ", ch);
    
@@ -743,9 +739,11 @@ coot::ligand::flood() {
 void
 coot::ligand::flood2(float n_sigma) {
 
+   bool ignore_pseudo_zeros = true; // because cryo-EM maps - maybe pass this?
+
    bool debug = false;
 
-   int n_rounds = 20/map_atom_mask_radius; // 1.4 default.
+   int n_rounds = static_cast<int>(10.0/map_atom_mask_radius); // 1.4 default.
 
    if (false) { // debugging hack
       n_rounds = 1;
@@ -757,12 +755,12 @@ coot::ligand::flood2(float n_sigma) {
 
    std::vector<clipper::Coord_orth> water_list;
 
-   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked, 40, 0);
+   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked, 40, false, ignore_pseudo_zeros);
 
    int n_added_waters=0;
    for (int iround=0; iround<n_rounds; iround++) {
 
-      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, 0);
+      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, false, ignore_pseudo_zeros);
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
 
       if (debug)
@@ -782,7 +780,7 @@ coot::ligand::flood2(float n_sigma) {
       }
       
       if (peaks.size() == 0) {
-	 std::cout << "No peaks: breaking on round "
+	 std::cout << "INFO:: No extra peaks: breaking on round "
 		   << iround << " of " << n_rounds << std::endl;
 	 break;
       }
@@ -808,11 +806,12 @@ coot::ligand::flood2(float n_sigma) {
       moved_waters = move_waters_close_to_protein(water_list, sampled_protein_coords);
    else 
       moved_waters = water_list; // unomved waters
-   
+
    std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
-   coot::minimol::molecule mol(moved_waters, "DUM", " DUM", ch);
+   std::string ele = "NA";
+   coot::minimol::molecule mol(moved_waters, "DUM", " DUM", ch, ele);
    mol.set_cell(xmap_masked.cell());
    std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
    mol.set_spacegroup(spg);

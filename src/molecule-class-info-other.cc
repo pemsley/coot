@@ -2058,13 +2058,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
       do_backrub = true;
 
    if (rotamer_search_mode == ROTAMERSEARCHAUTOMATIC) {
-      if (1) { // test imol_map. Yuck.
-         if (graphics_info_t::molecules[imol_map].has_xmap()) {
-            float r = graphics_info_t::molecules[imol_map].data_resolution();
-            if (r > backrub_reso_limit)
-               do_backrub = 1;
-         }
-         if (graphics_info_t::molecules[imol_map].has_nxmap())
+      if (graphics_info_t::is_valid_map_molecule(imol_map)) {
+         float r = graphics_info_t::molecules[imol_map].data_resolution();
+         if (r > backrub_reso_limit)
             do_backrub = 1;
       }
    }
@@ -2106,9 +2102,11 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
    //
 
    // First check that imol_map has a map.
-   short int have_map_flag = 1;
+   bool have_map_flag = true;
    if (imol_map < 0)
-      have_map_flag = 0;
+      have_map_flag = false;
+   if (! graphics_info_t::is_valid_map_molecule(imol_map))
+      have_map_flag = false;
 
    float f = -99.9;
    float clash_score_limit = 20.0; // Rotamers must have a clash score
@@ -5681,21 +5679,17 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
                // fine, continue
 
                // Add the chains of the new molecule to this atom_sel, chain by chain.
-               mmdb::Model *model_p;
-               mmdb::Model *this_model_p;
-               mmdb::Chain *chain_p;
-               mmdb::Chain *copy_chain_p;
                int i_add_model = 1;
                int i_this_model = 1;
 
-               model_p = add_molecules[imol].mol->GetModel(i_add_model);
-               this_model_p = atom_sel.mol->GetModel(i_this_model);
+               mmdb::Model *model_p = add_molecules[imol].mol->GetModel(i_add_model);
+               mmdb::Model *this_model_p = atom_sel.mol->GetModel(i_this_model);
 
                int n_add_chains = model_p->GetNumberOfChains();
 
                for (int iaddchain=0; iaddchain<n_add_chains; iaddchain++) {
-                  chain_p = model_p->GetChain(iaddchain);
-                  copy_chain_p = new mmdb::Chain;
+                  mmdb::Chain *chain_p = model_p->GetChain(iaddchain);
+                  mmdb::Chain *copy_chain_p = new mmdb::Chain;
                   copy_chain_p->Copy(chain_p);
                   copy_chain_p->SetChainID(mapped_chains[iaddchain].c_str());
                   this_model_p->AddChain(copy_chain_p);
@@ -8988,6 +8982,7 @@ molecule_class_info_t::renumber_waters() {
       short int changes_made = 0;
       int n_models = atom_sel.mol->GetNumberOfModels();
       make_backup();
+      unsigned int n_solvent_chains = 0;
       for (int imod=1; imod<=n_models; imod++) {
 
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
@@ -9004,11 +8999,12 @@ molecule_class_info_t::renumber_waters() {
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in renumber_waters" << std::endl;
+                  std::cout << "WARNING:: renumbered_waters() NULL chain " << ichain << std::endl;
                } else {
 
                   if (chain_p->isSolventChain()) {
 
+                     n_solvent_chains++;
                      int resno = 1;
                      int nres = chain_p->GetNumberOfResidues();
                      mmdb::PResidue residue_p;
@@ -9018,6 +9014,9 @@ molecule_class_info_t::renumber_waters() {
                         changes_made = 1;
                         resno++;  // for next residue
                      }
+                  } else {
+                     std::string chain_id(chain_p->GetChainID());
+                     std::cout << "INFO:: in renumbered_waters() chain " << chain_id << " is not a SolvenChain" << std::endl;
                   }
                }
             }
@@ -9028,6 +9027,10 @@ molecule_class_info_t::renumber_waters() {
          have_unsaved_changes_flag = 1;
          renumbered_waters = 1;
       }
+
+      // maybe return this so it can be displayed in the GUI? 20210727-PE FIXME
+      if (n_solvent_chains == 0)
+         std::cout << "WARNING:: no SolventChains in the model " << std::endl;
    }
    return renumbered_waters;
 }

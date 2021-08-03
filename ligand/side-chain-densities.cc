@@ -4,10 +4,10 @@
 #include <thread>
 #include <chrono>
 
-
 #include <boost/math/distributions/skew_normal.hpp>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 
+#include "compat/coot-sysdep.h"
 #include "analysis/stats.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
@@ -388,6 +388,38 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
                                                 const clipper::Xmap<float> &xmap) {
    // What is the probability of each rotamer at each residue?
 
+   auto calculate_CB_ideal_pos = [] (mmdb::Residue *residue_p) {
+                                    mmdb::Atom *cb_atom = residue_p->GetAtom(" CB ");
+                                    bool status = false;
+                                    clipper::Coord_orth pos;
+                                    if (! cb_atom) {
+                                       auto CA = residue_p->GetAtom(" CA ");
+                                       auto C  = residue_p->GetAtom(" C  ");
+                                       auto N  = residue_p->GetAtom(" N  ");
+                                       if (CA) {
+                                          if (C) {
+                                             if (N) {
+                                                clipper::Coord_orth N_pos = co(N);
+                                                clipper::Coord_orth C_pos = co(C);
+                                                clipper::Coord_orth CA_pos = co(CA);
+                                                clipper::Coord_orth C_to_N = N_pos - C_pos;
+                                                clipper::Coord_orth C_to_N_mid_point(0.5 * (N_pos + C_pos));
+                                                clipper::Coord_orth CA_to_CN_mid_point = C_to_N_mid_point - CA_pos;
+                                                clipper::Coord_orth CA_to_CN_mid_point_uv(CA_to_CN_mid_point.unit());
+                                                clipper::Coord_orth perp(clipper::Coord_orth::cross(C_to_N, CA_to_CN_mid_point));
+                                                clipper::Coord_orth perp_uv(perp.unit());
+                                                // guess and fiddle these - good enough
+                                                clipper::Coord_orth CB_pos(CA_pos + 1.21 * perp_uv - 0.95 * CA_to_CN_mid_point_uv);
+                                                pos = CB_pos;
+                                                status =  true;
+                                             }
+                                          }
+                                       }
+                                    }
+                                    return std::make_pair(status, pos);
+                                 };
+   
+
    std::vector<mmdb::Residue *> a_run_of_residues = make_a_run_of_residues(mol, chain_id, resno_start, resno_end);
 
    if (! a_run_of_residues.empty())
@@ -417,11 +449,22 @@ coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
       if (found_N && found_C && found_O && found_CA && found_CB) {
          // happy path
       } else {
-         std::string chain_id = residue_p->GetChainID();
-         int res_no = residue_p->GetSeqNum();
-         error_message = "ERROR:: missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
-         if (! found_CB)
-            error_message = "ERROR:: missing atom CB in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+         if (found_N && found_C && found_O && found_CA) {
+            // invent a CB and add it into the residue
+            auto cb_pos = calculate_CB_ideal_pos(residue_p);
+            if (cb_pos.first) {
+               mmdb::Atom *cb = new mmdb::Atom;
+               cb->SetCoordinates(cb_pos.second.x(), cb_pos.second.y(), cb_pos.second.z(), 1.0f, 20.0f);
+               cb->SetAtomName(" CB ");
+               cb->SetElementName(" C");
+               residue_p->AddAtom(cb);
+               mol->FinishStructEdit();
+            }
+         } else {
+            std::string chain_id = residue_p->GetChainID();
+            int res_no = residue_p->GetSeqNum();
+            error_message = "ERROR:: setup-test_sequence(): missing main-chain atom in residue " + chain_id + std::string(" ") + std::to_string(res_no);
+         }
       }
    }
 
@@ -519,7 +562,7 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
       // insta-fail when the protein sequence for test is shorter than the model.
       if (sequence.length() < a_run_of_residues.size()) return;
 
-      std::string true_sequence = make_pdb_reference_sequence(a_run_of_residues);
+      std::string sequence_from_pdb_model = make_pdb_reference_sequence(a_run_of_residues);
 
       // slide
       // std::cout << "----------------- slide ------------ " << std::endl;
@@ -527,12 +570,14 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
       int sequence_length = sequence.length();
       int offset_max = sequence.length() - n_residues; // n_residues is the size of a run of residues
 
-      std::cout << "debug:: testing sequence " << sequence << std::endl;
-      std::cout << "debug::   model sequence " << true_sequence << std::endl;
-      std::cout << "debug:: offset_max " << offset_max << std::endl;
+      if (false) {
+         std::cout << "debug:: testing sequence " << sequence << std::endl;
+         std::cout << "debug::   model sequence " << sequence_from_pdb_model << std::endl;
+         std::cout << "debug:: offset_max " << offset_max << std::endl;
+      }
 
       for (int offset=0; offset<=offset_max; offset++) {
-         std::cout << "trying loop with offset " << offset << std::endl;
+         // std::cout << "trying loop with offset " << offset << std::endl;
          int n_scored_residues = 0;
          double sum_score = 0;
          std::string running_sequence;
@@ -607,19 +652,19 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
          }
 
          if (n_scored_residues == n_residues) {
-            results.push_back(results_t(offset, sum_score, n_scored_residues, running_sequence, sequence_name, true_sequence));
+            results.push_back(results_t(offset, sum_score, n_scored_residues, running_sequence, sequence_name, sequence_from_pdb_model));
             if (false)
-               std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(8) << sum_score
+               std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(10) << sum_score
                          << " n_scored_residues " << n_scored_residues << " " << running_sequence
                          << " gene-name " << gene_name
-                         << " true-sequence " << true_sequence << std::endl;
+                         << " model-sequence " << sequence_from_pdb_model << std::endl;
          } else {
             if (false) // happens a lot due to Xs in sequence
                std::cout << "INFO:: Failed to push back a result because " << n_scored_residues << " != " << n_residues << std::endl;
          }
       }
-      auto tp_1 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
       // std::cout << "TIMINGS:: test_sequence() " << d10 << " microseconds" << std::endl;
    }
    get_results_addition_lock();
@@ -628,9 +673,10 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
    release_results_addition_lock();
 }
 
+#include "analysis/stats.hh"
 
 coot::side_chain_densities::results_t
-coot::side_chain_densities::get_result() const {
+coot::side_chain_densities::get_result(bool only_probable) const {
 
    double best_score = -9e10;
    results_t best_results;
@@ -643,6 +689,41 @@ coot::side_chain_densities::get_result() const {
          if (result.sum_score > best_score) {
             best_score = result.sum_score;
             best_results = result;
+         }
+      }
+   }
+
+   if (only_probable) {
+      // let's do some statistics - is the top hit much better than the rest?
+      std::vector<double> scores;
+      for (it=results_container.begin(); it!=results_container.end(); ++it) {
+         const std::vector<results_t> &v = it->second;
+         for (unsigned int i=0; i<v.size(); i++) {
+            scores.push_back(v[i].sum_score);
+         }
+      }
+      if (scores.size() > 2) {
+         // do we have a clear solution? If not, clear best_results
+         std::sort(scores.begin(), scores.end());
+         std::reverse(scores.begin(), scores.end());
+         double top_score = scores[0];
+         double next_best_scores = scores[1];
+         double top_solution_delta = top_score - next_best_scores;
+         unsigned int n_data = 21;
+         if (scores.size() < n_data) n_data = scores.size();
+         stats::single data;
+         for (unsigned int i=1; i<n_data; i++) {
+            data.add(scores[i]);
+         }
+         double var = data.variance();
+         double sd = std::sqrt(var);
+         std::cout << "debug:: get_result(): top_solution_delta: " << top_solution_delta << std::endl;
+         std::cout << "debug:: get_result(): ratio of top score delta to std dev others: " << top_solution_delta/sd << std::endl;
+         if (top_solution_delta > 3.0 * sd) {
+            // happy path
+         } else {
+            // clear the solution
+            best_results = coot::side_chain_densities::results_t();
          }
       }
    }
@@ -711,9 +792,11 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
                                        const clipper::Xmap<float> &xmap,
                                        std::string gen_pts_file_name) const {
 
-
    bool gen_usable_points_flag = false;
    if (mode == GEN_USABLE_POINTS) gen_usable_points_flag = true;
+
+   // std::cout << "In sample_map() Here 1 " << residue_this_p << " " << residue_next_p
+   //           << " gen_usable_points_flag " << gen_usable_points_flag << std::endl;
 
    // 3 modes:
    //
@@ -747,6 +830,8 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
    }
 
    clipper::Coord_orth ca_pt(-1,-1,-1);
+
+   // std::cout << "In sample_map() Here 2 " << residue_this_p << " " << residue_next_p << std::endl;
 
    int n_atoms = residue_this_p->GetNumberOfAtoms();
    std::vector<clipper::Coord_orth> residue_atom_positions;
@@ -787,6 +872,8 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
 
    stats::single block_stats;
 
+   // std::cout << "In sample_map() Here 3 " << residue_this_p << " " << residue_next_p << std::endl;
+
    std::ofstream f; // for generating the (index) side chain points file
    if (gen_usable_points_flag)
       f.open(gen_pts_file_name.c_str());
@@ -824,6 +911,8 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
       }
    }
 
+   // std::cout << "In sample_map() Here 4 " << residue_this_p << " " << residue_next_p << std::endl;
+   
    for (int ix= -n_steps; ix<=n_steps; ix++) {
       for (int iy= -n_steps; iy<=n_steps; iy++) {
          for (int iz= -n_steps; iz<=n_steps; iz++) {
@@ -853,7 +942,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
                   density_box[idx] = dv;
                   block_stats.add(dv);
                   if (false)
-                     std::cout << "sample_map(): for block_stats " << pt_grid_point.format()
+                     std::cout << "debug:: in sample_map(): for block_stats " << pt_grid_point.format()
                                <<  " " << idx << " " << dv << "\n";
                }
             }
@@ -862,18 +951,23 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
    }
 
    if (false)
-      std::cout << "debug: block stats " << coot::residue_spec_t(residue_this_p)
+      std::cout << "debug: In sample_map(): block stats " << coot::residue_spec_t(residue_this_p)
                 << " size " << block_stats.size()
                 << " mean " << block_stats.mean() << " sd " << sqrt(block_stats.variance()) << std::endl;
 
 
-   density_box_t db(density_box, residue_this_p, n_steps);
+   density_box_t db(density_box, residue_this_p, n_steps); // density_box is a float *.
+   db.mean = block_stats.mean();
+   db.var  = block_stats.variance();
 
    // return negative values on failure
    std::tuple<double, double, double> ca_stats = get_stats_around_ca(residue_this_p, axes,
                                                                      0.5 * step_size, xmap);
    if (std::get<1>(ca_stats) > 0)
       db.set_around_ca_stats(std::get<0>(ca_stats), std::get<1>(ca_stats), std::get<2>(ca_stats));
+
+   if (false)
+      std::cout << "in sample_map() returning db: " << db.mean << " " << db.var << std::endl;
 
    return db;
 }
@@ -1180,13 +1274,12 @@ coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *chain
          // don't forget that ALA are useful to search, as is GLY, but
          // that will need a special function to find an imaginary CB position
          //
-         std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
-            get_residue_axes(t);
+         std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes = get_residue_axes(t);
          const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
          if (! axes.empty()) {
             // sample_masked density around 8A around CB
             clipper::Coord_orth cb_pt = cb_pos_and_axes.first;
-            bool gen_flag = false;
+            // bool gen_flag = false;
             mode_t mode = SAMPLE_FOR_DB;
             density_box_t db = sample_map(t, 0, mode, cb_pt, axes, xmap);
             if (! db.empty()) {
@@ -1311,7 +1404,20 @@ coot::side_chain_densities::get_residue_axes(mmdb::Residue *residue_p) const {
 
          v = make_axes(pt_ca_this, pt_cb_this, pt_c_this, pt_n_this);
          cb_pos = co(CB_at);
+   } else {
 
+      if (CA_at && N_at && C_at && O_at) {
+         return get_residue_axes_type_GLY(residue_p);
+      } else {
+
+         std::string missing_atoms;
+         if (! CA_at) missing_atoms += " CA ";
+         if (! CB_at) missing_atoms += " CB ";
+         if (! C_at) missing_atoms += " C ";
+         if (! N_at) missing_atoms += " N ";
+         std::cout << "WARNING:: in get_residue_axes(): missing atom(s) " << missing_atoms << " for "
+                   << coot::residue_spec_t(residue_p) << " " << std::endl;
+      }
    }
    std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > p(cb_pos, v);
    return p;
@@ -1376,11 +1482,13 @@ coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue 
       for (std::size_t i=0; i<residues.size(); i++) {
          mmdb::Residue *residue_p = residues[i];
          mode_t mode = SAMPLE_FOR_RESIDUE;
-         std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
-            get_residue_axes(residue_p);
+         std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes = get_residue_axes(residue_p);
          const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
          const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
          density_box_t block = sample_map(residue_p, 0, mode, cb_pt, axes, xmap);
+         if (false)
+            std::cout << "debug:: fill_residue_blocks(): sample map for " << coot::residue_spec_t(residue_p)
+                      << " mean " << block.mean << " var " << block.var << std::endl;
          block.normalize_using_ca_stats();
          density_block_map_cache[residue_p] = block;
       }
@@ -2271,10 +2379,12 @@ coot::side_chain_densities::set_magic_number(const std::string &mn_name, double 
 // This function seems to crash if I put it into side-chain-densities (which gets added to the
 // coot-ligand library)
 //
-std::vector<coot::side_chain_densities::results_t>
+
+std::vector<std::pair<coot::fragment_container_t::fragment_range_t, std::vector<coot::side_chain_densities::results_t> > >
 coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                              const coot::fasta_multi &fam,
                              const clipper::Xmap<float> &xmap) {
+
 
    // score blocks of sequences (of which there are, say, 21000)
    auto proc_threads = [] (const std::pair<unsigned int, unsigned int> &start_stop_pair,
@@ -2289,21 +2399,25 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                           }
                        };
 
-   std::vector<coot::side_chain_densities::results_t> results;
+   std::vector<std::pair<coot::fragment_container_t::fragment_range_t, std::vector<coot::side_chain_densities::results_t> > > results_vec;
 
    unsigned int n_sequences = fam.size();
    // "analysis" constructor
    // coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
    // scd.set_data_dir("side-chain-data");
-   coot::side_chain_densities scd;
 
    coot::fragment_container_t fc = make_fragments(mol);
 
-   std::cout << "INFO:: n_sequences: " << n_sequences << std::endl;
+   std::cout << "get_fragment_sequence_scores() debug fragments" << std::endl;
+   fc.print_fragments();
+
+   std::cout << "INFO:: number of sequences in sequence file: " << n_sequences << std::endl;
 
    for (const auto &range : fc.ranges) {
-      // std::cout << "new-range" << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::: new-range" << std::endl;
       auto tp_0 = std::chrono::high_resolution_clock::now();
+      coot::side_chain_densities scd;
+      std::vector<coot::side_chain_densities::results_t> results;
       std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
          scd.setup_test_sequence(mol, range.chain_id, range.start_res.res_no, range.end_res.res_no, xmap);
       auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -2412,8 +2526,9 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
                    << d10 << " setup likelihoods: " << d21 << " proc_theads: " << d32 << " consolidate: " << d43
                    << " milliseconds" << std::endl;
       }
+      results_vec.push_back(std::make_pair(range, results));
    }
 
-   return results;
+   return results_vec; // results for each range/fragment
 }
 

@@ -137,13 +137,16 @@ def run_loggraph(logfile):
                         #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
                         coot_utils.run_concurrently(wish_exe, [loggraph_exe, logfile])
 
-                    
+
 # make_molecules_flag is synonymous with continue after refmac run, i.e.
 # read molecules, run loggraph etc., furthermore not threaded, in other words
 #
 # make_molecules_flag is tested for being = 0, if not 0, then this is
 # the main thread and we can do graphics things, like read in a pdb
 # and mtz file to make new molecules.
+#
+# BL says: I believe in python we have everything handled already correctly,
+# so this is just a different name for now with not invoked functions.
 #
 def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                            mtz_in_filename, mtz_out_filename,
@@ -154,55 +157,134 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                            force_n_cycles, make_molecules_flag,
                            ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
 
+    import os
+    ref_fin_fn = ".refmac-is-finished"
+
+    def refmac_is_finished_qm():
+        return os.path.isfile(ref_fin_fn)
+
+    def refmac_run_ok_qm():
+        if os.path.isfile(ref_fin_fn):
+            with open(ref_fin_fn, 'r') as fn:
+                s = fn.readline()
+                return s == "status 0"
+        else:
+            return False
+
+    # needs to return true (for keep going) or false
+    def check_for_refmac_finished_then_do_stuff():
+        if refmac_is_finished_qm():
+            if refmac_run_ok_qm():
+                set_recentre_on_read_pdb(0)
+                imol = read_pdb(pdb_out_filename)
+                new_map_id = make_and_draw_map(mtz_out_filename,
+                                               "FWT", "PHWT", "", 0, 0)
+                if (swap_map_colours_post_refmac_p == 1):
+                    swap_map_colours(imol_mtz_molecule, new_map_id)
+                if (show_diff_map_flag == 1):
+                    make_and_draw_map(mtz_out_filename,
+                                               "DELFWT", "PHDELWT", "", 0, 1)
+                    # do we have anom?
+                    try:
+                        make_and_draw_map(mtz_out_filename, "FAN", "PHAN", "", 0, 1)
+                    except:
+                        print("WARNING:: no anom map")
+            return False # stop
+        return True # continue
+
+    if os.path.isfile(ref_fin_fn):
+        os.remove(ref_fin_fn)
+
+ #   run_python_thread(run_refmac_by_filename_inner,
+    run_refmac_by_filename_inner(
+        pdb_in_filename, pdb_out_filename,
+        mtz_in_filename, mtz_out_filename,
+        extra_cif_lib_filename, imol_refmac_count,
+        swap_map_colours_post_refmac_p,
+        imol_mtz_molecule, show_diff_map_flag,
+        phase_combine_flag, phib_fom_pair,
+        force_n_cycles, make_molecules_flag,
+        ccp4i_project_dir, f_col, sig_f_col, r_free_col="")
+
+    # gobject.timeout_add(1000, check_for_refmac_finished_then_do_stuff)
+
+
+def run_refmac_by_filename_inner(pdb_in_filename, pdb_out_filename,
+                           mtz_in_filename, mtz_out_filename,
+                           extra_cif_lib_filename, imol_refmac_count,
+                           swap_map_colours_post_refmac_p,
+                           imol_mtz_molecule, show_diff_map_flag,
+                           phase_combine_flag, phib_fom_pair,
+                           force_n_cycles, make_molecules_flag,
+                           ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
+
     # Paul's scheme code is ommitting threaded print. Why? FIXME
-    
+
     global refmac_count
     import os, stat, operator
 
-    refmac_execfile = coot_utils.find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
-
-    labin_string = ""
-    if (phase_combine_flag == 3 and (len(f_col) == 2)):
-        labin_string = "LABIN F+=" + split_label(f_col[0]) + \
-                         " SIGF+=" + split_label(sig_f_col[0]) +\
-                            " F-=" + split_label(f_col[1]) +\
-                         " SIGF-=" + split_label(sig_f_col[1])
+    # first check if refmac exists?
+    refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
+    if not refmac_execfile:
+        print("WARNING:: run_refmac_by_filename_inner(): no refmac found")
+        print("  - no new map and molecule available")
+        return
     else:
-        if (f_col):
-            if (coot.refmac_use_intensities_state()):
+        # we have refmac
+        # False here is in a sub-thread, do it noiselessly; True as normal.
+        to_screen_flag = False if make_molecules_flag == 0 else True
+
+    # some additional argument jiggery-pokery: convert
+    # [["/crystal/thing/R-free"]] to ["/crystal/thing/R-free"]
+    if (isinstance(r_free_col, list)):
+        if r_free_col:
+            if (isinstance(r_free_col[0], list)):
+                r_free_col = r_free_col[0]
+
+    local_r_free_col = [] if not r_free_col else r_free_col[0]
+    # need to check for f-col being a string or list
+    labin_string = ""
+    if not ((isinstance(f_col, str)) and (f_col == "")):
+        if (phase_combine_flag == 3 and (len(f_col) == 2)):
+            labin_string = "LABIN F+=" + split_label(f_col[0]) + \
+                " SIGF+=" + split_label(sig_f_col[0]) +\
+                " F-=" + split_label(f_col[1]) +\
+                " SIGF-=" + split_label(sig_f_col[1])
+        else:
+            if (refmac_use_intensities_state()):
                 labin_string = "LABIN IP=" + split_label(f_col) + \
-                                 " SIGIP=" + split_label(sig_f_col)
+                    " SIGIP=" + split_label(sig_f_col)
             else:
                 labin_string = "LABIN FP=" + split_label(f_col) +\
-                                 " SIGFP=" + split_label(sig_f_col)
+                    " SIGFP=" + split_label(sig_f_col)
 
-    if (r_free_col != ""):
-        labin_string += " FREE=" + split_label(r_free_col)
+        if (local_r_free_col != ""):
+            labin_string += " FREE=" + split_label(r_free_col)
 
-    if (phase_combine_flag == 1):
-        # we have Phi Fom pair
-        if (phib_fom_pair[0] != "" and phib_fom_pair[1] !=0):
-            labin_string += " - \nPHIB=" + split_label(phib_fom_pair[0]) + \
-                                " FOM=" + split_label(phib_fom_pair[1])
-    if (phase_combine_flag == 2):
-        # we have HLs
-        if (phib_fom_pair[1] == ""):
-            hl_list = eval(phib_fom_pair[0])
-            if (len(hl_list) == 4):
-                hl_label_ls = ["HLA", "HLB", "HLC", "HLD"]
-                labin_string += " - \n"
-                for i in range(4):
-                    # shorten the label
-                    hl_label = split_label(hl_list[i])
-                    labin_string += " " + hl_label_ls[i] + "=" + hl_label
-        
+        if (phase_combine_flag == 1):
+            # we have Phi Fom pair
+            if (phib_fom_pair[0] != "" and phib_fom_pair[1] !=0):
+                labin_string += " - \nPHIB=" + split_label(phib_fom_pair[0]) + \
+                    " FOM=" + split_label(phib_fom_pair[1])
+        if (phase_combine_flag == 2):
+            # we have HLs
+            if (phib_fom_pair[1] == ""):
+                hl_list = eval(phib_fom_pair[0])
+                if (len(hl_list) == 4):
+                    hl_label_ls = ["HLA", "HLB", "HLC", "HLD"]
+                    labin_string += " - \n"
+                    for i in range(4):
+                        # shorten the label
+                        hl_label = split_label(hl_list[i])
+                        labin_string += " " + hl_label_ls[i] + "=" + hl_label
+
 # BL says: command line args have to be string not list here
     command_line_args = ["XYZIN",  pdb_in_filename,
                          "XYZOUT", pdb_out_filename,
                          "HKLIN",  mtz_in_filename,
                          "HKLOUT", mtz_out_filename]
 
-    if (extra_cif_lib_filename != "") :
+    if (extra_cif_lib_filename != ""):
         command_line_args += ["LIBIN", extra_cif_lib_filename]
 
     std_lines = ["MAKE HYDROGENS NO"] # Garib's suggestion 8 Sept 2003
@@ -244,25 +326,11 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
         std_lines.append("TWIN")
 
     # SAD?
-    if (phase_combine_flag == 3):
-        if (not labin_string):
-            std_lines.append("REFI SAD")
-        sad_atom_ls = get_refmac_sad_atom_info()
-        for sad_atom in sad_atom_ls:
-            sad_string = ""
-            atom_name  = sad_atom[0]
-            fp         = sad_atom[1]
-            fpp        = sad_atom[2]
-            wavelength = sad_atom[3]
-            sad_string += "ANOM FORM " + atom_name
-            if (fp):
-                sad_string += " " + str(fp)
-            if (fpp):
-                sad_string += " " + str(fpp)
-            if (wavelength):
-                sad_string += " " + str(wavelength)
-            std_lines.append(sad_string)
-            
+    if (phase_combine_flag == 3) and (labin_string == ""):
+        std_lines.append("REFI SAD")
+
+    std_lines.extend(refmac_sad_params())
+
     # NCS?
     if(coot.refmac_use_ncs_state()):
         if (get_refmac_version()[1] >= 5):
@@ -303,18 +371,17 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
     except:
         print(" not set !")
     try:
-        print("environment variable: ATOMSF: ", os.environ['ATOMSF']) 
+        print("environment variable: ATOMSF: ", os.environ['ATOMSF'])
     except:
         print(" not set !")
     try:
-        print("environment variable:  CLIBD: ", os.environ['CLIBD']) 
+        print("environment variable:  CLIBD: ", os.environ['CLIBD'])
     except:
         print(" not set !")
     try:
-        print("environment variable:   CLIB: ", os.environ['CLIB']) 
+        print("environment variable:   CLIB: ", os.environ['CLIB'])
     except:
         print(" not set !")
-
 
     data_lines += ["END"]
 
@@ -325,13 +392,18 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
         refmac_process, logObj = coot_utils.run_concurrently(refmac_execfile,
                                                   command_line_args,
                                                   data_lines,
-                                                  refmac_log_file_name)
+                                                  refmac_log_file_name,
+                                                  to_screen_flag)
 
-        separator   = coot_toolbuttons.add_coot_toolbar_separator()
-        kill_button = coot_gui.coot_toolbar_button("Kill refmac",
-                                          "kill_process(" + str(refmac_process.pid)+ ")",
-                                          "stop.svg")
-        coot.add_status_bar_text("Running refmac")
+        if use_gui_qm:
+            separator   = add_coot_toolbar_separator()
+            kill_button = coot_toolbar_button("Kill refmac",
+                                              "kill_process(" + str(refmac_process.pid)+ ")",
+                                              "stop.svg")
+            button_tup = (kill_button, separator)
+            add_status_bar_text("Running refmac")
+        else:
+            button_tup = None
 
         gobject.timeout_add(1000,
                             post_run_refmac,
@@ -341,15 +413,15 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
                             phib_fom_pair, f_col, sig_f_col, r_free_col,
-                            phase_combine_flag,
+                            phase_combine_flag, make_molecules_flag,
                             refmac_process, logObj,
-                            (kill_button, separator), True)
+                            button_tup, True)
     else:
         # no gobject and no subprocess, so run 'old' coot_utils.popen_command
         refmac_status = coot_utils.popen_command(refmac_execfile,
                                       command_line_args,
                                       data_lines,
-                                      refmac_log_file_name)
+                                      refmac_log_file_name, to_screen_flag)
         if (make_molecules_flag == 0):
             # e.g. from get_recent_pdb, i.e. dont load new files, basically
             # dont thread here...
@@ -362,7 +434,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
                             phib_fom_pair, f_col, sig_f_col, r_free_col,
-                            phase_combine_flag, refmac_status)
+                            phase_combine_flag, make_molecules_flag,
+                            refmac_status)
 
 
 def post_run_refmac(imol_refmac_count,
@@ -371,28 +444,30 @@ def post_run_refmac(imol_refmac_count,
                     pdb_out_filename, mtz_out_filename, mtz_in_filename,
                     refmac_log_file_name,
                     phib_fom_pair, f_col, sig_f_col, r_free_col,
-                    phase_combine_flag,
+                    phase_combine_flag, make_molecules_flag,
                     refmac_process, logObj=None,
                     button = None, run_in_timer=False):
 
     if (run_in_timer):
         # we run refmac concurrently
         if  (refmac_process.poll() != None):
-            # refmac is finished 
+            # refmac is finished
             logObj.close()
             refmac_status = refmac_process.poll()
             if button:
                 button[0].destroy()
                 button[1].destroy()
+            # and stop the loop - later
         else:
             # continue the loop
             return True
     else:
         # refmac run via coot_utils.popen_command
         refmac_status = refmac_process
-        
+
     if (refmac_status) : # refmac ran fail...
-        print("Refmac Failed.")
+        print("Refmac Failed with status", refmac_status)
+        add_status_bar_text("Refmac failed")
         if (button):
             button[0].destroy()
             button[1].destroy()
@@ -403,11 +478,14 @@ def post_run_refmac(imol_refmac_count,
 
     else : # refmac ran OK.
 
-        # BL says: 
+        # BL says:
         # popen will always write a log file, so we check the size, is 0 if failed
         #refmac_log_size = os.stat(refmac_log_file_name)[stat.ST_SIZE]
+        add_status_bar_text("Refmac finished")
 
-        run_loggraph(refmac_log_file_name)
+        # only run loggraph if refinement
+        if make_molecules_flag:
+            run_loggraph(refmac_log_file_name)
 
         # deal with R-free column
         if (r_free_col == ""):
@@ -415,13 +493,15 @@ def post_run_refmac(imol_refmac_count,
         else:
             r_free_bit = [r_free_col,1]
 
-        recentre_status = coot.recentre_on_read_pdb()
-        novalue = coot.set_recentre_on_read_pdb(0)
-        imol = coot.handle_read_draw_molecule(pdb_out_filename)
+        recentre_status = recentre_on_read_pdb()
+        novalue = set_recentre_on_read_pdb(0)
+        imol = read_pdb(pdb_out_filename)
 
-        if (recentre_status) :
-            coot.set_recentre_on_read_pdb(1)
-        coot.set_refmac_counter(imol, imol_refmac_count + 1)
+        if recentre_status:
+            set_recentre_on_read_pdb(1)
+        else:
+            set_recentre_on_read_pdb(0)
+        set_refmac_counter(imol, imol_refmac_count + 1)
 
         if (phase_combine_flag == 3 or coot.refmac_use_twin_state()):
             # for now we have to assume the 'standard' name, let's see if we can do better...
@@ -476,14 +556,16 @@ def post_run_refmac(imol_refmac_count,
                 args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, f_col, sig_f_col] + r_free_bit
                 coot.make_and_draw_map_with_refmac_params(*args)
 
-        # finally run the refmac_log_reader to get interesting things
-        read_refmac_log(imol, refmac_log_file_name)
+        # finally run the refmac_log_reader to get interesting things,
+        # if real refinement
+        if make_molecules_flag:
+            read_refmac_log(imol, refmac_log_file_name)
 
         if (run_in_timer):
             # stop the gobject timer
             return False
-        
-            
+
+
 # Return True if the list of strings @var{params_list} contains a
 # string beginning with "WEIGHT".  If not return False
 #
@@ -500,7 +582,7 @@ def extra_params_include_weight_p(params_list):
 
 
 # If refmac-extra-params is defined (as a list of strings), then
-# add that, read the file "refmac-extra-params.txt" and add to the
+# add that, else read the file "refmac-extra-params.txt" and add to the
 # refmac parameters
 #
 # Return a list a list of strings.
@@ -547,6 +629,43 @@ def add_refmac_extra_params(pre_lines, force_no_cycles):
 
   return post_lines
 
+def refmac_ncs_params():
+    ret_ls = []
+    if (refmac_use_ncs_state()):
+        if (get_refmac_version()[1] >= 5):
+            ret_ls = ["NCSR LOCAL"]
+        else:
+            chain_ids_from_ncs = ncs_chain_ids(imol_coords)
+            if chain_ids_from_ncs:
+                for ncs_set in chain_ids_from_ncs:
+                    no_ncs_chains = len(ncs_set)
+                    if (no_ncs_chains > 1):
+                        ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
+                        for chain in ncs_set:
+                            ncs_string += " " + chain
+                        ret_ls.append(ncs_string)
+    return ret_ls
+
+def refmac_sad_params():
+    ret_ls = []
+    if (refmac_use_sad_state() == 1):
+        sad_atom_ls = get_refmac_sad_atom_info()
+        for sad_atom in sad_atom_ls:
+            sad_string = ""
+            atom_name  = sad_atom[0]
+            fp         = sad_atom[1]
+            fpp        = sad_atom[2]
+            wavelength = sad_atom[3]
+            sad_string += "ANOM FORM " + atom_name
+            if (fp):
+                sad_string += " " + str(fp)
+            if (fpp):
+                sad_string += " " + str(fpp)
+            if (wavelength):
+                sad_string += " " + str(wavelength)
+            ret_ls.append(sad_string)
+
+    return ret_ls
 #
 def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
 

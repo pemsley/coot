@@ -256,6 +256,7 @@ auto_fit_best_rotamer(int resno,
       int mode = graphics_info_t::rotamer_search_mode;
       if (! is_valid_map_molecule(imol_map)) {
 	 std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
+         imol_map = -1;
 	 f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
 									   resno, altloc, ins,
 									   chain, imol_map,
@@ -621,7 +622,7 @@ do_mutation(const char *type, short int stub_button_state_flag) {
    graphics_info_t g;
    // use g.mutate_residue_atom_index and g.mutate_residue_imol
    g.do_mutation(type, stub_button_state_flag);
-   std::string cmd = "do-mutatation";
+   std::string cmd = "do-mutation";
    std::vector<coot::command_arg_t> args;
    args.push_back(coot::util::single_quote(type));
    args.push_back(stub_button_state_flag);
@@ -1186,7 +1187,8 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
                   add_status_bar_text(a_run_of_residues.first.c_str());
                }
             }
-            coot::side_chain_densities::results_t new_sequence_result = scd.get_result();
+            bool only_probable = true;
+            coot::side_chain_densities::results_t new_sequence_result = scd.get_result(only_probable);
             std::string new_sequence = new_sequence_result.sequence;
             std::cout << "debug:: new_sequence " << new_sequence << std::endl;
             int offset = new_sequence_result.offset;

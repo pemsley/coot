@@ -461,26 +461,15 @@ command_line_data::handle_immediate_settings() {
 
 
 // add any pdb files not alread added with --pdb/coords/xyzin
-// BL:: extend to mtzs (auto) and scripts (the easier ones)
-// maybe the name should be change then...
 void
 command_line_data::roberto_pdbs(int argc, char **argv) {
 
    for (int i=1; i<argc; i++) {
-     std::string file = argv[i];
-     if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)) ||
-         coot::util::extension_is_for_shelx_coords(coot::util::file_name_extension(file)))
-       if (std::find(coords.begin(), coords.end(), file) == coords.end())
-         coords.push_back(file);
-
-     if (coot::util::extension_is_for_auto_datasets(coot::util::file_name_extension(file)))
-       if (std::find(auto_datasets.begin(), auto_datasets.end(), file) == auto_datasets.end())
-         auto_datasets.push_back(file);
-
-     if (coot::util::extension_is_for_scripts(coot::util::file_name_extension(file)))
-       if (std::find(script.begin(), script.end(), file) == script.end())
-         script.push_back(file);
-     
+      std::string file(argv[i]);
+      if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)) ||
+          coot::util::extension_is_for_shelx_coords(coot::util::file_name_extension(file)))
+         if (std::find(coords.begin(), coords.end(), file) == coords.end())
+            coords.push_back(file);
    }
 }
 

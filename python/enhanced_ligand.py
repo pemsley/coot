@@ -48,7 +48,6 @@ if (use_gui_qm != 2):
                                "", " Send to 2D Viewer ",
                                lambda text: coot.smiles_to_ligand_builder(text)))
 
-
     coot_gui.add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> simple 3D",
@@ -85,9 +84,22 @@ if (use_gui_qm != 2):
 
         coot_gui.add_simple_coot_menu_menuitem(
             menu,
-            "Toggle Ligand Interactions",
+            "Toggle FLEV Ligand Interactions",
             lambda func: toggle_idle_ligand_interactions()
             )
+
+        def go_solid_func(state):
+            set_display_generic_objects_as_solid(state)
+            graphics_draw()
+
+        add_simple_coot_menu_menuitem(
+             menu, "Solid Generic Objects",
+             lambda func: go_solid_func(1))
+
+        add_simple_coot_menu_menuitem(
+             menu, "Unsolid Generic Objects",
+             lambda func: go_solid_func(0))
+
 
         def show_chem_func():
             set_display_generic_objects_as_solid(1) # there may be consequences...
@@ -154,6 +166,12 @@ if (use_gui_qm != 2):
          menu,
          "Display Ligand Distortions",
          lambda func: display_ligand_distortions_func())
+
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Quick Ligand Validate",
+        lambda func: gui_ligand_check_dialog_active_residue())
+
 
 ##        # not interesting for the normal user!?
 ##        def density_ligand_score_func():

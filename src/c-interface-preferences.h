@@ -46,7 +46,7 @@ BEGIN_C_DECLS
 void preferences();
 void show_preferences();
 void clear_preferences();
-void set_mark_cis_peptides_as_bad(int istate);
+void set_mark_cis_peptides_as_bad(int istate); /* in geometry graph */
 int show_mark_cis_peptides_as_bad_state();
 void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type);
 void update_preference_gui();

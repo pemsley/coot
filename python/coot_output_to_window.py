@@ -1,5 +1,5 @@
-
-
+#
+#
 from __future__ import print_function
 import sys
 import os
@@ -49,17 +49,32 @@ class Application():
 
     def __init__(self, argv):
 
+        self.done_already = False
+
         path = os.getenv("PATH")
         print("PATH", path)
+
+        iconify_log_window_flag = False
+
+        if "--iconify-log-window" in argv:
+            iconify_log_window_flag = True
 
         self.coot_log_file = "coot-output.log"
         self.window = gtk.Window()
         self.window.set_title("Coot Output")
         self.create_widgets()
-        self.window.iconify()
+        if iconify_log_window_flag == True:
+            self.window.iconify()
         self.window.connect("delete_event", self.window_delete)
 
         coot_arg_list = argv[1:]
+
+        # We need to remove --ccp4 otherwise we are in a vicious cycle of coot
+        # starting itself via this script!
+        #
+        # this will need a list() around the return value in python3:
+        coot_arg_list = filter(lambda item: item != "--ccp4",      coot_arg_list)
+        coot_arg_list = filter(lambda item: item != "--ccp4-mode", coot_arg_list)
 
         if False: # debugging
             print('----')
@@ -106,6 +121,10 @@ class Application():
         self.window.show_all()
 
     def create_widgets(self):
+
+        if self.done_already == True:
+            return
+
         # self.vbox = gtk.VBox(spacing=6,homogeneous=False)
         self.vbox = gtk.VBox(False, 6)
         self.vbox.set_homogeneous(False)
@@ -118,20 +137,23 @@ class Application():
         self.textview = tw
         self.vbox.pack_start(self.scrolled_win)
         self.scrolled_win.add(self.textview)
-    
+
         # self.hbox_2 = gtk.HBox(spacing=10)
         # self.button_exit = gtk.Button("Exit")
         # self.hbox_2.pack_start(self.button_exit, fill=False, expand=False)
         # self.vbox.pack_start(self.hbox_2)
-        
+
         self.window.add(self.vbox)
-        self.window.set_default_size(700,300)
-    
+        self.window.set_default_size(800,300)
+        self.done_already = True
+
     def callback_exit(self, widget, callback_data=None):
         gtk.main_quit()
 
-    def add_timeout_check_for_new_text(self): 
-        gobject.timeout_add(100, self.check_for_new_lines_and_show_them)
+    def add_timeout_check_for_new_text(self):
+        gobject.timeout_add(500, self.check_for_new_lines_and_show_them)
+        # print("add_callback testing_callback_func ()............ 1000")
+        # gobject.timeout_add(3000, self.testing_callback_func)
         pass
 
     def add_text_to_buffer_using_tag(self, text, tag):
@@ -172,9 +194,12 @@ class Application():
 
         adj = self.scrolled_win.get_vadjustment()
         # adj.set_value(adj.get_upper()) # needs new pygtk
-        v = adj.get_value()
-        new_v = v + len(text)
-        adj.set_value(new_v)
+        try:
+            v = adj.get_value()
+            new_v = v + len(text)
+            adj.set_value(new_v)
+        except ValueError as e:
+            print(e)
 
     def save_to_log_file(self, text):
         f = open(self.coot_log_file, "a")
@@ -184,6 +209,10 @@ class Application():
         except IOError as e:
             # lots of error messages?
             print(e)
+
+    def testing_callback_func(self):
+        print('testing_callback_func')
+        return True
 
     def check_for_new_lines_and_show_them(self):
 
@@ -204,6 +233,7 @@ class Application():
           if s_out:
              running_line = self.process.stdout.readline()
              self.update_text_view_with_new_text(running_line)
+             # print("bypass self.update_text_view_with_new_text()", running_line)
              self.save_to_log_file(running_line)
           else:
              has_input = False

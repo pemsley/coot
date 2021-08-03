@@ -1252,12 +1252,14 @@ coot::restraints_container_t::n_atom_pull_restraints() const {
 
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
-// 
+//
+// n_steps_max = 1000 default arg
+//
 coot::refinement_results_t
-coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
+coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, int n_steps_max) {
 
    short int print_chi_sq_flag = 1;
-   refinement_results_t rr = minimize(usage_flags, 1000, print_chi_sq_flag);
+   refinement_results_t rr = minimize(usage_flags, n_steps_max, print_chi_sq_flag);
    // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
    return rr;
 
@@ -1300,7 +1302,7 @@ coot::restraints_container_t::setup_minimize() {
 
    m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
-   double step_size_multiplier = 2.0;
+   double step_size_multiplier = 1.0;
    // std::cout << "setting step_size_multiplier with n_atoms " << n_atoms << std::endl;
 
    // this is a bit "heuristic" - actually I want the number of non-fixed atoms.
@@ -1486,31 +1488,38 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
 	 if (status != GSL_SUCCESS) {
-	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate at iter " << iter << std::endl;
+
+            if (verbose_geometry_reporting != QUIET)
+               std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate at iter " << iter << std::endl;
 	    if (status == GSL_ENOPROG) {
-	       std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate() result was GSL_ENOPROG" << std::endl; 
-	       if (true)
+               if (verbose_geometry_reporting != QUIET)
+                  std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate() result was GSL_ENOPROG" << std::endl; 
+	       if (verbose_geometry_reporting != QUIET)
 		  std::cout << "Error:: iter: " << iter << " f " << m_s->f << " "
 			    << gsl_multimin_fdfminimizer_minimum(m_s)
 			    << " pnorm " << pnorm << " g0norm " << g0norm << "\n";
 
-	       // write out gradients here - with numerical gradients for comparison
-	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
-               analyze_for_bad_restraints();
+               if (verbose_geometry_reporting != QUIET) {
+                  // write out gradients here - with numerical gradients for comparison
+                  lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
+                  analyze_for_bad_restraints();
+               }
 
 	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-		  std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
-			    << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+                  if (verbose_geometry_reporting != QUIET)
+                     std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
+                               << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
 	       } else {
-		  std::cout << "INFO:: somehow the worst restraint was not set (no-progress)"
-			    << std::endl;
+                  if (verbose_geometry_reporting != QUIET)
+                     std::cout << "INFO:: somehow the worst restraint was not set (no-progress)" << std::endl;
 	       }
 
                // debugging/analysis
-               std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
+               if (verbose_geometry_reporting != QUIET)
+                  std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
 
                // follwing is useful - but not for everyone
                // gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
@@ -2268,7 +2277,7 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 					     double *result,
 					     std::atomic<unsigned int> &done_count_for_threads) {
 
-   auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
 
    // We weight and sum to get the score and negate.
    //
@@ -2291,6 +2300,9 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 				      gsl_vector_get(v,idx+1),
 				      gsl_vector_get(v,idx+2));
 
+               //               std::cout << "ao:" << ao.format() << std::endl; // prograam terminated before
+                                                                                // sphere-refine had finished.
+
 	       score += restraints_p->Map_weight() *
 		  restraints_p->atom_z_occ_weight[iat] *
 		  restraints_p->electron_density_score_at_point(ao);
@@ -2303,8 +2315,8 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
       }
    }
 
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
+   // auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
    // return -score;
 
@@ -3925,6 +3937,20 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
          double delta = d - target_value;
          double z = delta/sigma;
          double distortion = z*z/(1+alpha*z*z);
+         distortion_pair.first = distortion;
+         distortion_pair.second = delta;
+      }
+   }
+
+   if (restraint_type == ANGLE_RESTRAINT) {
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      mmdb::Atom *at_3 = atoms[atom_index_3];
+      if (at_1 && at_2 && at_3) {
+         double angle_deg = coot::angle(at_1, at_2, at_3);
+         double delta = angle_deg - target_value;
+         double z = delta/sigma;
+         double distortion = z*z;
          distortion_pair.first = distortion;
          distortion_pair.second = delta;
       }

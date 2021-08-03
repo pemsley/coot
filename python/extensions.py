@@ -89,6 +89,24 @@ if True:
      if menu:
        coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: coot_gui.water_coordination_gui())
+       coot_gui.add_simple_coot_menu_menuitem(menu, "Atom Overlaps (Coot)",
+                                     lambda func:
+                                              coot_utils.using_active_atom(coot_all_atom_contact_dots, "aa_imol"))
+       coot_gui.add_simple_coot_menu_menuitem(menu, "All-Atom Contact Dots (Molprobity)",
+                                     lambda func:
+                                              coot_utils.using_active_atom(probe, "aa_imol"))
+
+       coot_gui.add_simple_coot_menu_menuitem(menu,"Atom Overlaps Dialog",
+                                     lambda func:
+                                     using_active_atom(
+                                       coot_gui.molecule_atom_overlaps_gui, "aa_imol"))
+
+       coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
+                                     lambda func: coot_gui.water_coordination_gui())
+
+       coot_gui.add_simple_coot_menu_menuitem(menu, "Pepflips from Difference Map...",
+                                     lambda func: coot_gui.pepflips_by_difference_map_gui())
+
 
        def validation_outliers_func():
          with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -491,7 +509,7 @@ if True:
      
      coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
-       "Add Hydrogens",
+       "Add Hydrogen Atoms",
        lambda func: add_hydrogens_with_coot_reduce())
 
 
@@ -554,6 +572,15 @@ if True:
      #                                          False))
 
      # --- D ---
+
+     add_simple_coot_menu_menuitem(
+       submenu_models, "Delete Hydrogen Atoms",
+       lambda func: using_active_atom(delete_hydrogens, "aa_imol"))
+
+     add_simple_coot_menu_menuitem(
+       submenu_models, "Delete Side-chains for Active Chain",
+       lambda func: using_active_atom(
+         delete_sidechains_for_chain, "aa_imol", "aa_chain_id"))
 
      # now in main menu
 ##     coot_gui.add_simple_coot_menu_menuitem(
@@ -1675,7 +1702,11 @@ if True:
      #     Modules
      # ---------------------------------------------------------------------
 
-     coot_gui.add_simple_coot_menu_menuitem(
+     add_simple_coot_menu_menuitem(
+         submenu_modules, "Carbohydrate",
+         lambda func: add_module_carbohydrate_gui())
+
+     add_simple_coot_menu_menuitem(
        submenu_modules, "CCP4...",
        lambda func: coot_gui.add_module_ccp4())
 
@@ -1694,12 +1725,11 @@ if True:
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
          lambda func: gui_add_linked_cho.add_module_carbohydrate_gui())
-     
+
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Cryo-EM",
          lambda func: coot_gui.add_module_cryo_em())
 
-     
      # ---------------------------------------------------------------------
      #     Settings
      # ---------------------------------------------------------------------

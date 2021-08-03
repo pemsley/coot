@@ -86,9 +86,9 @@ namespace coot {
 				const std::vector<residue_spec_t> &waters_in,
 				mmdb::Manager *mol_in,
 				int imol_in) : chem_feat_solvated_ligand_spec(ligand_spec_in, waters_in, mol_in, imol_in) { init_residue(); }
-      chem_feat_solvated_ligand(const chem_feat_solvated_ligand_spec &ligand_spec_in) :
-				chem_feat_solvated_ligand_spec(ligand_spec_in) { init_residue(); }
-      
+      explicit chem_feat_solvated_ligand(const chem_feat_solvated_ligand_spec &ligand_spec_in) :
+         chem_feat_solvated_ligand_spec(ligand_spec_in) { init_residue(); }
+
       mmdb::Residue *residue;
    };
 
@@ -97,15 +97,16 @@ namespace coot {
    public:
       class water_attribs {
       public:
-	 water_attribs(unsigned int ligand_idx_in,
+	 water_attribs(int imol_in,
+                       unsigned int ligand_idx_in,
 		       unsigned int water_spec_idx_in,
 		       mmdb::Atom *water_atom_in,
-		       const clipper::Coord_orth &pt) {
+		       const clipper::Coord_orth &pt) : imol(imol_in), pos(pt) {
 	    ligand_idx = ligand_idx_in;
 	    water_spec_idx = water_spec_idx_in;
 	    atom_p = water_atom_in;
-	    pos = pt;
 	 }
+         int imol;
 	 unsigned int ligand_idx;
 	 unsigned int water_spec_idx;
 	 mmdb::Atom *atom_p;

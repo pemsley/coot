@@ -62,7 +62,7 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 
         if (not isinstance(m, list)):
             # unhappy path
-            print("BL WARNING:: no ligand metrics found.")
+            print("WARNING:: no ligand metrics found.")
         else:
             # happy path ;-)
             diff_d = 0.05
@@ -133,8 +133,8 @@ if (0):
                     refmac_input_mtz_file_name,
                     f_col_label, sigf_col_label, r_free_col_label,
                     refmac_dir)
-        
-    coot_gui.add_simple_coot_menu_menuitem(
+
+    add_simple_coot_menu_menuitem(
         menu, "Ligand Metric Sliders",
         lambda func: ligand_metric_slider_func())
         

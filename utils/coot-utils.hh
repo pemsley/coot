@@ -30,6 +30,8 @@
 
 namespace coot {
 
+   std::string get_home_dir();
+
    // The user can set COOT_DATA_DIR (in fact this is the usual case
    // when using binaries) and that should over-ride the built-in
    // PKGDATADIR.

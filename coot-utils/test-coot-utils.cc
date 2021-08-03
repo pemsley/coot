@@ -1463,6 +1463,25 @@ test_correlation_of_residue_runs(int argc, char **argv) {
    }
 }
 
+#include "merge-C-and-N-terminii.hh"
+
+void
+test_merge_C_and_N_terminii(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1];
+
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      if (asc.read_success) {
+         std::cout << "pdb read success " << pdb_file_name << std::endl;
+         coot::merge_C_and_N_terminii_0_gap(asc.mol);
+         asc.mol->WritePDBASCII("C-N-merged.pdb");
+      }
+   }
+
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1528,7 +1547,7 @@ int main(int argc, char **argv) {
    if (false)
       test_helix_like(argc, argv);
 
-   if (false)
+   if (true)
       test_merge_fragments(argc, argv);
 
    if (false)
@@ -1564,8 +1583,11 @@ int main(int argc, char **argv) {
    if (false)
       test_fragment_maker(argc, argv);
 
-   if (true)
+   if (false)
       test_correlation_of_residue_runs(argc, argv);
+
+   if (false)
+      test_merge_C_and_N_terminii(argc, argv);
 
    return 0;
 }

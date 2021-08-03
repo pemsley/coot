@@ -90,6 +90,8 @@ namespace coot {
 	 atom&       operator[](int i) {return atoms[i];}
 	 atom& at(const std::string &atname) ; // look it up, return atom 
                                                // with name "FAIL" if the atom is not there.
+         // more robust, but involves a copy:
+         std::pair<bool, atom> get_atom(const std::string &atom_name) const;
 	 void addatom(std::string atom_name, std::string element,
 		      float x, float y, float z, const std::string &altloc, float bf, float occupancy);
 	 void addatom(std::string atom_name, std::string element,
@@ -164,6 +166,7 @@ namespace coot {
 	 int n_filled_residues() const;
 	 int resize_for(int nres, int min_resno);
 	 void check() const;
+         void write_file(const std::string &file_name) const;
 	 clipper::Coord_orth midpoint() const;
 	 // transform all coordinates in the fragment by rtop:
 	 void transform(const clipper::RTop_orth &rtop);
@@ -187,7 +190,7 @@ namespace coot {
 	 // residue_type is usually, "HOH" or "DUM".
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
-		  std::string chain_id);
+		  std::string chain_id, const std::string &ele=" O");
 	 explicit molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
 	 explicit molecule(const fragment &frag);
 
@@ -245,6 +248,7 @@ namespace coot {
 	 int read_file(std::string pdb_filename); // use mmdb to read.
 	 // return 0 on success
 	 int write_file(std::string pdb_filename, float new_atom_b_factor) const; // use mmdb to write.
+	 int write_cif_file(const std::string &cif_filename) const; // use mmdb to write.
 	 // possibly expensive/large return value:
 	 std::vector<atom *> select_atoms_serial() const;
 	 // ditto
@@ -317,6 +321,19 @@ namespace coot {
 
 
 /* Need this construction?
+                                              for(unsigned int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
+                                                 for(int ires=m[ifrag].min_res_no(); ires<=m[ifrag].max_residue_number(); ires++) {
+                                                    for (unsigned int iat=0; iat<m[ifrag][ires].atoms.size(); iat++) {
+                                                       const clipper::Coord_orth atom_pos(m[ifrag][ires][iat].pos);
+                                                       std::cout << " " << m[ifrag].fragment_id << " " << m[ifrag][ires]
+                                                                 << " " << m[ifrag][ires][iat].name
+                                                                 << " " << m[ifrag][ires][iat].pos.format() << std::endl;
+                                                    }
+                                                 }
+                                              }
+
+   or mabye this one:
+
    for(int ifrag=0; ifrag<fragments.size(); ifrag++) {
       for(int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
 	 for (int iat=0; iat<(*this)[ifrag][ires].atoms.size(); iat++) {

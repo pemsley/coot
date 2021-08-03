@@ -788,7 +788,17 @@ def add_module_carbohydrate_gui():
                 menu, "Use Unimodal ring torsion restraints",
                 lambda func: add_linked_cho.use_unimodal_pyranose_ring_torsions())
 
-            coot_gui.add_simple_coot_menu_menuitem(
+            add_simple_coot_menu_menuitem(
+                menu, "Display Extra Restraints",
+                lambda func: using_active_atom(
+                    set_show_extra_restraints, "aa_imol", 1))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Undisplay Extra Restraints",
+                lambda func: using_active_atom(
+                    set_show_extra_restraints, "aa_imol", 0))
+
+            add_simple_coot_menu_menuitem(
                 menu, "Extract this Tree",
                 lambda func:
                 add_linked_cho.new_molecule_from_this_glyco_tree())

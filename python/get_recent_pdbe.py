@@ -126,7 +126,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
         for tlc in ligand_tlc_list:
             # image_url = "http://www.ebi.ac.uk/pdbe-srv/pdbechem/image/showNew?code=" + \
             #             tlc + "&size=" + str(image_size)
-            image_url = "http://www.ebi.ac.uk/pdbe/static/chem-files/" + \
+            image_url = "https://www.ebi.ac.uk/pdbe/static/chem-files/" + \
                         tlc + "-" + str(image_size) + ".gif"
             image_name = os.path.join(coot_pdbe_image_cache_dir,
                                       (tlc + "-" + str(image_size) + ".gif"))
@@ -138,7 +138,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
         image_name_stub = "_deposited_chain_front_image-200x200.png"
         # image_url = "http://www.ebi.ac.uk/pdbe/entry-images/" + \
         #            image_name_stub
-        image_url = "http://www.ebi.ac.uk/pdbe/static/entry/" + \
+        image_url = "https://www.ebi.ac.uk/pdbe/static/entry/" + \
                     entry_id + image_name_stub
         
         entry_image_file_name = os.path.join(coot_pdbe_image_cache_dir,
@@ -300,7 +300,6 @@ def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
                                            force_n_cycles,
                                            make_molecules_flag,
                                            "", f_col, sigf_col, r_free_col)
-    # ccp4i-project-dir, f-col, sig-f-col, r-free-col
 
     # restore refmac-extra-params to what it used to be
     #
@@ -555,9 +554,9 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
 #                       entry_id + ".ent"
 #       sfs_cif_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/r" + \
 #                       entry_id + "sf.ent"
-        pdb_url     = "http://www.ebi.ac.uk/pdbe/entry-files/pdb" + \
+        pdb_url     = "https://www.ebi.ac.uk/pdbe/entry-files/pdb" + \
                       entry_id + coords_type
-        sfs_cif_url = "http://www.ebi.ac.uk/pdbe/entry-files/r"   + entry_id + "sf.ent"
+        sfs_cif_url = "https://www.ebi.ac.uk/pdbe/entry-files/r"   + entry_id + "sf.ent"
         pdb_file_name = os.path.join("coot-download", entry_id + coords_type)
         sfs_cif_file_name = os.path.join("coot-download", "r" + entry_id + "sf.cif")
         sfs_mtz_file_name = os.path.join("coot-download", "r" + entry_id + "sf.mtz")
@@ -940,8 +939,8 @@ def pdbe_latest_releases_gui():
     import urllib.request, urllib.parse, urllib.error
 
 
-    url = "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
-    url = "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,compound_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
+    url = "https://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
+    url = "https://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,compound_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
 
     # url = "http://www.ebi.ac.uk/pdbe-apps/jsonizer/latest/released/"
     json_file_name = "latest-releases.json"
@@ -982,7 +981,7 @@ def pdbe_latest_releases_gui():
             
         def run(self):
             try:
-                self.file_name, url_info = MyURLopener().retrieve(self.url, self.file_name, self.update_function)
+                self.file_name = coot_urlretrieve(self.url, self.file_name, self.update_function)
                 self.status = 0 #?
             except socket.timeout:
                 print("BL ERROR:: timout download", self.url)

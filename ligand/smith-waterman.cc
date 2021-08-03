@@ -611,7 +611,7 @@ sm_wat::get_side_chain_density_scores_for_residues(const std::vector<mmdb::Resid
    if (! a_run_of_residues.empty()) {
 
       coot::side_chain_densities scd;
-   
+
       scd.fill_residue_blocks(a_run_of_residues, xmap); // return fast if already filled, uses atomic locking.
       int n_residues = a_run_of_residues.size();
       for (int i=0; i<n_residues; i++) {

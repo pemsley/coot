@@ -1,4 +1,6 @@
 
+#include "compat/coot-sysdep.h"
+
 #include "c-beta-deviations.hh"
 
 #include "geometry/residue-and-atom-specs.hh"

@@ -372,7 +372,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
       std::cout << "DEBUG: ================= chem_comp_component() by structure: in category "
 		<< cat_name << " there are "
 		<< n_tags << " tags" << std::endl;
-    
+
    std::pair<bool, std::string> comp_id(0, "");
    std::pair<bool, std::string> three_letter_code(0, "");
    std::pair<bool, std::string> name(0, "");
@@ -418,7 +418,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
       }
    }
 
-   if (false) 
+   if (false)
       std::cout
 	 << "chem_comp_component() comp_id :" << comp_id.first << " :" << comp_id.second << ": "
 	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second

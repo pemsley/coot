@@ -242,6 +242,8 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
    // and auto_fit_mutate (in_mutate_auto_fit_define).
    // mutate_auto_fit_residue_imol will not be set in the simple mutate case
 
+   std::cout << "::::::::::::::::::::::: in do_mutation() with residue_type_chooser_auto_fit_flag "
+             << residue_type_chooser_auto_fit_flag << std::endl;
 
    if (residue_type_chooser_auto_fit_flag) {
 
@@ -263,13 +265,13 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
 
 	 // float f =
 	 int mode = graphics_info_t::rotamer_search_mode;
-	 molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mode,mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability, *Geom_p());
+	 molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mode, mutate_auto_fit_residue_atom_index,
+                                                                       imol_map, rotamer_fit_clash_flag,
+                                                                       rotamer_lowest_probability, *Geom_p());
 
 	 if (mutate_auto_fit_do_post_refine_flag) {
 	    // Run refine zone with autoaccept, autorange on
 	    // the "clicked" atom:
-	    mmdb::Atom *at = molecules[mutate_auto_fit_residue_imol].atom_sel.atom_selection[mutate_auto_fit_residue_atom_index];
-	    std::string chain_id = at->GetChainID();
 	    short int auto_range = 1;
 	    refine(mutate_auto_fit_residue_imol, auto_range,
 		   mutate_auto_fit_residue_atom_index,
@@ -294,12 +296,10 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
 
       if (is_valid_model_molecule(mutate_residue_imol)) {
 	 // simple mutation
-	 molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
-					       do_stub_flag);
+	 molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type, do_stub_flag);
 	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
-	 update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
-				mutate_auto_fit_residue_imol);
-	 run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
+	 update_geometry_graphs(molecules[mutate_residue_imol].atom_sel, mutate_auto_fit_residue_imol);
+	 run_post_manipulation_hook(mutate_residue_imol, MUTATED);
       }
    }
    graphics_draw();

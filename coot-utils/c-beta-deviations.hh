@@ -13,7 +13,7 @@ namespace coot {
    public:
       c_beta_deviation_t(mmdb::Atom *at_in, const clipper::Coord_orth &pos_ideal_in,  double dist_in) :
 	 at(at_in), pos_ideal(pos_ideal_in), dist(dist_in) { }
-      c_beta_deviation_t() : at(nullptr), dist(0.0) { pos_ideal = clipper::Coord_orth(-1,-1,-1);} // needed for map
+      c_beta_deviation_t() : at(nullptr), pos_ideal(clipper::Coord_orth(-1,-1,-1)), dist(0.0) {} // needed for map
       mmdb::Atom *at;
       clipper::Coord_orth pos_ideal;
       double dist;

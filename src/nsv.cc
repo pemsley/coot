@@ -708,13 +708,47 @@ exptl::nsv::rect_button_event(GooCanvasItem *item,
                               GdkEventButton *event,
                               gpointer data) {
 
-   std::cout << "rect button event" << std::endl;
+   // std::cout << "rect button event" << std::endl;
    exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
    exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
    set_go_to_atom_molecule(spec_obj.mol_no);
    set_go_to_atom_from_spec(spec_obj.atom_spec);
    return TRUE; // this has been handled.
 }
+
+
+#if 0 // what is this? - merge anomaly
+// static
+gint
+exptl::nsv::rect_event (GObject *obj,
+			GdkEvent *event,
+			gpointer data) {
+
+   // std::cout << "debug:: rect_event(): " << std::endl;
+
+   exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
+
+   if (event->type == GDK_BUTTON_RELEASE) {
+      // std::cout << "rect button release " << std::endl;
+      set_go_to_atom_molecule(spec_obj.mol_no);
+      set_go_to_atom_from_spec(spec_obj.atom_spec);
+      
+   } else {
+
+      if (event->type == GDK_ENTER_NOTIFY) {
+	 // std::cout << "Entering a box " << obj << std::endl;
+	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(obj), "fill_color", "moccasin", NULL);
+      }
+
+      if (event->type == GDK_LEAVE_NOTIFY) {
+	 // std::cout << " Leaving a box " << obj << std::endl;
+	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(obj), "fill_color", "grey85", NULL);
+      } 
+   } 
+   return TRUE;
+}
+#endif
 
 
 // caller should ensure that resno_low is not greater than resno_high.

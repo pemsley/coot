@@ -362,16 +362,16 @@ def cfc_process_site(site_number, wrapped_imol_ligand_specs, imol_first, first_l
        print("debug:: ================= in cfc_process_site() count the protein_res_specs: ", len(protein_res_specs))
 
        for res_spec in protein_res_specs:
-	   chain_id = rsu.residue_spec_to_chain_id(res_spec)
-	   res_no   = rsu.residue_spec_to_res_no(res_spec)
-	   coot.add_lsq_match(res_no, res_no, chain_id, res_no, res_no, chain_id, 1)
+           chain_id = rsu.residue_spec_to_chain_id(res_spec)
+           res_no   = rsu.residue_spec_to_res_no(res_spec)
+           coot.add_lsq_match(res_no, res_no, chain_id, res_no, res_no, chain_id, 1)
            print("debug:: ================ in cfc_process_site() adding protein residue", res_spec)
 
        for imol_and_spec in imol_ligand_specs[1:]:  # lsq fit others to the first in the list
            print(('============================ lsq-match ', imol_first, imol_and_spec, imol_and_spec[0]))
            imol,spec = imol_and_spec
-	   # coot.apply_lsq_matches_py(imol_first, imol_and_spec[0])
-	   coot.apply_lsq_matches_py(imol_first, imol)
+           # coot.apply_lsq_matches_py(imol_first, imol_and_spec[0])
+           coot.apply_lsq_matches_py(imol_first, imol)
            # 4-element (i.e. prefixed) residue specs are need to be phased out, but for now, test and fix
            if len(spec) == 4:
                spec = spec[1:]

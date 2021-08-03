@@ -150,7 +150,7 @@ fi
 
 if [ -z "$GI_TYPELIB_PATH" ] ; then
     if [ -e  /usr/lib/x86_64-linux-gnu/girepository-1.0 ] ; then
-        echo GI_TYPELIB_PATH /usr/lib/x86_64-linux-gnu/girepository-1.0
+        export GI_TYPELIB_PATH=/usr/lib/x86_64-linux-gnu/girepository-1.0
     fi
 fi
 
@@ -183,12 +183,15 @@ else
 
    for arg in "$@" ;
    do
-      if [ "$arg" = --ccp4-mode ] ; then
-         ccp4_mode=true
-      fi
-      if [ "$arg" = --disable-libtool-hack ] ; then
-         LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
-      fi
+       if [ "$arg" = --ccp4-mode ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --ccp4 ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --disable-libtool-hack ] ; then
+           LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
+       fi
    done
 
    # which rsvg-convert
@@ -201,9 +204,9 @@ else
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
    if [ -z "$ccp4_mode" ] ; then
-      # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
-      $coot_bin "$@"
-      status=$?
+       # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+       $coot_bin "$@"
+       status=$?
    else
        shift
        libdir=lib # lib64?

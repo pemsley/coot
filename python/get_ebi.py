@@ -49,8 +49,9 @@ pdbe_file_name_tail = "ent"
 
 # helper function to avoid downloading empty files
 # returns download filename upon success or False when fail
+# should we return the response header too?
 #
-def coot_urlretrieve(url, file_name):
+def coot_urlretrieve(url, file_name, reporthook=None):
 
     """Helper function to avoid downloading empty files
     returns download filename upon success or False when fail."""
@@ -63,9 +64,9 @@ def coot_urlretrieve(url, file_name):
             # we just pass
             pass
 
-    opener = CootURLopener()
+    opener = CootURLopener(context=ssl_context)
     try:
-        local_filename, header = opener.retrieve(url, file_name)
+        local_filename, header = opener.retrieve(url, file_name, reporthook)
     except:
         # we could catch more here, but dont bother for now
         print("BL WARNING:: retrieve of url %s failed" %url)
@@ -218,7 +219,7 @@ def get_eds_pdb_and_mtz(id):
     # eds_site = "http://eds.bmc.uu.se/eds"
     # eds_core = "http://eds.bmc.uu.se"
     eds_site = "https://www.ebi.ac.uk/pdbe/coordinates"
-    eds_core = "https://www.ebi.ac.uk/pdbe" # for web pages
+    eds_core = "https://www.ebi.ac.uk/pdbe/entry/pdb" # for web pages
     # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
     eds_coords_site = "https://www.ebi.ac.uk/pdbe/entry-files/download"
 
@@ -254,7 +255,7 @@ def get_eds_pdb_and_mtz(id):
             # mtz_url = eds_site  + "/files/" + target_mtz_file
             mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + \
                       down_id + "/" + down_id + "_map.mtz"
-            eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
+            eds_info_page = eds_core + "/" + down_id
 
             print("model_url:", model_url)
             print("  mtz_url:", mtz_url)

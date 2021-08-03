@@ -241,7 +241,7 @@ coot::chem_feat_clust::fill_waters() {
 
 		  if (is_close_to_a_ligand_atom(pt, lig_coords)) {
 
-		     water_attribs wa(ilig, iw, at, pt);
+		     water_attribs wa(ligands[ilig].imol, ilig, iw, at, pt);
 
 		     if (false)
 			std::cout << "fill_waters(): adding " << ilig << " "

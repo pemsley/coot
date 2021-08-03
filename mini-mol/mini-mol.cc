@@ -35,15 +35,17 @@ coot::minimol::molecule::molecule(mmdb::Manager *mol, bool udd_atom_index_to_use
 }
 
 
+// ele is an optiona arg (default " O")
 coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_list,
 				  const std::string& residue_type,
 				  std::string atom_name,
-				  std::string chain_id) {
+				  std::string chain_id,
+                                  const std::string &ele) {
 
    // Constructing a fragment from a chain_id sets residues_offset to 0
    // but doesn't add any residues
    fragments.push_back(fragment(chain_id));
-   std::string element(" O");
+   std::string element = ele;
 
    // Each atom goes in its own residue (residue number offset by one
    // c.f. the atom vector index)
@@ -502,11 +504,21 @@ coot::minimol::molecule::write_file(std::string pdb_filename, float atoms_b_fact
    // std::cout << "\nDEBUG:: write_file " << pdb_filename << std::endl;
    mmdb::PManager newmol = pcmmdbmanager();
 
-   int ierr = newmol->WritePDBASCII((char *)pdb_filename.c_str());
+   int ierr = newmol->WritePDBASCII(pdb_filename.c_str());
    // std::cout << "DEBUG:: write_file " << pdb_filename << " done\n " << std::endl;
    delete newmol;
    return ierr;
 }
+
+int
+coot::minimol::molecule::write_cif_file(const std::string &cif_filename) const { // use mmdb to write.
+
+   mmdb::PManager newmol = pcmmdbmanager();
+   int ierr = newmol->WriteCIFASCII(cif_filename.c_str());
+   delete newmol;
+   return ierr;
+}
+
 
 // if chain_id is not amongst the set of chain ids that we have already,
 // then push back a new fragment and return its index.
@@ -590,6 +602,8 @@ coot::minimol::residue::residue(mmdb::Residue *residue_p,
 // caller disposes of memory
 mmdb::Residue *
 coot::minimol::residue::make_residue() const {
+
+   if (atoms.empty()) return 0;
 
    mmdb::Residue *residue_p = new mmdb::Residue();
    residue_p->SetResID(name.c_str(), seqnum, ins_code.c_str());
@@ -678,6 +692,23 @@ coot::minimol::residue::at(const std::string &atname) {
    return atoms[0]; 
 }
 
+// more robust, but involves a copy:
+std::pair<bool, coot::minimol::atom>
+coot::minimol::residue::get_atom(const std::string &atom_name) const {
+
+   bool status = false;
+   atom at;
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i].name == atom_name) {
+         at = atoms[i];
+         status = true;
+         break;
+      }
+   }
+   return std::make_pair(status, at);
+}
+
+
 // return a negative on a problem
 double
 coot::minimol::residue::lsq_overlay_rmsd(const residue &r) const {
@@ -719,7 +750,6 @@ coot::minimol::residue::write_file(const std::string &file_name) const {
    coot::minimol::molecule m;
    m.fragments.push_back(f);
    m.write_file(file_name, 10.0);
-      
 
 } 
 
@@ -786,7 +816,7 @@ coot::minimol::fragment::operator[](int i) {
 	 //
 	 residues = new_residues;
 	 residues_offset = new_offset;
-	 
+
       } else {
 	 // adding to C terminus;
 	 residues.resize(i+1-residues_offset);
@@ -1248,7 +1278,7 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::residue res) {
    if (res.seqnum == mmdb::MinInt4) 
       s << "residue is undefined! ";
    if (res.atoms.size() > 0) 
-      s << res.name << " contains " << res.atoms.size() << " atoms";
+      s << res.seqnum << " " << res.name << " contains " << res.atoms.size() << " atoms";
    return s;
 }
 
@@ -1354,7 +1384,18 @@ coot::minimol::fragment::n_filled_residues() const {
 	 ifr++;
    }
    return ifr;
-} 
+}
+
+void
+coot::minimol::fragment::write_file(const std::string &file_name) const {
+
+   coot::minimol::molecule m;
+   m.fragments.push_back(*this);
+   m.write_file(file_name, 10.0);
+
+}
+
+
 
 // Don't use the atomic weight.  I.e. all atoms are equally weighted.
 // FIXME

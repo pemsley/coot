@@ -47,7 +47,7 @@
 #include "multi-peptide.hh"
 #include "trace.hh"
 
-void show_usage(std::string pname) {
+void show_usage(const std::string &pname) {
    std::cout << "Usage: " << pname
 	     << " --pdbin pdb-in-filename" << " --hklin mtz-file-name"
 	     << " --f f_col_label"
