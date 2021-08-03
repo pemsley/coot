@@ -1586,7 +1586,10 @@ Mesh::draw_symmetry(Shader *shader_p,
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+#ifdef __APPLE__
+#else
    glLineWidth(5.0);
+#endif
    unsigned int n_verts = n_symmetry_atom_lines_vertices;
 
    unsigned int first = 0;

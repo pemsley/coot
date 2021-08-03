@@ -1436,6 +1436,8 @@ molecule_class_info_t::update_symmetry() {
 void
 molecule_class_info_t::draw_extra_restraints_representation() {
 
+   std::cout << "old code in draw_extra_restraints_representation() " << std::endl;
+#if 0
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
          if (extra_restraints_representation.bonds.size() > 0) {
@@ -1483,11 +1485,15 @@ molecule_class_info_t::draw_extra_restraints_representation() {
    }
 
    draw_parallel_plane_restraints_representation();
+#endif
 }
 
 void
 molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 
+   std::cout << "old code in draw_parallel_plane_restraints_representation() " << std::endl;
+
+#if 0
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
          if (extra_restraints_representation.parallel_planes.size() > 0) {
@@ -1547,6 +1553,7 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
          glEnd();
       }
    }
+#endif
 }
 
 void
@@ -2380,7 +2387,8 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
 void
 molecule_class_info_t::display_ghost_bonds(int ighost) {
 
-
+   std::cout << "old code FIXME in display_ghost_bonds() " << std::endl;
+#if 0
    // hack in a value
    bool against_a_dark_background = true;
 
@@ -2407,6 +2415,7 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
          }
       }
    }
+#endif
 }
 
 
@@ -2461,6 +2470,9 @@ molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian
 void
 molecule_class_info_t::display_symmetry_bonds() {
 
+   std::cout << "old code FIXME in display_symmetry_bonds() " << std::endl;
+
+#if 0
    // We may come here after having done additional_representations -
    // which would change the line width.
    //
@@ -2621,6 +2633,7 @@ molecule_class_info_t::display_symmetry_bonds() {
          }
       }
    }
+#endif
 }
 
 // publically accessible
@@ -2690,6 +2703,9 @@ molecule_class_info_t::delete_dipole(int dipole_number) {
 void
 molecule_class_info_t::draw_dipoles() const {
 
+   std::cout << "old code in draw_dipoles() " << std::endl;
+
+#if 0
    if (! draw_it)
       return;
 
@@ -2780,6 +2796,7 @@ molecule_class_info_t::draw_dipoles() const {
       }
       glPopMatrix();
    }
+#endif
 }
 
 std::string

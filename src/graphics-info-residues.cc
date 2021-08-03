@@ -187,6 +187,9 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 void
 graphics_info_t::graphics_ligand_view() {
 
+   std::cout << "old code graphics_ligand_view() " << std::endl;
+
+#if 0
    if (! show_graphics_ligand_view_flag)  // user control
       return;
 
@@ -313,6 +316,7 @@ graphics_info_t::graphics_ligand_view() {
 	 // std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
+#endif
 }
 
 #endif

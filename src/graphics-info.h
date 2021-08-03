@@ -3697,6 +3697,8 @@ public:
      return index;
    }
 
+   static void myglLineWidth(int n_pixels);
+
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec(int imol);

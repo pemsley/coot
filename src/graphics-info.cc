@@ -2335,6 +2335,9 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
 //
 void
 graphics_info_t::environment_graphics_object_internal_lines(const graphical_bonds_container &env_bonds_box) const {
+
+#if 0 // old - delete this one day.
+
    if (environment_show_distances == 1) {
 
       if (env_bonds_box.num_colours > 0) {
@@ -2396,6 +2399,8 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
          glDisable(GL_LINE_STIPPLE);
       }
    }
+
+#endif
 }
 
 // This is the GL rendering of the environment bonds box
@@ -4989,6 +4994,7 @@ graphics_info_t::setup_flash_bond(int imol,
 // static
 void graphics_info_t::draw_chi_angles_flash_bond() {
 
+#if 0
    if (draw_chi_angle_flash_bond_flag) {
       glLineWidth(10);
       glColor3f(0.3,1.0,0.3);
@@ -5001,6 +5007,7 @@ void graphics_info_t::draw_chi_angles_flash_bond() {
     graphics_info_t::flash_bond.second.z());
       glEnd();
    }
+#endif
 }
 
 
@@ -5113,6 +5120,7 @@ graphics_info_t::set_last_map_sigma_step(float f) {
 void
 graphics_info_t::draw_geometry_objects() {
 
+#if 0 // old
    // 20090715 We change the type of distance_object_vec, and attach a
    // molecule from which the distance was made.  Don't display the
    // distance if the molecule corresponding to the start or end point
@@ -5171,12 +5179,16 @@ graphics_info_t::draw_geometry_objects() {
    if (dynamic_distances.size() > 0) {
       draw_dynamic_distances();
    }
+#endif
 }
 
 // static
 void
 graphics_info_t::draw_dynamic_distances() {
 
+   std::cout << "graphics_info_t:: draw_dynamic_distances() needs to be replaced " << std::endl;
+
+#if 0
    if (dynamic_distances.size() > 0) {
       glLineWidth(2.0);
       glColor3f(0.5, 0.8, 0.6);
@@ -5187,11 +5199,15 @@ graphics_info_t::draw_dynamic_distances() {
       }
       glDisable(GL_LINE_STIPPLE);
    }
+#endif
 }
 
 void
 coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
 
+   std::cout << "graphics_info_t:: draw_dynamic_distance() needs to be replaced " << std::endl;
+
+#if 0
    //glEnable(GL_LINE_STIPPLE);
    glBegin(GL_LINES);
    glVertex3d(dynamic_atom->x,
@@ -5217,6 +5233,7 @@ coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
    // glRasterPos3d();
    std::string t = coot::util::float_to_string(dist);
    graphics_info_t::printString(t, text_pos.x(), text_pos.y(), text_pos.z());
+#endif
 }
 
 void
@@ -5224,6 +5241,9 @@ graphics_info_t::draw_pointer_distances_objects() {
 
    // and pointer distances:
 
+   std::cout << "graphics_info_t:: draw_pointer_distances_objects() needs to be replaced " << std::endl;
+
+#if 0
    if (pointer_distances_object_vec->size() > 0) {
       double dist;
       clipper::Coord_orth text_pos;
@@ -5250,6 +5270,7 @@ graphics_info_t::draw_pointer_distances_objects() {
       }
       glDisable(GL_LINE_STIPPLE);
    }
+#endif
 }
 
 // update_pointer_distances() you might say
@@ -5257,33 +5278,33 @@ void
 graphics_info_t::make_pointer_distance_objects() {
 
    clipper::Coord_orth cen(rotation_centre_x,
-      rotation_centre_y,
-      rotation_centre_z);
+                           rotation_centre_y,
+                           rotation_centre_z);
 
    std::vector<clipper::Coord_orth> distances;
    std::vector<clipper::Coord_orth> mol_distances;
 
    if (show_pointer_distances_flag) {
       for (int imol=0; imol<n_molecules(); imol++) {
-    if (molecules[imol].has_model()) {
-       if (molecules[imol].is_displayed_p()) {
-          if (molecules[imol].atom_selection_is_pickable()) {
-     mol_distances = molecules[imol].distances_to_point(cen,
-        pointer_min_dist,
-        pointer_max_dist);
-     if (mol_distances.size() > 0) {
-        // append
-        for (unsigned int id=0; id<mol_distances.size(); id++)
-   distances.push_back(mol_distances[id]);
-     }
-          }
-       }
-    }
+         if (molecules[imol].has_model()) {
+            if (molecules[imol].is_displayed_p()) {
+               if (molecules[imol].atom_selection_is_pickable()) {
+                  mol_distances = molecules[imol].distances_to_point(cen,
+                                                                     pointer_min_dist,
+                                                                     pointer_max_dist);
+                  if (mol_distances.size() > 0) {
+                     // append
+                     for (unsigned int id=0; id<mol_distances.size(); id++)
+                        distances.push_back(mol_distances[id]);
+                  }
+               }
+            }
+         }
       }
 
       pointer_distances_object_vec->clear();
       for (unsigned int id=0; id<distances.size(); id++) {
-    pointer_distances_object_vec->push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth> (distances[id], cen));
+         pointer_distances_object_vec->push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth> (distances[id], cen));
       }
    }
 }

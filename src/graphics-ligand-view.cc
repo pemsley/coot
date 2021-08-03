@@ -302,7 +302,8 @@ graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const l
 void
 graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
 				     const coot::colour_t &fc) const {
-
+   std::cout << "old code make_text_item() " << std::endl;
+#if 0
    if (atom_id_info_in.atom_id != "C") {
       glColor3f(fc.col[0], fc.col[1], fc.col[2]);
 
@@ -346,6 +347,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	 bitmap_text(atom_id_info_in.offsets[i].text.c_str());
       }
    }
+#endif
 }
 
 void

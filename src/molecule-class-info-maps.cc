@@ -2254,6 +2254,9 @@ molecule_class_info_t::set_initial_contour_level() {
 void
 molecule_class_info_t::draw_skeleton(bool is_dark_background) {
 
+   std::cout << "old code FIXME in draw_skeleton() " << std::endl;
+
+#if 0
    if (has_xmap()) {
 
       coot::CartesianPair pair;
@@ -2308,6 +2311,7 @@ molecule_class_info_t::draw_skeleton(bool is_dark_background) {
 	 }
       }
    }
+#endif
 }
 
 // Added rotate colour_map for EJD 5/5/2004.

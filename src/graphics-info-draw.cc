@@ -533,6 +533,27 @@ graphics_info_t::setup_map_uniforms(Shader *shader_p,
 }
 
 
+// If the next time you want to use this, but don't have access to graphics_info_t, then move
+// this function outside the graphics_info_t class - mabye it's own file/header!
+//
+void
+graphics_info_t::myglLineWidth(int n_pixels) {
+
+#ifdef __APPLE__
+
+   GLint range[2];
+   glGetIntegerv(GL_ALIASED_LINE_WIDTH_RANGE, range);
+   if (n_pixels < range[1])
+      glLineWidth(n_pixels);
+   else
+      glLineWidth(range[1]);
+#else
+   glLineWidth(n_pixels);
+#endif
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: in myglLineWidth()  " << n_pixels << " " << err << std::endl;
+}
+
 void
 graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
@@ -583,7 +604,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    if (!draw_transparent_maps || n_transparent_maps > 0) {
 
-      glLineWidth(map_line_width * framebuffer_scale);
+      myglLineWidth(map_line_width * framebuffer_scale);
       err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
@@ -3101,7 +3122,7 @@ graphics_info_t::draw_invalid_residue_pulse() {
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
-      glLineWidth(3.0);
+      myglLineWidth(3.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
       for (auto pulse_centre : delete_item_pulse_centres)
@@ -3118,7 +3139,7 @@ graphics_info_t::draw_identification_pulse() {
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
-      glLineWidth(2.0);
+      myglLineWidth(2.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_identification_pulse() glLineWidth " << err << std::endl;
       lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
@@ -3133,7 +3154,7 @@ graphics_info_t::draw_delete_item_pulse() {
    if (! lines_mesh_for_delete_item_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
-      glLineWidth(2.0);
+      myglLineWidth(2.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_delete_item_pulse() glLineWidth " << err << std::endl;
       for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {

@@ -1712,6 +1712,10 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
 void
 graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
 
+   std::cout << "FIXME in draw_moving_atoms_restraints_graphics_object() " << std::endl;
+
+#if 0
+
    if (draw_it_for_moving_atoms_restraints_graphics_object) {
       if (moving_atoms_asc) {
          if (last_restraints) {
@@ -1744,6 +1748,7 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
          }
       }
    }
+#endif
 }
 
 
