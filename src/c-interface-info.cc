@@ -5038,7 +5038,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 /*                  Restratints                                             */
 /*  ----------------------------------------------------------------------- */
 
-void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name) {
+void write_restraints_cif_dictionary(std::string monomer_type, std::string file_name) {
 
    int imol = 0;
    graphics_info_t g;
@@ -5061,15 +5061,17 @@ void write_restraints_cif_dictionary(const char *monomer_type, const char *file_
 #ifdef USE_PYTHON
 PyObject *get_pkgdatadir_py() {
 
-  std::string pkgdatadir = PKGDATADIR;
-  return myPyString_FromString(pkgdatadir.c_str());
+   // std::string pkgdatadir = PKGDATADIR;
+   std::string pkgdatadir = coot::package_data_dir();
+   return myPyString_FromString(pkgdatadir.c_str());
 }
 #endif
 
 #ifdef USE_GUILE
 SCM get_pkgdatadir_scm() {
 
-   std::string pkgdatadir = PKGDATADIR;
+   // std::string pkgdatadir = PKGDATADIR;
+   std::string pkgdatadir = coot::package_data_dir();
    return scm_from_locale_string(pkgdatadir.c_str());
 }
 #endif

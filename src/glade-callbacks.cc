@@ -46,6 +46,7 @@
 #include "read-phs.h"
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
+#include "cc-interface.hh"
 
 #include "widget-from-builder.hh"
 
@@ -9959,18 +9960,18 @@ on_all2_activate_gtkbuilder_callback                       (GtkMenuItem     *men
 
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
-                                                         gpointer         user_data) {
+// extern "C" G_MODULE_EXPORT
+// void
+// on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
+//                                                          gpointer         user_data) {
 
 
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
-  GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
-  const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
-  show_restraints_editor(t);
-  gtk_widget_destroy(dialog);
-}
+//   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
+//   GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
+//   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
+//   show_restraints_editor(t);
+//   gtk_widget_destroy(dialog);
+// }
 
 
 extern "C" G_MODULE_EXPORT
@@ -9989,8 +9990,8 @@ on_restraints1_activate_gtkbuilder_callback                (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
+   gtk_widget_show(w);
 }
 
 
@@ -11208,25 +11209,90 @@ void
 on_edit_change_chain_ids1_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
    GtkWidget *w = wrapped_create_change_chain_id_dialog();
+   gtk_widget_show(w);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_editor_select_monomer_type_dialog_close_gtkbuilder_callback (GtkDialog       *dialog,
+                                                    gpointer         user_data) {
+   // need to add a "Response ID" to the button in glade
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_editor_select_monomer_type_dialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                                                           gint response_id,
+                                                                           gpointer         user_data) {
+
+   // need to add a "Response ID" to the button in glade
+
+   std::cout << "on_residue_editor_select_monomer_type_dialog_response()" << std::endl;
+  if (response_id == GTK_RESPONSE_OK) {
+     GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
+     std::string rt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
+     show_restraints_editor(rt);
+  }
+
+  if (response_id == GTK_RESPONSE_CANCEL) {
+  }
+  gtk_widget_hide(GTK_WIDGET(dialog));
+  
+  
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_general_coot_molecule_chooser_dialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                                  gpointer         user_data) {
+
+   std::cout << "on_general_coot_molecule_chooser_dialog_response()" << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_general_coot_molecule_chooser_dialog_close_gtkbuilder_callback (GtkDialog       *dialog,
+                                               gpointer         user_data) {
+
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close_gtkbuilder_callback (GtkDialog       *dialog,
+                                                  gpointer         user_data) {
+
+   std::cout << "on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close"
+             << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                                                             gpointer         user_data) {
+
+   std::cout << "on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response"
+             << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_edit_restraints_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                                gpointer         user_data)
+{
+   std::cout << "on_edit_restraints_activate_gtkbuilder_callback() " << std::endl;
+   GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
    gtk_widget_show(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_restraints_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   std::cout << "on_edit_restraints_activate_gtkbuilder_callback() " << std::endl;
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_edit_merge_molecules1_activate_gtkbuilder_callback      (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_edit_merge_molecules1_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                                      gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
    gtk_widget_show(w);
@@ -11358,9 +11424,8 @@ on_curlew_install_button_clicked_gtkbuilder_callback(GtkButton *button,
                                                      gpointer   user_data) {
 
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "curlew_dialog");
-  int n_items = 0;
   if (dialog) {
-    n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
+     int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
     curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
   }
 }
@@ -11372,7 +11437,7 @@ void
 on_curlew_dialog_close_gtkbuilder_callback                 (GtkDialog       *dialog,
                                         gpointer         user_data)
 {
-  gtk_widget_destroy(GTK_WIDGET(dialog)); /* or maybe hide */
+  gtk_widget_hide(GTK_WIDGET(dialog)); /* or maybe hide */
 }
 
 
@@ -11803,13 +11868,13 @@ on_simple_refmac_dialog_response_gtkbuilder_callback       (GtkDialog       *dia
 
 extern "C" G_MODULE_EXPORT
 void
-on_simple_refmac_dialog_close_gtkbuilder_callback          (GtkDialog       *dialog,
-                                        gpointer         user_data)
+on_simple_refmac_dialog_close_gtkbuilder_callback (GtkDialog       *dialog,
+                                                   gpointer         user_data)
 {
    /* Do I need to do anything here? */
 }
 
- 
+
 extern "C" G_MODULE_EXPORT
 void
 on_simple_refmac_mtz_file_button_clicked_gtkbuilder_callback

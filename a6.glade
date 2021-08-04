@@ -8399,8 +8399,8 @@ Do you want to continue?
   <object class="GtkDialog" id="general_coot_molecule_chooser_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_general_coot_molecule_chooser_dialog_close" swapped="no"/>
-    <signal name="response" handler="on_general_coot_molecule_chooser_dialog_response" swapped="no"/>
+    <signal name="close" handler="on_general_coot_molecule_chooser_dialog_close_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_general_coot_molecule_chooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="general_coot_molecule_chooser_vbox">
         <property name="can_focus">False</property>
@@ -8472,8 +8472,8 @@ Do you want to continue?
   <object class="GtkDialog" id="general_coot_molecule_chooser_with_entry_and_checkbutton_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close" swapped="no"/>
-    <signal name="response" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response" swapped="no"/>
+    <signal name="close" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -19702,6 +19702,99 @@ just the cell and symmetry)
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkDialog" id="residue_editor_select_monomer_type_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="close" handler="on_residue_editor_select_monomer_type_dialog_close_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_residue_editor_select_monomer_type_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Select Monomer Type</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">6</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="residue_editor_select_monomer_type_combobox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-5">residue_editor_select_monomer_type_ok_button</action-widget>
+      <action-widget response="-6">residue_editor_select_monomer_type_cancel_button</action-widget>
+    </action-widgets>
     <child type="titlebar">
       <placeholder/>
     </child>

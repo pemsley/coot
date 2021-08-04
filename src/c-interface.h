@@ -3716,14 +3716,6 @@ int  get_auto_clear_atom_pull_restraint_state();
 /*                  Restraints editor                                       */
 /*  ----------------------------------------------------------------------- */
 
-/*! \brief show restraints editor */
-void show_restraints_editor(const char *monomer_type);
-/*! \brief show restraints editor using residue type index */
-void show_restraints_editor_by_index(int menu_item_index);
-
-/*! \brief write cif restraints for monomer */
-void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name);
-
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

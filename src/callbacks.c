@@ -11045,14 +11045,14 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
 						    gpointer         user_data) {
 
 
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
-  GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
-  gchar *t = 0;
+  /* GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog"); */
+  /* GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox"); */
+  /* gchar *t = 0; */
 
-  // naughty?
-  t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX(combo_box));
-  show_restraints_editor(t);
-  gtk_widget_destroy(dialog);
+  /* // naughty? */
+  /* t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX(combo_box)); */
+  /* show_restraints_editor(t); */
+  /* gtk_widget_destroy(dialog); */
 }
 
 

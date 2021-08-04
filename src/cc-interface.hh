@@ -551,6 +551,16 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
+/*! \brief show restraints editor */
+void show_restraints_editor(std::string monomer_type);
+
+void show_restraints_editor_by_index(int menu_item_index);
+
+/*! \brief write cif restraints for monomer */
+void write_restraints_cif_dictionary(std::string monomer_type, std::string file_name);
+
+
+
 //! \}
 
 /*  ----------------------------------------------------------------------- */

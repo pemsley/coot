@@ -5233,25 +5233,28 @@ void add_additional_representation_by_widget(GtkWidget *dialog) {
    graphics_draw();
 }
 
+#include "widget-from-builder.hh"
 
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
-   GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
-   GtkWidget *combo_box = lookup_widget(w, "residue_editor_select_monomer_type_combobox");
+
+   std::cout << "---------------- in wrapped_create_residue_editor_select_monomer_type_dialog()"
+             << std::endl;
+
+   // GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
+   GtkWidget *w = widget_from_builder("residue_editor_select_monomer_type_dialog");
+   GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
+
+   std::cout << "debug::  in wrapped_create_residue_editor_select_monomer_type_dialog() w " << w
+             << " and combobox " << combo_box << std::endl;
+
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
 
    // remove the 2 items that are already there from the glade interface (I suppose).
 
-   std::cout << "GTK-FIXME no gtk_combo_box_remove_text" << std::endl;
-
-   // gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
-   // gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
-
-
    for (unsigned int i=0; i<v.size(); i++) {
       std::string s = v[i];
-      std::cout << "GTK-FIXME no gtk_combo_box_append_text" << std::endl;
-      // gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), s.c_str());
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_box), s.c_str());
       gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
    }
    return w;
@@ -5279,13 +5282,13 @@ void clear_restraints_editor_by_dialog(GtkWidget *dialog) { /* close button pres
 
 
 
-void show_restraints_editor(const char *monomer_type) {
+void show_restraints_editor(std::string monomer_type) {
 
    int imol = 0; // maybe this should be passed? Pretty esoteric though.
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-      if (! monomer_type) {
+      if (false) {
 	 std::cout << "ERROR:: null monomer_type - no restraints editor" << std::endl;
       } else {
 	 graphics_info_t g;
