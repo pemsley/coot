@@ -3916,8 +3916,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
 
-  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
-				    "single_map_properties_dialog");
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
   struct map_colour_data_type *map_colour_data;
   GtkWidget *col_sel_window;
   GtkWidget  *colorseldlg;
@@ -3928,8 +3927,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   if (is_valid_map_molecule(imol)) {
       if (1) {
 	/*     printf("pop up the colour chooser for map: %d \n", imol);  */
-	map_colour_data = (struct map_colour_data_type *)
-	  malloc(sizeof(struct map_colour_data_type));
+	map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
 	map_colour_data->imol = imol;
 	map_colour_data->imap = 0; /* historical cruft */
 	col_sel_window = create_map_colour_selection_window(map_colour_data);
