@@ -1,4 +1,5 @@
 
+#include "utils/split-indices.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "rama-rsr-extend-fragments.hh"
@@ -730,7 +731,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                            float weight, unsigned int n_phi_psi_trials,
                                                            const coot::protein_geometry &geom) {
 
-                            float crit_sf = 0.45; // the critcal ratio between the density for the new fragment and the average density for the model so far
+                            float crit_sf = 0.345; // the critcal ratio between the density for the new fragment and the average density for the model so far
                             bool status = false; // initially no residue added.
                             float density_level_crit_for_main_chain = 0.5 * average_density_per_atom_for_molecule;
                             // std::cout << "debug density_level_crit_for_main_chain: " << density_level_crit_for_main_chain << std::endl;
@@ -893,7 +894,6 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                       
                                bool status = false;
                                std::vector<std::string> terminus_types = {"N", "C"};
-
                                std::pair<mmdb::Chain *, mmdb::Manager *> chain_mol_pair = coot::util::copy_chain(chain_p); // add it into a molecule hierarchy
 
                                for (auto it = terminus_types.begin(); it != terminus_types.end(); ++it) {
@@ -904,7 +904,8 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                      if (status) (*update_count)++;
                                   } while (status);
                                }
-                               // now copy the atoms (including any new residues and atoms) of chain_mol.first into chain_p
+                               // now copy the atoms (including any new residues and atoms) of chain_mol.first into chain_p.
+                               // Using mol to do a FinishStructEdit() here looks dangerous. Perhaps do it at the end of this function (not this lambda)
                                coot::util::replace_chain_contents_with_atoms_from_chain(chain_p, mol, chain_mol_pair.first); // (to_chain, from_chain)
                             };
 
@@ -913,13 +914,28 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
       float average_density_per_atom_for_molecule = get_average_density_per_atom(mol, xmap);
       int n_chains = model_p->GetNumberOfChains();
 #if 1 // threaded.
-      std::vector<std::thread> threads;
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         threads.push_back(std::thread(extend_chain_func, chain_p, mol, average_density_per_atom_for_molecule, weight, n_phi_psi_trials, std::cref(geom), update_count));
+      unsigned int n_rounds = 50;
+      std::vector<std::pair<unsigned int, unsigned int> > cir = coot::atom_index_ranges(n_chains, n_rounds);
+
+      for (unsigned int i=0; i<cir.size(); i++) {
+         const auto &chain_index_pair = cir[i];
+         std::cout << "New chain batch: (chain index range " << chain_index_pair.first << " " << chain_index_pair.second << ")"
+                   << std::endl;
+         for (unsigned int ich=chain_index_pair.first; ich<chain_index_pair.second; ich++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ich);
+            std::cout << " " << chain_p->GetChainID();
+         }
+         std::cout << std::endl;
+
+         std::vector<std::thread> threads;
+         for (unsigned int ichain=cir[i].first; ichain<cir[i].second; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            threads.push_back(std::thread(extend_chain_func, chain_p, mol, average_density_per_atom_for_molecule, weight, n_phi_psi_trials,
+                                          std::cref(geom), update_count));
+         }
+         for (unsigned int ithr=0; ithr<threads.size(); ithr++)
+            threads[ithr].join();
       }
-      for (int ichain=0; ichain<n_chains; ichain++)
-         threads[ichain].join();
 #endif
 #if 0
       for (int ichain=0; ichain<n_chains; ichain++) {

@@ -90,7 +90,7 @@ namespace coot {
       // When we are building forward, we have phi for the selected residue, but not psi.
       // To be clear, we only have phi, when we have also have the upstream (lower residue number) residue
       // as well.
-      static double get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama); // phi and psi in radians
+      static double get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama, dsfmt_t *dsfmt); // phi and psi in radians
 
       static phi_psi_t get_phi_psi_by_random(const clipper::Ramachandran &rama,
                                              const float &rama_max,
@@ -101,20 +101,24 @@ namespace coot {
       minimol::fragment make_3_res_joining_frag_forward(const std::string &chain_id, const connecting_atoms_t &current_res_pos,
                                                         const double &psi_conditional_deg,
                                                         const phi_psi_t &pp_1, const phi_psi_t &tpp_2, const phi_psi_t &pp_3,
-                                                        int seq_num);
+                                                        int seq_num,
+                                                        dsfmt_t *dsfmt);
 
       static
       minimol::fragment make_3_res_joining_frag_backward(const std::string &chain_id, const connecting_atoms_t &current_res_pos,
                                                          const double &phi_conditional_deg,
                                                          const phi_psi_t &pp_1, const phi_psi_t &tpp_2, const phi_psi_t &pp_3,
-                                                         int seq_num);
+                                                         int seq_num,
+                                                         dsfmt_t *dsfmt);
 
       static minimol::residue                          
-      construct_next_res_from_rama_angles(float phi, float psi, float tau, int seqno, const connecting_atoms_t &current_res_pos, float occupancy);
+      construct_next_res_from_rama_angles(float phi, float psi, float tau, int seqno, const connecting_atoms_t &current_res_pos, float occupancy,
+                                          dsfmt_t *dsfmt);
       
       static minimol::residue                          
-      construct_prev_res_from_rama_angles(float phi, float psi, float tau, int seqno, const connecting_atoms_t &current_res_pos, float occupancy);
-      
+      construct_prev_res_from_rama_angles(float phi, float psi, float tau, int seqno, const connecting_atoms_t &current_res_pos, float occupancy,
+                                          dsfmt_t *dsfmt);
+
       static float score_fragment_basic(const minimol::fragment &frag,
                                         const connecting_atoms_t &current_res_pos,
                                         const clipper::Xmap<float> &xmap);

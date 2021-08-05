@@ -251,7 +251,8 @@ coot::new_residue_by_3_phi_psi::get_phi_by_random_given_psi(double psi,
 // as well.
 // static
 double
-coot::new_residue_by_3_phi_psi::get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama) {
+coot::new_residue_by_3_phi_psi::get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama,
+                                                            dsfmt_t *dsfmt) {
 
    double psi;
 
@@ -270,12 +271,12 @@ coot::new_residue_by_3_phi_psi::get_psi_by_random_given_phi(double phi, const cl
       // something went wrong, hack a return value
       // so that we don't stay in the below loop forever
       //
-      psi = 2.0 * M_PI * fabsf(get_random_float());
+      psi = 2.0 * M_PI * fabsf(get_random_float_mt(dsfmt));
    } else{
 
       for (;;) {
-	 psi = 2.0 * M_PI * fabsf(get_random_float());
-	 double r = conditional_pr_rama_max * fabsf(get_random_float());
+	 psi = 2.0 * M_PI * fabsf(get_random_float_mt(dsfmt));
+	 double r = conditional_pr_rama_max * fabsf(get_random_float_mt(dsfmt));
 	 double prob = rama.probability(phi, psi);
 	 if (prob > r) {
 	    break;
@@ -490,7 +491,8 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
 coot::minimol::residue
 coot::new_residue_by_3_phi_psi::construct_next_res_from_rama_angles(float phi_this, float psi_prev,
                                                                     float tau, int seqno,
-                                                                    const connecting_atoms_t &current_res_pos, float occupancy) {
+                                                                    const connecting_atoms_t &current_res_pos, float occupancy,
+                                                                    dsfmt_t *dsfmt) {
 
    double jitter_scale = 4.0;
 
@@ -499,8 +501,14 @@ coot::new_residue_by_3_phi_psi::construct_next_res_from_rama_angles(float phi_th
    const clipper::Coord_orth &previous_c  = current_res_pos.C_pos;
 
    // +/- 10 degrees (but in radians)
-   double omega_jitter =  20.0 * (M_PI/180.0) * 0.5 * get_random_float() * jitter_scale;
-   double O_torsion    = 720.0 * (M_PI/180.0) * 0.5 * get_random_float();
+   double omega_jitter =  20.0 * (M_PI/180.0) * 0.5 * get_random_float_mt(dsfmt) * jitter_scale;
+   double O_torsion    = 720.0 * (M_PI/180.0) * 0.5 * get_random_float_mt(dsfmt);
+
+   double r1 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r2 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r3 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+
+   clipper::Coord_orth jittered_delta(jitter_scale * 0.1 * clipper::Coord_orth(r1,r2,r3));
 
    double angle, torsion;
 
@@ -520,6 +528,8 @@ coot::new_residue_by_3_phi_psi::construct_next_res_from_rama_angles(float phi_th
    angle = clipper::Util::d2rad(116.200); // Ca-C-N
    torsion = clipper::Util::d2rad(psi_prev);
    clipper::Coord_orth n_pos(previous_n, previous_ca, previous_c, 1.329, angle, torsion); // C-N bond
+
+   n_pos += jittered_delta;
 
    angle = clipper::Util::d2rad(121.700); // C-N-Ca
    torsion = clipper::Util::d2rad(180.0) + omega_jitter;
@@ -548,7 +558,8 @@ coot::new_residue_by_3_phi_psi::construct_next_res_from_rama_angles(float phi_th
 // static
 coot::minimol::residue
 coot::new_residue_by_3_phi_psi::construct_prev_res_from_rama_angles(float phi, float psi, float tau,
-                                                                    int seqno, const connecting_atoms_t &current_res_pos, float occupancy) {
+                                                                    int seqno, const connecting_atoms_t &current_res_pos, float occupancy,
+                                                                    dsfmt_t *dsfmt) {
 
    double jitter_scale = 4.0;
 
@@ -557,7 +568,11 @@ coot::new_residue_by_3_phi_psi::construct_prev_res_from_rama_angles(float phi, f
 
    double angle, torsion;
 
-   clipper::Coord_orth jittered_delta(jitter_scale * 0.1 * clipper::Coord_orth(get_random_float(), get_random_float(), get_random_float()));
+   double r1 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r2 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r3 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+
+   clipper::Coord_orth jittered_delta(jitter_scale * 0.1 * clipper::Coord_orth(r1,r2,r3));
 
    // C
    angle = clipper::Util::d2rad(121.700); // C-N-Ca
@@ -607,7 +622,8 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::strin
                                                                 const phi_psi_t &pp_1,
                                                                 const phi_psi_t &pp_2,
                                                                 const phi_psi_t &pp_3,
-                                                                int seq_num) {
+                                                                int seq_num,
+                                                                dsfmt_t *dsfmt) {
 
    auto make_CB_ideal_pos = [] (minimol::residue &res) {
                                std::pair<bool, coot::minimol::atom> CB = res.get_atom(" CB ");
@@ -645,21 +661,26 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::strin
    clipper::Coord_orth &current_n  = current_res_pos.N_pos;
    clipper::Coord_orth &current_ca = current_res_pos.CA_pos;
 
-   current_n  += clipper::Coord_orth(rand_lim * 0.5 * get_random_float(),
-				     rand_lim * 0.5 * get_random_float(),
-				     rand_lim * 0.5 * get_random_float());
-   current_ca += clipper::Coord_orth(rand_lim * 0.5 * get_random_float(),
-				     rand_lim * 0.5 * get_random_float(),
-				     rand_lim * 0.5 * get_random_float());
+   // Am I double jittering here!?
+
+   double r1 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r2 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r3 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r4 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r5 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+   double r6 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+
+   current_n  += clipper::Coord_orth(rand_lim * 0.5 * r1, rand_lim * 0.5 * r2, rand_lim * 0.5 * r3);
+   current_ca += clipper::Coord_orth(rand_lim * 0.5 * r4, rand_lim * 0.5 * r5, rand_lim * 0.5 * r6);
 
    if (true) {
-      minimol::residue res_1 = construct_next_res_from_rama_angles(pp_1.phi, psi_conditional_deg, pp_1.tau, seq_num + 1, current_res_pos, 1.0);
+      minimol::residue res_1 = construct_next_res_from_rama_angles(pp_1.phi, psi_conditional_deg, pp_1.tau, seq_num + 1, current_res_pos, 1.0, dsfmt);
 
       connecting_atoms_t just_built_res_1(res_1[" N  "].pos, res_1[" CA "].pos, res_1[" C  "].pos);
       just_built_res_1.set_upstream_C(current_res_pos.C_pos);
-      minimol::residue res_2 = construct_next_res_from_rama_angles(pp_2.phi, pp_1.psi, pp_2.tau, seq_num + 2, just_built_res_1, 0.8);
+      minimol::residue res_2 = construct_next_res_from_rama_angles(pp_2.phi, pp_1.psi, pp_2.tau, seq_num + 2, just_built_res_1, 0.8, dsfmt);
       connecting_atoms_t just_built_res_2(res_2[" N  "].pos, res_2[" CA "].pos, res_2[" C  "].pos);
-      minimol::residue res_3 = construct_next_res_from_rama_angles(pp_3.phi, pp_3.psi, pp_3.tau, seq_num + 3, just_built_res_2, 0.5);
+      minimol::residue res_3 = construct_next_res_from_rama_angles(pp_3.phi, pp_3.psi, pp_3.tau, seq_num + 3, just_built_res_2, 0.5, dsfmt);
 
       // now set set the occupancy of res2 to 0.5 or so, because we care more that the
       // first residue is in density
@@ -710,12 +731,13 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::strin
 
 coot::minimol::fragment
 coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::string &chain_id,
-                                                                const connecting_atoms_t &current_res_pos,
-                                                                const double &phi_conditional_deg,
-                                                                const phi_psi_t &pp_1,
-                                                                const phi_psi_t &pp_2,
-                                                                const phi_psi_t &pp_3,
-                                                                int seq_num) {
+                                                                 const connecting_atoms_t &current_res_pos,
+                                                                 const double &phi_conditional_deg,
+                                                                 const phi_psi_t &pp_1,
+                                                                 const phi_psi_t &pp_2,
+                                                                 const phi_psi_t &pp_3,
+                                                                 int seq_num,
+                                                                 dsfmt_t *dsfmt) {
    coot::minimol::fragment frag(chain_id);
 
    clipper::Coord_orth current_n  = current_res_pos.N_pos;
@@ -726,19 +748,25 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
       // add a bit of jitter
       double rand_lim = 0.1;
 
-      current_n  += clipper::Coord_orth(rand_lim * 0.5 * get_random_float(),
-                                        rand_lim * 0.5 * get_random_float(),
-                                        rand_lim * 0.5 * get_random_float());
-      current_ca += clipper::Coord_orth(rand_lim * 0.5 * get_random_float(),
-                                        rand_lim * 0.5 * get_random_float(),
-                                        rand_lim * 0.5 * get_random_float());
-      minimol::residue res1 = construct_prev_res_from_rama_angles(phi_conditional_deg, pp_1.psi, pp_1.tau, seq_num - 1, current_res_pos, 1.0);
+   // Am I double jittering here!?
+
+      double r1 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+      double r2 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+      double r3 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+      double r4 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+      double r5 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+      double r6 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
+
+      current_n  += clipper::Coord_orth(rand_lim * 0.5 * r1, rand_lim * 0.5 * r2, rand_lim * 0.5 * r3);
+      current_ca += clipper::Coord_orth(rand_lim * 0.5 * r4, rand_lim * 0.5 * r5, rand_lim * 0.5 * r6);
+
+      minimol::residue res1 = construct_prev_res_from_rama_angles(phi_conditional_deg, pp_1.psi, pp_1.tau, seq_num - 1, current_res_pos, 1.0, dsfmt);
 
       connecting_atoms_t just_built_res_1(res1[" N  "].pos, res1[" CA "].pos, res1[" C  "].pos);
       just_built_res_1.set_downstream_N(current_res_pos.N_pos);
-      minimol::residue res2 = construct_prev_res_from_rama_angles(pp_1.phi, pp_2.psi, pp_2.tau, seq_num - 2, just_built_res_1, 0.8);
+      minimol::residue res2 = construct_prev_res_from_rama_angles(pp_1.phi, pp_2.psi, pp_2.tau, seq_num - 2, just_built_res_1, 0.8, dsfmt);
       connecting_atoms_t just_built_res_2(res2[" N  "].pos, res2[" CA "].pos, res2[" C  "].pos);
-      minimol::residue res3 = construct_prev_res_from_rama_angles(pp_2.phi, pp_3.psi, pp_3.tau, seq_num - 3, just_built_res_2, 0.5);
+      minimol::residue res3 = construct_prev_res_from_rama_angles(pp_2.phi, pp_3.psi, pp_3.tau, seq_num - 3, just_built_res_2, 0.5, dsfmt);
 
       // for (unsigned int iat=0; iat<res2.atoms.size(); iat++)
       // res2.atoms[iat].occupancy = 0.5;
@@ -778,14 +806,14 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
 
                                    //std::cout << "debug:: in run_forward_trials() i_trial " << i_trial << std::endl;
 
-                                   double psi_conditional = get_psi_by_random_given_phi(phi_current, rama); // in radians
+                                   double psi_conditional = get_psi_by_random_given_phi(phi_current, rama, &dsfmt); // in radians
 
                                    phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
                                    phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
                                    phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
 
                                    minimol::fragment frag = make_3_res_joining_frag_forward(chain_id, current_res_pos, clipper::Util::rad2d(psi_conditional),
-                                                                                            pp_1, pp_2, pp_3, seq_num);
+                                                                                            pp_1, pp_2, pp_3, seq_num, &dsfmt);
                                    float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
                                    float score_basic = score_fragment_basic(frag, current_res_pos, *xmap);
                                    if (score > best_score) {
@@ -826,7 +854,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
 
                                     minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos,
                                                                                               clipper::Util::rad2d(phi_conditional),
-                                                                                              pp_1, pp_2, pp_3, seq_num);
+                                                                                              pp_1, pp_2, pp_3, seq_num, &dsfmt);
                                     // inital previous-residue C density test:
                                     // don't bother with scoring the triple peptide if this is not at least 1 rmsd (min density level for connecting atom)
                                     // We can do this *after* make_3_res_joining_frag_backward if make_3_res_joining_frag_backward() is fast
