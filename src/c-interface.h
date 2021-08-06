@@ -4049,8 +4049,12 @@ short int is_valid_map_molecule(int imol);
 
 peaks within max_closeness (2.0 A typically) of a larger peak are not
 listed.
+
+the flag around_model_only_flag limits the peak list to those only within 4A
+of the selected model (useful for maps with molecular symmetry).
+
 */
-void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag);
+void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag, int around_model_only_flag);
 
 /* \brief set the max closeness (i.e. no smaller peaks can be within
    max_closeness of a larger peak)
