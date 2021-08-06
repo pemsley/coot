@@ -4202,3 +4202,82 @@ coot::util::flip_hand(clipper::Xmap<float> *xmap_p) {
 
 }
 
+
+
+#include "coot-least-squares.hh"
+
+// return the map of the density gradients
+//
+clipper::Xmap<float>
+coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps) {
+
+   // the caller guarantees that the map files are in the correct order in the vector
+
+   auto all_maps_have_the_same_grid = [xmaps] () {
+                                         return true;
+                                      };
+
+   clipper::Xmap<float> linear_fit_map; // return this
+   if (xmaps.size() < 2) return linear_fit_map;
+   if (! all_maps_have_the_same_grid()) return linear_fit_map;
+
+   clipper::Xmap_base::Map_reference_index ix;
+   clipper::Xmap<float> &first_map(*xmaps[0].first);
+
+   clipper::Xmap<std::vector<float> > store;
+
+   store.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
+   linear_fit_map.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
+   unsigned int n_maps = xmaps.size();
+   std::cout << "resizing store " << std::endl;
+   for (ix=first_map.first(); !ix.last(); ix.next())
+      store[ix].resize(n_maps);
+   std::cout << "adding data to store" << std::endl;
+   for (unsigned int imap=0; imap<n_maps; imap++) {
+      for (ix=first_map.first(); !ix.last(); ix.next())
+         store[ix][imap] = (*xmaps[imap].first)[ix];
+   }
+
+   clipper::Coord_orth cell_centre(96.9, 96.9, 96.9); // calculate this!
+   double dist_min_sqrd = 37 * 37;
+   double dist_max_sqrd = 90 * 90;
+
+   unsigned int count = 0;
+   for (ix=store.first(); !ix.last(); ix.next()) {
+
+      const std::vector<float> &vec = store[ix];
+      std::vector<std::pair<double, double> > data;
+      for (unsigned int i=0; i<vec.size(); i++) {
+         float f = store[ix][i];
+         const float &rmsd = xmaps[i].second;
+         float r = f/rmsd;
+         data.push_back(std::make_pair(static_cast<double>(i), static_cast<double>(r)));
+      }
+      coot::least_squares_fit lsqf(data);
+      linear_fit_map[ix] = lsqf.m();
+
+      if (false) {
+         if (count%5000 == 0) {
+            clipper::Coord_grid cg = ix.coord();
+            clipper::Coord_frac cf = cg.coord_frac(first_map.grid_sampling());
+            clipper::Coord_orth co = cf.coord_orth(first_map.cell());
+            double dd = (co-cell_centre).lengthsq();
+            float f = first_map[ix];
+            if (f > 0.2) {
+               if (dd < dist_max_sqrd) {
+                  if (dd > dist_min_sqrd) {
+                     std::string fn = "analyse-map-" + std::to_string(count) + ".table";
+                     std::ofstream fout(fn.c_str());
+                     for (unsigned int i=0; i<vec.size(); i++) {
+                        fout << count << " " << i << "  " << vec[i] << "\n";
+                     }
+                     fout.close();
+                  }
+               }
+            }
+         }
+      }
+      count++;
+   }
+   return linear_fit_map;
+}

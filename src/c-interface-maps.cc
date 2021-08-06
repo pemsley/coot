@@ -2558,3 +2558,53 @@ int flip_hand(int imol) {
    return imol_new;
 
 }
+
+
+//! \brief test function for analysis of multiple map
+int analyse_map_point_density_change(const std::vector<int> &map_number_list) {
+
+   std::vector<std::pair<clipper::Xmap<float> *, float> > xmaps;
+   for (const auto &i : map_number_list) {
+      if (graphics_info_t::is_valid_map_molecule(i)) {
+         float rmsd = graphics_info_t::molecules[i].map_sigma();
+         xmaps.push_back(std::make_pair(&graphics_info_t::molecules[i].xmap, rmsd));
+      }
+   }
+
+   std::cout << "::::::::::::::::::: here in analyse_map_point_density_change() with xmaps size "
+             << xmaps.size() << std::endl;
+   if (! xmaps.empty()) {
+      clipper::Xmap<float> linear_fit_map = coot::util::analyse_map_point_density_change(xmaps);
+      int new_molecule_number = graphics_info_t::create_molecule();
+      bool is_EM_flag = true;
+      std::string label = "negative linear_fit_of_decay";
+      graphics_info_t::molecules[new_molecule_number].install_new_map(linear_fit_map, label, is_EM_flag);
+      graphics_info_t::molecules[new_molecule_number].set_map_is_difference_map(true);
+      return new_molecule_number;
+   } else {
+      return -1;
+   }
+}
+
+#ifdef USE_PYTHON
+int analyse_map_point_density_change_py(PyObject *map_number_list_py) {
+
+   std::vector<int> mnl;
+   if (PyList_Check(map_number_list_py)) {
+      int n = PyObject_Length(map_number_list_py);
+      for (int i=0; i<n; i++) {
+         PyObject *o = PyList_GetItem(map_number_list_py, i);
+         if (PyInt_Check(o)) {  // this will need to be changed for Python3
+            int imol = PyInt_AsLong(o);
+            mnl.push_back(imol);
+         }
+      }
+   }
+   if (!mnl.empty()) {
+      return analyse_map_point_density_change(mnl);
+   } else {
+      return -1;
+   }
+}
+#endif
+

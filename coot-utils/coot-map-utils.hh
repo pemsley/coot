@@ -547,6 +547,9 @@ namespace coot {
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
       void flip_hand(clipper::Xmap<float> *xmap_p);
 
+      // input is map and its rmsd
+      clipper::Xmap<float>
+      analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps);
    }
 }
 
