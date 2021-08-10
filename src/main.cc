@@ -409,6 +409,7 @@ bool init_from_gtkbuilder() {
    return status;
 }
 
+#include "widget-from-builder.hh"
 
 // This main is used for both python/guile useage and unscripted.
 int
@@ -500,9 +501,16 @@ main (int argc, char *argv[]) {
 
             gtk_widget_show(glarea);
             my_glarea_add_signals_and_events(glarea);
-            std::cout << "............ done setup signals and events " << std::endl;
             on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
-            // without this.
+                                                    // without this.
+
+            // We need to connect the submenu to the menus (which are
+            // accessible via window1)
+            GtkWidget *main_window = widget_from_builder("main_window");
+            create_initial_map_color_submenu(main_window);
+            // create_initial_ramachandran_mol_submenu(main_window);
+            //  create_initial_sequence_view_mol_submenu(main_window);
+
             // std::cout << "------------------------- calling setup_python" << std::endl;
             setup_python(argc, argv);
          } else {

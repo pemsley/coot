@@ -666,11 +666,17 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             // --- material ---
 
             Material &material = m.material_for_maps;
+            shader.set_bool_for_uniform("do_specular",         material.do_specularity);
             shader.set_vec4_for_uniform( "material.ambient",   material.ambient);
             shader.set_vec4_for_uniform( "material.diffuse",   material.diffuse);
-            shader.set_vec4_for_uniform( "material.specular",  material.specular);
+            shader.set_vec4_for_uniform( "material.specular",  material.specular * material.do_specularity); // binary multiply
             shader.set_float_for_uniform("material.shininess", material.shininess);
             shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+            if (false)
+               std::cout << "draw_map_molecules(): do_specular " << material.do_specularity
+                         << " strength " << material.specular_strength
+                         << " shiny " << material.shininess << std::endl;
 
             // --- background ---
 
@@ -681,6 +687,11 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
             // --- fresnel ---
+
+            if (false)
+               std::cout << "debug fresnel settings state: " << m.fresnel_settings.state
+                         << " bias " << m.fresnel_settings.bias << " scale "
+                         << m.fresnel_settings.scale << " power " << m.fresnel_settings.power << std::endl;
 
             shader.set_bool_for_uniform("do_fresnel",     m.fresnel_settings.state);
             shader.set_float_for_uniform("fresnel_bias",  m.fresnel_settings.bias);

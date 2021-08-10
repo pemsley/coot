@@ -43,6 +43,7 @@
 #include "interface.h"  /* for create_single_map_properties_dialog() */
 #include "utils/coot-utils.hh"
 
+#include "widget-from-builder.hh"
 
 
 /* This is the signal handler for a color change event created when
@@ -187,24 +188,14 @@ on_symm_col_sel_cancel_button_clicked (GtkButton       *button,
 /* ----------------------------------------------------------------- */
 
 void
-create_initial_map_color_submenu(GtkWidget *widget) {
+create_initial_map_color_submenu(GtkWidget *window1) {
 
-   GtkWidget *map_colour1_menu;
-   GtkWidget *window1;
-   GtkWidget *map_colour1;
+   GtkWidget *map_colour1 = widget_from_builder("map_colour1");
+   GtkWidget *map_colour1_menu = gtk_menu_new();
 
- /* We need to get to window1 */
-   window1 = widget;
-
-   map_colour1 = GTK_WIDGET(lookup_widget(window1, "map_colour1"));
-
-   map_colour1_menu = gtk_menu_new ();
    // gtk_widget_ref (map_colour1_menu);
-   g_object_set_data_full (G_OBJECT (window1), "map_colour1_menu",
-			   map_colour1_menu, NULL);
-
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (map_colour1),
-			      map_colour1_menu);
+   g_object_set_data_full (G_OBJECT (window1), "map_colour1_menu", map_colour1_menu, NULL);
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM (map_colour1), map_colour1_menu);
 }
 
 
@@ -1155,6 +1146,8 @@ on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
    close_molecule(imol);
 }
 
+#include "single-map-properties-dialog.hh"
+
 void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
 						   gpointer         user_data)
@@ -1162,14 +1155,13 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 
 /* Remove (comment out) archaic use of casting int * for user data. */
   int imol = GPOINTER_TO_INT(user_data);
-  GtkWidget *frame;
-  GtkWidget *window = create_single_map_properties_dialog();
+  // GtkWidget *window = create_single_map_properties_dialog();
 //   GtkWidget *patch_frame = lookup_widget(window,
 // 					 "single_map_colour_button_frame");
-  GtkWidget *single_map_properties_colour_button =
-    lookup_widget(window, "single_map_properties_colour_button");
-  GtkWidget *label = lookup_widget(window, "label114");
 
+
+  // GtkWidget *single_map_properties_colour_button = lookup_widget(window, "single_map_properties_colour_button");
+  // GtkWidget *label = lookup_widget(window, "label114");
 
   // FIXME? block commented.  Did it do anything?
 //   // chunk from the glade FAQ:
@@ -1182,14 +1174,10 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 //   gtk_widget_modify_style (label, rc_style);
 //   gtk_rc_style_unref (rc_style);
 
-  fill_single_map_properties_dialog(window, imol);
-  g_object_set_data(G_OBJECT(window), "imol", GINT_TO_POINTER(imol));
-  /*  and now the skeleton buttons */
-  frame = lookup_widget(window, "single_map_skeleton_frame");
-  set_on_off_single_map_skeleton_radio_buttons(frame, imol);
-  /* contour by sigma step */
-  set_contour_sigma_button_and_entry(window, imol);
-  gtk_widget_show(window);
+
+  GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
+
+  gtk_widget_show(dialog);
 }
 
 void

@@ -651,6 +651,8 @@ libcootsumo_la_SOURCES = \
 	remarks-browser-gtk-widgets.hh \
 	rama-rota-score.hh 	 \
 	spherical-density.cc     \
+	single-map-properties-dialog.cc \
+	single-map-properties-dialog.hh \
 	fragment-info.hh 	 \
 	atom-name-bits.hh 	 \
 	additional-representation.hh 	   \

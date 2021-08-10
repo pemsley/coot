@@ -16,8 +16,8 @@ public:
    fresnel_settings_t() : colour(glm::vec4(1,1,1,1)) {
       state = false;
       bias = 0.0;
-      scale = 1.0;
-      power = 1.5;
+      scale = 0.4;
+      power = 3.5;
    }
    void update_settings(bool state_in, const float &f1, const float &f2, const float &f3) {
       state = state_in;

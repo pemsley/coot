@@ -66,6 +66,7 @@ uniform bool do_depth_fog;
 uniform bool do_diffuse_lighting; // really: all lighting vs ambient only (for demo, really)
 uniform bool do_cosine_dependent_opacity;
 uniform float map_opacity;
+uniform bool do_specular;
 uniform bool do_fresnel;
 uniform float fresnel_bias;
 uniform float fresnel_scale;
@@ -124,6 +125,7 @@ void main() {
          // when the exponent is low, the specular_strength needs to be reduced
          // a low exponent means lots of the map is specular (around the edges)
          float shininess = material.shininess;
+         if (! do_specular) shininess = 0.0;
          // shininess = 55;
          float spec = pow(dp_view_reflect, shininess);
          vec4 col_specular = specular_strength * spec * specular_light_colour;
@@ -140,11 +142,6 @@ void main() {
             col_3 = col_1;
 
          vec4 col_4 = col_3;
-
-         // if (do_depth_fog)
-         // col_4 = mix(col_3, background_colour, fog_amount);
-
-         col_4 = col_3;
 
          col_4.a = map_opacity * shine_opacity;
 

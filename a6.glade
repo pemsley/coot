@@ -22566,8 +22566,6 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
           <object class="GtkLabel" id="label44">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xpad">3</property>
-            <property name="ypad">5</property>
             <property name="label" translatable="yes">Symmetry &amp; Unit Cell</property>
             <property name="justify">center</property>
           </object>

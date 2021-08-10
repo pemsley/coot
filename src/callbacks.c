@@ -3654,6 +3654,8 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
 
+   printf("in callbacks.c on_single_map_properties_colour_button_clicked() \n");
+
    GtkWidget *window = lookup_widget(GTK_WIDGET(button),
                                      "single_map_properties_dialog");
    struct map_colour_data_type *map_colour_data;
@@ -3664,12 +3666,11 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
    GtkWidget *parent = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
    GtkWindow *parent_w = GTK_WINDOW(parent);
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
+   GtkWindow *color_selection_dialog;
+   GtkColorSelection *color_selection;
 
-   GtkWidget *color_selection_dialog;
-   GtkWidget *color_selection;
-
-   printf("in on_single_map_properties_colour_button_clicked() imol %d\n", imol);
-   printf("in on_single_map_properties_colour_button_clicked() parent 0%p\n", parent);
+   printf("in callbacks.c on_single_map_properties_colour_button_clicked() imol %d\n", imol);
+   printf("in callbacks.c on_single_map_properties_colour_button_clicked() parent 0%p\n", parent);
 
    if (is_valid_map_molecule(imol)) {
 
@@ -3683,7 +3684,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
       gtk_widget_show(col_chooser);
 #endif
 
-      color_selection_dialog = gtk_color_selection_dialog_new ("Map Colour Selection");
+      color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
 
       map_colour = get_map_colour(imol);
       map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));

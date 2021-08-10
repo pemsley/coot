@@ -4245,24 +4245,29 @@ void set_map_colour(int imol, float red, float green, float blue) {
 
 
 #include "widget-headers.hh"
-
+#include "widget-from-builder.hh"
 
 void add_on_map_colour_choices(GtkWidget *menu) {
 
-   GCallback callback = G_CALLBACK(map_colour_mol_selector_activate);
-   std::string sub_menu_name = "map_colour1_menu";
-   GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
+   std::cout << "in add_on_map_colour_choices()" << std::endl;
+
+   // GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
+   // GtkWidget *sub_menu = widget_from_builder(sub_menu_name); // No, because it's dynamically added
+   //                                                           // in create_initial_map_color_submenu()
+
+   GtkWidget *sub_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu));
    if (!sub_menu) {
-      std::cout << "ERROR: sub menu not found in add_on_map_colour_choices\n";
+      std::cout << "ERROR:: sub menu map_colour1_menu not found in add_on_map_colour_choices()\n";
    } else {
       gtk_container_foreach(GTK_CONTAINER(sub_menu),
                             my_delete_menu_items,
                             (gpointer) sub_menu);
+      std::cout << "here A with n_molecules() " << graphics_info_t::n_molecules() << std::endl;
+      GCallback callback = G_CALLBACK(map_colour_mol_selector_activate);
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
          if (graphics_info_t::molecules[imol].has_xmap() ||
              graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME
-            std::string name;
-            name = graphics_info_t::molecules[imol].dotted_chopped_name();
+            std::string name = graphics_info_t::molecules[imol].dotted_chopped_name();
             add_map_colour_mol_menu_item(imol, name, sub_menu, callback);
          }
       }
@@ -4311,6 +4316,7 @@ void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
    gtk_widget_show(col_sel_window);
    free(colour);
    */
+
 }
 
 // ---------------------------------------------------------
