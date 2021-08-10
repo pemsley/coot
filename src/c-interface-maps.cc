@@ -2574,12 +2574,14 @@ int analyse_map_point_density_change(const std::vector<int> &map_number_list) {
    std::cout << "::::::::::::::::::: here in analyse_map_point_density_change() with xmaps size "
              << xmaps.size() << std::endl;
    if (! xmaps.empty()) {
-      clipper::Xmap<float> linear_fit_map = coot::util::analyse_map_point_density_change(xmaps);
+      // clipper::Xmap<float> linear_fit_map = coot::util::analyse_map_point_density_change(xmaps);
+      clipper::Xmap<float> zde = coot::util::zero_dose_extrapolation(xmaps);
       int new_molecule_number = graphics_info_t::create_molecule();
       bool is_EM_flag = true;
       std::string label = "negative linear_fit_of_decay";
-      graphics_info_t::molecules[new_molecule_number].install_new_map(linear_fit_map, label, is_EM_flag);
-      graphics_info_t::molecules[new_molecule_number].set_map_is_difference_map(true);
+      label = "zde";
+      graphics_info_t::molecules[new_molecule_number].install_new_map(zde, label, is_EM_flag);
+      // graphics_info_t::molecules[new_molecule_number].set_map_is_difference_map(true);
       return new_molecule_number;
    } else {
       return -1;

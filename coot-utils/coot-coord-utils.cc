@@ -9300,13 +9300,16 @@ coot::util::copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain 
 
 // add or delete residues and atoms as needed.
 void
-coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_chain, mmdb::Manager *orig_mol, mmdb::Chain *modified_chain) {
+coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_chain, mmdb::Manager *orig_mol, mmdb::Chain *modified_chain,
+                                                         bool do_finishstructedit) {
 
    // say I have copied a chain and then changed it by trimming or addition of residues, I want
    // to now update orig_to_chain with the contents of modified_chain
 
    orig_from_chain->Copy(modified_chain);
-   orig_mol->FinishStructEdit();
+   if (orig_mol)
+      if (do_finishstructedit)
+         orig_mol->FinishStructEdit();
 
 }
 

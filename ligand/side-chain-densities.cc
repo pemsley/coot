@@ -677,7 +677,30 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
 #include "analysis/stats.hh"
 
 coot::side_chain_densities::results_t
-coot::side_chain_densities::get_result(bool only_probable) const {
+coot::side_chain_densities::get_result(bool only_probable, bool print_sequencing_solutions_flag) const {
+
+   auto print_sequencing_solutions = [] (const std::map<std::string, std::vector<results_t> > &results_container) {
+                                        unsigned int n_top = 10;
+
+                                        std::vector<results_t> all_results;
+                                        std::map<std::string, std::vector<results_t> >::const_iterator it;
+                                        for (it=results_container.begin(); it!=results_container.end(); ++it) {
+                                           const auto &results = it->second;
+                                           for (unsigned int i=0; i<results.size(); i++) {
+                                              auto &result(results[i]);
+                                              all_results.push_back(result);
+                                           }
+                                        }
+                                        auto results_sorter = [] (const results_t &r1, const results_t &r2) {
+                                                                 return (r2.sum_score < r1.sum_score);
+                                                              };
+                                        std::sort(all_results.begin(), all_results.end(), results_sorter);
+                                        if (all_results.size() < n_top) n_top = all_results.size();
+                                        for (unsigned int i=0; i<n_top; i++) {
+                                           std::cout << std::setw(2) << i << " " << std::setw(10) << all_results[i].sum_score << " "
+                                                     << all_results[i].sequence << std::endl;
+                                        }
+                                     };
 
    double best_score = -9e10;
    results_t best_results;
@@ -704,27 +727,33 @@ coot::side_chain_densities::get_result(bool only_probable) const {
          }
       }
       if (scores.size() > 2) {
-         // do we have a clear solution? If not, clear best_results
+         // do we have a clear solution? If not, clear the returned sequence
          std::sort(scores.begin(), scores.end());
          std::reverse(scores.begin(), scores.end());
          double top_score = scores[0];
-         double next_best_scores = scores[1];
-         double top_solution_delta = top_score - next_best_scores;
+         double next_best_score = scores[1];
+         double top_solution_delta = top_score - next_best_score;
          unsigned int n_data = 21;
          if (scores.size() < n_data) n_data = scores.size();
          stats::single data;
-         for (unsigned int i=1; i<n_data; i++) {
+         for (unsigned int i=1; i<n_data; i++)
             data.add(scores[i]);
-         }
          double var = data.variance();
          double sd = std::sqrt(var);
-         std::cout << "debug:: get_result(): top_solution_delta: " << top_solution_delta << std::endl;
-         std::cout << "debug:: get_result(): ratio of top score delta to std dev others: " << top_solution_delta/sd << std::endl;
+         std::cout << "INFO:: get_result(): top_solution_delta: " << top_solution_delta << " vs s.d. others: " << sd << std::endl;
+         std::cout << "INFO:: get_result(): ratio of top score delta to std dev others: " << top_solution_delta/sd;
          if (top_solution_delta > 3.0 * sd) {
+            std::cout << " ###" << std::endl; // give us a hash marker to let us know it's a good one
             // happy path
          } else {
+            std::cout << std::endl;
             // clear the solution
-            best_results = coot::side_chain_densities::results_t();
+            std::cout << "No clear solution found" << std::endl;
+            best_results.sequence.clear();
+         }
+
+         if (print_sequencing_solutions_flag) {
+            print_sequencing_solutions(results_container);
          }
       }
    }

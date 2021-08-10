@@ -1318,9 +1318,9 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                    }
                                 }
 
-                                // std::sort(seeds.begin(), seeds.end(), seed_sorter);
+                                std::sort(seeds.begin(), seeds.end(), seed_sorter);
 
-                                if (true) {
+                                if (false) {
                                    if (seeds.size() > max_number_of_seeds) {
                                       int every_nth = 1 + seeds.size()/max_number_of_seeds;
                                       std::vector<scored_tree_t> sampled_seeds;
@@ -2548,7 +2548,8 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
                          double variation,
                          unsigned int n_top_spin_pairs,
                          unsigned int n_top_fragments,
-                         bool cryo_em_mode) {
+                         bool cryo_em_mode,
+                         std::pair<bool, clipper::Coord_orth> hack_centre) {
 
    auto debug_scored_spin_pairs = [] (const std::vector<std::pair<unsigned int, coot::scored_node_t> > &scored_pairs,
                                       mmdb::Atom **atom_selection, int n_selected_atoms) {
@@ -2588,18 +2589,7 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
    // somewhere here - not sure before or after action_mol is created, I want to globularize the molecule
    mmdb::Manager *action_mol = flood_mol.pcmmdbmanager();
 
-   // hack for testing tutorial modern
-   // mean = clipper::Coord_orth(60, 5, 12);
-   // mean = clipper::Coord_orth(0, 20, 19); // 1gwd
-   // mean = clipper::Coord_orth(109, 109, 110); // emd-22898
-
-   // clipper::Coord_orth hack_centre = clipper::Coord_orth(109, 109, 110); // emd-22898
-   // clipper::Coord_orth hack_centre = clipper::Coord_orth(40, 9, 13); // tutorial modern
-   // clipper::Coord_orth hack_centre = clipper::Coord_orth(0, 20, 19); // 1gwd
-   clipper::Coord_orth hack_centre = clipper::Coord_orth(109, 109, 110); // emd-22898
-   bool use_hack_centre = true;
-
-   globularize(action_mol, xmap, hack_centre, use_hack_centre); // move around the atoms so they they are arranged in space in a sphere rather
+   globularize(action_mol, xmap, hack_centre.second, hack_centre.first); // move around the atoms so they they are arranged in space in a sphere rather
                                                                 // than in a strip of the map (the asymmetric unit).
 
    action_mol->WritePDBASCII("flood-mol-globularized.pdb");
@@ -2820,9 +2810,9 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
                mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
                int n_res = chain_p->GetNumberOfResidues();
                if (n_res > 5) {
-                  std::string chain_id(chain_p->GetChainID());
                   int resno_start = chain_p->GetResidue(0)->GetSeqNum();
                   int resno_end   = chain_p->GetResidue(n_res-1)->GetSeqNum();
 
@@ -2846,7 +2836,8 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
 
                   // I want get_result() to give me the the rotamer name of each of the sidechains too!
                   bool probable_only = true;
-                  coot::side_chain_densities::results_t new_sequence_result = scd.get_result(probable_only);
+                  bool print_sequencing_solutions_flag = true;
+                  coot::side_chain_densities::results_t new_sequence_result = scd.get_result(probable_only, print_sequencing_solutions_flag);
                   std::string new_sequence = new_sequence_result.sequence;
                   std::cout << "debug:: apply_sequence_to_fragments(): new_sequence " << new_sequence << std::endl;
                   if (! new_sequence.empty()) {
@@ -2871,7 +2862,8 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
                            }
                         }
                         // now copy the atoms of chain_copy_p into chain_p
-                        coot::util::replace_chain_contents_with_atoms_from_chain(chain_p, mol_in, chain_mol_pair.first); // (to_chain, from_chain)
+                        bool do_finishstructedit = true;
+                        coot::util::replace_chain_contents_with_atoms_from_chain(chain_p, mol_in, chain_mol_pair.first, do_finishstructedit); // (to_chain, from_chain)
                         std::cout << "debug:: apply_sequence_to_fragments(): seq_pos " << seq_pos << std::endl;
                         if (seq_pos != std::string::npos) {
                            n_res = chain_p->GetNumberOfResidues();
@@ -2890,10 +2882,10 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
                         std::cout << "WARNING:: Ooops sl != n_res " << sl << " " << n_res << std::endl;
                      }
                   } else {
-                     std::cout << "WARNING:: OOops new sequence is empty" << std::endl;
+                     std::cout << "INFO:: no clear solution found for chain " << chain_id << std::endl;
                   }
                } else {
-                  std::cout << "WARNING:: Skip trace n_res > 5 test failed " << n_res << std::endl;
+                  std::cout << "WARNING:: Skip trace n_res > 5 test failed " << n_res << " for chain " << chain_id << std::endl;
                }
             }
 
@@ -3857,13 +3849,26 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
    coot::protein_geometry geom;
    geom.init_standard();
-   bool cryo_em_peptide_seeds_mode = true;
+   bool cryo_em_peptide_seeds_mode = false;
 
    coot::minimol::molecule flood_molecule = get_flood_molecule(xmap, rmsd_cut_off_for_flood, flood_atom_mask_radius);
 
+
+   // hack for testing tutorial modern
+   // mean = clipper::Coord_orth(60, 5, 12);
+   // mean = clipper::Coord_orth(0, 20, 19); // 1gwd
+   // mean = clipper::Coord_orth(109, 109, 110); // emd-22898
+
+   // clipper::Coord_orth hack_centre = clipper::Coord_orth(109, 109, 110); // emd-22898
+   // clipper::Coord_orth hack_centre = clipper::Coord_orth(40, 9, 13); // tutorial modern
+   // clipper::Coord_orth hack_centre = clipper::Coord_orth(0, 20, 19); // 1gwd
+   // clipper::Coord_orth hack_centre = clipper::Coord_orth(109, 109, 110); // emd-22898
+   //bool use_hack_centre = true;
+
    // this mol is mostly filtered, but can have some overlapping fragments
    // it has mainchain + CBs. It is not refined.
-   mmdb::Manager *mol = find_connected_fragments(flood_molecule, xmap, variation, n_top_spin_pairs, n_top_fragments, cryo_em_peptide_seeds_mode);
+   std::pair<bool, clipper::Coord_orth> hack_centre(true, clipper::Coord_orth(0, 20, 19));
+   mmdb::Manager *mol = find_connected_fragments(flood_molecule, xmap, variation, n_top_spin_pairs, n_top_fragments, cryo_em_peptide_seeds_mode, hack_centre);
 
    if (mol) {
       mol->WritePDBASCII("stage-3-post-find-connected-fragments.pdb");
@@ -3900,6 +3905,18 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
 
          mol->WritePDBASCII("stage-5-post-omega-and-density-check-trim.pdb");
 
+         auto write_chains = [write_chain] (const std::string &file_name_stub, mmdb::Manager *mol) {
+                                mmdb::Model *model_p = mol->GetModel(1);
+                                int n_chains = model_p->GetNumberOfChains();
+                                for (int ichain=0; ichain<n_chains; ichain++) {
+                                   mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                   std::string chain_id(chain_p->GetChainID());
+                                   std::cout << "Write " << file_name_stub << " "<< chain_id << std::endl;
+                                   std::string file_name = file_name_stub + "-" + chain_id + ".pdb";
+                                   write_chain(chain_p, mol, file_name);
+                                }
+                             };
+
          if (cryo_em_peptide_seeds_mode) {
 
             // I can filter the chains of mol here I think
@@ -3907,7 +3924,11 @@ void proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double
             // I want to see that histogram!
 
             rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
+            write_chains("post-extensions", mol);
             mol->WritePDBASCII("c-stage-5-post-extensions.pdb");
+            int n_res_min = 3;
+            delete_chains_that_are_too_short(mol, n_res_min);
+            mol->WritePDBASCII("c-stage-5b-post-delete-short-fragments.pdb");
             coot::merge_C_and_N_terminii_0_gap(mol);
             mol->WritePDBASCII("c-stage-6-post-merge-C_and_N_terminii.pdb");
             std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, fam, geom);
@@ -4162,19 +4183,24 @@ int main(int argc, char **argv) {
       phi_col_label = "PHIC";
    }
 
-   if (false) {
+   if (true) {
       hklin_file_name = "coot-download/1gwd_map.mtz";
       f_col_label   = "FWT";
       phi_col_label = "PHWT";
       pir_file_name = "1gwd.pir";
    }
 
-   if (true) { // this is hard
+   if (false) { // this is hard
       hklin_file_name = "65_bucc3atest3_fphiout_acorn.mtz";
       f_col_label   = "F";
       phi_col_label = "PHI";
       // pir_file_name = "all-e-coli.fasta";
       pir_file_name = "1gwd.pir";
+   }
+
+   if (false) {
+      map_file_name = "../src/emd_11210.map";
+      pir_file_name = "../src/6zgl.fasta";
    }
 
    if (argc > 1)
@@ -4209,11 +4235,12 @@ int main(int argc, char **argv) {
 
       float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
 
-      unsigned int n_phi_psi_trials = 7000; // was 5000
+      unsigned int n_phi_psi_trials = 40000; // was 5000
 
       float weight = 8.0f; // calculate this (using rmsd)
 
-      if (true) {     // EMD-22898
+      if (false) {     // EMD-22898
+         // map_file_name = "emd_22898_blur_20.map";
          weight = 6.0;
          flood_atom_mask_radius = 0.7;
          n_top_fragments = 2000;
@@ -4279,10 +4306,10 @@ int main(int argc, char **argv) {
          }
       } else {
          try {
-            std::string map_file_name = "emd_22898_blur_20.map";
+
             if (coot::file_exists(map_file_name)) {
 
-               std::cout << "::::::::: emd_22898.map path" << std::endl;
+               std::cout << "::::::::: cryo-em map path" << map_file_name << std::endl;
                clipper::CCP4MAPfile file;
                file.open_read(map_file_name);
                clipper::Xmap<float> xmap;

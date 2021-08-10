@@ -352,7 +352,7 @@ namespace coot {
                                                              const clipper::Xmap<float> &xmap);
 
       // find the best result stored by the above function.
-      results_t get_result(bool only_return_result_if_probably_correct) const;
+      results_t get_result(bool only_return_result_if_probably_correct, bool print_sequencing_solutions_flag=false) const;
 
       // return the "guessed" sequence
       std::string

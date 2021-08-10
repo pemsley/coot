@@ -550,6 +550,9 @@ namespace coot {
       // input is map and its rmsd
       clipper::Xmap<float>
       analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps);
+
+      clipper::Xmap<float> zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps);
+
    }
 }
 
