@@ -1,4 +1,10 @@
 
+#ifndef SFCALC_GENMAP_HH
+#define SFCALC_GENMAP_HH
+
+#include <mmdb2/mmdb_manager.h>
+#include <clipper/core/hkl_datatypes.h>
+#include <clipper/core/xmap.h>
 
 namespace coot {
    namespace util {
@@ -9,3 +15,6 @@ namespace coot {
 
    }
 }
+
+#endif // SFCALC_GENMAP_HH
+
