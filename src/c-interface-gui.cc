@@ -529,7 +529,7 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
       bool low_OK = true;
       bool high_OK = true;
 
-      // It's OK to set not to set a low resolution limit, but not OK to not to set a high resolution limit
+      // It's OK not to set a low resolution limit, but not OK to not to set a high resolution limit
       // (if that is the case, act as if no resolution limit was enabled)
 
       if (! l.empty()) {
