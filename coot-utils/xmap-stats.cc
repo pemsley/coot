@@ -83,12 +83,24 @@ map_density_distribution(const clipper::Xmap<T> &map,
       if (bin[ii] > bin[ibin_max_counts])
          ibin_max_counts = ii;
    }
+
+   auto make_stars = [n_point] (int n_in_bin) {
+                        std::string s;
+                        float f = static_cast<double>(n_in_bin)/n_point;
+                        unsigned int n_stars = static_cast<int>(500.0 * f);
+                        unsigned int p_stars = n_stars;
+                        if (n_stars > 100) p_stars = 100;
+                        for (unsigned int i=0; i<p_stars; ++i) s += "*";
+                        if (n_stars > 100) s += "|";
+                        return s;
+                     };
+
    mv.histogram_max = bin[ibin_max_counts];
    if (write_output_flag) {
       for (unsigned int ii=0; ii <= n_bins; ii++) {
          std::cout.width(10);
-         std::cout << std::right << ((float) (ii) + 0.5)*range/float(n_bins) + density_min << "    "
-                   << std::right << bin[ii] << std::endl;
+         std::cout << std::right << ((float) (ii) + 0.5)*range/float(n_bins) + density_min << "  "
+                   << std::setw(7) << std::right << bin[ii] << "  " << make_stars(bin[ii]) << std::endl;
       }
    }
    unsigned int ibin_second_highest_counts = 0;
