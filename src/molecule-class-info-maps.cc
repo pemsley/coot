@@ -1355,7 +1355,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 //   map_mean_ = stats.mean();
 	 //   map_sigma_ = stats.std_dev();
 
-	 mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, false);
+	 mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, false);
 
 	 save_mtz_file_name = mtz_file_name;
 	 save_f_col = f_col;
@@ -2057,7 +2057,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
+      mean_and_variance<float> mv = map_density_distribution(xmap, 20, true, true);
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;

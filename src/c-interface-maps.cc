@@ -2571,8 +2571,7 @@ int analyse_map_point_density_change(const std::vector<int> &map_number_list) {
       }
    }
 
-   std::cout << "::::::::::::::::::: here in analyse_map_point_density_change() with xmaps size "
-             << xmaps.size() << std::endl;
+   std::cout << "DEBUG:: in analyse_map_point_density_change() with xmaps size " << xmaps.size() << std::endl;
    if (! xmaps.empty()) {
       // clipper::Xmap<float> linear_fit_map = coot::util::analyse_map_point_density_change(xmaps);
       clipper::Xmap<float> zde = coot::util::zero_dose_extrapolation(xmaps);
