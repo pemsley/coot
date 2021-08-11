@@ -4205,6 +4205,7 @@ coot::util::flip_hand(clipper::Xmap<float> *xmap_p) {
 
 
 #include "coot-least-squares.hh"
+#include <unordered_map>
 
 // return the map of the density gradients
 //
@@ -4238,93 +4239,123 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
       }
    };
 
+   class coot_hkl {
+   public:
+      int h,k,l;
+      float invresolsq;
+      coot_hkl(const clipper::HKL &hkl, const clipper::Cell &cell) {
+         h = hkl.h();
+         k = hkl.k();
+         l = hkl.l();
+         invresolsq = hkl.invresolsq(cell);
+      }
+      bool operator<(const coot_hkl &chkl) const { // for a map to work we need this function
+         if (chkl.invresolsq < invresolsq) return true;  // check the sign
+         if (chkl.invresolsq > invresolsq) return false;
+         if (chkl.h > h) return true;
+         if (chkl.h < h) return false;
+         if (chkl.k > k) return true;
+         if (chkl.k < k) return false;
+         if (chkl.l > l) return true;
+         if (chkl.l < l) return false;
+         return false;
+      }
+      bool operator==(const coot_hkl &chkl) const {
+         if (chkl.h == h)
+            if (chkl.k == k)
+               if (chkl.l == l)
+                  return true;
+         return false;
+      }
+   };
+
+   std::cout << "DEBUG:: starting zero dose extrapolation" << std::endl;
    clipper::Xmap<float> xmap_result(*xmaps[0].first);
    std::vector<clipper::HKL_data< clipper::datatypes::F_phi<float> > > fphis_vec;
 
    const clipper::Xmap<float> &xmap_0 = *xmaps[0].first;
+   clipper::Cell cell = xmap_0.cell();
    float mg = coot::util::max_gridding(xmap_0);
    clipper::Resolution reso(2.0 * mg);
    clipper::HKL_info myhkl_0(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_for_result_map(myhkl_0); // components overwwritten
+   clipper::HKL_info myhkl_result_map(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_for_result_map(myhkl_result_map);
 
-   auto fft_to_fphis = [] (const clipper::Xmap<float> &xmap,
-                           clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphis,
-                           const clipper::HKL_data< clipper::datatypes::F_phi<float> > &fphis_ref) {
-                          *fphis = fphis_ref;
-                          xmap.fft_to(*fphis);
-                       };
+   std::map<std::string, std::vector<double> > f_data_accum;
+   std::map<coot_hkl, std::vector<std::pair<float, float> > > f_data_hkl_accum;
+   std::map<std::string, float> f_resolution;
 
-   fphis_vec.resize(xmaps.size());
+   // resize f_data_accum vectors so that I can fft and stuff the data into them in threads
+   unsigned int n_maps = xmaps.size();
    clipper::HKL_info::HKL_reference_index hri;
-#if 0
+   unsigned int count = 0;
+   for (hri=fphis_for_result_map.first(); !hri.last(); hri.next()) {
+      coot_hkl chkl(hri.hkl(), cell);
+      f_data_hkl_accum[chkl].resize(n_maps);
+      // std::cout << "resize refl " << chkl.h << " " << chkl.k << " " << chkl.l << " vec size "
+      // << f_data_hkl_accum[chkl].size() << std::endl;
+      count += 1;
+   }
+   std::cout << "debug:: resized " << count << " accumulation-reflections" << std::endl;
+
+   // now we can do this block in parallel - lots of cache-sharing though :-/
    for (unsigned int imap=0; imap<xmaps.size(); imap++) {
-      std::cout << "FFT for map " << imap << std::endl;
+      std::cout << "Try 2: FFT for map " << imap << std::endl;
       const clipper::Xmap<float> &xmap = *xmaps[imap].first;
       clipper::HKL_info myhkl(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
-      fphis_vec[imap] = fphis;
       xmap.fft_to(fphis);
-      for (hri = fphis.first(); !hri.last(); hri.next())
-         fphis_vec[imap][hri] = fphis[hri];
-   }
-#endif
-#if 1
-   if (true) {
-      clipper::HKL_info myhkl(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
-      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
-      std::vector<std::thread> threads;
-      for (unsigned int imap=0; imap<xmaps.size(); imap++) {
-         threads.push_back(std::thread(fft_to_fphis, std::cref(*xmaps[imap].first), &fphis_vec[imap], std::cref(fphis)));
+      std::cout << "Accumulating f-data into coot-hkl-based map from map " << imap << std::endl;
+      for (hri = fphis.first(); !hri.last(); hri.next()) {
+         coot_hkl chkl(hri.hkl(), cell);
+         f_data_hkl_accum[chkl][imap] = std::make_pair(fphis[hri].f(), fphis[hri].phi());
+         // std::cout << "refl " << chkl.h << " " << chkl.k << " " << chkl.l << " vec size "
+         // << f_data_hkl_accum[chkl].size() << std::endl;
       }
-      for (unsigned int imap=0; imap<xmaps.size(); imap++)
-         threads[imap].join();
    }
-#endif
-   unsigned int count = 0;
-   for (hri = fphis_vec[0].first(); !hri.last(); hri.next()) {
-      std::vector<std::pair<double, double> >   A_data(xmaps.size(), std::make_pair(0,0));
-      std::vector<std::pair<double, double> >   B_data(xmaps.size(), std::make_pair(0,0));
-      std::vector<std::pair<double, double> >   f_data(xmaps.size(), std::make_pair(0,0));
-      std::vector<std::pair<double, double> > phi_data(xmaps.size(), std::make_pair(0,0));
-      for (unsigned int imap=0; imap<xmaps.size(); imap++) {
-         A_data[imap]   = std::make_pair(static_cast<double>(1+imap), fphis_vec[imap][hri].a());
-         B_data[imap]   = std::make_pair(static_cast<double>(1+imap), fphis_vec[imap][hri].b());
-         f_data[imap]   = std::make_pair(static_cast<double>(1+imap), fphis_vec[imap][hri].f());
-         phi_data[imap] = std::make_pair(static_cast<double>(1+imap), fphis_vec[imap][hri].phi());
-      }
-      exponential_fit ef_f(f_data);
-      float f_hat = ef_f.at(0);
-      least_squares_fit lsqfit(f_data);
-      f_hat = lsqfit.at(0);
 
-      // std::complex<float> c(A,B);
-      // fphis_for_result_map[hri] = c;
-
-      least_squares_fit lsq_phi(phi_data);
-      float phi_hat = lsq_phi.at(0);
-
-      fphis_for_result_map[hri].f()   = f_hat;
-      fphis_for_result_map[hri].phi() = phi_hat;
-
-      // fphis_for_result_map[hri] = fphis_vec[0][hri];
-      if (count%140000 == 0) {
-
-         // std::string fn = "compare-" + std::to_string(count) + "-" +
-         // std::to_string(hkl.h()) + "." + std::to_string(hkl.k()) + "." + std::to_string(hkl.l()) + ".table";
-
-         std::string fn = "SF-" + std::to_string(count) + ".table";
-         std::ofstream f(fn);
-         for (unsigned int imap=0; imap<xmaps.size(); imap++) {
-            f << imap << " " << fphis_vec[imap][hri].f() << " " << f_hat << " "
-              << fphis_vec[imap][hri].phi() << " " << phi_hat << "\n";
+   std::cout << "Generating extrapolated structure factors" << std::endl;
+   count = 0; // reset
+   for (hri=fphis_for_result_map.first(); !hri.last(); hri.next()) {
+      coot_hkl refl(hri.hkl(), cell);
+      std::map<coot_hkl, std::vector<std::pair<float, float> > >::const_iterator it_hkl = f_data_hkl_accum.find(refl); // slow?
+      if (it_hkl == f_data_hkl_accum.end()) {
+         std::cout << "this should not happen" << std::endl;
+      } else {
+         const std::vector<std::pair<float, float> > &f_phi_data = it_hkl->second;
+         std::vector<std::pair<double, double> >   f_data(n_maps);
+         std::vector<std::pair<double, double> > phi_data(n_maps);
+         for (unsigned int ii=0; ii<n_maps; ii++) {
+            f_data[ii]   = std::make_pair(ii+1, f_phi_data[ii].first);
+            phi_data[ii] = std::make_pair(ii+1, f_phi_data[ii].second);
          }
-         f.close();
+         exponential_fit exp_fit(f_data);
+         float f = exp_fit.at(0.0);
+         least_squares_fit lsq_f_fit(f_data);
+         f = lsq_f_fit.at(0);
+         if (refl.invresolsq > 0.5) f = 0.0;
+         least_squares_fit lsq_phi_fit(phi_data);
+         float phi_base = lsq_phi_fit.at(0.0);
+         std::vector<std::pair<double, double> > zoned_data = phi_data;
+         for (unsigned int ii=0; ii<n_maps; ii++) {
+            if ((phi_data[ii].second - phi_base) >  M_PI) zoned_data[ii].second -= 2.0 * M_PI;
+            if ((phi_data[ii].second - phi_base) < -M_PI) zoned_data[ii].second += 2.0 * M_PI;
+         }
+         least_squares_fit lsq_phi_zoned_fit(zoned_data);
+         float phi = lsq_phi_zoned_fit.at(0.0);
+         // phi = phi_data[0].second;
+         fphis_for_result_map[hri].f() = f;
+         fphis_for_result_map[hri].phi() = phi;
       }
+      if (count%1000000==0)
+         std::cout << "Extapolated " << count << " sfs" << std::endl;
       count++;
    }
-   xmap_result.fft_from(fphis_for_result_map);
-   return xmap_result;
 
+   std::cout << "INFO:: Generating final map..." << std::endl;
+   xmap_result.fft_from(fphis_for_result_map);
+   std::cout << "INFO:: ZDE done." << std::endl;
+   return xmap_result;
 
 }
 
