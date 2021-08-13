@@ -5,7 +5,7 @@
 def generate_molecule_from_mmcif(comp_id, mmcif_file_name):
 
    read_cif_dictionary(mmcif_file_name)
-   get_monomer(comp_id)
+   return get_monomer(comp_id)
 
 # return a molecule number. Return -1 on fail.
 #
