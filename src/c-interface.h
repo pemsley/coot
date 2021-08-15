@@ -70,6 +70,10 @@ p  So we need to have this function external for c++ linking.
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include <gtk/gtk.h>
 
 #ifndef BEGIN_C_DECLS
@@ -1184,6 +1188,16 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 				const char *f_col,
 				const char *sigf_col,
 				int imol_coords);
+
+#ifdef USE_PYTHON
+/*! \brief Calculate structure factors and make a 2FoFC map and a Fo-Fc map updating the given
+   molecule numbers for those maps - if thase molecule ids are not valid maps, them generate
+   new maps (return the model number information in the returned object) */
+PyObject *calculate_maps_and_stats_py(int imol_model,
+                                      int imol_map_with_data_attached,
+                                      int imol_map_2fofc,
+                                      int imol_map_fofc);
+#endif
 
 /*! \brief Calculate structure factors from the model and update the given difference
            map accordingly */

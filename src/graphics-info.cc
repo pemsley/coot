@@ -125,15 +125,15 @@ void
 graphics_info_t::post_recentre_update_and_redraw() {
 
    //
-   int t0 = glutGet(GLUT_ELAPSED_TIME);
+   // int t0 = glutGet(GLUT_ELAPSED_TIME);
    for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_clipper_skeleton();
-      molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);  // uses statics in graphics_info_t
-                                   // and redraw the screen using the new map
+      molecules[ii].update_map(auto_recontour_map_flag);  // uses statics in graphics_info_t
+                                                          // and redraw the screen using the new map
    }
 
-   int t1 = glutGet(GLUT_ELAPSED_TIME);
-   std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
+   // int t1 = glutGet(GLUT_ELAPSED_TIME);
+   // std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
 
    for (int ii=0; ii<n_molecules(); ii++) {
       // std::cout << "update symmetry  for ii " << ii << std::endl;
@@ -6648,13 +6648,15 @@ graphics_info_t::sfcalc_genmap(int imol_model,
                         on_going_updating_map_lock = true;
                         float cls = molecules[imol_updating_difference_map].get_contour_level_by_sigma();
                         molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
-                        const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
-                        molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
-                        const clipper::HKL_data<clipper::data32::Flag> &free_flag =
-                        molecules[imol_map_with_data_attached].get_original_rfree_flags();
-                        molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
-                        molecules[imol_updating_difference_map].set_mean_and_sigma();
-                        molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
+                        const clipper::HKL_data<clipper::data32::F_sigF> *fobs_data =
+                           molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::Flag> *free_flag =
+                           molecules[imol_map_with_data_attached].get_original_rfree_flags();
+                        if (fobs_data && free_flag) {
+                           molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
+                           molecules[imol_updating_difference_map].set_mean_and_sigma();
+                           molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
+                        }
                         on_going_updating_map_lock = false;
                      } else {
                         std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
@@ -6669,6 +6671,67 @@ graphics_info_t::sfcalc_genmap(int imol_model,
          }
       }
    }
+}
+
+coot::util::sfcalc_genmap_stats_t
+graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
+                                                   int imol_map_with_data_attached,
+                                                   clipper::Xmap<float> *xmap_2fofc_p, // 2mFo-DFc I mean, of course
+                                                   clipper::Xmap<float> *xmap_fofc_p) {
+
+   coot::util::sfcalc_genmap_stats_t stats;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         try {
+            if (! on_going_updating_map_lock) {
+               on_going_updating_map_lock = true;
+               molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
+
+               // 20210815-PE used to be const reference (get_original_fobs_sigfobs() function changed too)
+               // const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data = molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+               // const clipper::HKL_data<clipper::data32::Flag> &free_flag = molecules[imol_map_with_data_attached].get_original_rfree_flags();
+               // now the full object (40us for RNAse test).
+               // 20210815-PE OK, the const reference was not the problem. But we will leave it as it is now, for now.
+               //
+               clipper::HKL_data<clipper::data32::F_sigF> *fobs_data_p = molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+               clipper::HKL_data<clipper::data32::Flag>   *free_flag_p = molecules[imol_map_with_data_attached].get_original_rfree_flags();
+
+               if (fobs_data_p && free_flag_p) {
+
+                  if (true) {
+                     // sanity check data
+                     const clipper::HKL_info &hkls_check = fobs_data_p->base_hkl_info();
+                     const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+                     const clipper::Cell &cell_check = fobs_data_p->base_cell();
+                     const clipper::HKL_sampling &sampling_check = fobs_data_p->hkl_sampling();
+
+                     std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() imol_map_with_data_attached "
+                               << imol_map_with_data_attached << std::endl;
+
+                     std::cout << "DEBUG:: Sanity check in graphics_info_t:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                               << "base_cell: " << cell_check.format() << " "
+                               << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                               << "sampling is null: " << sampling_check.is_null() << " "
+                               << "resolution: " << hkls_check.resolution().limit() << " "
+                               << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                               << "num_reflections: " << hkls_check.num_reflections()
+                               << std::endl;
+                  }
+
+                  stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, xmap_2fofc_p, xmap_fofc_p);
+
+               } else {
+                  std::cout << "ERROR:: null data pointer in graphics_info_t::sfcalc_genmaps_using_bulk_solvent() " << std::endl;
+               }
+               on_going_updating_map_lock = false;
+            }
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << rte.what() << std::endl;
+         }
+      }
+   }
+   return stats;
 }
 
 void

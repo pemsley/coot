@@ -3987,6 +3987,13 @@ string   static std::string sessionid;
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
 
+   // this has a different API!
+   coot::util::sfcalc_genmap_stats_t
+   sfcalc_genmaps_using_bulk_solvent(int imol_model,
+                                     int imol_map_with_data_attached,
+                                     clipper::Xmap<float> *xmap_2fofc_p,
+                                     clipper::Xmap<float> *xmap_fofc_p);
+
    static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
 
 #ifdef HAVE_CXX_THREAD

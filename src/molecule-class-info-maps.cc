@@ -116,18 +116,18 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
    }
 
-   if (original_fphis_filled) {
+   if (original_fphis_filled && original_fphis_p) {
 
       clipper::HKL_info::HKL_reference_index hri;
 
       if (debugging)
-	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
+	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis_p->num_obs()
 		   << " original data " << std::endl;
 
       if (debugging) {
 	 if (do_gompertz) {
 	    std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
-		      << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
+		      << original_fobs_sigfobs_p->num_obs() << " F,sigF reflections"
 		      << std::endl;
 	 } else {
 	    std::cout << "DEBUG:: no gompertz F/sigF scaling " << std::endl;
@@ -136,10 +136,10 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 
 
       if (debugging) {
-	 for (hri = original_fphis.first(); !hri.last(); hri.next()) {
+	 for (hri = original_fphis_p->first(); !hri.last(); hri.next()) {
 
 	    if (debugging)
-	       std::cout << "original_fphis: " << original_fphis[hri].f() << " "
+	       std::cout << "original_fphis: " << (*original_fphis_p)[hri].f() << " "
 			 << hri.invresolsq() << std::endl;
 	    n_count++;
 	    if (n_count == 50)
@@ -147,10 +147,10 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	 }
       }
 
-      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis.spacegroup(),
-								  original_fphis.cell(),
-								  original_fphis.hkl_sampling());
-      fphis = original_fphis;
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis_p->spacegroup(),
+								  original_fphis_p->cell(),
+								  original_fphis_p->hkl_sampling());
+      fphis = *original_fphis_p; // A copy! yikes!
 
       if (debugging) {
 	 n_count = 0;
@@ -165,7 +165,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
 
       if (debugging)
-	 std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
+	 std::cout << "INFO:: sharpening " << original_fphis_p->num_obs() << " "
 		   << fphis.num_obs() << " data " << std::endl;
 
       n_count = 0;
@@ -190,7 +190,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	    if (do_gompertz) {
 	       try {
 		  clipper::datatypes::F_sigF<float> fsigf;
-		  bool ok = original_fobs_sigfobs.get_data(hri.hkl(), fsigf);
+		  bool ok = original_fobs_sigfobs_p->get_data(hri.hkl(), fsigf);
 		  if (ok) {
 		     if (! clipper::Util::is_nan(fsigf.sigf())) {
 			float ratio = fsigf.f()/fsigf.sigf();
@@ -388,23 +388,51 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
    if (have_sensible_refmac_params) {
 
+      std::cout << "debug:: in fill_fobs_sigfobs() with original_fobs_sigfobs_filled " << original_fobs_sigfobs_filled
+                << " original_fobs_sigfobs_fill_tried_and_failed " << original_fobs_sigfobs_fill_tried_and_failed
+                << std::endl;
+
       // only try this once. If you try to import_hkl_data() when the original_fobs_sigfobs
       // already contains data, then crashiness.
       //
+
       if (! original_fobs_sigfobs_filled && ! original_fobs_sigfobs_fill_tried_and_failed) {
+
+         auto tp_0 = std::chrono::high_resolution_clock::now();
 
          try {
 
-            std::pair<std::string, std::string> p =
-               make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
-            clipper::CCP4MTZfile mtzin;
-            mtzin.open_read(Refmac_mtz_filename());
-            mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
-            mtzin.close_read();
+            std::pair<std::string, std::string> p = make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+            clipper::CCP4MTZfile *mtzin_p = new clipper::CCP4MTZfile; // original_fobs_sigfobs contains a pointer to
+                                                                      // a cell in the crystals vector of a CCP4MTZfile.
+                                                                      // The CCP4MTZfile goes out of score and takes
+                                                                      // the crystal vector with it.
+                                                                      // crystals is a vector of crystalinfo, which
+                                                                      // is a structure that contains a MTZcrystal
+                                                                      // which inherits from a Cell
+                                                                      // Or something like that. ccp4_mtz_types.h,
+                                                                      // ccp4_mtz_io.h and ccp4_mtz_io.cpp ::import_hkldata().
+                                                                      // Anyway, something seems to go out of scope when
+                                                                      // the molecule vector is resized. So
+                                                                      // regenerate original_fobs_sigfobs from
+                                                                      // the mtz file every time we need them.
+                                                                      // This leak memory.  Meh... but better than
+                                                                      // crashing. Likewise mtzin_p for R-free.
+                                                                      // (20 each ms for RNAse dataset). 20210816-PE
+
+                                                                      // Later note: now that original_fobs_sigfobs is a pointer
+                                                                      // I probably don't need to mtzin object to be pointers.
+
+            original_fobs_sigfobs_p = new clipper::HKL_data< clipper::datatypes::F_sigF<float> >;
+            original_r_free_flags_p = new clipper::HKL_data< clipper::data32::Flag>;
+
+            mtzin_p->open_read(Refmac_mtz_filename());
+            mtzin_p->import_hkl_data(*original_fobs_sigfobs_p, p.first);
+            mtzin_p->close_read();
             std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                      << original_fobs_sigfobs.num_obs() << " data using data name: "
+                      << original_fobs_sigfobs_p->num_obs() << " data using data name: "
                       << p.first << std::endl;
-            if (original_fobs_sigfobs.num_obs() > 10)
+            if (original_fobs_sigfobs_p->num_obs() > 10)
                original_fobs_sigfobs_filled = 1;
             else
                original_fobs_sigfobs_fill_tried_and_failed = true;
@@ -419,14 +447,14 @@ molecule_class_info_t::fill_fobs_sigfobs() {
                      dataname = refmac_r_free_col;
                      dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
                   }
-               std::cout << "About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
-               mtzin.open_read(Refmac_mtz_filename());
-               mtzin.import_hkl_data(original_r_free_flags, dataname);
-               mtzin.close_read();
+               std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               clipper::CCP4MTZfile *mtzin_rfree_p = new clipper::CCP4MTZfile;
+               mtzin_rfree_p->open_read(Refmac_mtz_filename());
+               mtzin_rfree_p->import_hkl_data(*original_r_free_flags_p, dataname);
+               mtzin_rfree_p->close_read();
 
-               std::cout << "INFO:: reading " << Refmac_mtz_filename()
-                         << " using dataname: " << dataname << " provided "
-                         << original_r_free_flags.num_obs() << " R-free flags\n";
+               std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
+                         << original_r_free_flags_p->num_obs() << " R-free flags\n";
             } else {
                std::cout << "INFO:: no sensible R-free flag column label\n";
             }
@@ -437,6 +465,11 @@ molecule_class_info_t::fill_fobs_sigfobs() {
             original_fobs_sigfobs_filled = false;
             original_fobs_sigfobs_fill_tried_and_failed = true;
          }
+
+         auto tp_1 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
+         
       }
    } else {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
@@ -1278,15 +1311,13 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
          mtzin.import_hkl_data(phi_fom_data, p.second);
          mtzin.close_read();
          fphidata.init( f_sigf_data.spacegroup(), f_sigf_data.cell(), f_sigf_data.hkl_sampling() );
-         fphidata.compute(f_sigf_data, phi_fom_data,
-                          clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
-       } else {
-          // std::cout << "DEBUG:: Importing f_phi_data: " << p.first << std::endl;
-          mtzin.import_hkl_data(fphidata, p.first);
-          mtzin.close_read();
-       }
+         fphidata.compute(f_sigf_data, phi_fom_data, clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
 
-      long T1 = glutGet(GLUT_ELAPSED_TIME);
+      } else {
+         // std::cout << "DEBUG:: Importing f_phi_data: " << p.first << std::endl;
+         mtzin.import_hkl_data(fphidata, p.first);
+         mtzin.close_read();
+      }
 
       int n_reflections = fphidata.num_obs();
       std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
@@ -1316,38 +1347,37 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
                                    fft_reso,
                                    map_sampling_rate);
          std::cout << "INFO:: grid sampling..." << gs.format() << std::endl;
-         xmap.init( fphidata.spacegroup(), fphidata.cell(), gs);
+         xmap.init(fphidata.spacegroup(), fphidata.cell(), gs);
 
-         long T2 = glutGet(GLUT_ELAPSED_TIME);
 
-// 	 std::cout << "MTZ:: debug:: " << myhkl.spacegroup().symbol_hm() << " "
-// 		   << myhkl.cell().descr().a() << " "
-// 		   << myhkl.cell().descr().b() << " "
-// 		   << myhkl.cell().descr().c() << " "
-// 		   << clipper::Util::rad2d(myhkl.cell().descr().alpha()) << " "
-// 		   << clipper::Util::rad2d(myhkl.cell().descr().beta ()) << " "
-// 		   << clipper::Util::rad2d(myhkl.cell().descr().gamma()) << std::endl;
-// 	 std::cout << "MTZ:: debug:: n_reflections: " << myhkl.num_reflections()
-// 		   << std::endl;
-// 	 int ncount = 0;
-// 	 clipper::HKL_info::HKL_reference_index hri;
-// 	 for (hri=fphidata.first(); !hri.last(); hri.next()) {
-// 	    if (ncount < 500)
-// 	       std::cout << " MTZ fphi: " << hri.hkl().h() << " "
-// 			 << hri.hkl().k() << " " << hri.hkl().l() << " "
-// 			 << fphidata[hri].f() << " "
-// 			 << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
-// 	    ncount++;
-// 	 }
+         // 	 std::cout << "MTZ:: debug:: " << myhkl.spacegroup().symbol_hm() << " "
+         // 		   << myhkl.cell().descr().a() << " "
+         // 		   << myhkl.cell().descr().b() << " "
+         // 		   << myhkl.cell().descr().c() << " "
+         // 		   << clipper::Util::rad2d(myhkl.cell().descr().alpha()) << " "
+         // 		   << clipper::Util::rad2d(myhkl.cell().descr().beta ()) << " "
+         // 		   << clipper::Util::rad2d(myhkl.cell().descr().gamma()) << std::endl;
+         // 	 std::cout << "MTZ:: debug:: n_reflections: " << myhkl.num_reflections()
+         // 		   << std::endl;
+         // 	 int ncount = 0;
+         // 	 clipper::HKL_info::HKL_reference_index hri;
+         // 	 for (hri=fphidata.first(); !hri.last(); hri.next()) {
+         // 	    if (ncount < 500)
+         // 	       std::cout << " MTZ fphi: " << hri.hkl().h() << " "
+         // 			 << hri.hkl().k() << " " << hri.hkl().l() << " "
+         // 			 << fphidata[hri].f() << " "
+         // 			 << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
+         // 	    ncount++;
+         // 	 }
 
 	 // cout << "doing fft..." << endl;
-	 xmap.fft_from( fphidata );                  // generate map
+	 xmap.fft_from(fphidata);                  // generate map
 	 // cout << "done fft..." << endl;
 
-	 long T3 = glutGet(GLUT_ELAPSED_TIME);
-	 std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read MTZ file\n";
-	 std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
-	 std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+	 // std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read MTZ file\n";
+	 // std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
+	 // std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+
 	 update_map_in_display_control_widget();
 
 	 // Fill the class variables:
@@ -1374,12 +1404,11 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 map_max_   = mv.max_density;
 	 map_min_   = mv.min_density;
 
-	 original_fphis_filled = 1;
-	 original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
-	 original_fphis = fphidata;
 
-	 long T4 = glutGet(GLUT_ELAPSED_TIME);
-	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
+	 original_fphis_filled = 1;
+
+	 // long T4 = glutGet(GLUT_ELAPSED_TIME);
+	 // std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
 	 std::cout << "      Map extents: ..... "
 		   << xmap.grid_sampling().nu() << " "
@@ -1396,9 +1425,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
 
 	 update_map(true);
-	 long T5 = glutGet(GLUT_ELAPSED_TIME);
-	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
-	 std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+	 // long T5 = glutGet(GLUT_ELAPSED_TIME);
+	 // std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
+	 // std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
 
 	 // save state strings
 
@@ -1502,10 +1531,13 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       std::string mol_name = cns_file_name + " ";
       mol_name += f_col;
 
-      original_fphis_filled = 1;
-      original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
-      original_fphis = fphidata;
+      original_fobs_sigfobs_p = new clipper::HKL_data< clipper::datatypes::F_sigF<float> >;
+      original_r_free_flags_p = new clipper::HKL_data< clipper::data32::Flag>;
 
+      original_fphis_filled = true;
+      original_fphis_p->init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+      *original_fphis_p = fphidata; // 20210816-PE Oh dear, this feels very crashy, look at how I did it in
+                                    // fill_fobs_sigfobs(). But who will *ever* tickle this bug?
 
       initialize_map_things_on_read_molecule(mol_name,
 					     is_diff_map, false,
@@ -1560,8 +1592,8 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
 
-      original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
-      original_fphis = fphidata;
+      // original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+      // original_fphis = fphidata;
 
       long T4 = glutGet(GLUT_ELAPSED_TIME);
       std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
@@ -2185,9 +2217,9 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
 }
 
 void
-molecule_class_info_t::set_mean_and_sigma() {
+molecule_class_info_t::set_mean_and_sigma(bool show_terminal_output, bool ignore_pseudo_zeroes) {
 
-   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true);
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, show_terminal_output, ignore_pseudo_zeroes);
    map_mean_ = mv.mean;
    map_sigma_ = sqrt(mv.variance);
 
@@ -2301,8 +2333,10 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   map_sigma_ = sqrt(mv.variance);
 
   original_fphis_filled = 1;
-  original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
-  original_fphis = fphidata;
+
+  // 20210816-PE this is too tricky to fix for me right now.
+  // original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+  // original_fphis = fphidata;
 
 
   xmap_is_diff_map = 0;
@@ -2662,8 +2696,10 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    map_max_   = mv.max_density;
    map_min_   = mv.min_density;
 
-   original_fphis.init(map_fphidata.spacegroup(),map_fphidata.cell(),map_fphidata.hkl_sampling());
-   original_fphis = map_fphidata;
+   // 20210816-PE On the move from object to pointer for original fphi date (and fobs data)
+   // Fix this when it bites (if ever).
+   // original_fphis.init(map_fphidata.spacegroup(),map_fphidata.cell(),map_fphidata.hkl_sampling());
+   // original_fphis = map_fphidata;
 
    xmap_is_diff_map = 0;
    update_map_in_display_control_widget();
@@ -4194,6 +4230,47 @@ molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_
    }
    return 0;
 }
+
+
+
+coot::util::sfcalc_genmap_stats_t
+molecule_class_info_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                                         const clipper::HKL_data<clipper::data32::Flag> &free,
+                                                         clipper::Xmap<float> *xmap_2fofc_p,
+                                                         clipper::Xmap<float> *xmap_fofc_p) {
+
+   coot::util::sfcalc_genmap_stats_t stats;
+   bool sane = sanity_check_atoms(atom_sel.mol);
+   if (sane) {
+
+      clipper::Cell cell = xmap_2fofc_p->cell();
+      if (true) {
+         // sanity check data
+         const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
+         const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+
+         std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                   << "cell: " << hkls_check.cell().format() << " "
+                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                   << "resolution: " << hkls_check.resolution().limit() << " "
+                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                   << std::endl;
+      }
+
+      stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
+
+      // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
+      std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
+      std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
+      std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
+      std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
+
+   } else {
+      std::cout << "ERROR:: coordinates were not sane" << std::endl;
+   }
+   return stats;
+}
+
 
 
 bool

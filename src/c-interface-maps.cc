@@ -50,6 +50,183 @@
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+
+/*  ------------------------------------------------------------------------ */
+/*                   Maps -                                                  */
+/*  ------------------------------------------------------------------------ */
+/*! \brief Calculate SFs from an MTZ file and generate a map.
+ @return the new molecule number. */
+int map_from_mtz_by_calc_phases(const char *mtz_file_name,
+                                const char *f_col,
+                                const char *sigf_col,
+                                int imol_coords) {
+
+   int ir = -1; // return value
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol_coords)) {
+      int imol_map = g.create_molecule();
+      std::string m(mtz_file_name);
+      std::string f(f_col);
+      std::string s(sigf_col);
+      atom_selection_container_t a = g.molecules[imol_coords].atom_sel;
+      short int t = molecule_map_type::TYPE_2FO_FC;
+      int istat = g.molecules[imol_map].make_map_from_mtz_by_calc_phases(imol_map,m,f,s,a,t);
+      if (istat != -1) {
+         graphics_draw();
+         ir = imol_map;
+      } else {
+         ir = -1; // error
+         graphics_info_t::erase_last_molecule();
+      }
+   }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("map-from-mtz-by-calc-phases");
+   command_strings.push_back(mtz_file_name);
+   command_strings.push_back(f_col);
+   command_strings.push_back(sigf_col);
+   command_strings.push_back(graphics_info_t::int_to_string(imol_coords));
+   add_to_history(command_strings);
+   return ir;
+}
+
+#include "cc-interface-scripting.hh"
+
+/*! \brief fire up a GUI, which asks us which model molecule we want
+  to calc phases from.  On "OK" button there, we call
+  map_from_mtz_by_refmac_calc_phases() */
+void calc_phases_generic(const char *mtz_file_name) {
+
+   if (coot::file_exists(mtz_file_name)) {
+      graphics_info_t g;
+      coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+      if (r.f_cols.size() == 0) {
+	 std::cout << "No Fobs found in " << mtz_file_name << std::endl;
+	 std::string s =  "No Fobs found in ";
+	 s += mtz_file_name;
+	 g.add_status_bar_text(s);
+      } else {
+	 if (r.sigf_cols.size() == 0) {
+	    std::cout << "No SigFobs found in " << mtz_file_name << std::endl;
+	    std::string s =  "No SigFobs found in ";
+	    s += mtz_file_name;
+	    g.add_status_bar_text(s);
+	 } else {
+	    // normal path:
+	    std::string f_obs_col = r.f_cols[0].column_label;
+	    std::string sigfobs_col = r.sigf_cols[0].column_label;
+	    std::vector<std::string> v;
+	    v.push_back("refmac-for-phases-and-make-map");
+	    // BL says:: dunno if we need the backslashing here, but just do it in case
+	    v.push_back(coot::util::single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
+	    v.push_back(coot::util::single_quote(f_obs_col));
+	    v.push_back(coot::util::single_quote(sigfobs_col));
+	    std::string c = languagize_command(v);
+	    std::cout << "command: " << c << std::endl;
+#ifdef USE_GUILE
+	    safe_scheme_command(c);
+#else
+#ifdef USE_PYTHON
+	    safe_python_command(c);
+#endif
+#endif
+	 }
+      }
+      std::vector<std::string> command_strings;
+      command_strings.push_back("calc-phases-generic");
+      command_strings.push_back(mtz_file_name);
+      add_to_history(command_strings);
+   }
+}
+
+/*! \brief Calculate SFs (using refmac optionally) from an MTZ file
+  and generate a map. Get F and SIGF automatically (first of their
+  type) from the mtz file.
+
+@return the new molecule number, -1 on a problem. */
+int map_from_mtz_by_refmac_calc_phases(const char *mtz_file_name,
+				       const char *f_col,
+				       const char *sigf_col,
+				       int imol_coords) {
+
+   int istat = -1;
+
+   // ha! I was supposed to fill this in!
+
+   std::vector<std::string> command_strings;
+   command_strings.push_back("map-from-mtz-by-refmac-calc-phases");
+   command_strings.push_back(mtz_file_name);
+   command_strings.push_back(f_col);
+   command_strings.push_back(sigf_col);
+   command_strings.push_back(graphics_info_t::int_to_string(imol_coords));
+   add_to_history(command_strings);
+   return istat;
+}
+
+#ifdef USE_PYTHON
+/*! \brief Calculate structure factors and make a 2FoFC map and a Fo-Fc map updating the given
+   molecule numbers for those maps - if thase molecule ids are not valid maps, them generate
+   new maps (return the model number information in the returned object) */
+PyObject *calculate_maps_and_stats_py(int imol_model,
+                                      int imol_map_with_data_attached,
+                                      int imol_map_2fofc,
+                                      int imol_map_fofc) {
+
+   auto pythonize_stats = [] (const coot::util::sfcalc_genmap_stats_t &stats) {
+                             PyObject *c = PyList_New(5);
+                             PyList_SetItem(c, 0, PyFloat_FromDouble(stats.r_factor));
+                             PyList_SetItem(c, 1, PyFloat_FromDouble(stats.free_r_factor));
+                             PyList_SetItem(c, 2, PyFloat_FromDouble(stats.bulk_solvent_volume));
+                             PyList_SetItem(c, 3, PyFloat_FromDouble(stats.bulk_correction));
+                             unsigned int n_items = stats.loc_table.size();
+                             PyObject *table_py = PyList_New(n_items);
+                             for (unsigned int i=0; i<n_items; i++) {
+                                const auto &item = stats.loc_table.items[i];
+                                PyObject *item_py = PyList_New(3);
+                                PyList_SetItem(item_py, 0, PyFloat_FromDouble(item.invresolsq));
+                                PyList_SetItem(item_py, 1, PyFloat_FromDouble(item.scale));
+                                PyList_SetItem(item_py, 2, PyFloat_FromDouble(item.lack_of_closure));
+                                PyList_SetItem(table_py, i, item_py);
+                             }
+                             PyList_SetItem(c, 4, table_py);
+                             return c;
+                          };
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol_model)) {
+      graphics_info_t g;
+      if (is_valid_map_molecule(imol_map_2fofc)) {
+         if (is_valid_map_molecule(imol_map_fofc)) {
+            clipper::Xmap<float> &xmap_2fofc = g.molecules[imol_map_2fofc].xmap;
+            clipper::Xmap<float> &xmap_fofc  = g.molecules[imol_map_fofc].xmap;
+            coot::util::sfcalc_genmap_stats_t stats =
+               g.sfcalc_genmaps_using_bulk_solvent(imol_model, imol_map_2fofc, &xmap_2fofc, &xmap_fofc);
+            g.molecules[imol_map_2fofc].set_mean_and_sigma(false, true);
+            g.molecules[imol_map_fofc ].set_mean_and_sigma(false, true);
+            float cls_2fofc = g.molecules[imol_map_2fofc].get_contour_level_by_sigma();
+            float cls_fofc  = g.molecules[imol_map_fofc].get_contour_level_by_sigma();
+            g.molecules[imol_map_2fofc].set_contour_level_by_sigma(cls_2fofc); // does an update
+            g.molecules[imol_map_fofc].set_contour_level_by_sigma(cls_fofc);   // does an update
+            r = pythonize_stats(stats);
+         }
+      }
+   }
+   graphics_draw();
+   std::vector<coot::command_arg_t> commands;
+   std::string cmd = "calculate-maps-and-stats";
+   commands.push_back(imol_model);
+   commands.push_back(imol_map_with_data_attached);
+   commands.push_back(imol_map_2fofc);
+   commands.push_back(imol_map_fofc);
+   add_to_history_typed(cmd, commands);
+
+   if (PyBool_Check(r))
+      Py_XINCREF(r);
+   return r;
+}
+#endif
+
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */
 /*  ----------------------------------------------------------------------- */

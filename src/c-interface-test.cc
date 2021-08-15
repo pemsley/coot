@@ -598,13 +598,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
          clipper::Xmap<float> *xmap_p = &g.molecules[imol_with_data].xmap;
          try {
             g.molecules[imol_with_data].fill_fobs_sigfobs();
-            const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
-               g.molecules[imol_with_data].get_original_fobs_sigfobs();
-            const clipper::HKL_data<clipper::data32::Flag> &free_flag =
-               g.molecules[imol_with_data] .get_original_rfree_flags();
-               g.molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
+            const clipper::HKL_data<clipper::data32::F_sigF> *fobs_data = g.molecules[imol_with_data].get_original_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::Flag> *free_flag = g.molecules[imol_with_data] .get_original_rfree_flags();
+            if (fobs_data && free_flag) {
+               g.molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
                g.molecules[imol_with_data].update_map(true);
                graphics_draw();
+            }
          }
          catch (const std::runtime_error &rte) {
             std::cout << rte.what() << std::endl;

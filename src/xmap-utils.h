@@ -1,6 +1,9 @@
 #ifndef XMAP_UTILS_H
 #define XMAP_UTILS_H
 
+#include <string>
+#include <clipper/core/xmap.h>
+
 // I suppose that this could be templated to (i.e. an int is also useful)
 // 
 float nearest_step(float val, float step); 
