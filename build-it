@@ -410,7 +410,8 @@
 # 5.53 20210706 use jfrog.io for boost
 # 5.54 20210706 build sqllite3
 # 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
-script_version=5.55
+# 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
+script_version=5.56
 
 
 
@@ -2780,7 +2781,11 @@ fi
 if [ -e $install_top_dir/lib/libsqlite3.so ] ; then
     echo libsqlite3 is installed
 else
+    echo building libsqlite3
     ${WGET} https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+    (
+    date
+    pwd
     gzip -dc ${AUTOBUILD_SOURCES}/sqlite-autoconf-3360000.tar.gz | tar xf -
     cd sqlite-autoconf-3360000
     if ./configure --prefix=$install_top_dir ; then
@@ -2788,6 +2793,7 @@ else
         make install
     fi
     cd -
+    ) > $HOSTLOGDIR/05a-libsqlite3.txt 2>&1
 fi
 
 
@@ -3330,6 +3336,7 @@ if [ "$test_for_already_installed_dependencies" = true ] ; then
 fi
 
 if [ "$build_boost" = true ] ; then
+   boost_version=1_72_0
    echo building boost $boost_version # to build.log
    echo building boost $boost_version 1>&2 # to the terminal
    (
@@ -3339,9 +3346,8 @@ if [ "$build_boost" = true ] ; then
       address_model=64
       python_version_extention=2.7 # extract this
 
-      boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
-      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source
-      boost_version=1_71_0
+      boost_home_url=https://dl.bintray.com/boostorg/release/1.72.0/source
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 
@@ -3426,7 +3432,7 @@ if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; 
    echo not building Pillow:
 else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
-    ${WGET} $pillow_url
+    ${WGET} --no-if-modified-since $pillow_url
     if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
         tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
         cd Pillow-6.2.2
@@ -4170,8 +4176,10 @@ if [ -e $install_top_dir/bin/render ] ; then
 else
 
    raster3d_version=3.0-3
+   raster3d_version=3.0-7
    # raster3d depends on libgd to make png images
-   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+   # ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+   ${WGET} http://www.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
 
    if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
 
