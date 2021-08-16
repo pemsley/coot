@@ -1404,8 +1404,10 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 map_max_   = mv.max_density;
 	 map_min_   = mv.min_density;
 
-
-	 original_fphis_filled = 1;
+         original_fphis_p = new clipper::HKL_data< clipper::datatypes::F_phi<float> >;
+         original_fphis_p->init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling()); // not sure if this is needed.
+         *original_fphis_p = fphidata;
+	 original_fphis_filled = true;
 
 	 // long T4 = glutGet(GLUT_ELAPSED_TIME);
 	 // std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
@@ -2332,9 +2334,9 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   map_mean_ = mv.mean;
   map_sigma_ = sqrt(mv.variance);
 
-  original_fphis_filled = 1;
 
   // 20210816-PE this is too tricky to fix for me right now.
+  // original_fphis_filled = 1;
   // original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
   // original_fphis = fphidata;
 
