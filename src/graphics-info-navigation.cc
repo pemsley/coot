@@ -1251,17 +1251,12 @@ void graphics_info_t::register_user_defined_interesting_positions(const std::vec
 void
 graphics_info_t::sequence_view_highlight_residue_maybe(mmdb::Atom *atom, GtkWidget *svc) {
 
-   std::cout << "Here A in sequence_view_highlight_residue_maybe() " << std::endl;
    if (svc) {
-      std::cout << "Here B in sequence_view_highlight_residue_maybe() " << std::endl;
       if (atom) {
-         std::cout << "Here C in sequence_view_highlight_residue_maybe() " << std::endl;
          mmdb::Residue *residue_p = atom->residue;
          if (residue_p) {
-            std::cout << "Here D in sequence_view_highlight_residue_maybe() " << std::endl;
             exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
             if (nsv) {
-               std::cout << "Here E in sequence_view_highlight_residue_maybe() " << std::endl;
                nsv->highlight_residue(residue_p);
             }
          }

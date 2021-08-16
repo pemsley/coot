@@ -1978,7 +1978,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
-   void update_geometry_graphs(int imol_moving_atoms); // convenience function
+   void update_geometry_graphs(int imol_moving_atoms); // convenience function - includes sequence view too!
    void update_validation_graphs(int imol);  // and ramachandran
 
 

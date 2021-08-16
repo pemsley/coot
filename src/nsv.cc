@@ -275,7 +275,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
-   bool debug = true;
+   bool debug = false;
 
    int canvas_x_size = 0;
    int canvas_y_size = 0;
@@ -426,7 +426,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 double x_offset = - 0.0666 * total_res_range * pixels_per_letter + total_res_range * 0.65;
 
 	 if (debug)
-	    std::cout << " -> x_offset:" << x_offset << std::endl;
+	    std::cout << "DEBUG:: -> x_offset:" << x_offset << std::endl;
 
 #ifdef HAVE_GOOCANVAS
 

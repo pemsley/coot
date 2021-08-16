@@ -737,8 +737,9 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
       graphics_info_t g;
       int model_number_ANY = mmdb::MinInt4;
       std::string ic(inscode);
-      short int istat =
-	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
+      short int istat = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
+
+      g.update_geometry_graphs(imol);
 
       if (istat) {
 	 // now if the go to atom widget was being displayed, we need to
