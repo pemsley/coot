@@ -674,17 +674,18 @@
 ;; Pepflip the active residue - needs a key binding.
 ;; 
 (define (pepflip-active-residue)
-  (let ((active-atom (active-residue)))
-    (if (not active-atom)
+  (let ((closest-atom (closest-atom-simple-scm)))
+    (if (not closest-atom)
 	(format #t "No active atom~%")
-	(let ((imol      (list-ref active-atom 0))
-	      (chain-id  (list-ref active-atom 1))
-	      (res-no    (list-ref active-atom 2))
-	      (ins-code  (list-ref active-atom 3))
-	      (atom-name (list-ref active-atom 4))
-	      (alt-conf  (list-ref active-atom 5)))
+	(let ((imol      (list-ref closest-atom 0))
+	      (chain-id  (list-ref closest-atom 1))
+	      (res-no    (list-ref closest-atom 2))
+	      (ins-code  (list-ref closest-atom 3))
+	      (atom-name (list-ref closest-atom 4))
+	      (alt-conf  (list-ref closest-atom 5)))
 
-	  (if (string=? atom-name " N ") (set! res-no (- res-no 1)))
+	  (if (string=? atom-name " N  ") (set! res-no (- res-no 1)))
+	  (if (string=? atom-name " N  ") (set! res-no (- res-no 1)))
 	  
 	  (pepflip imol chain-id res-no ins-code alt-conf)))))
 
