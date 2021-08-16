@@ -1133,6 +1133,8 @@ public:        //                      public
 
    mmdb::Atom *get_atom(int idx) const;
 
+   mmdb::Atom *get_atom(const pick_info &pi) const;
+
    bool have_atom_close_to_position(const coot::Cartesian &pos) const;
 
    // return the maximum residue number in the chain. first of false means failure to do so.

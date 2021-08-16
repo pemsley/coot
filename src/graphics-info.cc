@@ -2535,7 +2535,7 @@ graphics_info_t::pick_moving_atoms(const coot::Cartesian &front, const coot::Car
 
 mmdb::Atom *
 graphics_info_t::get_moving_atom(const pick_info &pi) const {
-   mmdb::Atom *at  = 0;
+   mmdb::Atom *at = 0;
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
          at = moving_atoms_asc->atom_selection[pi.atom_index];

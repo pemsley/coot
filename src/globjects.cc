@@ -4003,8 +4003,9 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 		  int im = nearest_atom_index_info.imol;
                   if (is_valid_model_molecule(nearest_atom_index_info.imol)) {
                      std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
-                     g.setRotationCentre(nearest_atom_index_info.atom_index,
-                                         nearest_atom_index_info.imol);
+                     mmdb::Atom *at = g.molecules[im].get_atom(nearest_atom_index_info);
+                     g.setRotationCentre(nearest_atom_index_info.atom_index, nearest_atom_index_info.imol);
+                     g.sequence_view_highlight_residue_maybe(at, g.get_sequence_view_is_displayed(im));
                   } else {
                      mmdb::Atom *at = g.get_moving_atom(nearest_atom_index_info);
                      if (at) {

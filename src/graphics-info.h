@@ -2033,6 +2033,7 @@ public:
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
    GtkWidget * get_sequence_view_is_displayed(int imol) const;
    static int nsv_canvas_pixel_limit;
+   void sequence_view_highlight_residue_maybe(mmdb::Atom *next_atom, GtkWidget *svc);
 
    // Geometry Graphs:
 

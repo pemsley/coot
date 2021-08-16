@@ -2772,6 +2772,18 @@ molecule_class_info_t::get_atom(int idx) const {
    return r;
 }
 
+mmdb::Atom *
+molecule_class_info_t::get_atom(const pick_info &pi) const {
+
+   mmdb::Atom *at = 0;
+   if (pi.success == GL_TRUE)
+      if (pi.atom_index < atom_sel.n_selected_atoms)
+         at = atom_sel.atom_selection[pi.atom_index];
+   return at;
+
+}
+
+
 
 // This should check that if "a" is typed, then set "a" as the
 // chain_id if it exists, else convert to "A" (if that exists).
@@ -2795,11 +2807,10 @@ coot::goto_residue_string_info_t::goto_residue_string_info_t(const std::string &
       if (mol) {
          int imod = 1;
          mmdb::Model *model_p = mol->GetModel(imod);
-         mmdb::Chain *chain_p;
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<nchains; ichain++) {
-            chain_p = model_p->GetChain(ichain);
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
             chain_ids.push_back(chain_p->GetChainID());
          }
       }
