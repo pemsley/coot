@@ -392,7 +392,7 @@ coot::mogul::make_restraints(mmdb::Residue *residue_p,
 		     type = get_bond_type(current_restraints.second, name_1, name_2);
 		  float dist = items[i].median;
 		  float esd  = items[i].std_dev;
-		  dict_bond_restraint_t rest(name_1, name_2, type, dist, esd);
+		  dict_bond_restraint_t rest(name_1, name_2, type, dist, esd, 0.0, 0.0, false);
 		  r.bond_restraint.push_back(rest);
 	       }
 	    }
@@ -453,7 +453,7 @@ coot::mogul::make_restraints(const std::string &comp_id,
 		  std::string bt = bond_types_dict.get_bond_type(name_1, name_2);
 		  float dist = items[i].median;
 		  float esd  = items[i].std_dev;
-		  dict_bond_restraint_t rest(name_1, name_2, bt, dist, esd);
+		  dict_bond_restraint_t rest(name_1, name_2, bt, dist, esd, 0.0, 0.0, false);
 		  r.bond_restraint.push_back(rest);
 	       }
 	    }

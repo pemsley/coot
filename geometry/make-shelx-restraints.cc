@@ -137,8 +137,8 @@ void output_dangs(const coot::dictionary_residue_restraints_t &rest,
       const coot::dict_angle_restraint_t &r = rest.angle_restraint[i];
       if (! rest.is_hydrogen(r.atom_id_1())) { 
 	 if (! rest.is_hydrogen(r.atom_id_3())) { 
-	    coot::dict_bond_restraint_t b1(r.atom_id_1(), r.atom_id_2(), "", 0.0, 0.0);
-	    coot::dict_bond_restraint_t b2(r.atom_id_2(), r.atom_id_3(), "", 0.0, 0.0);
+	    coot::dict_bond_restraint_t b1(r.atom_id_1(), r.atom_id_2(), "", 0.0, 0.0, 0.0, 0.0, false);
+	    coot::dict_bond_restraint_t b2(r.atom_id_2(), r.atom_id_3(), "", 0.0, 0.0, 0.0, 0.0, false);
 	    for (unsigned int ib1=0; ib1<rest.bond_restraint.size(); ib1++) {
 	       if (rest.bond_restraint[ib1].matches_names(b1)) {
 		  for (unsigned int ib2=0; ib2<rest.bond_restraint.size(); ib2++) {

@@ -685,7 +685,7 @@
 	      (alt-conf  (list-ref closest-atom 5)))
 
 	  (if (string=? atom-name " N  ") (set! res-no (- res-no 1)))
-	  (if (string=? atom-name " N  ") (set! res-no (- res-no 1)))
+	  (if (string=? atom-name " H  ") (set! res-no (- res-no 1)))
 	  
 	  (pepflip imol chain-id res-no ins-code alt-conf)))))
 

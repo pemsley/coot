@@ -1384,25 +1384,20 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	 ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
 	 ierr_tot += ierr;
 
-         mmdb::realtype value_dist_nucleus     = -1.0;
-         mmdb::realtype value_dist_nucleus_esd = -1.0;
-         int ierr_nuc     = mmCIFLoop->GetReal(value_dist_nucleus,     "value_dist_nucleus",     j);
-         int ierr_nuc_esd = mmCIFLoop->GetReal(value_dist_nucleus_esd, "value_dist_nucleus_esd", j);
-
-         // for now, instead of sending both to the dict_bond, let's preferentially send
-         // value_dist_nucleus if we can:
-         //
-         if (ierr_nuc == 0) {
-            if (ierr_nuc_esd == 0) {
-               value_dist     = value_dist_nucleus;
-               value_dist_esd = value_dist_nucleus_esd;
-            }
-         }
+         mmdb::realtype value_dist_nuclear     = -1.0;
+         mmdb::realtype value_dist_nuclear_esd = -1.0;
+         int ierr_nuc     = mmCIFLoop->GetReal(value_dist_nuclear,     "value_dist_nucleus",     j);
+         int ierr_nuc_esd = mmCIFLoop->GetReal(value_dist_nuclear_esd, "value_dist_nucleus_esd", j);
 
 	 if (ierr_tot == 0) {
 
+            // if value_dist_nucleus_esd is negative, it's treated as unset
+            //
 	    mon_lib_add_bond(comp_id, imol_enc, atom_id_1, atom_id_2,
-			     type, value_dist, value_dist_esd, aromaticity, blt);
+			     type,
+                             value_dist, value_dist_esd,
+                             value_dist_nuclear, value_dist_nuclear_esd,
+                             aromaticity, blt);
 	    nbond++;
 	 } else {
 

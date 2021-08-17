@@ -201,7 +201,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
 		     double dist = sqrt((pt_1-pt_2).lengthsq());
 		     double dist_esd = 0.02;
-		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd);
+		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd, 0, 0, false);
 		     bond_restraint.push_back(br);
 		     bond_pairs.push_back(atom_pair_t(at_1, at_2));
 		  }
