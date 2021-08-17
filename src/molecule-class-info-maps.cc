@@ -93,10 +93,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    bool verbose = false;
    bool debugging = false;
 
-   if (debugging) {
-      std::cout << "gompertz: " << try_gompertz << " " << gompertz_factor << std::endl;
-   }
-
+   if (xmap.is_null()) return;
 
    bool do_gompertz = false;
    if (try_gompertz) {
@@ -114,6 +111,10 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	    }
 	 }
       }
+   }
+
+   if (original_fphis_filled == false && original_fphis_p == 0) {
+      save_original_fphis_from_map();
    }
 
    if (original_fphis_filled && original_fphis_p) {
@@ -146,6 +147,10 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	       break;
 	 }
       }
+
+      std::cout << "DEBUG:: sharpen() init fphis with " << original_fphis_p->spacegroup().symbol_xhm() << " "
+                << original_fphis_p->cell().format() << " "
+                << std::endl;
 
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis_p->spacegroup(),
 								  original_fphis_p->cell(),
@@ -2471,8 +2476,36 @@ molecule_class_info_t::save_original_fphis_from_map() {
 
    // clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
 
-
-
+   if (! xmap.is_null()) {
+     if (! original_fphis_filled) {
+         float mg = coot::util::max_gridding(xmap); // A/grid
+         clipper::Resolution reso(2.0 * mg); // Angstroms
+         std::cout << "INFO:: save_original_fphis_from_map(): making data info" << std::endl;
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-i: " << xmap.cell().format() << std::endl;
+         clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso, true);
+         clipper::HKL_sampling hkl_sampling(xmap.cell(), reso);
+         clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(xmap.spacegroup(), xmap.cell(), hkl_sampling);
+         fphidata.update();
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-0: " << hkl_info.cell().format() << std::endl;
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-a: " << fphidata.cell().format() << std::endl;
+         original_fphis_p = new clipper::HKL_data< clipper::datatypes::F_phi<float> >;
+         original_fphis_p->init(xmap.spacegroup(), xmap.cell(), fphidata.hkl_sampling()); // not sure if this is needed.
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-b: " << fphidata.cell().format() << std::endl;
+         xmap.fft_to(fphidata);
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-c: " << fphidata.cell().format() << std::endl;
+         *original_fphis_p = fphidata;
+         // check that that was sane:
+         clipper::Cell cell_check_1 = fphidata.cell();
+         clipper::Cell cell_check_2 = original_fphis_p->cell();
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-2: " << cell_check_1.format() << std::endl;
+         std::cout << "DEBUG:: save_original_fphis_from_map cell-3: " << cell_check_2.format() << std::endl;
+         if (cell_check_2.alpha() > 0.0 && cell_check_2.alpha() < 180)
+            if (cell_check_2.beta() > 0.0 && cell_check_2.beta() < 180)
+               if (cell_check_2.gamma() > 0.0 && cell_check_2.gamma() < 180)
+                  original_fphis_filled = true;
+         std::cout << "INFO:: stored original fphis from map" << std::endl;
+      }
+   }
 }
 
 
@@ -2498,10 +2531,10 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    }
 
 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(sg, myfsigf.cell(),myfsigf.hkl_sampling());
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(sg, myfsigf.cell(), myfsigf.hkl_sampling());
    // map coefficients ((combined Fo and scaled Fc) and calc phi) go here:
 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(myfsigf.spacegroup(),myfsigf.cell(),myfsigf.hkl_sampling());
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(myfsigf.spacegroup(),myfsigf.cell(), myfsigf.hkl_sampling());
 
    // get a list of all the atoms
    clipper::MMDBAtom_list atoms(SelAtom.atom_selection, SelAtom.n_selected_atoms);
