@@ -1219,7 +1219,8 @@ molecule_class_info_t::map_fill_from_mtz(std::string mtz_file_name,
 					 std::string weight_col,
 					 int use_weights,
 					 int is_diff_map,
-					 float sampling_rate) {
+					 float sampling_rate,
+                                         bool updating_existing_map_flag) {
 
    short int use_reso_flag = 0;
    short int is_anomalous_flag = 0;
@@ -1231,7 +1232,8 @@ molecule_class_info_t::map_fill_from_mtz(std::string mtz_file_name,
 				      use_weights,
 				      is_anomalous_flag,
 				      is_diff_map,
-				      use_reso_flag, 0.0, 0.0, sampling_rate); // don't use these reso limits.
+				      use_reso_flag, 0.0, 0.0, sampling_rate,  // don't use these reso limits.
+                                      updating_existing_map_flag);
 
 }
 
@@ -1249,7 +1251,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 							  short int use_reso_limits,
 							  float low_reso_limit,
 							  float high_reso_limit,
-							  float map_sampling_rate) {
+							  float map_sampling_rate,
+                                                          bool updating_existing_map_flag) {
 
    graphics_info_t g;
 
@@ -1383,7 +1386,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
 	 // std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
 
-	 update_map_in_display_control_widget();
+         if (! updating_existing_map_flag)
+            update_map_in_display_control_widget();
 
 	 // Fill the class variables:
 	 //   clipper::Map_stats stats(xmap);
@@ -1426,7 +1430,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
 	 std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
 
-	 set_initial_contour_level();
+         if (! updating_existing_map_flag)
+            set_initial_contour_level();
 
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str());
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
@@ -2110,6 +2115,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       map_sigma_ = sqrt(mv.variance);
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
+
+      float mg = coot::util::max_gridding(xmap); // A/grid
+      data_resolution_ = mg * 2.0;
 
       update_map_in_display_control_widget();
       contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
@@ -4223,6 +4231,7 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
 	    }
 	 }
       }
+
       if (update_it) {
 
 	 // map_fill_from_mtz(ump) ?
@@ -4237,7 +4246,7 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
 			   ump.weight_col,
 			   ump.use_weights,
 			   ump.is_difference_map,
-			   graphics_info_t::map_sampling_rate);
+			   graphics_info_t::map_sampling_rate, true); // yes, this map already exists
 	 updating_map_previous = ump;
 	 graphics_info_t::graphics_draw();
       }

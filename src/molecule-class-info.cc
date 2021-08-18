@@ -5641,6 +5641,15 @@ molecule_class_info_t::close_yourself() {
       was_nxmap = true;
    }
 
+   if (original_fphis_filled)
+      delete original_fphis_p;
+
+   if (original_fobs_sigfobs_filled)
+      delete original_fobs_sigfobs_p;
+
+   if (original_r_free_flags_p) // no flag for filled?
+      delete original_r_free_flags_p;
+
    // delete from display manager combo box
    //
    graphics_info_t g;

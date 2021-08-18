@@ -934,7 +934,8 @@ public:        //                      public
 			  std::string weight_col,
 			  int use_weights,
 			  int is_diff_map,
-			  float map_sampling_rate);
+			  float map_sampling_rate,
+                          bool updating_existing_map_flag=false);
 
    void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
 
@@ -949,7 +950,8 @@ public:        //                      public
 					   short int use_reso_flag,
 					   float low_reso_limit,
 					   float high_reso_limit,
-					   float map_sampling_rate);
+					   float map_sampling_rate,
+                                           bool updating_existing_map_flag=false);
 
    // return succes status, if mtz file is broken or empty, or
    // non-existant, return 0.

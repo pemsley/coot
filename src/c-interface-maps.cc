@@ -612,7 +612,7 @@ int make_updating_map(const char *mtz_file_name,
 		      int use_weights, int is_diff_map) {
 
    int status = 1;
-   int imol = make_and_draw_map(mtz_file_name, f_col, phi_col, weight_col, use_weights, is_diff_map);;;
+   int imol = make_and_draw_map(mtz_file_name, f_col, phi_col, weight_col, use_weights, is_diff_map);
 
    if (is_valid_map_molecule(imol)) {
       // use a better constructor?
