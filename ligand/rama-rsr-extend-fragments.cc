@@ -926,13 +926,14 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
 
       for (unsigned int i=0; i<cir.size(); i++) {
          const auto &chain_index_pair = cir[i];
-         std::cout << "New chain batch: (chain index range " << chain_index_pair.first << " " << chain_index_pair.second << ")"
-                   << std::endl;
-         for (unsigned int ich=chain_index_pair.first; ich<chain_index_pair.second; ich++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ich);
-            std::cout << " " << chain_p->GetChainID();
+         if (false) { // this (index splitting) needs to be fixed.
+            std::cout << "New chain batch: (chain index range " << chain_index_pair.first << " " << chain_index_pair.second << ")" << std::endl;
+            for (unsigned int ich=chain_index_pair.first; ich<chain_index_pair.second; ich++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ich);
+               std::cout << " " << chain_p->GetChainID();
+            }
+            std::cout << std::endl;
          }
-         std::cout << std::endl;
 
          std::vector<std::thread> threads;
          for (unsigned int ichain=cir[i].first; ichain<cir[i].second; ichain++) {
