@@ -78,7 +78,7 @@ coot::atom_index_ranges(unsigned int n_atoms, unsigned int n_threads) {
 
 	    npt = n_atoms/(n_threads-1);
 
-	    if (true)
+	    if (false)
 	       std::cout << "debug:: atom_index_ranges() n_atoms " << n_atoms
 			 << " n_threads " << n_threads << " n_per_thread " << npt << std::endl;
 
