@@ -35,7 +35,6 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
 void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *> w_and_b, int imol) {
 
    std::cout << "::::::::::::::::::::::::::: fill_single_map_properties_dialog_gtk3() for imol " << imol << std::endl;
-   printf("!!!!!!!!! fill_single_map_properties_dialog_gtk3() start\n");
 
    graphics_info_t g;
    if (! g.is_valid_map_molecule(imol)) return;
@@ -63,6 +62,16 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "imol", GINT_TO_POINTER(imol));
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "contour_level_entry", cl_entry);
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "single_map_properties_absolute_radiobutton", level_type_radiobutton);
+
+                                                GtkWidget *step_size_is_in_rmsd_checkbutton = widget_from_builder("single_map_properties_step_in_rmsd_checkbutton");
+                                                GtkWidget *step_size_entry = widget_from_builder("single_map_properties_step_size_entry");
+
+                                                g_object_set_data(G_OBJECT(step_size_entry),                  "imol", GINT_TO_POINTER(imol));
+                                                g_object_set_data(G_OBJECT(step_size_is_in_rmsd_checkbutton), "imol", GINT_TO_POINTER(imol));
+
+                                                g_object_set_data(G_OBJECT(step_size_entry), "step_size_checkbutton", step_size_is_in_rmsd_checkbutton);
+                                                g_object_set_data(G_OBJECT(step_size_is_in_rmsd_checkbutton), "step_size_checkbutton", step_size_entry);
+
                                              };
 
    GtkWidget *cell_text = widget_from_builder("single_map_properties_cell_label");

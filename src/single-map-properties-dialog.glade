@@ -422,6 +422,80 @@
                         <property name="position">1</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkFrame">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">none</property>
+                        <child>
+                          <object class="GtkAlignment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="single_map_properties_step_in_rmsd_checkbutton">
+                                    <property name="label" translatable="yes">Use r.m.s.d.</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">   Step Size </property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="single_map_properties_step_size_entry">
+                                    <property name="width_request">40</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="max_width_chars">12</property>
+                                    <signal name="key-press-event" handler="on_single_map_properties_step_size_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Step Size</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -546,11 +620,11 @@
                     <child>
                       <object class="GtkEntry" id="map_properties_dialog_specularity_strength_entry">
                         <property name="name">map_properties_dialog_specularity_strength_entry</property>
-                        <property name="width_request">40</property>
+                        <property name="width_request">50</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="max_length">8</property>
-                        <property name="width_chars">4</property>
+                        <property name="width_chars">5</property>
                         <signal name="key-press-event" handler="on_map_properties_dialog_specularity_strength_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -574,11 +648,11 @@
                     <child>
                       <object class="GtkEntry" id="map_properties_dialog_specularity_shininess_entry">
                         <property name="name">map_properties_dialog_specularity_shininess_entry</property>
-                        <property name="width_request">8</property>
+                        <property name="width_request">40</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="max_length">8</property>
-                        <property name="width_chars">4</property>
+                        <property name="width_chars">6</property>
                         <signal name="key-press-event" handler="on_map_properties_dialog_specularity_shininess_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>

@@ -3886,118 +3886,20 @@ on_single_map_properties_cancel_button_clicked_gtkbuilder_callback (GtkButton   
 
 #include "gtk-manual.h"
 
+// This function is currently in c-interface-gui.cc - should it be there?
+void show_map_colour_selector(int imol);
+
 
 extern "C" G_MODULE_EXPORT
 void
 on_single_map_properties_colour_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                                                     gpointer         user_data)
 {
-
-   std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback()" << std::endl;
-
-   GtkWidget *col_chooser = NULL;
-   GdkRGBA map_colour;
-   GdkColor map_gdk_color;      /* old style used by the Color Selection  */
-   GtkWidget *parent = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "parent"));
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-
-   std::cout << "in on_single_map_properties_colour_button_clicked_gtkbuilder_callback() imol   " << imol << std::endl;
-   std::cout << "in on_single_map_properties_colour_button_clicked_gtkbuilder_callback() parent " << parent << std::endl;
-
-   if (is_valid_map_molecule(imol)) {
-
-      GtkWidget *color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
-      map_colour = get_map_colour(imol);
-      struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
-      map_colour_data->imol = imol;
-      map_colour_data->color_selection = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_selection_dialog)));
-      GtkColorSelection *color_selection = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_selection_dialog)));
-
-      g_signal_connect(G_OBJECT(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_selection_dialog))),
-                       "color_changed", G_CALLBACK(on_map_color_changed), map_colour_data);
-
-      GdkRGBA *map_colour_p = (GdkRGBA *) malloc(sizeof(GdkRGBA));
-      *map_colour_p = map_colour;
-      map_gdk_color.red   = map_colour.red;
-      map_gdk_color.green = map_colour.green;
-      map_gdk_color.blue  = map_colour.blue;
-      printf("setting map_gdk_color %d %d %d\n", map_gdk_color.red, map_gdk_color.green, map_gdk_color.blue);
-      gtk_color_selection_set_current_color(color_selection, &map_gdk_color);
-      gtk_widget_show(color_selection_dialog);
-      g_signal_connect(color_selection_dialog, "response", G_CALLBACK(on_map_color_selection_dialog_response), map_colour_p);
-      g_object_set_data(G_OBJECT(color_selection_dialog), "imol", GINT_TO_POINTER(imol));
-
-   }
+   std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
+   show_map_colour_selector(imol);
 }
 
-#if 0				/* don't know what to do with optionmenu changed */
-extern "C" G_MODULE_EXPORT
-void
-on_run_refmac_phase_input_optionmenu_changed_gtkbuilder_callback
-                                        (GtkOptionMenu   *optionmenu,
-                                        gpointer         user_data)
-{
-  GtkWidget *phases_hbox;
-  GtkWidget *hl_hbox;
-  GtkWidget *no_labels_checkbutton;
-  GtkWidget *twin_checkbutton;
-  GtkWidget *sad_extras;
-  GtkWidget *fobs_hbox;
-  GtkWidget *fpm_hbox;
-  int phase_combine_flag;
-
-  phases_hbox = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_phases_hbox");
-  hl_hbox     = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_hl_hbox");
-  no_labels_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_nolabels_checkbutton");
-  twin_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_twin_checkbutton");
-  sad_extras = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_extra_hbox");
-  fobs_hbox  = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_fobs_hbox");
-  fpm_hbox   = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_fpm_hbox");
-
-  phase_combine_flag = get_refmac_phase_input();
-
-  if (phase_combine_flag == 1) {
-    gtk_widget_show(phases_hbox);
-    gtk_widget_hide(hl_hbox);
-  } else {
-    if (phase_combine_flag == 2) {
-      gtk_widget_hide(phases_hbox);
-      gtk_widget_show(hl_hbox);
-    } else {
-      gtk_widget_hide(phases_hbox);
-      gtk_widget_hide(hl_hbox);
-    }
-  }
-  if (refmac_runs_with_nolabels() == 2) {
-    if (phase_combine_flag) {
-      /* current version of refmac (5.5) doesnt allow phase input for twin or SAD refinement
-	 so we de-sensitise and uncheck the buttons */
-      gtk_widget_set_sensitive(twin_checkbutton, FALSE);
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
-      /* current version doesnt allow phase input without giving labels */
-      gtk_widget_set_sensitive(no_labels_checkbutton, FALSE);
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_labels_checkbutton), FALSE);
-    } else {
-      gtk_widget_set_sensitive(twin_checkbutton, TRUE);
-      gtk_widget_set_sensitive(no_labels_checkbutton, TRUE);
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_labels_checkbutton), TRUE);
-    }
-    if (phase_combine_flag == 3) {
-      /* SAD */
-      gtk_widget_show(sad_extras);
-      /* change label box from fobs to f+/- as SAD needs this */
-      gtk_widget_hide(fobs_hbox);
-      gtk_widget_show(fpm_hbox);
-    } else {
-      gtk_widget_hide(sad_extras);
-      /* change label box back from f+/- to fobs for 'normal' refinement */
-      gtk_widget_hide(fpm_hbox);
-      gtk_widget_show(fobs_hbox);
-    }
-
-  }
-}
-#endif
 
 extern "C" G_MODULE_EXPORT
 void
@@ -12140,3 +12042,21 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled_gtkbuilder_callba
    handle_map_properties_specularity_change(imol, GTK_WIDGET(togglebutton));
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_single_map_properties_step_size_entry_key_press_event_gtkbuilder_callback (GtkWidget       *widget,
+                                                                              GdkEventKey     *event,
+                                                                              gpointer         user_data)
+{
+   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
+      std::string t = gtk_entry_get_text(GTK_ENTRY(widget));
+      try {
+         float f = coot::util::string_to_float(t);
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+   return FALSE;
+}
