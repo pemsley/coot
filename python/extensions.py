@@ -138,19 +138,23 @@ if True:
 
      menu = coot_gui.coot_menubar_menu("Extensions")
 
+     # calculate_menu = menu
+     # draw_menu = menu
+     # edit_menu = menu
+
      calculate_menu = coot_gui.coot_menubar_menu("Calculate")
      draw_menu      = coot_gui.coot_menubar_menu("Draw")
      edit_menu      = coot_gui.coot_menubar_menu("Edit")
      edit_settings_menu = get_existing_submenu(edit_menu, "Settings...")
-     # print("###### debug edit_settings_menu", edit_settings_menu)
-     # print("###### debug dir on edit_settings_menu", dir(edit_settings_menu))
-
-     calculate_menu = menu
-     draw_menu = menu
-     edit_menu = menu
+     calculate_all_molecule_menu = get_existing_submenu(calculate_menu, "All Molecule...")
 
      # make submenus:
      submenu_all_molecule = Gtk.Menu()
+
+     print("DEBUG::::::::::::::::::::: edit_settings_menu:", edit_settings_menu)
+     print("DEBUG::::::::::::::::::::: calculate_all_molecule_menu:", calculate_menu)
+     print("DEBUG::::::::::::::::::::: submenu_all_molecule:", submenu_all_molecule)
+
      menuitem_2 = Gtk.MenuItem("All Molecule...")
      submenu_maps = Gtk.Menu()
      menuitem_3 = Gtk.MenuItem("Maps...")
@@ -171,7 +175,8 @@ if True:
      submenu_ncs = Gtk.Menu()
      menuitem_ncs = Gtk.MenuItem("NCS...")
 
-     menuitem_2.set_submenu(submenu_all_molecule)
+     # menuitem_2.set_submenu(submenu_all_molecule) replace by the following
+     calculate_all_molecule_menu.set_submenu(submenu_all_molecule)
      calculate_menu.append(menuitem_2)
      menuitem_2.show()
 

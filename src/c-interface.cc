@@ -7143,7 +7143,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       w = graphics_info_t::get_widget_from_builder("run_state_file_dialog");
       vbox_mols = graphics_info_t::get_widget_from_builder("mols_vbox");
       if (w) {
-         std::cout << "wrapped_create_run_state_file_dialog():: got widget w " << w << std::endl;
+         // std::cout << "wrapped_create_run_state_file_dialog():: got widget w " << w << std::endl;
       } else {
          std::cout << "wrapped_create_run_state_file_dialog():: widget w was null " << std::endl;
       }
