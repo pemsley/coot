@@ -142,8 +142,8 @@ if True:
      draw_menu      = coot_gui.coot_menubar_menu("Draw")
      edit_menu      = coot_gui.coot_menubar_menu("Edit")
      edit_settings_menu = get_existing_submenu(edit_menu, "Settings...")
-     print("###### debug edit_settings_menu", edit_settings_menu)
-     print("###### debug dir on edit_settings_menu", dir(edit_settings_menu))
+     # print("###### debug edit_settings_menu", edit_settings_menu)
+     # print("###### debug dir on edit_settings_menu", dir(edit_settings_menu))
 
      calculate_menu = menu
      draw_menu = menu
@@ -195,7 +195,8 @@ if True:
      draw_menu.append(menuitem_pisa)
      menuitem_pisa.show()
 
-     menuitem_7.set_submenu(submenu_settings)
+     # menuitem_7.set_submenu(submenu_settings)
+     edit_settings_menu.set_submenu(submenu_settings)
      menu.append(menuitem_7)
      menuitem_7.show()
 
@@ -209,9 +210,9 @@ if True:
 
      # where does the Refine submenu go? In Edit -> Settings
      edit_settings_submenu = menuitem_7
-     menuitem_5.set_submenu(submenu_refine)
-     edit_settings_submenu.append(menuitem_5)
-     menuitem_5.show()
+     # menuitem_5.set_submenu(submenu_refine)
+     # edit_settings_submenu.append(menuitem_5)
+     # menuitem_5.show()
 
      # give edit_settings_menu a submenu
      # submenu_settings = Gtk.Menu()
@@ -573,11 +574,11 @@ if True:
 
      # --- D ---
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models, "Delete Hydrogen Atoms",
        lambda func: using_active_atom(delete_hydrogens, "aa_imol"))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models, "Delete Side-chains for Active Chain",
        lambda func: using_active_atom(
          delete_sidechains_for_chain, "aa_imol", "aa_chain_id"))
@@ -1702,11 +1703,11 @@ if True:
      #     Modules
      # ---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
          lambda func: add_module_carbohydrate_gui())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_modules, "CCP4...",
        lambda func: coot_gui.add_module_ccp4())
 
