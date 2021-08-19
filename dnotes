@@ -10128,3 +10128,13 @@ Wed  4 Aug 22:26:25 BST 2021
 
    https://stackoverflow.com/questions/52703513/how-do-i-show-multiple-times-a-dialog-defined-with-glade
 
+----
+Thu 19 Aug 12:28:50 BST 2021
+
+      // for gtk2
+      // gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
+      // for gtk3
+      gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
+
+      gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+

@@ -374,14 +374,16 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
 	       int imol_map = Imol_Refinement_Map();
 	       if (is_valid_map_molecule(imol_map)) {
 
-
 		  // For now let's refine the whole chain
 		  //
                   std::vector<std::string> s;
                   s.push_back("fit-chain");
                   s.push_back(coot::util::int_to_string(imol));
                   s.push_back(coot::util::single_quote(chain_id));
+
+                  std::cout << ":::::::::::::::: here 1 with command string s " << schemize_command_strings(s) << std::endl;
 #ifdef USE_GUILE
+                  std::cout << ":::::::::::::::: here 2 with command string s " << schemize_command_strings(s) << std::endl;
                   safe_scheme_command(schemize_command_strings(s));
 #endif // USE_GUILE
 

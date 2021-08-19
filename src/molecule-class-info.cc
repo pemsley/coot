@@ -3476,9 +3476,12 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
+   std::string caller_s("NULL");
+   if (caller) caller_s = std::string(caller);
+
    if (debug)
       std::cout << "debug:: plain make_bonds_type_checked() --------start--------- called by "
-                << caller << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
+                << caller_s << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
                 << std::endl;
    if (debug)
       std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
@@ -4059,10 +4062,14 @@ void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
 
-   if (false)
+   if (false) {
+      std::string caller_s = "NULL";
+      if (caller)
+         caller_s = std::string(caller);
       std::cout << "debug::make_bonds_type_checked() no-bonds-to-these_atoms-set size "
                 << no_bonds_to_these_atom_indices.size() << " called by "
-                << caller << std::endl;
+                << caller_s << std::endl;
+   }
 
    if (false) {
       for (auto it=no_bonds_to_these_atom_indices.begin();

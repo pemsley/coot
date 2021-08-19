@@ -306,24 +306,29 @@ void graphics_info_t::SetMouseClicked(double x, double y) {
    mouse_clicked_begin.second = y;
 }
 
+#include "widget-from-builder.hh"
+
 // static
 GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) {
 
-   GtkWidget *w = NULL;
+   GtkWidget *dialog = NULL;
    if (use_graphics_interface_flag) {
-      w = create_nothing_bad_dialog();
-      GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
-      gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
+      // w = create_nothing_bad_dialog();
+      dialog = widget_from_builder("nothing_bad_dialog");
+      GtkWidget *label_widget = widget_from_builder("nothing_bad_label");
+      gtk_widget_show(label_widget);
+      gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
 
       // for gtk2
       // gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
       // for gtk3
       gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
+      gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE);
 
-      gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
-      gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glareas[0], "window1")));
+      GtkWidget *main_window = widget_from_builder("main_window");
+      gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
    }
-   return w;
+   return dialog;
 }
 
 void

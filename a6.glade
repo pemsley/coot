@@ -1115,7 +1115,15 @@ any acceptable configuration here.</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="align_and_mutate_molecule_combobox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
                 <child>
                   <object class="GtkBox" id="hbox121">
@@ -1136,7 +1144,15 @@ any acceptable configuration here.</property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="align_and_mutate_chain_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -10786,7 +10802,7 @@ Do you want to continue?
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Align &amp; Mutate...</property>
                             <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_calculate_align_and_mutate_activat_gtkbuilder_callback" swapped="no"/>
+                            <signal name="activate" handler="on_calculate_align_and_mutate_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -16657,7 +16673,7 @@ If you need symmetry, setup ccp4 before starting coot
     <property name="title" translatable="yes">Info:</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox72">
+      <object class="GtkBox" id="nothing_bad_dialog_vbox">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
@@ -16693,7 +16709,8 @@ If you need symmetry, setup ccp4 before starting coot
           </packing>
         </child>
         <child>
-          <object class="GtkFrame" id="frame128">
+          <object class="GtkFrame" id="nothing_bad_frame">
+            <property name="name">nothing_bad_frame</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="border_width">6</property>
@@ -16702,9 +16719,12 @@ If you need symmetry, setup ccp4 before starting coot
               <object class="GtkLabel" id="nothing_bad_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xpad">80</property>
-                <property name="ypad">40</property>
+                <property name="margin_start">50</property>
+                <property name="margin_end">50</property>
+                <property name="margin_top">50</property>
+                <property name="margin_bottom">50</property>
                 <property name="label" translatable="yes">Nothing Bad</property>
+                <property name="use_markup">True</property>
                 <property name="justify">center</property>
               </object>
             </child>

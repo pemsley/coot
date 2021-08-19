@@ -1218,6 +1218,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    }
 }
 
+#include "widget-from-builder.hh"
 
 /*  ----------------------------------------------------------------------- */
 /*                         Align and Mutate GUI                             */
@@ -1225,15 +1226,11 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 GtkWidget *wrapped_create_align_and_mutate_dialog() {
 
    graphics_info_t g;
-   GtkWidget *w = create_align_and_mutate_dialog();
+   // GtkWidget *w = create_align_and_mutate_dialog();
+   GtkWidget *w = widget_from_builder("align_and_mutate_dialog");
 
-   // GtkWidget *mol_optionmenu   = lookup_widget(w, "align_and_mutate_molecule_optionmenu");
-   // GtkWidget *chain_optionmenu = lookup_widget(w, "align_and_mutate_chain_optionmenu");
-   GtkWidget *mol_combobox   = lookup_widget(w, "align_and_mutate_molecule_combobox");
-   GtkWidget *chain_combobox = lookup_widget(w, "align_and_mutate_chain_combobox");
-
-   // GCallback callback = G_CALLBACK(align_and_mutate_molecule_menu_item_activate);
-   // GCallback chain_callback = GCallback(align_and_mutate_chain_option_menu_item_activate);
+   GtkWidget *mol_combobox   = widget_from_builder("align_and_mutate_molecule_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("align_and_mutate_chain_combobox");
 
    GCallback molecule_callback = G_CALLBACK(align_and_mutate_molecule_combobox_changed);
    GCallback    chain_callback = G_CALLBACK(align_and_mutate_chain_combobox_changed);
@@ -1281,28 +1278,28 @@ int do_align_mutate_sequence(GtkWidget *w) {
    bool renumber_residues_flag = 0; // make this derived from the GUI one day
    int imol = graphics_info_t::align_and_mutate_imol;
 
-   GtkWidget *molecule_combobox = lookup_widget(w, "align_and_mutate_molecule_combobox");
-   GtkWidget    *chain_combobox = lookup_widget(w, "align_and_mutate_chain_combobox");
+   GtkWidget *molecule_combobox = widget_from_builder("align_and_mutate_molecule_combobox");
+   GtkWidget    *chain_combobox = widget_from_builder("align_and_mutate_chain_combobox");
    std::string chain_id = get_active_label_in_combobox(GTK_COMBO_BOX(chain_combobox));
    imol = my_combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
 
-   GtkWidget *autofit_checkbutton = lookup_widget(w, "align_and_mutate_autofit_checkbutton");
+   GtkWidget *autofit_checkbutton = widget_from_builder("align_and_mutate_autofit_checkbutton");
 
-   std::cout << "--- in do_align_mutate_sequence(): combobox " << molecule_combobox
-	     << " " << GTK_IS_COMBO_BOX(molecule_combobox) << " chain-id:" << chain_id << ":"
-	     << std::endl;
+   // std::cout << "--- in do_align_mutate_sequence(): combobox " << molecule_combobox
+   //           << " " << GTK_IS_COMBO_BOX(molecule_combobox) << " chain-id:" << chain_id << ":"
+   //           << std::endl;
 
-   short int do_auto_fit = 0;
+   bool do_auto_fit = false;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autofit_checkbutton)))
-      do_auto_fit = 1;
+      do_auto_fit = true;
 
    graphics_info_t g;
    int imol_refinement_map = g.Imol_Refinement_Map();
 
-   short int early_stop = 0;
-   if (do_auto_fit == 1)
+   bool early_stop = false;
+   if (do_auto_fit)
       if (imol_refinement_map == -1)
-	 early_stop = 1;
+	 early_stop = true;
 
    if (early_stop) {
       std::string s = "WARNING:: autofit requested, but \n   refinement map not set!";
@@ -1314,7 +1311,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 
       handled_state = 1;
       if (imol >= 0) {
-	 GtkWidget *text = lookup_widget(w, "align_and_mutate_sequence_text");
+	 GtkWidget *text = widget_from_builder("align_and_mutate_sequence_text");
 	 char *txt = NULL;
 
 	 // text is a GtkTextView in GTK2

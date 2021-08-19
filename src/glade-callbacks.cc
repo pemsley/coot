@@ -6256,8 +6256,8 @@ void
 on_nothing_bad_ok_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "nothing_bad_dialog");
-  gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("nothing_bad_dialog");
+   gtk_widget_hide(w);
 }
 
 
@@ -6849,10 +6849,11 @@ void
 on_align_and_mutate_ok_button_clicked_gtkbuilder_callback  (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "align_and_mutate_dialog");
+   // GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "align_and_mutate_dialog");
+   GtkWidget *dialog = widget_from_builder("align_and_mutate_dialog");
    int handled_state = do_align_mutate_sequence(dialog);
    if (handled_state == 1)
-      gtk_widget_destroy(dialog);
+      gtk_widget_hide(dialog);
 
 }
 
@@ -6863,8 +6864,8 @@ on_align_and_mutate_cancel_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "align_and_mutate_dialog");
-   gtk_widget_destroy(dialog);
+   GtkWidget *dialog = widget_from_builder("align_and_mutate_dialog");
+   gtk_widget_hide(dialog);
 
 }
 
@@ -11573,9 +11574,10 @@ on_draw_additional_representations_activate_gtkbuilder_callback  (GtkMenuItem   
 
 extern "C" G_MODULE_EXPORT
 void
-on_calculate_align_and_mutate_activat_gtkbuilder_callback (GtkMenuItem     *menuitem,
+on_calculate_align_and_mutate_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                                            gpointer         user_data) {
-   std::cout << ".... calculate -> align & Mutate activate here!" << std::endl;
+   GtkWidget *w = wrapped_create_align_and_mutate_dialog();
+   gtk_widget_show(w);
 }
 
 

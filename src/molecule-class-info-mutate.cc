@@ -306,7 +306,6 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       }
 
 
-
       // do the operations in this order:
       // mutations
       // deletions
@@ -406,7 +405,6 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
 
-
       // --------------- deletions ----------------
       std::vector<std::pair<mmdb::Residue *, int> > residues_for_deletion;
       for (unsigned int i=0; i<mutation_info.deletions.size(); i++) {
@@ -460,13 +458,12 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	    }
 	 }
       }
+
+      std::cout << "INFO:: Applied " << n_insertions << " insertions " << std::endl;
+      std::cout << "INFO:: Applied " << n_mutations << " mutations " << std::endl;
+      std::cout << "INFO:: Applied " << n_deletions << " deletions " << std::endl;
+
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-
-
-      std::cout << "Applied " << n_insertions << " insertions " << std::endl;
-      std::cout << "Applied " << n_mutations << " mutations " << std::endl;
-      std::cout << "Applied " << n_deletions << " deletions " << std::endl;
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
       backup_this_molecule = save_backup_state;
