@@ -5834,10 +5834,9 @@ void
 on_mutate_sequence_ok_button_clicked_gtkbuilder_callback   (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "mutate_sequence_dialog");
-  do_mutate_sequence(w);
-  gtk_widget_destroy(w);
-
+   GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
+   do_mutate_sequence(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -5846,9 +5845,8 @@ void
 on_mutate_sequence_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
 					  gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "mutate_sequence_dialog");
-  gtk_widget_destroy(w);
-
+   GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
+   gtk_widget_hide(w);
 }
 
 
@@ -7076,14 +7074,15 @@ on_fit_loop1_activate_gtkbuilder_callback                  (GtkMenuItem     *men
 /*    gtk_widget_show(w); */
 }
 
+#include "fit-loop-gui.hh"
 
 extern "C" G_MODULE_EXPORT
 void
 on_fit_loop_by_rama_search1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
-				      gpointer         user_data)
+                                                          gpointer         user_data)
 {
 
-   GtkWidget *w = wrapped_fit_loop_rama_search_dialog();
+   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version();
    gtk_widget_show(w);
 }
 
@@ -7102,9 +7101,10 @@ void
 on_fit_loop_ok_button_clicked_gtkbuilder_callback          (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "mutate_sequence_dialog");
-   fit_loop_from_widget(w);
-   gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
+   // fit_loop_from_widget(w); // we don't need to pass the widget, we can look it up when we get there
+   fit_loop_using_dialog();
+   gtk_widget_hide(w);
 
 }
 
@@ -11308,13 +11308,11 @@ on_mutate_molecule_resno_1_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-
-  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
-  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
-  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
-  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
-  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-
+   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
 }
 
 
@@ -11324,12 +11322,11 @@ on_mutate_molecule_resno_2_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-
-  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
-  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
-  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
-  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
-  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
 }
 
 
@@ -11340,12 +11337,11 @@ on_mutate_molecule_sequence_text_insert_at_cursor_gtkbuilder_callback
                                         gchar           *string,
                                         gpointer         user_data)
 {
-
-  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_1_entry");
-  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_2_entry");
-  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_sequence_text");
-  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(textview), "mutate_residue_range_counts_label");
-  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
 }
 
 
@@ -11356,13 +11352,12 @@ on_mutate_molecule_sequence_text_key_release_event_gtkbuilder_callback
                                         GdkEventKey     *event,
                                         gpointer         user_data)
 {
-
-  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
-  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
-  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
-  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
-  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-  return FALSE;
+   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+   return FALSE;
 }
 
 

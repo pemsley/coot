@@ -3,6 +3,12 @@
 /*                  scripting                                               */
 /*  ----------------------------------------------------------------------- */
 
+// Not including Python.h here beacuse it needs to be first in the sources
+// 20210820-PE (but maybe that won't affect it being added here... Hmm)
+//
+#include <vector>
+#include <string>
+
 #ifdef USE_GUILE
 SCM safe_scheme_command_test(const char *cmd);
 SCM safe_scheme_command(const std::string &scheme_command);

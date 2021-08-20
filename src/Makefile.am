@@ -461,6 +461,8 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
 	eyes.cc eyes.hh		 \
+	fit-loop-gui.cc          \
+	fit-loop-gui.hh          \
 	flev.hh			 \
 	flev.cc                  \
         framebuffer.cc           \

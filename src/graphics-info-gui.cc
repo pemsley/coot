@@ -2139,6 +2139,8 @@ graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
 						     int imol_active_position,
 						     const std::vector<int> &molecules_index_vec) {
 
+   // This might be OK if combobox had been created by us, not glade code, and has been added to an hbox already.
+
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
    int active_idx = 0;
@@ -2160,7 +2162,6 @@ graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
 
       if (imol == imol_active_position)
 	 active_idx = imap;
-
    }
 
    if (signal_func)
@@ -2181,12 +2182,19 @@ void
 graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							GCallback callback_func,
 							int imol_active) {
+
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- don't use this function -----\n");
+
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- start -----\n");
+
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
          fill_with_these_molecules.push_back(imol);
       }
    }
+
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- Here A -----\n");
 
    if (false)
       std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
@@ -2197,6 +2205,8 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
    GtkTreeIter iter;
    int active_idx = 0;
    int n_mol = fill_with_these_molecules.size();
+
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- Here B -----\n");
 
    for (int idx=0; idx<n_mol; idx++) {
       int imol = fill_with_these_molecules[idx];
@@ -2220,6 +2230,8 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 
    }
 
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- Here C -----\n");
+
    if (callback_func)
       g_signal_connect(combobox, "changed", callback_func, NULL);
    GtkTreeModel *model = GTK_TREE_MODEL(store);
@@ -2228,10 +2240,13 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
 
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- Here D with combobox %p\n", combobox);
+
    // maybe this can go into the above loop?
-   if (fill_with_these_molecules.size() > 0)
+   if (! fill_with_these_molecules.empty())
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
 
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- end -----\n");
 }
 
 
@@ -4306,16 +4321,16 @@ graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
 
 // static
 std::string
-graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
+graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox_text,
 						  int imol,
 						  GCallback f) {
 
-   return fill_combobox_with_chain_options(combobox, imol, f, "unset-chain");
+   return fill_combobox_with_chain_options(combobox_text, imol, f, "unset-chain");
 }
 
 // static
 std::string
-graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
+graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox_text,
 						  int imol,
 						  GCallback f,
 						  const std::string &acid) {
@@ -4332,7 +4347,7 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 
    std::string r("no-chain");
 
-   GtkComboBoxText *cb_as_text = GTK_COMBO_BOX_TEXT(combobox);
+   GtkComboBoxText *cb_as_text = GTK_COMBO_BOX_TEXT(combobox_text);
 
 #if (GTK_MAJOR_VERSION > 2)
    gtk_combo_box_text_remove_all(cb_as_text);
@@ -4349,14 +4364,14 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 	 const std::string &ch_id = chains[i];
 	 gtk_combo_box_text_append_text(cb_as_text, ch_id.c_str());
 	 if ((i==0) || (ch_id == acid)) {
-	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), i);
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_text), i);
 	    r = ch_id;
 	 }
       }
    }
 
    if (f)
-      g_signal_connect(combobox, "changed", f, NULL);
+      g_signal_connect(combobox_text, "changed", f, NULL);
 
    return r;
 }

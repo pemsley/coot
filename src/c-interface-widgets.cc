@@ -43,6 +43,7 @@
 
 #include "generic-display-objects-c.h"
 
+#include "widget-from-builder.hh"
 
 GtkWidget *main_menubar() {
 
@@ -657,8 +658,8 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 	       label += " Sequence: ";
 	       label += sequence_count_str;
 
-	       GtkWidget *red_light_widget   = lookup_widget(res_no_1_widget, "mutate_sequence_red_light_image");
-	       GtkWidget *green_light_widget = lookup_widget(res_no_1_widget, "mutate_sequence_green_light_image");
+	       GtkWidget *red_light_widget   = widget_from_builder("mutate_sequence_red_light_image");
+	       GtkWidget *green_light_widget = widget_from_builder("mutate_sequence_green_light_image");
 	       bool show_green_light = false;
 	       if (res_no_counts >= 1) {
 		  if (sequence_count >= 1) {

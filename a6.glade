@@ -10821,6 +10821,30 @@ Do you want to continue?
                             <property name="label" translatable="yes">Fit Loop...</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_fit_loop1_activate_gtkbuilder_callback" swapped="no"/>
+                            <child type="submenu">
+                              <object class="GtkMenu">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkMenuItem" id="fit_loop_by_database_search1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Fit Loop by Database Search...</property>
+                                    <property name="use_underline">True</property>
+                                    <signal name="activate" handler="on_fit_loop_by_database_search1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuItem" id="fit_loop_by_rama_search1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Fit Loop by Rama Search...</property>
+                                    <property name="use_underline">True</property>
+                                    <signal name="activate" handler="on_fit_loop_by_rama_search1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </child>
                         <child>
@@ -15262,7 +15286,19 @@ Move Molecule Here:</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkBox" id="mutate_sequence_hbox_for_molecule_combobox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
                 <child>
                   <object class="GtkBox" id="hbox90">
@@ -15283,7 +15319,19 @@ Move Molecule Here:</property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkBox" id="mutate_sequence_hbox_for_molecule_chain_combobox_text">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -15316,6 +15364,7 @@ Move Molecule Here:</property>
                         <property name="can_focus">True</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
+                        <signal name="changed" handler="on_mutate_molecule_resno_1_entry_changed_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -15342,6 +15391,7 @@ Move Molecule Here:</property>
                         <property name="can_focus">True</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
+                        <signal name="changed" handler="on_mutate_molecule_resno_2_entry_changed_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -15444,6 +15494,9 @@ search (this may not work well)</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="wrap_mode">word</property>
+                        <signal name="button-release-event" handler="on_mutate_molecule_sequence_text_button_release_event_gtkbuilder_callback" swapped="no"/>
+                        <signal name="insert-at-cursor" handler="on_mutate_molecule_sequence_text_insert_at_cursor_gtkbuilder_callback" swapped="no"/>
+                        <signal name="key-release-event" handler="on_mutate_molecule_sequence_text_key_release_event_gtkbuilder_callback" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -15466,6 +15519,69 @@ search (this may not work well)</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Match: </property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">6</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="mutate_sequence_green_light_image">
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-yes</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">6</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="mutate_sequence_red_light_image">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-no</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">6</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="mutate_residue_range_counts_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Counts: Residue numbers: -: Sequence: -</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">6</property>
+                        <property name="pack_type">end</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">8</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkCheckButton" id="mutate_sequence_do_autofit_checkbutton">
                     <property name="label" translatable="yes"> Autofit the mutated residues?</property>
                     <property name="visible">True</property>
@@ -15478,8 +15594,26 @@ search (this may not work well)</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">8</property>
+                    <property name="fill">True</property>
+                    <property name="position">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="mutate_sequence_use_ramachandran_restraints_checkbutton">
+                    <property name="label" translatable="yes">Use Ramachandran restraints to fit the loop?</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">4</property>
+                    <property name="use_underline">True</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">10</property>
                   </packing>
                 </child>
               </object>

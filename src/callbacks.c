@@ -8106,7 +8106,7 @@ on_fit_loop_ok_button_clicked          (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = lookup_widget(GTK_WIDGET(button), "mutate_sequence_dialog");
-   fit_loop_from_widget(w);
+   // fit_loop_from_widget(w); 20210820-PE  the function has been deleted and replaced.
    gtk_widget_destroy(w);
 
 }
