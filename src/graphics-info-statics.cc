@@ -54,6 +54,10 @@ GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
 GLuint graphics_info_t::textureColorbuffer_screen = 0;
 GLuint graphics_info_t::textureColorbuffer_blur = 0;
 
+GLuint graphics_info_t::rotation_centre_crosshairs_vertexarray_id = 0;
+GLuint graphics_info_t::rotation_centre_crosshairs_vertex_buffer_id = 0;
+GLuint graphics_info_t::rotation_centre_crosshairs_index_buffer_id = 0;
+
 bool graphics_info_t::use_framebuffers = true;
 framebuffer graphics_info_t::screen_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer;

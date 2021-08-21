@@ -93,7 +93,7 @@ graphics_info_t::init_buffers() {
 void
 graphics_info_t::init_central_cube() {
 
-   float positions[24] = {
+   float cube_positions[24] = {
                           -0.5,  -0.5, -0.5,
                           -0.5,  -0.5,  0.5,
                           -0.5,   0.5, -0.5,
@@ -104,12 +104,23 @@ graphics_info_t::init_central_cube() {
                            0.5,   0.5,  0.5
    };
 
-   glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
+   float crosshair_positions[18] = {
+                                    -0.5f,  0.0f,  0.0,
+                                     0.5f,  0.0f,  0.0,
+                                     0.0f, -0.5f,  0.0,
+                                     0.0f,  0.5f,  0.0,
+                                     0.0f,  0.0f, -0.5,
+                                     0.0f,  0.0f,  0.5
+   };
+
+   graphics_info_t::shader_for_central_cube.Use();
    GLenum err = glGetError();
    if (err) std::cout << "init_central_cube() glUseProgram() err is " << err << std::endl;
 
    // number of lines * 2:
-   unsigned int indices[24] { 0,1, 1,5, 5,4, 4,0, 2,3, 3,7, 7,6, 6,2, 0,2, 1,3, 5,7, 4,6 };
+   unsigned int cube_indices[24] { 0,1, 1,5, 5,4, 4,0, 2,3, 3,7, 7,6, 6,2, 0,2, 1,3, 5,7, 4,6 };
+
+   unsigned int crosshair_indices[6] = {0,1,2,3,4,5};
 
    // GLuint VertexArrayID;
    glGenVertexArrays(1, &graphics_info_t::central_cube_vertexarray_id);
@@ -118,7 +129,7 @@ graphics_info_t::init_central_cube() {
    // GLuint vertexbuffer;
    glGenBuffers(1, &graphics_info_t::central_cube_array_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::central_cube_array_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, &positions[0], GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, &cube_positions[0], GL_STATIC_DRAW);
    glEnableVertexAttribArray(0);
    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -127,11 +138,34 @@ graphics_info_t::init_central_cube() {
    err = glGetError();
    if (err) std::cout << "init_central_cube() index glGenBuffers() err is " << err << std::endl;
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::central_cube_index_buffer_id);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 24, &indices[0], GL_STATIC_DRAW);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 24, &cube_indices[0], GL_STATIC_DRAW);
    err = glGetError();
    if (err) std::cout << "init_central_cube() glBufferData() err is " << err << std::endl;
    glBindVertexArray(0);
 
+   // now the crosshairs
+
+   glGenVertexArrays(1, &graphics_info_t::rotation_centre_crosshairs_vertexarray_id);
+   glBindVertexArray(graphics_info_t::rotation_centre_crosshairs_vertexarray_id);
+   // positions
+   glGenBuffers(1, &graphics_info_t::rotation_centre_crosshairs_vertex_buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::rotation_centre_crosshairs_vertex_buffer_id);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 18, &crosshair_positions[0], GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+   // indices
+   glGenBuffers(1, &graphics_info_t::rotation_centre_crosshairs_index_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "init_central_cube() index buffer glGenBuffers() for crosshairs A err is "
+                      << err << std::endl;
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::rotation_centre_crosshairs_index_buffer_id);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, &crosshair_indices[0], GL_STATIC_DRAW);
+   if (err) std::cout << "init_central_cube() index buffer glGenBuffers() for crosshairs B err is "
+                      << err << std::endl;
+   glBindVertexArray(0);
+
+   std::cout << "::::::::::::::::::::::::::::::: init_central_cube() done " << std::endl;
 }
 
 void
@@ -1757,12 +1791,11 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
-   glBindVertexArray(graphics_info_t::central_cube_vertexarray_id);
+   glBindVertexArray(central_cube_vertexarray_id);
    err = glGetError(); if (err) std::cout << "   error::draw_central_cube() B err " << err << std::endl;
-   glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
+   glUseProgram(shader_for_central_cube.get_program_id());
    err = glGetError(); if (err) std::cout << "   error::draw_central_cube() C err " << err << std::endl;
-   glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
-   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   glm::vec3 rc = get_rotation_centre();
    if (cube_type == VIEW_CENTRAL_CUBE) {
       mvp = glm::translate(mvp, rc);
       float s = rotation_centre_cube_size;
@@ -1776,7 +1809,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
    // we don't diverge here on the cube tye. Maybe change the name of the shader
    // because it does both
-   Shader &shader = graphics_info_t::shader_for_central_cube;
+   Shader &shader = shader_for_central_cube;
 
    // we do this for all the shaders - Hmm.
    {
@@ -1825,6 +1858,68 @@ void
 graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
    draw_cube(glarea, ORIGIN_CUBE);
 }
+
+void
+graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
+
+   gtk_gl_area_make_current(glarea); // needed?
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
+
+   glLineWidth(1.0);
+   err = glGetError();
+   if (err) std::cout << "error draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
+
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 view_rotation = get_view_rotation();
+
+   glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
+   if (err) std::cout << "error draw_rotation_centre_crosshairs() B err " << err << std::endl;
+
+   shader_for_central_cube.Use(); // (it's drawing the crosshairs though - same shader)
+
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   mvp = glm::translate(mvp, rc);
+   float s = rotation_centre_cube_size;
+   s = 0.05 * zoom;
+   glm::vec3 sc(s,s,s);
+   mvp = glm::scale(mvp, sc);
+
+   GLuint mvp_location           = shader_for_central_cube.mvp_uniform_location;
+   GLuint view_rotation_location = shader_for_central_cube.view_rotation_uniform_location;
+
+   glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for mvp " << err << std::endl;
+   glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
+                      << std::endl;
+
+    bool is_bb = graphics_info_t::background_is_black_p();
+   glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
+   if (! is_bb) 
+      line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+
+   GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
+   glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
+
+   GLuint background_colour_uniform_location = shader_for_central_cube.background_colour_uniform_location;
+   glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+   glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+
+   err = glGetError();
+   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for background " << err
+                      << std::endl;
+
+   glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
+   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glDrawElements " << err << std::endl;
+   glBindVertexArray(0); // unbind
+   glUseProgram(0);
+
+}
+
+
 
 GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 
@@ -2448,7 +2543,7 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 
 
 gboolean
-graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {
+graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &output_file_name) {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -2461,9 +2556,11 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
                           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                           err = glGetError(); if (err) std::cout << "render_scene lambda C err " << err << std::endl;
 
-                          draw_central_cube(gl_area);
                           draw_origin_cube(gl_area);
                           err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
+
+                          // draw_central_cube(gl_area);
+                          draw_rotation_centre_crosshairs(gl_area);
 
                           draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
 
@@ -2509,7 +2606,7 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
       render_scene(gl_area);
 
-      if (to_screendump_framebuffer) {
+      if (to_screendump_framebuffer_flag) {
 
          glDisable(GL_DEPTH_TEST);
          unsigned int sf = framebuffer_scale;

@@ -4160,7 +4160,10 @@ string   static std::string sessionid;
    static GLuint central_cube_array_buffer_id;
    static GLuint central_cube_index_buffer_id;
    static GLuint hud_text_vertexarray_id;
-   // static GLuint framebuffer_id;  // now we get access from the framebuffer class
+   static GLuint rotation_centre_crosshairs_vertexarray_id;
+   static GLuint rotation_centre_crosshairs_vertex_buffer_id;
+   static GLuint rotation_centre_crosshairs_index_buffer_id;
+   // STATIC GLuint framebuffer_id;  // now we get access from the framebuffer class
    static GLuint screen_quad_vertex_array_id;
    static GLuint blur_quad_vertex_array_id;
    static GLuint textureColorbuffer_screen;
@@ -4246,6 +4249,7 @@ string   static std::string sessionid;
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
+   static void draw_rotation_centre_crosshairs(GtkGLArea *glarea);
    static void draw_ligand_view();
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 
