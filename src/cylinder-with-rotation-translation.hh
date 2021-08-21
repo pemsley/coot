@@ -10,7 +10,7 @@
 // But then we have to worry about the layout of the memory...
 //
 class cylinder_with_rotation_translation {
-   void add_flat_cap(float z);
+   void add_flat_cap(int end_type); // 0 for base, 1 for top
    float height;
    float base_radius;
    float top_radius;

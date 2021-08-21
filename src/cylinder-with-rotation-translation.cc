@@ -113,23 +113,28 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
 
 void
 cylinder_with_rotation_translation::add_flat_start_cap() {
-   add_flat_cap(0.0f);
+   add_flat_cap(0);
 }
 
 
 void
 cylinder_with_rotation_translation::add_flat_end_cap() {
-   add_flat_cap(height);
+   add_flat_cap(1);
 }
 
 void
-cylinder_with_rotation_translation::add_flat_cap(float z) {
+cylinder_with_rotation_translation::add_flat_cap(int end_type) {
 
-   glm::vec3 n(0,0,1);
-   if (z == 0.0f) n = -n;
+   glm::vec3 n(0.0f,0.0f,1.0f);
+   if (end_type == 0) n = glm::vec3(0,0,-1);
+
+   float z = 0.0f;
+   if (end_type == 1) z = height;
+
+   unsigned int idx_base = vertices.size();
 
    vertex_with_rotation_translation vertex;
-   vertex.pos    = glm::vec3(0,0,z);
+   vertex.pos    = glm::vec3(0, 0, z);
    vertex.normal = n;
    vertex.model_rotation_matrix = model_rotation_matrix;
    vertex.model_translation = model_translation;
@@ -151,10 +156,11 @@ cylinder_with_rotation_translation::add_flat_cap(float z) {
       vertices.push_back(v);
    }
 
-   unsigned int idx_base = vertices.size();
    for (unsigned int i=0; i<n_slices; i++) {
       unsigned int i_next = idx_base + i + 1 + 1;
       if (i == (n_slices-1)) i_next = idx_base + 1;
+      // hmmm.. .which is the correct winding? Both seem to work OK.
+      // g_triangle triangle(idx_base, i_next, idx_base + i + 1);
       g_triangle triangle(idx_base, idx_base + i + 1, i_next);
       triangle_indices_vec.push_back(triangle);
    }
