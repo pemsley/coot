@@ -546,7 +546,7 @@ graphics_info_t::make_preferences_internal() {
   p.ivalue1 = on;
   ret.push_back(p);
 
-  on = graphics_info_t::smooth_scroll_steps;
+  on = graphics_info_t::smooth_scroll_n_steps;
   p.preference_type = PREFERENCES_SMOOTH_SCROLL_STEPS;
   p.ivalue1 = on;
   ret.push_back(p);

@@ -124,6 +124,8 @@ coot::view_info_t graphics_info_t::reorienting_residue_start_view;
 coot::view_info_t graphics_info_t::reorienting_residue_end_view;
 
 bool graphics_info_t::smooth_scroll_on_going = false;
+coot::Cartesian graphics_info_t::smooth_scroll_target_point = coot::Cartesian(0,0,0);
+coot::Cartesian graphics_info_t::smooth_scroll_start_point = coot::Cartesian(0,0,0);
 
 bool graphics_info_t::shader_do_ambient_occlusion_flag = true;
 bool graphics_info_t::shader_do_depth_blur_flag = true;

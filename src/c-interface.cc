@@ -3565,7 +3565,7 @@ void set_smooth_scroll_steps_str(const char *text) {
 
 // useful interface for scripting
 void set_smooth_scroll_steps(int v) {
-      graphics_info_t::smooth_scroll_steps = v;
+      graphics_info_t::smooth_scroll_n_steps = v;
 }
 
 
@@ -3574,7 +3574,7 @@ char *get_text_for_smooth_scroll_steps() {
    char *text;
 
    text = (char *) malloc(100);
-   snprintf(text, 99, "%-5d", graphics_info_t::smooth_scroll_steps);
+   snprintf(text, 99, "%-5d", graphics_info_t::smooth_scroll_n_steps);
 
    return text;
 }

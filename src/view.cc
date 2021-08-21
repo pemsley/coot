@@ -102,7 +102,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 
                                   gboolean do_continue = G_SOURCE_REMOVE;
                                   float frac = 1.0;
-                                  int n_steps = graphics_info_t::smooth_scroll_steps;
+                                  int n_steps = graphics_info_t::smooth_scroll_n_steps;
                                   n_steps = 50;
                                   int i_current_step = graphics_info_t::smooth_scroll_current_step;
                                   graphics_info_t g; // for rotation centre debugging.

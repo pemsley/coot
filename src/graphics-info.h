@@ -1273,7 +1273,7 @@ public:
 
    // expose so that they can be used in c-interface.cc
    static int smooth_scroll;
-   static int smooth_scroll_steps;
+   static int smooth_scroll_n_steps;
    static float smooth_scroll_limit;
    static float smooth_scroll_zoom_limit; // above this value we zoom, if zoom is on.
    static int   smooth_scroll_do_zoom;
@@ -1283,6 +1283,10 @@ public:
    gboolean smooth_scroll_animation_func(GtkWidget *widget,
                                          GdkFrameClock *frame_clock,
                                          gpointer data);
+   static
+   gboolean smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
+                                                    GdkFrameClock *frame_clock,
+                                                    gpointer data);
    // in that function, we need to know the current step
    static int smooth_scroll_current_step;
    // and the position delta (position at the end of the animation - the postion at the start of the animation)
@@ -1393,6 +1397,9 @@ public:
    static float RotationCentre_x() { return rotation_centre_x; }
    static float RotationCentre_y() { return rotation_centre_y; }
    static float RotationCentre_z() { return rotation_centre_z; }
+
+   static coot::Cartesian smooth_scroll_start_point;
+   static coot::Cartesian smooth_scroll_target_point;
 
    // possibly for multi-threading, public access.
    void update_maps();

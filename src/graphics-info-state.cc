@@ -192,7 +192,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    commands.push_back(state_command("set-active-map-drag-flag", active_map_drag_flag, il));
    commands.push_back(state_command("set-show-aniso", show_aniso_atoms_flag, il));
    commands.push_back(state_command("set-aniso-probability", show_aniso_atoms_probability, il));
-   commands.push_back(state_command("set-smooth-scroll-steps", smooth_scroll_steps, il));
+   commands.push_back(state_command("set-smooth-scroll-steps", smooth_scroll_n_steps, il));
    commands.push_back(state_command("set-smooth-scroll-limit", smooth_scroll_limit, il));
    commands.push_back(state_command("set-font-size", atom_label_font_size, il));
    commands.push_back(state_command("set-rotation-centre-size", rotation_centre_cube_size, il));

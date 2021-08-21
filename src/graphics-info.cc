@@ -647,7 +647,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
                coot::view_info_t view1(glm_quat,    rot_centre, zoom, "current");
                coot::view_info_t view2(target_quat, target_pos, zoom, "next");
-               int nsteps = smooth_scroll_steps * 2;
+               int nsteps = smooth_scroll_n_steps * 2;
 
                coot::view_info_t::interpolate(view1, view2, nsteps); // sets up a gtk_widget_add_tick_callback with
                                                                      // a (no-capture) lambda function, so we don't
@@ -911,12 +911,12 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
    // this is not sinusoidal. The first step is 1.
 
    float frac = 1.0;
-   graphics_info_t::smooth_scroll_steps = 20; // should be user choice?
-   if (graphics_info_t::smooth_scroll_steps > 0)
-      frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_steps);
+   graphics_info_t::smooth_scroll_n_steps = 20; // should be user choice?
+   if (graphics_info_t::smooth_scroll_n_steps > 0)
+      frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_n_steps);
    smooth_scroll_current_step += 1;
 
-   if (smooth_scroll_current_step <= smooth_scroll_steps) {
+   if (smooth_scroll_current_step <= smooth_scroll_n_steps) {
 
       double theta = 2.0 * M_PI * frac * smooth_scroll_current_step; // not used!
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
@@ -937,6 +937,39 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
    }
 }
 
+// static
+gboolean
+graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
+                                                         GdkFrameClock *frame_clock,
+                                                         gpointer data) {
+
+   smooth_scroll_n_steps = 20; // make this user-defined, or use frame_clock
+
+   smooth_scroll_current_step++;
+   if (smooth_scroll_current_step <= smooth_scroll_n_steps) {
+      double frac_now  = static_cast<double>(smooth_scroll_current_step  )/static_cast<double>(smooth_scroll_n_steps);
+      double frac_next = static_cast<double>(smooth_scroll_current_step+1)/static_cast<double>(smooth_scroll_n_steps);
+      double theta_now  = M_PI * frac_now;
+      double theta_next = M_PI * frac_next;
+      double cos_theta_now  = cos(theta_now);
+      double cos_theta_next = cos(theta_next);
+      double fp_1 = 0.5 * (1.0 - cos_theta_now);
+      double fp_2 = 0.5 * (1.0 - cos_theta_next);
+      coot::Cartesian full_delta = smooth_scroll_target_point - smooth_scroll_start_point;
+      coot::Cartesian delta_path = full_delta * fp_2 - full_delta * fp_1;
+      add_vector_to_rotation_centre(delta_path);
+      graphics_draw();
+      return G_SOURCE_CONTINUE;
+   } else {
+      // finished moving
+      graphics_info_t g;
+      g.update_things_on_move_and_redraw();
+      return G_SOURCE_REMOVE;
+   }
+}
+
+
+
 bool
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
                                                              short int do_zoom_and_move_flag,
@@ -944,7 +977,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 
    bool done_the_move = false; // well, "set it up to go" to be more accurate
 
-   // std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
+   std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
    // This is more like how PyMOL does it (and is better than stepped
    // acceleration).
@@ -963,6 +996,9 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;
 
+   smooth_scroll_start_point  = get_rotation_centre_cart();
+   smooth_scroll_target_point = coot::Cartesian(x,y,z);
+
    if (false)
       std::cout << "debug:: in smooth_scroll_maybe_sinusoidal_acceleration "
                 << "current centre " << X() << " " << Y() << " " << Z()
@@ -972,8 +1008,8 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       float pre_zoom = zoom;
 
       float frac = 1;
-      if (smooth_scroll_steps > 0)
-         frac = 1/float (smooth_scroll_steps);
+      if (smooth_scroll_n_steps > 0)
+         frac = 1/float (smooth_scroll_n_steps);
       float stepping_x = frac*xd;
       float stepping_y = frac*yd;
       float stepping_z = frac*zd;
@@ -997,7 +1033,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
                    << std::endl;
       }
 
-      gtk_widget_add_tick_callback(glareas[0], smooth_scroll_animation_func, user_data, NULL);
+      gtk_widget_add_tick_callback(glareas[0], smooth_sinusoidal_scroll_animation_func, user_data, NULL);
       done_the_move = true;
 
       // restore state
@@ -1103,6 +1139,7 @@ graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
 }
 
 // return true if this function did the (simple and immediate) jump to the centre
+// force_jump is default false
 bool
 graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) {
 
@@ -1133,7 +1170,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
    //
    bool already_here = false;
    coot::Cartesian position_delta = new_centre - current_centre;
-   if (position_delta.amplitude() < 0.4) {
+   if (position_delta.amplitude() < 0.3) {
 
       {
          auto identification_pulse_func = [] (GtkWidget *widget,

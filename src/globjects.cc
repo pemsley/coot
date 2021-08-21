@@ -245,7 +245,7 @@ float  graphics_info_t::rotation_centre_z = 0.0;
 coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
-int    graphics_info_t::smooth_scroll_steps =  10;
+int    graphics_info_t::smooth_scroll_n_steps =  10;
 float  graphics_info_t::smooth_scroll_limit =  20.0; // A
 float  graphics_info_t::smooth_scroll_zoom_limit = 30.0; // A
 int    graphics_info_t::smooth_scroll_do_zoom = 0;  // initially no, too ugly ATM.
