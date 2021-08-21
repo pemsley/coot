@@ -1083,8 +1083,11 @@ void wrapped_fit_loop_db_loop_dialog() {
 
    if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
+      safe_python_command("import coot_gui");
+      std::cout << "debug:: wrapped_fit_loop_db_loop_dialog() safe_python_command coot_gui.click_protein_db_loop_gui()"
+                << std::endl;
       std::string c = graphics_info_t::pythonize_command_strings(v);
-      safe_python_command(c);
+      safe_python_command("coot_gui.click_protein_db_loop_gui()");
 #endif
    } else {
 #ifdef USE_GUILE
