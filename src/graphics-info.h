@@ -4221,6 +4221,7 @@ string   static std::string sessionid;
    static glm::vec4 unproject(float x, float y, float z);
    static glm::vec3 unproject_to_world_coordinates(const glm::vec3 &projected_coords);
    static glm::vec3 get_screen_y_uv();
+   static glm::vec3 get_screen_x_uv();
 
    static glm::mat4 get_view_rotation();
    static void setup_map_uniforms(Shader *shader_p, // in the draw loop
@@ -4250,9 +4251,12 @@ string   static std::string sessionid;
 
    void reset_frame_buffers(int width, int height);
    void setup_lights();
+   void translate_in_screen_x(float step_size);
    void translate_in_screen_z(float step_size);
    void move_forwards();
    void move_backwards();
+   void step_screen_left();
+   void step_screen_right();
 
    int blob_under_pointer_to_screen_centre();
 

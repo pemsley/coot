@@ -1352,7 +1352,7 @@ molecule_class_info_t::update_symmetry() {
    // a bit of a hack...
    int shift_search_size = g.symmetry_shift_search_size;
 
-   std::cout << "DEBUG:: ---- update_symmetry start ----- " << std::endl;
+   // std::cout << "DEBUG:: ---- update_symmetry start ----- " << std::endl;
 
    if ((graphics_info_t::show_symmetry == 1) && (show_symmetry == 1)) {
 

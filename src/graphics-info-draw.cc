@@ -2621,9 +2621,22 @@ graphics_info_t::get_screen_y_uv() {
    return d_uv;
 }
 
+// static
+glm::vec3
+graphics_info_t::get_screen_x_uv() {
+
+   glm::vec3 minus_x = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f, 0.0f, 0.0f));
+   glm::vec3  plus_x = graphics_info_t::unproject_to_world_coordinates(glm::vec3( 1.0f, 0.0f, 0.0f));
+   glm::vec3 delta = plus_x - minus_x;
+   glm::vec3 d_uv = glm::normalize(delta);
+   return d_uv;
+}
+
 
 void
 graphics_info_t::translate_in_screen_z(float step_size) {
+
+   // The step size is good when were zoomed in but too big when we are zoomed out.
 
    // this looks a bit weird without perspective view
 
@@ -2642,6 +2655,18 @@ graphics_info_t::translate_in_screen_z(float step_size) {
    add_to_rotation_centre(step);
 
 }
+
+void
+graphics_info_t::translate_in_screen_x(float step_size) {
+
+   // The step size is good when were zoomed in but too big when we are zoomed out.
+
+   glm::vec3 screen_x_uv = get_screen_x_uv();
+   glm::vec3 step = 0.005 * step_size * zoom * screen_x_uv;
+   add_to_rotation_centre(step);
+}
+
+
 
 // static
 std::vector<glm::vec3>
@@ -3188,6 +3213,16 @@ graphics_info_t::move_backwards() {
    translate_in_screen_z(-3.0);
 }
 
+void
+graphics_info_t::step_screen_left() {
+   translate_in_screen_x(-1.0);  // function uses zoom
+}
+
+void
+graphics_info_t::step_screen_right() {
+   translate_in_screen_x(1.0);
+}
+
 #include <glm/gtx/rotate_vector.hpp>
 #include "matrix-utils.hh"
 
@@ -3252,6 +3287,9 @@ graphics_info_t::setup_key_bindings() {
    auto l12 = []() { graphics_info_t g; g.move_forwards(); return gboolean(TRUE); };
 
    auto l13 = []() { graphics_info_t g; g.move_backwards(); return gboolean(TRUE); };
+
+   auto l13l = []() { graphics_info_t g; g.step_screen_left();   return gboolean(TRUE); };
+   auto l13r = []() { graphics_info_t g; g.step_screen_right(); return gboolean(TRUE); };
 
    auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
 
@@ -3415,7 +3453,9 @@ graphics_info_t::setup_key_bindings() {
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
+   kb_vec.push_back(std::make_pair(GDK_KEY_d, key_bindings_t(l13r, "step right")));
+   kb_vec.push_back(std::make_pair(GDK_KEY_a, key_bindings_t(l13l, "step left")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_i,      key_bindings_t(l6, "spin")));
