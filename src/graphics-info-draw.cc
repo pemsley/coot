@@ -1880,8 +1880,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
-   float s = rotation_centre_cube_size;
-   s = 0.05 * zoom;
+   float s = 10.0f * rotation_centre_cube_size;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 
@@ -2661,6 +2660,9 @@ graphics_info_t::render_scene_to_base_framebuffer() {
    GLenum err = glGetError(); if (err) std::cout << "render() D err " << err << std::endl;
    shader_for_screen.set_bool_for_uniform("do_ambient_occlusion", shader_do_ambient_occlusion_flag);
    shader_for_screen.set_bool_for_uniform("do_outline", shader_do_outline_flag);
+   glm::vec4 background_col(background_colour, 1.0);
+   bool background_is_black = background_is_black_p();
+   shader_for_screen.set_bool_for_uniform("background_is_dark", background_is_black);
 
    glDrawArrays(GL_TRIANGLES, 0, 6);
    err = glGetError(); if (err) std::cout << "render() E err " << err << std::endl;

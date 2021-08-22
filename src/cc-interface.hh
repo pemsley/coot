@@ -1341,6 +1341,9 @@ PyObject *atom_spec_to_py(const coot::atom_spec_t &spec);
 
 void set_display_control_button_state(int imol, const std::string &button_type, int state);
 
+void fullscreen();
+void unfullscreen();
+
 /*  ----------------------------------------------------------------------- */
 /*                  Abstraction of New molecule by symmetry functions       */
 /*  ----------------------------------------------------------------------- */

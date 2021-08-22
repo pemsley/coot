@@ -1607,19 +1607,25 @@ set_main_window_title(const char *s) {
    }
 }
 
+#include "widget-from-builder.hh"
+
 /*! function to show or hide the vertical modelling toolbar */
 void set_show_modelling_toolbar(short int state) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      std::string n = "model_fit_refine_toolbar_handlebox";
+      std::string wn = "model_fit_refine_toolbar_handlebox";
+      wn = "main_window_model_toolbar"; // gtkbuilder name
 
-      GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(), n.c_str());
+      // GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(), n.c_str());
+      GtkWidget *w = widget_from_builder(wn);
       if (w) {
          if (state == 0) {
             gtk_widget_hide(w);
          } else {
             gtk_widget_show(w);
          }
+      } else {
+         std::cout << "ERROR:: widget with name " << wn << " not found" << std::endl;
       }
    }
 }
