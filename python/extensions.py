@@ -136,7 +136,7 @@ if True:
      #           extensions
      # ---------------------------------------------
 
-     menu = coot_gui.coot_menubar_menu("Extensions")
+     # menu = coot_gui.coot_menubar_menu("Extensions")
 
      # calculate_menu = menu
      # draw_menu = menu
@@ -209,9 +209,9 @@ if True:
      calculate_menu.append(menuitem_modules)
      menuitem_modules.show()
 
-     menuitem_7.set_submenu(submenu_settings)
-     edit_menu.append(menuitem_7)
-     menuitem_7.show()
+     # menuitem_7.set_submenu(submenu_settings) # already set
+     # edit_menu.append(menuitem_7)
+     # menuitem_7.show()
 
      # where does the Refine submenu go? In Edit -> Settings
      edit_settings_submenu = menuitem_7
@@ -231,7 +231,6 @@ if True:
      # menuitem_pdbe.set_submenu(submenu_pdbe)
      # menu.append(menuitem_pdbe)
      # menuitem_pdbe.show()
-     
      
 
      #---------------------------------------------------------------------
@@ -809,7 +808,7 @@ if True:
        lambda func: morph_fit_chain_func(7)
        )
      
-     
+
      # -- N --
 
      def new_mol_sphere_func1(imol, text):
@@ -1023,7 +1022,6 @@ if True:
          "Which molecule to check for Atoms with zero occupancies?",
          lambda imol: coot_gui.zero_occ_atoms_gui(imol)))
 
-     
      #---------------------------------------------------------------------
      #     NCS functions
      #
