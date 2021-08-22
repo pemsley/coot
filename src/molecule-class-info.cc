@@ -3628,12 +3628,12 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
-   if (true)
+   if (false)
       // if (! is_intermediate_atoms_molecule)
          std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 

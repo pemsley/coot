@@ -5007,9 +5007,14 @@ db_loop_preserve_residue_names = False
 
 def click_protein_db_loop_gui():
 
+    print("DEBUG:: coot_utils:: click_protein_db_loop_gui() --- start ---")
+
     global db_loop_preserve_residue_names
 
     def pick_loop_func(n):
+
+        print("DEBUG:: coot_utils:: click_protein_db_loop_gui() pick_loop_func() --- start ---")
+
         def pick_func(*atom_specs):
             residue_specs = list(
                 map(coot_utils.atom_spec_to_residue_spec, atom_specs))
@@ -5029,6 +5034,13 @@ def click_protein_db_loop_gui():
                 max_resno = min_max_and_chain_id[1]
                 chain_id = min_max_and_chain_id[2]
                 coot.set_mol_active(imol_loops_consolidated, 1)
+
+                print("DEBUG:: coot_utils:: click_protein_db_loop_gui() imol_loop_orig", imol_loop_orig)
+
+                if coot_utils.valid_model_molecule_qm(imol_loop_orig):
+                    pass
+                else:
+                    print("WARNING:: coot_utils:: click_protein_db_loop_gui() imol_loop_orig", imol_loop_orig, " is not a valid model")
 
                 if coot_utils.valid_model_molecule_qm(imol_loop_orig):
                     if len(loop_mols) > 0:
@@ -5058,10 +5070,10 @@ def click_protein_db_loop_gui():
 
         coot.user_defined_click_py(n, pick_func)
 
+    print("DEBUG:: coot_utils:: click_protein_db_loop_gui() --- calling generic_number_chooser() ---")
     generic_number_chooser(list(range(2, 10)), 4,
                            "Number of residues for basis",
                            "Pick Atoms...",
-
                            lambda n: pick_loop_func(n))
 
 
