@@ -1350,8 +1350,7 @@ Mesh::draw(Shader *shader_p,
            const glm::vec4 &background_colour,
            bool do_depth_fog) {
 
-   // std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << " " << draw_this_mesh
-   // << std::endl;
+   std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << " " << draw_this_mesh << " " << triangles.size() << std::endl;
 
    if (! draw_this_mesh) return;
 
@@ -1448,12 +1447,14 @@ Mesh::draw(Shader *shader_p,
    if (err) std::cout << "error:: Mesh::draw() " << shader_name << " " << name
                       << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
 
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
-                                          << err << std::endl;
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() i "
-                                          << err << std::endl;
+   if (true) { // I doubt that the block is needed. 20210823-PE
+      glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
+                                             << err << std::endl;
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() i "
+                                             << err << std::endl;
+   }
 
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
@@ -1472,7 +1473,8 @@ Mesh::draw(Shader *shader_p,
    if (err) std::cout << "error draw() glBindBuffer() Mesh::draw() post-vertex arrays "
                       << "shader " << shader_p->name << " error " << err << std::endl;
 
-#if 0 //using a VAO means we don't need to do this (so delete it)
+#if 1 //using a VAO means we don't need to do this (so delete it)
+      // 20210823-PE Hmmm... maybe I do need it.
    if (is_instanced_with_rts_matrix) {
       glEnableVertexAttribArray(4);
       glEnableVertexAttribArray(5);
@@ -1503,7 +1505,7 @@ Mesh::draw(Shader *shader_p,
       // If you are here, did you remember to use gtk_gl_area_attach_buffers(GTK_GL_AREA(di.gl_area));
       // before making a new VAO?
 
-      if (false)
+      if (true)
          std::cout << "debug:: Mesh::draw() instanced: " << name << " " << shader_p->name
                    << " drawing " << n_verts
                    << " triangle vertices"  << " in " << n_instances << " instances" << std::endl;

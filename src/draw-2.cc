@@ -61,6 +61,19 @@ glarea_tick_func(GtkWidget *widget,
       glm::quat normalized_quat_delta(glm::normalize(quat_delta));
       glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
       graphics_info_t::glm_quat = glm::normalize(product);
+      if (graphics_info_t::GetFPSFlag()) {
+         graphics_info_t::frame_counter++;
+         std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+         std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time_for_per_second_counter;
+         if (elapsed_seconds.count() >= 1.0) {
+            float num_frames_delta = graphics_info_t::frame_counter - graphics_info_t::frame_counter_at_last_display;
+            std::cout << "INFO:: Time/frame: " << 1000 * elapsed_seconds.count()/num_frames_delta << " milliseconds "
+                      << num_frames_delta << " frames "
+                      << num_frames_delta/elapsed_seconds.count() << " frames/second\n";
+            graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
+            graphics_info_t::frame_counter_at_last_display = graphics_info_t::frame_counter;
+         }
+      }
    }
    
    if (graphics_info_t::do_tick_boids) {
@@ -251,8 +264,10 @@ on_glarea_realize(GtkGLArea *glarea) {
       g.setup_draw_for_happy_face_residue_markers_init();
 
       err = glGetError();
-      if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
-                         << err << std::endl;
+      if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;
+
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+      graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
 
       GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
       gboolean legacy_flag = gdk_gl_context_is_legacy(context);
@@ -593,41 +608,6 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.graphics_draw(); // queue
    return TRUE;
 }
-
-gint
-view_spin_func(gpointer data) {
-
-   float delta = 0.002;
-   glm::vec3 EulerAngles(0, delta, 0);
-   glm::quat quat_delta(EulerAngles);
-   glm::quat normalized_quat_delta(glm::normalize(quat_delta));
-   glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
-   graphics_info_t::glm_quat = glm::normalize(product);
-   graphics_info_t::graphics_draw(); // queue
-
-   std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
-   std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time_for_per_second_counter;
-   if (elapsed_seconds.count() > 1.0) {
-      float nf = graphics_info_t::frame_counter - graphics_info_t::frame_counter_at_last_display;
-      std::cout << "INFO:: Time/frame: " << 1000 * elapsed_seconds.count()/nf << " milliseconds "
-                << nf/elapsed_seconds.count() << " frames/second\n";
-      graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
-      graphics_info_t::frame_counter_at_last_display = graphics_info_t::frame_counter;
-   }
-
-   // now the stutter checker:
-   std::chrono::duration<double> elapsed_seconds_fast = tp_now - graphics_info_t::previous_frame_time;
-   if (elapsed_seconds_fast.count() > 0.03)
-      std::cout << "INFO:: " << 1000 * elapsed_seconds_fast.count() << " milliseconds for that frame\n";
-   graphics_info_t::previous_frame_time = tp_now;
-
-   // kludge/race condition?
-   if (graphics_info_t::idle_function_spin_rock_token == -1)
-      return FALSE;
-   else
-      return TRUE;
-}
-
 
 
 gboolean

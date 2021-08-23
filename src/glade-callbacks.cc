@@ -5587,6 +5587,7 @@ void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
 
    molecule_class_info_t &m = graphics_info_t::molecules[imol];
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+      std::cout << "Here B in handle_map_properties_fresnel_change() " << togglebutton << std::endl;
       GtkWidget *bias_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton),  "bias_entry"));
       GtkWidget *scale_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "scale_entry"));
       GtkWidget *power_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "power_entry"));
@@ -5597,6 +5598,7 @@ void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
          float bias  = coot::util::string_to_float(bias_entry_text);
          float scale = coot::util::string_to_float(scale_entry_text);
          float power = coot::util::string_to_float(power_entry_text);
+         std::cout << "Here C in handle_map_properties_fresnel_change() " << bias << " " << scale << " " << power << std::endl;
          m.fresnel_settings.update_settings(true, bias, scale, power);
       }
       catch (const std::runtime_error &rte) {
@@ -5615,10 +5617,7 @@ on_map_properties_dialog_fresnel_bias_entry_key_press_event_gtkbuilder_callback 
                                                                                  gpointer         user_data)
 {
 
-   std::cout << "Here A in on_map_properties_dialog_fresnel_bias_entry_key_press_event_gtkbuilder_callback()" << std::endl;
-   
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      std::cout << "Here B in on_map_properties_dialog_fresnel_bias_entry_key_press_event_gtkbuilder_callback()" << std::endl;
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
       handle_map_properties_fresnel_change(imol, togglebutton);
@@ -5633,7 +5632,6 @@ on_map_properties_dialog_fresnel_scale_entry_key_press_event_gtkbuilder_callback
                                                                                   gpointer         user_data)
 {
 
-   std::cout << "Here A in on_map_properties_dialog_fresnel_scale_entry_key_press_event_gtkbuilder_callback" << std::endl;
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));

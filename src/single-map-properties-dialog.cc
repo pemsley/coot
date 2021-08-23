@@ -217,8 +217,8 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       g_object_set_data(G_OBJECT(power_entry), "fresnel_checkbutton", fresnel_checkbutton);
 
       g_object_set_data(G_OBJECT(bias_entry),  "imol", GINT_TO_POINTER(imol));
-      g_object_set_data(G_OBJECT(scale_entry), "imol", GINT_TO_POINTER(scale));
-      g_object_set_data(G_OBJECT(power_entry), "imol", GINT_TO_POINTER(power));
+      g_object_set_data(G_OBJECT(scale_entry), "imol", GINT_TO_POINTER(imol));
+      g_object_set_data(G_OBJECT(power_entry), "imol", GINT_TO_POINTER(imol));
 
       gtk_entry_set_text(GTK_ENTRY(bias_entry),  coot::util::float_to_string_using_dec_pl(bias,  2).c_str());
       gtk_entry_set_text(GTK_ENTRY(scale_entry), coot::util::float_to_string_using_dec_pl(scale, 1).c_str());

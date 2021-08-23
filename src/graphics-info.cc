@@ -977,8 +977,6 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 
    bool done_the_move = false; // well, "set it up to go" to be more accurate
 
-   std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
-
    // This is more like how PyMOL does it (and is better than stepped
    // acceleration).
 
