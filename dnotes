@@ -3998,12 +3998,15 @@ INFO::
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
+     cd build-for-release, configure it, make and make dist.
+     So that works? Now use md...
    o on charybdis: md: check that it builds, the build will put the release in the
                    pre-release directory. So move it to release (and remove the
                    revision tag)
                    cd ~/fuse/ftp/coot/source/pre-releases/
                    mv coot-0.9.4.1-revision-10273.tar.gz coot-0.9.4.1.tar.gz
                    mv coot-0.9.4.1.tar.gz ../releases/
+                   give-read-permission coot-0.9.4.1.tar.gz
    o on charybdis: disable the build-latest cron-job
    o on charybdis: clear out pre-releases
    o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
@@ -9716,4 +9719,127 @@ $ sudo apt install appmenu-gtk2-module
 Failed to load module "canberra-gtk-module"
 
 $ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
+----
+Sun  4 Jul 00:42:11 BST 2021
+
+This needs to be fixed
+
+==2187636== Conditional jump or move depends on uninitialised value(s)
+==2187636==    at 0x483EF58: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2187636==    by 0x60E5354: ccp4_cmap_set_symop (cmap_symop.c:128)
+==2187636==    by 0x4F25875: void clipper::CCP4MAPfile::export_xmap<float>(clipper::Xmap<float> const&) (ccp4_map_io.cpp:309)
+==2187636==    by 0x48A491A: coot::ligand::output_map(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) const (ligand.cc:1404)
+==2187636==    by 0x1116C4: get_flood_molecule(clipper::Xmap<float> const&, float) (res-tracer.cc:41)
+==2187636==    by 0x11BD1A: proc(clipper::Xmap<float> const&, coot::fasta_multi const&, double, float) (res-tracer.cc:1815)
+==2187636==    by 0x1104F1: main (res-tracer.cc:1897)
+
+
+----
+Sun  4 Jul 01:08:21 BST 2021
+
+rdkit linking:
+
+
+/home/paule/Projects/coot/git/coot-refinement/build/ligand/.libs/res-tracer: error while loading shared libraries: libRDKitmaeparser.so.1: cannot open shared object file: No such file or directory
+	linux-vdso.so.1 (0x00007ffe09add000)
+	libcoot-ligand.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-ligand.so.0 (0x00007fa5b41bc000)
+	libcoot-ideal.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-ideal.so.0 (0x00007fa5b4055000)
+	libcoot-coord-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-coord-utils.so.0 (0x00007fa5b3ea9000)
+	libcoot-map-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-map-utils.so.0 (0x00007fa5b3e3a000)
+	libcoot-geometry.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-geometry.so.0 (0x00007fa5b3d30000)
+	libcoot-mini-mol.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-mini-mol.so.0 (0x00007fa5b3d09000)
+	libcoot-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-utils.so.0 (0x00007fa5b3ccb000)
+	libclipper-ccp4.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-ccp4.so.2 (0x00007fa5b3c7f000)
+	libclipper-core.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-core.so.2 (0x00007fa5b3a93000)
+	libmmdb2.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libmmdb2.so.0 (0x00007fa5b3943000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007fa5b3738000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fa5b371b000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fa5b36f8000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fa5b3506000)
+	libcootaneer.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcootaneer.so.0 (0x00007fa5b34d9000)
+	libcoot-db-main.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-db-main.so.0 (0x00007fa5b34b0000)
+	libccp4mg-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libccp4mg-utils.so.0 (0x00007fa5b3470000)
+	libcoot-coord-extras.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-coord-extras.so.0 (0x00007fa5b3408000)
+	libcoot-analysis.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-analysis.so.0 (0x00007fa5b33b3000)
+	libclipper-minimol.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-minimol.so.2 (0x00007fa5b3363000)
+	libclipper-contrib.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-contrib.so.2 (0x00007fa5b32c4000)
+	libsqlite3.so.0 => /lib/x86_64-linux-gnu/libsqlite3.so.0 (0x00007fa5b319b000)
+	libgsl.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libgsl.so.0 (0x00007fa5b2f65000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fa5b2e16000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fa5b43a4000)
+	libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007fa5b2dd4000)
+	libcoot-map-heavy.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-map-heavy.so.0 (0x00007fa5b2db3000)
+	libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007fa5b2d7b000)
+	libmvec.so.1 => /lib/x86_64-linux-gnu/libmvec.so.1 (0x00007fa5b2d4d000)
+	libcoot-lidia-core.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-lidia-core.so.0 (0x00007fa5b2cb5000)
+	libclipper-mmdb.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-mmdb.so.2 (0x00007fa5b2cac000)
+	libgslcblas.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libgslcblas.so.0 (0x00007fa5b2c6a000)
+	libRDKitFileParsers.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitFileParsers.so.1 (0x00007fa5b2b29000)
+	libRDKitRDGeneral.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitRDGeneral.so.1 (0x00007fa5b2b09000)
+	libccp4c.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libccp4c.so.0 (0x00007fa5b2ad0000)
+	librfftw.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/librfftw.so.2 (0x00007fa5b2a9c000)
+	libfftw.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libfftw.so.2 (0x00007fa5b2a5d000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fa5b2a55000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007fa5b2a39000)
+	libRDKitForceFieldHelpers.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitForceFieldHelpers.so.1 (0x00007fa5b29cf000)
+	libRDKitDescriptors.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitDescriptors.so.1 (0x00007fa5b296d000)
+	libRDKitForceField.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitForceField.so.1 (0x00007fa5b28b1000)
+	libRDKitSubstructMatch.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitSubstructMatch.so.1 (0x00007fa5b288f000)
+	libRDKitDepictor.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitDepictor.so.1 (0x00007fa5b284e000)
+	libRDKitMolChemicalFeatures.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitMolChemicalFeatures.so.1 (0x00007fa5b2825000)
+	libRDKitRDGeometryLib.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitRDGeometryLib.so.1 (0x00007fa5b2805000)
+	libRDKitGraphMol.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitGraphMol.so.1 (0x00007fa5b26a2000)
+	libRDKitSmilesParse.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitSmilesParse.so.1 (0x00007fa5b2610000)
+	libRDKitmaeparser.so.1 => not found
+	libRDKitPartialCharges.so.1 => not found
+	libRDKitSubgraphs.so.1 => not found
+	libRDKitcoordgenlib.so.1 => not found
+	libRDKitDataStructs.so.1 => not found
+
+
+----
+Sun  4 Jul 02:30:28 BST 2021
+
+  if the atom selection is misteriously going out of date, or changing, then check the function that calls this function hasn't deleted
+  the atom selection before this function is called, DeleteSelection()
+
+
+----
+Thu  8 Jul 16:48:13 BST 2021
+
+   a lambda function capturing a mutable reference:
+
+                        auto update_worst = [&worst_score_in_top_10_local] (const std::pair<double, int> &s_inner) mutable {
+                                               if (s_inner.first < worst_score_in_top_10_local) worst_score_in_top_10_local = s_inner.first; };
+
+
+----
+Sat 17 Jul 15:40:16 BST 2021
+
+   the sfs calcuation is
+
+   molecule_class_info_t::calculate_sfs_and_make_map
+
+   called by molecule_class_info_t::make_map_from_mtz_by_calc_phases
+
+  called by API function map_from_mtz_by_calc_phases()
+
+
+----
+Mon  2 Aug 22:18:50 BST 2021
+
+Different genomes have been sequenced by different institutes with
+different motivations and interests. As such there is no single site
+where you can find all the genome information that you may want.
+
+Thus said the NCBI is a good place to start as they curate GenBank
+database whose contents get mirrored and exchanged with other
+meta-genomic warehouses such as EMBL and DDBJ.
+
+Please have a look at this as well
+http://www.ncbi.nlm.nih.gov/sites/genome and this to download genome
+data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
+
+   -- hadasa https://www.biostars.org/p/9202/
 

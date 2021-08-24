@@ -743,7 +743,7 @@ coot::ligand::flood2(float n_sigma) {
 
    bool debug = false;
 
-   int n_rounds = 20/map_atom_mask_radius; // 1.4 default.
+   int n_rounds = static_cast<int>(10.0/map_atom_mask_radius); // 1.4 default.
 
    if (false) { // debugging hack
       n_rounds = 1;

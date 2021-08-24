@@ -25,6 +25,11 @@
 using json = nlohmann::json;
 #endif
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#if !defined _MSC_VER
+#include <unistd.h>
+#endif
 
 #include <gtk/gtk.h>
 

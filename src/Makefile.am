@@ -408,22 +408,22 @@ coot_bin_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
-   curlew.h                 \
-   curlew.hh                \
+	curlew.h                 \
+	curlew.hh                \
 	data-pair-remover.hh     \
-   density-results-container-t.hh \
-   dots-representation.hh   \
+	density-results-container-t.hh \
+	dots-representation.hh   \
 	draw.cc                  \
 	draw.hh                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
-	flev.hh			 \
+	flev.hh                  \
 	flev.cc                  \
 	generic-display-object.hh\
 	generic-display-object.cc\
-	generic-objects.cc   	 \
-        generic-display-objects-c.h \
+	generic-objects.cc       \
+	generic-display-objects-c.h \
 	gensurf.hh               \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
@@ -431,14 +431,14 @@ coot_bin_SOURCES = \
 	get-residue.cc           \
 	get-monomer.hh           \
 	get-monomer.cc           \
-	gl-bits.hh		 \
-	globjects.cc 		 \
+	gl-bits.hh               \
+	globjects.cc             \
 	globjects.h gl-matrix.h  \
 	globularize.cc           \
 	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
-	graphics-info-graphs.cc	 \
+	graphics-info-graphs.cc  \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
 	graphics-info-intermediate.cc	 \
@@ -465,21 +465,21 @@ coot_bin_SOURCES = \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
-	gtk-widget-conversion-utils.h \
+	gtk-widget-conversion-utils.h  \
 	gtk-widget-conversion-utils.cc \
 	gtk2-interface.c	 \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
-	history_list.hh		 \
-        idles.hh                 \
+	history_list.hh          \
+	idles.hh                 \
 	interface.h              \
-        manipulation-modes.hh    \
+	manipulation-modes.hh    \
 	lsq-dialog-values.hh     \
-	lbg-interface.hh 	 \
-	lbg-callbacks-outer.cc 	 \
-	lbg-interface.cc 	 \
+	lbg-interface.hh         \
+	lbg-callbacks-outer.cc   \
+	lbg-interface.cc         \
 	ligand-check.hh          \
-        map-statistics.hh        \
+	map-statistics.hh        \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
@@ -498,7 +498,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-residues.cc \
 	molecule-class-info-refine.cc   \
-        molecule-class-info-kk.cc       \
+	molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-string.cc 	\
 	molecule-class-info-patterson.cc \
@@ -509,7 +509,7 @@ coot_bin_SOURCES = \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
 	pisa-interface.hh	 \
-        pick.h pick.cc		 \
+	pick.h pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
 	probe-clash-score.cc     \
@@ -531,7 +531,7 @@ coot_bin_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
-        sound.cc \
+	sound.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -539,7 +539,7 @@ coot_bin_SOURCES = \
 	sequence-view.cc         \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
-        simple-distance-object.hh \
+	simple-distance-object.hh \
 	sound.hh                 \
 	startup-scripts.hh       \
 	support.c support.h      \
@@ -564,7 +564,7 @@ coot_bin_SOURCES = \
 	atom-attribute.hh 	 \
 	animated-ligand.hh 	 \
 	atom-selection.hh 	 \
-	ncs.hh 		         \
+	ncs.hh 		 \
 	model-view.hh 		 \
 	validation.hh            \
 	validation.cc            \
@@ -573,11 +573,11 @@ coot_bin_SOURCES = \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \
-        json.hpp
+	json.hpp
 
 if COOT_USE_PYTHON
    coot_bin_SOURCES += coot_wrap_python.cc
-   EXTRA_DIST += coot_wrap_python_pre.cc 
+   EXTRA_DIST += coot_wrap_python_pre.cc
 endif
 if COOT_USE_PYTHON
    dist_python_PYTHON = coot.py coot.pth

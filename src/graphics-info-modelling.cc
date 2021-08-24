@@ -471,14 +471,17 @@ graphics_info_t::refinement_loop_threaded() {
       if (rr.progress == GSL_SUCCESS) {
 	 graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
 	 rr = graphics_info_t::saved_dragged_refinement_results;
+         refinement_has_finished_moving_atoms_representation_update_needed_flag = true;
 	 continue_threaded_refinement_loop = false;
       } else {
 	 if (rr.progress == GSL_FAILURE) {
 	    graphics_info_t::continue_update_refinement_atoms_flag = false;
+            refinement_has_finished_moving_atoms_representation_update_needed_flag = true;
 	    continue_threaded_refinement_loop = false;
 	 } else {
 	    if (rr.progress == GSL_ENOPROG) {
 	       graphics_info_t::continue_update_refinement_atoms_flag = false;
+               refinement_has_finished_moving_atoms_representation_update_needed_flag = true;
 	       continue_threaded_refinement_loop = false;
 	    }
 	 }
@@ -786,9 +789,17 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       }
    }
 
-   if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
+   bool do_the_redraw = false;
+   if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter)
+      do_the_redraw = true;
 
-      bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
+   if (refinement_has_finished_moving_atoms_representation_update_needed_flag) {
+      do_the_redraw = true;
+      refinement_has_finished_moving_atoms_representation_update_needed_flag = false; // reset
+   }
+
+   if (do_the_redraw) {
+
       bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
 
       // wrap the filling of the rotamer probability tables
@@ -920,7 +931,7 @@ graphics_info_t::refine_chain(int imol, const std::string &chain_id, mmdb::Manag
 
    // fill me in at some stage, something along the lines of refine_molecule()
    // Note that make_moving_atoms_asc() is slow if it's done residue by residue
-   // So write another version of  make_moving_atoms_asc() that takes the whole chain.
+   // So write another version of make_moving_atoms_asc() that takes the whole chain.
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
 
@@ -1584,6 +1595,13 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
             if (moving_atoms_extra_restraints_representation.bonds.size() > 0) {
                glLineWidth(1.0); // 2 is smoother and fatter
 
+               // maybe these can be overriddn by the molecules:
+               // extra_restraints_representation.prosmart_restraint_display_limit_low
+               // extra_restraints_representation.prosmart_restraint_display_limit_high
+               //
+               double z_lim_low  = -1.0;
+               double z_lim_high =  1.0;
+
                glBegin(GL_LINES);
                for (unsigned int ib=0; ib<moving_atoms_extra_restraints_representation.bonds.size(); ib++) {
 
@@ -1596,14 +1614,18 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
                   double d = sqrt(d_sqd);
                   double esd = 0.05;
                   double z = (res.target_dist - d)/esd;
-                  double b = 0.02 * z;
-                  if (b >  0.4999) b =  0.4999;
-                  if (b < -0.4999) b = -0.4999;
-                  double b_green = b;
-                  glColor3d(0.5-b, 0.5+b_green*0.9, 0.5-b);
+                  if (z > z_lim_low) {
+                     if (z > z_lim_high) {
+                        double b = 0.02 * z;
+                        if (b >  0.4999) b =  0.4999;
+                        if (b < -0.4999) b = -0.4999;
+                        double b_green = b;
+                        glColor3d(0.5-b, 0.5+b_green*0.9, 0.5-b);
 
-                  glVertex3f(res.first.x(), res.first.y(), res.first.z());
-                  glVertex3f(res.second.x(), res.second.y(), res.second.z());
+                        glVertex3f(res.first.x(), res.first.y(), res.first.z());
+                        glVertex3f(res.second.x(), res.second.y(), res.second.z());
+                     }
+                  }
                }
                glEnd();
             }

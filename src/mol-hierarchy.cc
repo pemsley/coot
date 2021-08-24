@@ -258,7 +258,8 @@ void check_chiral_volumes(int imol) {
          int n_res = chain_p->GetNumberOfResidues();
          for (int ires=0; ires<n_res; ires++) {
             mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            int n_atoms = residue_p->GetNumberOfAtoms();
-            for (int iat=0; iat<n_atoms; iat++) {
-               mmdb::Atom *at = residue_p->GetAtom(iat);
-               if (! at->isTer()) {
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {

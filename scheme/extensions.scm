@@ -635,6 +635,12 @@
 				      (let ((status (get-SMILES-for-comp-id-from-pdbe comp-id)))
 					(get-monomer comp-id))))))
 
+          (add-simple-coot-menu-menuitem
+           submenu-models "Fill Partial Residues"
+           (lambda()
+             (using-active-atom
+              (fill-partial-residues aa-imol))))
+
 	  (add-simple-coot-menu-menuitem
 	   submenu "Find Helices"
 	   (lambda ()
@@ -644,7 +650,6 @@
 	   submenu "Find Strands"
 	   (lambda ()
 	     (find-strands))))
-
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Fix Nomenclature Errors..."

@@ -130,7 +130,9 @@ namespace coot {
 		mmdb::Manager *mol, 
 		float n_sigma,
 		int do_positive_levels_flag,
-		int also_negative_levels_flag);
+		int also_negative_levels_flag,
+                int only_around_protein_flag);
+
       std::vector<std::pair<clipper::Coord_orth, float> >
       get_peaks(const clipper::Xmap<float> &xmap,
 		float n_sigma,

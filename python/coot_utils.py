@@ -876,14 +876,16 @@ def command_in_path_qm_old_version(cmd, only_extension="", add_extensions=[]):
             print "BL WARNING:: couldnt open $PATH"  # this shouldnt happen
             return False
 
-       
+
 global gtk_thread_return_value
 gtk_thread_return_value = None
-# Where cmd is e.g. "refmac" 
+# Where cmd is e.g. "refmac"
 #       args is ["HKLIN","thing.mtz"]
-#       data_list is ["HEAD","END"]
-#       log_file_name is "refmac.log"      
+#       data_list is ["HEAD","END"] OR
+#       it is a filename for file input (i.e. cmd < filename)
+#       log_file_name is "refmac.log"
 #       screen_flag True/False to display or not in shell window
+#       stderr_capture True/False pipe stderr to stdout too
 #       local_env can be set to change the environment variables the
 #                 command is run in.
 # 
@@ -892,7 +894,7 @@ gtk_thread_return_value = None
 # uses os.popen if python version < 2.4 otherwise subprocess
 # 
 def popen_command(cmd, args, data_list, log_file, screen_flag=False,
-                  local_env=None):
+                  stderr_capture=False, local_env=None):
 
     import sys, string, os
     
@@ -913,17 +915,41 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
             import subprocess
             log = open(log_file, 'w')
             cmd_args = [cmd_execfile] + args
+
+            # set stdin
+            pipe_data=False
+            if (isinstance(data_list, str) and
+                os.path.isfile(data_list)):
+                stdin_inp = open(data_list)
+            else:
+                pipe_data=True
+                stdin_inp = subprocess.PIPE
+
+            # set stderr
+            if stderr_capture:
+                stderr_arg = subprocess.STDOUT
+            else:
+                stderr_arg = None
+
             if (screen_flag):
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                process = subprocess.Popen(cmd_args, stdin=stdin_inp,
                                            stdout=subprocess.PIPE,
+                                           stderr=stderr_arg,
                                            env=local_env)
             else:
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
-                                           stdout=log, env=local_env)
+                process = subprocess.Popen(cmd_args, stdin=stdin_inp,
+                                           stdout=log, stderr=stderr_arg,
+                                           env=local_env)
 
-            for data in data_list:
-                process.stdin.write(data + "\n")
-            process.stdin.close()
+            if pipe_data:
+                for data in data_list:
+                    process.stdin.write(data + "\n")
+                process.stdin.close()
+            else:
+                # file?
+                if isinstance(stdin_inp, file):
+                    stdin_inp.close()
+
             if (screen_flag):
                 for line in process.stdout:
                     print "#", line.rstrip(" \n")  # remove trailing whitespace
@@ -1442,7 +1468,7 @@ def transform_map(*args):
     ret = None
     def tf(imol, mat, trans, about_pt, radius, space_group, cell):
 
-        print("here in tf with ", imol, mat, trans, about_pt, radius, space_group, cell)
+        print("DEBUG:: here in tf with ", imol, mat, trans, about_pt, radius, space_group, cell)
 
         return transform_map_raw(imol,
                                  mat[0], mat[1], mat[2],
@@ -1469,8 +1495,8 @@ def transform_map(*args):
     elif (len(args)==4):
         imol = args[0]
         print("calling tf with ", imol, identity_matrix(), args[1], args[2], args[3], space_group(imol), cell(imol))
-        r = 0.5 * cell(imol)[0]
-        ret = tf(imol, identity_matrix(), [args[1], args[2], args[3]], rotation_centre(), r,
+        ret = tf(imol, identity_matrix(), [args[1], args[2], args[3]],
+                 rotation_centre(), cell(imol)[0],
                  space_group(imol), cell(imol))
     # no matrix or about point specified:
     elif (len(args)==3):
@@ -1514,10 +1540,11 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
     cell_params = cell(imol_ref)
 
     if not (space_group and cell):
-        message = "Bad cell or symmetry for molecule" + str(cell) + str(space_group) + str(imol_ref)
+        message = "Bad cell or symmetry for molecule" + str(cell_params) + \
+            str(space_group) + str(imol_ref)
         print "Bad cell or symmetry for molecule", message
         ret = -1           # invalid mol! or return message!?
-        
+
     else:
         rtop = apply_lsq_matches(imol_ref, imol_mov)
         ret = transform_map(imol_map, rtop[0], rtop[1], about_pt, radius,
@@ -1746,8 +1773,12 @@ def auto_weight_for_refinement():
     def refinement_func():
         sr = sphere_residues(3.5)
         if sr:
-            ret = with_auto_accept([refine_residues, sr[0], sr[1]])
-            return ret
+            with AutoAccept():
+                refine_residues(*sr)
+                ret = accept_moving_atoms()
+                #ret = with_auto_accept([refine_residues, sr],
+                #                       [accept_moving_atoms])
+                return ret
             #return with_auto_accept([refine_residues, sr[0], sr[1]])
         else:
             return False
@@ -1770,14 +1801,18 @@ def auto_weight_for_refinement():
         if not rr:   # check for list?
             return False
         else:
-            nnb_list = no_non_bonded(rr[2])
-            chi_squares = [x[2] for x in nnb_list]
-            n = len(chi_squares)
-            summ = sum(chi_squares)
-            if n == 0:
+            results_inner = rr[2]
+            if not results_inner:
                 return False
             else:
-                return summ/n
+                nnb_list = no_non_bonded(results_inner)
+                chi_squares = [x[2] for x in nnb_list]
+                n = len(chi_squares)
+                summ = sum(chi_squares)
+                if n == 0:
+                    return False
+                else:
+                    return summ/n
 
     # main body
     #
@@ -2421,7 +2456,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
             if is_nucleotide(imol, chain_id_in, resno):
-                if residue_exists_qm(imol, chain_id_in, resno-1, ""):
+                if residue_exists_qm(imol, chain_id_in, (resno - 1), ""):
                     delete_atom(imol_ligand, "A", 1, "", " OP3", "")
 
             if not is_nucleotide(imol_ligand, "A", 1):
@@ -2430,6 +2465,9 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             print "BL DEBUG:: new_chain_id_info: ", new_chain_id_info
             merge_status = new_chain_id_info[0]
+            # merge_status is sometimes a spec, sometimes a chain-id pair
+            # BL says:: the rest of it is, merge_status should be 1
+            print "BL DEBUG:: merge status: ", merge_status
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
                 new_chain_id = residue_spec_to_chain_id(new_res_spec)
@@ -3784,6 +3822,12 @@ def file_to_preferences(filename):
             home = os.getenv("HOME")
             if is_windows():
                 home = os.getenv("COOT_HOME")
+                if not home:
+                    # try HOME
+                    home = os.getenv("HOME")
+                else:
+                    # fallback
+                    home = os.getenv("USERPROFILE")
             if isinstance(home, str):
                 pref_dir = os.path.join(home, ".coot-preferences")
                 if not os.path.isdir(pref_dir):

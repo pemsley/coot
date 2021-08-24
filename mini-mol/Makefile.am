@@ -41,8 +41,8 @@ libcoot_mini_mol_la_SOURCES =  mini-mol.cc mini-mol-utils.cc atom-quads.cc
 # coot-utils becomes one big utils lib.
 #
 libcoot_mini_mol_la_LIBADD = \
- $(top_builddir)/utils/libcoot-utils.la \
- $(MMDB_LIBS) $(CLIPPER_LIBS) 
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 libcoot_mini_mol_la_LDFLAGS = $(SHARED_LDFLAGS)
 

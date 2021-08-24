@@ -41,7 +41,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh pepflip-using-difference-map.hh polar-atoms.hh \
-	fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh
+	fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -71,7 +71,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
-	merge-molecules.cc fragment-container.cc mutate.cc
+	merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -81,6 +81,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
+    $(top_builddir)/protein_db/libcoot-protein-db.la \
     $(top_builddir)/utils/libcoot-utils.la \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la \
     $(CLIPPER_LIBS) $(MMDB_LIBS) \

@@ -32,10 +32,10 @@ def use_unimodal_pyranose_ring_torsions():
 
 def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
-    "---------------- multi-add-linked-residue", imol, res_spec
+    "INFO:: multi-add-linked-residue", imol, res_spec
     set_go_to_atom_molecule(imol)
     wm = matrix_state()
-    set_matrix(wm/4.)
+    set_matrix(wm/2.)
 
     current_refinement_rate = dragged_refinement_steps_per_frame()
 
@@ -47,7 +47,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
         set_dragged_refinement_steps_per_frame(300)
 
         if (not isinstance(current_residue_spec, list)):
-            print "OOps not a proper res_spec %s with residue_to_add: %s" \
+            print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" \
                   %(current_residue_spec, residue_to_add)
             return False
         else:
@@ -56,7 +56,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
             else:
                 if (not isinstance(residue_to_add, list) and \
                     not len(residue_to_add) == 2):
-                    print "Oops - not a residue_link string pair when adding new_res_pair"
+                    print "WARNING:: Oops - not a residue_link string pair when adding new_res_pair"
                 else:
                     new_res = residue_to_add[0]
                     new_link = residue_to_add[1]
@@ -433,7 +433,7 @@ def add_linked_residue_tree(imol, parent, tree):
     use_unimodal_pyranose_ring_torsions()
     set_refine_with_torsion_restraints(1)
     wm = matrix_state()
-    set_matrix(wm / 4.)
+    set_matrix(wm / 2.)
     set_residue_selection_flash_frames_number(1)
     set_go_to_atom_molecule(imol)
     set_go_to_atom_from_res_spec(parent)
@@ -491,7 +491,7 @@ def add_linked_residue_tree(imol, parent, tree):
 def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
                                                                link_type):
     wm = matrix_state()
-    set_matrix(wm / 8.)
+    set_matrix(wm / 2.)
     set_refine_with_torsion_restraints(1)
     set_add_linked_residue_do_fit_and_refine(0)
     with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,

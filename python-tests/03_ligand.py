@@ -306,7 +306,8 @@ class LigandTestFunctions(unittest.TestCase):
                 if command_in_path_qm("mogul"):
                     arg_list = ["--residue-type", tlc_text, smiles]
                 else:
-                    arg_list = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles]
+                    arg_list = ["--no-mogul", "--residue-type", tlc_text, smiles]
+                    # arg_list = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles]
             popen_status = popen_command(pyrogen_bin, arg_list, [], log_file_name, True)
             # self.assertTrue(popen_status == 0)
             self.assertEqual(popen_status, 0,
@@ -334,7 +335,8 @@ class LigandTestFunctions(unittest.TestCase):
             os.remove("UVP-pyrogen.cif")
 
         popen_status = popen_command("pyrogen",
-                                     ["-nM", "-r", "UVP",
+#                                     ["-nM", "-r", "UVP",
+                                     ["-n", "-r", "UVP",
                                       "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O"],
                                      [], "pyrogen.log", False)
         self.assertEqual(popen_status, 0,

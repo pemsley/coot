@@ -5419,7 +5419,7 @@ def refmac_multi_sharpen_gui():
    window.show_all()
 
 
-def auto_asign_sequence_from_map():
+def auto_assign_sequence_from_map():
 
     active_atom = active_residue()
     # get these from the current fragment
@@ -5435,6 +5435,7 @@ def auto_asign_sequence_from_map():
     new_sequence = sequence_from_map(imol, ch_id, resno_start, resno_end, imol_map)
     set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
     mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
+    backrub_rotamers_for_chain(imol, ch_id)
     refine_residues(imol, fragment_residues)
 
 
@@ -5476,13 +5477,10 @@ def add_module_cryo_em_gui():
       def ass_seq_assoc_seq():
          assign_sequence_to_active_fragment()
 
-      add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
-                                    lambda func: add_mol_sym_mtrix())
-
       add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())
 
-      add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
+      add_simple_coot_menu_menuitem(menu, "Multi-sharpen using Refmac...",
                                     lambda func: refmac_multi_sharpen_gui())
 
       add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
@@ -5497,8 +5495,35 @@ def add_module_cryo_em_gui():
       add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
 
+      add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
+                                    lambda func: add_mol_sym_mtrix())
+
+      add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
+                                    lambda func:
+                                    generic_chooser_entry_and_file_selector(
+                                       "Align Sequence to Model: ",
+                                       valid_model_molecule_qm,
+                                       "Chain ID",
+                                       "",
+                                       "Select PIR Alignment file",
+                                       lambda imol, chain_id, target_sequence_pif_file:
+                                       run_clustalw_alignment(imol, chain_id,
+                                                              target_sequence_pif_file)))
+
       add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
                                     lambda func: ass_seq_assoc_seq())
+
+      add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map",
+                                    lambda func: auto_assign_sequence_from_map())
+
+      add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode",
+                                    lambda func: set_auto_recontour_map(0))
+
+      add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode",
+                                    lambda func: set_auto_recontour_map(1))
+
+      add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
+                                    lambda func: interactive_nudge_func())
 
 
 def add_module_ccp4_gui():
@@ -5508,7 +5533,33 @@ def add_module_ccp4_gui():
       add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
                                     lambda func: acedrg_link_generation_control_window())
 
-   
+def add_module_pdbe_gui():
+   if coot_python.main_menubar():
+      menu = coot_menubar_menu("PDBe")
+
+      # ---------------------------------------------------------------------
+      #     Recent structures from the PDBe
+      # ---------------------------------------------------------------------
+      #
+      add_simple_coot_menu_menuitem(
+         menu, "PDBe recent structures...",
+         lambda func: pdbe_latest_releases_gui())
+
+      # we do test for refmac at startup not runtime (for simplicity)
+      if command_in_path_qm("refmac5"):
+         mess = " Get it "
+      else:
+         mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
+
+      add_simple_coot_menu_menuitem(
+         menu, "Get from PDBe...",
+         lambda func: generic_single_entry("Get PDBe accession code",
+                                           "", " Get it ",
+                                           lambda text:
+                                           pdbe_get_pdb_and_sfs_cif(
+                                              "include-sfs", text.rstrip().lstrip())))
+
+
 #### BL stuff
    
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):

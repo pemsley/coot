@@ -1978,7 +1978,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
-   void update_geometry_graphs(int imol_moving_atoms); // convenience function
+   void update_geometry_graphs(int imol_moving_atoms); // convenience function - includes sequence view too!
    void update_validation_graphs(int imol);  // and ramachandran
 
 
@@ -2033,6 +2033,7 @@ public:
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
    GtkWidget * get_sequence_view_is_displayed(int imol) const;
    static int nsv_canvas_pixel_limit;
+   void sequence_view_highlight_residue_maybe(mmdb::Atom *next_atom, GtkWidget *svc);
 
    // Geometry Graphs:
 
@@ -3986,6 +3987,15 @@ string   static std::string sessionid;
    void sfcalc_genmap(int imol_model,
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
+
+   // this has a different API!
+   coot::util::sfcalc_genmap_stats_t
+   sfcalc_genmaps_using_bulk_solvent(int imol_model,
+                                     int imol_map_with_data_attached,
+                                     clipper::Xmap<float> *xmap_2fofc_p,
+                                     clipper::Xmap<float> *xmap_fofc_p);
+
+   static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
 
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;

@@ -27,7 +27,7 @@ def povray_args():
 
 # run raster3d
 #
-def render_image():
+def render_image(use_popen=False):
     import os
     import webbrowser
     import sys
@@ -45,7 +45,9 @@ def render_image():
     if (r3d_exe):
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
-       r3d_call = r3d_exe + image_format + " -labels " + coot_image_file_name + " < " + coot_r3d_file_name
+       r3d_call = r3d_exe + " -labels " + \
+           image_format + coot_image_file_name + \
+           " < " + coot_r3d_file_name
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
 
@@ -53,7 +55,12 @@ def render_image():
        if (major >= 2 and minor >=4):
            # new style
            import subprocess
-           status = subprocess.call(r3d_call, shell=True)
+           if not use_popen:
+               status = subprocess.call(r3d_call, shell=True)
+           else:
+               status = popen_command(r3d_exe,
+                                      ["-labels", "-png", coot_image_file_name],
+                                      coot_r3d_file_name, "r3d.log", 1)
            if status:
                # something went wrong with raster3d
                # maybe same for system call?!?
@@ -97,7 +104,9 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
        #we have to check filenames for spaces for dodgy windows path
        image_file_name_mod, source_file_name_mod, space_flag = \
 		check_file_names_for_space_and_move(image_file_name, source_file_name)
-       r3d_call = r3d_exe + image_format + " -labels" + image_file_name_mod + " < " + source_file_name_mod
+       r3d_call = r3d_exe + " -labels " + \
+           image_format + image_file_name_mod + \
+           " < " + source_file_name_mod
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
 
@@ -243,54 +252,45 @@ def raster3d_version():
     else:
         log_file = "raster3_version.tmp"
         # BL note: currently -i is a bogus switch, so gives info
-        status = popen_command(raster3d_exe, ["-i"], [], log_file)
-        if (status != 0):
-            return False
-        else:
-            fin = open(log_file, 'r')
-            lines = fin.readlines()
-            fin.close()
-            os.remove(log_file)
-            for line in lines:
-                if ("Raster3D" in line):
-                    version_string = line[9:]
-                    tmp = version_string.split(".")
+        status = popen_command(raster3d_exe, ["-i"], [], log_file,
+                               stderr_capture=True)
+        fin = open(log_file, 'r')
+        lines = fin.readlines()
+        fin.close()
+        os.remove(log_file)
+        for line in lines:
+            if ("Raster3D" in line):
+                version_string = line[9:]
+                tmp = version_string.split(".")
+                try:
+                    major = int(tmp[0])
+                except:
+                    print "BL INFO:: problem extracting major version " + \
+                          "from raster3d"
+                    return False
+                if ("-" in tmp[1]):
+                    # have new style version
+                    tmp_min = tmp[1].split("-")
                     try:
-                        major_version = int(tmp[0])
+                        minor = int(tmp_min[0])
+                        micro = int(tmp_min[1])
                     except:
-                        print "BL INFO:: problem extracting major version " + \
+                        print "BL INFO:: problem extracting minor version " + \
                               "from raster3d"
                         return False
-                    if ("-" in tmp[1]):
-                        # have new style version
-                        tmp_min = tmp[1].split("-")
-                        try:
-                            minor = int(tmp_min[0])
-                            micro = int(tmp_min[1])
-                        except:
-                            print "BL INFO:: problem extracting minor version " + \
-                                  "from raster3d"
-                            
-                            return False
-                        return [major, minor, micro]
+                    return [major, minor, micro]
+                else:
+                    # old style
+                    if (len(tmp[1]) != 2):
+                        print "BL INFO:: cannot deal with this version."
+                        return False
                     else:
-                        # old style
-                        if (len(tmp[1]) != 2):
-                            print "BL INFO:: cannot deal with this version."
+                        try:
+                            minor = int(tmp[1][0])
+                        except:
+                            print "BL INFO:: problem extracting minor " + \
+                                  "version of raster3d (old style)."
                             return False
-                        else:
-                            try:
-                                minor = int(tmp[1][0])
-                            except:
-                                print "BL INFO:: problem extracting minor " + \
-                                      "version of raster3d (old style)."
-                                return False
-                            micro = tmp[1][1]
-                            return [major, minor, micro]
-            return False
-                            
-                            
-                    
-                    
-                    
-    
+                        micro = tmp[1][1]
+                        return [major, minor, micro]
+        return False

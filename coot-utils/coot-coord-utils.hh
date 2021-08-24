@@ -1166,6 +1166,15 @@ namespace coot {
 		    float new_atom_occ,
 		    float new_atom_b_factor); // degrees
 
+      // copy the chain and add it to a new molecule hierarchy
+      std::pair<mmdb::Chain *, mmdb::Manager *> copy_chain(mmdb::Chain *chain_p);
+      // to be used with copy_atoms_from_chain_to_chain() - this needs the same residue and atoms - the
+      // difference between the chains is the positions of the atoms
+      void copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain);
+
+      // add or delete residues and atoms as needed.
+      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain, mmdb::Manager *from_mol_orig, mmdb::Chain *to_chain, bool do_finishstructedit);
+
       // utility function for above:
       mmdb::Residue* deep_copy_this_residue_add_chain(mmdb::Residue *residue,
 						 const std::string &altconf,

@@ -1463,6 +1463,48 @@ test_correlation_of_residue_runs(int argc, char **argv) {
    }
 }
 
+#include "merge-C-and-N-terminii.hh"
+
+void
+test_merge_C_and_N_terminii(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1];
+
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      if (asc.read_success) {
+         std::cout << "pdb read success " << pdb_file_name << std::endl;
+         coot::merge_C_and_N_terminii_0_gap(asc.mol);
+         asc.mol->WritePDBASCII("C-N-merged.pdb");
+      }
+   }
+
+}
+
+void
+test_compare_structure_factors(int argc, char **argv) {
+
+   if (argc> 2) {
+      std::string map_file_name_1 = argv[1];
+      std::string map_file_name_2 = argv[2];
+      clipper::CCP4MAPfile file_1;
+      clipper::CCP4MAPfile file_2;
+      clipper::Xmap<float> xmap_1;
+      clipper::Xmap<float> xmap_2;
+      std::cout << "# reading map " << map_file_name_1 << std::endl;
+      file_1.open_read(map_file_name_1);
+      std::cout << "# reading map " << map_file_name_2 << std::endl;
+      file_2.open_read(map_file_name_2);
+      std::cout << "# importing map " << map_file_name_1 << std::endl;
+      file_1.import_xmap(xmap_1);
+      std::cout << "# importing map " << map_file_name_2 << std::endl;
+      file_2.import_xmap(xmap_2);
+
+      coot::util::compare_structure_factors(xmap_1, xmap_2);
+   }
+
+}
 
 int main(int argc, char **argv) {
 
@@ -1564,8 +1606,14 @@ int main(int argc, char **argv) {
    if (false)
       test_fragment_maker(argc, argv);
 
-   if (true)
+   if (false)
       test_correlation_of_residue_runs(argc, argv);
+
+   if (false)
+      test_merge_C_and_N_terminii(argc, argv);
+
+   if (true)
+      test_compare_structure_factors(argc, argv);
 
    return 0;
 }

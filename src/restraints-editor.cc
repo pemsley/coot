@@ -849,7 +849,7 @@ coot::restraints_editor::get_bond_restraints() const {
  	  (type.length() > 0)  &&
  	  (dist > 0.0)         &&
  	  (esd > 0.0)) { 
- 	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd);
+ 	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd, 0.0, 0.0, false);
 // 	 std::cout << "added a bond restraint ";
 // 	 std::cout << ":" << atom1 << ": :" << atom2 << ": :" << type << ": " << dist << " " << esd << std::endl;
 

@@ -20,7 +20,7 @@
 
 
 AM_CPPFLAGS = -I$(top_srcdir) \
-     $(GOOCANVAS_CFLAGS) $(GTK_CFLAGS)        
+     $(GOOCANVAS_CFLAGS) $(GTK_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 lib_LTLIBRARIES=libcoot-goograph.la 
 

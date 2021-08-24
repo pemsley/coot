@@ -675,7 +675,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	       graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
 
 	    graphics_info_t g;
-	    if (chains.size()) {
+	    if (! chains.empty()) {
 
 	       // a molecule for each chain
 	       for(unsigned int ich=0; ich<chains.size(); ich++) { 

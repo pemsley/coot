@@ -21,19 +21,18 @@
 #ifndef RESIDUE_BY_PHI_PSI_HH
 #define RESIDUE_BY_PHI_PSI_HH
 
-// 20180101-PE should I put this in ligand.hh?
-#ifdef HAVE_BOOST
-#ifdef HAVE_CXX_THREAD
-#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#include "utils/ctpl.h"
-#endif // HAVE_CXX_THREAD
-#endif // HAVE_BOOST
+// // 20180101-PE should I put this in ligand.hh?
+// #ifdef HAVE_BOOST
+// #ifdef HAVE_CXX_THREAD
+// #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+// #include "utils/ctpl.h"
+// #endif // HAVE_CXX_THREAD
+// #endif // HAVE_BOOST
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <thread>
 #include <chrono>
+#include <atomic>
 #include "utils/ctpl.h" // match that included in simple-restraint.hh
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 #include "ligand.hh"
 #include "clipper/core/ramachandran.h"
@@ -109,14 +108,6 @@ namespace coot {
 				      const float &rama_max_local,
 				      bool is_pro_rama) const;
 
-      // When we are building backwards, we have psi for the selected residue, but not phi.
-      // To be clear, we only have psi, when we have also have the downstream (higher residue number) residue
-      // as well.
-      static double get_phi_by_random_given_psi(double psi, const clipper::Ramachandran &rama); // phi and psi in radians
-      // When we are building forward, we have phi for the selected residue, but not psi.
-      // To be clear, we only have phi, when we have also have the upstream (lower residue number) residue
-      // as well.
-      static double get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama); // phi and psi in radians
      void init_phi_psi_plot(); 
 
       // get rid of offset - we know it's the NEXT                                 
@@ -227,6 +218,15 @@ namespace coot {
       void set_downstream_neighbour(mmdb::Residue *r) { downstream_neighbour_residue_p = r; }
       void set_upstream_neighbour(mmdb::Residue *r) { upstream_neighbour_residue_p = r; }
 
+      // When we are building backwards, we have psi for the selected residue, but not phi.
+      // To be clear, we only have psi, when we have also have the downstream (higher residue number) residue
+      // as well.
+      static double get_phi_by_random_given_psi(double psi, const clipper::Ramachandran &rama); // phi and psi in radians
+      // When we are building forward, we have phi for the selected residue, but not psi.
+      // To be clear, we only have phi, when we have also have the upstream (lower residue number) residue
+      // as well.
+      static double get_psi_by_random_given_phi(double phi, const clipper::Ramachandran &rama); // phi and psi in radians
+
       void write_trial_pdbs() { debug_trials_flag = true; }
 
       static void debug_trials(const coot::minimol::fragment &frag, int itrial,
@@ -255,15 +255,12 @@ namespace coot {
       // offset: N or C addition (-1 or 1).
       minimol::fragment best_fit_phi_psi(int n_trials, int offset); 
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
      ctpl::thread_pool *thread_pool_p;
      unsigned int n_threads;
      void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
 	thread_pool_p = tp_in;
 	n_threads = n_threads_in;
      }
-   
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
   };
 

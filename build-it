@@ -407,7 +407,11 @@
 # 5.50 20210407 fix previous fix
 # 5.51 20210407 adjust LIBS for clipper configure for lib64 usage
 # 5.52 20210511 rework the coot configure
-script_version=5.52
+# 5.53 20210706 use jfrog.io for boost
+# 5.54 20210706 build sqllite3
+# 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
+# 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
+script_version=5.56
 
 
 
@@ -950,7 +954,8 @@ fi
 mkdir -p $LOGS
 
 
-shared_static_flag="--disable-shared"
+shared_static_flag="--disable-shared" # what!? 20210727-PE
+shared_static_flag="--enable-shared"
 shared_lib_ext=so
 systype=unknown 
 
@@ -1242,15 +1247,7 @@ if [ "$systype" = x86_64-rhel-4 ] ; then
     export PATH
 fi
 
-# Do we link with sqlite (for the ligands database)?
-# We allow the calling script to set use_sqlite=yes
-use_sqlite=${use_sqlite:=no}
-
-if [ "$use_sqlite" = "yes" ] ; then
-    sqlite_config_args=--with-sqlite3
-else
-    sqlite_config_args=
-fi
+sqlite_config_args=--with-sqlite3
 
 # We want to add some compiler info in the directory name.
 # If CC is set, use that,
@@ -2453,10 +2450,15 @@ if [ -z "$build_mmdb" ] ; then
        # test for new ccp4-based clipper (for mtz and maps)
        if [ -e $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h ] ; then
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
-	     build_clipper=
+             if grep PrePro2 $install_top_dir/include/clipper/core/ramachandran.h ; then
+                build_clipper=
+             else
+                 echo $install_top_dir/include/clipper/core/ramachandran.h is old, building clipper
+                 build_clipper=1
+             fi
           else
-            echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
-  	     build_clipper=1
+             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
+ 	     build_clipper=1
           fi
        else 
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
@@ -2774,6 +2776,24 @@ if test -n "$build_clipper" ; then
 
 else 
     echo not building clipper:
+fi
+
+if [ -e $install_top_dir/lib/libsqlite3.so ] ; then
+    echo libsqlite3 is installed
+else
+    echo building libsqlite3
+    ${WGET} https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/sqlite-autoconf-3360000.tar.gz | tar xf -
+    cd sqlite-autoconf-3360000
+    if ./configure --prefix=$install_top_dir ; then
+        $MAKE
+        make install
+    fi
+    cd -
+    ) > $HOSTLOGDIR/05a-libsqlite3.txt 2>&1
 fi
 
 
@@ -3316,6 +3336,7 @@ if [ "$test_for_already_installed_dependencies" = true ] ; then
 fi
 
 if [ "$build_boost" = true ] ; then
+   boost_version=1_72_0
    echo building boost $boost_version # to build.log
    echo building boost $boost_version 1>&2 # to the terminal
    (
@@ -3325,19 +3346,23 @@ if [ "$build_boost" = true ] ; then
       address_model=64
       python_version_extention=2.7 # extract this
 
-      boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
-      boost_version=1_71_0
+      boost_home_url=https://dl.bintray.com/boostorg/release/1.72.0/source
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 
       gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
-      cd boost_$boost_version
-      # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
-      ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
-      # bjam no longer exists
-      ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
-      echo b2 install into $install_top_dir complete
-      cd -
+      if [ -e boost_$boost_version ] ; then
+         cd boost_$boost_version
+         # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
+         ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
+         # bjam no longer exists
+         ./b2 address-model=$address_model -j2 cflags=-fPIC cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+         echo b2 install into $install_top_dir complete
+         cd -
+      else
+         echo boost untar failed - maybe download failed.
+      fi
 
    ) > $HOSTLOGDIR/16-boost.txt 2>&1
 fi
@@ -3407,7 +3432,7 @@ if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; 
    echo not building Pillow:
 else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
-    ${WGET} $pillow_url
+    ${WGET} --no-if-modified-since $pillow_url
     if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
         tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
         cd Pillow-6.2.2
@@ -4151,8 +4176,10 @@ if [ -e $install_top_dir/bin/render ] ; then
 else
 
    raster3d_version=3.0-3
+   raster3d_version=3.0-7
    # raster3d depends on libgd to make png images
-   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+   # ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+   ${WGET} http://www.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
 
    if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
 

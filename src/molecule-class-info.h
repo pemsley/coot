@@ -105,6 +105,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "ligand/dipole.hh"
 #include "density-contour/density-contour-triangles.hh"
 
+#include "coot-utils/sfcalc-genmap.hh"
+
 #include "gl-bits.hh"
 #include "pli/flev-annotations.hh" // animated ligand interactions
 
@@ -561,9 +563,9 @@ class molecule_class_info_t {
    bool original_fphis_filled;
    bool original_fobs_sigfobs_filled;
    bool original_fobs_sigfobs_fill_tried_and_failed;
-   clipper::HKL_data< clipper::datatypes::F_phi<float> >  original_fphis;
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
-   clipper::HKL_data< clipper::data32::Flag> original_r_free_flags;
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >  *original_fphis_p;
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> > *original_fobs_sigfobs_p;
+   clipper::HKL_data< clipper::data32::Flag> *original_r_free_flags_p;
 
 
    // is the CCP4 map a EM map? (this is so that we can fill the
@@ -741,9 +743,15 @@ public:        //                      public
       colour_skeleton_by_random = 0;
 
       // original Fs saved? (could be from map)
-      original_fphis_filled = 0;
+      original_fphis_filled = false;
       original_fobs_sigfobs_filled = false;
       original_fobs_sigfobs_fill_tried_and_failed = false;
+
+      // 20210816-PE hello-merge-conflict-resovling-Paul!
+      // Put these into init():
+      original_fphis_p = NULL;
+      original_fobs_sigfobs_p = NULL;
+      original_r_free_flags_p = NULL;
 
 
       //  bond width (now changeable).
@@ -1124,6 +1132,8 @@ public:        //                      public
    mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
 
    mmdb::Atom *get_atom(int idx) const;
+
+   mmdb::Atom *get_atom(const pick_info &pi) const;
 
    bool have_atom_close_to_position(const coot::Cartesian &pos) const;
 
@@ -1551,7 +1561,12 @@ public:        //                      public
    int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
-   void fill_fobs_sigfobs(); // caches
+   coot::util::sfcalc_genmap_stats_t
+   sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                                     clipper::Xmap<float> *xmap_2fofc_p,
+                                     clipper::Xmap<float> *xmap_fofc_p);
+   void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
    bool sanity_check_atoms(mmdb::Manager *mol); // sfcalc_genmap crashes after merge of ligand.
                                                 // Why? Something wrong with the atoms after merge?
                                                 // Let's diagnose.... Return false on non-sane.
@@ -1691,20 +1706,25 @@ public:        //                      public
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;
 
-   const clipper::HKL_data<clipper::data32::F_sigF> &get_original_fobs_sigfobs() {
+   // used to be a const ref. Now return the whole thing!. Caller must call
+   // fill_fobs_sigfobs() directly before using this function - meh, not a good API.
+   // Return a *pointer* to the data so that we don't get this hideous non-reproducable
+   // crash when we access this data item after the moelcule vector has been resized
+   // 20210816-PE.
+   clipper::HKL_data<clipper::data32::F_sigF> *get_original_fobs_sigfobs() const {
       if (!original_fobs_sigfobs_filled) {
          std::string m("Original Fobs/sigFobs is not filled");
          throw(std::runtime_error(m));
       }
-      return original_fobs_sigfobs;
+      return original_fobs_sigfobs_p;
    }
 
-      const clipper::HKL_data<clipper::data32::Flag> &get_original_rfree_flags() {
+   clipper::HKL_data<clipper::data32::Flag> *get_original_rfree_flags() const {
       if (!original_fobs_sigfobs_filled) {
          std::string m("Original Fobs/sigFobs is not filled - so no RFree flags");
          throw(std::runtime_error(m));
       }
-      return original_r_free_flags;
+      return original_r_free_flags_p;
    }
 
 
@@ -3475,7 +3495,7 @@ public:        //                      public
    int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
 
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
-   void set_mean_and_sigma();
+   void set_mean_and_sigma(bool show_terminal=true, bool ignore_pseudo_zeroes=false);
 
    std::string pdb_string() const;
 

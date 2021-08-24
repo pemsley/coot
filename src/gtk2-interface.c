@@ -21807,6 +21807,7 @@ create_generate_diff_map_peaks_dialog (void)
   GtkWidget *vbox165;
   GtkWidget *generate_diff_map_peaks_positive_level_checkbutton;
   GtkWidget *generate_diff_map_peaks_negative_level_checkbutton;
+  GtkWidget *generate_diff_map_peaks_around_model_only_checkbutton;
   GtkWidget *label313;
   GtkWidget *dialog_action_area78;
   GtkWidget *hbox116;
@@ -21820,6 +21821,9 @@ create_generate_diff_map_peaks_dialog (void)
   GtkWidget *hbox268;
   GtkWidget *image6020;
   GtkWidget *label437;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   generate_diff_map_peaks_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (generate_diff_map_peaks_dialog), "Difference Map Peak Analysis");
@@ -21927,6 +21931,11 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox165), generate_diff_map_peaks_negative_level_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (generate_diff_map_peaks_negative_level_checkbutton), TRUE);
 
+  generate_diff_map_peaks_around_model_only_checkbutton = gtk_check_button_new_with_mnemonic ("Around Model?");
+  gtk_widget_show (generate_diff_map_peaks_around_model_only_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox165), generate_diff_map_peaks_around_model_only_checkbutton, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, generate_diff_map_peaks_around_model_only_checkbutton, "Limit peak search to peaks within 4A of the selected model", NULL);
+
   label313 = gtk_label_new ("Which Peaks?");
   gtk_widget_show (label313);
   gtk_frame_set_label_widget (GTK_FRAME (negative_level_frame), label313);
@@ -22013,6 +22022,7 @@ create_generate_diff_map_peaks_dialog (void)
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, vbox165, "vbox165");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_positive_level_checkbutton, "generate_diff_map_peaks_positive_level_checkbutton");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_negative_level_checkbutton, "generate_diff_map_peaks_negative_level_checkbutton");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_around_model_only_checkbutton, "generate_diff_map_peaks_around_model_only_checkbutton");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, label313, "label313");
   GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, dialog_action_area78, "dialog_action_area78");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox116, "hbox116");
@@ -22026,6 +22036,7 @@ create_generate_diff_map_peaks_dialog (void)
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox268, "hbox268");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, image6020, "image6020");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, label437, "label437");
+  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (generate_diff_map_peaks_ok_button);
   gtk_widget_grab_default (generate_diff_map_peaks_ok_button);

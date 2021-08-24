@@ -3299,7 +3299,12 @@ molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatype
          n_reset++;
       }
    }
-   std::cout << "Chopped " << n_reset << " data out of " << n_data << std::endl;
+   if (n_data > 0) {
+      float f = static_cast<float>(n_reset)/static_cast<float>(n_data);
+      std::cout << "INFO:: Chopped " << n_reset << " data out of " << n_data << " (" << f << "%)" << std::endl;
+   } else {
+      std::cout << "INFO:: Chopped " << n_reset << " data out of " << n_data << std::endl;
+   }
 }
 
 
@@ -7030,8 +7035,8 @@ molecule_class_info_t::make_backup() { // changes history details
 
          if (dirstat != 0) {
             // fallback to making a directory in $HOME
-            const char *home_dir = getenv("HOME");
-            if (home_dir) {
+            std::string home_dir = coot::get_home_dir();
+            if (! home_dir.empty()) {
                backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
                dirstat = make_maybe_backup_dir(backup_dir);
                if (dirstat != 0) {
@@ -9433,11 +9438,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
             continue_watching_coordinates_file = false;
          } else {
             // happy path
-#ifndef _POSIX_SOURCE
-            ucp.ctime = s.st_ctimespec; // Mac OS X?
-#else
-            ucp.ctime = s.st_ctim;
-#endif
+            ucp.update_from_stat_info(s);
          }
       }
 

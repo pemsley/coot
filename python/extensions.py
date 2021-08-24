@@ -53,8 +53,26 @@ if (have_coot_python):
 
      menu = coot_menubar_menu("Validate")
      if menu:
+       add_simple_coot_menu_menuitem(menu, "Atom Overlaps (Coot)",
+                                     lambda func:
+                                     using_active_atom(
+                                       coot_all_atom_contact_dots,
+                                       "aa_imol"))
+       add_simple_coot_menu_menuitem(menu, "All-Atom Contact Dots (Molprobity)",
+                                     lambda func:
+                                     using_active_atom(probe, "aa_imol"))
+
+       add_simple_coot_menu_menuitem(menu,"Atom Overlaps Dialog",
+                                     lambda func:
+                                     using_active_atom(
+                                       molecule_atom_overlaps_gui, "aa_imol"))
+
        add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: water_coordination_gui())
+
+       add_simple_coot_menu_menuitem(menu, "Pepflips from Difference Map...",
+                                     lambda func: pepflips_by_difference_map_gui())
+
 
        def validation_outliers_func():
          with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -429,10 +447,10 @@ if (have_coot_python):
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          add_hydrogens_using_refmac(aa_imol)
-     
+
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Add Hydrogens",
+       "Add Hydrogen Atoms",
        lambda func: add_hydrogens_with_coot_reduce())
 
 
@@ -495,6 +513,15 @@ if (have_coot_python):
      #                                          False))
 
      # --- D ---
+
+     add_simple_coot_menu_menuitem(
+       submenu_models, "Delete Hydrogen Atoms",
+       lambda func: using_active_atom(delete_hydrogens, "aa_imol"))
+
+     add_simple_coot_menu_menuitem(
+       submenu_models, "Delete Side-chains for Active Chain",
+       lambda func: using_active_atom(
+         delete_sidechains_for_chain, "aa_imol", "aa_chain_id"))
 
      # now in main menu
 ##     add_simple_coot_menu_menuitem(
@@ -614,6 +641,12 @@ if (have_coot_python):
        lambda func: generic_single_entry("Fetch PDBe Ligand Desciption for comp_id:",
                                          "", " Fetch ", lambda comp_id: get_pdbe_ligand_func(comp_id)))
 
+     def fpr():
+         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+           fill_partial_residues(aa_imol)
+
+     add_simple_coot_menu_menuitem(submenu_models, "Fill Partial Residues", lambda m: fpr())
 
      add_simple_coot_menu_menuitem(
        submenu_models,
@@ -1668,30 +1701,34 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(
+         submenu_modules, "Carbohydrate",
+         lambda func: add_module_carbohydrate_gui())
+
+     add_simple_coot_menu_menuitem(
        submenu_modules, "CCP4...",
        lambda func: add_module_ccp4())
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "SHELX...",
-       lambda func: add_module_shelx())
+         submenu_modules, "Cryo-EM",
+         lambda func: add_module_cryo_em())
 
      add_simple_coot_menu_menuitem(
        submenu_modules, "User-defined Restraints...",
        lambda func: add_module_user_defined_restraints())
 
      add_simple_coot_menu_menuitem(
+       submenu_modules, "PDBe...",
+       lambda func: add_module_pdbe())
+
+     add_simple_coot_menu_menuitem(
          submenu_modules, "ProSMART",
          lambda func: add_module_prosmart())
 
      add_simple_coot_menu_menuitem(
-         submenu_modules, "Carbohydrate",
-         lambda func: add_module_carbohydrate_gui())
-     
-     add_simple_coot_menu_menuitem(
-         submenu_modules, "Cryo-EM",
-         lambda func: add_module_cryo_em())
+       submenu_modules, "SHELX...",
+       lambda func: add_module_shelx())
 
-     
+
      # ---------------------------------------------------------------------
      #     Settings
      # ---------------------------------------------------------------------

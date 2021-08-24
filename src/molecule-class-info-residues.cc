@@ -2172,8 +2172,9 @@ molecule_class_info_t::delete_chain(const std::string &chain_id) {
 	 for (int ichain=0; ichain<n_chains; ichain++) {
 	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	    if (chain_p) {
-	       std::string this_chain_id = chain_p->GetChainID();
+	       std::string this_chain_id(chain_p->GetChainID());
 	       if (this_chain_id == chain_id) {
+                  make_backup();
 		  model_p->DeleteChain(ichain);
 		  done = true;
 	       }

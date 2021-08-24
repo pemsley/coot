@@ -363,7 +363,6 @@ graphics_info_t::update_validation_graphs(int imol) {
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(gtk_object_get_user_data(GTK_OBJECT(w)));
-      std::cout << "doing handle_rama_plot_update() " << std::endl;
       handle_rama_plot_update(plot);
    }
    // now update the geometry graphs, so get the asc
@@ -375,8 +374,8 @@ graphics_info_t::update_validation_graphs(int imol) {
 
 
 void
-graphics_info_t::delete_residue_from_geometry_graphs(int imol,
-						     coot::residue_spec_t res_spec) {
+graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
+
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
@@ -399,13 +398,24 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol,
 	 }
       }
    }
+
+   // and the sequence view!
+   //
+   GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
+   if (graph) {
+      exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
+      if (sequence_view) {
+	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
+	 sequence_view->regenerate(mol);
+      }
+   }
+   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 }
 
 void
-graphics_info_t::delete_residues_from_geometry_graphs(int imol,
-						      const std::vector<coot::residue_spec_t> &res_specs) {
+graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)

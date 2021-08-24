@@ -2081,8 +2081,10 @@ coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_
 	    if (n_atoms_in_N_res > 2) {
 	       bool debugging = false;
 	       mmdb::Residue *res_p            = frag_store[i].second[n_terminal_res].make_residue();
+               // 20210712-PE check res_p here?
 	       // 20180406-PE does this work? not tested
 	       mmdb::Residue *res_downstream_p = frag_store[i].second[n_terminal_res-1].make_residue();
+               // 20210712-PE check res_downstream_p here?
 	       minimol::fragment f = multi_build_N_terminal_ALA(res_p,
 								res_downstream_p,
 								frag_store[i].second.fragment_id,
@@ -2104,8 +2106,10 @@ coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_
 	    if (n_atoms_in_C_res > 2) {
 	       bool debugging = false;
 	       mmdb::Residue *res_p = frag_store[i].second[c_terminal_res].make_residue();
+               // 20210712-PE check res_p here?
 	       // 20180406-PE does this work? not tested
 	       mmdb::Residue *res_upstream_p = frag_store[i].second[c_terminal_res-1].make_residue();
+               // 20210712-PE check res_upstream_p here?
 	       minimol::fragment f = multi_build_C_terminal_ALA(res_p,
 								res_upstream_p,
 								frag_store[i].second.fragment_id,

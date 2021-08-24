@@ -537,7 +537,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "hbox32", hbox32,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, FALSE, 0);
 
   strcpy(widget_name, "displayed_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
@@ -1042,9 +1042,9 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_widget_show (display_map_frame_1);
   /* setting to true means that the buttons etc in the box can expand
      vertically to fill the box  */
-  gtk_box_pack_start (GTK_BOX (display_map_vbox), display_map_frame_1, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (display_map_vbox), display_map_frame_1, FALSE, FALSE, 2); // box child expand fill padding
 
-  hbox31 = gtk_hbox_new (FALSE, 0);
+  hbox31 = gtk_hbox_new (FALSE, 0); // homogeneous and spacing
   gtk_widget_ref (hbox31);
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "hbox31", hbox31,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -1079,7 +1079,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
                             (GtkDestroyNotify) gtk_widget_unref);
   if (name) { 
     gtk_entry_set_text(GTK_ENTRY(entry2), name); 
-  } 
+  }
   gtk_entry_set_editable(GTK_ENTRY (entry2), FALSE);
 
   gtk_widget_show (entry2);
@@ -1090,7 +1090,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "hbox32", hbox32,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, FALSE, 0);
 
 /* -- */
 
@@ -1144,7 +1144,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   
 
   gtk_widget_show(scroll_radio_button_1);
-  gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE,FALSE, 2);
+  gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE, FALSE, 2);
   gtk_signal_connect(GTK_OBJECT(scroll_radio_button_1), "toggled",
 		     GTK_SIGNAL_FUNC (on_display_control_map_scroll_radio_button_toggled),
 		     GINT_TO_POINTER(n));

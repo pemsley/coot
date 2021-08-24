@@ -4111,8 +4111,6 @@
 
 				  (begin
 
-				    (format #t "active-item-imol: ~s~%" active-item-imol)
-
 				    (let* ((step-size (/ max-b n-levels))
 					   (numbers-string
 					    (apply string-append (map (lambda(i)

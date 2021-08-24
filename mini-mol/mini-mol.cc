@@ -504,11 +504,21 @@ coot::minimol::molecule::write_file(std::string pdb_filename, float atoms_b_fact
    // std::cout << "\nDEBUG:: write_file " << pdb_filename << std::endl;
    mmdb::PManager newmol = pcmmdbmanager();
 
-   int ierr = newmol->WritePDBASCII((char *)pdb_filename.c_str());
+   int ierr = newmol->WritePDBASCII(pdb_filename.c_str());
    // std::cout << "DEBUG:: write_file " << pdb_filename << " done\n " << std::endl;
    delete newmol;
    return ierr;
 }
+
+int
+coot::minimol::molecule::write_cif_file(const std::string &cif_filename) const { // use mmdb to write.
+
+   mmdb::PManager newmol = pcmmdbmanager();
+   int ierr = newmol->WriteCIFASCII(cif_filename.c_str());
+   delete newmol;
+   return ierr;
+}
+
 
 // if chain_id is not amongst the set of chain ids that we have already,
 // then push back a new fragment and return its index.
@@ -592,6 +602,8 @@ coot::minimol::residue::residue(mmdb::Residue *residue_p,
 // caller disposes of memory
 mmdb::Residue *
 coot::minimol::residue::make_residue() const {
+
+   if (atoms.empty()) return 0;
 
    mmdb::Residue *residue_p = new mmdb::Residue();
    residue_p->SetResID(name.c_str(), seqnum, ins_code.c_str());
@@ -738,7 +750,6 @@ coot::minimol::residue::write_file(const std::string &file_name) const {
    coot::minimol::molecule m;
    m.fragments.push_back(f);
    m.write_file(file_name, 10.0);
-      
 
 } 
 
@@ -1373,7 +1384,18 @@ coot::minimol::fragment::n_filled_residues() const {
 	 ifr++;
    }
    return ifr;
-} 
+}
+
+void
+coot::minimol::fragment::write_file(const std::string &file_name) const {
+
+   coot::minimol::molecule m;
+   m.fragments.push_back(*this);
+   m.write_file(file_name, 10.0);
+
+}
+
+
 
 // Don't use the atomic weight.  I.e. all atoms are equally weighted.
 // FIXME

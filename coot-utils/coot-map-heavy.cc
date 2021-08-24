@@ -467,14 +467,21 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
    double rand_ang_3 = 2.0 * M_PI * coot::util::random() * rmi;
 
    if (small_rot_flag) {
+      rand_ang_1 -= M_PI;
+      rand_ang_2 -= M_PI;
+      rand_ang_3 -= M_PI;
       rand_ang_1 *= scaling_factor;
       rand_ang_2 *= scaling_factor;
       rand_ang_3 *= scaling_factor;
    }
 
-   double rand_pos_1 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
-   double rand_pos_2 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
-   double rand_pos_3 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
+   double r1 = (2.0 * coot::util::random() -1.0) * rmi;
+   double r2 = (2.0 * coot::util::random() -1.0) * rmi;
+   double r3 = (2.0 * coot::util::random() -1.0) * rmi;
+
+   double rand_pos_1 = r1 * 1.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
+   double rand_pos_2 = r2 * 1.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
+   double rand_pos_3 = r3 * 1.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
 
    clipper::Euler<clipper::Rotation::EulerXYZr> e(rand_ang_1, rand_ang_2, rand_ang_3);
    clipper::Mat33<double> r = e.rotation().matrix();

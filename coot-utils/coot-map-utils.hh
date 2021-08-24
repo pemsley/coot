@@ -545,7 +545,17 @@ namespace coot {
 
       std::vector<std::pair<clipper::Resolution, double> >
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
+
+      void
+      compare_structure_factors(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
+
       void flip_hand(clipper::Xmap<float> *xmap_p);
+
+      // input is map and its rmsd
+      clipper::Xmap<float>
+      analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps);
+
+      clipper::Xmap<float> zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps);
 
    }
 }

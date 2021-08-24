@@ -30,7 +30,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
 AM_CPPFLAGS = \
 	-I$(top_srcdir)   \
 	$(MMDB_CXXFLAGS)  \
-	$(CLIPPER_CXXFLAGS)
+	$(CLIPPER_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_high_res_la_SOURCES = high-res.cc coot-atom-graph.cc residue-distortions.cc \
 	sequence-assignment.cc

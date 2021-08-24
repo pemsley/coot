@@ -4155,7 +4155,9 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
             double prod = A_f_1 * A_f_2 + B_f_1 * B_f_2;
             ff_sum[bin_no] += prod;
             if (false)
-               std::cout << hri.hkl().format() << " " << f_1 << " " << fphis_1[hri].phi() << " " << f_2 << " " << fphis_2[hri].phi() << " prod " << prod << std::endl;
+               std::cout << hri.hkl().format() << " "
+                         << f_1 << " " << fphis_1[hri].phi() << " "
+                         << f_2 << " " << fphis_2[hri].phi() << " prod " << prod << std::endl;
             f1_sqrd_sum[bin_no] += f_1 * f_1;
             f2_sqrd_sum[bin_no] += f_2 * f_2;
             counts[bin_no]++;
@@ -4179,8 +4181,65 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
    }
 
    return v;
-
 }
+
+void
+coot::util::compare_structure_factors(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2) {
+
+   float mg = coot::util::max_gridding(xmap_1); // A/grid
+   clipper::Resolution reso(2.0 * mg); // Angstroms
+   std::cout << "# making data info 1" << std::endl;
+   clipper::HKL_info hkl_info_1(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
+   std::cout << "# making data info 2" << std::endl;
+   clipper::HKL_info hkl_info_2(xmap_2.spacegroup(), xmap_2.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info_1);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info_2);
+
+   auto fft_to_fphi = [] (const clipper::Xmap<float> &xmap,
+                          clipper::HKL_data< clipper::datatypes::F_phi<float> > &fphis) { // reference
+                         xmap.fft_to(fphis);
+                      };
+
+   std::cout << "# starting FFTs" << std::endl;
+   std::thread thread_1(fft_to_fphi, std::cref(xmap_1), std::ref(fphis_1));
+   std::thread thread_2(fft_to_fphi, std::cref(xmap_2), std::ref(fphis_2));
+   thread_1.join();
+   thread_2.join();
+
+   std::cout << "# FFTs done" << std::endl;
+
+   std::string file_name="compare-sfs.table";
+   std::ofstream f(file_name);
+   unsigned int count = 0;
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis_1.first(); !hri.last(); hri.next()) {
+      if (count%1000==0) {
+         float f_1   = fphis_1[hri].f();
+         float phi_1 = fphis_1[hri].phi();
+         try {
+            if (! clipper::Util::is_nan(f_1)) {
+               float f_2   = fphis_2[hri].f();
+               if (! clipper::Util::is_nan(f_2)) {
+                  float phi_2 = fphis_2[hri].phi();
+                  float irs = hri.invresolsq();
+                  float ir = sqrtf(irs);
+                  clipper::HKL hkl = hri.hkl();
+                  f << std::setw(9) << irs << " " << std::setw(9) << 1.0/ir << "   "
+                    << std::setw(4) << hkl.h() << " " << std::setw(4) << hkl.k() << " " << std::setw(4) << hkl.l() << " "
+                    << "Fs: " << f_1 << " " << f_2
+                    << " phases: " << std::setw(9) << phi_1 << " " << std::setw(9) << phi_2 << "\n";
+               }
+            }
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << rte.what() << std::endl;
+         }
+      }
+      count++;
+   }
+   f.close();
+}
+
 
 
 void
@@ -4202,3 +4261,284 @@ coot::util::flip_hand(clipper::Xmap<float> *xmap_p) {
 
 }
 
+
+
+#include "coot-least-squares.hh"
+#include <unordered_map>
+
+// return the map of the density gradients
+//
+clipper::Xmap<float>
+coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps) {
+
+   auto all_maps_have_the_same_grid = [xmaps] () {
+                                         return true;
+                                      };
+
+   class exponential_fit {
+      double linear_m;
+      double linear_c;
+   public:
+      explicit exponential_fit(const std::vector<std::pair<double, double> > &A_data) {
+         std::vector<std::pair<double, double> > data(A_data.size());
+         for (unsigned int i=0; i<A_data.size(); i++)
+            if (A_data[i].second > 0.0) {
+               double y = std::log(A_data[i].second);
+               // std::cout << "adding data for linear fit " << A_data[i].first << " " << y << std::endl;
+               data.push_back(std::make_pair(A_data[i].first, y));
+            }
+
+         least_squares_fit lsqf(data);
+         linear_m = lsqf.m();
+         linear_c = lsqf.c();
+      }
+      float at(const double &x) const {
+         double y_hat = linear_m * x + linear_c;
+         return exp(y_hat);
+      }
+   };
+
+   class coot_hkl {
+   public:
+      int h,k,l;
+      float invresolsq;
+      coot_hkl(const clipper::HKL &hkl, const clipper::Cell &cell) {
+         h = hkl.h();
+         k = hkl.k();
+         l = hkl.l();
+         invresolsq = hkl.invresolsq(cell);
+      }
+      bool operator<(const coot_hkl &chkl) const { // for a map to work we need this function
+         if (chkl.invresolsq < invresolsq) return true;  // check the sign
+         if (chkl.invresolsq > invresolsq) return false;
+         if (chkl.h > h) return true;
+         if (chkl.h < h) return false;
+         if (chkl.k > k) return true;
+         if (chkl.k < k) return false;
+         if (chkl.l > l) return true;
+         if (chkl.l < l) return false;
+         return false;
+      }
+      bool operator==(const coot_hkl &chkl) const {
+         if (chkl.h == h)
+            if (chkl.k == k)
+               if (chkl.l == l)
+                  return true;
+         return false;
+      }
+   };
+
+   std::cout << "DEBUG:: starting zero dose extrapolation" << std::endl;
+   clipper::Xmap<float> xmap_result(*xmaps[0].first);
+   std::vector<clipper::HKL_data< clipper::datatypes::F_phi<float> > > fphis_vec;
+
+   const clipper::Xmap<float> &xmap_0 = *xmaps[0].first;
+   clipper::Cell cell = xmap_0.cell();
+   float mg = coot::util::max_gridding(xmap_0);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl_0(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
+   clipper::HKL_info myhkl_result_map(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_for_result_map(myhkl_result_map);
+
+   std::map<std::string, std::vector<double> > f_data_accum;
+   std::map<coot_hkl, std::vector<std::pair<float, float> > > f_data_hkl_accum;
+   std::map<std::string, float> f_resolution;
+
+   // resize f_data_accum vectors so that I can fft and stuff the data into them in threads
+   unsigned int n_maps = xmaps.size();
+   clipper::HKL_info::HKL_reference_index hri;
+   unsigned int count = 0;
+   for (hri=fphis_for_result_map.first(); !hri.last(); hri.next()) {
+      coot_hkl chkl(hri.hkl(), cell);
+      f_data_hkl_accum[chkl].resize(n_maps);
+      // std::cout << "resize refl " << chkl.h << " " << chkl.k << " " << chkl.l << " vec size "
+      // << f_data_hkl_accum[chkl].size() << std::endl;
+      count += 1;
+   }
+   std::cout << "debug:: resized " << count << " accumulation-reflections" << std::endl;
+
+   auto accum_f_phi_data = [xmaps, &xmap_0, cell, reso] (const std::pair<unsigned int, unsigned int> main_index_range_pair,
+                                                std::map<coot_hkl, std::vector<std::pair<float, float> > > *f_data_hkl_accum_p // results go here
+                                                ) {
+
+                              for (unsigned int imap=main_index_range_pair.first; imap<main_index_range_pair.second; imap++) {
+                                 const clipper::Xmap<float> &xmap = *xmaps[imap].first;
+                                 clipper::HKL_info myhkl(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
+                                 clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+                                 xmap.fft_to(fphis);
+                                 std::cout << "Accumulating f-data into coot-hkl-based map from map " << imap << std::endl;
+                                 clipper::HKL_info::HKL_reference_index hri;
+                                 for (hri = fphis.first(); !hri.last(); hri.next()) {
+                                    coot_hkl chkl(hri.hkl(), cell);
+                                    (*f_data_hkl_accum_p)[chkl][imap] = std::make_pair(fphis[hri].f(), fphis[hri].phi());
+                                 }
+                              }
+                           };
+
+#if 0 // single threaded
+   // now we can do this block in parallel - lots of cache-sharing though :-/
+   for (unsigned int imap=0; imap<xmaps.size(); imap++) {
+      std::cout << "Try 2: FFT for map " << imap << std::endl;
+      const clipper::Xmap<float> &xmap = *xmaps[imap].first;
+      clipper::HKL_info myhkl(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+      xmap.fft_to(fphis);
+      std::cout << "Accumulating f-data into coot-hkl-based map from map " << imap << std::endl;
+      for (hri = fphis.first(); !hri.last(); hri.next()) {
+         coot_hkl chkl(hri.hkl(), cell);
+         f_data_hkl_accum[chkl][imap] = std::make_pair(fphis[hri].f(), fphis[hri].phi());
+         // std::cout << "refl " << chkl.h << " " << chkl.k << " " << chkl.l << " vec size "
+         // << f_data_hkl_accum[chkl].size() << std::endl;
+      }
+   }
+#endif
+
+#if 1 // multi-threaded
+   unsigned int n_threads = 8;
+   std::vector<std::thread> threads;
+   std::vector<std::pair<unsigned int, unsigned int> > ranges = atom_index_ranges(n_maps, n_threads);
+   for (unsigned int irange=0; irange<ranges.size(); irange++)
+      std::cout << "debug range " << irange << " :  " << ranges[irange].first << " " << ranges[irange].second << std::endl;
+
+   for (unsigned int irange=0; irange<ranges.size(); irange++)
+      threads.push_back(std::thread(accum_f_phi_data, ranges[irange], &f_data_hkl_accum));
+   for (unsigned int ithread=0; ithread<threads.size(); ithread++)
+      threads[ithread].join();
+#endif
+
+
+   std::cout << "Generating extrapolated structure factors" << std::endl;
+   count = 0; // reset
+   for (hri=fphis_for_result_map.first(); !hri.last(); hri.next()) {
+      coot_hkl refl(hri.hkl(), cell);
+      std::map<coot_hkl, std::vector<std::pair<float, float> > >::const_iterator it_hkl = f_data_hkl_accum.find(refl); // slow?
+      if (it_hkl == f_data_hkl_accum.end()) {
+         std::cout << "ERROR:: zde: this should not happen" << std::endl;
+      } else {
+         const std::vector<std::pair<float, float> > &f_phi_data = it_hkl->second;
+         std::vector<std::pair<double, double> >   f_data(n_maps);
+         std::vector<std::pair<double, double> > phi_data(n_maps);
+         for (unsigned int ii=0; ii<n_maps; ii++) {
+            f_data[ii]   = std::make_pair(ii+1, f_phi_data[ii].first);
+            phi_data[ii] = std::make_pair(ii+1, f_phi_data[ii].second);
+         }
+         exponential_fit exp_fit(f_data);
+         float f = exp_fit.at(0.0);
+         least_squares_fit lsq_f_fit(f_data);
+         f = lsq_f_fit.at(0);
+         if (refl.invresolsq > 0.96) f = 0.0;
+         f = f_data[0].second;
+         least_squares_fit lsq_phi_fit(phi_data);
+         float phi_base = lsq_phi_fit.at(0.0);
+         std::vector<std::pair<double, double> > zoned_data = phi_data;
+         for (unsigned int ii=0; ii<n_maps; ii++) {
+            if ((phi_data[ii].second - phi_base) >  M_PI) zoned_data[ii].second -= 2.0 * M_PI;
+            if ((phi_data[ii].second - phi_base) < -M_PI) zoned_data[ii].second += 2.0 * M_PI;
+         }
+         least_squares_fit lsq_phi_zoned_fit(zoned_data);
+         float phi = lsq_phi_zoned_fit.at(0.0);
+         // phi = phi_data[0].second;
+         fphis_for_result_map[hri].f()   = f;
+         fphis_for_result_map[hri].phi() = phi;
+         if (count%1000==0) {
+            std::cout << "phase-compare reso " << refl.invresolsq << " first-phi " << phi_data[0].second << " extrap: " << phi << "\n";
+         }
+      }
+      count++;
+      if (count%100000==0)
+         std::cout << "Extapolated " << count << " sfs" << std::endl;
+   }
+
+   std::cout << "INFO:: Generating final map..." << std::endl;
+   xmap_result.fft_from(fphis_for_result_map);
+   std::cout << "INFO:: ZDE done." << std::endl;
+   return xmap_result;
+
+}
+
+
+// return the map of the density gradients
+//
+clipper::Xmap<float>
+coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps) {
+
+   // the caller guarantees that the map files are in the correct order in the vector
+
+   auto all_maps_have_the_same_grid = [xmaps] () {
+                                         return true;
+                                      };
+
+   auto make_linear_fit_map = [&xmaps] () {
+
+                                 clipper::Xmap<float> linear_fit_map; // return this
+                                 clipper::Xmap_base::Map_reference_index ix;
+                                 clipper::Xmap<float> &first_map(*xmaps[0].first);
+
+                                 clipper::Xmap<std::vector<float> > store;
+
+                                 store.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
+                                 linear_fit_map.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
+                                 unsigned int n_maps = xmaps.size();
+                                 std::cout << "INFO:: resizing store..." << std::endl;
+                                 for (ix=first_map.first(); !ix.last(); ix.next())
+                                    store[ix].resize(n_maps);
+                                 std::cout << "INFO adding data to store..." << std::endl;
+                                 for (unsigned int imap=0; imap<n_maps; imap++)
+                                    for (ix=first_map.first(); !ix.last(); ix.next())
+                                       store[ix][imap] = (*xmaps[imap].first)[ix];
+
+                                 unsigned int count = 0; // for debugging
+                                 for (ix=store.first(); !ix.last(); ix.next()) {
+                                    const std::vector<float> &vec = store[ix];
+                                    std::vector<std::pair<double, double> > data;
+                                    for (unsigned int i=0; i<vec.size(); i++) {
+                                       float f = store[ix][i];
+                                       const float &rmsd = xmaps[i].second;
+                                       float r = f/rmsd;
+                                       data.push_back(std::make_pair(static_cast<double>(i), static_cast<double>(r)));
+                                    }
+                                    coot::least_squares_fit lsqf(data);
+                                    linear_fit_map[ix] = lsqf.m();
+
+                                    if (false) { // debugging - show me the data for some points within a radius
+                                                 // of the centre of the map
+                                       if (count%5000 == 0) {
+                                          clipper::Cell cell = first_map.cell();
+                                          float a = 0.5 * cell.a(); float b = 0.5 * cell.b(); float c = 0.5 * cell.c();
+                                          clipper::Coord_orth cell_centre(a,b,c);
+                                          clipper::Coord_grid cg = ix.coord();
+                                          clipper::Coord_frac cf = cg.coord_frac(first_map.grid_sampling());
+                                          clipper::Coord_orth co = cf.coord_orth(first_map.cell());
+                                          const double dist_min_sqrd = 37 * 37;
+                                          const double dist_max_sqrd = 90 * 90;
+                                          double dd = (co-cell_centre).lengthsq();
+                                          float f = first_map[ix];
+                                          if (f > 0.2) {
+                                             if (dd < dist_max_sqrd) {
+                                                if (dd > dist_min_sqrd) {
+                                                   std::string fn = "analyse-map-" + std::to_string(count) + ".table";
+                                                   std::ofstream fout(fn.c_str());
+                                                   for (unsigned int i=0; i<vec.size(); i++) {
+                                                      fout << count << " " << i << "  " << vec[i] << "\n";
+                                                   }
+                                                   fout.close();
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                    count++;
+                                 }
+                                 return linear_fit_map;
+                              };
+
+
+   clipper::Xmap<float> resulting_map; // initially empty
+
+   if (xmaps.size() < 2) return resulting_map;
+   if (! all_maps_have_the_same_grid()) return resulting_map;
+
+   resulting_map = make_linear_fit_map();
+   return resulting_map;
+
+}

@@ -4612,7 +4612,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
                                  std::string type   = scm_to_locale_string(type_scm);
                                  double dist        = scm_to_double(dist_scm);
                                  double esd         = scm_to_double(esd_scm);
-                                 coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd);
+                                 coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd, 0.0, 0.0, false);
                                  bond_restraints.push_back(rest);
                               }
                            }
@@ -4908,7 +4908,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
                         std::string type   = PyString_AsString(type_py);
                         float  dist = PyFloat_AsDouble(dist_py);
                         float  esd  = PyFloat_AsDouble(esd_py);
-                        coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd);
+                        coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd, 0.0, 0.0, false);
                         bond_restraints.push_back(rest);
                      }
                   }
