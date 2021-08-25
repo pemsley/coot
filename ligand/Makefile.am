@@ -37,7 +37,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
 	side-chain-densities.hh tube-finder.hh smith-waterman.hh side-chain.hh \
 	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh libres-tracer.hh \
-	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h
+	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h scored-node.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
