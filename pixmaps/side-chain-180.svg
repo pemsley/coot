@@ -14,7 +14,7 @@
    height="48"
    id="svg3803"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="side-chain-180.svg"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/side-chain-180.png"
    inkscape:export-xdpi="100"
@@ -78,15 +78,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.7747252"
-     inkscape:cx="-67.325677"
-     inkscape:cy="-9.9285379"
+     inkscape:zoom="5.5494504"
+     inkscape:cx="-19.784647"
+     inkscape:cy="36.829529"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1138"
-     inkscape:window-height="722"
+     inkscape:window-width="1376"
+     inkscape:window-height="1031"
      inkscape:window-x="229"
      inkscape:window-y="76"
      inkscape:window-maximized="0" />
@@ -128,14 +128,14 @@
        transform="matrix(3.7603255,0,0,4.3845671,-8.290414,-45.529891)" />
     <text
        xml:space="preserve"
-       style="font-size:18.16336632px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="4.0767069"
        y="-15.608515"
-       id="text3813"
-       sodipodi:linespacing="100%"><tspan
+       id="text3813"><tspan
          sodipodi:role="line"
          id="tspan3246"
          x="4.0767069"
-         y="-15.608515">Side</tspan></text>
+         y="-15.608515"
+         style="font-size:18.16400019px;line-height:1;-inkscape-font-specification:'Noto Sans, Normal';font-family:'Noto Sans';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal">Side</tspan></text>
   </g>
 </svg>

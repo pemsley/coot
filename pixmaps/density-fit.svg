@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="16px"
    height="16px"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.43"
-   sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="density-fit.svg"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/auto-fit-rotamer.png"
    inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100">
+   inkscape:export-ydpi="100"
+   version="1.1">
   <defs
      id="defs2162" />
   <sodipodi:namedview
@@ -28,16 +29,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="15.696216"
-     inkscape:cx="8"
+     inkscape:cx="-3.8499898"
      inkscape:cy="8.4865631"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="822"
-     inkscape:window-height="584"
-     inkscape:window-x="65"
-     inkscape:window-y="358" />
+     inkscape:window-width="1165"
+     inkscape:window-height="825"
+     inkscape:window-x="700"
+     inkscape:window-y="302"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata2165">
     <rdf:RDF>
@@ -81,14 +83,14 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="9.8183594"
        y="9.90625"
-       id="text5305"
-       sodipodi:linespacing="125%"><tspan
+       id="text5305"><tspan
          sodipodi:role="line"
          id="tspan5307"
          x="9.8183594"
-         y="9.90625">?</tspan></text>
+         y="9.90625"
+         style="font-size:12px;line-height:1.25;-inkscape-font-specification:'Noto Sans, Bold';font-family:'Noto Sans';font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal">?</tspan></text>
   </g>
 </svg>

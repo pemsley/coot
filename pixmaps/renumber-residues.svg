@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -12,10 +13,10 @@
    height="16px"
    id="svg3443"
    sodipodi:version="0.32"
-   inkscape:version="0.45.1"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="renumber-residues.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:docbase="/home/paule/Projects/coot/pixmaps">
+   version="1.1">
   <defs
      id="defs3445" />
   <sodipodi:namedview
@@ -26,16 +27,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.197802"
-     inkscape:cx="8"
+     inkscape:cx="-0.379208"
      inkscape:cy="6.5363952"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="822"
-     inkscape:window-height="656"
-     inkscape:window-x="217"
-     inkscape:window-y="37">
+     inkscape:window-width="1272"
+     inkscape:window-height="893"
+     inkscape:window-x="443"
+     inkscape:window-y="286"
+     inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
        id="grid3451" />
@@ -57,15 +59,15 @@
      inkscape:groupmode="layer">
     <text
        xml:space="preserve"
-       style="font-size:10.06115341px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
-       x="-0.45567647"
-       y="7.5834861"
-       id="text3453"
-       sodipodi:linespacing="125%"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-0.095280424"
+       y="7.7186346"
+       id="text3453"><tspan
          sodipodi:role="line"
          id="tspan2248"
-         x="-0.45567647"
-         y="7.5834861">6</tspan></text>
+         x="-0.095280424"
+         y="7.7186346"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.06120014px;line-height:1.25;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">6</tspan></text>
     <path
        style="fill:#4d4d4d;fill-opacity:0.68902438;fill-rule:evenodd;stroke:#000000;stroke-width:0.02207771;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 10.044262,13.372971 L 7.7209191,14.521062 C 7.7209191,14.521062 7.7510515,14.253805 7.7880132,13.741443 C 7.4767288,13.705873 5.6287562,13.755224 4.1399725,11.980895 C 3.4291235,11.133707 3.1153259,10.456299 2.9022968,9.2107013 C 3.3641462,8.8511805 3.2005331,8.9912417 3.8869866,8.4771974 C 4.039935,9.8315545 4.4314248,10.890163 5.3553421,11.752861 C 6.2891998,12.624842 7.5366185,12.808317 7.8810778,12.852569 C 7.9676953,12.350061 7.9639155,12.037154 7.9639155,12.037154 L 10.044262,13.372971 z"
@@ -73,14 +75,14 @@
        sodipodi:nodetypes="cccscczccc" />
     <text
        xml:space="preserve"
-       style="font-size:10.06115341px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="9.3269634"
        y="15.565167"
-       id="text2242"
-       sodipodi:linespacing="125%"><tspan
+       id="text2242"><tspan
          sodipodi:role="line"
          id="tspan2250"
          x="9.3269634"
-         y="15.565167">7</tspan></text>
+         y="15.565167"
+         style="font-size:10.06119982px;line-height:1.25;-inkscape-font-specification:'Noto Sans, Bold';font-family:'Noto Sans';font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal">7</tspan></text>
   </g>
 </svg>
