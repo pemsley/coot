@@ -2447,13 +2447,18 @@ public:        //                      public
    bool is_fasta_aa(const std::string &a) const;
    bool is_pir_aa  (const std::string &a) const;
 
+   // add the sequence the file (read depending on file name) to input_sequence vector (chain-id is blank
+   // as it could apply to any chain)
+   void associate_sequence_from_file(const std::string &seq_file_name);
+
    // sequence [a -other function]
-   void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
+   void assign_fasta_sequence(const std::string &chain_id, const std::string &seq); // add to input_sequence vector
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
    std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
+   // this does an alignment! How confusing
    void assign_sequence_from_file(const std::string &filename);
 
    // Apply to NCS-related chains too, if present

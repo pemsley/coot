@@ -3581,7 +3581,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
    bool debug = false;
    if (debug)
-      std::cout << "--- make_bonds_type_checked() called  with bonds_box_type "
+      std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "
                 << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
                 << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "

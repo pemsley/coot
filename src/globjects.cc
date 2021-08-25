@@ -3900,11 +3900,13 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 
 	    int im = nearest_atom_index_info.imol;
-	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
-	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
-	    info.setup_graphics_ligand_view(im, r, alt_conf);
-	    info.graphics_draw();
+            if (is_valid_model_molecule(im)) {
+               info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+               mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+               std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
+               info.setup_graphics_ligand_view(im, r, alt_conf);
+               info.graphics_draw();
+            }
 
 	 } else {
 

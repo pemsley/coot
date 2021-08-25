@@ -2062,7 +2062,7 @@
 (define (associate-pir-file imol chain-id pir-file-name)
   (let ((seq-text (pir-file-name->pir-sequence pir-file-name)))
     (if seq-text
-	(assign-pir-sequence imol chain-id seq-text)
+	(assign-pir-sequence imol chain-id seq-text) ;; it isn't assigning sequence!
 	(format #t "WARNING:: associate-pir-file: bad text for ~s~%" pir-file-name))))
 
 

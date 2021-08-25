@@ -6379,10 +6379,10 @@ void setup_base_pairing(int state);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                  sequence (assignment)                                   */
+/*                  sequence file (assignment)                              */
 /*  ----------------------------------------------------------------------- */
-/* section Sequence (Assignment) */
-/*! \name Sequence (Assignment) */
+/* section Sequence File (Assignment/Association) */
+/*! \name Sequence File (Assignment/Association) */
 /* \{ */
 
 /*! \brief Print the sequence to the console of the given molecule */
@@ -6404,7 +6404,7 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);
 /*! \brief Assign a sequence to a given molecule from (whatever) sequence
-  file. */
+  file by alignment. */
 void assign_sequence_from_file(int imol, const char *file);
 /*! \brief Assign a sequence to a given molecule from a simple string */
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq);
@@ -6412,6 +6412,9 @@ void assign_sequence_from_string(int imol, const char *chain_id_in, const char *
 void delete_all_sequences_from_molecule(int imol);
 /*! \brief Delete the sequence for a given chain_id from a given molecule */
 void delete_sequence_by_chain_id(int imol, const char *chain_id_in);
+
+/*! \brief Associate the sequence to the molecule - to be used later for sequence assignment (.c.f assign_pir_sequence)   */
+void associate_sequence_from_file(int imol, const char *file_name);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE

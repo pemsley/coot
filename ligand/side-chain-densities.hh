@@ -346,7 +346,8 @@ namespace coot {
       void test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
                          const clipper::Xmap<float> &xmap,
                          const std::string &sequence_name,    // from fasta file
-                         const std::string &sequence);
+                         const std::string &sequence,
+                         bool print_slider_results=false);
 
       void setup_likelihood_of_each_rotamer_at_every_residue(const std::vector<mmdb::Residue *> &a_run_of_residues,
                                                              const clipper::Xmap<float> &xmap);
