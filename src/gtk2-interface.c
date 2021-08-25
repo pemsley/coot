@@ -23524,7 +23524,7 @@ create_other_model_tools_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox163), other_tools_place_strand_here_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (other_tools_place_strand_here_button), 1);
 
-  other_tools_RNA_button = gtk_button_new_with_mnemonic ("Ideal DNA/RNA...");
+  other_tools_RNA_button = gtk_button_new_with_mnemonic ("DNA & RNA Models...");
   gtk_widget_show (other_tools_RNA_button);
   gtk_box_pack_start (GTK_BOX (vbox163), other_tools_RNA_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (other_tools_RNA_button), 1);
