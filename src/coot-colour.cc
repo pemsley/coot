@@ -23,6 +23,8 @@
 #include <iostream>
 #include <math.h>
 
+#include "compat/coot-sysdep.h"
+
 #include "coot-colour.hh"
 
 namespace coot { 

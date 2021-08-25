@@ -486,7 +486,11 @@ int graphics_info_t::undo_molecule = -1;
 
 // backup filenames
 bool graphics_info_t::unpathed_backup_file_names_flag = 0;
+#ifndef WINDOWS_MINGW
 bool graphics_info_t::decoloned_backup_file_names_flag = 0;
+#else
+bool graphics_info_t::decoloned_backup_file_names_flag = 1;
+#endif
 
 // backup compress files (default: compress)
 int graphics_info_t::backup_compress_files_flag = 1;

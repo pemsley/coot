@@ -1,5 +1,6 @@
 
 #include <sys/stat.h>
+#include <iostream>
 
 #include "win-compat.hh"
 
@@ -64,3 +65,59 @@ coot::uri_to_file_name(const std::string &uri) {
    return r;
 
 }
+
+#ifdef WINDOWS_MINGW
+int
+coot::rename_win(const char *old_filename, const char *new_filename) {
+    // BL says:: on windows (non POSIX) rename wont overwrite, so
+    // need to remove first.
+    // Could just use coot::rename for all... maybe needs some rewrite then
+    // and Windows check here.
+    // return 0 on success
+
+    int ret = -1;
+    if (access(new_filename, F_OK) != 0) {
+        // normal rename if new_file does not exist.
+        ret = rename(old_filename, new_filename);
+    } else {
+        // file exists, make backup then remove file to be replaced
+        std::string backup_fn = new_filename;
+        backup_fn += ".bak";
+        if (access(backup_fn.c_str(), F_OK) == 0) {
+            // backup file exsists - shouldnt, remove first
+            int status_rm = remove(backup_fn.c_str());
+            // assume ok - for now FIXME
+        }
+        int status_back = rename(new_filename,
+                                backup_fn.c_str());
+        if (status_back != 0) {
+           std::cout << "WARNING:: rename failed. Cannot make backup of "
+                     << new_filename << std::endl;
+           ret = status_back;
+        } else {
+            // now can do a rename (with old file out of the way
+            int status = rename(old_filename, new_filename);
+            if (status != 0) {
+                std::cout << "WARNING:: rename status " << status
+                          << " failed to rename to " << new_filename << std::endl;
+                std::cout << "restore from backup" << std::endl;
+                // restore
+                int status_rest = rename(backup_fn.c_str(),
+                                         new_filename);
+                if (status_rest != 0) {
+                    std::cout << "WARNING:: oh dear, failed to restore from backup..." << std::endl;
+                }
+            } else {
+                std::cout << "debug:: renaming successful" << std::endl;
+                // simple remove backup file (assume works since just created)
+                int status_backrm = remove(backup_fn.c_str());
+                std::cout << "INFO:: remove backup file status " << status_backrm << std::endl;
+            }
+            ret = status;
+        }
+    }
+
+    return ret;
+
+}
+#endif // WINDOWS_MINGW

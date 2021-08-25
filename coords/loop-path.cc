@@ -1,5 +1,6 @@
 
 #include "loop-path.hh"
+#include "compat/coot-sysdep.h"
 #include "coot-utils/coot-coord-utils.hh"
 
 std::pair<bool, std::vector<coot::CartesianPair> >

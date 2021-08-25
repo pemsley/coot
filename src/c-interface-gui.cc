@@ -83,6 +83,7 @@
 #include "clipper/core/clipper_instance.h"
 
 #include "c-interface-gui.hh"
+#include "utils/win-compat.hh"
 
 // I think this test is wrong. New gtk doesn't have get active text.
 // Use a gtkcomboboxtext for that.

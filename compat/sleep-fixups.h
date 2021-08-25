@@ -19,6 +19,9 @@
  * 02110-1301, USA
  */
 
+#if defined WIN64
+#include <unistd.h>
+#else
 #if defined (WINDOWS_MINGW) || defined (_MSC_VER)
 #ifndef usleep
 #include <windows.h>
@@ -26,4 +29,5 @@
 #define usleep(t) Sleep(t/1000)
 #endif /* usleep */
 #endif /* windows */
+#endif /* win64 */
 
