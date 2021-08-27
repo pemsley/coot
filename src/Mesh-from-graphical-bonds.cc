@@ -63,7 +63,9 @@ Mesh::setup_instancing_buffer_data(Shader *shader_p,
    // 6 instance rot-trans-3
    // 6 instance rot-trans-4
 
-   setup_matrix_and_colour_instancing_buffers(instanced_matrices, instanced_colours);
+   std::cout << "::::::::::::: debug:: setup_instancing_buffer_data() calls setup_matrix_and_colour_instancing_buffers_standard"
+             << std::endl;
+   setup_matrix_and_colour_instancing_buffers_standard(instanced_matrices, instanced_colours);
 
 }
 
@@ -87,7 +89,6 @@ Mesh::make_graphical_bonds_spherical_atoms(Shader *shader_p,
                       << err << std::endl;
 
    // do these need to be passed to get_glm_colour_for_bonds()?
-   bool is_intermediate_atoms_molecule = false;  // pass this
    int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into thg gbc)
 
    bool atoms_have_bigger_radius_than_bonds = false;
@@ -347,7 +348,7 @@ Mesh::make_graphical_bonds_bonds(Shader *shader_p,
                                  unsigned int n_stacks,
                                  glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
 
-   bool is_intermediate_atoms_molecule = false;  // pass this
+   bool is_intermediate_atoms_molecule = false;  // pass this (but why do I need it?)
 
    // unsigned int n_slices = 8;
    // unsigned int n_stacks = 2; // try 1 later.

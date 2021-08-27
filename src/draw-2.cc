@@ -81,7 +81,7 @@ glarea_tick_func(GtkWidget *widget,
       std::vector<glm::mat4> mats(graphics_info_t::boids.size());
       for (unsigned int ii=0; ii<graphics_info_t::boids.size(); ii++)
          mats[ii] = graphics_info_t::boids[ii].make_mat();
-      graphics_info_t::mesh_for_boids.update_instancing_buffer_data(mats);
+      graphics_info_t::mesh_for_boids.update_instancing_buffer_data_standard(mats);
    }
 
    if (graphics_info_t::do_tick_hydrogen_bonds_mesh) {
@@ -98,8 +98,8 @@ glarea_tick_func(GtkWidget *widget,
             const std::pair<glm::vec3, glm::vec3> &p = graphics_info_t::hydrogen_bonds_atom_position_pairs[i];
             mats.push_back(Mesh::make_hydrogen_bond_cylinder_orientation(p.first, p.second, theta));
          }
-         // std::cout << "mesh_for_hydrogen_bonds.update_instancing_buffer_data(mats) " << mats.size() << std::endl;
-         graphics_info_t::mesh_for_hydrogen_bonds.update_instancing_buffer_data(mats);
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // Needed? Yes! Vital
+         graphics_info_t::mesh_for_hydrogen_bonds.update_instancing_buffer_data_standard(mats);
       }
    }
 

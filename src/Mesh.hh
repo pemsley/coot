@@ -32,7 +32,7 @@ class Mesh {
    void setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
    // this is when we learning/testing/playing - I don't want to delete it (yet) just in case I want
    // to go back and test out previous example code.
-   void setup_matrix_and_colour_instancing_buffers_old(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
+   void setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
    int n_instances; // instances to be drawn
    int n_instances_allocated; // that we made space for in glBufferData()
    bool normals_are_setup;
@@ -201,8 +201,8 @@ public:
    // transfer to the graphics_card with glBufferSubData
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                       const std::vector<glm::vec4> &colours);
-   // when the positions change:
-   void update_instancing_buffer_data(const std::vector<glm::mat4> &mats);
+   // when the positions change: 20210826-PE Hmm. Thisis not clear
+   void update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats);
 
    // void setup_instancing_buffers(const particle_container_t &particles);
    void setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data

@@ -3103,6 +3103,9 @@ graphics_info_t::draw_boids() {
 void
 graphics_info_t::draw_hydrogen_bonds_mesh() {
 
+   // 20210827-PE  each molecule should have its own hydrogen bond mesh. Not just one of them.
+   // Fix that later.
+
    if (mesh_for_hydrogen_bonds.draw_this_mesh) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::vec3 eye_position = get_world_space_eye_position();

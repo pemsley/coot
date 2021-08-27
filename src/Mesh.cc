@@ -47,7 +47,7 @@ Mesh::init() {
    n_instances = 0;
    n_instances_allocated = 0;
    particle_draw_count = 0;
-   vao = VAO_NOT_SET; // use UNSET_VAO
+   vao = VAO_NOT_SET;
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
@@ -522,9 +522,9 @@ Mesh::setup_buffers() {
    if (vertices.empty()) return;
 
    if (first_time) {
-      glGenVertexArrays (1, &vao);
-      // std::cout << "############## first time: generated VAO " << vao << std::endl;
-      // don't return before we set first_time = false at the end
+      glGenVertexArrays(1, &vao);
+      std::cout << "DEBUG:: setup_buffers() ######### first time: generated VAO " << vao << std::endl;
+      //   don't return before we set first_time = false at the end
    }
 
    // std::cout << "Mesh::setup_buffers() using vao " << vao << std::endl;
@@ -652,7 +652,9 @@ Mesh::import_and_setup_instanced_cylinders(Shader *shader_p,
 
    n_instances = mats.size();
    n_instances_allocated = n_instances;
-   setup_matrix_and_colour_instancing_buffers(mats, colours);
+   std::cout << "::::::::::::: debug:: import_and_setup_instanced_cylinders() calls setup_matrix_and_colour_instancing_buffers_standard"
+             << std::endl;
+   setup_matrix_and_colour_instancing_buffers_standard(mats, colours);
    err = glGetError(); if (err) std::cout << "error import_and_setup_instanced_cylinders() -- end -- "
                                           << err << std::endl;
 
@@ -676,7 +678,9 @@ Mesh::setup_rtsc_instancing(Shader *shader_p,
    n_instances = n_instances_in;
    n_instances_allocated = n_instances;
 
-   setup_matrix_and_colour_instancing_buffers(mats, colours);
+   std::cout << "::::::::::::: debug:: setup_rtsc_instancing() calls setup_matrix_and_colour_instancing_buffers_standard()"
+             << std::endl;
+   setup_matrix_and_colour_instancing_buffers_standard(mats, colours);
    GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_cylinders() -- end -- "
                                                  << err << std::endl;
 
@@ -687,9 +691,9 @@ Mesh::setup_rtsc_instancing(Shader *shader_p,
 
 void
 Mesh::setup_instanced_octahemispheres(Shader *shader_p,
-                                                    const Material &material_in,
-                                                    const std::vector<glm::mat4> &mats,
-                                                    const std::vector<glm::vec4> &colours) {
+                                      const Material &material_in,
+                                      const std::vector<glm::mat4> &mats,
+                                      const std::vector<glm::vec4> &colours) {
 
    GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_octahemispheres() "
                                                  << " -- start -- " << err << std::endl;
@@ -704,7 +708,10 @@ Mesh::setup_instanced_octahemispheres(Shader *shader_p,
    n_instances = mats.size();
    n_instances_allocated = n_instances;
 
-   setup_matrix_and_colour_instancing_buffers(mats, colours); // maybe pass a flag MATS_AND_COLOURS
+   std::cout << "::::::::::::: debug:: setup_instanced_octahemispheres() calls setup_matrix_and_colour_instancing_buffers_standard()"
+             << std::endl;
+
+   setup_matrix_and_colour_instancing_buffers_standard(mats, colours); // maybe pass a flag MATS_AND_COLOURS
                                             // because we might have
                                             // other instanced geometry that doesn't change colour.
                                             // How about HOLE balls?
@@ -800,6 +807,12 @@ void
 Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats,
                                                  const std::vector<glm::vec4> &colours) {
 
+   // Do you want this function or setup_matrix_and_colour_instancing_buffers_old()?
+   // (maybe _old is the wrong suffix, should be _standard)
+
+   std::cout << "----- setup_matrix_and_colour_instancing_buffers(): mats size " << mats.size()
+             << " colours size " << colours.size() << std::endl;
+
    GLenum err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() -- start -- "
                       << err << std::endl;
@@ -807,10 +820,14 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    n_instances = mats.size();
    n_instances_allocated = n_instances;
 
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: inn setup_matrix_and_colour_instancing_buffers() You didn't correctly setup this Mesh "
+                << name << " " << std::endl;
+
    glBindVertexArray(vao);
    err = glGetError();
-   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B binding-vao "
-                      << err << " with vao " << vao << std::endl;
+   if (err) std::cout << "ERROR:: setup_matrix_and_colour_instancing_buffers() B binding-vao, with vao "
+                      << vao << " err: " << err << std::endl;
 
 
    // ------------- colours ----------------------------
@@ -867,8 +884,8 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
 
 
 void
-Mesh::setup_matrix_and_colour_instancing_buffers_old(const std::vector<glm::mat4> &mats,
-                                                     const std::vector<glm::vec4> &colours) {
+Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm::mat4> &mats,
+                                                          const std::vector<glm::vec4> &colours) {
 
    // this function doesn't make sense in it's current form.
    // Instead, I need to *make space* for n_mats and n_colours.
@@ -877,11 +894,12 @@ Mesh::setup_matrix_and_colour_instancing_buffers_old(const std::vector<glm::mat4
    // the tick function. So this function should be changed to pass the size of
    // matrix and colour vectors, not the actual values.
 
-   std::cout << "----- setup_instancing_buffers(): mats size " << mats.size()
-             << " colours size " << colours.size() << std::endl;
+   std::cout << "----- setup_matrix_and_colour_instancing_buffers_standard(): mats size " << mats.size()
+             << " colours size " << colours.size() << " and is_instanced_colours " << is_instanced_colours
+             << std::endl;
 
    GLenum err = glGetError();
-   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() -- start -- "
+   if (err) std::cout << "Error setup_matrix_and_colour_instancing_buffers_standard() -- start -- "
                       << err << std::endl;
 
    n_instances = mats.size();
@@ -891,13 +909,17 @@ Mesh::setup_matrix_and_colour_instancing_buffers_old(const std::vector<glm::mat4
    std::vector<glm::vec4> inst_col_matrices = colours;
 
    err = glGetError();
-   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() A "
+   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() A "
                       << err << std::endl;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: in setup_matrix_and_colour_instancing_buffers_standard() You didn't correctly setup this Mesh "
+                << name << " " << std::endl;
 
    glBindVertexArray(vao);
 
    err = glGetError();
-   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B binding-vao "
+   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B binding-vao "
                       << err << " with vao " << vao << std::endl;
 
    // rama balls we want to have instanced colours but hydrogen bond rotating cylinders we do not.
@@ -908,30 +930,33 @@ Mesh::setup_matrix_and_colour_instancing_buffers_old(const std::vector<glm::mat4
       glGenBuffers(1, &inst_colour_buffer_id);
       glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
       err = glGetError();
-      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B0 "
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B0 "
                          << err << std::endl;
-      std::cout << "setup_matrix_and_colour_instancing_buffers() allocating colour buffer data "
+      std::cout << "setup_matrix_and_colour_instancing_buffers_old() allocating colour buffer data "
                 << n_instances * sizeof(glm::vec4) << std::endl;
       glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
       glEnableVertexAttribArray(2);
       err = glGetError();
-      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B1 "
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B1 "
                          << err << std::endl;
       glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
       err = glGetError();
-      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B2 "
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B2 "
                          << err << std::endl;
       glVertexAttribDivisor(2, 1);
       err = glGetError();
-      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B3 "
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B3 "
                          << err << std::endl;
    }
 
    // -------- rotation/translation/scale matrices -----------
 
+   // 20210827-PE Here I should clean out the old buffer data before overriding it.
+   // glDeleteBuffers() if this is not the first time that this function has been called.
+
    glGenBuffers(1, &inst_rts_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-   std::cout << "setup_matrix_and_colour_instancing_buffers() allocating matrix buffer data "
+   std::cout << "setup_matrix_and_colour_instancing_buffers_standard() allocating matrix buffer data "
              << n_instances * 4 * sizeof(glm::mat4) << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_instances * 4 * sizeof (glm::vec4), &(inst_rts_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
 
@@ -1164,6 +1189,14 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 }
 
 
+// This function is used (only) by molecules_as_meshes (currently disabled - 20210824). It has a different
+// layout to the draw() (which can/does draw other instances - e.g. hydrogen bond cylinders).
+// i.e. instanced models are not the same as instanced objects - don't mix them up.
+// (I am not sure why this function is neeeded now - perhaps I didn't want to mess up the working
+/// draw() function as I was developing it.)
+//
+// molecules_as_meshes seems faster than current molecules, but I can't get the (specular) lighting right.
+//
 void
 Mesh::draw_instanced(Shader *shader_p,
                      const glm::mat4 &mvp,
@@ -1350,7 +1383,9 @@ Mesh::draw(Shader *shader_p,
            const glm::vec4 &background_colour,
            bool do_depth_fog) {
 
-   std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << " " << draw_this_mesh << " " << triangles.size() << std::endl;
+   if (false)
+      std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << " " << draw_this_mesh << " " <<
+         triangles.size() << std::endl;
 
    if (! draw_this_mesh) return;
 
@@ -1416,7 +1451,6 @@ Mesh::draw(Shader *shader_p,
                 << material.shininess << std::endl;
       std::cout << name << " " << shader_p->name << " sent material.specular_strength "
                 << material.specular_strength << std::endl;
-
    }
 
    err = glGetError();
@@ -1459,12 +1493,10 @@ Mesh::draw(Shader *shader_p,
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
-
-   // if (is_instanced_colours) {
-   // glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   // err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst col "
-   // << err << std::endl;
-   // }
+   if (is_instanced_colours) {
+      glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst col " << err << std::endl;
+   }
 
    if (is_instanced)
       glEnableVertexAttribArray(3);
@@ -1474,12 +1506,12 @@ Mesh::draw(Shader *shader_p,
                       << "shader " << shader_p->name << " error " << err << std::endl;
 
 #if 1 //using a VAO means we don't need to do this (so delete it)
-      // 20210823-PE Hmmm... maybe I do need it.
+      // 20210823-PE Hmmm... maybe I do need to enable the vertexattrib arrrays at least
    if (is_instanced_with_rts_matrix) {
       glEnableVertexAttribArray(4);
       glEnableVertexAttribArray(5);
       glEnableVertexAttribArray(6);
-      glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
+      glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // This not needed I think.
       err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst rts "
                                              << err << std::endl;
    } else {
@@ -1505,7 +1537,7 @@ Mesh::draw(Shader *shader_p,
       // If you are here, did you remember to use gtk_gl_area_attach_buffers(GTK_GL_AREA(di.gl_area));
       // before making a new VAO?
 
-      if (true)
+      if (false)
          std::cout << "debug:: Mesh::draw() instanced: " << name << " " << shader_p->name
                    << " drawing " << n_verts
                    << " triangle vertices"  << " in " << n_instances << " instances" << std::endl;
@@ -1636,8 +1668,9 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    unsigned int n_mats =    mats.size();
    unsigned int n_cols = colours.size();
 
-   // No binding of the VAO?  !!!????
-   // glBindVertexArray(vao); // needed?
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forgot to setup this Mesh " << name << std::endl;
+   glBindVertexArray(vao); // needed?
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
@@ -1649,6 +1682,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    }
 }
 
+#if 0
 void
 Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
 
@@ -1657,12 +1691,63 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
    //                   GLsizeiptr    size,
    //                   const GLvoid *data);
 
-   // No binding of the VAO?  !!!????
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forgot to setup this Mesh " << name << std::endl;
+   glBindVertexArray(vao); // needed?
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL error Mesh::update_instancing_buffer_data() --start-- " << "binding vao " << vao
+                << " error " << err << std::endl;
 
    int n_mats =    mats.size();
    if (n_mats > n_instances_allocated) {
       std::vector<glm::vec4> dummy;
-      setup_matrix_and_colour_instancing_buffers(mats, dummy);
+      std::cout << "::::::::::::: debug:: update_instancing_buffer_data(mats) calls setup_matrix_and_colour_instancing_buffers()"
+                << std::endl;
+      setup_matrix_and_colour_instancing_buffers_standard(mats, dummy);
+      std::cout << "::::::::::::: debug:: update_instancing_buffer_data(mats) returned from setup_matrix_and_colour_instancing_buffers()"
+                << std::endl;
+   }
+
+   if (n_mats > 0) {
+      glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
+   }
+}
+#endif
+
+void
+Mesh::update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats) {
+
+   // glBufferSubData(	GLenum        target,
+   //                   GLintptr      offset,
+   //                   GLsizeiptr    size,
+   //                   const GLvoid *data);
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL Error Mesh::update_instancing_buffer_data_standard() --start-- error: " << err << std::endl;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forgot to setup this Mesh " << name << std::endl;
+
+   glBindVertexArray(vao); // needed?
+   err = glGetError();
+   if (err)
+      std::cout << "GL error Mesh::update_instancing_buffer_data_standard() A1 "
+                << "binding vao " << vao << " error " << err << std::endl;
+   if (err == GL_INVALID_OPERATION)
+      std::cout << "Because vao was not the name of a vertex array object previously returned from a call to glGenVertexArrays (or zero)"
+                << std::endl;
+
+   int n_mats = mats.size();
+   if (n_mats > n_instances_allocated) {
+      std::vector<glm::vec4> dummy;
+      std::cout << "::::::::::::: debug:: update_instancing_buffer_data_standard(mats) calls setup_matrix_and_colour_instancing_buffers_standard()"
+                << std::endl;
+      setup_matrix_and_colour_instancing_buffers_standard(mats, dummy);
+      std::cout << "::::::::::::: debug:: update_instancing_buffer_data(mats) returned from setup_matrix_and_colour_instancing_buffers()"
+                << std::endl;
+      // if (n_mats > 1000) n_mats = 1000;
    }
 
    if (n_mats > 0) {
@@ -2013,8 +2098,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    float height = glm::distance(start_pos, end_pos);
    float radius = 0.05;
    cylinder_with_rotation_translation c(pp, radius, radius, height, n_slices, n_stacks);
-   if (true)
-      c.add_spiral(); // take 2 colours
+   c.add_spiral(); // take 2 colours
 
    // now convert the vertices
    std::vector<s_generic_vertex> new_vertices(c.vertices.size());
@@ -2031,12 +2115,14 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++)
       triangles[ii].rebase(idx_base);
 
+   std::cout << ":::::::::::::::: setup_hydrogen_bond_cyclinders() calls setup_buffers()" << std::endl;
    setup_buffers();
+   std::cout << ":::::::::::::::: setup_hydrogen_bond_cyclinders() returns from setup_buffers()" << std::endl;
 
    std::vector<glm::mat4> mats(1000, glm::mat4(1.0f));
    std::vector<glm::vec4> colours; //dummy
    n_instances = mats.size();
-   setup_matrix_and_colour_instancing_buffers(mats, colours);
+   setup_matrix_and_colour_instancing_buffers_standard(mats, colours);
 }
 
 
@@ -2109,6 +2195,10 @@ Mesh::test_cyclinders(Shader *shader_p, const Material &material_in) {
    mats.push_back(make_hydrogen_bond_cylinder_orientation(p3, p4, theta));
 
    n_instances = mats.size();
+
+   std::cout << "::::::::::::: debug:: test_cyclinders() calls setup_matrix_and_colour_instancing_buffers"
+             << std::endl;
+
    setup_matrix_and_colour_instancing_buffers(mats, colours);
 
 
