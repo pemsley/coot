@@ -1653,9 +1653,18 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
         print("########### go_button_pressed: button", button)
         print("########### go_button_pressed: combobox", combobox)
         print("########### go_button_pressed: go_function", go_function)
-        active_number = combobox.get_active()
-        print("########### go_button_pressed active_number", active_number)
-        go_function(active_number)
+        active_item_index = combobox.get_active()
+        print("########### go_button_pressed: active_item_index", active_item_index)
+
+        imol = -1
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+            pass
+        print("########### go_button_pressed: imol", imol)
+        go_function(imol)
         # print("Failed to get execute function")
         delete_event()
 
@@ -1988,7 +1997,7 @@ def dialog_box_of_buttons(window_name, geometry, buttons,
 # return a list of [h_box_buttons, window]
 #
 # a button is a list of [label, callback, (optional: text_description)]
-# where callback is a string or list of strings to be evaluated
+# where callback is a function that takes one argument (I think).
 #
 # If check_button_label is False, don't make one, otherwise create with
 # the given label and "on" state
@@ -2000,8 +2009,6 @@ def dialog_box_of_buttons(window_name, geometry, buttons,
 #  - if label is "HSep" a horizontal separator is inserted instead of a button
 #  - the description is optional
 #
-
-
 def dialog_box_of_buttons_with_check_button(window_name, geometry,
                                             buttons, close_button_label,
                                             check_button_label,
@@ -2073,6 +2080,7 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
                                background="#c0e6c0")
         text_buffer.insert_with_tags_by_name(start, description, "tag")
 
+    # main line
     button_label = button_info[0]
     if ((button_label == "HSep") and (len(button_info) == 1)):
         # insert a HSeparator rather than a button
@@ -2085,28 +2093,8 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
             description = button_info[2]
         button = Gtk.Button(button_label)
 
-        # BL says:: in python we should pass the callback as a string
-        if type(callback) is StringType:
-            def callback_func(button, call):
-                eval(call)
-            button.connect("clicked", callback_func, callback)
-        elif (type(callback) is ListType):
-            # list can be list of strings or list of functions
-            # with args
-            #
-            if (isinstance(callback[0], str)):
-                # we have strings to evaluate
-                def callback_func(button, call):
-                    for item in call:
-                        eval(item)
-                button.connect("clicked", callback_func, callback)
-            else:
-                def callback_func(button, call):
-                    for item in call:
-                        item[0](*item[1:])
-                button.connect("clicked", callback_func, callback)
-        else:
-            button.connect("clicked", callback)
+        # 20210827-PE functions must be real functions, not strings - bleugh
+        button.connect("clicked", callback)
 
         if (description):
             text_view = Gtk.TextView()
@@ -5005,76 +4993,73 @@ global db_loop_preserve_residue_names
 db_loop_preserve_residue_names = False
 
 
+# Note to self - using a python function to call a swigged function that calls a python function
+# is completely painful (exceptions get lost (although not so much now that I've tried to fix that)).
+# Never do this again - it was miserable trying to fix this.
+#
 def click_protein_db_loop_gui():
 
     print("DEBUG:: coot_utils:: click_protein_db_loop_gui() --- start ---")
 
     global db_loop_preserve_residue_names
 
-    def pick_loop_func(n):
+    def pick_loop_func(n_clicks):
 
         print("DEBUG:: coot_utils:: click_protein_db_loop_gui() pick_loop_func() --- start ---")
 
-        def pick_func(*atom_specs):
-            residue_specs = list(
-                map(coot_utils.atom_spec_to_residue_spec, atom_specs))
+        def atom_pick_func(*atom_specs):
+            # residue_specs = list(map(coot_utils.atom_spec_to_residue_spec, atom_specs))
+            for spec in atom_specs:
+                print("debug: atom spec:", spec)
+            residue_specs = [coot_utils.atom_spec_to_residue_spec(spec) for spec in atom_specs]
             imol = atom_specs[0][1]
             min_max_and_chain_id = min_max_residues_from_atom_specs(atom_specs)
-
             if not isinstance(min_max_and_chain_id, list):
                 coot.info_dialog("Picked atoms not in same molecule and chain")
             else:
-                loop_mols = coot.protein_db_loops(imol, residue_specs,
-                                             coot.imol_refinement_map(),
-                                             10, db_loop_preserve_residue_names)
+                loop_mols = coot.protein_db_loops_py(imol, residue_specs, coot.imol_refinement_map(),
+                                                     10, db_loop_preserve_residue_names)
                 imol_loop_orig = loop_mols[0][0]
                 imol_loops_consolidated = loop_mols[0][1]
                 loop_mols = loop_mols[1]
                 min_resno = min_max_and_chain_id[0]
                 max_resno = min_max_and_chain_id[1]
-                chain_id = min_max_and_chain_id[2]
+                ch_id = min_max_and_chain_id[2]
+
+                def my_copy_function(imol, ch_id, loop_mol, min_resno, max_resno):
+                    coot.copy_residue_range(imol, ch_id, loop_mol, ch_id, min_resno, max_resno)
+
                 coot.set_mol_active(imol_loops_consolidated, 1)
-
-                print("DEBUG:: coot_utils:: click_protein_db_loop_gui() imol_loop_orig", imol_loop_orig)
-
-                if coot_utils.valid_model_molecule_qm(imol_loop_orig):
-                    pass
-                else:
-                    print("WARNING:: coot_utils:: click_protein_db_loop_gui() imol_loop_orig", imol_loop_orig, " is not a valid model")
-
                 if coot_utils.valid_model_molecule_qm(imol_loop_orig):
                     if len(loop_mols) > 0:
-                        buttons = [[str(loop_mol) + " " + coot.molecule_name(loop_mol),
-                                    lambda func: coot.copy_residue_range(imol, chain_id,
-                                                                    loop_mol, chain_id,
-                                                                    min_resno, max_resno)] for loop_mol in loop_mols]
+                        # ninja python skills (thank you stackoverflow)
+                        buttons = [["Insert " + str(j_mol) + " " + coot.molecule_name(j_mol), lambda button, j_mol=j_mol: my_copy_function(imol, ch_id, j_mol, min_resno, max_resno)]
+                                   for j_mol in loop_mols]
+
+                        loop_mols.append(imol_loops_consolidated)
 
                         def toggle_func(imol):
                             coot_utils.toggle_active_mol(imol)
                             coot_utils.toggle_display_mol(imol)
 
-                        loop_mols.append(imol_loops_consolidated)
+                        all_buttons = [["Original loop", lambda func: coot.copy_residue_range(imol, chain_id,
+                                                                                              imol_loop_orig, chain_id,
+                                                                                              min_resno, max_resno)],
+                                       ["Toggle Display All Candidate Loops", lambda func: toggle_func(imol_loops_consolidated)]
+                                      ] + buttons
 
-                        dialog_box_of_buttons("Loop Candidates",
-                                              [360, 200],
-                                              [["Original loop", lambda func:
-                                                coot.copy_residue_range(imol, chain_id,
-                                                                   imol_loop_orig, chain_id,
-                                                                   min_resno, max_resno)
-                                                ],
-                                               ["Toggle All Candidate Loops", lambda func:
-                                                toggle_func(imol_loops_consolidated)]
-                                               ] + buttons,
-                                              " Close ",
-                                              lambda: [(coot.set_mol_displayed(im, 0), coot.set_mol_active(im, 0)) for im in loop_mols])
+                        dialog_box_of_buttons("Loop Candidates", [360, 200], all_buttons, " Close ",
+                                               lambda: [(coot.set_mol_displayed(im, 0), coot.set_mol_active(im, 0)) for im in loop_mols])
 
-        coot.user_defined_click_py(n, pick_func)
+
+        coot.user_defined_click_py(n_clicks, atom_pick_func)
 
     print("DEBUG:: coot_utils:: click_protein_db_loop_gui() --- calling generic_number_chooser() ---")
+    # this is wrong! The 4th element has a label "6" (all are offset by 2)
     generic_number_chooser(list(range(2, 10)), 4,
                            "Number of residues for basis",
                            "Pick Atoms...",
-                           lambda n: pick_loop_func(n))
+                           lambda n_clicks: pick_loop_func(n_clicks))
 
 
 def refmac_multi_sharpen_gui():

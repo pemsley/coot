@@ -5966,10 +5966,9 @@ void graphics_info_t::run_user_defined_click_func() {
    if (scm_is_true(scm_procedure_p(user_defined_click_scm_func))) {
       SCM arg_list = SCM_EOL;
       for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
-    SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
-    SCM spec_with_model_num = scm_cons(scm_from_int(user_defined_atom_pick_specs[i].model_number),
-       spec_scm);
-    arg_list = scm_cons(spec_with_model_num, arg_list);
+         SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
+         SCM spec_with_model_num = scm_cons(scm_from_int(user_defined_atom_pick_specs[i].model_number), spec_scm);
+         arg_list = scm_cons(spec_with_model_num, arg_list);
       }
       arg_list = scm_reverse(arg_list);
 
@@ -5978,7 +5977,7 @@ void graphics_info_t::run_user_defined_click_func() {
       SCM mess = scm_from_locale_string("~s");
       SCM ds = scm_simple_format(dest, mess, scm_list_1(user_defined_click_scm_func));
       SCM da = scm_simple_format(dest, mess, scm_list_1(arg_list));
-      std::cout << "INFO applying " << scm_to_locale_string(ds) << " on "
+      std::cout << "INFO:: run_user_defined_click_func() applying " << scm_to_locale_string(ds) << " on "
                 << scm_to_locale_string(da) << std::endl;
 
       SCM rest = SCM_EOL;
@@ -5992,48 +5991,65 @@ void graphics_info_t::run_user_defined_click_func() {
    if (user_defined_click_py_func) {
 
       if (!PyCallable_Check(user_defined_click_py_func)) {
-    std::cout<<"(PYTHON) ERROR:: user_defined_click function must be callable, is "
-     << user_defined_click_py_func->ob_type->tp_name<<std::endl;
+         std::cout<<"(PYTHON) ERROR:: user_defined_click function must be callable, is "
+                  << user_defined_click_py_func->ob_type->tp_name<<std::endl;
       } else {
-    // what are we running? Print it out.
-    std::cout << "INFO applying > "
-      << PyEval_GetFuncName(user_defined_click_py_func)
-      << " < on ";
+         // what are we running? Print it out.
+         std::cout << "INFO:: (py) run_user_defined_click_func() applying > "
+                   << PyEval_GetFuncName(user_defined_click_py_func) << " < on:\n";
 
-    PyObject *arg_list_py = PyTuple_New(user_defined_atom_pick_specs.size());
-    for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
-       PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
-       // we need to add the model number too
-       PyObject *model_number_py = PyLong_FromLong(user_defined_atom_pick_specs[i].model_number);
-       PyList_Insert(spec_py, 0, model_number_py);
+         PyObject *arg_list_py = PyTuple_New(user_defined_atom_pick_specs.size());
+         for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
+            PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
+            // we need to add the model number too
+            PyObject *model_number_py = PyLong_FromLong(user_defined_atom_pick_specs[i].model_number);
+            PyList_Insert(spec_py, 0, model_number_py);
 
-       // continue output from above
-       PyObject *fmt = myPyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
-       PyObject *msg = PyUnicode_Format(fmt, PyList_AsTuple(spec_py));
-       std::cout << myPyString_AsString(msg) << " ";
-       PyTuple_SetItem(arg_list_py, i, spec_py);
-       Py_DECREF(fmt);
-       Py_DECREF(msg);
-    }
-    std::cout <<std::endl; // end ouput
+            // continue output from above
+            PyObject *fmt = myPyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
+            PyObject *msg = PyUnicode_Format(fmt, PyList_AsTuple(spec_py));
+            std::cout << "   " << myPyString_AsString(msg) << "\n";
+            PyTuple_SetItem(arg_list_py, i, spec_py);
+            Py_DECREF(fmt);
+            Py_DECREF(msg);
+         }
 
-    if (PyTuple_Check(arg_list_py)) {
-       if (!PyCallable_Check(user_defined_click_py_func)) {
-          std::cout << "WARNING:: python user click function should have been callable." << std::endl;
-          std::cout << "WARNING:: Ignoring it." << std::endl;
-          return;
-       }
-       PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
-       Py_DECREF(arg_list_py);
-       if (result) {
-          Py_DECREF(result);
-       }
-    } else {
-       Py_DECREF(arg_list_py);
-       std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
-    }
+         if (PyTuple_Check(arg_list_py)) {
+            if (!PyCallable_Check(user_defined_click_py_func)) {
+               std::cout << "WARNING:: python user click function should have been callable." << std::endl;
+               std::cout << "WARNING:: Ignoring it." << std::endl;
+               return;
+            }
+            PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+            PyObject *error_thing = PyErr_Occurred();
+            if (! error_thing) {
+               std::cout << "No Python error" << std::endl;
+            } else {
+               std::cout << "ERROR:: while executing py run_user_defined_click_func() a python error occured "
+                         << error_thing << std::endl;
+               PyObject *type, *value, *traceback;
+               PyErr_Fetch(&type, &value, &traceback);
+               PyErr_NormalizeException(&type, &value, &traceback);
+               PyObject *exception_string = PyObject_Repr(value);
+               const char *em = myPyString_AsString(exception_string);
+               std::cout << "ERROR:: " << em << std::endl;
+
+               Py_XDECREF(value);
+               Py_XDECREF(traceback);
+               Py_XDECREF(type);
+            }
+            Py_DECREF(arg_list_py);
+            if (result) {
+               Py_DECREF(result);
+            }
+         } else {
+            Py_DECREF(arg_list_py);
+            std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
+         }
       }
    }
+
+   std::cout << "DEBUG:: --------------- run_user_defined_click_func() --- finished " << std::endl;
 
 #endif // USE_PYTHON
 }

@@ -612,16 +612,15 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 
    PyObject *r = Py_False;
    std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
-   if (!specs.size()) {
-      std::cout << "WARNING:: Ooops - no specs in " 
+   if (specs.empty()) {
+      std::cout << "WARNING:: protein_db_loops_py(): Ooops - no specs in "
 		<< PyUnicode_AsUTF8String(display_python(residue_specs_py))
 		<< std::endl;
    } else {
-      std::pair<std::pair<int, int>, std::vector<int> > p = 
-	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
+      std::pair<std::pair<int, int>, std::vector<int> > p = protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       PyObject *mol_list_py = PyList_New(p.second.size());
       for (unsigned int i=0; i< p.second.size(); i++)
-        PyList_SetItem(mol_list_py, i, PyLong_FromLong(p.second[i]));
+         PyList_SetItem(mol_list_py, i, PyLong_FromLong(p.second[i]));
       r = PyList_New(2);
       PyObject *loop_molecules = PyList_New(2);
       PyList_SetItem(loop_molecules, 0, PyLong_FromLong(p.first.first));
@@ -631,7 +630,7 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
       PyList_SetItem(r, 1, mol_list_py);
    } 
    if (PyBool_Check(r)) {
-     Py_INCREF(r);
+      Py_INCREF(r);
    }
    return r;
 } 

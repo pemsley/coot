@@ -75,7 +75,7 @@ glarea_tick_func(GtkWidget *widget,
          }
       }
    }
-   
+
    if (graphics_info_t::do_tick_boids) {
       graphics_info_t::boids.update();
       std::vector<glm::mat4> mats(graphics_info_t::boids.size());

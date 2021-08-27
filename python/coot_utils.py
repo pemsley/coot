@@ -1922,6 +1922,10 @@ def atom_spec_to_residue_spec(atom_spec):
         if l == 6:  # active_residue give an atom-spec prepended by the imol
             return atom_spec[1:][:3]
         else:
+            if l == 7:  # active_residue give an atom-spec prepended a bool and by the imol. These should die
+                spec = atom_spec[2:][:3]
+                print("atom_spec to residue_spec returns", spec)
+                return spec
             return None
 
 # return a guess at the map to be refined (usually called after

@@ -1712,6 +1712,7 @@ void set_refinement_use_soft_mode_nbc_restraints(short int flag) {
 
 #ifdef USE_PYTHON
 std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *r) {
+
    std::vector<coot::residue_spec_t> residue_specs;
    int r_length = PyObject_Length(r);
    for (int i=0; i<r_length; i++) {
