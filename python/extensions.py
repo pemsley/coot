@@ -151,9 +151,9 @@ if True:
      # make submenus:
      submenu_all_molecule = Gtk.Menu()
 
-     print("DEBUG::::::::::::::::::::: edit_settings_menu:", edit_settings_menu)
-     print("DEBUG::::::::::::::::::::: calculate_all_molecule_menu:", calculate_menu)
-     print("DEBUG::::::::::::::::::::: submenu_all_molecule:", submenu_all_molecule)
+     # print("DEBUG::::::::::::::::::::: edit_settings_menu:", edit_settings_menu)
+     # print("DEBUG::::::::::::::::::::: calculate_all_molecule_menu:", calculate_menu)
+     # print("DEBUG::::::::::::::::::::: submenu_all_molecule:", submenu_all_molecule)
 
      menuitem_2 = Gtk.MenuItem("All Molecule...")
      submenu_maps = Gtk.Menu()
