@@ -454,6 +454,8 @@ graphics_info_t::clear_up_glsl_buffers_for_moving_atoms() {
 void
 graphics_info_t::clear_up_moving_atoms_wrapper() {
 
+   hide_atom_pull_toolbar_buttons();
+
    rebond_molecule_corresponding_to_moving_atoms(); // in clear_up_moving_atoms_wrapper()
 
    // poke a value into the threaded refinement loop, to stop

@@ -4408,6 +4408,10 @@ string   static std::string sessionid;
    static HUDMesh mesh_for_hud_buttons;
    static std::vector<HUD_button_info_t> hud_button_info;
    void show_test_buttons(); // testing function
+   // when the HUD buttons are shown, we want to show the atom pull buttons too
+   // (they are in the GTK toolbar, not in OpenGL)
+   void show_atom_pull_toolbar_buttons();
+   void hide_atom_pull_toolbar_buttons();
 
    void show_accept_reject_hud_buttons();
 
@@ -4470,6 +4474,11 @@ class molecule_rot_t {
 
 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);
+// old real GTK dialog interface:
+void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);
+// new OpenGL buttons interface
+void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_results_t &ref_results);
+
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
 // return a pointer to a "new" object
 GdkColor colour_by_distortion(float dist);

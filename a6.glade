@@ -11709,6 +11709,60 @@ Do you want to continue?
                     <property name="homogeneous">False</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkToolButton" id="go_to_atom_toolbutton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Go To Atom</property>
+                    <property name="use_underline">True</property>
+                    <property name="icon_name">applets-screenshooter</property>
+                    <signal name="clicked" handler="on_go_to_atom_toolbutton_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="go_to_ligand_toolbutton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Go to (Next) Ligand</property>
+                    <property name="label" translatable="yes">Go To Ligand</property>
+                    <property name="use_underline">True</property>
+                    <property name="icon_name">office-contact</property>
+                    <signal name="clicked" handler="on_go_to_ligand_toolbutton_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="clear_atom_pull_restraints_toolbutton">
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Clear Atom Pull Restraints</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_clear_atom_pull_restraints_toolbutton_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToggleToolButton" id="auto_clear_atom_pull_restraints_togglebutton">
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Auto-clear Atom Pull Restraints</property>
+                    <property name="use_underline">True</property>
+                    <property name="active">True</property>
+                    <signal name="toggled" handler="on_auto_clear_atom_pull_restraints_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>

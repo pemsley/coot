@@ -2111,6 +2111,31 @@ graphics_info_t::draw_hud_buttons() {
 }
 
 void
+graphics_info_t::show_atom_pull_toolbar_buttons() {
+
+   if (use_graphics_interface_flag) {
+      GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
+      GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
+
+      gtk_widget_show(button_1);
+      gtk_widget_show(button_2);
+   }
+}
+
+
+void
+graphics_info_t::hide_atom_pull_toolbar_buttons() {
+
+   if (use_graphics_interface_flag) {
+      GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
+      GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
+      
+      gtk_widget_hide(button_1);
+      gtk_widget_hide(button_2);
+   }
+}
+
+void
 graphics_info_t::show_accept_reject_hud_buttons() {
 
    // add some HUD buttons
@@ -2144,6 +2169,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.accept_moving_atoms();
                            g.hud_button_info.clear();
                            g.graphics_draw();
+                           g.hide_atom_pull_toolbar_buttons();
                            return true;
                    };
 
@@ -2153,6 +2179,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.clear_up_moving_atoms();
                            g.hud_button_info.clear();
                            g.graphics_draw();
+                           g.hide_atom_pull_toolbar_buttons();
                            return true;
                         };
    auto button_3_func = [] () {
@@ -2192,7 +2219,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    hud_button_info.push_back(button_5);
    hud_button_info.push_back(button_6);
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   gtk_gl_area_attach_buffers(gl_area);
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
 
 }

@@ -88,15 +88,35 @@
 #include "manipulation-modes.hh"
 #include "guile-fixups.h"
 
+void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
+
+#if 0 // old style
+
+   do_accept_reject_dialog_with_a_dialog(fit_type, rr);
+
+#else
+
+   do_accept_reject_hud_buttons(fit_type, rr); // not that we use the args (yet?)
+
+#endif
+
+}
+
+void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_results_t &rr) {
+
+   graphics_info_t g;
+   g.show_atom_pull_toolbar_buttons();
+   g.show_accept_reject_hud_buttons();
+
+}
 
 
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
 //
 // if fit_type is "Torsion General" show the Reverse button.
 //
-void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
+void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
-   bool debug = false;
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(graphics_info_t::get_main_window());
    GtkWidget *label = NULL;

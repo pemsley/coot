@@ -1394,6 +1394,29 @@ on_go_to_atom_previous_residue_button_clicked_gtkbuilder_callback (GtkButton    
 }
 
 
+// -----------------Toolbar buttons - Go to Atom and Go to ligand
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_auto_clear_atom_pull_restraints_togglebutton_toggled_gtkbuilder_callback(GtkToggleToolButton *toggle_button,
+                                                                            gpointer user_data) {
+
+   std::cout << "on_auto_clear_atom_pull_restraints_togglebutton_toggled_gtkbuilder_callback()" << std::endl;
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_clear_atom_pull_restraints_toolbutton_clicked_gtkbuilder_callback(GtkToolButton   *toolbutton,
+                                                                     gpointer         user_data) {
+
+   std::cout << "on_clear_atom_pull_restraints_toolbutton_clicked_gtkbuilder_callback()" << std::endl;
+}
+
+// -----------------------------------------
+
 extern "C" G_MODULE_EXPORT
 void
 on_skeleton_box_radius1_activate_gtkbuilder_callback       (GtkMenuItem     *menuitem,
@@ -10575,17 +10598,16 @@ on_coords_toolbutton_clicked_gtkbuilder_callback           (GtkToolButton   *too
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_atom_toolbutton_clicked_gtkbuilder_callback       (GtkToolButton   *toolbutton,
-                                        gpointer         user_data) {
-
+on_go_to_atom_toolbutton_clicked_gtkbuilder_callback(GtkToolButton   *toolbutton,
+                                                     gpointer         user_data) {
   GtkWidget *widget = wrapped_create_goto_atom_window();
   gtk_widget_show(widget);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_ligand_toolbutton_clicked_gtkbuilder_callback     (GtkToolButton   *toolbutton,
-                                        gpointer         user_data) {
+on_go_to_ligand_toolbutton_clicked_gtkbuilder_callback(GtkToolButton   *toolbutton,
+                                                       gpointer         user_data) {
   go_to_ligand();
 }
 

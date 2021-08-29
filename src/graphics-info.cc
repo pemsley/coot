@@ -1603,6 +1603,8 @@ graphics_info_t::accept_moving_atoms() {
    clear_up_moving_atoms();
    update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
+   hide_atom_pull_toolbar_buttons();
+
    normal_cursor(); // we may have had fleur cursor.
    // and set the rotation translation atom index to unknown again:
    // rot_trans_atom_index_rotation_origin_atom = -1;
