@@ -2846,6 +2846,11 @@ public:
    // most of the above function is comment, so put it here:
    std::pair<bool, mmdb::Atom *> check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double mouse_x, double mouse_y, bool act_on_hit);
 
+   bool check_if_hud_button_clicked(double x, double y);
+   bool check_if_hud_button_moused_over(double x, double y);
+   bool check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit);
+
+
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
    }
@@ -4184,6 +4189,7 @@ string   static std::string sessionid;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
+   static Shader shader_for_hud_buttons;
    static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
@@ -4258,6 +4264,7 @@ string   static std::string sessionid;
    static void draw_origin_cube(GtkGLArea *glarea);
    static void draw_rotation_centre_crosshairs(GtkGLArea *glarea);
    static void draw_ligand_view();
+   static void draw_hud_buttons();
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 
    void reset_frame_buffers(int width, int height);
@@ -4396,6 +4403,13 @@ string   static std::string sessionid;
    static float hud_geometry_distortion_to_bar_size_atom_pull(float distortion);
    static float hud_geometry_distortion_to_bar_size_rama(float distortion);
    static float hud_geometry_distortion_to_rotation_amount_rama(float distortion);
+
+   void setup_hud_buttons();
+   static HUDMesh mesh_for_hud_buttons;
+   static std::vector<HUD_button_info_t> hud_button_info;
+   void show_test_buttons(); // testing function
+
+   void show_accept_reject_hud_buttons();
 
    // Mesh mesh_for_particles("mesh-for-particles");
    // int n_particles = 100;

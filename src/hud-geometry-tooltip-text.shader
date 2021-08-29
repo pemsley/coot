@@ -38,7 +38,7 @@ out vec4 outputColor;
 void main() {
 
    vec4 sampled = texture(text, texCoord_transfer);
-   sampled = vec4(text_colour.r, text_colour.g, text_colour.b, sampled.r);
+   sampled = vec4(text_colour.r, text_colour.r, text_colour.r, sampled.r);
 
    outputColor = sampled;
 }

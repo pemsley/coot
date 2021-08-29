@@ -1147,7 +1147,13 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    graphics_info_t g;
    PyObject *r = Py_False;
+
    if (true) {
+      // g.show_test_buttons(); // it got renamed show_accept_reject_hud_buttons()
+      g.show_accept_reject_hud_buttons();
+   }
+
+   if (false) {
       graphics_info_t g;
       int imol = g.create_molecule();
 
@@ -1166,7 +1172,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       d.face(0);
    }
 
-   if (0) {
+   if (false) {
      int i = PyLong_AsLong(i_py); // map molecule
      int j = PyLong_AsLong(j_py);
 
@@ -1210,6 +1216,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
        }
      }
    }
+
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }

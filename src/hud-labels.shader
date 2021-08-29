@@ -39,6 +39,7 @@ void main() {
    bool this_is_the_hud_bar_labels = false; // pass this as a uniform
 
    vec4 sampled = texture(text, texCoord_transfer);
+   sampled = sampled + sampled;
 
    if (this_is_the_hud_bar_labels) {
       sampled = vec4(0.4, 0.7, 0.2, sampled.a);

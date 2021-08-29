@@ -81,6 +81,7 @@ Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_hud_geometry_bars;
 Shader graphics_info_t::shader_for_hud_geometry_labels;
+Shader graphics_info_t::shader_for_hud_buttons;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
@@ -231,6 +232,8 @@ HUDTextureMesh graphics_info_t::mesh_for_hud_tooltip_background = HUDTextureMesh
 Instanced_Markup_Mesh graphics_info_t::rama_balls_mesh = Instanced_Markup_Mesh("rama-balls");
 bool graphics_info_t::draw_stick_mode_atoms_default = true;
 
+std::vector<HUD_button_info_t> graphics_info_t::hud_button_info;
+HUDMesh graphics_info_t::mesh_for_hud_buttons = HUDMesh("mesh-for-hud-buttons");
 
 std::string graphics_info_t::label_for_hud_geometry_tooltip;
 

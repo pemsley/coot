@@ -23,6 +23,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_hud_geometry_bars,
                                                            shader_for_hud_geometry_labels,
                                                            shader_for_hud_geometry_tooltip_text,
+                                                           shader_for_hud_buttons,
                                                            shader_for_atom_labels,
                                                            shader_for_moleculestotriangles,
                                                            shader_for_lines,
@@ -65,6 +66,7 @@ graphics_info_t::init_shaders() {
    shader_for_ligand_view.init("ligand-view.shader", Shader::Entity_t::NONE);
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
    shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
+   shader_for_hud_buttons.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT); // ! needs a better name
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
@@ -76,9 +78,7 @@ graphics_info_t::init_shaders() {
          status = false;
       }
    }
-
    return status;
-
 }
 
 

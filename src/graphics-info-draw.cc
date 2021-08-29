@@ -1995,7 +1995,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    shader_for_hud_geometry_bars.Use();
 
    mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
-   mesh_for_hud_geometry.setup_instancing_buffer(500);
+   mesh_for_hud_geometry.setup_instancing_buffer(500, sizeof(HUD_bar_attribs_t));
 
    // If not found in this directory, then try default directory.
    texture_for_hud_geometry_labels.set_default_directory(coot::package_data_dir());
@@ -2023,6 +2023,18 @@ graphics_info_t::setup_hud_geometry_bars() {
    glm::vec2 label_scale(0.00015/aspect_ratio, 0.00015);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
+}
+
+void
+graphics_info_t::setup_hud_buttons() {
+
+   if (! glareas[0]) return;
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   shader_for_hud_buttons.Use();
+   mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
+   unsigned int n_buttons_max = 20; // surely 6 is enough?
+   mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
 }
 
 float
@@ -2054,6 +2066,135 @@ graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortio
    if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
    if (rotation_amount > 1.0) rotation_amount = 1.0;
    return rotation_amount;
+}
+
+void
+graphics_info_t::draw_hud_buttons() {
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
+
+   mesh_for_hud_buttons.draw(&shader_for_hud_buttons);
+
+   // do the texture for the labels all on the fly
+   //
+   float button_width  = HUD_button_info_t::button_width;  // * static_cast<float>(w)/900.0; ?
+   float button_height = HUD_button_info_t::button_height;
+   glm::vec4 text_colour_white(0.95f, 0.95f, 0.95f, 1.0f);
+   glm::vec4 text_colour_black = glm::vec4(0.0, 0.0, 0.0, 1.0);
+   Shader &shader =  shader_for_hud_geometry_tooltip_text;
+   for (unsigned int i=0; i<hud_button_info.size(); i++) {
+      const auto &button = hud_button_info[i];
+      const std::string &label = button.button_label;
+      std::string mesh_name = "for button with label" + label;
+      HUDTextureMesh htm(mesh_name);
+      htm.setup_quad();
+      float text_scale = 0.0002; // was 0.00023
+      glm::vec2 label_scale(text_scale/aspect_ratio, text_scale);
+      htm.set_scales(label_scale);
+      unsigned int n_chars = label.size();
+      float tl_adjust = static_cast<float>(n_chars-1) * -0.0114/aspect_ratio; // tl: text length
+      glm::vec2 pos = button.position_offset;
+      pos += glm::vec2(0.0, 0.33 * button_height); // vertical adjustment for label
+      pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
+      pos += glm::vec2(tl_adjust, 0.00); // horizontal adjustment for text length
+      htm.set_position(pos);
+      htm.draw_label(label, text_colour_white, &shader, ft_characters);
+      // meh
+      // htm.set_position(pos+glm::vec2(0.003, -0.003));
+      // htm.draw_label(label, text_colour_black, &shader, ft_characters);
+   }
+}
+
+void
+graphics_info_t::show_accept_reject_hud_buttons() {
+
+   // add some HUD buttons
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   HUD_button_info_t button_1("OK");
+   HUD_button_info_t button_2("Cancel");
+   HUD_button_info_t button_3("Sidechain 180"); // failure to lookup glyph for degree symbol ° :-(
+   HUD_button_info_t button_4("Pep-Flip This");
+   HUD_button_info_t button_5("Pep-Flip Next");
+   HUD_button_info_t button_6("Backrub Rotamer");
+
+   button_1.set_colour(glm::vec4(0.4, 0.7, 0.4, 0.5));
+   button_2.set_colour(glm::vec4(0.7, 0.4, 0.4, 0.5));
+
+   button_1.set_position_offset(0, w, h);
+   button_2.set_position_offset(1, w, h);
+   button_3.set_position_offset(2, w, h);
+   button_4.set_position_offset(3, w, h);
+   button_5.set_position_offset(4, w, h);
+   button_6.set_position_offset(5, w, h);
+
+   auto button_1_func = [] () {
+                           graphics_info_t g;
+                           g.stop_refinement_internal();
+                           g.accept_moving_atoms();
+                           g.hud_button_info.clear();
+                           g.graphics_draw();
+                           return true;
+                   };
+
+   auto button_2_func = [] () {
+                           graphics_info_t g;
+                           g.stop_refinement_internal();
+                           g.clear_up_moving_atoms();
+                           g.hud_button_info.clear();
+                           g.graphics_draw();
+                           return true;
+                        };
+   auto button_3_func = [] () {
+                           graphics_info_t g;
+                           g.side_chain_flip_180_intermediate_atoms();
+                           return true;
+                        };
+
+   auto button_4_func = [] () {
+                           graphics_info_t g;
+                           g.pepflip_intermediate_atoms();
+                           return true;
+                        };
+
+   auto button_5_func = [] () {
+                           graphics_info_t g;
+                           g.pepflip_intermediate_atoms_other_peptide();
+                           return true;
+                        };
+
+   auto button_6_func = [] () {
+                           graphics_info_t g;
+                           return g.backrub_rotamer_intermediate_atoms();
+                        };
+
+   button_1.connect(button_1_func);
+   button_2.connect(button_2_func);
+   button_3.connect(button_3_func);
+   button_4.connect(button_4_func);
+   button_5.connect(button_5_func);
+   button_6.connect(button_6_func);
+
+   hud_button_info.push_back(button_1);
+   hud_button_info.push_back(button_2);
+   hud_button_info.push_back(button_3);
+   hud_button_info.push_back(button_4);
+   hud_button_info.push_back(button_5);
+   hud_button_info.push_back(button_6);
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+
 }
 
 
@@ -2491,6 +2632,80 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
    return  r.first;
 }
 
+bool
+graphics_info_t::check_if_hud_button_moused_over(double mouse_x, double mouse_y) {
+
+   bool act_on_hit = false;
+   check_if_hud_button_moused_over_or_act_on_hit(mouse_x, mouse_y, act_on_hit);
+   return false;
+}
+
+bool
+graphics_info_t::check_if_hud_button_clicked(double mouse_x, double mouse_y) {
+
+   bool act_on_hit = true;
+   bool status = check_if_hud_button_moused_over_or_act_on_hit(mouse_x, mouse_y, act_on_hit);
+   return status;
+}
+
+// this function needs to be passed mouse press or mouse release button info
+// so that it can do the button highlighting correctly.
+bool
+graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit) {
+
+   auto highlight_just_button_with_index = [] (unsigned int idx_active) {
+                                              for (unsigned int i=0; i<hud_button_info.size(); i++) {
+                                                 auto &button = hud_button_info[i];
+                                                 if (i == idx_active)
+                                                    button.set_button_colour_for_mode(HUD_button_info_t::HIGHLIGHTED);
+                                                 else
+                                                    button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
+                                              }
+                                              mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                           };
+   auto unhighlight_all_buttons = [] () {
+                                              for (unsigned int i=0; i<hud_button_info.size(); i++) {
+                                                 auto &button = hud_button_info[i];
+                                                 button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
+                                              }
+                                              mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                  };
+
+   bool status = false;
+   if (! hud_button_info.empty()) {
+      GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+
+      double x_gl_coords =  2.0 * x/static_cast<double>(w) - 1.0;
+      double y_gl_coords = -2.0 * y/static_cast<double>(h) + 1.0;
+
+      for (unsigned int i=0; i<hud_button_info.size(); i++) {
+         const auto &button = hud_button_info[i];
+         // are we on that button?
+         HUD_button_limits_t lims = button.get_button_limits(i, w, h);
+         if (lims.is_hit(x_gl_coords,y_gl_coords)) {
+            if (act_on_hit) {
+               std::cout << "Act on button " << i << " callback" << std::endl;
+               if (button.callback_function) {
+                  button.callback_function();
+               }
+            }
+            status = true;
+            highlight_just_button_with_index(i);
+         }
+      }
+      if (!status) {
+         unhighlight_all_buttons();
+      }
+   }
+
+   return status;
+}
+
+
 void
 graphics_info_t::draw_hud_geometry_tooltip() {
 
@@ -2566,6 +2781,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                           draw_hud_geometry_bars();
 
                           draw_hud_geometry_tooltip(); // background and text
+
+                          draw_hud_buttons();
 
                           draw_identification_pulse();
 
@@ -2861,7 +3078,6 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
    tmesh_for_happy_face_residues_markers.setup_camera_facing_quad(&shader_for_happy_face_residue_markers, 1.0, 1.0);
    tmesh_for_happy_face_residues_markers.setup_instancing_buffers(max_happy_faces);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
-
 
 }
 

@@ -257,6 +257,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.setup_hud_geometry_bars();
 
+      g.setup_hud_buttons();
+
       g.setup_rama_balls();
 
       g.setup_key_bindings();
@@ -386,6 +388,15 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       handled = g.check_if_hud_bar_clicked(event->x, event->y);
 
       if (! handled) {
+
+         // 20210829-PE This should be in *button-release* I think.
+         // Here we could check for button-down (to give a "button pressed but not activatetd" look)
+         // Also I need to check that right-mouse is not being used before calling this.
+         //
+         handled = g.check_if_hud_button_clicked(event->x, event->y);
+      }
+
+      if (! handled) {
          // implicit type cast
          handled = g.check_if_moving_atom_pull(was_a_double_click);
 
@@ -403,6 +414,7 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
             }
          }
       }
+
    }
 
 
@@ -545,6 +557,11 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       g.draw_hud_tooltip_flag = false;
    }
 
+   // if not right mouse pressed:
+   if (event->state & GDK_BUTTON3_MASK) {
+   } else {
+      g.check_if_hud_button_moused_over(event->x, event->y);
+   }
 
    auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget) {
                                if (control_is_pressed) {
