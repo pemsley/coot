@@ -4,6 +4,1315 @@
 #endif
 
 #include "graphics-info.h"
+#include "globjects.h"
+#include "rotate-translate-modes.hh"
+#include "rotamer-search-modes.hh"
+
+#if !defined WINDOWS_MINGW
+
+#ifdef USE_GUILE
+#ifdef USE_GUILE_GTK
+bool graphics_info_t::prefer_python = 0; // prefer python scripts when
+					 // scripting (if we have a
+					 // choice). Default: no.
+#else
+#ifdef USE_PYTHON
+bool graphics_info_t::prefer_python = 1; // prefer python (gui) when no
+                                         // guile gui. Fixes (place-strand-here-gui)
+                                         // problem when there is no guile-gtk
+#else
+// guile but not guile-gui, and not python
+bool graphics_info_t::prefer_python = 0;
+#endif // USE_PYTHON test
+#endif // USE_GUILE_GTK test
+
+
+#else // USE_GUILE test (no guile path)
+#ifdef USE_PYTHON
+bool graphics_info_t::prefer_python = 1; // Python, not guile
+#else
+bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
+#endif // python test
+#endif // USE_GUILE test
+#else // Windows test (windows path)
+bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
+#endif // windows test
+
+short int graphics_info_t::python_at_prompt_flag = 0;
+
+int graphics_info_t::show_paths_in_display_manager_flag = 0;
+std::vector<std::string> *graphics_info_t::command_line_scripts = 0;
+coot::command_line_commands_t graphics_info_t::command_line_commands;
+std::vector<std::string> graphics_info_t::command_line_accession_codes;
+
+std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
+std::vector<coot::old_generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::view_info_t> graphics_info_t::views;
+bool graphics_info_t::do_expose_swap_buffers_flag = 1;
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
+
+//WII
+#ifdef WII_INTERFACE_WIIUSE
+wiimote** graphics_info_t::wiimotes = NULL;
+#endif
+
+// Views
+float graphics_info_t::views_play_speed = 10.0;
+
+// movies
+std::string graphics_info_t::movie_file_prefix = "movie_";
+int graphics_info_t::movie_frame_number = 0;
+int graphics_info_t::make_movie_flag = 0;
+
+
+// LSQ
+short int graphics_info_t::in_lsq_plane_deviation = 0;
+short int graphics_info_t::in_lsq_plane_define    = 0;
+GtkWidget *graphics_info_t::lsq_plane_dialog = 0;
+std::vector<clipper::Coord_orth> *graphics_info_t::lsq_plane_atom_positions;
+std::string graphics_info_t::lsq_match_chain_id_ref;
+std::string graphics_info_t::lsq_match_chain_id_mov;
+int graphics_info_t::lsq_ref_imol = -1;
+int graphics_info_t::lsq_mov_imol = -1;
+// LSQ dialog values
+lsq_dialog_values_t graphics_info_t::lsq_dialog_values;
+
+
+
+// side by side stereo?
+short int graphics_info_t::in_side_by_side_stereo_mode = 0;
+short int graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+
+// display list for maps?
+short int graphics_info_t::display_lists_for_maps_flag = 0;
+
+//
+int graphics_info_t::save_imol = -1;
+
+bool graphics_info_t::cryo_EM_refinement_flag = false;
+double graphics_info_t::geman_mcclure_alpha = 1; // soft, (20180230-PE was 2, too soft, I think)
+double graphics_info_t::lennard_jones_epsilon = 2.0; // 20181008-PE less soft than 0.5
+double graphics_info_t::log_cosh_target_distance_scale_factor = 2000.0;
+
+// accept/reject
+GtkWidget *graphics_info_t::accept_reject_dialog = 0;
+
+// refinement control dialog (so that we don't get multiple copies)
+GtkWidget *graphics_info_t::refine_params_dialog = 0;
+
+// flag to display the accep/reject dialog in the toolbar
+int graphics_info_t::accept_reject_dialog_docked_flag = coot::DIALOG;
+
+// flag to show/hide/sensitise the docked accept/reject dialog in the toolbar
+int graphics_info_t::accept_reject_dialog_docked_show_flag = coot::DIALOG_DOCKED_SHOW;
+
+// the refinement toolbar show/hide
+short int graphics_info_t::model_toolbar_show_hide_state = 1;
+
+// the refinement toolbar position
+short int graphics_info_t::model_toolbar_position_state = coot::model_toolbar::RIGHT;
+
+// the refinement toolbar style
+short int graphics_info_t::model_toolbar_style_state = 1;
+
+// the main toolbar show/hide
+short int graphics_info_t::main_toolbar_show_hide_state = 1;
+
+// the main toolbar position
+// // not using (yet)
+//short int graphics_info_t::main_toolbar_position_state = coot::main_toolbar::TOP;
+
+// the main toolbar style
+short int graphics_info_t::main_toolbar_style_state = 2;
+
+// refmac option menu
+int graphics_info_t::refmac_molecule = -1;
+
+//
+short int graphics_info_t::active_map_drag_flag = 1; // true
+long int graphics_info_t::Frames = 0;  // These 2 are to measure graphics speed.
+long int graphics_info_t::T0 = 0;
+int    graphics_info_t::show_fps_flag = 0;
+int    graphics_info_t::control_is_pressed = 0 ; // false
+short int graphics_info_t::control_key_for_rotate_flag = 1;
+short int graphics_info_t::pick_pending_flag = 0;
+int    graphics_info_t::a_is_pressed = 0;
+int    graphics_info_t::shift_is_pressed = 0 ;       // false
+int    graphics_info_t::y_is_pressed = 0 ;       // false
+int    graphics_info_t::z_is_pressed = 0 ;       // false
+std::pair<double, double> graphics_info_t::mouse_begin         = std::pair<double, double> (0,0);
+std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<double, double> (0,0);
+float  graphics_info_t::rotation_centre_x = 0.0;
+float  graphics_info_t::rotation_centre_y = 0.0;
+float  graphics_info_t::rotation_centre_z = 0.0;
+// float  graphics_info_t::old_rotation_centre_x = 0.0;
+// float  graphics_info_t::old_rotation_centre_y = 0.0;
+// float  graphics_info_t::old_rotation_centre_z = 0.0;
+coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
+float  graphics_info_t::zoom                = 100;
+int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
+int    graphics_info_t::smooth_scroll_n_steps =  10;
+float  graphics_info_t::smooth_scroll_limit =  20.0; // A
+float  graphics_info_t::smooth_scroll_zoom_limit = 30.0; // A
+int    graphics_info_t::smooth_scroll_do_zoom = 0;  // initially no, too ugly ATM.
+short int graphics_info_t::smooth_scroll_on = 0;
+int    graphics_info_t::smooth_scroll_current_step = 0;
+coot::Cartesian graphics_info_t::smooth_scroll_delta;
+int    graphics_info_t::mouse_just_cliked     = 0;
+float  graphics_info_t::rotation_centre_cube_size = 0.1; // Angstroems
+short int graphics_info_t::quanta_like_zoom_flag = 0;
+
+// graphics display size:
+int graphics_info_t::graphics_x_size = GRAPHICS_WINDOW_X_START_SIZE;
+int graphics_info_t::graphics_y_size = GRAPHICS_WINDOW_Y_START_SIZE;
+int graphics_info_t::graphics_x_position = 0; // gets overwritten at start
+int graphics_info_t::graphics_y_position = 0;
+int graphics_info_t::model_fit_refine_dialog_stays_on_top_flag = 1;
+
+short int graphics_info_t::use_graphics_interface_flag = 1;
+
+// display control size and position and the vboxes for the maps and
+// the molecules in the display control
+int graphics_info_t::display_manager_x_size = -1;
+int graphics_info_t::display_manager_y_size = -1;
+int graphics_info_t::display_manager_x_position = -1;
+int graphics_info_t::display_manager_y_position = -1;
+
+int graphics_info_t::display_manager_molecules_vbox_x_size = -1;
+int graphics_info_t::display_manager_molecules_vbox_y_size = -1;
+int graphics_info_t::display_manager_maps_vbox_x_size = -1;
+int graphics_info_t::display_manager_maps_vbox_y_size = -1;
+
+int graphics_info_t::display_manager_paned_position = -1;
+
+
+int graphics_info_t::go_to_atom_window_x_position = -100;
+int graphics_info_t::go_to_atom_window_y_position = -100;
+
+int graphics_info_t::delete_item_widget_x_position = -100;
+int graphics_info_t::delete_item_widget_y_position = -100;
+
+int graphics_info_t::accept_reject_dialog_x_position = -100;
+int graphics_info_t::accept_reject_dialog_y_position = -100;
+
+int graphics_info_t::edit_chi_angles_dialog_x_position = -1;
+int graphics_info_t::edit_chi_angles_dialog_y_position = -1;
+
+short int graphics_info_t::draw_chi_angle_flash_bond_flag = 0;
+std::pair<clipper::Coord_orth, clipper::Coord_orth> graphics_info_t::flash_bond =
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> (clipper::Coord_orth(0,0,0),
+							clipper::Coord_orth(0,0,0));
+bool graphics_info_t::flash_intermediate_atom_pick_flag = 0;
+clipper::Coord_orth graphics_info_t::intermediate_flash_point;
+
+
+int graphics_info_t::default_bond_width = 5;
+bool graphics_info_t::use_variable_bond_width = false;
+
+
+int graphics_info_t::rotamer_selection_dialog_x_position = -100;
+int graphics_info_t::rotamer_selection_dialog_y_position = -100;
+
+int graphics_info_t::model_fit_refine_x_position = -100;  // initially unset
+int graphics_info_t::model_fit_refine_y_position = -100;
+
+// save rotate/translate widget position:
+int graphics_info_t::rotate_translate_x_position = -100;  // initially unset
+int graphics_info_t::rotate_translate_y_position = -100;
+
+// save Ramachandran widget position:
+int graphics_info_t::ramachandran_plot_x_position = -100;  // initially unset
+int graphics_info_t::ramachandran_plot_y_position = -100;
+
+// save Distances and Angles dialog position
+int graphics_info_t::distances_and_angles_dialog_x_position = -100;  // initially unset
+int graphics_info_t::distances_and_angles_dialog_y_position = -100;
+
+coot::Cartesian graphics_info_t::distance_pos_1 = coot::Cartesian(0.0, 0.0, 0.0);
+coot::Cartesian graphics_info_t::angle_tor_pos_1 = coot::Cartesian(0.0, 0.0, 0.0);
+coot::Cartesian graphics_info_t::angle_tor_pos_2 = coot::Cartesian(0.0, 0.0, 0.0);
+coot::Cartesian graphics_info_t::angle_tor_pos_3 = coot::Cartesian(0.0, 0.0, 0.0);
+coot::Cartesian graphics_info_t::angle_tor_pos_4 = coot::Cartesian(0.0, 0.0, 0.0);
+
+// Shall we have file name filtering (i.e. before fileselection is
+// displayed) on by default?
+int graphics_info_t::filter_fileselection_filenames_flag = 0; // no
+int graphics_info_t::file_selection_dialog_x_size = -1; // unset
+int graphics_info_t::file_selection_dialog_y_size = -1;
+
+
+// things for quaternion-based view rotation:
+double graphics_info_t::mouse_current_x = 0.0;
+double graphics_info_t::mouse_current_y = 0.0;
+// float* graphics_info_t::quat = new float[4]; // gone. Use glm_quat
+float graphics_info_t::trackball_size = 12.8; // better for me for now. was 0.8
+
+// residue reorientation on "space"
+bool graphics_info_t::reorienting_next_residue_mode = false;
+
+
+// things for baton quaternion rotation: Must use a c++ class at some
+// stage:
+// baton
+// float* graphics_info_t::baton_quat = new float[4]; // gone - needs glm::quat version
+float  graphics_info_t::baton_length = 3.8; // A;
+int    graphics_info_t::baton_next_ca_options_index = 0;
+int    graphics_info_t::user_set_baton_atom_molecule = -1; // initially unset
+short int graphics_info_t::baton_tmp_atoms_to_new_molecule = 0;
+short int graphics_info_t::draw_baton_flag = 0; // off initially
+short int graphics_info_t::baton_mode = 0;      // rotation mode
+coot::Cartesian graphics_info_t::baton_root = coot::Cartesian(0.0, 0.0, 0.0);
+coot::Cartesian graphics_info_t::baton_tip =  coot::Cartesian(0.0, 0.0, 3.8);
+std::vector<coot::scored_skel_coord> graphics_info_t::baton_next_ca_options;
+std::vector<clipper::Coord_orth> graphics_info_t::baton_previous_ca_positions;
+short int graphics_info_t::baton_build_direction_flag = 1; // forwards by default
+int graphics_info_t::baton_build_start_resno = 1;
+short int graphics_info_t::baton_build_params_active = 0; // not active initially.
+std::string graphics_info_t::baton_build_chain_id = std::string("");
+
+// place helix here
+float graphics_info_t::place_helix_here_fudge_factor = 1.0; // (it's multiplicative)
+
+// double*  graphics_info_t::symm_colour_merge_weight = new double[10];
+// double **graphics_info_t::symm_colour = new double*[10];
+
+double graphics_info_t::symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
+
+std::vector<double> graphics_info_t::symmetry_colour = std::vector<double> (4, 0.5);
+
+double*  graphics_info_t::skeleton_colour = new double[4];
+int      graphics_info_t::map_for_skeletonize = -1;
+int      graphics_info_t::max_skeleton_search_depth = 10;
+
+short int graphics_info_t::swap_pre_post_refmac_map_colours_flag = 0;
+
+float     graphics_info_t::symmetry_search_radius = 13.0;
+int       graphics_info_t::symmetry_shift_search_size = 1; // which_boxes search hack
+
+// short int graphics_info_t::symmetry_as_calphas = 0; // moved to per molecule basis
+// short int graphics_info_t::symmetry_rotate_colour_map_flag = 0; // moved to per molecule basis
+float     graphics_info_t::symmetry_operator_rotate_colour_map = 37; //degrees
+// int       graphics_info_t::symmetry_colour_by_symop_flag = 1; // moved to per molecule basis
+// int       graphics_info_t::symmetry_whole_chain_flag = 0;  // moved to per molecule basis
+
+// esoteric depth cue?
+int       graphics_info_t::esoteric_depth_cue_flag = 1; // on by default.
+
+// save coords fileselection dir
+int graphics_info_t::save_coordinates_in_original_dir_flag = 0;
+
+// save CONECT records, by default we dont
+int graphics_info_t::write_conect_records_flag = 0;
+
+// by default convert nucleic acid names to match the (currently v2)
+// dictionary.
+//
+bool graphics_info_t::convert_to_v2_atom_names_flag = 0; // changed 20110505
+
+//
+short int graphics_info_t::print_initial_chi_squareds_flag = 0;
+
+short int graphics_info_t::show_symmetry = 0;
+
+float    graphics_info_t::box_radius_xray =  20.0;
+float    graphics_info_t::box_radius_em   =  80.0;
+
+
+int      graphics_info_t::debug_atom_picking = 0;
+
+int   graphics_info_t::imol_map_sharpening = -1;
+float graphics_info_t::map_sharpening_scale_limit = 200.0;
+
+//
+int graphics_info_t::imol_remarks_browswer = -1;
+
+// dragged moving atom:
+int       graphics_info_t::moving_atoms_currently_dragged_atom_index = -1;
+short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
+std::set<int> empty_int_set;
+std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set;
+
+// validate moving atoms
+int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
+
+// for picking intermediate atoms
+bool      graphics_info_t::moving_atoms_have_hydrogens_displayed = false;
+
+
+std::string graphics_info_t::model_fit_refine_place_atom_at_pointer_string = "";
+std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
+
+// Change of plan, so that we are more compatible with Stuart.
+//
+// We shall make maps and skeletons be objects of molecules.
+// Hmmm... skeletons are objects of maps.
+//
+// And molecules are instances of a molecule_class_info_t
+//
+// We need to store how many molecules we have and where to find them.
+
+int graphics_info_t::n_molecules_max = 60;
+// int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
+
+// generic display objects, gets set in init.
+// std::vector<coot::old_generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+std::vector<meshed_generic_display_object> graphics_info_t::generic_display_objects;
+bool graphics_info_t::display_generic_objects_as_solid_flag = 0;
+bool graphics_info_t::display_environment_graphics_object_as_solid_flag = 0;
+GtkWidget *graphics_info_t::generic_objects_dialog = NULL;
+
+
+coot::console_display_commands_t graphics_info_t::console_display_commands;
+
+// 20 molecules is enough for anyone, surely?
+// FIXME - we should be using dynamic allocation, and allocating
+// an new array of molecule_class_info_ts and moving over the pointers.
+//
+// Fixed ( see graphics_info_t::initialize_graphics_molecules(); )
+//
+// molecule_class_info_t* graphics_info_t::molecules = NULL; yesterday's array
+
+// The molecule for undoing
+int graphics_info_t::undo_molecule = -1;
+
+// backup filenames
+bool graphics_info_t::unpathed_backup_file_names_flag = 0;
+bool graphics_info_t::decoloned_backup_file_names_flag = 0;
+
+// backup compress files (default: compress)
+int graphics_info_t::backup_compress_files_flag = 1;
+
+// Auto read
+int graphics_info_t::auto_read_do_difference_map_too_flag = 1;
+
+// nomenclature errors
+coot::nomenclature_error_handle_type graphics_info_t::nomenclature_errors_mode = coot::PROMPT;
+
+
+
+
+// Tip of the Day?
+short int graphics_info_t::do_tip_of_the_day_flag = 1;
+
+// Browser URL
+// Also gets get in group? scheme code
+std::string graphics_info_t::browser_open_command = "firefox -remote";
+
+// should be: each map, each contour level, each colour
+// (triple star)
+//
+
+std::vector<GtkWidget *> graphics_info_t::glareas;
+GtkWidget *graphics_info_t::statusbar = NULL;
+guint      graphics_info_t::statusbar_context_id = 0;
+std::string graphics_info_t::main_window_title;
+
+//
+int       graphics_info_t::atom_label_font_size = 2; // medium
+void     *graphics_info_t::atom_label_font = 0; //GLUT_BITMAP_HELVETICA_12;
+int       graphics_info_t::label_atom_on_recentre_flag = 1;
+int       graphics_info_t::symmetry_atom_labels_expanded_flag = 0;
+coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8, 0.8);
+
+bool      graphics_info_t::stroke_characters = false;
+
+short int graphics_info_t::brief_atom_labels_flag = 0;
+short int graphics_info_t::seg_ids_in_atom_labels_flag = 0;
+
+// scroll wheel
+int       graphics_info_t::scroll_wheel_map = -1; // (initial magic value)
+                                                  // updated on new read-map.
+
+//
+GLuint theMapContours = 0;
+
+float graphics_info_t::iso_level_increment = 0.05;
+float graphics_info_t::diff_map_iso_level_increment =  0.005;
+short int graphics_info_t::swap_difference_map_colours = 0; // default: not in Jan-Dohnalek-mode.
+
+// No idle functions to start (but setting them to zero doesn't set that - the
+// idle functions are added by gtk_idle_add()).
+int   graphics_info_t::idle_function_spin_rock_token = -1; // magic "unset" value
+long  graphics_info_t::time_holder_for_rocking = 0;
+double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
+double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
+double graphics_info_t::idle_function_rock_angle_previous = 0;
+
+#ifdef USE_PYTHON
+// Hamish python
+std::string graphics_info_t::python_draw_function_string;
+#endif
+
+// new style (20110505 ligand interactions)
+//
+long  graphics_info_t::time_holder_for_ligand_interactions = 0;
+int   graphics_info_t::idle_function_ligand_interactions_token = 0;
+double graphics_info_t::ligand_interaction_pulse_previous = 0;
+
+
+int   graphics_info_t::drag_refine_idle_function_token = -1; // magic unused value
+coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, -2, "");
+float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
+bool  graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = 1; // yes
+
+bool graphics_info_t::post_intermediate_atoms_moved_ready;
+#ifdef USE_PYTHON
+PyObject *graphics_info_t::post_intermediate_atoms_moved_hook = 0;
+#endif
+
+
+float graphics_info_t::map_sampling_rate = 2.5;
+
+// Initialise the static atom_sel.
+//
+//We use this to store the atom selections of the molecules (not that
+//an atom_selection_container_t contains the atom selection and the
+//molecular manager (or at least, pointers to them).
+//
+// Only one atom_selection_container_t at the moment.  Later perhaps
+// we will make the atom_selection_container_t* for multiple
+// molecules.
+//
+//
+//atom_selection_container_t aaa;
+//atom_selection_container_t molecule_class_info_t::atom_sel = aaa;
+
+//
+
+short int graphics_info_t::show_aniso_atoms_flag = 0; // initially don't show.
+short int graphics_info_t::show_aniso_atoms_radius_flag = 0;
+float     graphics_info_t::show_aniso_atoms_radius = 12.0;
+float     graphics_info_t::show_aniso_atoms_probability = 50.0;
+
+// initialise the molecule (scene) rotation axis statics.
+//
+float molecule_rot_t::x_axis_angle = 0.0;
+float molecule_rot_t::y_axis_angle = 0.0;
+
+// 0: never run it
+// 1: ask to run it
+// 2: always run it
+short int graphics_info_t::run_state_file_status = 1;
+bool      graphics_info_t::state_file_was_run_flag = false;
+// did we start with --no-startup-scripts?
+bool      graphics_info_t::run_startup_scripts_flag = true;
+
+GtkWidget *graphics_info_t::preferences_widget = NULL;
+int        graphics_info_t::mark_cis_peptides_as_bad_flag = 1;
+
+std::vector<std::string> *graphics_info_t::preferences_general_tabs;
+std::vector<std::string> *graphics_info_t::preferences_bond_tabs;
+std::vector<std::string> *graphics_info_t::preferences_geometry_tabs;
+std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
+std::vector<std::string> *graphics_info_t::preferences_map_tabs;
+std::vector<std::string> *graphics_info_t::preferences_other_tabs;
+std::vector<coot::preferences_icon_info_t> *graphics_info_t::model_toolbar_icons;
+std::vector<coot::preferences_icon_info_t> *graphics_info_t::main_toolbar_icons;
+
+std::vector<coot::preference_info_t> graphics_info_t::preferences_internal;
+std::vector<coot::preference_info_t> graphics_info_t::preferences_internal_default;
+
+// Torsions with hydrogens?
+bool graphics_info_t::find_hydrogen_torsions_flag = 0; // no
+
+// Which ccp4i project shall we put at the top of a fileselection optionmenu?
+//
+int graphics_info_t::ccp4_projects_index_last = 0;
+
+// phs reading
+std::string graphics_info_t::phs_filename = "";
+
+// Pointer Distances
+float graphics_info_t::pointer_min_dist = 0.1;
+float graphics_info_t::pointer_max_dist = 3.6;
+int graphics_info_t::show_pointer_distances_flag = 0;
+
+
+// Go to Atom widget:
+//
+std::string graphics_info_t::go_to_atom_chain_     =  "A";
+std::string graphics_info_t::go_to_atom_atom_name_ = "CA";
+std::string graphics_info_t::go_to_atom_atom_altLoc_ = "";
+std::string graphics_info_t::go_to_atom_inscode_ = "";
+int         graphics_info_t::go_to_atom_residue_   = -9999; // magic
+							    // number. unset
+							    // initially.
+int         graphics_info_t::go_to_atom_molecule_  = 0;
+int         graphics_info_t::go_to_ligand_n_atoms_limit = 6;
+
+int         graphics_info_t::go_to_atom_mol_menu_active_position = -1; // unset
+                                                                       // initially.
+GtkWidget  *graphics_info_t::go_to_atom_window = NULL;
+int         graphics_info_t::go_to_atom_menu_label_n_chars_max = 40;
+
+GtkWidget *graphics_info_t::model_fit_refine_dialog = NULL;
+short int  graphics_info_t::model_fit_refine_dialog_was_sucked = 0;
+GtkWidget *graphics_info_t::residue_info_dialog = NULL;
+GtkWidget *graphics_info_t::rotamer_dialog = NULL;
+GtkWidget *graphics_info_t::difference_map_peaks_dialog = NULL;
+GtkWidget *graphics_info_t::checked_waters_baddies_dialog = NULL;
+
+int graphics_info_t::in_base_paring_define = 0;
+
+GtkWidget *graphics_info_t::other_modelling_tools_dialog = 0;
+
+coot::residue_spec_t graphics_info_t::current_residue = coot::residue_spec_t();
+
+// Skeleton Widgets:
+float graphics_info_t::skeleton_level = 0.2;
+float graphics_info_t::skeleton_box_radius = 40.0;
+
+// Autobuild control
+short int graphics_info_t::autobuild_flag = 0;
+
+// Fileselection sorting:
+short int graphics_info_t::sticky_sort_by_date = 0; // initally not.
+
+// Maps and Molecule Display Control window:
+GtkWidget *graphics_info_t::display_control_window_ = NULL;
+
+int graphics_info_t::draw_axes_flag = 1; // on by default now.
+
+bool graphics_info_t::regenerate_bonds_needs_make_bonds_type_checked_flag = true;
+
+//
+short int graphics_info_t::draw_crosshairs_flag = 0;
+
+// For defining a range (to, say, regularize)
+//
+int       graphics_info_t::refine_regularize_max_residues = 20;
+int       graphics_info_t::refine_auto_range_step = 1; // +/- 1 about the clicked residue
+short int graphics_info_t::in_range_define = 0; // regularization
+short int graphics_info_t::in_range_define_for_refine = 0;// refine (i.e. with map)
+short int graphics_info_t::in_distance_define = 0;
+short int graphics_info_t::in_angle_define = 0;
+short int graphics_info_t::in_torsion_define = 0;
+short int graphics_info_t::fix_chiral_volume_before_refinement_flag = 1;
+int       graphics_info_t::check_chiral_volume_molecule = 0;
+int       graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = 0; // option menu
+int       graphics_info_t::add_reps_molecule_combobox_molecule = 0;
+
+short int graphics_info_t::refinement_immediate_replacement_flag = 0;
+short int graphics_info_t::show_chiral_volume_errors_dialog_flag = 1; // on by default
+
+
+int graphics_info_t::residue_range_mol_no  = 0;
+int graphics_info_t::residue_range_atom_index_1 = 0;
+int graphics_info_t::residue_range_atom_index_2 = 0;
+int graphics_info_t::geometry_atom_index_1 = 0;
+int graphics_info_t::geometry_atom_index_2 = 0;
+int graphics_info_t::geometry_atom_index_3 = 0;
+int graphics_info_t::geometry_atom_index_4 = 0;
+int graphics_info_t::geometry_atom_index_1_mol_no = -1; // must be set before use.
+int graphics_info_t::geometry_atom_index_2_mol_no = -1;
+int graphics_info_t::geometry_atom_index_3_mol_no = -1;
+int graphics_info_t::geometry_atom_index_4_mol_no = -1;
+
+// torsion general
+int graphics_info_t::torsion_general_atom_index_1 = -1;
+int graphics_info_t::torsion_general_atom_index_2 = -1;
+int graphics_info_t::torsion_general_atom_index_3 = -1;
+int graphics_info_t::torsion_general_atom_index_4 = -1;
+int graphics_info_t::torsion_general_atom_index_1_mol_no = -1;
+int graphics_info_t::torsion_general_atom_index_2_mol_no = -1;
+int graphics_info_t::torsion_general_atom_index_3_mol_no = -1;
+int graphics_info_t::torsion_general_atom_index_4_mol_no = -1;
+short int graphics_info_t::in_edit_torsion_general_flag = 0;
+short int graphics_info_t::in_residue_partial_alt_locs_define = 0;
+int graphics_info_t::imol_residue_partial_alt_locs = 0;
+coot::residue_spec_t graphics_info_t::residue_partial_alt_locs_spec;
+double graphics_info_t::residue_partial_alt_locs_rotate_fragment_angle = 40; // degrees
+
+std::vector<coot::atom_spec_t> graphics_info_t::torsion_general_atom_specs;
+bool graphics_info_t::torsion_general_reverse_flag = 0;
+Tree graphics_info_t::torsion_general_tree;
+std::vector<std::vector<int> > graphics_info_t::torsion_general_contact_indices;
+
+
+
+//
+short int graphics_info_t::in_residue_info_define = 0;
+int graphics_info_t::residue_selection_flash_frames_number = 2; // was 3
+short int graphics_info_t::in_torsion_general_define = 0;
+
+short int graphics_info_t::in_save_symmetry_define = 0;
+
+short int graphics_info_t::in_rot_trans_object_define = 0;
+short int graphics_info_t::rot_trans_object_type = ROT_TRANS_TYPE_ZONE;
+short int graphics_info_t::rot_trans_zone_rotates_about_zone_centre = 0;
+int graphics_info_t::rot_trans_atom_index_1 = -1;
+int graphics_info_t::rot_trans_atom_index_2 = -1;
+int graphics_info_t::imol_rot_trans_object = -1;
+// int graphics_info_t::rot_trans_atom_index_rotation_origin_atom = -1; // old
+mmdb::Atom *graphics_info_t::rot_trans_rotation_origin_atom = NULL;
+
+float *graphics_info_t::previous_rot_trans_adjustment = new float[6];
+
+short int graphics_info_t::in_db_main_define = 0;
+int graphics_info_t::db_main_imol = -1;
+int graphics_info_t::db_main_atom_index_1 = -1;
+int graphics_info_t::db_main_atom_index_2 = -1;
+coot::db_main graphics_info_t::main_chain;
+
+coot::fixed_atom_pick_state_t graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
+GtkWidget *graphics_info_t::fixed_atom_dialog = 0;
+
+std::vector<coot::simple_distance_object_t> *graphics_info_t::distance_object_vec = NULL;
+std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *graphics_info_t::pointer_distances_object_vec = NULL;
+std::vector<coot::coord_orth_triple> *graphics_info_t::angle_object_vec = NULL;
+
+int graphics_info_t::show_origin_marker_flag = 1;
+
+//
+float graphics_info_t::geometry_vs_map_weight = 60.0;
+
+int graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position    = 3;
+int graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position  = 3;
+int graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = 3;
+int graphics_info_t::refine_params_dialog_torsions_weight_combox_position = 2;
+bool graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = false;
+
+int   graphics_info_t::rama_n_diffs = 50;
+
+atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;
+short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
+int graphics_info_t::imol_moving_atoms = 0;
+coot::extra_restraints_representation_t graphics_info_t::moving_atoms_extra_restraints_representation;
+
+bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = false;
+int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"
+                                               // checked in graphics_info_t::refine()
+
+graphical_bonds_container graphics_info_t::regularize_object_bonds_box;
+graphical_bonds_container graphics_info_t::environment_object_bonds_box;
+graphical_bonds_container graphics_info_t::symmetry_environment_object_bonds_box;
+int graphics_info_t::default_bonds_box_type = coot::NORMAL_BONDS; // Phil wants to change this.
+int graphics_info_t::mol_no_for_environment_distances = -1;
+
+int   graphics_info_t::bond_parameters_molecule = -1; // unset
+
+
+short int graphics_info_t::do_torsion_restraints = 0;
+short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
+bool      graphics_info_t::do_rama_restraints = 0; // No.
+bool      graphics_info_t::do_numerical_gradients = 0; // No.
+int       graphics_info_t::restraints_rama_type = coot::RAMA_TYPE_LOGRAMA;
+float     graphics_info_t::rama_restraints_weight = 40; // clipper-rama weight, gets reset on set_refine_ramachandran_restraints_type()
+float     graphics_info_t::rama_plot_restraint_weight = 1.0;  // what is this?
+
+// for Kevin Keating
+bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0;
+
+//
+bool      graphics_info_t::do_trans_peptide_restraints = true;
+
+//
+bool graphics_info_t::do_intermediate_atoms_rama_markup = true;
+bool graphics_info_t::do_intermediate_atoms_rota_markup = false;
+
+//
+short int graphics_info_t::guile_gui_loaded_flag = FALSE;
+short int graphics_info_t::python_gui_loaded_flag = FALSE;
+
+//
+bool  graphics_info_t::find_ligand_do_real_space_refine_ = true; // default on
+int   graphics_info_t::find_ligand_map_mol_ = -1;
+int   graphics_info_t::find_ligand_protein_mol_ = -1;
+bool  graphics_info_t::find_ligand_here_cluster_flag = 0;
+int   graphics_info_t::find_ligand_n_top_ligands = 10;
+bool  graphics_info_t::find_ligand_multiple_solutions_per_cluster_flag = false;
+float graphics_info_t::find_ligand_score_by_correl_frac_limit = 0.7;
+float graphics_info_t::find_ligand_score_correl_frac_interesting_limit = 0.9;
+
+double graphics_info_t::map_to_model_correlation_atom_radius = 1.5;
+
+short int graphics_info_t::find_ligand_mask_waters_flag = 0;
+float graphics_info_t::map_mask_atom_radius = -99; // unset
+// std::vector<int> *mol_tmp;
+std::vector<std::pair<int, bool> > *graphics_info_t::find_ligand_ligand_mols_;
+float graphics_info_t::find_waters_sigma_cut_off = 1.4;
+float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
+float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
+int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
+int   graphics_info_t::ligand_wiggly_ligand_count = 0; // dummy
+int   graphics_info_t::ligand_verbose_reporting_flag = 0;
+// std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_; bye!
+short int graphics_info_t::ligand_expert_flag = 0;
+
+float graphics_info_t::ligand_water_to_protein_distance_lim_max = 3.2;
+float graphics_info_t::ligand_water_to_protein_distance_lim_min = 2.4;
+float graphics_info_t::ligand_water_variance_limit = 0.12;
+int   graphics_info_t::ligand_water_n_cycles = 3;
+int   graphics_info_t::find_ligand_ligand_atom_limit = 400;
+// EJD wants it, but off by default:
+short int graphics_info_t::ligand_water_write_peaksearched_atoms = 0;
+std::vector<clipper::Coord_orth> *graphics_info_t::ligand_big_blobs = NULL;
+
+bool graphics_info_t::graphics_ligand_view_flag = false;
+
+
+short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
+short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
+coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
+float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
+bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
+
+float grey_level = 0.24;
+float norm_255 = 1.0/255.0;
+
+// this background is too "light" when we zoom in - the depth-cueing looks bad.
+// glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
+glm::vec3 graphics_info_t::background_colour = glm::vec3(17.0 * norm_255,
+                                                         17.0 * norm_255,
+                                                         17.0 * norm_255);
+//
+short int graphics_info_t::delete_item_atom = 0;
+short int graphics_info_t::delete_item_residue = 1;
+short int graphics_info_t::delete_item_residue_zone = 0;
+short int graphics_info_t::delete_item_residue_hydrogens = 0;
+short int graphics_info_t::delete_item_water = 0;
+short int graphics_info_t::delete_item_sidechain = 0;
+short int graphics_info_t::delete_item_sidechain_range = 0;
+short int graphics_info_t::delete_item_chain = 0;
+GtkWidget *graphics_info_t::delete_item_widget = NULL;
+int       graphics_info_t::keep_delete_item_active_flag = 0;
+coot::residue_spec_t graphics_info_t::delete_item_residue_zone_1;
+coot::residue_spec_t graphics_info_t::delete_item_sidechain_range_1;
+int graphics_info_t::delete_item_residue_zone_1_imol = -1;
+int graphics_info_t::delete_item_sidechain_range_1_imol = -1;
+
+
+GtkWidget *graphics_info_t::symmetry_controller_dialog = 0;
+
+short int graphics_info_t::do_scroll_by_wheel_mouse_flag = 1;
+
+
+// dummy atom typed (dialog) or dummy (forced/auto)
+short int graphics_info_t::pointer_atom_is_dummy = 0;
+int       graphics_info_t::user_pointer_atom_molecule = -1; // unset.
+
+// read a pdb, shall we recentre?
+short int graphics_info_t::recentre_on_read_pdb = 1;
+
+// Buttons - now are configurable
+//
+GdkModifierType graphics_info_t::button_1_mask_ = GDK_BUTTON1_MASK;
+GdkModifierType graphics_info_t::button_2_mask_ = GDK_BUTTON2_MASK;
+GdkModifierType graphics_info_t::button_3_mask_ = GDK_BUTTON3_MASK;
+
+std::map<GLchar, FT_character> graphics_info_t::ft_characters;
+
+// shall we show the density leven on screen?
+short int graphics_info_t::display_density_level_on_screen = 1;
+short int graphics_info_t::display_density_level_this_image = 1;
+std::string graphics_info_t::display_density_level_screen_string =
+   "Welcome to Coot";
+
+// This kills the compiler:  Move the allocation to init.
+// GtkWidget **graphics_info_t::dynarama_is_displayed = new GtkWidget *[graphics_info_t::n_molecules_max];
+float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
+
+// cif dictionary
+std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;
+int  graphics_info_t::cif_dictionary_read_number = 1;
+// bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = true; // Too annoying
+bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = false;
+
+
+// map radius slider
+float graphics_info_t::map_radius_slider_max = 50.0;
+
+// Rotate colour map
+short int graphics_info_t::rotate_colour_map_on_read_pdb_flag = 1; // do it.
+short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 1; // rotate Cs only by default
+float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
+float     graphics_info_t::rotate_colour_map_for_map = 14.0;  // degrees
+
+// cell colour
+coot::colour_holder graphics_info_t::cell_colour =
+   coot::colour_holder(0.8, 0.8, 0.2);
+
+
+// regulariziation
+//
+coot::protein_geometry *graphics_info_t::geom_p = NULL;
+
+
+// rotamer probabilities
+int graphics_info_t::rotamer_search_mode = ROTAMERSEARCHAUTOMATIC;
+coot::rotamer_probability_tables graphics_info_t::rot_prob_tables;
+float graphics_info_t::rotamer_distortion_scale = 0.3;
+
+// PHENIX support
+std::string graphics_info_t::external_refinement_program_button_label = "*-*";
+
+
+// pepflip
+int graphics_info_t::atom_index_pepflip = 0;
+int graphics_info_t::imol_pepflip = 0;
+int graphics_info_t::iresno_pepflip = 0;
+short int graphics_info_t::in_pepflip_define = 0;
+
+// rigid body refinement
+short int graphics_info_t::in_rigid_body_define = 0;
+int       graphics_info_t::imol_rigid_body_refine = 0;
+
+// terminal residue define
+short int graphics_info_t::in_terminal_residue_define = 0;
+short int graphics_info_t::add_terminal_residue_immediate_addition_flag = 1;
+short int graphics_info_t::add_terminal_residue_do_post_refine = 0;
+float graphics_info_t::terminal_residue_addition_direct_phi = -135.0;
+float graphics_info_t::terminal_residue_addition_direct_psi =  135.0;
+
+
+// CIS <-> TRANS conversion
+int graphics_info_t::in_cis_trans_convert_define = 0;
+
+// add OXT atom
+int         graphics_info_t::add_OXT_molecule = -1;
+std::string graphics_info_t::add_OXT_chain;
+
+float graphics_info_t::default_new_atoms_b_factor = 30.0;
+
+int graphics_info_t::reset_b_factor_moved_atoms_flag = 0;
+
+// show environment
+float graphics_info_t::environment_min_distance = 0.0;
+float graphics_info_t::environment_max_distance = 3.2;
+bool graphics_info_t::environment_show_distances = 0;
+bool graphics_info_t::environment_distances_show_bumps = 1;
+bool graphics_info_t::environment_distances_show_h_bonds = 1;
+
+short int graphics_info_t::environment_distance_label_atom = 0;
+
+// dynamic distances to intermediate atoms:
+short int graphics_info_t::in_dynamic_distance_define = 0;
+coot::intermediate_atom_distance_t graphics_info_t::running_dynamic_distance;
+std::vector<coot::intermediate_atom_distance_t> graphics_info_t::dynamic_distances;
+
+//
+bool graphics_info_t::disable_state_script_writing = 0;
+
+// Dynamic map resampling and sizing
+short int graphics_info_t::dynamic_map_resampling = 0;
+short int graphics_info_t::dynamic_map_size_display = 0;
+int       graphics_info_t::graphics_sample_step = 1;
+int       graphics_info_t::dynamic_map_zoom_offset = 0;
+
+// history
+short int graphics_info_t::python_history = 1; // on
+short int graphics_info_t::guile_history  = 1; // on
+coot::history_list_t graphics_info_t::history_list;
+
+// build one residue, n trials:
+int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 5000;
+int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
+std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
+short int graphics_info_t::add_terminal_residue_do_rigid_body_refine = 0; // off by default
+bool      graphics_info_t::add_terminal_residue_debug_trials = false;
+float graphics_info_t::rigid_body_fit_acceptable_fit_fraction = 0.75;
+
+// rotamer
+#ifdef USE_DUNBRACK_ROTAMERS
+float graphics_info_t::rotamer_lowest_probability = 2.0; // percent
+#else
+float graphics_info_t::rotamer_lowest_probability = 0.0; // compatibility.  Limit
+                                                         // not used, practically.
+#endif
+short int graphics_info_t::in_rotamer_define = 0;
+int graphics_info_t::rotamer_residue_atom_index = -1; // unset initially.
+int graphics_info_t::rotamer_residue_imol = -1;       // unset initially.
+int graphics_info_t::rotamer_fit_clash_flag = 1;      //  check clashes initially.
+short int graphics_info_t::in_auto_fit_define = 0;    // not in auto fit initially.
+
+// mutation
+short int graphics_info_t::in_mutate_define = 0; // not, initially.
+int graphics_info_t::mutate_residue_atom_index = -1;
+int graphics_info_t::mutate_residue_imol = -1;
+atom_selection_container_t asc;
+atom_selection_container_t graphics_info_t::standard_residues_asc = asc;
+std::string graphics_info_t::mutate_sequence_chain_from_combobox;
+int         graphics_info_t::mutate_sequence_imol;
+int         graphics_info_t::align_and_mutate_imol;
+// std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+std::string graphics_info_t::align_and_mutate_chain_from_combobox;
+int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
+
+mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;
+mmdb::realtype    graphics_info_t::alignment_wspace = -0.4;
+
+//
+short int graphics_info_t::in_reverse_direction_define = 0;
+
+// user defined
+short int graphics_info_t::in_user_defined_define = 0;
+#ifdef USE_GUILE
+SCM graphics_info_t::user_defined_click_scm_func = SCM_BOOL_F;
+#endif // GUILE
+#ifdef USE_PYTHON
+PyObject *graphics_info_t::user_defined_click_py_func = NULL;
+#endif // PYTHON
+std::vector<coot::atom_spec_t> graphics_info_t::user_defined_atom_pick_specs;
+
+
+// Miguel's axis orientation matrix ---------------
+GL_matrix graphics_info_t::axes_orientation = GL_matrix();
+short int graphics_info_t::use_axes_orientation_matrix_flag = 0;
+
+// ---- NCS -----
+float graphics_info_t::ncs_min_hit_ratio = 0.9;
+short int graphics_info_t::ncs_maps_do_average_flag = 1;
+short int graphics_info_t::ncs_matrix_flag = coot::NCS_LSQ;
+// mutate auto fit
+short int graphics_info_t::in_mutate_auto_fit_define = 0;
+int graphics_info_t::mutate_auto_fit_residue_atom_index = -1;
+int graphics_info_t::mutate_auto_fit_residue_imol = -1;
+short int graphics_info_t::residue_type_chooser_auto_fit_flag = 0;
+short int graphics_info_t::residue_type_chooser_stub_flag = 0;
+short int graphics_info_t::mutate_auto_fit_do_post_refine_flag = 0;
+short int graphics_info_t::rotamer_auto_fit_do_post_refine_flag = 0;
+
+short int graphics_info_t::in_add_alt_conf_define = 0;
+GtkWidget *graphics_info_t::add_alt_conf_dialog = NULL;
+short int graphics_info_t::alt_conf_split_type = 1; // usually it is after Ca?
+int graphics_info_t::add_alt_conf_atom_index = -1;
+int graphics_info_t::add_alt_conf_imol = -1;
+float graphics_info_t::add_alt_conf_new_atoms_occupancy = 0.5;
+short int graphics_info_t::show_alt_conf_intermediate_atoms_flag = 0;
+float graphics_info_t::ncs_homology_level = 0.7;
+
+// dynarama
+//
+// edit phi/psi
+short int graphics_info_t::in_edit_phi_psi_define = 0;
+int graphics_info_t::edit_phi_psi_atom_index = -1;
+int graphics_info_t::edit_phi_psi_imol = -1;
+short int graphics_info_t::in_backbone_torsion_define = 0;
+coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
+float graphics_info_t::rama_level_prefered = 0.02;
+float graphics_info_t::rama_level_allowed = 0.002;
+float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
+int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
+
+ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
+
+// edit chi
+short int graphics_info_t::in_edit_chi_angles_define = 0;
+int       graphics_info_t::edit_chi_current_chi = 0; // real values start at 1.
+short int graphics_info_t::in_edit_chi_mode_flag = 0;
+short int graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+bool      graphics_info_t::edit_chi_angles_reverse_fragment = 0;
+short int graphics_info_t::moving_atoms_move_chis_flag = 0;
+coot::atom_spec_t graphics_info_t::chi_angles_clicked_atom_spec;
+std::string graphics_info_t::chi_angle_alt_conf = "";
+// multi-residue torsion
+bool graphics_info_t::in_multi_residue_torsion_define = false;
+bool graphics_info_t::in_multi_residue_torsion_mode = false;
+bool graphics_info_t::multi_residue_torsion_reverse_fragment_mode = false;
+int  graphics_info_t::multi_residue_torsion_picked_residues_imol = -1;
+std::pair<int, int> graphics_info_t::multi_residue_torsion_rotating_atom_index_pair = std::pair<int,int>(-1,-1);
+std::vector<coot::residue_spec_t> graphics_info_t::multi_residue_torsion_picked_residue_specs;
+
+
+// 180 degree flip
+short int graphics_info_t::in_180_degree_flip_define = 0;
+
+int graphics_info_t::ramachandran_plot_differences_imol1 = -1;
+int graphics_info_t::ramachandran_plot_differences_imol2 = -1;
+std::string graphics_info_t::ramachandran_plot_differences_imol1_chain = "";
+std::string graphics_info_t::ramachandran_plot_differences_imol2_chain = "";
+
+
+// state language variable:
+short int graphics_info_t::state_language = 1; // scheme
+
+// directory saving:
+std::string graphics_info_t::directory_for_fileselection = "";
+std::string graphics_info_t::directory_for_saving_for_fileselection = "";
+std::string graphics_info_t::directory_for_filechooser = "";
+std::string graphics_info_t::directory_for_saving_for_filechooser = "";
+
+
+// Residue info
+short int graphics_info_t::residue_info_pending_edit_b_factor = 0;
+short int graphics_info_t::residue_info_pending_edit_occ = 0;
+int       graphics_info_t::residue_info_n_atoms = -1;
+std::vector<coot::select_atom_info> *graphics_info_t::residue_info_edits = NULL;
+
+//  Backbone torsions:
+clipper::Coord_orth graphics_info_t::backbone_torsion_end_ca_1;
+clipper::Coord_orth graphics_info_t::backbone_torsion_end_ca_2;
+int graphics_info_t::backbone_torsion_peptide_button_start_pos_x;
+int graphics_info_t::backbone_torsion_peptide_button_start_pos_y;
+int graphics_info_t::backbone_torsion_carbonyl_button_start_pos_x;
+int graphics_info_t::backbone_torsion_carbonyl_button_start_pos_y;
+
+// show citation notice?
+// short int graphics_info_t::show_citation_notice = 1; // on by default :)
+short int graphics_info_t::show_citation_notice = 0; // on by default :)
+
+// we have dragged shear fixed points?
+short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
+// smaller is smoother and less jerky - especially for big molecules
+int       graphics_info_t::dragged_refinement_steps_per_frame = 10;
+short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
+double    graphics_info_t::refinement_drag_elasticity = 0.25;
+
+// save the restraints:
+//
+#ifdef HAVE_GSL
+coot::restraints_container_t *graphics_info_t::last_restraints = 0;
+// clipper::Xmap<float> blank_dummy_xmap;
+// ref version: coot::restraints_container_t(blank_dummy_xmap);
+#endif // HAVE_GSL
+//
+//
+bool graphics_info_t::draw_zero_occ_spots_flag = true; // on by default
+
+bool graphics_info_t::draw_cis_peptide_markups = true; // on by default
+
+int   graphics_info_t::check_waters_molecule = -1; // unset initially.
+float graphics_info_t::check_waters_b_factor_limit  = 80.0;
+float graphics_info_t::check_waters_map_sigma_limit = 1.0;
+float graphics_info_t::check_waters_min_dist_limit = 2.3;
+float graphics_info_t::check_waters_max_dist_limit = 3.5;
+float graphics_info_t::check_waters_by_difference_map_sigma_level = 3.5;
+int   graphics_info_t::check_waters_by_difference_map_map_number = -1;
+
+// default map sigma level:
+float graphics_info_t::default_sigma_level_for_map = 1.5;
+float graphics_info_t::default_sigma_level_for_fofc_map = 3.0;
+
+
+// geometry widget:
+GtkWidget *graphics_info_t::geometry_dialog = NULL;
+
+bool graphics_info_t::add_ccp4i_projects_to_optionmenu_flag = true;
+
+// run refmac widget:
+std::string graphics_info_t::refmac_ccp4i_project_dir = std::string("");
+std::string graphics_info_t::libcheck_ccp4i_project_dir = std::string("");
+
+std::vector<int> *graphics_info_t::preset_number_refmac_cycles;
+coot::refmac::refmac_refinement_method_type graphics_info_t::refmac_refinement_method = coot::refmac::RESTRAINED;
+coot::refmac::refmac_phase_input_type graphics_info_t::refmac_phase_input   = coot::refmac::NO_PHASES;
+coot::refmac::refmac_use_tls_type     graphics_info_t::refmac_use_tls_flag  = coot::refmac::TLS_ON;
+coot::refmac::refmac_use_twin_type    graphics_info_t::refmac_use_twin_flag = coot::refmac::TWIN_OFF;
+coot::refmac::refmac_use_sad_type     graphics_info_t::refmac_use_sad_flag  = coot::refmac::SAD_OFF;
+coot::refmac::refmac_use_ncs_type     graphics_info_t::refmac_use_ncs_flag  = coot::refmac::NCS_ON;
+coot::refmac::refmac_use_intensities_type graphics_info_t::refmac_use_intensities_flag  = coot::refmac::AMPLITUDES;
+coot::refmac::refmac_used_mtz_file_type graphics_info_t::refmac_used_mtz_file_flag = coot::refmac::MTZ;
+const gchar *graphics_info_t::saved_refmac_file_filename = NULL;
+int graphics_info_t::refmac_ncycles = 5;
+GtkWidget *graphics_info_t::refmac_dialog_mtz_file_label = NULL;
+std::vector<coot::refmac::sad_atom_info_t> graphics_info_t::refmac_sad_atoms;
+short int graphics_info_t::have_sensible_refmac_params = 0;
+std::string graphics_info_t::refmac_mtz_file_filename = "";
+std::string graphics_info_t::refmac_fobs_col = "";
+std::string graphics_info_t::refmac_sigfobs_col = "";
+std::string graphics_info_t::refmac_r_free_col = "";
+int graphics_info_t::refmac_r_free_flag_sensible = 0;
+
+// scrollin' scrollin' scrollin'... Shall we stop? When shall we stop?
+short int graphics_info_t::stop_scroll_diff_map_flag = 1; // stop on
+short int graphics_info_t::stop_scroll_iso_map_flag  = 1; // ditto.
+float     graphics_info_t::stop_scroll_diff_map_level = 0.0;
+float     graphics_info_t::stop_scroll_iso_map_level = 0.0;
+
+// globing
+//
+std::vector<std::string> *graphics_info_t::coordinates_glob_extensions;
+std::vector<std::string> *graphics_info_t::data_glob_extensions;
+std::vector<std::string> *graphics_info_t::map_glob_extensions;
+std::vector<std::string> *graphics_info_t::dictionary_glob_extensions;
+
+// superposition
+int graphics_info_t::superpose_imol1 = -1;
+int graphics_info_t::superpose_imol2 = -1;
+std::string graphics_info_t::superpose_imol1_chain = "";
+std::string graphics_info_t::superpose_imol2_chain = "";
+
+// unbonded star size [doesn't work yet]
+float graphics_info_t::unbonded_atom_star_size = 0.5;
+
+// Raster3D
+float graphics_info_t::raster3d_bond_thickness    = 0.18;
+float graphics_info_t::raster3d_atom_radius    = 0.25;
+float graphics_info_t::raster3d_density_thickness = 0.015;
+bool  graphics_info_t::raster3d_enable_shadows = 1;
+int   graphics_info_t::renderer_show_atoms_flag = 1;
+float graphics_info_t::raster3d_bone_thickness    = 0.05;
+int   graphics_info_t::raster3d_water_sphere_flag = 0;
+std::string graphics_info_t::raster3d_font_size = "4";
+
+// map (density) line thickness:
+int graphics_info_t::map_line_width = 1;
+
+// bonding stuff
+int   graphics_info_t::bond_thickness_intermediate_value = -1;
+float graphics_info_t::bond_thickness_intermediate_atoms = 5; // (no so) thick white atom bonds
+
+// merge molecules
+int graphics_info_t::merge_molecules_master_molecule = -1;
+std::vector<int> *graphics_info_t::merge_molecules_merging_molecules;
+coot::residue_spec_t graphics_info_t::merge_molecules_ligand_spec;
+
+// change chain ids:
+int graphics_info_t::change_chain_id_molecule = -1;
+std::string graphics_info_t::change_chain_id_from_chain = "";
+
+// renumber residues
+int         graphics_info_t::renumber_residue_range_molecule = -1;
+std::string graphics_info_t::renumber_residue_range_chain;
+
+// antialiasing:
+short int graphics_info_t::do_anti_aliasing_flag = 0;
+
+// lighting
+short int graphics_info_t::do_lighting_flag = 0;
+bool      graphics_info_t::do_flat_shading_for_solid_density_surface = 1;
+
+
+// stereo?
+int graphics_info_t::display_mode = coot::MONO_MODE;
+float graphics_info_t::hardware_stereo_angle_factor = 1.0;
+graphics_info_t::stereo_eye_t graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
+
+// remote controlled coot
+int graphics_info_t::try_port_listener = 0;
+int graphics_info_t::remote_control_port_number;
+std::string graphics_info_t::remote_control_hostname;
+int graphics_info_t::coot_socket_listener_idle_function_token = -1; //  default (off)
+// Did we get a good socket when we tried to open it?  If so, set
+// something non-zero here (which is done as a scheme command).
+int graphics_info_t::listener_socket_have_good_socket_state = 0;
+
+// I don't think that we need the mutex stuff when using waiting strings
+// - so python version doesn't have them (at the moment).
+std::string graphics_info_t::socket_string_waiting = "";
+std::string graphics_info_t::socket_python_string_waiting = "";
+volatile bool graphics_info_t::have_socket_string_waiting_flag = false;
+volatile bool graphics_info_t::have_socket_python_string_waiting_flag = false;
+volatile bool graphics_info_t::socket_string_waiting_mutex_lock = false;
+
+
+// validation
+std::vector<clipper::Coord_orth> *graphics_info_t::diff_map_peaks =
+   new std::vector<clipper::Coord_orth>;
+int   graphics_info_t::max_diff_map_peaks = 0;
+float graphics_info_t::difference_map_peaks_sigma_level = 5.0;
+float graphics_info_t::difference_map_peaks_max_closeness = 2.0; // A
+
+// save state file name
+#ifdef USE_GUILE
+std::string graphics_info_t::save_state_file_name = "0-coot.state.scm";
+#else
+std::string graphics_info_t::save_state_file_name = "0-coot.state.py";
+#endif
+
+// auto-read mtz columns
+// std::string graphics_info_t::auto_read_MTZ_FWT_col = "FWT";
+// std::string graphics_info_t::auto_read_MTZ_PHWT_col = "PHWT";
+// std::string graphics_info_t::auto_read_MTZ_DELFWT_col = "DELFWT";
+// std::string graphics_info_t::auto_read_MTZ_PHDELWT_col = "PHDELWT";
+
+std::vector<coot::mtz_column_trials_info_t> graphics_info_t::user_defined_auto_mtz_pairs;
+
+short int graphics_info_t::probe_available = -1; // don't know yet
+
+// fffearing
+float graphics_info_t::fffear_angular_resolution = 15.0; // degrees
+
+// move molecule here
+int graphics_info_t::move_molecule_here_molecule_number = -1;
+
+#ifdef HAVE_GSL
+// pseudo bond for sec str restraints
+coot::pseudo_restraint_bond_type graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
+#endif // HAVE_GSL
+
+
+// MYSQL database
+#ifdef USE_MYSQL_DATABASE
+MYSQL *graphics_info_t::mysql = 0;
+int    graphics_info_t::query_number = 1;
+std::string graphics_info_t::sessionid = "";
+std::pair<std::string, std::string> graphics_info_t::db_userid_username("no-userid","no-user-name");
+std::string graphics_info_t::mysql_host   = "localhost";
+std::string graphics_info_t::mysql_user   = "cootuser";
+std::string graphics_info_t::mysql_passwd = "password";
+#endif // USE_MYSQL_DATABASE
+
+//
+int graphics_info_t::ncs_next_chain_skip_key = GDK_KEY_o;
+int graphics_info_t::ncs_prev_chain_skip_key = GDK_KEY_O;
+int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_KEY_p;
+
+//
+GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
+
+// update self?
+bool graphics_info_t::update_self = 0;  // Set by command line arg --update-self
+
+float graphics_info_t::electrostatic_surface_charge_range = 0.5;
+
+// network
+volatile bool graphics_info_t::curl_handlers_lock = 0; // not locked.
+
+
+// Defaults for the file chooser
+int graphics_info_t::gtk2_file_chooser_selector_flag = coot::CHOOSER_STYLE;
+int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTECT;
+
+
+// Graphics ligand view
+// graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
+int                      graphics_info_t::show_graphics_ligand_view_flag = 1; // user control
+
+// FLEV
+// use-defined flev params
+float graphics_info_t::fle_water_dist_max = 3.25;   // 3.25
+float graphics_info_t::fle_h_bond_dist_max = 3.9;   // 3.9
+
+// Mogul
+float graphics_info_t::mogul_max_badness = 5.0;   // The z value colour at which the bond is fully red.
+                                                  // Some might say that 5.0 is to liberal (it allow
+                                                  // too much badness, that is).
+
+// Glyco fit and refine
+bool graphics_info_t::linked_residue_fit_and_refine_state = true;
+
+//
+bool graphics_info_t::allow_duplseqnum = true; // 20181214-PE - I presume that this is safe now?
+
+std::map<std::string, std::string> graphics_info_t::extensions_registry;
+
+//
+std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
+
+std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
+unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
+
+// atom pull
+// atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+std::vector<atom_pull_info_t> graphics_info_t:: atom_pulls;
+bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
+
+bool graphics_info_t::continue_update_refinement_atoms_flag = false;
+
+std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
+
+// need to configure for this!
+// #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
+
+// Chemical Feature Clusters, cfc
+GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
 bool graphics_info_t::coot_is_a_python_module = true;
 
