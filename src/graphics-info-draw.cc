@@ -2669,7 +2669,11 @@ graphics_info_t::check_if_moused_over_hud_bar(double mouse_x, double mouse_y) {
    // called check_if_hud_bar_mouse_over_or_act_on_hurd_bar_click()
 
    bool act_on_hit = false;
-   return check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(mouse_x, mouse_y, act_on_hit);
+   auto r = check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(mouse_x, mouse_y, act_on_hit);
+   if (false)
+      std::cout << ":::::::::: debug:: check_if_moused_over_hud_bar() returns "
+                << r.first << " " << r.second << std::endl;
+   return r;
 }
 
 bool
@@ -2683,10 +2687,12 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
 }
 
 bool
-graphics_info_t::check_if_hud_button_moused_over(double mouse_x, double mouse_y) {
+graphics_info_t::check_if_hud_button_moused_over(double mouse_x, double mouse_y, bool button_1_is_down) {
+
+   // std::cout << "Here in check_if_hud_button_moused_over() with button_1_is_down " << button_1_is_down << std::endl;
 
    bool act_on_hit = false;
-   check_if_hud_button_moused_over_or_act_on_hit(mouse_x, mouse_y, act_on_hit);
+   check_if_hud_button_moused_over_or_act_on_hit(mouse_x, mouse_y, act_on_hit, button_1_is_down);
    return false;
 }
 
@@ -2694,24 +2700,33 @@ bool
 graphics_info_t::check_if_hud_button_clicked(double mouse_x, double mouse_y) {
 
    bool act_on_hit = true;
-   bool status = check_if_hud_button_moused_over_or_act_on_hit(mouse_x, mouse_y, act_on_hit);
+   bool status = check_if_hud_button_moused_over_or_act_on_hit(mouse_x, mouse_y, act_on_hit, false);
    return status;
 }
 
 // this function needs to be passed mouse press or mouse release button info
 // so that it can do the button highlighting correctly.
+//
+// button_1_is_down is used for the highlighting.
+//
 bool
-graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit) {
+graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit, bool button_1_is_down) {
 
-   auto highlight_just_button_with_index = [] (unsigned int idx_active) {
+   auto highlight_just_button_with_index = [button_1_is_down] (unsigned int idx_active) {
                                               for (unsigned int i=0; i<hud_button_info.size(); i++) {
                                                  auto &button = hud_button_info[i];
-                                                 if (i == idx_active)
-                                                    button.set_button_colour_for_mode(HUD_button_info_t::HIGHLIGHTED);
-                                                 else
+                                                 if (i == idx_active) {
+                                                    if (button_1_is_down) {
+                                                       button.set_button_colour_for_mode(HUD_button_info_t::PRESSED);
+                                                    } else {
+                                                       button.set_button_colour_for_mode(HUD_button_info_t::HIGHLIGHTED);
+                                                    }
+                                                 } else {
                                                     button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
+                                                 }
                                               }
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              graphics_draw(); // let's see the changes then
                                            };
    auto unhighlight_all_buttons = [] () {
                                               for (unsigned int i=0; i<hud_button_info.size(); i++) {

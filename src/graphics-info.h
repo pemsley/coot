@@ -2847,8 +2847,8 @@ public:
    std::pair<bool, mmdb::Atom *> check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double mouse_x, double mouse_y, bool act_on_hit);
 
    bool check_if_hud_button_clicked(double x, double y);
-   bool check_if_hud_button_moused_over(double x, double y);
-   bool check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit);
+   bool check_if_hud_button_moused_over(double x, double y, bool button_1_is_down);
+   bool check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit, bool button_1_is_down);
 
 
    void unset_moving_atoms_currently_dragged_atom_index() {

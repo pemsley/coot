@@ -359,7 +359,8 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
-   // std::cout << "button press!" << std::endl;
+   std::cout << "button press!" << std::endl;
+
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);
    g.SetMouseClicked(event->x, event->y);
@@ -395,7 +396,20 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
          // Here we could check for button-down (to give a "button pressed but not activatetd" look)
          // Also I need to check that right-mouse is not being used before calling this.
          //
-         handled = g.check_if_hud_button_clicked(event->x, event->y);
+         // 20210830-PE OK, let's comment out the button_clicked then, and merely act as if
+         // the mouse had been moved when the button is down
+         // handled = g.check_if_hud_button_clicked(event->x, event->y);
+         //
+
+         // std::cout << "::::::::::::::::::: Here A event type " << event->type << std::endl;
+         // std::cout << "::::::::::::::::::: Here A event button " << event->button << std::endl;
+         // std::cout << "::::::::::::::::::: Here A debug " << event->state << " " << GDK_BUTTON1_MASK  << std::endl;
+         // std::cout << "::::::::::::::::::: Here A debug " << event->state << " " << GDK_BUTTON2_MASK  << std::endl;
+         // std::cout << "::::::::::::::::::: Here A debug " << event->state << " " << GDK_BUTTON3_MASK  << std::endl;
+
+         if (event->button == 1) // event->state & GDK_BUTTON1_MASK didn't work because event->state
+                                 // was 16 GDK_MOD2_MASK (I don't know why)
+            handled = g.check_if_hud_button_moused_over(event->x, event->y, true);
       }
 
       if (! handled) {
@@ -427,12 +441,15 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
+   graphics_info_t g;
    if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
-      graphics_info_t g;
       g.unset_moving_atoms_currently_dragged_atom_index();
       g.do_post_drag_refinement_maybe();
       graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
    }
+
+   if (event->state & GDK_BUTTON1_MASK)
+      g.check_if_hud_button_clicked(event->x, event->y);
 
    if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
@@ -503,7 +520,47 @@ do_drag_pan_gtk3(GtkWidget *widget) {
 gboolean
 on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
-   int r = 0;
+
+   auto check_for_hud_bar_tooltip = [widget] (double event_x, double event_y) {
+                               graphics_info_t g;
+                               std::pair<bool, mmdb::Atom *> handled_pair = g.check_if_moused_over_hud_bar(event_x, event_y);
+
+                               if (handled_pair.first) {
+                                  g.draw_hud_tooltip_flag = true;
+
+                                  // gtk mouse position to OpenGL (clip?) coordinates
+                                  GtkAllocation allocation;
+                                  gtk_widget_get_allocation(widget, &allocation);
+                                  int w = allocation.width;
+                                  int h = allocation.height;
+                                  float xx =    2.0 * g.mouse_current_x/static_cast<float>(w) - 1.0f;
+                                  float yy = - (2.0 * g.mouse_current_y/static_cast<float>(h) - 1.0f);
+                                  glm::vec2 pos(xx, yy);
+                                  // this makes the top-left of the tooltip bubble point at the hud geometry bar box (mouse position)
+                                  // without it, the tooltip middle is at the cursor position
+                                  // 0.1  too much to the left
+                                  // 0.07 too much to the left
+                                  // 0.05 too much to the left (not much)
+                                  // 0.0  too much to the right
+                                  float ww = 0.04f * (static_cast<float>(w)/900.0 - 1.0); //  hard-coded inital width - hmmm.
+                                  glm::vec2 background_texture_offset(0.08f - ww, -0.058f);
+                                  glm::vec2 label_texture_offset(0.0f, -0.086f);
+                                  glm::vec2 background_texture_pos = pos + background_texture_offset;
+                                  glm::vec2 atom_label_position = pos + label_texture_offset;
+                                  g.mesh_for_hud_tooltip_background.set_position(background_texture_pos); // used in uniforms
+                                  g.tmesh_for_hud_geometry_tooltip_label.set_position(atom_label_position);
+
+                                  mmdb::Atom *at = handled_pair.second;
+                                  coot::atom_spec_t at_spec(at);
+                                  g.label_for_hud_geometry_tooltip = at_spec.simple_label(at->residue->GetResName()); // e.g. A 65 CA
+                                  g.active_atom_for_hud_geometry_bar = at;
+                                  graphics_draw();
+                                  // return TRUE;
+                               } else {
+                                  g.draw_hud_tooltip_flag = false;
+                               }
+                            };
+
    graphics_info_t g;
 
    // split this function up before it gets too big.
@@ -522,47 +579,14 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.mouse_current_x = event->x;
    g.mouse_current_y = event->y;
 
-   std::pair<bool, mmdb::Atom *> handled_pair = g.check_if_moused_over_hud_bar(event->x, event->y);
-
-   if (handled_pair.first) {
-      g.draw_hud_tooltip_flag = true;
-
-      // gtk mouse position to OpenGL (clip?) coordinates
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      int w = allocation.width;
-      int h = allocation.height;
-      float xx =    2.0 * g.mouse_current_x/static_cast<float>(w) - 1.0f;
-      float yy = - (2.0 * g.mouse_current_y/static_cast<float>(h) - 1.0f);
-      glm::vec2 pos(xx, yy);
-      // this makes the top-left of the tooltip bubble point at the hud geometry bar box (mouse position)
-      // without it, the tooltip middle is at the cursor position
-      // 0.1  too much to the left
-      // 0.07 too much to the left
-      // 0.05 too much to the left (not much)
-      // 0.0  too much to the right
-      float ww = 0.04f * (static_cast<float>(w)/900.0 - 1.0); //  hard-coded inital width - hmmm.
-      glm::vec2 background_texture_offset(0.08f - ww, -0.058f);
-      glm::vec2 label_texture_offset(0.0f, -0.086f);
-      glm::vec2 background_texture_pos = pos + background_texture_offset;
-      glm::vec2 atom_label_position = pos + label_texture_offset;
-      g.mesh_for_hud_tooltip_background.set_position(background_texture_pos); // used in uniforms
-      g.tmesh_for_hud_geometry_tooltip_label.set_position(atom_label_position);
-
-      mmdb::Atom *at = handled_pair.second;
-      coot::atom_spec_t at_spec(at);
-      g.label_for_hud_geometry_tooltip = at_spec.simple_label(at->residue->GetResName()); // e.g. A 65 CA
-      g.active_atom_for_hud_geometry_bar = at;
-      graphics_draw();
-      return TRUE;
-   } else {
-      g.draw_hud_tooltip_flag = false;
-   }
+   check_for_hud_bar_tooltip(event->x, event->y);
 
    // if not right mouse pressed:
    if (event->state & GDK_BUTTON3_MASK) {
    } else {
-      g.check_if_hud_button_moused_over(event->x, event->y);
+      bool button_1_is_down = false;
+      if (event->state & GDK_BUTTON1_MASK) button_1_is_down = true;
+      g.check_if_hud_button_moused_over(event->x, event->y, button_1_is_down);
    }
 
    auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget) {
