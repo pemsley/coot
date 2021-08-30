@@ -4407,13 +4407,18 @@ string   static std::string sessionid;
    void setup_hud_buttons();
    static HUDMesh mesh_for_hud_buttons;
    static std::vector<HUD_button_info_t> hud_button_info;
+
+
    void show_test_buttons(); // testing function
    // when the HUD buttons are shown, we want to show the atom pull buttons too
    // (they are in the GTK toolbar, not in OpenGL)
+
    void show_atom_pull_toolbar_buttons();
    void hide_atom_pull_toolbar_buttons();
 
    void show_accept_reject_hud_buttons();
+   void reset_hud_buttons_size_and_position();
+   void clear_hud_buttons(); // called by clear_up_moving_atoms_wrapper();
 
    // Mesh mesh_for_particles("mesh-for-particles");
    // int n_particles = 100;

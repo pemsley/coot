@@ -46,6 +46,7 @@ public:
 
 // this is another type of bar_info
 class HUD_button_info_t : public HUD_bar_attribs_t {
+   static glm::vec2 calculate_position_offset(unsigned int button_index, int width, int height);
 public:
    glm::vec4 colour_basic;
    glm::vec4 colour_pressed;
@@ -99,8 +100,10 @@ public:
       callback_function = cb_in;
    }
    // counting from the bottom! (at the moment)
+   void set_scales_and_position_offset(unsigned int button_index, int width, int height);
+   // This doesn't change the button width
    void set_position_offset(unsigned int button_index, int width, int height);
-   static HUD_button_limits_t get_button_limits(unsigned int button_index, int width, int height);
+   HUD_button_limits_t get_button_limits(unsigned int button_index, int width, int height) const;
 };
 
 class HUDMesh {

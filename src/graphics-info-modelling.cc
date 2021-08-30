@@ -471,6 +471,10 @@ graphics_info_t::clear_up_moving_atoms_wrapper() {
       clear_up_glsl_buffers_for_moving_atoms();
       clear_moving_atoms_object();
 
+      clear_hud_buttons();
+
+      // remove this at some stage
+
       if (accept_reject_dialog) {
          if (accept_reject_dialog_docked_flag == coot::DIALOG) {
             save_accept_reject_dialog_window_position(accept_reject_dialog);

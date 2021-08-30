@@ -233,40 +233,83 @@ HUDMesh::update_instancing_buffer_data(const std::vector<HUD_button_info_t> &but
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(HUD_button_info_t), &(buttons_info[0]));
 }
 
-// static
+#include <glm/gtx/string_cast.hpp> // to_string
+
+
 HUD_button_limits_t
-HUD_button_info_t::get_button_limits(unsigned int button_index, int width, int height) {
+HUD_button_info_t::get_button_limits(unsigned int button_index, int width, int height) const {
 
    // matches below function (needed to test for hit: mouse-over/click)
 
    // 1.3 is used here as a multiplier to give the buttons some vertical room between them
 
-   float left = 0.6;
-   float right = left + button_width;
-   float bottom = -0.9 + 1.3 * button_height * static_cast<float>(button_index);
-   float top = bottom + HUD_button_info_t::button_height;
-   HUD_button_limits_t lims(top, bottom, left, right);
+   float ww = static_cast<float>(width);
+   float wh = static_cast<float>(height);
+
+   glm::vec2 po = calculate_position_offset(button_index, width, height);
+   float left   = po.x;
+   float bottom = po.y;
+   float adjusted_button_width_opengl_coords  = button_width  * static_cast<float>(900)/ww;
+   float adjusted_button_height_opengl_coords = button_height * static_cast<float>(900)/wh;
+   float right = left + adjusted_button_width_opengl_coords;
+   float top  = bottom + adjusted_button_height_opengl_coords;
+
+   HUD_button_limits_t lims(top, bottom, left, right); // opengl coords
    return lims;
    
 }
 
+// static
+glm::vec2
+HUD_button_info_t::calculate_position_offset(unsigned int button_index, int width, int height) {
 
-#include <glm/gtx/string_cast.hpp> // to_string
+   // OK so with a GL widget of 900x900, the buttons are (more or less) the right size and the right width
+   // and the right height.  That is with a default button_width of 0.3 and a default button_height of 0.06
+   //
+   // Let's scale things to match
+   //
+   float ww = static_cast<float>(width);
+   float wh = static_cast<float>(height);
+   //
+   // So, in GL coords, the left and right of the button is 0.6 and 0.9 - in pixels, that's 540 (ww-360) and 810 (ww-90)
+   //                   the bottom of the bottom button is -0.9         - in pixels, that's 810 (www-90)
+   //                   thb button height is 0.06                       - in pixels, that's  54
 
-// counting from the bottom! (at the moment)
-//
-// get the right position for the button
-void
-HUD_button_info_t::set_position_offset(unsigned int button_index, int width, int height) {
+   const float standard_offset_right_margin_n_pixels  = 90.0;
+   const float standard_offset_bottom_margin_n_pixels = 90.0;
 
-   // matches above function
+   const float button_right_margin_opengl_coords  = standard_offset_right_margin_n_pixels  / ww;
+   const float button_bottom_margin_opengl_coords = standard_offset_bottom_margin_n_pixels / wh;
 
-   // 1.3 is used here as a multiplier to give the buttons some vertical room between them
+   float adjusted_button_width_opengl_coords  = button_width  * static_cast<float>(900)/ww;
+   float adjusted_button_height_opengl_coords = button_height * static_cast<float>(900)/wh;
+   float button_left_opengl_coords = (1.0-button_right_margin_opengl_coords) - adjusted_button_width_opengl_coords;
 
-   glm::vec2 po(0.6, -0.9 + 1.3 * button_height * static_cast<float>(button_index));
-   std::cout << "set_position_offset(): button_index " << button_index << " " << glm::to_string(po) << std::endl;
-   set_position_offset(po);
+   glm::vec2 po(button_left_opengl_coords,
+                (-1+button_bottom_margin_opengl_coords) + 1.3 * adjusted_button_height_opengl_coords * static_cast<float>(button_index));
+
+   if (false)
+      std::cout << "debug:: button_right_margin_opengl_coords " << button_right_margin_opengl_coords
+                << " adjusted_button_width_opengl_coords " << adjusted_button_width_opengl_coords << " "
+                << "set_position_offset(): button_index " << button_index << " " << glm::to_string(po) << std::endl;
+
+   return po;
+
 }
+
+void
+HUD_button_info_t::set_scales_and_position_offset(unsigned int button_index, int glarea_width, int glarea_height) {
+
+   glm::vec2 po = calculate_position_offset(button_index, glarea_width, glarea_height);
+
+   set_position_offset(po);
+
+   float ww = static_cast<float>(glarea_width);
+   float wh = static_cast<float>(glarea_height);
+   scale_x *= static_cast<float>(900)/ww;
+   scale_y *= static_cast<float>(900)/wh;
+}
+
 
 
 void

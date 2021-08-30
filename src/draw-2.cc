@@ -307,6 +307,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
    // std::cout << "INFO:: Reset frame buffers " << width << "x" << height << std::endl;
    g.reset_frame_buffers(width, height);
+
+   g.reset_hud_buttons_size_and_position();
 }
 
 

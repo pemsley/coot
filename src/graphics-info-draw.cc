@@ -2035,6 +2035,14 @@ graphics_info_t::setup_hud_buttons() {
    mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
+   // maybe mesh_for_hud_buttons.close() ?
+}
+
+void
+graphics_info_t::clear_hud_buttons() {
+
+   hud_button_info.clear();
+   mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info); // empty
 }
 
 float
@@ -2082,10 +2090,9 @@ graphics_info_t::draw_hud_buttons() {
 
    // do the texture for the labels all on the fly
    //
-   float button_width  = HUD_button_info_t::button_width;  // * static_cast<float>(w)/900.0; ?
-   float button_height = HUD_button_info_t::button_height;
+   float button_width  = HUD_button_info_t::button_width  * static_cast<float>(900)/static_cast<float>(w);
+   float button_height = HUD_button_info_t::button_height * static_cast<float>(900)/static_cast<float>(h);
    glm::vec4 text_colour_white(0.95f, 0.95f, 0.95f, 1.0f);
-   glm::vec4 text_colour_black = glm::vec4(0.0, 0.0, 0.0, 1.0);
    Shader &shader =  shader_for_hud_geometry_tooltip_text;
    for (unsigned int i=0; i<hud_button_info.size(); i++) {
       const auto &button = hud_button_info[i];
@@ -2093,18 +2100,19 @@ graphics_info_t::draw_hud_buttons() {
       std::string mesh_name = "for button with label" + label;
       HUDTextureMesh htm(mesh_name);
       htm.setup_quad();
-      float text_scale = 0.0002; // was 0.00023
+      float text_scale = 0.0002; // was 0.00023 // maybe should use * static_cast<float>(900)/static_cast<float>(h);
       glm::vec2 label_scale(text_scale/aspect_ratio, text_scale);
       htm.set_scales(label_scale);
       unsigned int n_chars = label.size();
-      float tl_adjust = static_cast<float>(n_chars-1) * -0.0114/aspect_ratio; // tl: text length
+      float tl_adjust = static_cast<float>(n_chars-1) * -0.0071 * static_cast<float>(900)/static_cast<float>(w);
       glm::vec2 pos = button.position_offset;
-      pos += glm::vec2(0.0, 0.33 * button_height); // vertical adjustment for label
+      pos += glm::vec2(0.0, 0.3 * button_height); // vertical adjustment for label
       pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
       pos += glm::vec2(tl_adjust, 0.00); // horizontal adjustment for text length
       htm.set_position(pos);
       htm.draw_label(label, text_colour_white, &shader, ft_characters);
       // meh
+      // glm::vec4 text_colour_black = glm::vec4(0.0, 0.0, 0.0, 1.0);
       // htm.set_position(pos+glm::vec2(0.003, -0.003));
       // htm.draw_label(label, text_colour_black, &shader, ft_characters);
    }
@@ -2156,12 +2164,12 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    button_1.set_colour(glm::vec4(0.4, 0.7, 0.4, 0.5));
    button_2.set_colour(glm::vec4(0.7, 0.4, 0.4, 0.5));
 
-   button_1.set_position_offset(0, w, h);
-   button_2.set_position_offset(1, w, h);
-   button_3.set_position_offset(2, w, h);
-   button_4.set_position_offset(3, w, h);
-   button_5.set_position_offset(4, w, h);
-   button_6.set_position_offset(5, w, h);
+   button_1.set_scales_and_position_offset(0, w, h);
+   button_2.set_scales_and_position_offset(1, w, h);
+   button_3.set_scales_and_position_offset(2, w, h);
+   button_4.set_scales_and_position_offset(3, w, h);
+   button_5.set_scales_and_position_offset(4, w, h);
+   button_6.set_scales_and_position_offset(5, w, h);
 
    auto button_1_func = [] () {
                            graphics_info_t g;
@@ -2222,6 +2230,21 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    gtk_gl_area_attach_buffers(gl_area);
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
 
+}
+
+void
+graphics_info_t::reset_hud_buttons_size_and_position() {
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   for (unsigned int i=0; i<hud_button_info.size(); i++) {
+      auto &button = hud_button_info[i];
+      button.set_scales_and_position_offset(i, w, h);
+   }
 }
 
 
