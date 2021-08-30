@@ -2090,6 +2090,7 @@ graphics_info_t::draw_hud_buttons() {
 
    // do the texture for the labels all on the fly
    //
+   float height_adjust = static_cast<float>(900)/static_cast<float>(h);
    float button_width  = HUD_button_info_t::button_width  * static_cast<float>(900)/static_cast<float>(w);
    float button_height = HUD_button_info_t::button_height * static_cast<float>(900)/static_cast<float>(h);
    glm::vec4 text_colour_white(0.95f, 0.95f, 0.95f, 1.0f);
@@ -2097,24 +2098,27 @@ graphics_info_t::draw_hud_buttons() {
    for (unsigned int i=0; i<hud_button_info.size(); i++) {
       const auto &button = hud_button_info[i];
       const std::string &label = button.button_label;
-      std::string mesh_name = "for button with label" + label;
-      HUDTextureMesh htm(mesh_name);
-      htm.setup_quad();
-      float text_scale = 0.0002; // was 0.00023 // maybe should use * static_cast<float>(900)/static_cast<float>(h);
-      glm::vec2 label_scale(text_scale/aspect_ratio, text_scale);
-      htm.set_scales(label_scale);
-      unsigned int n_chars = label.size();
-      float tl_adjust = static_cast<float>(n_chars-1) * -0.0071 * static_cast<float>(900)/static_cast<float>(w);
-      glm::vec2 pos = button.position_offset;
-      pos += glm::vec2(0.0, 0.3 * button_height); // vertical adjustment for label
-      pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
-      pos += glm::vec2(tl_adjust, 0.00); // horizontal adjustment for text length
-      htm.set_position(pos);
-      htm.draw_label(label, text_colour_white, &shader, ft_characters);
-      // meh
-      // glm::vec4 text_colour_black = glm::vec4(0.0, 0.0, 0.0, 1.0);
-      // htm.set_position(pos+glm::vec2(0.003, -0.003));
-      // htm.draw_label(label, text_colour_black, &shader, ft_characters);
+      if (! label.empty()) {
+         std::string mesh_name = "for button with label" + label;
+         HUDTextureMesh htm(mesh_name);
+         htm.setup_quad();
+         float text_scale = 0.00016; // was 0.00023 // maybe should use * static_cast<float>(900)/static_cast<float>(h);
+         text_scale *= height_adjust;
+         glm::vec2 label_scale(text_scale / aspect_ratio, text_scale);
+         htm.set_scales(label_scale);
+         unsigned int n_chars = label.size();
+         float tl_adjust = static_cast<float>(n_chars-1) * -text_scale * 42.0 * static_cast<float>(900)/static_cast<float>(w);
+         glm::vec2 pos = button.position_offset;
+         pos += glm::vec2(0.0, 0.3 * button_height); // vertical adjustment for label
+         pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
+         pos += glm::vec2(tl_adjust, 0.00); // horizontal adjustment for text length
+         htm.set_position(pos);
+         htm.draw_label(label, text_colour_white, &shader, ft_characters);
+         // meh
+         // glm::vec4 text_colour_black = glm::vec4(0.0, 0.0, 0.0, 1.0);
+         // htm.set_position(pos+glm::vec2(0.003, -0.003));
+         // htm.draw_label(label, text_colour_black, &shader, ft_characters);
+      }
    }
 }
 
