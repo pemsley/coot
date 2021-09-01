@@ -2411,14 +2411,20 @@ public:
    static TextureMesh tmesh_for_labels;
    static HUDMesh mesh_for_hud_geometry;
    static std::string label_for_hud_geometry_tooltip;
-   static Texture texture_for_hud_geometry_labels;     // image to texture for
+   static std::map<std::string, Texture> texture_for_hud_geometry_labels_map;     // image to texture for
    static HUDTextureMesh mesh_for_hud_geometry_labels; // labels for the bars
    static HUDTextureMesh mesh_for_hud_tooltip_background;
    static Texture texture_for_hud_tooltip_background;
    static HUDTextureMesh tmesh_for_hud_geometry_tooltip_label;
+   static HUDTextureMesh tmesh_for_hud_image_testing;
    static Shader shader_for_hud_geometry_tooltip_text; // shader for the above tmesh (not like atom labels
                                                        // HUD labels are in 2D, don't need mvp, eye position
                                                        // etc.).
+   static float get_x_base_for_hud_geometry_bars();
+
+   static Texture texture_for_camera_facing_quad; // debugging            
+   static TextureMesh tmesh_for_camera_facing_quad;
+   static Shader camera_facing_quad_shader;  // uses camera-facing-quad-shader-for-testing.shader
 
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 

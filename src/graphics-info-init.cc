@@ -6,15 +6,14 @@
 #include "coords/cos-sin.h"
 #include "graphics-info.h"
 
- #include <glm/glm.hpp>
- #include <glm/gtc/matrix_transform.hpp>
- #include <glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
- void
- graphics_info_t::load_freetype_font_textures() {
+void
+graphics_info_t::load_freetype_font_textures() {
 
-
-    // std::cout << "------------------------------- font loading -------" << std::endl;
+   std::cout << "------------------------------- load_freetype_font_textures() -------" << std::endl;
 
    // ----------------------------- font test -----------------
    FT_Library ft;
@@ -32,7 +31,8 @@
    } else {
       vera_font_loaded = true;
       // FT_Set_Pixel_Sizes(face, 0, 24); too big for labels
-      FT_Set_Pixel_Sizes(face, 0, 16);
+      // FT_Set_Pixel_Sizes(face, 0, 16);
+      FT_Set_Pixel_Sizes(face, 0, 40);
 
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
       // only using one byte.
@@ -58,6 +58,7 @@
                        GL_RED,
                        GL_UNSIGNED_BYTE,
                        face->glyph->bitmap.buffer);
+         // std::cout << "load_freetype_font_textures(): character " << ic << " " << face->glyph->bitmap.width << " " << face->glyph->bitmap.rows << std::endl;
          // Set texture options
          err = glGetError(); if (err) std::cout << "Loading characture textures glTexImage2D err " << err << std::endl;
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -101,7 +102,6 @@ graphics_info_t::init() {
       //                       glm::vec3(0.0, 0.0, 0.0),
       //                       glm::vec3(1.0, 1.0, 1.0));
 
-      float aspect = 1.2;
       // camera = benny::Camera(glm::vec3(0.0f,0.0f,-3.5f), 70, aspect, 0.1f, 500.0f);
 
       which_eye = FRONT_EYE;
@@ -130,7 +130,7 @@ graphics_info_t::init() {
       // they need a way to specify the data dir (before installing
       // it's not in PKGDATADIR)).
       //
-      std::string tables_dir = PKGDATADIR;
+      std::string tables_dir = coot::package_data_dir();
 
       char *data_dir = getenv("COOT_DATA_DIR");
       if (data_dir) {

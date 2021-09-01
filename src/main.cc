@@ -568,7 +568,7 @@ main (int argc, char *argv[]) {
    // Must be the last thing in this function, code after it does not get
    // executed (if we are using guile)
    //
-   std::cout << "------------------------------- into scm_boot_guile we go!" << std::endl;
+   // std::cout << "------------------------------- into scm_boot_guile we go!" << std::endl;
    my_wrap_scm_boot_guile(argc, argv);
 #endif
 

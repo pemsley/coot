@@ -4036,8 +4036,8 @@ molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_ro
 
    // Indices
    n_indices_for_model_triangles = triangles.size() * 3;
-   if (! is_intermediate_atoms_molecule)
-      std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
+   // if (! is_intermediate_atoms_molecule)
+   // std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
    unsigned int n_bytes = triangles.size() * 3 * sizeof(unsigned int);
    if (model_mesh_first_time) {
       glGenBuffers(1, &m_IndexBuffer_for_model_ID);

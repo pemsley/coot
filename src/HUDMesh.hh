@@ -80,7 +80,7 @@ public:
    }
    void set_colours_from_basic() {
       colour_highlighted = colour_basic + glm::vec4( 0.1,  0.1,  0.1, colour_basic.w);
-      colour_pressed     = colour_basic + glm::vec4(-0.2, -0.2, -0.2, colour_basic.w);
+      colour_pressed     = colour_basic + glm::vec4(-0.2, -0.2, -0.2, 0.6);
    }
    void set_colour(const glm::vec4 &c) {
       colour_basic = c;

@@ -2742,9 +2742,9 @@ set_clipping_front(float v) {
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
    args.push_back(v);
-   std::cout << "mid-1 adding to historyin in set_clipping_front" << std::endl;
+   // std::cout << "mid-1 adding to historyin in set_clipping_front" << std::endl;
    add_to_history_typed(cmd, args);
-   std::cout << "done set_clipping_front" << std::endl;
+   // std::cout << "done set_clipping_front" << std::endl;
 }
 
 

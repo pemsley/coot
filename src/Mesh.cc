@@ -523,7 +523,7 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenVertexArrays(1, &vao);
-      std::cout << "DEBUG:: setup_buffers() ######### first time: generated VAO " << vao << std::endl;
+      // std::cout << "DEBUG:: setup_buffers() ######### first time: generated VAO " << vao << std::endl;
       //   don't return before we set first_time = false at the end
    }
 

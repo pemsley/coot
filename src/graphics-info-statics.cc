@@ -1517,6 +1517,12 @@ std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
 HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
 
+// these 3 for testing images (20210831-PE may be usefule for mip mappsing testing later)
+Texture graphics_info_t::texture_for_camera_facing_quad;
+TextureMesh graphics_info_t::tmesh_for_camera_facing_quad;
+Shader graphics_info_t::camera_facing_quad_shader;
+HUDTextureMesh graphics_info_t::tmesh_for_hud_image_testing;
+
 TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers =
    TextureMesh("tmesh-for-happy-faces");
 Texture graphics_info_t::texture_for_happy_face_residue_marker;
@@ -1531,7 +1537,7 @@ coot::command_history_t graphics_info_t::command_history;
 
 std::vector<Instanced_Markup_Mesh> graphics_info_t::instanced_meshes;
 
-Texture graphics_info_t::texture_for_hud_geometry_labels;
+std::map<std::string, Texture> graphics_info_t::texture_for_hud_geometry_labels_map;
 Texture graphics_info_t::texture_for_hud_tooltip_background;
 bool graphics_info_t::draw_hud_tooltip_flag = false;
 

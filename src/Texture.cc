@@ -14,20 +14,20 @@ Texture::Texture(const std::string &file_name) {
 }
 
 void
-Texture::init(const std::string &file_name) {
+Texture::init(const std::string &file_name_in) {
 
-   std::string fn = file_name;
+   file_name = file_name_in;
 
 #ifdef THIS_IS_HMT
 #else
    std::string default_directory = coot::package_data_dir();
    default_directory += "/textures";
 
-   if (! coot::file_exists(fn)) {
-      fn = default_directory + "/" + file_name;
+   if (! coot::file_exists(file_name)) {
+      file_name = default_directory + "/" + file_name;
    }
 
-   if (! coot::file_exists(fn)) {
+   if (! coot::file_exists(file_name)) {
       std::cout << "ERROR:: missing file " << file_name << std::endl;
       std::cout << "ERROR:: not in " << default_directory << std::endl;
       return;
@@ -35,7 +35,7 @@ Texture::init(const std::string &file_name) {
 #endif // THIS_IS_HMT
 
    int width, height, num_components;
-   stbi_uc* image_data = stbi_load(fn.c_str(), &width, &height, &num_components, 4);
+   stbi_uc* image_data = stbi_load(file_name.c_str(), &width, &height, &num_components, 4);
    id = 0;
 
    if (!image_data) {
@@ -56,8 +56,14 @@ Texture::init(const std::string &file_name) {
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 
    stbi_image_free(image_data);
-   // std::cout << "debug::  done Texture::init() " << file_name << std::endl;
+   std::cout << "debug::  done Texture::init() " << file_name << std::endl;
 }
+
+std::pair<int, int>
+Texture::get_image_width_and_height() const {
+   return std::make_pair(image_width, image_height);
+}
+
 
 void
 Texture::init(const std::string &file_name, const std::string &directory) {
@@ -92,5 +98,8 @@ Texture::Bind(unsigned int unit) {
    // unit should be less than 32
    glActiveTexture(GL_TEXTURE0 + unit);
    glBindTexture(GL_TEXTURE_2D, m_texture_handle);
-
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL Error:: in Texture::Bind() image from file " << file_name
+                << " unit " << unit << " err " << err << std::endl;
 }

@@ -40,8 +40,8 @@ HUDTextureMesh::setup_quad() {
 void
 HUDTextureMesh::setup_texture_coords_for_nbcs_only() {
 
-   vertices[2].texture_coords.y = 0.5;
-   vertices[3].texture_coords.y = 0.5;
+   vertices[2].texture_coords.y = 1.0; // was 0.5;
+   vertices[3].texture_coords.y = 1.0; // was 0.5;
    vertices[2].position.y = 0.0;
    vertices[3].position.y = 0.0;
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
@@ -165,8 +165,11 @@ HUDTextureMesh::draw(Shader *shader_p) {
       std::cout << "HUDTextureMesh::draw() " << name << " sending position " << glm::to_string(position) << std::endl;
       std::cout << "HUDTextureMesh::draw() " << name << " sending scales "   << glm::to_string(scales) << std::endl;
    }
+
+   glm::vec4 text_colour(0.8, 0.7, 0.5, 1.0);
    shader_p->set_vec2_for_uniform("position", position);
    shader_p->set_vec2_for_uniform("scales", scales);
+   shader_p->set_vec4_for_uniform("text_colour", text_colour);
 
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
    GLenum err = glGetError();

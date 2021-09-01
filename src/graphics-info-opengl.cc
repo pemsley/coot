@@ -68,6 +68,9 @@ graphics_info_t::init_shaders() {
    shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
    shader_for_hud_buttons.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT); // ! needs a better name
 
+   // testing image textures
+   camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);
+
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
    shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);

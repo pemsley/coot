@@ -227,7 +227,9 @@ on_glarea_realize(GtkGLArea *glarea) {
          err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
       }
 
+      std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_hud_text.name << std::endl;
       setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
+      std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_atom_labels.name << std::endl;
       setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
 
       gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
@@ -263,18 +265,29 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.setup_key_bindings();
 
+
+      if (true) { // testing how textures work           
+         // g.texture_for_camera_facing_quad.init("some-test-label.png");
+         g.texture_for_camera_facing_quad.init("hud-label-rama.png");
+         // camera facing quad test
+         float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
+         g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(&g.camera_facing_quad_shader, image_apect_ratio, 1.0);
+         GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
+         g.tmesh_for_hud_image_testing.setup_quad();
+         err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
+      }
+
       g.setup_draw_for_happy_face_residue_markers_init();
 
       err = glGetError();
-      if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;
+      if (err) std::cout << "#### GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;
 
       std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
       graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
 
-      GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
-      gboolean legacy_flag = gdk_gl_context_is_legacy(context);
-      std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;
-      std::cout << "------------------------ realize() done " << std::endl;
+      // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
+      // gboolean legacy_flag = gdk_gl_context_is_legacy(context);
+      // std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;
 
    } else {
       std::cout << "ERROR:: Shader compilation failed " << std::endl;
@@ -299,11 +312,11 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_y_size = height;
 
    // why do I need to do this?
-   setup_hud_text(width, height, g.shader_for_hud_text, false);
-   setup_hud_text(width, height, g.shader_for_atom_labels, true); // change the function name
+   // setup_hud_text(width, height, g.shader_for_hud_text, false);
+   // setup_hud_text(width, height, g.shader_for_atom_labels, true); // change the function name
 
-   g.setup_hud_geometry_bars(); // because they depend on the aspect ratio - but can't that be
-                                // passed as a uniform?
+   // g.setup_hud_geometry_bars(); // because they depend on the aspect ratio - but can't that be
+                                   // passed as a uniform?
 
    // std::cout << "INFO:: Reset frame buffers " << width << "x" << height << std::endl;
    g.reset_frame_buffers(width, height);
@@ -358,8 +371,6 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
-
-   std::cout << "button press!" << std::endl;
 
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);

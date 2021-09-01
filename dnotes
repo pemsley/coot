@@ -10138,3 +10138,12 @@ Thu 19 Aug 12:28:50 BST 2021
 
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
 
+---
+Wed  1 Sep 01:28:24 BST 2021
+
+   ebassi:
+
+
+   If you build GTK with debugging support, what happens when you set the GDK_DEBUG=opengl environment variable?
+   If you’re using Mesa, what happens when you set the MESA_DEBUG=1 environment variable
+

@@ -39,6 +39,8 @@ GLuint VAO_for_text, VBO_for_text;
 
 int setup_hud_text(int widget_width, int widget_height, Shader &shader, bool for_atom_label_flag) {
 
+   std::cout << ":::::::::::::::::::: setup hud_text()" << std::endl;
+
    GLenum err = glGetError();
    // std::cout << "RenderText start with err " << err << std::endl;
 
@@ -84,7 +86,8 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader, bool for
 
     // debug_ft_characters();
 
-    return 0;  // return success status here?
+   std::cout << ":::::::::::::::::::: setup hud_text() done" << std::endl;
+   return 0;  // return success status here?
 
 }
 

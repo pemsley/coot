@@ -19,7 +19,7 @@ void main() {
    // background of the tooltip
 
    vec2 scaled_vertices = vertex * scales; // vec2(0.1, 0.05);
-   gl_Position = vec4(scaled_vertices + position , -0.999, 1.0);
+   gl_Position = vec4(scaled_vertices + position , -1.0, 1.0);
    texCoord_transfer = texCoord;
 }
 
@@ -41,14 +41,17 @@ void main() {
    vec4 sampled = texture(text, texCoord_transfer);
    sampled = sampled + sampled;
 
-   if (this_is_the_hud_bar_labels) {
-      sampled = vec4(0.4, 0.7, 0.2, sampled.a);
-   } else {
-      if ((sampled.r + sampled.g + sampled.b) < 0.01) {
-         sampled.a = 0.0;
-      } else {
-         sampled.a = 1.0;
-      }
-   }
+   // 20210901-PE 
+   // if (this_is_the_hud_bar_labels) {
+   //    sampled = vec4(0.4, 0.7, 0.2, sampled.a);
+   // } else {
+   //    if ((sampled.r + sampled.g + sampled.b) < 0.01) {
+   //       sampled.a = 0.0;
+   //    } else {
+   //       sampled.a = 1.0;
+   //    }
+   // }
+
+
    outputColor = sampled;
 }

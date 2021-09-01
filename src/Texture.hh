@@ -12,6 +12,8 @@ class Texture {
    std::string file_name;
    std::string type;
    unsigned int id;
+   int image_width;
+   int image_height;
 
 public:
    Texture() {}
@@ -25,6 +27,7 @@ public:
    void Bind(unsigned int unit);
    void set_default_directory(const std::string &dir);
    void close();
+   std::pair<int, int> get_image_width_and_height() const;
 
 };
 

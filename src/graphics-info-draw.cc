@@ -88,6 +88,7 @@ graphics_info_t::init_buffers() {
    init_central_cube();
    init_screen_quads();
    init_blur_quads();
+
 }
 
 void
@@ -165,11 +166,12 @@ graphics_info_t::init_central_cube() {
                       << err << std::endl;
    glBindVertexArray(0);
 
-   std::cout << "::::::::::::::::::::::::::::::: init_central_cube() done " << std::endl;
 }
 
 void
 graphics_info_t::init_hud_text() {
+
+   std::cout << ":::::::::::: init_hud_text() " << std::endl;
 
    graphics_info_t g;
    g.load_freetype_font_textures();
@@ -207,7 +209,7 @@ graphics_info_t::handle_delete_item_curor_change(GtkWidget *widget) {
          window = gtk_widget_get_window(GTK_WIDGET(widget));
 #endif
          if (window) {
-            GdkCursor *current_cursor = gdk_window_get_cursor(window);
+            // GdkCursor *current_cursor = gdk_window_get_cursor(window);
             // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
             if (naii.success == GL_TRUE) {
                int imol = naii.imol;
@@ -1998,29 +2000,33 @@ graphics_info_t::setup_hud_geometry_bars() {
    mesh_for_hud_geometry.setup_instancing_buffer(500, sizeof(HUD_bar_attribs_t));
 
    // If not found in this directory, then try default directory.
-   texture_for_hud_geometry_labels.set_default_directory(coot::package_data_dir());
-   texture_for_hud_geometry_labels.init("hud-label-nbc-rama.png");
+   texture_for_hud_geometry_labels_map["Rama"].set_default_directory(coot::package_data_dir());
+   texture_for_hud_geometry_labels_map["Rama"].init("hud-label-rama-small.png");
+   texture_for_hud_geometry_labels_map["NBC"].set_default_directory(coot::package_data_dir());
+   texture_for_hud_geometry_labels_map["NBC"].init("hud-label-NBC-small.png");
+   texture_for_hud_geometry_labels_map["Rota"].set_default_directory(coot::package_data_dir());
+   texture_for_hud_geometry_labels_map["Rota"].init("hud-label-rota-small.png");
+   texture_for_hud_geometry_labels_map["Pull"].set_default_directory(coot::package_data_dir());
+   texture_for_hud_geometry_labels_map["Pull"].init("hud-label-pull-small.png");
 
-   // above?
    texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
-   // texture_for_hud_tooltip_background.init("hud-label-nbc-rama.png");
    texture_for_hud_tooltip_background.init("hud-tooltip.png"); // 94x47
-   float sc_x = 0.001 * static_cast<float>(103) / aspect_ratio;
-   float sc_y = 0.001 * static_cast<float>(50);
+   float sc_x = 0.1 * static_cast<float>(103) / aspect_ratio;
+   float sc_y = 0.01 * static_cast<float>(50);
 
    // Do I need to Use() the shader_for_hud_geometry_labels here?
    shader_for_hud_geometry_labels.Use();
    mesh_for_hud_geometry_labels.setup_quad();
-   glm::vec2 position(-0.98, 0.903);
-   glm::vec2 scales(0.04/aspect_ratio, 0.06);
-   mesh_for_hud_geometry_labels.set_position_and_scales(position, scales); // ""NBC, Pull"" texture
+   // glm::vec2 position(-0.98, 0.903);
+   // glm::vec2 position(-0.0, 0.0);
+   // glm::vec2 scales(0.56/aspect_ratio, 0.56);
+   // mesh_for_hud_geometry_labels.set_position_and_scales(position, scales); // ""NBC, Pull"" texture
 
    mesh_for_hud_tooltip_background.setup_quad(); // does setup_buffers()
    mesh_for_hud_tooltip_background.set_scales(glm::vec2(sc_x, sc_y));
-   // mesh_for_hud_tooltip_background.setup_texture_coords_for_nbcs_and_rama();  // surely not needed?
 
    tmesh_for_hud_geometry_tooltip_label.setup_quad();
-   glm::vec2 label_scale(0.00015/aspect_ratio, 0.00015);
+   glm::vec2 label_scale(0.000095/aspect_ratio, 0.000095);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
 }
@@ -2079,6 +2085,12 @@ graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortio
 void
 graphics_info_t::draw_hud_buttons() {
 
+   if (hud_button_info.empty()) return;
+
+   glEnable(GL_DEPTH_TEST); // needed?
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -2086,7 +2098,7 @@ graphics_info_t::draw_hud_buttons() {
    int h = allocation.height;
    float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
 
-   mesh_for_hud_buttons.draw(&shader_for_hud_buttons);
+   mesh_for_hud_buttons.draw(&shader_for_hud_buttons); // we have added the button instances before now.
 
    // do the texture for the labels all on the fly
    //
@@ -2094,7 +2106,8 @@ graphics_info_t::draw_hud_buttons() {
    float button_width  = HUD_button_info_t::button_width  * static_cast<float>(900)/static_cast<float>(w);
    float button_height = HUD_button_info_t::button_height * static_cast<float>(900)/static_cast<float>(h);
    glm::vec4 text_colour_white(0.95f, 0.95f, 0.95f, 1.0f);
-   Shader &shader =  shader_for_hud_geometry_tooltip_text;
+   Shader &shader = shader_for_hud_geometry_tooltip_text;
+   shader.Use();
    for (unsigned int i=0; i<hud_button_info.size(); i++) {
       const auto &button = hud_button_info[i];
       const std::string &label = button.button_label;
@@ -2102,12 +2115,14 @@ graphics_info_t::draw_hud_buttons() {
          std::string mesh_name = "for button with label" + label;
          HUDTextureMesh htm(mesh_name);
          htm.setup_quad();
-         float text_scale = 0.00016; // was 0.00023 // maybe should use * static_cast<float>(900)/static_cast<float>(h);
-         text_scale *= height_adjust;
+         float text_scale_raw = 0.4 * 0.00018;
+         // text_scale_raw *= 100.0;
+         float text_scale = text_scale_raw * height_adjust;
          glm::vec2 label_scale(text_scale / aspect_ratio, text_scale);
          htm.set_scales(label_scale);
          unsigned int n_chars = label.size();
-         float tl_adjust = static_cast<float>(n_chars-1) * -text_scale * 42.0 * static_cast<float>(900)/static_cast<float>(w);
+         float width_adjust = static_cast<float>(900)/static_cast<float>(w);
+         float tl_adjust = - static_cast<float>(n_chars-1) * text_scale_raw * 2.5 * 43.6 * width_adjust;
          glm::vec2 pos = button.position_offset;
          pos += glm::vec2(0.0, 0.3 * button_height); // vertical adjustment for label
          pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
@@ -2251,6 +2266,22 @@ graphics_info_t::reset_hud_buttons_size_and_position() {
    }
 }
 
+// static
+float
+graphics_info_t::get_x_base_for_hud_geometry_bars() {
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+
+   float w_adjust = static_cast<float>(w)/static_cast<float>(900);
+
+   // shift to more negative x when the window is wider
+   return -0.83 - 0.04 * w_adjust;
+
+}
+
 
 void
 graphics_info_t::draw_hud_geometry_bars() {
@@ -2262,22 +2293,55 @@ graphics_info_t::draw_hud_geometry_bars() {
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   // first draw the text (labels) texture
+   GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: draw_hud_geometry_bars() A error " << err << std::endl;
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
 
    coot::refinement_results_t &rr = saved_dragged_refinement_results;
 
-   if (! rr.refinement_results_contain_overall_rama_plot_score) {
-      // std::cout << "chopping the texture " << std::endl;
-      mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_only();
-   } else {
-      mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_and_rama();
+   // --------------------- first draw the text (labels) texture -----------------------
+
+   class hud_label_info_t {
+   public:
+      std::string name;
+      unsigned int bar_index;
+      float label_relative_width;
+      hud_label_info_t(const std::string &n, unsigned int i, float rw) : name(n), bar_index(i), label_relative_width(rw) {}
+      hud_label_info_t(const std::string &n, unsigned int i) : name(n), bar_index(i) { label_relative_width = 1.0; }
+   };
+   std::vector<hud_label_info_t> hud_label_info;
+   hud_label_info.push_back(hud_label_info_t("Pull", 0, 0.6));
+   hud_label_info.push_back(hud_label_info_t("Rama", 2));
+   hud_label_info.push_back(hud_label_info_t("Rota", 3, 0.8));
+   hud_label_info.push_back(hud_label_info_t("NBC",  1, 0.6));
+   float x_base = get_x_base_for_hud_geometry_bars();
+
+   // Note that the x-positions are are not the left-most edge of the label (hmm)
+
+   // Don't forget these are *images* not actual text.
+
+   for (const auto &hud_label : hud_label_info) {
+      texture_for_hud_geometry_labels_map[hud_label.name].Bind(0);
+      unsigned int bar_index = hud_label.bar_index;
+      float text_y_offset = 0.017; // relative to the the bars in add_bars()
+      float y = 0.943 + text_y_offset - 0.05 * static_cast<float>(bar_index); // c.f. add_bars()
+      float width_adjust = static_cast<float>(900)/static_cast<float>(w);
+      float fudge = 1.0f; // for testing sampling
+      float y_fudge = -0.0 * static_cast<float>(bar_index);
+      glm::vec2 scales(0.046 * hud_label.label_relative_width * width_adjust * fudge, 0.015 * fudge);
+      glm::vec2 position(x_base - 0.05 * width_adjust, y + y_fudge);
+      mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
+      mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: draw_hud_geometry_bars() error Textures "
+                                             << hud_label.name << " " << err << std::endl;
    }
 
-   // Restore me when fixed                                                       
-   // texture_for_hud_geometry_labels.Bind(0);
-   // mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
-
-   // now draw the bars
+      // ----------------------- now draw the bars -----------------------
 
    auto probability_to_rotation_amount = [] (float probability) {
                                             // high probability should have low rotation
@@ -2300,47 +2364,49 @@ graphics_info_t::draw_hud_geometry_bars() {
    auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                        unsigned int bar_index,
                        std::vector<HUD_bar_attribs_t> *new_bars_p,
+                       float x_base_for_hud_geometry_bars,
                        float (*distortion_to_rotation_amount)(float),
                        float (*distortion_to_bar_size)(float)) {
 
-                         glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
-                         float sum_l = 0;
-                         int n = baddies.size();
-                         glm::vec4 col_white(0.8,0.8, 0.8, 0.7);
-                         for (int i=(n-1); i>=0; i--) {
-                            coot::colour_t cc(0.1, 0.9, 0.2);
-                            float d = baddies[i].second;
-                            float rotation_amount = distortion_to_rotation_amount(d);
-                            cc.rotate(rotation_amount);
-                            glm::vec4 col = cc.to_glm();
-                            col.w = 0.7;
-                            glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
-                            float bar_length = distortion_to_bar_size(d);
-                            bool this_atom_is_in_a_moving_atoms_residue = baddies[i].first.int_user_data;
+                      // to_top_left() needs to be the same as check_bars()
+                      glm::vec2 to_top_left(x_base_for_hud_geometry_bars, 0.943 - 0.05 * static_cast<float>(bar_index));
+                      float sum_l = 0;
+                      int n = baddies.size();
+                      glm::vec4 col_white(0.8,0.8, 0.8, 0.7);
+                      for (int i=(n-1); i>=0; i--) {
+                         coot::colour_t cc(0.1, 0.9, 0.2);
+                         float d = baddies[i].second;
+                         float rotation_amount = distortion_to_rotation_amount(d);
+                         cc.rotate(rotation_amount);
+                         glm::vec4 col = cc.to_glm();
+                         col.w = 0.7;
+                         glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                         float bar_length = distortion_to_bar_size(d);
+                         bool this_atom_is_in_a_moving_atoms_residue = baddies[i].first.int_user_data;
 
-                            // the vector of HUD_bar_attribs_t is fed directly to a opengl buffer.
-                            // So I need "expand" to 2 bars right here - one with a "thin bar" attribute
-                            //
-                            if (! this_atom_is_in_a_moving_atoms_residue) {
-                               float bar_height = 0.03; // universal
-                               float bar_slither_y_scale = 0.3; // looks nice
-                               float y_offset_main = bar_height * bar_slither_y_scale;
-                               glm::vec2 position_offset_for_main = position_offset + glm::vec2(0, y_offset_main);
-                               HUD_bar_attribs_t bar_main(col, position_offset_for_main, bar_length);
-                               bar_main.scale_y = 1.0 - bar_slither_y_scale;
-                               new_bars_p->push_back(bar_main);
-                               // slither bar
-                               glm::vec2 position_offset_for_slither = position_offset + glm::vec2(0,0);
-                               HUD_bar_attribs_t bar_slither(col_white, position_offset_for_slither, bar_length);
-                               bar_slither.scale_y = bar_slither_y_scale;
-                               new_bars_p->push_back(bar_slither);
-                            } else {
-                               HUD_bar_attribs_t bar(col, position_offset, bar_length);
-                               new_bars_p->push_back(bar);
-                            }
-                            sum_l += bar_length + 0.005; // with a gap between bars
-                          }
-                       };
+                         // the vector of HUD_bar_attribs_t is fed directly to a opengl buffer.
+                         // So I need "expand" to 2 bars right here - one with a "thin bar" attribute
+                         //
+                         if (! this_atom_is_in_a_moving_atoms_residue) {
+                            float bar_height = 0.03; // universal
+                            float bar_slither_y_scale = 0.3; // looks nice
+                            float y_offset_main = bar_height * bar_slither_y_scale;
+                            glm::vec2 position_offset_for_main = position_offset + glm::vec2(0, y_offset_main);
+                            HUD_bar_attribs_t bar_main(col, position_offset_for_main, bar_length);
+                            bar_main.scale_y = 1.0 - bar_slither_y_scale;
+                            new_bars_p->push_back(bar_main);
+                            // slither bar
+                            glm::vec2 position_offset_for_slither = position_offset + glm::vec2(0,0);
+                            HUD_bar_attribs_t bar_slither(col_white, position_offset_for_slither, bar_length);
+                            bar_slither.scale_y = bar_slither_y_scale;
+                            new_bars_p->push_back(bar_slither);
+                         } else {
+                            HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                            new_bars_p->push_back(bar);
+                         }
+                         sum_l += bar_length + 0.005; // with a gap between bars
+                      }
+                   };
 
    auto rota_sorter = [] (const rotamer_markup_container_t &rmc_1,
                           const rotamer_markup_container_t &rmc_2) {
@@ -2352,13 +2418,15 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    auto add_rotamer_bars = [rota_sorter] (std::vector<HUD_bar_attribs_t> *new_bars_p,
                                           unsigned int bar_index,
+                                          float x_base_for_hud_geometry_bars,
                                           rotamer_markup_container_t *rotamer_markups,
                                           int n_rotamer_markups) {
 
                               // this code has to be the same as the check_if_hud_bar_clicked code
 
+                              // needs to be consitent with above and check_bars()
+                              glm::vec2 to_top_left(x_base_for_hud_geometry_bars, 0.943 - 0.05 * static_cast<float>(bar_index));
                               glm::vec4 col_white(0.8,0.8, 0.8, 0.7);
-                              glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                               std::vector<rotamer_markup_container_t> v;
                               // filter out the goodies
                               for (int i=0; i<n_rotamer_markups; i++)
@@ -2421,16 +2489,17 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    std::vector<HUD_bar_attribs_t> new_bars;
 
+   float x_base_for_hud_geometry_bars = get_x_base_for_hud_geometry_bars();
    // add to new_bars
-   add_bars(rr.sorted_atom_pulls, 0, &new_bars,
+   add_bars(rr.sorted_atom_pulls, 0, &new_bars, x_base_for_hud_geometry_bars,
             distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
 
    if (rr.refinement_results_contain_overall_nbc_score)
-      add_bars(rr.sorted_nbc_baddies, 1, &new_bars,
+      add_bars(rr.sorted_nbc_baddies, 1, &new_bars, x_base_for_hud_geometry_bars,
                distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
 
    if (rr.refinement_results_contain_overall_rama_plot_score)
-      add_bars(rr.sorted_rama_baddies, 2, &new_bars,
+      add_bars(rr.sorted_rama_baddies, 2, &new_bars, x_base_for_hud_geometry_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
 
    // add rotas to new_bars
@@ -2438,7 +2507,7 @@ graphics_info_t::draw_hud_geometry_bars() {
       if (moving_atoms_asc->mol) {
          int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
          if (nrms > 0) {
-            add_rotamer_bars(&new_bars, 3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
+            add_rotamer_bars(&new_bars, 3, x_base_for_hud_geometry_bars, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
          }
       }
    }
@@ -2490,12 +2559,13 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
    //
    auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                                                  unsigned int bar_index,
+                                                 float x_base_for_hud_geometry_bars,
                                                  float (*distortion_to_bar_size)(float),
                                                  bool act_on_hit) {
 
                           bool status = false;
                           mmdb::Atom *at_out = 0;
-                          glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                          glm::vec2 to_top_left(x_base_for_hud_geometry_bars, 0.943 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
                           for (int i=(n-1); i>=0; i--) {
@@ -2552,6 +2622,7 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
 
    auto check_rota_blocks = [mouse_in_opengl_coords,
                              rota_sorter] (unsigned int bar_index,
+                                           float x_base_for_hud_geometry_bars,
                                            rotamer_markup_container_t *rotamer_markups,
                                            int n_rotamer_markups,
                                            bool act_on_hit) {
@@ -2559,7 +2630,7 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
                                bool status = false;
                                mmdb::Atom *at_out = 0;
                                coot::residue_spec_t spec_for_at_out;
-                               glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                               glm::vec2 to_top_left(x_base_for_hud_geometry_bars, 0.943 - 0.05 * static_cast<float>(bar_index));
                                std::vector<rotamer_markup_container_t> v;
                                // filter out the goodies
                                for (int i=0; i<n_rotamer_markups; i++)
@@ -2629,22 +2700,28 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
                                return std::pair<bool, mmdb::Atom *>(status, at_out);
                             };
 
-   status_pair = check_blocks(rr.sorted_atom_pulls, 0, hud_geometry_distortion_to_bar_size_atom_pull, act_on_hit);
+   float x_base_for_hud_geometry_bars = get_x_base_for_hud_geometry_bars();
+
+   status_pair = check_blocks(rr.sorted_atom_pulls, 0, x_base_for_hud_geometry_bars,
+                              hud_geometry_distortion_to_bar_size_atom_pull, act_on_hit);
 
    if (!status_pair.first)
       if (rr.refinement_results_contain_overall_nbc_score)
-         status_pair = check_blocks(rr.sorted_nbc_baddies, 1, hud_geometry_distortion_to_bar_size_nbc, act_on_hit);
+         status_pair = check_blocks(rr.sorted_nbc_baddies, 1, x_base_for_hud_geometry_bars,
+                                    hud_geometry_distortion_to_bar_size_nbc, act_on_hit);
 
    if (!status_pair.first)
       if (rr.refinement_results_contain_overall_rama_plot_score)
-         status_pair = check_blocks(rr.sorted_rama_baddies, 2, hud_geometry_distortion_to_bar_size_rama, act_on_hit);
+         status_pair = check_blocks(rr.sorted_rama_baddies, 2, x_base_for_hud_geometry_bars,
+                                    hud_geometry_distortion_to_bar_size_rama, act_on_hit);
 
    if (!status_pair.first) {
       if (moving_atoms_asc) {
          if (moving_atoms_asc->mol) {
             int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
             if (nrms > 0) {
-               status_pair = check_rota_blocks(3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms, act_on_hit);
+               status_pair = check_rota_blocks(3, x_base_for_hud_geometry_bars,
+                                               moving_atoms_molecule.bonds_box.rotamer_markups, nrms, act_on_hit);
             }
          }
       }
@@ -2779,15 +2856,16 @@ void
 graphics_info_t::draw_hud_geometry_tooltip() {
 
    // this flag is set when the user mouses over a HUD bar
-   // and removed when they move from a hud bar.
-
-   glEnable(GL_DEPTH_TEST);
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   // and removed when they move from a hud geometry bar.
 
    if (draw_hud_tooltip_flag) {
 
+      glEnable(GL_DEPTH_TEST);
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
       texture_for_hud_tooltip_background.Bind(0);
+      mesh_for_hud_tooltip_background.set_scales(glm::vec2(0.163, 0.05)); // hud-tooltip.png is 103x50
       mesh_for_hud_tooltip_background.draw(&shader_for_hud_geometry_labels);
 
       // now the text that goes into (on top of) the background
@@ -2841,6 +2919,27 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
                           draw_origin_cube(gl_area);
                           err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
+
+
+                          bool draw_test_image = false;
+                          if (draw_test_image) {
+                             glEnable(GL_BLEND);
+                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                             glm::mat4 quat_mat = glm::toMat4(glm_quat);
+                             texture_for_camera_facing_quad.Bind(0);
+                             glm::mat4 mvp = get_molecule_mvp();
+                             glm::vec3 eye_position = get_world_space_eye_position();
+                             glm::vec4 bg_col(0.1, 0.1, 0.1, 1.0);
+
+                             // 20210831-PE testing... this gives us an image at the origin that's in the world and facing the camera.
+                             // interesting but not useful
+                             // tmesh_for_camera_facing_quad.draw(&camera_facing_quad_shader, mvp, quat_mat, lights, eye_position,
+                             //                         bg_col, shader_do_depth_fog_flag);
+
+                             tmesh_for_hud_image_testing.set_position(glm::vec2(-0.3, 0.5));
+                             tmesh_for_hud_image_testing.set_scales(glm::vec2(0.6, 0.2));
+                             tmesh_for_hud_image_testing.draw(&shader_for_hud_geometry_labels);
+                          }
 
                           // draw_central_cube(gl_area);
                           draw_rotation_centre_crosshairs(gl_area);
