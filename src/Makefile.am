@@ -553,7 +553,7 @@ libcootsumo_la_SOURCES = \
 	matrix-utils.cc          \
         map-statistics.hh        \
 	Mesh.cc Mesh.hh          \
-	Mesh-from-graphical-bonds.cc     \
+	Mesh-from-graphical-bonds-instanced.cc     \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	merge-molecule-results-info-t.hh \
