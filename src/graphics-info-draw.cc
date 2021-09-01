@@ -1882,7 +1882,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
-   float s = 10.0f * rotation_centre_cube_size;
+   float s = 6.0f * rotation_centre_cube_size;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 
