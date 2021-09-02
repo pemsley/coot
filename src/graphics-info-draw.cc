@@ -1150,8 +1150,10 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
          cc.rotate(ra);
          glm::vec4 col = cc.to_glm();
          Instanced_Markup_Mesh_attrib_t ball(col, ball_position, size);
-         float d1 = d + 85.0;
-         float d2 = - d1 * 0.016;
+         // float d1 = d + 85.0; 20210902-PE Hmm.
+         float d1 = d + 16.0;
+         float d2 = - d1 * 0.4; // 20210902-PE was 0.016;
+         // std::cout << "d2: " << d2 << std::endl;
          if (d2 < 0.0) d2 = 0.0;
          if (d2 > 1.0) d2 = 1.0;
          ball.specular_strength = 0.01 + d2;
@@ -2052,15 +2054,6 @@ graphics_info_t::clear_hud_buttons() {
 }
 
 float
-graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
-   float d1 = distortion + 200.0;
-   float d2 = d1 * 0.0003;
-   if (d2 < 0.0) d2 = 0.0;
-   float d3 = 100.0 * d2 * d2;
-   return d3;
-}
-
-float
 graphics_info_t::hud_geometry_distortion_to_bar_size_nbc(float distortion) {
    return distortion * 0.002;
 }
@@ -2073,12 +2066,51 @@ graphics_info_t::hud_geometry_distortion_to_bar_size_atom_pull(float distortion)
 
 
 float
+graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
+
+#if 0 // 20210902-PE this is how it was
+   float d1 = distortion + 200.0;
+   float d2 = d1 * 0.0003;
+   if (d2 < 0.0) d2 = 0.0;
+   float d3 = 100.0 * d2 * d2;
+   return d3;
+#endif
+
+   float d1 = distortion + 16.0;
+   float d2 = d1 / 6.0;
+   if (d2 < 0.0) d2 = 0.0;
+   float d3 = 0.1 * d2 * d2;
+
+   return d3;
+}
+
+// this function is used to colour the rama balla and colour the HUD geometry bars for rama
+// (a good idea to use the same function, it turns out).
+//
+float
 graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortion) {
-   distortion += 200.0;
-   // float rotation_amount = 1.0 - 0.0022 * distortion;
-   float rotation_amount = 1.0 - 0.0028 * distortion;
+
+   // 20210902-PE note to self - the numbers coming here (distortion) need to be unscaled
+   // by the rama restraints weight.
+   // But ignoring that for now... Good values are less than -15 (all the way down to ~ -24)
+   // Bad numbers are -9
+   //
+   // Final rotation amounts: 1.0 is pure green
+   // 0.68 is pure red
+
+   // When we don't have ramachandran restraints, then the rama balls are calculated
+   // by make_generic_vertices_for_rama_balls() called by make_glsl_bonds_type_checked()
+   // (if graphics_info_t::do_rama_restraints is false)
+   //
+   // Note also that cis peptides don't have ramachandran restraints.
+   //
+   float d2 = distortion + 16.0;
+   float rotation_amount = 1.0 - 0.1 * d2;
    if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
-   if (rotation_amount > 1.0) rotation_amount = 1.0;
+   if (rotation_amount > 1.00) rotation_amount = 1.0;
+
+   // std::cout << "debug:: distortion " << distortion << " rotation_amount " << rotation_amount << std::endl;
+
    return rotation_amount;
 }
 
