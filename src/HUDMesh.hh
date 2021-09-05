@@ -57,7 +57,7 @@ public:
    std::string button_label;
    static constexpr float button_width  = 0.30;
    static constexpr float button_height = 0.06;
-   static glm::vec4 get_default_colour() { return glm::vec4(0.4f, 0.4f, 0.4f, 0.6f); }
+   static glm::vec4 get_default_colour() { return glm::vec4(0.45f, 0.45f, 0.45f, 0.6f); }
    enum colour_highlight_type { BASIC, HIGHLIGHTED, PRESSED };
    bool (*callback_function)();
    void set_button_colour_for_mode(colour_highlight_type cht) {
@@ -81,7 +81,7 @@ public:
       callback_function = 0;
    }
    void set_colours_from_basic() {
-      colour_highlighted = colour_basic + glm::vec4( 0.1,  0.1,  0.1, colour_basic.w);
+      colour_highlighted = colour_basic + glm::vec4( 0.07,  0.07,  0.07, colour_basic.w);
       colour_pressed     = colour_basic + glm::vec4(-0.2, -0.2, -0.2, 0.6);
    }
    void set_colour(const glm::vec4 &c) {

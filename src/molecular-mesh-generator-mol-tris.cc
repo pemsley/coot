@@ -75,13 +75,15 @@ molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::share
          }
 
          auto indexArray = surface.getIndexArray();
-         unsigned long nIndices = 3 * surface.nTriangles();
          triangles.resize(surface.nTriangles());
          for (unsigned int iTriangle=0; iTriangle<surface.nTriangles(); iTriangle++){
             g_triangle &gt = triangles[iTriangle];
             for (int i=0; i<3; i++)
                gt[i] = indexArray[3*iTriangle+i];
          }
+         if (false)
+            std::cout << "in molecular_representation_instance_to_mesh(): Here B adding "
+                      << vertices.size() << " vertices and " << triangles.size() << " triangles" << std::endl;
          add_to_mesh(&vp, vertices, triangles);
       }
    }
@@ -114,7 +116,6 @@ molecular_mesh_generator_t::get_max_resno_for_polymer(mmdb::Chain *chain_p) cons
    return res_no_max;
 }
 
-#if 0   // Rainbow ribbons needs fixing.
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          mmdb::Chain *chain_p,
@@ -122,7 +123,8 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &style) {
 
    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() "
-             << colour_scheme << " " << style << std::endl;
+             << " chain-id: " << chain_p->GetChainID() << " colour_sheme: "
+             << colour_scheme << " style " << style << std::endl;
    
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
@@ -159,7 +161,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
    }
    return vp;
 }
-#endif
+
 
 std::vector<molecular_triangles_mesh_t>
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,

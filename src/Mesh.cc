@@ -1331,7 +1331,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
                       << " with GL err " << err << std::endl;
 
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_particles() glBindBuffer() v "
                                           << err << std::endl;
    glEnableVertexAttribArray(0); // vertex positions
    glEnableVertexAttribArray(1); // vertex normal
@@ -1345,12 +1345,12 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "error:: draw_particles() " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw_particles() " << shader_p->name
                       << " draw() post mvp uniform " << err << std::endl;
 
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
    err = glGetError();
-   if (err) std::cout << "error:: draw_particles() " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw_particles() " << shader_p->name
                       << " draw() post view_rotation uniform " << err << std::endl;
 
    //
@@ -1367,7 +1367,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
                 << " drawing n_instances " << n_instances << std::endl;
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
    err = glGetError();
-   if (err) std::cout << "   error draw_particles() " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw_particles() " << shader_p->name
                       << " glDrawElementsInstanced() vao " << vao
                       << " with GL err " << err << std::endl;
 
@@ -1384,8 +1384,8 @@ Mesh::draw(Shader *shader_p,
            bool do_depth_fog) {
 
    if (false)
-      std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << " " << draw_this_mesh << " " <<
-         triangles.size() << std::endl;
+      std::cout << "start:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
+                << " draw_this_mesh: " << draw_this_mesh << " n-tris:" << triangles.size() << std::endl;
 
    if (! draw_this_mesh) return;
 
@@ -1397,20 +1397,20 @@ Mesh::draw(Shader *shader_p,
    if (n_triangles == 0) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "error Mesh::draw() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
                       << " -- start -- " << err << std::endl;
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "error:: " << shader_p->name << " draw() post mvp uniform "
+   if (err) std::cout << "GL ERROR:: Mesh::draw() shader: " << shader_p->name << " post mvp uniform "
                       << err << std::endl;
 
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE,
                       &mouse_based_rotation_matrix[0][0]);
    err = glGetError();
-   if (err) std::cout << "error:: Mesh::draw() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
                       << " draw() post view rotation uniform " << err << std::endl;
 
    std::map<unsigned int, lights_info_t>::const_iterator it;
@@ -1454,7 +1454,7 @@ Mesh::draw(Shader *shader_p,
    }
 
    err = glGetError();
-   if (err) std::cout << "error draw() " << shader_name << " pre-set eye position "
+   if (err) std::cout << "GL ERROR:: draw() " << shader_name << " pre-set eye position "
                       << " with GL err " << err << std::endl;
 
    if (false)
@@ -1462,13 +1462,13 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_vec3_for_uniform("eye_position", eye_position);
 
    err = glGetError();
-   if (err) std::cout << "error:: Mesh::draw() " << name << " " << shader_name << " post-set eye position "
+   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_name << " post-set eye position "
                       << " with GL err " << err << std::endl;
 
    // bind the vertices and their indices
 
    err = glGetError();
-   if (err) std::cout << "error:: Mesh::draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
+   if (err) std::cout << "GL ERROR:: Mesh::draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
    if (vao == VAO_NOT_SET)
@@ -1483,10 +1483,10 @@ Mesh::draw(Shader *shader_p,
 
    if (true) { // I doubt that the block is needed. 20210823-PE
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw() glBindBuffer() v "
                                              << err << std::endl;
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() i "
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw() glBindBuffer() i "
                                              << err << std::endl;
    }
 
@@ -1495,34 +1495,23 @@ Mesh::draw(Shader *shader_p,
    glEnableVertexAttribArray(2);
    if (is_instanced_colours) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst col " << err << std::endl;
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: draw() glBindBuffer() inst col " << err << std::endl;
    }
 
    if (is_instanced)
       glEnableVertexAttribArray(3);
 
    err = glGetError();
-   if (err) std::cout << "error draw() glBindBuffer() Mesh::draw() post-vertex arrays "
+   if (err) std::cout << "GL ERROR:: draw() glBindBuffer() Mesh::draw() post-vertex arrays "
                       << "shader " << shader_p->name << " error " << err << std::endl;
 
-#if 1 //using a VAO means we don't need to do this (so delete it)
-      // 20210823-PE Hmmm... maybe I do need to enable the vertexattrib arrrays at least
    if (is_instanced_with_rts_matrix) {
       glEnableVertexAttribArray(4);
       glEnableVertexAttribArray(5);
       glEnableVertexAttribArray(6);
-      glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // This not needed I think.
-      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst rts "
-                                             << err << std::endl;
-   } else {
-      glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst model translation buffer "
-                                             << " inst_model_translation_buffer_id "
-                                             << inst_model_translation_buffer_id
-                                             << " shader " << shader_p->name
-                                             << " error " << err << std::endl;
    }
-#endif
 
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
@@ -1543,7 +1532,7 @@ Mesh::draw(Shader *shader_p,
                    << " triangle vertices"  << " in " << n_instances << " instances" << std::endl;
       glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
       err = glGetError();
-      if (err) std::cout << "error draw() glDrawElementsInstanced()"
+      if (err) std::cout << "GL ERROR:: draw() glDrawElementsInstanced()"
                          << " shader: " << shader_p->name
                          << " vao: " << vao
                          << " n_triangle_verts: " << n_verts
@@ -1561,7 +1550,7 @@ Mesh::draw(Shader *shader_p,
 
       glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
       err = glGetError();
-      if (err) std::cout << "   error draw() glDrawElements()"
+      if (err) std::cout << "GL ERROR:: draw() glDrawElements()"
                          << " of Mesh \"" << name << "\""
                          << " shader: " << shader_p->name
                          << " vao " << vao
@@ -2400,3 +2389,19 @@ Mesh::generate_scene() const {
 }
 #endif
 
+
+void
+Mesh::debug_to_file() const {
+
+   std::ofstream f("debug-mesh");
+   std::cout << "# number of vertices: " << vertices.size() << std::endl;
+   std::cout << "# number of triangles: " << triangles.size() << std::endl;
+
+   for (unsigned int i=0; i<vertices.size(); i++) {
+      const auto &vertex = vertices[i];
+      f << "vertex " << i << " : " << glm::to_string(vertex.pos) << " "
+        << glm::to_string(vertex.normal) << " " << glm::to_string(vertex.color) << "\n";
+   }
+   f.close();
+
+}

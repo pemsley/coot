@@ -75,6 +75,7 @@ public:
    explicit Mesh(const molecular_triangles_mesh_t &mtm);
 
    void debug() const;
+   void debug_to_file() const;
    void clear() {
       // delete some gl buffers here
       is_instanced = false;
