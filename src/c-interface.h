@@ -887,9 +887,15 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 						     short int forward_flag);
 
 /*! \brief set show frame-per-second flag */
+void set_show_fps(int t);
+
+/*! \brief the old name for set_show_fps() */
 void set_fps_flag(int t);
 /*! \brief set the state of show frames-per-second flag */
 int  get_fps_flag();
+
+/*! \brief set show frame-per-second flag */
+void set_show_fps(int t);
 
 /*! \brief set a flag: is the origin marker to be shown? 1 for yes, 0
   for no. */

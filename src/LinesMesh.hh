@@ -11,15 +11,23 @@
 // Currently only ambient-lit - e.g. unit cell
 
 class LinesMesh {
+   enum { VAO_NOT_SET = 99999999 };
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
+   bool first_time;
    void init();
    void make_vertices_for_pulse(const glm::vec4 &colour, float radius,
                                 unsigned int n_rings,
                                 float theta_offset, bool broken_mode);
    glm::vec3 central_position;
    std::string name;
+   bool offset_positions_have_been_set; // because we need to know if we should send the position_offset to
+                                 // the shader as a unifrom
+   bool scales_have_been_set; // because we need to know if we should send the scales to
+                                 // the shader as a uniform
+   glm::vec2 offset_positions; // zero by default
+   glm::vec2 scales; // 1.0 by default
 
 public:
    LinesMesh() { init(); }
@@ -32,10 +40,14 @@ public:
    std::vector<s_generic_vertex> vertices;
    std::vector<unsigned int> indices;
    void set_name(const std::string &n) { name = n; }
-   void setup(Shader *shader_p);
-   void setup_pulse(Shader *shader_p, bool broken_line_mode);
+   void setup();
+   void setup_pulse(bool broken_line_mode);
+   void set_scales(const glm::vec2 &s) { scales = s; scales_have_been_set = true; }
+   void set_offset_positions(const glm::vec2 &p) { offset_positions = p; offset_positions_have_been_set = true; }
    void update_buffers_for_pulse(float delta_time, int direction=1); // delta time in ms.
    void update_buffers_for_invalid_residue_pulse(unsigned int n_times_called);
+   void update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices,
+                                    const std::vector<unsigned int> &indices);
    void draw(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation=false);
    void draw(Shader *shader_p, const glm::vec3 &atom_position, const glm::mat4 &mvp,
              const glm::mat4 &view_rotation, bool use_view_rotation=false);

@@ -37,6 +37,23 @@ get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
    return r3;
 }
 
+// static
+gboolean
+graphics_info_t::tick_function_is_active() {
+
+   if (false)
+      std::cout << "tick_function_is_active() " << do_tick_particles << " " << do_tick_spin << " " << do_tick_boids << " "
+                << do_tick_hydrogen_bonds_mesh << " " << do_tick_happy_face_residue_markers << std::endl;
+   if (do_tick_particles ||
+       do_tick_spin      ||
+       do_tick_boids     ||
+       do_tick_hydrogen_bonds_mesh ||
+       do_tick_happy_face_residue_markers)
+      return gboolean(TRUE);
+   else
+      return gboolean(FALSE);
+}
+
 
 gboolean
 glarea_tick_func(GtkWidget *widget,
@@ -61,19 +78,6 @@ glarea_tick_func(GtkWidget *widget,
       glm::quat normalized_quat_delta(glm::normalize(quat_delta));
       glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
       graphics_info_t::glm_quat = glm::normalize(product);
-      if (graphics_info_t::GetFPSFlag()) {
-         graphics_info_t::frame_counter++;
-         std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
-         std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time_for_per_second_counter;
-         if (elapsed_seconds.count() >= 1.0) {
-            float num_frames_delta = graphics_info_t::frame_counter - graphics_info_t::frame_counter_at_last_display;
-            std::cout << "INFO:: Time/frame: " << 1000 * elapsed_seconds.count()/num_frames_delta << " milliseconds "
-                      << num_frames_delta << " frames "
-                      << num_frames_delta/elapsed_seconds.count() << " frames/second\n";
-            graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
-            graphics_info_t::frame_counter_at_last_display = graphics_info_t::frame_counter;
-         }
-      }
    }
 
    if (graphics_info_t::do_tick_boids) {
@@ -128,7 +132,7 @@ glarea_tick_func(GtkWidget *widget,
       }
    }
 
-   gtk_widget_queue_draw(widget); // needed?
+   gtk_widget_queue_draw(widget); // needed? 20210904-PE yeah... I  think so
 
    if (graphics_info_t::do_tick_particles ||
        graphics_info_t::do_tick_spin      ||
@@ -147,6 +151,18 @@ glarea_tick_func(GtkWidget *widget,
 void
 on_glarea_realize(GtkGLArea *glarea) {
 
+   auto setup_test_texture = [] () {
+                                graphics_info_t g;
+                                // g.texture_for_camera_facing_quad.init("some-test-label.png");
+                                g.texture_for_camera_facing_quad.init("hud-label-rama.png");
+                                // camera facing quad test
+                                float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
+                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(&g.camera_facing_quad_shader, image_apect_ratio, 1.0);
+                                GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
+                                g.tmesh_for_hud_image_testing.setup_quad();
+                                err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
+                             };
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;
@@ -158,6 +174,10 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
    if (gtk_gl_area_get_error(glarea) != NULL) {
       std::cout << "OOPS:: on_glarea_realize() error on gtk_gl_area_make_current()" << std::endl;
+      return;
+   }
+   if (gtk_gl_area_get_error(GTK_GL_AREA(glarea)) != NULL) {
+      std::cout << "ERROR:: GLArea in an error state - goodbye " << std::endl;
       return;
    }
 
@@ -246,8 +266,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       // Make antialised lines - not in this
       if (false) {
-         glEnable (GL_BLEND);
-         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glEnable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
          glEnable(GL_LINE_SMOOTH);
       }
 
@@ -265,19 +285,15 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.setup_key_bindings();
 
-
-      if (true) { // testing how textures work           
-         // g.texture_for_camera_facing_quad.init("some-test-label.png");
-         g.texture_for_camera_facing_quad.init("hud-label-rama.png");
-         // camera facing quad test
-         float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
-         g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(&g.camera_facing_quad_shader, image_apect_ratio, 1.0);
-         GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
-         g.tmesh_for_hud_image_testing.setup_quad();
-         err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
-      }
+      g.gl_rama_plot.setup_buffers();
 
       g.setup_draw_for_happy_face_residue_markers_init();
+
+      g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
+
+      if (false) { // testing how textures work
+         setup_test_texture();
+      }
 
       err = glGetError();
       if (err) std::cout << "#### GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;

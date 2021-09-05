@@ -16,25 +16,28 @@ layout (location = 3) in vec2 position_offset;
 layout (location = 4) in float scale_x;
 layout (location = 5) in float scale_y;
 
-out vec4 colour_transfer;
+// these act on the whole mesh, not per-button/bar
+uniform vec2 scales; // because the window has been widened, say.
+uniform vec2 offset_position; // not the same as position_offset!
 
-// culture clash! should the bars/buttons each know their offset position (and scales)
-// (and they will stretch if the window is widened)
-uniform vec2 position_offset_as_uniform;
-uniform vec2 scales_as_uniform;
+out vec4 colour_transfer;
 
 void main()
 {
    // we want the tooltip to appear "over" this bar. Maybe
    // I could turn off depth test for that? Hmm. Not done at the moment
-   gl_Position = vec4(scale_x * vertex.x + position_offset.x,
-                      scale_y * vertex.y + position_offset.y,
-                      -0.999, 1.0);
-   // we adds colour adjust so that the buttons look smooth shaded
-   float c = 0.24;
-   float s3 = shade * shade * shade * shade * shade;
-   vec4 colour_adjust = vec4(s3 * c, s3 * c, s3 * c, 0.1);
-   colour_transfer = colour + colour_adjust;
+   //
+
+   // These 2 adjustments could be uniforms if needed.
+   float plot_scale = 0.5;
+   vec2 plot_offset = vec2(-0.85, -0.85);
+
+   vec2 p1 = vec2(vertex.x * scale_x * scales.x, vertex.y * scale_y * scales.y);
+   vec2 p2 = p1 + position_offset;
+
+   gl_Position = vec4(plot_scale * p2 + plot_offset, -1.0, 1.0);
+   colour_transfer = colour;
+
 }
 
 #shader fragment
@@ -42,9 +45,10 @@ void main()
 #version 330 core
 
 in vec4 colour_transfer;
-out vec4 colour;
+out vec4 out_colour;
 
 void main()
 {
-   colour = colour_transfer;
+   out_colour = colour_transfer;
 }
+

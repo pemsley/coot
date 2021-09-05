@@ -166,6 +166,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "simple-distance-object.hh"
 
+#include "gl-rama-plot.hh"
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -919,20 +920,18 @@ public:
 
    static bool do_expose_swap_buffers_flag;
 
-   static std::queue<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_draw_queue;
+   // static std::queue<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_draw_queue;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
 
    static void graphics_draw() {
-      if (glareas.size()) {
+      // Don't put timing things here - it's not called when tick function is used (somehow). Put it in render()
+      if (! glareas.empty()) {
          for (unsigned int i=0; i<glareas.size(); i++) {
             GtkWidget *glarea = glareas[i];
-            if (glarea) {
-               // frame_draw_queue.push(tp_now);
-               gtk_widget_queue_draw(glarea);
-               if (make_movie_flag)
-                  dump_a_movie_image();
-            }
+            gtk_widget_queue_draw(glarea);
+            if (make_movie_flag)
+               dump_a_movie_image();
          }
       }
    }
@@ -940,7 +939,6 @@ public:
    // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
    // is displayed or undisplayed)
    static bool mol_displayed_toggle_do_redraw; // normally true
-
 
    static bool is_valid_model_molecule(int imol) {
 
@@ -4209,7 +4207,11 @@ string   static std::string sessionid;
    static Shader shader_for_lines_pulse; // "you are here" pulse
    static Shader shader_for_ligand_view;
    static Shader shader_for_happy_face_residue_markers;
+   static Shader shader_for_rama_plot_axes_and_ticks;
+   static Shader shader_for_rama_plot_phi_phis_markers;
+   static Shader shader_for_hud_lines; // actally in 3D because it uses LinesMesh class
    static long frame_counter;
+   static float fps; // for on-screen FPS (fps is not calculated every frame)
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;
@@ -4271,7 +4273,12 @@ string   static std::string sessionid;
    static void draw_rotation_centre_crosshairs(GtkGLArea *glarea);
    static void draw_ligand_view();
    static void draw_hud_buttons();
+   static void draw_hud_fps();
+   static std::list<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_time_history_list;
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
+
+   static gl_rama_plot_t gl_rama_plot;
+   static void draw_ramachandran_plot(); // OpenGL rama plot
 
    void reset_frame_buffers(int width, int height);
    void setup_lights();
@@ -4461,6 +4468,9 @@ string   static std::string sessionid;
    static LinesMesh lines_mesh_for_boids_box;
    void setup_draw_for_boids();
 
+   static LinesMesh lines_mesh_for_hud_lines; // Used 3d but actually is just HUD lines, but there is no
+                                              // HUDLinesMesh class - so I will use this (for now)
+
    // Let's base dynamic hydrogen bonds on how boids worked.
    static Mesh mesh_for_hydrogen_bonds; // with instancing, because dynamic
    void setup_draw_for_hydrogen_bonds();
@@ -4473,6 +4483,7 @@ string   static std::string sessionid;
    static bool do_tick_boids;
    static bool do_tick_hydrogen_bonds_mesh;
 
+   static gboolean tick_function_is_active();
 };
 
 

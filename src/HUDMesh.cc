@@ -10,6 +10,10 @@ HUDMesh::init() {
    first_time = true;
    use_blending = false;
    inst_hud_bar_attribs_buffer_id = 0;
+   scales_have_been_set = false;
+   offset_position_has_been_set = false;
+   scales = glm::vec2(1,1);
+   offset_position = glm::vec2(0,0);
 }
 
 void
@@ -29,6 +33,24 @@ HUDMesh::setup_camera_facing_quad_for_bar() {
    setup_buffers();
 
 }
+
+void
+HUDMesh::setup_simple_camera_facing_quad() {
+
+   vertices.clear();
+   triangles.clear();
+
+   vertices.push_back(glm::vec2(0.0f, 0.0f));
+   vertices.push_back(glm::vec2(1.0f, 0.0f));
+   vertices.push_back(glm::vec2(1.0f, 1.0f));
+   vertices.push_back(glm::vec2(0.0f, 1.0f));
+
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(2,3,0));
+
+   setup_buffers();
+}
+
 
 void
 HUDMesh::setup_vertices_and_triangles_for_button() {
@@ -237,7 +259,7 @@ HUDMesh::update_instancing_buffer_data(const std::vector<HUD_button_info_t> &but
 
 
 HUD_button_limits_t
-HUD_button_info_t::get_button_limits(unsigned int button_index, int width, int height) const {
+HUD_button_info_t::get_button_limits(int width, int height) const {
 
    // matches below function (needed to test for hit: mouse-over/click)
 
@@ -246,7 +268,7 @@ HUD_button_info_t::get_button_limits(unsigned int button_index, int width, int h
    float ww = static_cast<float>(width);
    float wh = static_cast<float>(height);
 
-   glm::vec2 po = calculate_position_offset(button_index, width, height);
+   glm::vec2 po = calculate_position_offset(position_offset_index, width, height);
    float left   = po.x;
    float bottom = po.y;
    float adjusted_button_width_opengl_coords  = button_width  * static_cast<float>(900)/ww;
@@ -256,7 +278,7 @@ HUD_button_info_t::get_button_limits(unsigned int button_index, int width, int h
 
    HUD_button_limits_t lims(top, bottom, left, right); // opengl coords
    return lims;
-   
+
 }
 
 // static
@@ -302,7 +324,7 @@ HUD_button_info_t::set_scales_and_position_offset(unsigned int button_index, int
 
    glm::vec2 po = calculate_position_offset(button_index, glarea_width, glarea_height);
 
-   set_position_offset(po);
+   set_position_offset(button_index, po);
 
    float ww = static_cast<float>(glarea_width);
    float wh = static_cast<float>(glarea_height);
@@ -313,7 +335,8 @@ HUD_button_info_t::set_scales_and_position_offset(unsigned int button_index, int
 
 
 void
-HUDMesh::draw(Shader *shader_p) {
+HUDMesh::draw(Shader *shader_p) { // in this case draw() is draw_instanced() --- maybe rename it later
+                                  // to be less confusing/more consistent.
 
    if (false)
       std::cout << "debug:: HUDMesh::draw() --- start --- n_instances: " << n_instances
@@ -334,13 +357,19 @@ HUDMesh::draw(Shader *shader_p) {
    glEnableVertexAttribArray(4);
    glEnableVertexAttribArray(5);
 
+   if (scales_have_been_set)
+      shader_p->set_vec2_for_uniform("scales", scales);
+   if (offset_position_has_been_set)
+      shader_p->set_vec2_for_uniform("offset_position", offset_position);
+
+   unsigned int n_triangle_vertices = triangles.size() * 3;
+
    if (false)
       std::cout << "debug:: HUDMesh::draw() glDrawElementsInstanced()"
                 << " of HUDMesh \"" << name << "\""
                 << " with shader " << shader_p->name
+                << " with " << n_triangle_vertices << " triangle verices "
                 << " and " << n_instances << " instances" << std::endl;
-
-   unsigned int n_triangle_vertices = triangles.size() * 3;
 
    glDrawElementsInstanced(GL_TRIANGLES, n_triangle_vertices, GL_UNSIGNED_INT, nullptr, n_instances);
    GLenum err = glGetError();

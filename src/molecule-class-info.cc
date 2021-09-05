@@ -1564,7 +1564,7 @@ molecule_class_info_t::setup_unit_cell(Shader *shader_p) {
                     const clipper::Cell &cell,
                     Shader *shader_p) {
                    lines_mesh_for_cell = LinesMesh(cell);
-                   lines_mesh_for_cell.setup(shader_p);
+                   lines_mesh_for_cell.setup();
                 };
 
    if (lines_mesh_for_cell.empty()) {

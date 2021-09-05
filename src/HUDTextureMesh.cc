@@ -14,6 +14,7 @@ HUDTextureMesh::init() {
    scales = glm::vec2(1,1);
    vao = VAO_NOT_SET; // unset
    first_time = true;
+   is_instanced = false;
 }
 
 void
@@ -143,9 +144,47 @@ HUDTextureMesh::setup_buffers() {
 }
 
 void
+HUDTextureMesh::update_instancing_buffer_data(const std::vector<glm::vec2> &new_positions) {
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: HUDTextureMesh::update_instancing_buffer_data() --start-- err "
+                << err << std::endl;
+
+   unsigned int n_phi_psis = new_positions.size();
+   if (n_phi_psis > n_instances_max)
+      n_phi_psis = n_instances_max;
+
+   n_instances = n_phi_psis;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "GL ERROR:: HUDTextureMesh::update_instancing_buffer_data() You forgot to setup this Mesh "
+                << name << std::endl;
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: HUDTextureMesh::update_instancing_buffer_data() binding vao err "
+                << err << std::endl;
+
+   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_phi_psis * sizeof(glm::vec2), &(new_positions[0]));
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: HUDTextureMesh::update_instancing_buffer_data() binding buffersubdata err "
+                << err << std::endl;
+
+}
+
+
+void
 HUDTextureMesh::draw(Shader *shader_p) {
 
    if (! draw_this_mesh) return;
+
+   if (is_instanced) {
+      std::cout << "GL ERROR:: wrong draw call in HUDTextureMesh::draw()" << std::endl;
+      return;
+   }
 
    shader_p->Use();
 
@@ -155,18 +194,15 @@ HUDTextureMesh::draw(Shader *shader_p) {
 
    glBindVertexArray(vao);
 
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id); // needed?
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id); // needed?
-
-   glEnableVertexAttribArray(0);
-   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(0);   // vec2 vertices
+   glEnableVertexAttribArray(1);   // vec2 texCoords;
 
    if (false) {
       std::cout << "HUDTextureMesh::draw() " << name << " sending position " << glm::to_string(position) << std::endl;
       std::cout << "HUDTextureMesh::draw() " << name << " sending scales "   << glm::to_string(scales) << std::endl;
    }
 
-   glm::vec4 text_colour(0.8, 0.7, 0.5, 1.0);
+   glm::vec4 text_colour(0.8, 0.7, 0.5, 1.0);                 // what's this used for?
    shader_p->set_vec2_for_uniform("position", position);
    shader_p->set_vec2_for_uniform("scales", scales);
    shader_p->set_vec4_for_uniform("text_colour", text_colour);
@@ -182,6 +218,95 @@ HUDTextureMesh::draw(Shader *shader_p) {
    glDisableVertexAttribArray(1);
    glUseProgram(0);
 
+}
+
+void
+HUDTextureMesh::draw_instances(Shader *shader_p) {
+
+   if (! draw_this_mesh) return;
+
+   if (! is_instanced) { // set by setup_instancing_buffers()
+      std::cout << "GL ERROR:: wrong draw call in HUDTextureMesh::draw_instances()" << std::endl;
+      return;
+   }
+
+   shader_p->Use();
+   if (vao == VAO_NOT_SET)
+      std::cout << "error:: You forgot to setup this mesh " << name << " "
+                << shader_p->name << std::endl;
+
+   glBindVertexArray(vao);
+
+   glEnableVertexAttribArray(0);  // vec2 vertices   - standard attribute
+   glEnableVertexAttribArray(1);  // vec2 texCoords  - standard attribute
+   glEnableVertexAttribArray(2); // position of this (instanced) phi_psi
+
+   shader_p->set_vec2_for_uniform("position", position); // these are for position global positioning and
+   shader_p->set_vec2_for_uniform("scales", scales);     // scaling - used by all rama points
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw_instances() err " << err << std::endl;
+
+   unsigned int n_verts = 6; // 2 triangles
+
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+   err = glGetError();
+   if (err) std::cout << "error HUDMesh::draw() glDrawElementsInstanced()"
+                      << " of HUDMesh \"" << name << "\""
+                      << " with shader" << shader_p->name
+                      << std::endl;
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glUseProgram(0);
+}
+
+void
+HUDTextureMesh::setup_instancing_buffers(unsigned int n_phi_psi_max) {
+
+   n_instances = 0;
+   if (vao == VAO_NOT_SET)
+      std::cout << "GL ERROR:: HUDTextureMesh::setup_instancing_buffers() You forgot to setup this mesh "
+                << name << std::endl;
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::setup_instancing_buffers() err  " << err
+                << " on binding vao " << vao << std::endl;
+   is_instanced = true;
+   n_instances_max = n_phi_psi_max;
+   unsigned int n_bytes = n_phi_psi_max * sizeof(glm::vec2);
+   glGenBuffers(1, &inst_positions_id);
+   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   glBufferData(GL_ARRAY_BUFFER, n_bytes, nullptr, GL_DYNAMIC_DRAW);
+   glEnableVertexAttribArray(2);
+   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), nullptr);
+   glVertexAttribDivisor(2, 1);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::setup_instancing_buffers() err " << err << std::endl;
+
+}
+
+float
+HUDTextureMesh::get_sum_x_advance(const std::string &label, const std::map<GLchar, FT_character> &ft_characters) const {
+
+   float x_advance_sum = 0.0;
+   std::string::const_iterator it_c;
+   GLfloat scale = 10.1; // Hmmmmm!
+   for (it_c = label.begin(); it_c != label.end(); ++it_c) {
+      std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*it_c);
+      if (it == ft_characters.end()) {
+         std::cout << "ERROR:: HUDTextureMesh::draw_label() Failed to lookup glyph for " << *it_c << std::endl;
+         continue;
+      };
+      const FT_character &ch = it->second;
+      x_advance_sum += (ch.Advance >> 6) * scale;
+   }
+   return x_advance_sum;
 }
 
 void

@@ -20,8 +20,8 @@ Texture::init(const std::string &file_name_in) {
 
 #ifdef THIS_IS_HMT
 #else
-   std::string default_directory = coot::package_data_dir();
-   default_directory += "/textures";
+   std::string pkg_data_dir = coot::package_data_dir();
+   std::string default_directory = pkg_data_dir + "/textures";
 
    if (! coot::file_exists(file_name)) {
       file_name = default_directory + "/" + file_name;
@@ -56,7 +56,7 @@ Texture::init(const std::string &file_name_in) {
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 
    stbi_image_free(image_data);
-   std::cout << "debug::  done Texture::init() " << file_name << std::endl;
+   // std::cout << "debug::  done Texture::init() " << file_name << std::endl;
 }
 
 std::pair<int, int>

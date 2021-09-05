@@ -77,7 +77,7 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    std::stringstream ss;
    ss << std::setw(33) << fn;
    fn = ss.str();
-   
+
    std::cout << "Shader compile " << fn << " " << message << std::endl;
 }
 
@@ -385,18 +385,23 @@ Shader::create() const {
    glAttachShader(program, fs);
    glLinkProgram(program);
    glValidateProgram(program);
+   GLint status;
+   glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+   if (status == GL_TRUE) {
+      // good
+      message = "success";
+   } else {
+      message = "fail";
+   }
    GLuint err = glGetError();
    if (err) {
       std::cout << "Shader::create() err " << err << std::endl;
       message = "error"; // this value is tested in init().
-   } else {
-      // std::cout << "   Shader::create() link was good " << std::endl;
-      message = "success";
    }
-
    glDeleteShader(vs);
    glDeleteShader(fs);
 
+   // std::cout << "create() for " << name << " returns message " << message << std::endl;
    return std::pair<unsigned int, std::string> (program, message);
 }
 

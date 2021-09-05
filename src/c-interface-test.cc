@@ -1149,6 +1149,15 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    PyObject *r = Py_False;
 
    if (true) {
+      int imol = 0;
+      if (is_valid_model_molecule(imol)) {
+            molecule_class_info_t &m = g.molecules[imol];
+            gl_rama_plot_t rama;
+            rama.setup_from(imol, m.atom_sel.mol);
+      }
+   }
+
+   if (false) {
       // g.show_test_buttons(); // it got renamed show_accept_reject_hud_buttons()
       g.show_accept_reject_hud_buttons();
    }

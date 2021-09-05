@@ -11,7 +11,9 @@ out vec2 texCoord_transfer;
 uniform vec2 position;
 uniform vec2 scales;
 
-// This shader is for textures
+// This shader is for textures of text, the output colour
+// depends on text_colour and the red value sampled for the
+// text texture. Not a good fit for just showing a HUD image
 
 void main() {
 
@@ -38,7 +40,8 @@ out vec4 outputColor;
 void main() {
 
    vec4 sampled = texture(text, texCoord_transfer);
-   sampled = vec4(text_colour.r, text_colour.r, text_colour.r, sampled.r);
+   sampled = vec4(text_colour.r, text_colour.g, text_colour.b, sampled.r);
+   // sampled = vec4(0.2, 0.7, 0.9, sampled.r);
 
    outputColor = sampled;
 }

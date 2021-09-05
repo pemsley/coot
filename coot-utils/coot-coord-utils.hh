@@ -208,6 +208,8 @@ namespace coot {
    };
    std::ostream&  operator<<(std::ostream&  s, const lsq_range_match_info_t &q);
 
+   float get_position_hash(mmdb::Manager *mol);
+
    bool sort_chains_util(const std::pair<mmdb::Chain *, std::string> &a,
 			 const std::pair<mmdb::Chain *, std::string> &b);
 

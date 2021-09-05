@@ -2188,16 +2188,21 @@ void set_symmetry_whole_chain(int imol, int state) {
 }
 
 
-
-
-void set_fps_flag(int thing) {
+/*! \brief set show frame-per-second flag */
+void set_show_fps(int flag) {
 
    graphics_info_t g;
-   g.SetShowFPS(thing);
+   g.SetShowFPS(flag);
    std::string cmd = "set-fps-flag";
    std::vector<coot::command_arg_t> args;
-   args.push_back(thing);
+   args.push_back(flag);
    add_to_history_typed(cmd, args);
+}
+
+
+void set_fps_flag(int flag) {
+
+   set_show_fps(flag);
 }
 
 // For people without PCs with fast graphics cards :)  [like me]

@@ -10147,3 +10147,23 @@ Wed  1 Sep 01:28:24 BST 2021
    If you build GTK with debugging support, what happens when you set the GDK_DEBUG=opengl environment variable?
    If you’re using Mesa, what happens when you set the MESA_DEBUG=1 environment variable
 
+---
+Sat  4 Sep 18:37:06 BST 2021
+
+    iterator example
+
+         Shader shader_for_hud_lines;
+         shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::HUD_TEXT);
+         std::vector<glm::vec2> data;
+         data.reserve(frame_time_history_list.size());
+         unsigned int time_count = 0;
+         std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
+         for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
+            if (it != frame_time_history_list.begin()) {
+               float x = static_cast<float>(time_count);
+               const std::chrono::time_point<std::chrono::high_resolution_clock> tp_this = *it;
+               const std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev= *std::prev(it);
+               auto delta_t = std::chrono::duration_cast<std::chrono::microseconds>(tp_this - tp_prev).count();
+               data.push_back(glm::vec2(x, delta_t));
+            }
+         }

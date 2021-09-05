@@ -2131,6 +2131,7 @@ graphics_info_t::draw_hud_buttons() {
    float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
 
    mesh_for_hud_buttons.draw(&shader_for_hud_buttons); // we have added the button instances before now.
+                                                       // (actually in show_accept_reject_hud_buttons()).
 
    // do the texture for the labels all on the fly
    //
@@ -2152,19 +2153,178 @@ graphics_info_t::draw_hud_buttons() {
          float text_scale = text_scale_raw * height_adjust;
          glm::vec2 label_scale(text_scale / aspect_ratio, text_scale);
          htm.set_scales(label_scale);
-         unsigned int n_chars = label.size();
+         unsigned int n_chars = label.size(); // really I want the sum of x_advance for the letters. Can I get that?
+         float x_advance = htm.get_sum_x_advance(label, ft_characters);
          float width_adjust = static_cast<float>(900)/static_cast<float>(w);
-         float tl_adjust = - static_cast<float>(n_chars-1) * text_scale_raw * 2.5 * 43.6 * width_adjust;
+         float tl_adjust = - static_cast<float>(n_chars-1) * text_scale_raw * 2.5 * 50.0 * width_adjust;
          glm::vec2 pos = button.position_offset;
          pos += glm::vec2(0.0, 0.3 * button_height); // vertical adjustment for label
          pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
          pos += glm::vec2(tl_adjust, 0.00); // horizontal adjustment for text length
          htm.set_position(pos);
          htm.draw_label(label, text_colour_white, &shader, ft_characters);
-         // meh
-         // glm::vec4 text_colour_black = glm::vec4(0.0, 0.0, 0.0, 1.0);
-         // htm.set_position(pos+glm::vec2(0.003, -0.003));
-         // htm.draw_label(label, text_colour_black, &shader, ft_characters);
+      }
+   }
+}
+
+void
+graphics_info_t::draw_ramachandran_plot() {
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   // auto tp_0 = std::chrono::high_resolution_clock::now();
+   bool draw_gl_ramachandran_plot = true;
+   if (draw_gl_ramachandran_plot) { // make this a member of graphics_info_t
+      int imol_gl_rama_plot = 0; // set this correctly at some stage
+      if (is_valid_model_molecule(imol_gl_rama_plot)) {
+         if (moving_atoms_asc) {
+            if (moving_atoms_asc->n_selected_atoms > 0) {
+               gl_rama_plot.setup_from(imol_gl_rama_plot, moving_atoms_asc->mol);
+               gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
+                                 &shader_for_rama_plot_phi_phis_markers, // instanced
+                                 &shader_for_hud_geometry_labels, w, h); // background texture (not text!)
+            }
+         }
+      }
+   }
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   // std::cout << "INFO:: draw_ramachandran_plot() " << d10 << " microseconds" << std::endl;
+}
+
+void
+graphics_info_t::draw_hud_fps() {
+
+   // these are "relative to"
+   enum screen_position_origins_t { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
+
+   auto get_munged_offset_and_scale = [] (screen_position_origins_t spo,
+                                          const glm::vec2 &offset_natural,
+                                          float scale_x_natural, float scale_y_natural) {
+
+                                         glm::vec2 offset_new = offset_natural;
+
+                                         // glm::vec2 scales_new(scale_x_natural, scale_y_natural);
+
+                                         // calculating the aspect_ratio like this takes 0.22 microseconds
+
+                                         GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+                                         GtkAllocation allocation;
+                                         gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+                                         int w = allocation.width;
+                                         int h = allocation.height;
+
+                                         // for 900 pixels and offset if 0.1 is 90 pixels.
+                                         // 90 pixels in a 1000 pixels widths is 0.1/wr
+
+                                         float wr = static_cast<float>(w)/static_cast<float>(900);
+                                         float hr = static_cast<float>(h)/static_cast<float>(900);
+
+                                         if (spo == TOP_LEFT)
+                                            offset_new = glm::vec2(-1.0 + offset_natural.x/wr, 1.0 + offset_natural.y/hr);
+                                         if (spo == BOTTOM_LEFT)
+                                            offset_new = glm::vec2(-1.0 + offset_natural.x/wr, -1.0 + offset_natural.y/hr);
+                                         if (spo == BOTTOM_RIGHT)
+                                            offset_new = glm::vec2(1.0 + offset_natural.x/wr, -1.0 + offset_natural.y/hr);
+                                         if (spo == TOP_RIGHT)
+                                            offset_new = glm::vec2(1.0 + offset_natural.x/wr, 1.0 + offset_natural.y/hr);
+
+                                         glm::vec2 scales_new(scale_x_natural/wr, scale_y_natural/hr);
+
+                                         return std::pair<glm::vec2, glm::vec2>(offset_new, scales_new);
+                                      };
+
+   if (GetFPSFlag()) {
+
+      // ----------------- HUD FPS string ---------------------------------
+
+      std::string s = "FPS: " + coot::util::float_to_string_using_dec_pl(fps, 2);
+      if (fps > 0) {
+         float ms_per_frame = 1000.0 / fps;
+         s += "  " + coot::util::float_to_string_using_dec_pl(ms_per_frame, 2) + " ms/frame";
+      }
+      HUDTextureMesh htm("mesh for FPS");
+      htm.setup_quad();
+      Shader &shader = shader_for_hud_geometry_tooltip_text;  // change the name of this - it's for general (real) HUD text
+      glm::vec4 col(0.7, 0.7, 0.4, 1.0);
+      glm::vec4 grey(0.5, 0.5, 0.5, 0.4);
+      glm::vec4 full_grey(0.5, 0.5, 0.5, 1.0);
+      auto p_s = get_munged_offset_and_scale(TOP_LEFT, glm::vec2(0.1, -0.1), 0.0001, 0.0001);
+      const glm::vec2 &munged_position_offset = p_s.first;
+      const glm::vec2 &munged_scales = p_s.second;
+      htm.set_scales(munged_scales);
+      htm.set_position(munged_position_offset);
+      htm.draw_label(s, col, &shader, ft_characters);
+
+
+      // ----------------- HUD graph for ms/frame ---------------------------------
+
+      if (true) {
+
+         if (frame_time_history_list.size() > 2) {
+            std::vector<glm::vec2> data;
+            data.reserve(frame_time_history_list.size()+2);
+
+            // base line
+            float x_o = munged_position_offset.x;
+            float y_o = munged_position_offset.y - 0.3;
+
+            //LinesMesh lines_mesh; // 3D! (because I don't have a HUDLines class)
+
+            // now convert those data to 3D vertices indices to be used by lines_mesh...
+            // (we just won't use a unit matrix for mvp when drawing them)
+            std::vector<s_generic_vertex> vertices;
+            vertices.reserve(data.size() + 6);
+            std::vector<unsigned int> indices;
+            glm::vec3 norm(0,0,1);  // not used
+
+            // make glm::vec2 data and then convert that to OpenGL screen coordinates
+            //
+            unsigned int time_count = 0;
+            std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
+            for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
+               if (it != frame_time_history_list.begin()) {
+                  float x = static_cast<float>(time_count);
+                  const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_this = *it;
+                  const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_prev = *std::prev(it);
+                  auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(tp_this - tp_prev).count();
+                  data.push_back(glm::vec2(x_o + 0.001 * x, y_o + 0.003 * delta_t));
+                  time_count++;
+               }
+            }
+
+            // base line and grid lines into vertices first
+            //
+            float y_tick_mark = 20.0 * 0.003; // 20ms converted to OpenGL y coord
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o,                   -1), norm, full_grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o,                   -1), norm, full_grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + y_tick_mark,     -1), norm, grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + y_tick_mark,     -1), norm, grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 2 * y_tick_mark, -1), norm, grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 2 * y_tick_mark, -1), norm, grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 3 * y_tick_mark, -1), norm, grey));
+            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 3 * y_tick_mark, -1), norm, grey));
+
+            for (unsigned int i=0; i<data.size(); i++)
+               vertices.push_back(s_generic_vertex(glm::vec3(data[i], -1), norm, col));
+
+            for (unsigned int i=0; i<(data.size()-2+6); i++) {
+               if (i == 1 || i == 3 || i == 5 || i == 7) {
+                  // no line betwween base line and grid lines and start of real data
+               } else {
+                  indices.push_back(i);
+                  indices.push_back(i+1);
+               }
+            }
+
+            lines_mesh_for_hud_lines.update_vertices_and_indices(vertices, indices);
+            glm::mat4 dummy_mat4(1.0);
+            lines_mesh_for_hud_lines.draw(&shader_for_hud_lines, dummy_mat4, dummy_mat4);
+         }
       }
    }
 }
@@ -2211,6 +2371,8 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    HUD_button_info_t button_4("Pep-Flip This");
    HUD_button_info_t button_5("Pep-Flip Next");
    HUD_button_info_t button_6("Backrub Rotamer");
+   HUD_button_info_t button_7("JED Flip");
+   HUD_button_info_t button_8("Cis/Trans");
 
    button_1.set_colour(glm::vec4(0.4, 0.7, 0.4, 0.5));
    button_2.set_colour(glm::vec4(0.7, 0.4, 0.4, 0.5));
@@ -2218,9 +2380,11 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    button_1.set_scales_and_position_offset(0, w, h);
    button_2.set_scales_and_position_offset(1, w, h);
    button_3.set_scales_and_position_offset(2, w, h);
-   button_4.set_scales_and_position_offset(3, w, h);
-   button_5.set_scales_and_position_offset(4, w, h);
+   button_7.set_scales_and_position_offset(3, w, h);
+   button_8.set_scales_and_position_offset(4, w, h);
    button_6.set_scales_and_position_offset(5, w, h);
+   button_5.set_scales_and_position_offset(6, w, h);
+   button_4.set_scales_and_position_offset(7, w, h);
 
    auto button_1_func = [] () {
                            graphics_info_t g;
@@ -2264,12 +2428,26 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            return g.backrub_rotamer_intermediate_atoms();
                         };
 
+   auto button_7_func = [] () {
+                           graphics_info_t g;
+                           g.jed_flip_intermediate_atoms(false);
+                           return true;
+                        };
+
+   auto button_8_func = [] () {
+                           graphics_info_t g;
+                           g.cis_trans_conversion_intermediate_atoms();
+                           return true;
+                        };
+
    button_1.connect(button_1_func);
    button_2.connect(button_2_func);
    button_3.connect(button_3_func);
    button_4.connect(button_4_func);
    button_5.connect(button_5_func);
    button_6.connect(button_6_func);
+   button_7.connect(button_7_func);
+   button_8.connect(button_8_func);
 
    hud_button_info.push_back(button_1);
    hud_button_info.push_back(button_2);
@@ -2277,6 +2455,8 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    hud_button_info.push_back(button_4);
    hud_button_info.push_back(button_5);
    hud_button_info.push_back(button_6);
+   hud_button_info.push_back(button_7);
+   hud_button_info.push_back(button_8);
 
    gtk_gl_area_attach_buffers(gl_area);
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
@@ -2333,7 +2513,6 @@ graphics_info_t::draw_hud_geometry_bars() {
    int w = allocation.width;
    int h = allocation.height;
 
-
    coot::refinement_results_t &rr = saved_dragged_refinement_results;
 
    // --------------------- first draw the text (labels) texture -----------------------
@@ -2363,10 +2542,8 @@ graphics_info_t::draw_hud_geometry_bars() {
       float text_y_offset = 0.017; // relative to the the bars in add_bars()
       float y = 0.943 + text_y_offset - 0.05 * static_cast<float>(bar_index); // c.f. add_bars()
       float width_adjust = static_cast<float>(900)/static_cast<float>(w);
-      float fudge = 1.0f; // for testing sampling
-      float y_fudge = -0.0 * static_cast<float>(bar_index);
-      glm::vec2 scales(0.046 * hud_label.label_relative_width * width_adjust * fudge, 0.015 * fudge);
-      glm::vec2 position(x_base - 0.05 * width_adjust, y + y_fudge);
+      glm::vec2 scales(0.046 * hud_label.label_relative_width * width_adjust, 0.015);
+      glm::vec2 position(x_base - 0.05 * width_adjust, y);
       mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
       mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
       err = glGetError(); if (err) std::cout << "GL ERROR:: draw_hud_geometry_bars() error Textures "
@@ -2863,7 +3040,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
       for (unsigned int i=0; i<hud_button_info.size(); i++) {
          const auto &button = hud_button_info[i];
          // are we on that button?
-         HUD_button_limits_t lims = button.get_button_limits(i, w, h);
+         HUD_button_limits_t lims = button.get_button_limits(w, h);
          if (lims.is_hit(x_gl_coords,y_gl_coords)) {
             if (act_on_hit) {
                std::cout << "Act on button " << i << " callback" << std::endl;
@@ -2957,11 +3134,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                           if (draw_test_image) {
                              glEnable(GL_BLEND);
                              glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                             glm::mat4 quat_mat = glm::toMat4(glm_quat);
                              texture_for_camera_facing_quad.Bind(0);
-                             glm::mat4 mvp = get_molecule_mvp();
-                             glm::vec3 eye_position = get_world_space_eye_position();
-                             glm::vec4 bg_col(0.1, 0.1, 0.1, 1.0);
 
                              // 20210831-PE testing... this gives us an image at the origin that's in the world and facing the camera.
                              // interesting but not useful
@@ -2978,21 +3151,40 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
                           draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
 
-                          draw_hud_geometry_bars();
-
-                          draw_hud_geometry_tooltip(); // background and text
-
-                          draw_hud_buttons();
+                          draw_invalid_residue_pulse();
 
                           draw_identification_pulse();
 
                           draw_delete_item_pulse();
 
-                          draw_invalid_residue_pulse();
-
                           draw_ligand_view();
 
+                          draw_hud_geometry_bars();
+
+                          draw_hud_geometry_tooltip(); // background and text
+
+                          draw_ramachandran_plot();
+
+                          draw_hud_buttons();
+
+                          draw_hud_fps();
+
                           glBindVertexArray(0); // here is not the place to call this.
+                       };
+
+   auto do_fps_stuff = [] () {
+                          if (GetFPSFlag()) {
+                             frame_counter++;
+                             std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+                             auto delta_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - previous_frame_time_for_per_second_counter);
+                             auto elapsed_seconds = 0.001 * delta_time_ms;
+                             if (elapsed_seconds.count() >= 1.0) {
+                                float num_frames_delta = frame_counter - frame_counter_at_last_display;
+                                previous_frame_time_for_per_second_counter = tp_now;
+                                frame_counter_at_last_display = frame_counter;
+                                fps = num_frames_delta/elapsed_seconds.count();
+                             }
+                          }
                        };
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
@@ -3000,6 +3192,14 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
    int w = allocation.width;
    int h = allocation.height;
+
+   GtkWidget *glarea = glareas[0];
+   if (glarea) {
+      auto tp_now = std::chrono::high_resolution_clock::now();
+      frame_time_history_list.push_back(tp_now);
+      if (frame_time_history_list.size() > 501)
+         frame_time_history_list.pop_front();
+   }
 
    if (use_framebuffers) { // static class variable
 
@@ -3021,6 +3221,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       glEnable(GL_DEPTH_TEST);
 
       render_scene(gl_area);
+
+      do_fps_stuff();
 
       if (to_screendump_framebuffer_flag) {
 
@@ -3250,9 +3452,11 @@ graphics_info_t::setup_draw_for_particles() {
    }
    // passing user_data and Notify function at the end
    if (! do_tick_particles) {
+      if (! tick_function_is_active()) {
+         int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+         idle_function_spin_rock_token = new_tick_id;
+      }
       do_tick_particles = true;
-      int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-      graphics_info_t::idle_function_spin_rock_token = new_tick_id;
    }
 
    // std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
@@ -3299,9 +3503,11 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers() {
    unsigned int n_max = draw_count_max_for_happy_face_residue_markers;
    tmesh_for_happy_face_residues_markers.update_instancing_buffer_data_for_happy_faces(positions, 0, n_max, up_uv);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = true;
-   do_tick_happy_face_residue_markers = true;
    draw_count_for_happy_face_residue_markers = 0;
-   gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+   if (! tick_function_is_active()) {
+      gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+   }
+   do_tick_happy_face_residue_markers = true;
 
 }
 
@@ -3436,8 +3642,10 @@ graphics_info_t::setup_draw_for_boids() {
       mesh_for_boids.setup_rtsc_instancing(&shader_for_instanced_objects,
                                            mats, colours, n_boids, material);
 
+      if (! tick_function_is_active()) {
+         int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+      }
       do_tick_boids = true;
-      int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
 
       // boids box
 
@@ -3482,7 +3690,7 @@ graphics_info_t::setup_draw_for_boids() {
       indices.push_back(3); indices.push_back(7);
 
       lines_mesh_for_boids_box = LinesMesh(vertices, indices);
-      lines_mesh_for_boids_box.setup(&shader_for_lines);
+      lines_mesh_for_boids_box.setup();
    }
 }
 
@@ -3586,7 +3794,7 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
+   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -3629,11 +3837,15 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
    delete_item_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
+   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
 
+
+// I think that this function should be part of glarea_tick_func().
+// (bring glarea_tick_func() into graphics_info_t.)
+//
 // static
 gboolean
 graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
@@ -3664,7 +3876,7 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = false;
-   lines_mesh_for_identification_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
+   lines_mesh_for_identification_pulse.setup_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], invalid_residue_pulse_function, user_data, NULL);
 
 }
@@ -3757,17 +3969,17 @@ graphics_info_t::setup_key_bindings() {
    auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); return gboolean(TRUE); };
 
    auto l6 = []() {
-                if (idle_function_spin_rock_token != -1) {
-                   std::cout << "Removing the idle function\n";
-                   gtk_widget_remove_tick_callback(glareas[0], idle_function_spin_rock_token);
-                   idle_function_spin_rock_token = -1;
+
+                if (do_tick_spin) {
+                   do_tick_spin = false;
                 } else {
-
+                   if (! tick_function_is_active()) {
+                      int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+                      // this is not a good name if we are storing a generic tick function id.
+                      idle_function_spin_rock_token = spin_tick_id;
+                   }
                    do_tick_spin = true;
-                   int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
 
-                   // this is not a good name if we are storing a generic tick function id.
-                   idle_function_spin_rock_token = spin_tick_id;
                 }
                 return gboolean(TRUE);
              };

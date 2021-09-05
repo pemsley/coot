@@ -9327,3 +9327,42 @@ coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_
 }
 
 
+
+
+float
+coot::get_position_hash(mmdb::Manager *mol) {
+
+   // terrible but fast and tells me what I want.
+
+   float h = 0.0;
+
+   unsigned int atom_count = 0;
+   float x_prev = 0.0;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     if (atom_count > 0) {
+                        h += at->x - x_prev;
+                     }
+                     atom_count++;
+                     x_prev = at->x;
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return h;
+}

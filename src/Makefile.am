@@ -481,6 +481,8 @@ libcootsumo_la_SOURCES = \
 	get-residue.cc           \
 	get-monomer.hh           \
 	get-monomer.cc           \
+	gl-rama-plot.cc          \
+	gl-rama-plot.hh          \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
@@ -652,6 +654,8 @@ libcootsumo_la_SOURCES = \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
+	rama-plot-phi-psi.cc     \
+	rama-plot-phi-psi.hh     \
 	rama-rota-score.hh 	 \
 	spherical-density.cc     \
 	single-map-properties-dialog.cc \

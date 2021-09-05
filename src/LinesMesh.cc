@@ -15,7 +15,12 @@ LinesMesh::init() {
 
    index_buffer_id = 999999;
    buffer_id = 999999;
-   vao = 999999;
+   vao = VAO_NOT_SET;
+   scales_have_been_set = false;
+   offset_positions_have_been_set = false;
+   scales = glm::vec2(1.0, 1.0);
+   offset_positions = glm::vec2(0,0);
+   first_time = true;
 }
 
 LinesMesh::LinesMesh(const clipper::Cell &cell) {
@@ -61,6 +66,16 @@ LinesMesh::LinesMesh(const clipper::Cell &cell) {
 }
 
 void
+LinesMesh::update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices_in,
+                                       const std::vector<unsigned int> &indices_in) {
+
+   vertices = vertices_in;
+   indices = indices_in;
+   setup();
+}
+
+
+void
 LinesMesh::clear() {
 
    vertices.clear();
@@ -77,11 +92,10 @@ LinesMesh::draw(Shader *shader_p,
    GLenum err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() -- start --\n";
    shader_p->Use();
    err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw A()\n";
-   if (vao == 999999)
-      std::cout << "You forgot to setup this mesh " << name << " "
-                << shader_p->name << std::endl;
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forgot to setup this mesh " << name << " " << shader_p->name << std::endl;
    glBindVertexArray(vao);
-   err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() B vao\n";
+   err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() B binding vao\n";
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
@@ -94,8 +108,14 @@ LinesMesh::draw(Shader *shader_p,
                                           << " LinesMesh.draw() post mvp uniform "
                                           << err << std::endl;
 
+   if (scales_have_been_set)
+      shader_p->set_vec2_for_uniform("scales", scales);
+   if (offset_positions_have_been_set)
+      shader_p->set_vec2_for_uniform("offset_positions", offset_positions);
+
    GLuint n_vertices = indices.size();
-   // std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
+   if (false)
+      std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
    glDrawElements(GL_LINES, n_vertices, GL_UNSIGNED_INT, nullptr);
    err = glGetError(); if (err) std::cout << "error LinesMesh::draw() glDrawElements()"
                                           << err << std::endl;
@@ -116,15 +136,15 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
    GLenum err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() -- start --\n";
    shader_p->Use();
    err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw A()\n";
-   if (vao == 999999)
+   if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this mesh " << name << " "
                 << shader_p->name << std::endl;
    glBindVertexArray(vao);
-   err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() B vao\n";
+   err = glGetError(); if (err) std::cout << "GL ERROR:: LinesMesh::draw() B vao\n";
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
-   err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw C()\n";
+   err = glGetError(); if (err) std::cout << "GL ERROR:: LinesMesh::draw C()\n";
 
    // we are using 2 (at the moment) different shaders for this class.
    // Hmmm... lines-pulse.shader uses atom_position, and that's the only shader
@@ -136,12 +156,15 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
    }
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-   err = glGetError(); if (err) std::cout << "error:: " << shader_p->name
+   err = glGetError(); if (err) std::cout << "GL ERROR:: " << shader_p->name
                                           << " LinesMesh.draw() post mvp uniform "
                                           << err << std::endl;
 
    GLuint n_vertices = indices.size();
-   // std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
+
+   if (false)
+      std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
+
    glDrawElements(GL_LINES, n_vertices, GL_UNSIGNED_INT, nullptr);
    err = glGetError(); if (err) std::cout << "error LinesMesh::draw() glDrawElements()"
                                           << err << std::endl;
@@ -152,9 +175,7 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
 }
 
 void
-LinesMesh::setup(Shader *shader_p) {
-
-   shader_p->Use();
+LinesMesh::setup() {
 
    if (vertices.empty()) std::cout << "error:: LinesMesh::setup() called before vertices filled " << std::endl;
    if (indices.empty())  std::cout << "error:: LinesMesh::setup() called before indices filled " << std::endl;
@@ -162,8 +183,13 @@ LinesMesh::setup(Shader *shader_p) {
    if (vertices.empty()) return;
    if (indices.empty()) return;
 
-   glGenVertexArrays (1, &vao);
+   if (first_time)
+      glGenVertexArrays (1, &vao);
+
    glBindVertexArray (vao);
+
+   if (! first_time)
+      glDeleteBuffers(GL_ARRAY_BUFFER, &buffer_id);
 
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
@@ -182,12 +208,16 @@ LinesMesh::setup(Shader *shader_p) {
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
+   if (! first_time)
+      glDeleteBuffers(1, &index_buffer_id);
+
    glGenBuffers(1, &index_buffer_id);
    GLenum err = glGetError(); if (err) std::cout << "GL error A LinesMesh::setup()\n";
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
    err = glGetError(); if (err) std::cout << "GL error B LinesMesh::setup()\n";
    unsigned int n_bytes = indices.size() * sizeof(unsigned int);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &indices[0], GL_STATIC_DRAW);
+   err = glGetError(); if (err) std::cout << "GL error B LinesMesh::setup() glBufferData()\n";
 
 }
 
@@ -229,12 +259,12 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
 }
 
 void
-LinesMesh::setup_pulse(Shader *shader_p, bool broken_line_mode) {
+LinesMesh::setup_pulse(bool broken_line_mode) {
 
    glm::vec4 colour(0.2, 0.8, 0.2, 1.0);
    unsigned int n_rings = 3;
    make_vertices_for_pulse(colour, 2.0, n_rings, 0.0, broken_line_mode);
-   setup(shader_p);
+   setup();
 }
 
 

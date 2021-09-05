@@ -26,12 +26,15 @@ graphics_info_t::init_shaders() {
                                                            shader_for_hud_buttons,
                                                            shader_for_atom_labels,
                                                            shader_for_moleculestotriangles,
+                                                           shader_for_hud_lines,
                                                            shader_for_lines,
                                                            shader_for_lines_pulse,
                                                            shader_for_rama_balls,
                                                            shader_for_particles,
                                                            shader_for_instanced_objects,
                                                            shader_for_happy_face_residue_markers,
+                                                           shader_for_rama_plot_phi_phis_markers,
+                                                           shader_for_rama_plot_axes_and_ticks,
                                                            shader_for_ligand_view,
                                                            shader_for_screen,
                                                            shader_for_blur};
@@ -67,6 +70,9 @@ graphics_info_t::init_shaders() {
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
    shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
    shader_for_hud_buttons.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT); // ! needs a better name
+   shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
+   shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
+   shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
 
    // testing image textures
    camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);

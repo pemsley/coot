@@ -26,6 +26,8 @@ coottexturedir = $(pkgdatadir)/textures
 
 dist_coottexture_DATA = \
 	hud-label-nbc-rama.png \
-	hud-tooltip.png happy-face-marker.png sad-face-marker.png
-
-
+	hud-tooltip.png happy-face-marker.png sad-face-marker.png \
+	rama-plot-pro-normal.png rama-plot-pro-outlier.png \
+	rama-plot-gly-normal.png rama-plot-gly-outlier.png \
+	rama-plot-other-normal.png rama-plot-other-outlier.png \
+	rama-standard-inverted.png

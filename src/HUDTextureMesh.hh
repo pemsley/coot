@@ -33,6 +33,10 @@ class HUDTextureMesh {
    void init();
    void setup_buffers();
    bool draw_this_mesh;
+   GLuint inst_positions_id;
+   unsigned int n_instances; // 20210903-PE instancing for phi_psi points (initially)
+   unsigned int n_instances_max;
+   bool is_instanced;
 
 public:
    HUDTextureMesh() { init(); }
@@ -46,11 +50,16 @@ public:
    void set_position_and_scales(const glm::vec2 &pos, const glm::vec2 &scales);
    void setup_texture_coords_for_nbcs_only();
    void setup_texture_coords_for_nbcs_and_rama();
+   void setup_instancing_buffers(unsigned int n_phi_psi_max); // setup the buffer, don't add data
+   void update_instancing_buffer_data(const std::vector<glm::vec2> &new_positions); // oh, we want ramaa-data for mouse-over?
    void draw(Shader *shader_p);
    void draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p,
                    const std::map<GLchar, FT_character> &ft_characters);
    void draw_label(const std::string &label, glm::vec4 &text_colour, Shader *shader_p,
                    const std::map<GLchar, FT_character> &ft_characters);
+   void draw_instances(Shader *shader_p); // instances have an addition instanced attribute
+                                          // which is the phi_psi "position".
+   float get_sum_x_advance(const std::string &label, const std::map<GLchar, FT_character> &ft_characters) const;
    void close() { draw_this_mesh = false; }
 };
 

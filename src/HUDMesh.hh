@@ -51,6 +51,8 @@ public:
    glm::vec4 colour_basic;
    glm::vec4 colour_pressed;
    glm::vec4 colour_highlighted;
+   unsigned int position_offset_index; // used to determine the position of this bar when checking to see if this
+                                       // button has been moused over
    bool is_drawn_flag;
    std::string button_label;
    static constexpr float button_width  = 0.30;
@@ -87,7 +89,8 @@ public:
       colour = colour_basic;
       set_colours_from_basic();
    }
-   void set_position_offset(const glm::vec2 &p) {
+   void set_position_offset(unsigned int poi, const glm::vec2 &p) {
+      position_offset_index = poi;
       position_offset = p;
    }
    void set_draw_flag(bool state) {
@@ -103,7 +106,7 @@ public:
    void set_scales_and_position_offset(unsigned int button_index, int width, int height);
    // This doesn't change the button width
    void set_position_offset(unsigned int button_index, int width, int height);
-   HUD_button_limits_t get_button_limits(unsigned int button_index, int width, int height) const;
+   HUD_button_limits_t get_button_limits(int width, int height) const;
 };
 
 class HUDMesh {
@@ -114,6 +117,10 @@ class HUDMesh {
    unsigned int n_instances;
    unsigned int inst_hud_bar_attribs_buffer_id;
    bool use_shading_flag = true;
+   bool scales_have_been_set;
+   bool offset_position_has_been_set;
+   glm::vec2 scales;
+   glm::vec2 offset_position;
 public:
    GLuint vao;
    GLuint vertex_buffer_id;
@@ -127,8 +134,12 @@ public:
    std::string name;
    HUDMesh() { init(); }
    HUDMesh(const std::string &n) : name(n) { init(); }
+   void setup_simple_camera_facing_quad();
    void setup_camera_facing_quad_for_bar();
    void setup_vertices_and_triangles_for_button();
+   void set_name(const std::string &n) { name = n; }
+   void set_scales(const glm::vec2 &s) { scales = s; scales_have_been_set = true; }
+   void set_offset_positions(const glm::vec2 &p) { offset_position = p; offset_position_has_been_set = true; }
    void set_use_shading(bool state) {
       use_shading_flag = state;
    }

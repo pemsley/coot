@@ -65,6 +65,12 @@ public:
    void setup_camera_facing_quad(Shader *shader_p, float scale_x, float scale_y);
    void setup_buffers();
    void set_colour(const glm::vec4 &col_in);
+   void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data
+   // this is for an ephemeral instanced texturemesh
+   void update_instancing_buffer_data_for_happy_faces(const std::vector<glm::vec3> &positions, // in 3D space (of the CAs)
+                                                      unsigned int draw_count_in,
+                                                      unsigned int draw_count_max,
+                                                      const glm::vec3 &screen_y_uv);
    void draw(Shader *shader,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
@@ -83,13 +89,6 @@ public:
                         const glm::vec4 &background_colour,
                         bool do_depth_fog,
                         bool is_perspective_projection);
-
-   void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data
-   // this is for an ephemeral instanced texturemesh
-   void update_instancing_buffer_data_for_happy_faces(const std::vector<glm::vec3> &positions, // in 3D space (of the CAs)
-                                                      unsigned int draw_count_in,
-                                                      unsigned int draw_count_max,
-                                                      const glm::vec3 &screen_y_uv);
    // draw an ephemeral instanced opacity-varying texturemesh.
    // Other draw_instances() functions may be needed in future, if so change the name of this one.
    void draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,

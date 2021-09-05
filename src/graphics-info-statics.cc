@@ -1395,6 +1395,7 @@ Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
+Shader graphics_info_t::shader_for_hud_lines;
 Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
@@ -1402,12 +1403,16 @@ Shader graphics_info_t::shader_for_ligand_view;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 Shader graphics_info_t::shader_for_happy_face_residue_markers;
+Shader graphics_info_t::shader_for_rama_plot_axes_and_ticks;
+Shader graphics_info_t::shader_for_rama_plot_phi_phis_markers;
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
-std::queue<std::chrono::time_point<std::chrono::high_resolution_clock> > graphics_info_t::frame_draw_queue;
+float graphics_info_t::fps = 0.0;
+std::list<std::chrono::time_point<std::chrono::high_resolution_clock> > graphics_info_t::frame_time_history_list;
+
 std::set<mmdb::Residue *> graphics_info_t::moving_atoms_visited_residues;
 mmdb::Atom *graphics_info_t::active_atom_for_hud_geometry_bar = 0;
 
@@ -1513,6 +1518,8 @@ LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
 LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
 std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
 
+LinesMesh graphics_info_t::lines_mesh_for_hud_lines;
+
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
 HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
@@ -1566,3 +1573,4 @@ bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;
 
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 
+gl_rama_plot_t graphics_info_t::gl_rama_plot;
