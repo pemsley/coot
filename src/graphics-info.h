@@ -4482,6 +4482,7 @@ string   static std::string sessionid;
    static bool do_tick_spin;
    static bool do_tick_boids;
    static bool do_tick_hydrogen_bonds_mesh;
+   static bool do_tick_constant_draw;
 
    static gboolean tick_function_is_active();
 };

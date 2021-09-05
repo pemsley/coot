@@ -43,10 +43,13 @@ graphics_info_t::tick_function_is_active() {
 
    if (false)
       std::cout << "tick_function_is_active() " << do_tick_particles << " " << do_tick_spin << " " << do_tick_boids << " "
-                << do_tick_hydrogen_bonds_mesh << " " << do_tick_happy_face_residue_markers << std::endl;
+                << do_tick_hydrogen_bonds_mesh << " " << do_tick_happy_face_residue_markers << " "
+                << do_tick_constant_draw << std::endl;
+
    if (do_tick_particles ||
        do_tick_spin      ||
        do_tick_boids     ||
+       do_tick_constant_draw       ||
        do_tick_hydrogen_bonds_mesh ||
        do_tick_happy_face_residue_markers)
       return gboolean(TRUE);
@@ -72,12 +75,16 @@ glarea_tick_func(GtkWidget *widget,
    }
 
    if (graphics_info_t::do_tick_spin) {
-      float delta = 0.002;
-      glm::vec3 EulerAngles(0, delta, 0);
-      glm::quat quat_delta(EulerAngles);
-      glm::quat normalized_quat_delta(glm::normalize(quat_delta));
-      glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
-      graphics_info_t::glm_quat = glm::normalize(product);
+         float delta = 0.002;
+         glm::vec3 EulerAngles(0, delta, 0);
+         glm::quat quat_delta(EulerAngles);
+         glm::quat normalized_quat_delta(glm::normalize(quat_delta));
+         glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
+         graphics_info_t::glm_quat = glm::normalize(product);
+   }
+
+   if (graphics_info_t::do_tick_constant_draw) {
+      // don't change anything - I just want to remind you (well myself, I suppose) that it's here
    }
 
    if (graphics_info_t::do_tick_boids) {
@@ -134,14 +141,7 @@ glarea_tick_func(GtkWidget *widget,
 
    gtk_widget_queue_draw(widget); // needed? 20210904-PE yeah... I  think so
 
-   if (graphics_info_t::do_tick_particles ||
-       graphics_info_t::do_tick_spin      ||
-       graphics_info_t::do_tick_boids     ||
-       graphics_info_t::do_tick_hydrogen_bonds_mesh ||
-       graphics_info_t::do_tick_happy_face_residue_markers)
-      return gboolean(TRUE);
-   else
-      return gboolean(FALSE);
+   return graphics_info_t::tick_function_is_active();
 }
 
 

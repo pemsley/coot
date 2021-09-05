@@ -1275,6 +1275,8 @@ graphics_info_t::ShowFPS(){
    }
 }
 
+#include "draw-2.hh"
+
 // We need to reset the Frames so that the first time we get a FPS
 // response we are not including all those frames that were made
 // without the timer being on.
@@ -1284,6 +1286,17 @@ graphics_info_t::SetShowFPS(int t) {
 
    show_fps_flag = t;
    Frames = 0;
+   if (t == 0) {
+      // turn it off
+      do_tick_constant_draw = false;
+   } else {
+      // turn it on
+      if (! tick_function_is_active()) {
+         int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+         idle_function_spin_rock_token = new_tick_id;  // fix this name!
+      }
+      do_tick_constant_draw = true;
+   }
 }
 
 //
