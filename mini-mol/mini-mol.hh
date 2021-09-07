@@ -191,6 +191,9 @@ namespace coot {
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
 		  std::string chain_id, const std::string &ele=" O");
+	 molecule(const std::vector<std::pair<clipper::Coord_orth, float> > &atom_list_with_estimated_b_factors,
+		  const std::string &residue_type, std::string atom_name,
+		  std::string chain_id, const std::string &ele=" O");
 	 explicit molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
 	 explicit molecule(const fragment &frag);
 
