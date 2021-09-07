@@ -1,3 +1,4 @@
+
 /* src/c-interface-network.cc
  * 
  * Copyright 2009, 2012 by The University of Oxford
@@ -87,11 +88,19 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       // of mallocing.  So the memory is messed up elsewhere and beforehand.
       CURL *c = curl_easy_init();
       long int no_signal = 1;
+      int to = 31;
+      std::string ext = coot::util::file_name_extension(file_name);
+      if (ext == ".gz") {
+         std::string ext_2 = coot::util::file_name_extension(coot::util::name_sans_extension(file_name));
+         if (ext_2 == ".xml")
+            to = 6; // bored of a waiting for slow EBI server
+      }
 
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
+      curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take
       curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
       std::string user_agent_str = "Coot-";
       user_agent_str += VERSION;
@@ -105,12 +114,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
 #ifdef USE_GUILE
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-	 // good return values (same as the non-wrapped function call)
 	 success = CURLcode(GPOINTER_TO_INT(scm_without_guile(wrapped_curl_easy_perform, c)));
-#else
-	 std::cout << "Can't do this with this old guile" << std::endl;
-#endif
 #else
 #ifdef USE_PYTHON
          Py_BEGIN_ALLOW_THREADS;
@@ -442,7 +446,7 @@ void curl_test_make_a_post() {
    std::cout << "posting " << post_string << std::endl;
    std::cout << "posting to  " << url << std::endl;
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
-   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
    curl_easy_setopt(c, CURLOPT_URL, url.c_str());
    curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
 
@@ -464,7 +468,7 @@ curl_post(const std::string &url, const std::string &post_string) {
    CURL *c = curl_easy_init();
    long int no_signal = 1; // for multi-threading
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
-   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
    curl_easy_setopt(c, CURLOPT_URL, url.c_str());
    curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
 
