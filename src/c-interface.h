@@ -377,9 +377,9 @@ return -1 if this is a map or closed.
  */
 int n_residues(int imol);
 
-/*! \brief return the atoms of residues in the molecule,
+/*! \brief return the ATOMs of residues in the molecule,
 
-return -1 if this is a map or closed.
+return -1 if this is a map or closed. HETATMs are not counted.
  */
 int n_atoms(int imol);
 
@@ -1207,6 +1207,12 @@ void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_upd
            map accordingly - but difference map gets updated automatically on modification of
            the imol_model molecule */
 void set_auto_updating_sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
+
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but the 2fofc and difference map get updated automatically on modification of
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmaps(int imol_model, int imol_map_with_data_attached, int imol_updating_2fofc_map, int imol_updating_difference_map);
+
 
 gdouble* get_map_colour(int imol);
 

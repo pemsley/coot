@@ -3247,7 +3247,7 @@ create_column_label_window (void)
   gtk_widget_show (hseparator9);
   gtk_box_pack_start (GTK_BOX (vbox3), hseparator9, TRUE, TRUE, 10);
 
-  refmac_column_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Assign Labels for Refmac?");
+  refmac_column_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Assign Labels for Structure Factor Calculation?");
   gtk_widget_show (refmac_column_labels_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox3), refmac_column_labels_checkbutton, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, refmac_column_labels_checkbutton, "If you want to use these data to run refmac, you will need to assign the columns for the observations, the sigmas thereof and the R free...", NULL);

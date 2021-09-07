@@ -7665,8 +7665,9 @@ molecule_class_info_t::n_atoms() const {
                int n_atoms = residue_p->GetNumberOfAtoms();
                for (int iat=0; iat<n_atoms; iat++) {
                   mmdb::Atom *at = residue_p->GetAtom(iat);
-                  if (! at->Het)
-                     r++;
+                  if (! at->isTer())
+                     if (! at->Het)
+                        r++;
                }
             }
          }
@@ -7852,14 +7853,19 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
               ires<=water_mol[ifrag].max_residue_number();
               ires++) {
             for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
+               const coot::minimol::atom &atom = water_mol[ifrag][ires][iatom];
                new_residue_p = new mmdb::Residue;
                new_residue_p->SetResName("HOH");
                new_residue_p->seqNum = prev_max_resno + 1 + water_count;
                water_count++;
+               bf = water_mol[ifrag][ires][iatom].temperature_factor;
                new_atom_p = new mmdb::Atom;
                new_atom_p->SetCoordinates(water_mol[ifrag][ires][iatom].pos.x(),
                                           water_mol[ifrag][ires][iatom].pos.y(),
                                           water_mol[ifrag][ires][iatom].pos.z(), occ, bf);
+               if (false)
+                  std::cout << "debug:: add water " << ires << " " << water_mol[ifrag][ires][iatom].pos.format()
+                            << " with b " << bf << std::endl;
                new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
                new_atom_p->Het = 1; // waters are now HETATMs
                strncpy(new_atom_p->element, water_mol[ifrag][ires][iatom].element.c_str(), 3);
@@ -9524,19 +9530,16 @@ molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 
 // update this difference map if the coordinates of the other molecule have changed.
 //
-// static (!)
+// static (!) - this is a callback function
 int
 molecule_class_info_t::watch_coordinates_updates(gpointer data) {
 
    int status = 1; // continue
 
-   if (true)
-      std::cout << "---------------------------- watch_coordinates_updates() called " << std::endl;
-
    if (data) {
       updating_model_molecule_parameters_t *ummp_p = static_cast<updating_model_molecule_parameters_t *> (data);
       int imol_coords = ummp_p->imol_coords;
-      int imol_map = ummp_p->imol_map;
+      int imol_map = ummp_p->imol_fofc_map;
       int imol_data = ummp_p->imol_map_with_data_attached;
       graphics_info_t g;
       if (g.is_valid_map_molecule(imol_map)) {
@@ -9557,12 +9560,71 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
                g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
             } else {
                if (false)
-                  std::cout << "DEBUG:: watch_coordinates_updates() No need for an update " << backup_index_current << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() No need for an update "
+                            << backup_index_current << std::endl;
             }
          }
       }
    }
-
    return status;
-
 }
+
+// update this map if the coordinates of the other molecule have changed. Both maps use this function callback
+// looking for changes in the model molecule
+//
+// static (!) - this is a callback function
+int
+molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
+
+   int status = 1; // continue
+
+   bool debug = false;
+
+   if (debug)
+      std::cout << "------- updating_coordinates_updates_genmaps() called " << std::endl;
+
+   if (data) {
+      updating_model_molecule_parameters_t *ummp_p = static_cast<updating_model_molecule_parameters_t *> (data);
+      int imol_coords = ummp_p->imol_coords;
+      int imol_data = ummp_p->imol_map_with_data_attached;
+      graphics_info_t g;
+      if (is_valid_model_molecule(imol_coords)) {
+         if (g.is_valid_map_molecule(ummp_p->imol_fofc_map)) {
+            if (g.is_valid_model_molecule(imol_coords)) {
+               int backup_index_current  = g.molecules[imol_coords].get_history_index();
+               int backup_index_previous = g.molecules[imol_coords].previous_backup_index;
+               if (debug)
+                  std::cout << "DEBUG:: updating_coordinates_updates_genmaps() backup_index_current "
+                            << backup_index_current << " backup_index_previous " << backup_index_previous
+                            << std::endl;
+               if (backup_index_current != backup_index_previous) {
+                  if (is_valid_map_molecule(ummp_p->imol_2fofc_map)) {
+                     if (is_valid_map_molecule(ummp_p->imol_fofc_map)) {
+                        clipper::Xmap<float> *xmap_1_p = &g.molecules[ummp_p->imol_2fofc_map].xmap;
+                        clipper::Xmap<float> *xmap_2_p = &g.molecules[ummp_p->imol_fofc_map ].xmap;
+                        if (debug)
+                           std::cout << ":::::::::::::::::: genmaps! " << imol_coords << " " << imol_data << " "
+                                     << xmap_1_p << " " << xmap_2_p << std::endl;
+                        g.sfcalc_genmaps_using_bulk_solvent(imol_coords, imol_data, xmap_1_p, xmap_2_p);
+                        g.update_maps();
+                        g.molecules[imol_coords].previous_backup_index = backup_index_current; // for next time
+                        g.graphics_draw();
+                     }
+                  }
+               } else {
+                  if (debug)
+                     std::cout << "DEBUG:: updating_coordinates_updates_genmaps() No need for an update " << backup_index_current << std::endl;
+               }
+            } else {
+               status = 0;
+            }
+         } else {
+            status = 0;
+         }
+      } else {
+         status = 0;
+      }
+   }
+   return status;
+}
+

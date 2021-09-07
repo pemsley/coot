@@ -920,8 +920,8 @@ namespace coot {
 				      int n_atoms,
 				      float low_cutoff,
 				      float high_cutoff,
-				      short int apply_low_cutoff,
-				      short int apply_high_cuttoff);
+				      bool apply_low_cutoff,
+				      bool apply_high_cuttoff);
       float average_temperature_factor(mmdb::PPAtom atom_selection,
 				       int n_atoms,
 				       float low_cutoff,

@@ -770,6 +770,8 @@ public:        //                      public
       // save index
       coot_save_index = 0; // how is this related to the backup history_index?
 
+      previous_backup_index = 0;
+
       other_molecule_backup_index = -1; // unset
 
       // ligand flipping. save the index
@@ -3499,7 +3501,14 @@ public:        //                      public
    // watch for changes in the model of a different molecule (denoted by change of backup index)
    // and act on it (by updating this difference map). This needs to be static because its
    // called by g_timeout.
-   static int watch_coordinates_updates(gpointer);
+   static int watch_coordinates_updates(gpointer);  // for just the difference map
+
+   int previous_backup_index;
+   static int updating_coordinates_updates_genmaps(gpointer); // oh dear, the triggers for this work the other way.
+                                                              // i.e. a change in the coordinates forces
+                                                              // a change in the maps, not (as above) where a
+                                                              // map molecule looks for a change in the model.
+                                                              // In this case, both maps are calculated together.
    int other_molecule_backup_index;
    int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
 

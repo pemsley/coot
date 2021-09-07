@@ -3656,20 +3656,16 @@ float median_temperature_factor(int imol) {
 
    float low_cut = 2.0;
    float high_cut = 100.0;
-   short int low_cut_flag = 0;
-   short int high_cut_flag = 0;
+   bool low_cut_flag = false;
+   bool high_cut_flag = false;
 
    float median = -1.0;
-   if (imol < graphics_info_t::n_molecules()) {
-      if (graphics_info_t::molecules[imol].has_model()) {
-	 median = coot::util::median_temperature_factor(graphics_info_t::molecules[imol].atom_sel.atom_selection,
-							graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
-							low_cut, high_cut,
-							low_cut_flag,
-							high_cut_flag);
-      } else {
-	 std::cout << "WARNING:: molecule " << imol << " has no model\n";
-      }
+   if (is_valid_model_molecule(imol)) {
+      median = coot::util::median_temperature_factor(graphics_info_t::molecules[imol].atom_sel.atom_selection,
+                                                     graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
+                                                     low_cut, high_cut,
+                                                     low_cut_flag,
+                                                     high_cut_flag);
    } else {
       std::cout << "WARNING:: no such molecule as " << imol << "\n";
    }
