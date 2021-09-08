@@ -28,14 +28,24 @@ void main()
    // I could turn off depth test for that? Hmm. Not done at the moment
    //
 
-   // These 2 adjustments could be uniforms if needed.
-   float plot_scale = 0.5;
-   vec2 plot_offset = vec2(-0.85, -0.85);
+   // These 2 adjustments are now uniforms.
+   // float plot_scale = 0.5;
+   // vec2 plot_offset = vec2(-0.85, -0.85);
 
-   vec2 p1 = vec2(vertex.x * scale_x * scales.x, vertex.y * scale_y * scales.y);
+   // vec2 p1 = vec2(vertex.x * scales.x * scales.x, vertex.y * scale_y * scales.y);
+
+   // this gives a bottom right box that scales as the window is reshaped.
+   // Not too bad
+   // vec2 p1 = vec2(vertex.x * scale_x, vertex.y * scale_y);
+   // vec2 p2 = p1 + position_offset; // + offset_position;
+   // gl_Position = vec4(p2, -1.0, 1.0);
+
+   vec2 p1 = vec2(vertex.x * scale_x, vertex.y * scale_y);
    vec2 p2 = p1 + position_offset;
+   vec2 p3 = p2 * scales;
+   vec2 p4 = p3 + offset_position;
 
-   gl_Position = vec4(plot_scale * p2 + plot_offset, -1.0, 1.0);
+   gl_Position = vec4(p4, -1.0, 1.0);
    colour_transfer = colour;
 
 }

@@ -1954,13 +1954,14 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
       std::string e2s(e2);
       opengl_minor_version = std::stoi(e2s);
    }
-   std::cout << "DEBUG:: seting OpenGL required version to "
+   std::cout << "DEBUG:: setting OpenGL required version to "
              << opengl_major_version << " " << opengl_minor_version << std::endl;
 
    gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
 
    unsigned int dimensions = 700;
    if (! use_gtk_builder) dimensions = 900;
+   dimensions = 900;
    int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
    gtk_widget_set_size_request(w,
                                gl_widget_dimension_scale_factor * dimensions,
@@ -2004,12 +2005,16 @@ graphics_info_t::setup_hud_geometry_bars() {
    // If not found in this directory, then try default directory.
    texture_for_hud_geometry_labels_map["Rama"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["Rama"].init("hud-label-rama-small.png");
+   // texture_for_hud_geometry_labels_map["Rama"].init("rama-plot-other-normal.png");
    texture_for_hud_geometry_labels_map["NBC"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["NBC"].init("hud-label-NBC-small.png");
+   //texture_for_hud_geometry_labels_map["NBC"].init("rama-plot-other-normal.png");
    texture_for_hud_geometry_labels_map["Rota"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["Rota"].init("hud-label-rota-small.png");
+   //texture_for_hud_geometry_labels_map["Rota"].init("rama-plot-other-normal.png");
    texture_for_hud_geometry_labels_map["Pull"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["Pull"].init("hud-label-pull-small.png");
+   // texture_for_hud_geometry_labels_map["Pull"].init("rama-plot-other-normal.png");
 
    texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
    texture_for_hud_tooltip_background.init("hud-tooltip.png"); // 94x47
@@ -2179,18 +2184,16 @@ graphics_info_t::draw_ramachandran_plot() {
    // auto tp_0 = std::chrono::high_resolution_clock::now();
    bool draw_gl_ramachandran_plot = true;
    if (draw_gl_ramachandran_plot) { // make this a member of graphics_info_t
-      int imol_gl_rama_plot = 0; // set this correctly at some stage
-      if (is_valid_model_molecule(imol_gl_rama_plot)) {
-         if (moving_atoms_asc) {
-            if (moving_atoms_asc->n_selected_atoms > 0) {
-               gl_rama_plot.setup_from(imol_gl_rama_plot, moving_atoms_asc->mol);
-               gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
-                                 &shader_for_rama_plot_phi_phis_markers, // instanced
-                                 &shader_for_hud_geometry_labels, w, h); // background texture (not text!)
-            }
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol); // checks to see if an update is acutally needed.
+            gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
+                              &shader_for_rama_plot_phi_phis_markers, // instanced
+                              &shader_for_hud_image_texture, w, h); // background texture (not text!), uses window_resize_position_correction
          }
       }
    }
+
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    // std::cout << "INFO:: draw_ramachandran_plot() " << d10 << " microseconds" << std::endl;
@@ -2263,68 +2266,67 @@ graphics_info_t::draw_hud_fps() {
 
       // ----------------- HUD graph for ms/frame ---------------------------------
 
-      if (true) {
+      if (frame_time_history_list.size() > 2) {
+         std::vector<glm::vec2> data;
+         data.reserve(frame_time_history_list.size()+2);
 
-         if (frame_time_history_list.size() > 2) {
-            std::vector<glm::vec2> data;
-            data.reserve(frame_time_history_list.size()+2);
+         // base line
+         float x_o = munged_position_offset.x;
+         float y_o = munged_position_offset.y - 0.3;
 
-            // base line
-            float x_o = munged_position_offset.x;
-            float y_o = munged_position_offset.y - 0.3;
+         //LinesMesh lines_mesh; // 3D! (because I don't have a HUDLines class)
 
-            //LinesMesh lines_mesh; // 3D! (because I don't have a HUDLines class)
+         // now convert those data to 3D vertices indices to be used by lines_mesh...
+         // (we'll just use a unit matrix for the mvp when drawing them)
+         std::vector<s_generic_vertex> vertices;
+         vertices.reserve(data.size() + 6);
+         std::vector<unsigned int> indices;
+         glm::vec3 norm(0,0,1);  // not used
 
-            // now convert those data to 3D vertices indices to be used by lines_mesh...
-            // (we just won't use a unit matrix for mvp when drawing them)
-            std::vector<s_generic_vertex> vertices;
-            vertices.reserve(data.size() + 6);
-            std::vector<unsigned int> indices;
-            glm::vec3 norm(0,0,1);  // not used
-
-            // make glm::vec2 data and then convert that to OpenGL screen coordinates
-            //
-            unsigned int time_count = 0;
-            std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
-            for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
-               if (it != frame_time_history_list.begin()) {
-                  float x = static_cast<float>(time_count);
-                  const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_this = *it;
-                  const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_prev = *std::prev(it);
-                  auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(tp_this - tp_prev).count();
-                  data.push_back(glm::vec2(x_o + 0.001 * x, y_o + 0.003 * delta_t));
-                  time_count++;
-               }
+         // make glm::vec2 data and then convert that to OpenGL screen coordinates
+         //
+         unsigned int time_count = 0;
+         std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
+         for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
+            if (it != frame_time_history_list.begin()) {
+               float x = static_cast<float>(time_count);
+               const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_this = *it;
+               const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_prev = *std::prev(it);
+               auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(tp_this - tp_prev).count();
+               data.push_back(glm::vec2(x_o + 0.001 * x, y_o + 0.003 * delta_t));
+               time_count++;
             }
-
-            // base line and grid lines into vertices first
-            //
-            float y_tick_mark = 20.0 * 0.003; // 20ms converted to OpenGL y coord
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o,                   -1), norm, full_grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o,                   -1), norm, full_grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + y_tick_mark,     -1), norm, grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + y_tick_mark,     -1), norm, grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 2 * y_tick_mark, -1), norm, grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 2 * y_tick_mark, -1), norm, grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 3 * y_tick_mark, -1), norm, grey));
-            vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 3 * y_tick_mark, -1), norm, grey));
-
-            for (unsigned int i=0; i<data.size(); i++)
-               vertices.push_back(s_generic_vertex(glm::vec3(data[i], -1), norm, col));
-
-            for (unsigned int i=0; i<(data.size()-2+6); i++) {
-               if (i == 1 || i == 3 || i == 5 || i == 7) {
-                  // no line betwween base line and grid lines and start of real data
-               } else {
-                  indices.push_back(i);
-                  indices.push_back(i+1);
-               }
-            }
-
-            lines_mesh_for_hud_lines.update_vertices_and_indices(vertices, indices);
-            glm::mat4 dummy_mat4(1.0);
-            lines_mesh_for_hud_lines.draw(&shader_for_hud_lines, dummy_mat4, dummy_mat4);
          }
+
+         // base line and grid lines into vertices first
+         //
+         float y_tick_mark = 20.0 * 0.003; // 20ms converted to OpenGL y coord
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o,                   -1), norm, full_grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o,                   -1), norm, full_grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + y_tick_mark,     -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + y_tick_mark,     -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 2 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 2 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 3 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 3 * y_tick_mark, -1), norm, grey));
+
+         for (unsigned int i=0; i<data.size(); i++)
+            vertices.push_back(s_generic_vertex(glm::vec3(data[i], -1), norm, col));
+
+         for (unsigned int i=0; i<(data.size()-2+6); i++) {
+            if (i == 1 || i == 3 || i == 5 || i == 7) {
+               // no line betwween base line and grid lines and start of real data
+            } else {
+               indices.push_back(i);
+               indices.push_back(i+1);
+            }
+         }
+
+         // this looks like it can, from time to time, draw to the wrong framebuffer. Hmm.
+
+         lines_mesh_for_hud_lines.update_vertices_and_indices(vertices, indices);
+         glm::mat4 dummy_mat4(1.0);
+         lines_mesh_for_hud_lines.draw(&shader_for_hud_lines, dummy_mat4, dummy_mat4);
       }
    }
 }
@@ -2526,10 +2528,10 @@ graphics_info_t::draw_hud_geometry_bars() {
       hud_label_info_t(const std::string &n, unsigned int i) : name(n), bar_index(i) { label_relative_width = 1.0; }
    };
    std::vector<hud_label_info_t> hud_label_info;
-   hud_label_info.push_back(hud_label_info_t("Pull", 0, 0.6));
+   hud_label_info.push_back(hud_label_info_t("Pull", 0, 0.7));
    hud_label_info.push_back(hud_label_info_t("Rama", 2));
-   hud_label_info.push_back(hud_label_info_t("Rota", 3, 0.8));
-   hud_label_info.push_back(hud_label_info_t("NBC",  1, 0.6));
+   hud_label_info.push_back(hud_label_info_t("Rota", 3, 0.9));
+   hud_label_info.push_back(hud_label_info_t("NBC",  1, 0.9));
    float x_base = get_x_base_for_hud_geometry_bars();
 
    // Note that the x-positions are are not the left-most edge of the label (hmm)
@@ -2546,8 +2548,9 @@ graphics_info_t::draw_hud_geometry_bars() {
       glm::vec2 position(x_base - 0.05 * width_adjust, y);
       mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
       mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: draw_hud_geometry_bars() error Textures "
-                                             << hud_label.name << " " << err << std::endl;
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: draw_hud_geometry_bars() error Textures "
+                         << hud_label.name << " " << err << std::endl;
    }
 
       // ----------------------- now draw the bars -----------------------

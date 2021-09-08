@@ -12,18 +12,32 @@ layout (location = 1) in vec2 texCoord;
 
 out vec2 texCoord_transfer;
 
+// This shader is for textures - there is no instancing
+// 20210908-PE uses the same window resize scale and offset correct as is in rama-plot-phi-psi-markers.shader
+
 uniform vec2 position;
 uniform vec2 scales;
 
-// This shader is for textures
+uniform vec2 window_resize_position_correction;
+uniform vec2 window_resize_scales_correction;
 
 void main() {
 
    // Note to self: the text of the tooltip needs to go over the
    // background of the tooltip
 
-   vec2 scaled_vertices = vertex * scales; // vec2(0.1, 0.05);
-   gl_Position = vec4(scaled_vertices + position , -1.0, 1.0);
+   // vec2 window_resize_scales_correction   = vec2(1,1);
+   // vec2 window_resize_position_correction = vec2(0,0);
+
+   vec2 scaled_vertices = vertex  * scales;
+   vec2 p1 = scaled_vertices + position;
+   vec2 p2 = p1 * window_resize_scales_correction;
+   vec2 p3 = p2 + window_resize_position_correction;
+
+   // gl_Position = vec4(scaled_vertices + position , -1.0, 1.0);
+
+   gl_Position = vec4(p3 , -1.0, 1.0);
+
    texCoord_transfer = texCoord;
 }
 

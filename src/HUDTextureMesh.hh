@@ -36,6 +36,10 @@ class HUDTextureMesh {
    GLuint inst_positions_id;
    unsigned int n_instances; // 20210903-PE instancing for phi_psi points (initially)
    unsigned int n_instances_max;
+   bool window_resize_scales_correction_set;
+   bool window_resize_position_correction_set;
+   glm::vec2 window_resize_scales_correction;
+   glm::vec2 window_resize_position_correction;
    bool is_instanced;
 
 public:
@@ -51,6 +55,14 @@ public:
    void setup_texture_coords_for_nbcs_only();
    void setup_texture_coords_for_nbcs_and_rama();
    void setup_instancing_buffers(unsigned int n_phi_psi_max); // setup the buffer, don't add data
+   void set_window_resize_scales_correction(const glm::vec2 &v) {
+      window_resize_scales_correction = v;
+      window_resize_scales_correction_set = true;
+   }
+   void set_window_resize_position_correction(const glm::vec2 &v) {
+      window_resize_position_correction = v;
+      window_resize_position_correction_set = true;
+   }
    void update_instancing_buffer_data(const std::vector<glm::vec2> &new_positions); // oh, we want ramaa-data for mouse-over?
    void draw(Shader *shader_p);
    void draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p,

@@ -77,12 +77,12 @@ class gl_rama_plot_t {
 
 public:
    gl_rama_plot_t() { init(); }
-   void setup_buffers(); // setup OpenGL things - must be done after OpenGL realize()
+   void setup_buffers(float rama_plot_scale); // setup OpenGL things - must be done after OpenGL realize()
    void setup_from(int imol, mmdb::Manager *mol);
    void update_phi_psis_on_moved_atoms();
    // void background_to_type(GtkWidget *canvas, clipper::Ramachandran::TYPE); // don't change it if we are already there of course.
    void draw(Shader *shader_for_axes_and_tick,
-             Shader *shader_for_rama_plot_phi_phis_markers_p,  // instanced
+             Shader *shader_for_rama_plot_phi_psis_markers_p,  // instanced
              Shader *shader_for_hud_textures_p,
              int glarea_width, int glarea_height);
    float position_hash; // updated and tested in setup_from() so that we don't recalculate if we don't need to

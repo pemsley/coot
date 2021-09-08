@@ -4809,6 +4809,9 @@ coot::restraints_container_t::df_by_thread_results_size() const {
 // Rama outliers - and that would be misleading for most people (not
 // me).
 //
+// Along similar lines, the fit to density of the residues in the atom selection should
+// be better than ... something.. average?
+//
 std::pair<bool, std::string>
 coot::refinement_results_t::hooray() const {
 
@@ -4817,9 +4820,9 @@ coot::refinement_results_t::hooray() const {
    for (unsigned int i=0; i<lights.size(); i++) {
       const refinement_lights_info_t &light = lights[i];
       std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
-      float crit_value = 1.4;
+      float crit_value = 1.0; // 20210906-PE was 1.4
       if (light.name == "Trans_peptide")
-         crit_value = 6.0;
+         crit_value = 2.0; // 20210906-PE  was 6.0. Should Trans-peptide even be tested in hooray()?
       if (light.value > crit_value) {
          std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
          status = false;
@@ -4830,12 +4833,9 @@ coot::refinement_results_t::hooray() const {
    // have been pull restraints
    //
 
-#if 0
-   // perhaps the calling function should pass this? Or perhaps, it's given in the constructor?
-   int n_pull_restraints = n_atom_pull_restraints();
+   int n_pull_restraints = sorted_atom_pulls.size();
    if (n_pull_restraints == 0)
       status = false;
-#endif
 
    return std::pair<bool, std::string> (status, message);
 }

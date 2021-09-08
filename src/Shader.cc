@@ -292,6 +292,13 @@ Shader::set_vec2_for_uniform(const std::string &u_name, const glm::vec2 &v) {
 
    GLuint idx = glGetUniformLocation_internal(u_name);
    glUniform2fv(idx, 1, glm::value_ptr(v));
+   GLenum err = glGetError();
+   std::string e;
+   if (err == GL_INVALID_OPERATION)
+      e = " GL_INVALID_OPERATION";
+   if (err)
+      std::cout << "GL ERROR:: Shader::set_vec2_for_uniform() error: " << err
+                << " for location idx " << idx << e << std::endl;
 }
 
 void Shader::set_more_uniforms_for_molecular_triangles() {

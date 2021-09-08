@@ -214,6 +214,7 @@ void set_draw_mesh(int imol, int mesh_index, short int state) {
       int size = graphics_info_t::molecules[imol].meshes.size();
       if (mesh_index >= 0 && mesh_index < size) {
          graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh = state;
+         graphics_info_t::graphics_draw();
       }
    }
 }

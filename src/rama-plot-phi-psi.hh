@@ -26,8 +26,8 @@ namespace rama_plot {
          type = clipper::Ramachandran::All;
       }
    public:
-      double phi;
-      double psi;
+      double phi; // in degrees
+      double psi; // in degrees
       bool is_pre_pro;
       std::string label;
       int imol;

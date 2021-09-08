@@ -99,6 +99,38 @@ HUDMesh::setup_vertices_and_triangles_for_button() {
 }
 
 void
+HUDMesh::setup_vertices_and_triangles_for_tooltip_background() {
+
+   vertices.clear();
+   triangles.clear();
+
+   vertices.push_back(glm::vec2(0.0f, 0.0f));
+   vertices.push_back(glm::vec2(1.0f, 0.0f));
+   vertices.push_back(glm::vec2(1.0f, 1.0f));
+   vertices.push_back(glm::vec2(0.0f, 1.0f));
+   vertices.push_back(glm::vec2(0.0f, 1.3f)); // guess at geometry
+   vertices.push_back(glm::vec2(0.2f, 1.0f));
+
+   // now move the whole mesh down... good idea?
+   for (auto &vertex : vertices)
+      vertex += glm::vec2(0.0, -0.3);
+
+   shades.push_back(-1);
+   shades.push_back(-1);
+   shades.push_back(1);
+   shades.push_back(1);
+   shades.push_back(1);
+
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(2,3,0));
+   triangles.push_back(g_triangle(2,4,5));
+
+   setup_buffers();
+}
+
+
+
+void
 HUDMesh::setup_buffers() {
 
    if (triangles.empty()) return;
@@ -361,6 +393,13 @@ HUDMesh::draw(Shader *shader_p) { // in this case draw() is draw_instanced() ---
       shader_p->set_vec2_for_uniform("scales", scales);
    if (offset_position_has_been_set)
       shader_p->set_vec2_for_uniform("offset_position", offset_position);
+
+   if (false) {
+      if (scales_have_been_set)
+         std::cout << "HUDMesh sending scales          " << glm::to_string(scales) << std::endl;
+      if (offset_position_has_been_set)
+         std::cout << "HUDMesh sending offset_position " << glm::to_string(offset_position) << std::endl;
+   }
 
    unsigned int n_triangle_vertices = triangles.size() * 3;
 

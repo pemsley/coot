@@ -1149,6 +1149,13 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    PyObject *r = Py_False;
 
    if (true) {
+      GtkWidget *glarea = g.glareas[0];
+      std::cout << "DEBUG:: sending " << glarea << " size request 900 00 " << std::endl;
+      gtk_widget_set_size_request(glarea, 900, 900);
+      g.graphics_draw();
+   }
+
+   if (false) {
       int imol = 0;
       if (is_valid_model_molecule(imol)) {
             molecule_class_info_t &m = g.molecules[imol];

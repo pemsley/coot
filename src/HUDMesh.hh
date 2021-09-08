@@ -137,6 +137,7 @@ public:
    void setup_simple_camera_facing_quad();
    void setup_camera_facing_quad_for_bar();
    void setup_vertices_and_triangles_for_button();
+   void setup_vertices_and_triangles_for_tooltip_background();
    void set_name(const std::string &n) { name = n; }
    void set_scales(const glm::vec2 &s) { scales = s; scales_have_been_set = true; }
    void set_offset_positions(const glm::vec2 &p) { offset_position = p; offset_position_has_been_set = true; }

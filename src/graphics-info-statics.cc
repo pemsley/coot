@@ -1391,6 +1391,7 @@ Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_hud_geometry_bars;
 Shader graphics_info_t::shader_for_hud_geometry_labels;
 Shader graphics_info_t::shader_for_hud_buttons;
+Shader graphics_info_t::shader_for_hud_image_texture;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;

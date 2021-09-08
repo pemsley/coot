@@ -10086,14 +10086,14 @@ Thu  8 Jul 16:48:13 BST 2021
 
    a lambda function capturing a mutable reference:
 
-                        auto update_worst = [&worst_score_in_top_10_local] (const std::pair<double, int> &s_inner) mutable {
-                                               if (s_inner.first < worst_score_in_top_10_local) worst_score_in_top_10_local = s_inner.first; };
+      auto update_worst = [&worst_score_in_top_10_local] (const std::pair<double, int> &s_inner) mutable {
+                  if (s_inner.first < worst_score_in_top_10_local) worst_score_in_top_10_local = s_inner.first; };
 
 
 ----
 Sat 17 Jul 15:40:16 BST 2021
 
-   the sfs calcuation is
+   the sfs calculation is
 
    molecule_class_info_t::calculate_sfs_and_make_map
 
@@ -10120,7 +10120,6 @@ data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
    -- hadasa https://www.biostars.org/p/9202/
 
 
-
 ----
 Wed  4 Aug 22:26:25 BST 2021
 
@@ -10142,7 +10141,6 @@ Thu 19 Aug 12:28:50 BST 2021
 Wed  1 Sep 01:28:24 BST 2021
 
    ebassi:
-
 
    If you build GTK with debugging support, what happens when you set the GDK_DEBUG=opengl environment variable?
    If you’re using Mesa, what happens when you set the MESA_DEBUG=1 environment variable
@@ -10167,3 +10165,20 @@ Sat  4 Sep 18:37:06 BST 2021
                data.push_back(glm::vec2(x, delta_t));
             }
          }
+
+---
+Mon  6 Sep 23:54:21 BST 2021
+
+    cryo_fit:
+
+    https://phenix-online.org/documentation/reference/cryo_fit.html
+
+    has interesting citations
+
+    Have a look at this:
+
+    https://www.embopress.org/doi/full/10.15252/embj.2020106807
+
+    Model building, refinement, validation, and analysis
+    EMD-10553 EMD-10554
+    Uses PDB ID 4wrn as starting model

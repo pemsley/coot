@@ -285,7 +285,7 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.setup_key_bindings();
 
-      g.gl_rama_plot.setup_buffers();
+      g.gl_rama_plot.setup_buffers(0.5); // rama relative size, put it into graphics_info_t and allow it to be set in the API
 
       g.setup_draw_for_happy_face_residue_markers_init();
 
@@ -326,6 +326,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;
+
+   std::cout << "INFO:: GtkGLArea widget dimensions " << width << " " << height << std::endl;
 
    // why do I need to do this?
    // setup_hud_text(width, height, g.shader_for_hud_text, false);

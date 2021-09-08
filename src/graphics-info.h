@@ -4194,6 +4194,7 @@ string   static std::string sessionid;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
    static Shader shader_for_hud_buttons;
+   static Shader shader_for_hud_image_texture;
    static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;

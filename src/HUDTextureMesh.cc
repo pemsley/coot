@@ -15,7 +15,10 @@ HUDTextureMesh::init() {
    vao = VAO_NOT_SET; // unset
    first_time = true;
    is_instanced = false;
+   window_resize_scales_correction_set = false;
+   window_resize_position_correction_set = false;
 }
+
 
 void
 HUDTextureMesh::setup_quad() {
@@ -207,6 +210,11 @@ HUDTextureMesh::draw(Shader *shader_p) {
    shader_p->set_vec2_for_uniform("scales", scales);
    shader_p->set_vec4_for_uniform("text_colour", text_colour);
 
+   if (window_resize_position_correction_set)
+      shader_p->set_vec2_for_uniform("window_resize_position_correction", window_resize_position_correction);
+   if (window_resize_scales_correction_set)
+      shader_p->set_vec2_for_uniform("window_resize_scales_correction", window_resize_scales_correction);
+
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
    GLenum err = glGetError();
    if (err) std::cout << "error HUDMesh::draw() glDrawElementsInstanced()"
@@ -243,6 +251,11 @@ HUDTextureMesh::draw_instances(Shader *shader_p) {
 
    shader_p->set_vec2_for_uniform("position", position); // these are for position global positioning and
    shader_p->set_vec2_for_uniform("scales", scales);     // scaling - used by all rama points
+
+   if (window_resize_position_correction_set)
+      shader_p->set_vec2_for_uniform("window_resize_position_correction", window_resize_position_correction);
+   if (window_resize_scales_correction_set)
+      shader_p->set_vec2_for_uniform("window_resize_scales_correction", window_resize_scales_correction);
 
    GLenum err = glGetError();
    if (err)

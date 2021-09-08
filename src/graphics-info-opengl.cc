@@ -24,6 +24,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_hud_geometry_labels,
                                                            shader_for_hud_geometry_tooltip_text,
                                                            shader_for_hud_buttons,
+                                                           shader_for_hud_image_texture,
                                                            shader_for_atom_labels,
                                                            shader_for_moleculestotriangles,
                                                            shader_for_hud_lines,
@@ -57,6 +58,7 @@ graphics_info_t::init_shaders() {
    shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_geometry_bars.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_geometry_labels.init("hud-labels.shader", Shader::Entity_t::HUD_TEXT);
+   shader_for_hud_image_texture.init("hud-image-texture.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::MODEL);
    shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);

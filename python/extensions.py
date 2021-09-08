@@ -325,18 +325,18 @@ if True:
      #---------------------------------------------------------------------
 
      def mask_map_func():
-       f = ""
-       molecule_list = coot_utils.molecule_number_list()
-       if not molecule_list == []:
-          for i in molecule_list:
-            if coot.is_valid_map_molecule(molecule_list[i]):
-              print("%s is a valid map molecule" %molecule_list[i])
-              f = str(molecule_list[i])
-              break
-          else:
-            print("BL WARNING:: dunno what to do!? No map found")
-            f = False
-       return f
+         f = ""
+         molecule_list = coot_utils.molecule_number_list()
+         if not molecule_list == []:
+             for i in molecule_list:
+                 if coot.is_valid_map_molecule(molecule_list[i]):
+                     print("%s is a valid map molecule" %molecule_list[i])
+                     f = str(molecule_list[i])
+                     break
+         else:
+             print("BL WARNING:: dunno what to do!? No map found")
+             f = False
+         return f
 
      def mask_map_func1(active_state):
          print("changed active_state to ", active_state)
