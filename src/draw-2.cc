@@ -421,6 +421,36 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
       if (! handled) {
 
+         // OK...
+         { // rama plot click
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(widget, &allocation);
+            int w = allocation.width;
+            int h = allocation.height;
+            auto rama_plot_hit = g.gl_rama_plot.get_mouse_over_hit(event->x, event->y, w, h);
+            if (rama_plot_hit.first) {
+               std::cout << "::::::::::::::::: click " << rama_plot_hit.second << std::endl;
+               std::string message = "Rama plot clicked residue: ";
+               message += rama_plot_hit.second.chain_id;
+               message += " ";
+               message += std::to_string(rama_plot_hit.second.res_no);
+               if (! rama_plot_hit.second.ins_code.empty()) {
+                  message += " ";
+                  message += rama_plot_hit.second.ins_code;
+               }
+               add_status_bar_text(message.c_str());
+
+               g.set_go_to_residue_intelligent(rama_plot_hit.second.chain_id,
+                                               rama_plot_hit.second.res_no,
+                                               rama_plot_hit.second.ins_code);
+               int success = g.try_centre_from_new_go_to_atom();
+               if (success) {
+                  g.update_things_on_move_and_redraw();
+               }
+               handled = true;
+            }
+         }
+
          // 20210829-PE This should be in *button-release* I think.
          // Here we could check for button-down (to give a "button pressed but not activatetd" look)
          // Also I need to check that right-mouse is not being used before calling this.
@@ -436,9 +466,12 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
          // std::cout << "::::::::::::::::::: Here A debug " << event->state << " " << GDK_BUTTON2_MASK  << std::endl;
          // std::cout << "::::::::::::::::::: Here A debug " << event->state << " " << GDK_BUTTON3_MASK  << std::endl;
 
-         if (event->button == 1) // event->state & GDK_BUTTON1_MASK didn't work because event->state
-                                 // was 16 GDK_MOD2_MASK (I don't know why)
-            handled = g.check_if_hud_button_moused_over(event->x, event->y, true);
+         if (! handled) {
+
+            if (event->button == 1) // event->state & GDK_BUTTON1_MASK didn't work because event->state
+                                    // was 16 GDK_MOD2_MASK (I don't know why)
+               handled = g.check_if_hud_button_moused_over(event->x, event->y, true);
+         }
       }
 
       if (! handled) {
@@ -645,6 +678,26 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
             }
          }
+      }
+   }
+
+   { // rama plot mouse-over
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      auto rama_plot_hit = g.gl_rama_plot.get_mouse_over_hit(event->x, event->y, w, h);
+      if (rama_plot_hit.first) {
+         // std::cout << "::::::::::::::::: hit " << rama_plot_hit.second << std::endl;
+         std::string message = "Rama plot residue: ";
+         message += rama_plot_hit.second.chain_id;
+         message += " ";
+         message += std::to_string(rama_plot_hit.second.res_no);
+         if (! rama_plot_hit.second.ins_code.empty()) {
+            message += " ";
+            message += rama_plot_hit.second.ins_code;
+         }
+         add_status_bar_text(message.c_str());
       }
    }
 

@@ -12,7 +12,7 @@ gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol) {
       float position_hash_now = coot::get_position_hash(mol);
       // std::cout << "comparing hashes " << position_hash_now << " " << position_hash << std::endl;
       if (position_hash_now != position_hash) {
-         std::map<coot::residue_spec_t, rama_plot::phi_psi_t> phi_psi_map = generate_phi_psis(imol, mol);
+         phi_psi_map = generate_phi_psis(imol, mol);
          update_hud_tmeshes(phi_psi_map);
          position_hash = position_hash_now;
       }
@@ -20,6 +20,24 @@ gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol) {
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    // std::cout << "INFO:: setup_from() " << d10 << " milliseconds" << std::endl;
+}
+
+void
+gl_rama_plot_t::clear() {
+
+   phi_psi_map.clear();
+   std::map<coot::residue_spec_t, rama_plot::phi_psi_t> empty;
+   update_hud_tmeshes(empty);
+
+   // I don't want to delete the VAO or the buffers for the instance object.
+
+}
+
+bool
+gl_rama_plot_t::is_active() const {
+
+   return (! phi_psi_map.empty());
+
 }
 
 #include <glm/gtx/string_cast.hpp>
@@ -36,7 +54,7 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
    // hud_tmesh_for_gly_normal;
    // hud_tmesh_for_gly_outlier;
 
-   float rama_plot_scale = 0.5; // pass this or make it a member item
+   // float rama_plot_scale = 0.7; // pass this or make it a member item 20210908-PE  now it's a data member.
    float sf = rama_plot_scale * 0.23; // 0.25 is too big, 0.23 is about right, 0.22 is a bit too small
    std::vector<glm::vec2> new_other_normal_positions;
    std::vector<glm::vec2> new_other_outlier_positions;
@@ -52,14 +70,22 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
       glm::vec2 pos(sf * phi_psi.phi, sf * phi_psi.psi);
       // std::cout << "phi_psi pos: " << glm::to_string(pos) << std::endl;
       if (phi_psi.residue_name == "PRO") {
-         // new_pro_normal_positions.push_back(pos);
+         double probability = rama_pro.probability(phi_r, psi_r);
+         if (probability < rama_threshold_allowed) {
+            new_pro_outlier_positions.push_back(pos);
+         } else {
+            new_pro_normal_positions.push_back(pos);
+         }
       } else {
          if (phi_psi.residue_name == "GLY") {
-            // new_gly_normal_positions.push_back(pos);
+            double probability = rama_gly.probability(phi_r, psi_r);
+            if (probability < rama_threshold_allowed) {
+               new_gly_outlier_positions.push_back(pos);
+            } else {
+               new_gly_normal_positions.push_back(pos);
+            }
          } else {
             double probability = rama_non_gly_pro.probability(phi_r, psi_r);
-            // bool is_outlier = (probability < rama_threshold_allowed);
-            // std::cout << "debug:: probabilities " << probability << " " << rama_threshold_allowed << " " << is_outlier << std::endl;
             if (probability < rama_threshold_allowed) {
                new_other_outlier_positions.push_back(pos);
             } else {
@@ -69,11 +95,18 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
       }
    }
 
+   if (false)
+      std::cout << "debug:: update_hud_tmeshes() counts "
+                << " " << new_other_normal_positions.size() << " " << new_other_outlier_positions.size()
+                << " " << new_pro_normal_positions.size() << " " << new_pro_outlier_positions.size()
+                << " " << new_gly_normal_positions.size() << " " << new_gly_outlier_positions.size()
+                << std::endl;
+
    // mark the corners of the plot for scaling and offset testing
-   new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf * -180.0));
-   new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf * -180.0));
-   new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
-   new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
+   // new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf * -180.0));
+   // new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf * -180.0));
+   // new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
+   // new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
 
    glm::vec2 plot_point_scales(0.012, 0.012); // this gets the marker point size right
    glm::vec2 offset(-5.66 * sf, -5.66 * sf); // -7 is too negative, -5.7 is too negative, -5.6 is too little
@@ -198,6 +231,18 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
 	 }
       }
    }
+
+   // add in some fake points for testing
+   coot::residue_spec_t f1("Test", 1, "");
+   coot::residue_spec_t f2("Test", 2, "");
+   coot::residue_spec_t f3("Test", 3, "");
+   coot::residue_spec_t f4("Test", 4, "");
+
+   r[f1] = rama_plot::phi_psi_t(-180, -180, "Test-Res", "TR1", 1, "", "A", false);
+   r[f2] = rama_plot::phi_psi_t( 180, -180, "Test-Res", "TR2", 2, "", "A", false);
+   r[f3] = rama_plot::phi_psi_t( 180,  180, "Test-Res", "TR3", 3, "", "A", false);
+   r[f4] = rama_plot::phi_psi_t(-180,  180, "Test-Res", "TR4", 4, "", "A", false);
+
    return r;
 }
 
@@ -205,9 +250,11 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
 #include "utils/coot-utils.hh"
 
 void
-gl_rama_plot_t::setup_buffers(float rama_plot_scale) {
+gl_rama_plot_t::setup_buffers(float rama_plot_scale_in) {
 
    // I presume that we need to attach bufffers before this function is called?
+
+   rama_plot_scale = rama_plot_scale_in;
 
    hud_tmesh_for_other_normal.setup_quad();
    hud_tmesh_for_other_outlier.setup_quad();
@@ -378,9 +425,11 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    glEnable(GL_DEPTH_TEST); // needed?
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   std::cout << "munged_scales " << glm::to_string(munged_scales) << " munged_offsets " << glm::to_string(munged_position_offset) << std::endl;
+   // std::cout << "munged_scales " << glm::to_string(munged_scales) << " munged_offsets "
+   // << glm::to_string(munged_position_offset) << std::endl;
+   GLenum err;
 
-   GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
    hud_tmesh_for_other_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
    hud_tmesh_for_other_normal.set_window_resize_scales_correction(munged_scales);
@@ -430,4 +479,77 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
       hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
    }
+}
+
+
+std::pair<bool, coot::residue_spec_t>
+gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_width, int widget_height) const {
+
+   bool status = false;
+   coot::residue_spec_t hit_residue_spec;
+
+   auto mouse_position_to_phi_psi = [x_widget,y_widget, widget_width, widget_height] (float rama_plot_scale) {
+
+                                       // This is how phi,psi is converted to a screen position (at 900,900):
+
+                                       float sf = rama_plot_scale * 0.23;
+                                       // double phi_r = clipper::Util::d2rad(phi_psi.phi);
+                                       // double psi_r = clipper::Util::d2rad(phi_psi.psi);
+                                       // glm::vec2 pos(sf * phi_psi.phi, sf * phi_psi.psi);
+
+                                       // glm::vec2 plot_point_scales(0.012, 0.012); // this gets the marker point size right
+                                       // glm::vec2 offset(-5.66 * sf, -5.66 * sf);
+
+                                       float x_opengl =  2.0 * x_widget/static_cast<float>(widget_width)  - 1.0;
+                                       float y_opengl = -2.0 * y_widget/static_cast<float>(widget_height) + 1.0;
+
+                                       // this is not quite right - it seems to that the origin is 1 pixel
+                                       // to the left of this origin
+                                       glm::vec2 pp_1(x_opengl + 5.66 * sf, y_opengl + 5.66 * sf); // undo offset
+                                       glm::vec2 pp_2 = pp_1 * glm::vec2(1.0/0.012, 1.0/0.012) ; // undo scaling
+
+                                       glm::vec2 pp_3 = pp_2 * glm::vec2(8.7, 8.7);
+
+                                       rama_plot::phi_psi_t pp(pp_3.x, pp_3.y);
+
+                                       if (false)
+                                          std::cout << "debug:: in " << x_widget << " " << y_widget
+                                                    << " opengl " << x_opengl << " " << y_opengl << " "
+                                                    << "phi-psi-fake: " << pp_3.x << " " << pp_3.y <<std::endl;
+                                       return pp;
+                                    };
+
+   if (! is_active()) {
+      return std::make_pair(status, hit_residue_spec); // no.
+   } else {
+      rama_plot::phi_psi_t phi_psi_mouse = mouse_position_to_phi_psi(rama_plot_scale);
+      // std::cout << "debug:: phi_psi_mouse: in " << x_widget << " " << y_widget
+      // << " out: " << phi_psi_mouse.phi << " " << phi_psi_mouse.psi << std::endl;
+      std::map<coot::residue_spec_t, rama_plot::phi_psi_t>::const_iterator it;
+      float delta_r_sqrd_best = 99999999.9;
+      float best_has_been_found = false;
+      rama_plot::phi_psi_t phi_psi_best;
+      for (it=phi_psi_map.begin(); it!=phi_psi_map.end(); it++) {
+         const auto &phi_psi = it->second; // phi and psi are in degrees
+         double delta_phi = fabs(phi_psi.phi - phi_psi_mouse.phi);
+         double delta_psi = fabs(phi_psi.psi - phi_psi_mouse.psi);
+         if (delta_phi < 10.0) {
+            if (delta_psi < 10.0) {
+               double delta_r_sqrd = delta_phi * delta_phi + delta_psi * delta_psi;
+               if (delta_r_sqrd < delta_r_sqrd_best) {
+                  phi_psi_best = phi_psi;
+                  best_has_been_found = true;
+               }
+            }
+         }
+      }
+      if (best_has_been_found) {
+         if (phi_psi_best.residue_this) {
+            hit_residue_spec = coot::residue_spec_t(phi_psi_best.residue_this);
+            status = true;
+         }
+      }
+   }
+   //std::cout << "get_mouse_over_hit() returning " << status << " " << hit_residue_spec << std::endl;
+   return std::make_pair(status, hit_residue_spec);
 }

@@ -4280,6 +4280,7 @@ string   static std::string sessionid;
 
    static gl_rama_plot_t gl_rama_plot;
    static void draw_ramachandran_plot(); // OpenGL rama plot
+   void clear_gl_rama_plot();
 
    void reset_frame_buffers(int width, int height);
    void setup_lights();

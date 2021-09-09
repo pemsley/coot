@@ -38,7 +38,7 @@ class gl_rama_plot_t {
    std::string colour_for_OK_phi_psi;
    std::string colour_for_OK_phi_psi_pro;
    std::string colour_for_outlier_phi_psi;
-   std::map<coot::residue_spec_t, rama_plot::phi_psi_t> phi_psis;
+   std::map<coot::residue_spec_t, rama_plot::phi_psi_t> phi_psi_map;
    clipper::Ramachandran::TYPE current_background_type;
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_pseudo_phi_psis();
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_phi_psis(int imol, mmdb::Manager *mol_in);
@@ -74,6 +74,7 @@ class gl_rama_plot_t {
                                 int glarea_width, int glarea_height) const;
    
    void update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plot::phi_psi_t> &phi_psi_map);
+   float rama_plot_scale;
 
 public:
    gl_rama_plot_t() { init(); }
@@ -86,6 +87,10 @@ public:
              Shader *shader_for_hud_textures_p,
              int glarea_width, int glarea_height);
    float position_hash; // updated and tested in setup_from() so that we don't recalculate if we don't need to
+   void clear(); // empty the residue phi,psi map and delete the gl buffers (keep the vao)
+   bool is_active() const; // for mouse-overing
+   std::pair<bool, coot::residue_spec_t> get_mouse_over_hit(double x_mouse, double y_mouse,
+                                                            int widget_width, int widget_height) const;
 };
 
 #endif // GL_RAMA_PLOT_HH

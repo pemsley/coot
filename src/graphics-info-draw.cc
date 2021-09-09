@@ -2138,7 +2138,7 @@ graphics_info_t::draw_hud_buttons() {
    mesh_for_hud_buttons.draw(&shader_for_hud_buttons); // we have added the button instances before now.
                                                        // (actually in show_accept_reject_hud_buttons()).
 
-   // do the texture for the labels all on the fly
+   // do the texture for the labels all on the fly - is that sound?
    //
    float height_adjust = static_cast<float>(900)/static_cast<float>(h);
    float button_width  = HUD_button_info_t::button_width  * static_cast<float>(900)/static_cast<float>(w);
@@ -2150,7 +2150,7 @@ graphics_info_t::draw_hud_buttons() {
       const auto &button = hud_button_info[i];
       const std::string &label = button.button_label;
       if (! label.empty()) {
-         std::string mesh_name = "for button with label" + label;
+         std::string mesh_name = "HUDTexturemesh for button with label" + label;
          HUDTextureMesh htm(mesh_name);
          htm.setup_quad();
          float text_scale_raw = 0.4 * 0.00018;
@@ -2170,6 +2170,12 @@ graphics_info_t::draw_hud_buttons() {
          htm.draw_label(label, text_colour_white, &shader, ft_characters);
       }
    }
+}
+
+void
+graphics_info_t::clear_gl_rama_plot() {
+
+   gl_rama_plot.clear();
 }
 
 void
@@ -2395,6 +2401,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.hud_button_info.clear();
                            g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
+                           g.clear_gl_rama_plot();
                            return true;
                    };
 
@@ -2405,6 +2412,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.hud_button_info.clear();
                            g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
+                           g.clear_gl_rama_plot();
                            return true;
                         };
    auto button_3_func = [] () {
@@ -4032,7 +4040,7 @@ graphics_info_t::setup_key_bindings() {
 
    auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); return gboolean(TRUE); };
 
-   auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); return gboolean(TRUE); };
+   auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); g.clear_gl_rama_plot(); return gboolean(TRUE); };
 
    auto l20 = []() { graphics_info_t g; g.eigen_flip_active_residue(); return gboolean(TRUE); };
 
