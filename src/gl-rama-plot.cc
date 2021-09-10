@@ -108,8 +108,15 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
    // new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
    // new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
 
+   // for the background
+   // float ff = -0.5 * rama_plot_scale + 0.9;
+   // hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
+
    glm::vec2 plot_point_scales(0.012, 0.012); // this gets the marker point size right
-   glm::vec2 offset(-5.66 * sf, -5.66 * sf); // -7 is too negative, -5.7 is too negative, -5.6 is too little
+
+   float ff =  -0.5 * rama_plot_scale + 0.9;
+
+   glm::vec2 offset(-ff, -ff);
 
    hud_tmesh_for_other_normal.set_scales(plot_point_scales);
    hud_tmesh_for_other_normal.set_position(offset); // tweaked to match the axes mesh
@@ -469,16 +476,20 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    hud_tmesh_for_gly_outlier.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() J error " << err << std::endl;
 
+   glDisable(GL_BLEND);
+   // glDisable(GL_DEPTH_TEST);
    if (true) {
       texture_for_global_distribution_non_gly_pro.Bind(0);
       // munged_position_offset = glm::vec2(0,0);
       // munged_scales = glm::vec2(1,1);
-      hud_tmesh_for_global_distribution_non_gly_pro.set_scales(glm::vec2(0.25, 0.25));
-      hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-0.65, -0.65));
+      hud_tmesh_for_global_distribution_non_gly_pro.set_scales(glm::vec2(rama_plot_scale * 0.5, rama_plot_scale * 0.5));
+      float ff = -0.5 * rama_plot_scale + 0.9;
+      hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
       hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
    }
+
 }
 
 
@@ -504,7 +515,8 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
                                        float y_opengl = -2.0 * y_widget/static_cast<float>(widget_height) + 1.0;
 
                                        // this is not quite right - it seems to that the origin is 1 pixel
-                                       // to the left of this origin
+                                       // to the left of this origin - that's weird.
+                                       //
                                        glm::vec2 pp_1(x_opengl + 5.66 * sf, y_opengl + 5.66 * sf); // undo offset
                                        glm::vec2 pp_2 = pp_1 * glm::vec2(1.0/0.012, 1.0/0.012) ; // undo scaling
 
