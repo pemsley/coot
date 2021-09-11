@@ -3584,7 +3584,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          Instanced_Markup_Mesh &clash_im = g.molecules[imol].instanced_meshes.back();
          clash_im.setup_octasphere(octasphere_subdivisions);
          clash_im.setup_instancing_buffers(c.clashes.size());
-#if 0
+#if 0 // 20210911-PE
          const float point_size = ball_size;
          for (unsigned int i=0; i<c.clashes.size(); i++) {
             glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
@@ -3600,10 +3600,11 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
          float line_radius = 0.062f;
          const unsigned int n_slices = 16;
+         float unstubby_cap_factor = 1.1/0.7; // see below
          std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
          obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
                           meshed_generic_display_object::ROUNDED_CAP,
-                          meshed_generic_display_object::ROUNDED_CAP); // does obj.mesh.import()
+                          meshed_generic_display_object::ROUNDED_CAP, unstubby_cap_factor); // does obj.mesh.import()
          // now I need to init the buffers of obj.mesh.
          Material material;
          obj.mesh.setup(material); // calls setup_buffers()

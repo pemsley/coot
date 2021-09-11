@@ -33,15 +33,15 @@ cylinder::cylinder(const std::pair<glm::vec3, glm::vec3> &pos_pair,
    start = pos_pair.first; // save start
    const glm::vec3 &finish = pos_pair.second;
    glm::vec3 b = finish - start;
+   float bond_length = glm::distance(start, finish);
    glm::vec3 normalized = glm::normalize(b);
    ori = glm::orientation(normalized, glm::vec3(0.0, 0.0, 1.0));
-   glm::mat4 tori = glm::transpose(ori);
+   // glm::mat4 tori = glm::transpose(ori);
 
    // std::cout << "ori " << glm::to_string(ori) << "\n";
 
    triangle_indices_vec.resize(n_stacks * n_slices * 2);
    vertices.resize((n_stacks + 1) * n_slices);
-   unsigned int idx = 0;
 
    float one_over_n_slices = 1.0/static_cast<float>(n_slices);
    float one_over_n_stacks = 1.0/static_cast<float>(n_stacks-1);
@@ -175,6 +175,8 @@ cylinder::add_octahemisphere_end_cap() {
    for (unsigned int i=0; i<vv.size(); i++) {
       nv[i].normal = glm::vec3(ori * glm::vec4(vv[i], 1.0f));
       vv[i] *= radius;
+      vv[i].z *= unstubby_rounded_cap_factor; // 20210911-PE so that when I make them short and fat scaling z down
+                                              // more than x and y, the end cap can still be rounded (like a pill)
       vv[i].z += height;
       glm::vec4 p_1(ori * glm::vec4(vv[i], 1.0f));
       nv[i].pos = glm::vec3(p_1);
@@ -201,7 +203,8 @@ cylinder::add_octahemisphere_start_cap() {
 
    std::vector<s_generic_vertex> nv(vv.size());
    for (unsigned int i=0; i<vv.size(); i++) {
-      vv[i].z = -vv[i].z;
+      vv[i].z = -vv[i].z;  // 20210911-PE dangerous? (changes the winding)
+      vv[i].z *= unstubby_rounded_cap_factor;
       glm::vec4 p_1(ori * glm::vec4(vv[i], 1.0f));
       nv[i].pos = glm::vec3(p_1);
       nv[i].pos *= base_radius;

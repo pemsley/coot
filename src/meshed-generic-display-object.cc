@@ -120,10 +120,12 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
                                             const coot::colour_holder &col, float line_radius,
                                             unsigned int n_slices,
                                             bool cap_start, bool cap_end,
-                                            cap_type start_cap_type, cap_type end_cap_type) {
+                                            cap_type start_cap_type, cap_type end_cap_type,
+                                            float unstubby_cap_factor) {
 
    float h = glm::distance(start_end.first, start_end.second);
    cylinder c(start_end, line_radius, line_radius, h, n_slices, 2);
+   c.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
    glm::vec4 colour(col.red, col.green, col.blue, 1.0f);
    if (false)
       std::cout << "add_cylinder: " << glm::to_string(start_end.first) << " "
