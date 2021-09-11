@@ -3573,7 +3573,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
             g.generic_display_objects[clashes_obj_index].clear();
 
          coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
-         float dimmer = 0.75;
+         float dimmer = 0.7;
          glm::vec4 clash_col_glm(clash_col.red * dimmer, clash_col.green * dimmer, clash_col.red * dimmer, 1.0);
          std::vector<Instanced_Markup_Mesh_attrib_t> balls;
          balls.resize(c.clashes.size());

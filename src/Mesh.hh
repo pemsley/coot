@@ -2,6 +2,8 @@
 #ifndef MESH_HH
 #define MESH_HH
 
+#include <chrono>
+
 #include "generic-vertex.hh"
 #include "g_triangle.hh"
 
@@ -67,6 +69,7 @@ public:
    Shader shader_for_draw_normals;
    std::string name;
    unsigned int type; // from molecular triangles object type
+   std::chrono::time_point<std::chrono::system_clock>  time_constructed;
 
    Mesh() { init(); }
    // import from somewhere else

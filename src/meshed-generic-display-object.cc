@@ -138,7 +138,6 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
          c.add_flat_start_cap();
       if (start_cap_type == ROUNDED_CAP)
          c.add_octahemisphere_start_cap();
-
    }
    if (cap_end) {
       if (end_cap_type == FLAT_CAP)

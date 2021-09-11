@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <chrono>
 
 // Having this up here...
 #include <mmdb2/mmdb_manager.h>
@@ -48,6 +49,9 @@ Mesh::init() {
    n_instances_allocated = 0;
    particle_draw_count = 0;
    vao = VAO_NOT_SET;
+
+   std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+   time_constructed = now;
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
@@ -1237,6 +1241,12 @@ Mesh::draw_instanced(Shader *shader_p,
    if (err) std::cout << "error:: Mesh::draw_instanced() " << name << " " << shader_p->name
                       << " draw_instanced() post view rotation uniform " << err << std::endl;
 
+
+   std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+   float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+   // std::cout << "sending time " << time << std::endl;
+   shader_p->set_float_for_uniform("time", time);
+
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
@@ -1282,13 +1292,13 @@ Mesh::draw_instanced(Shader *shader_p,
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
    err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() i " << err << std::endl;
 
-   glEnableVertexAttribArray(0);
-   glEnableVertexAttribArray(1);
-   glEnableVertexAttribArray(2);
-   glEnableVertexAttribArray(3);
-   glEnableVertexAttribArray(4);
-   glEnableVertexAttribArray(5);
-   glEnableVertexAttribArray(6);
+   glEnableVertexAttribArray(0);  // vec3 position
+   glEnableVertexAttribArray(1);  // vec3 normal
+   glEnableVertexAttribArray(2);  // vec4 colour
+   glEnableVertexAttribArray(3);  // instanced mat-row-0 from setup_matrix_and_colour_instancing_buffers_standard()
+   glEnableVertexAttribArray(4);  // instanced mat-row-1
+   glEnableVertexAttribArray(5);  // instanced mat-row-2
+   glEnableVertexAttribArray(6);  // instanced mat-row-3
    glEnableVertexAttribArray(7);
 
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?

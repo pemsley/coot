@@ -15,8 +15,11 @@ layout(location = 4) in vec4 model_rotation_translation_scale_1;
 layout(location = 5) in vec4 model_rotation_translation_scale_2;
 layout(location = 6) in vec4 model_rotation_translation_scale_3;
 
+
 uniform mat4 mvp;
 uniform mat4 view_rotation;
+uniform float time;
+
 out vec4 colour_transfer;
 out vec3 normal_transfer;
 out vec4 frag_pos_transfer;
@@ -30,7 +33,10 @@ void main() {
                               model_rotation_translation_scale_1.xyz,
                               model_rotation_translation_scale_2.xyz);
 
-   vec4 frag_pos = model_rotation_translation_scale * vec4(position, 1.0);
+   // vec3 t_pos = position + vec3(0,0, 0.5 * sin(0.01 * time));
+   vec3 t_pos = position + vec3(0,0, 0.2 * sin(0.005 * time + 0.1 * gl_InstanceID));
+   vec4 p4 = vec4(t_pos, 1.0);
+   vec4 frag_pos = model_rotation_translation_scale * p4;
 
    gl_Position = mvp * frag_pos;
 
