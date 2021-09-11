@@ -157,8 +157,9 @@ Mesh::debug() const {
 }
 
 
+// 20210910-PE remove the Shader argument, surely not needed.
 void
-Mesh::setup(Shader *shader_p, const Material &material_in) {
+Mesh::setup(const Material &material_in) {
 
    // Generic objects need a lot of reworking
    // because I want to "setup" only after all objects have been added - not
@@ -171,7 +172,7 @@ Mesh::setup(Shader *shader_p, const Material &material_in) {
    // return;
 
    material = material_in;
-   shader_p->Use();
+   // shader_p->Use();
    setup_buffers();
 }
 
@@ -555,6 +556,10 @@ Mesh::setup_buffers() {
    glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
                           reinterpret_cast<void *>(sizeof(glm::vec3)));
 
+
+   std::cout << "debug:: in setup_buffers() is_instanced_colours for mesh with name "
+             << name << is_instanced_colours << std::endl;
+
    // colour
    if (! is_instanced_colours) {
       // when the colour attribute is instanced (like the model_translation), so set up the colours
@@ -671,7 +676,8 @@ Mesh::setup_rtsc_instancing(Shader *shader_p,
    is_instanced_colours = true;
    is_instanced_with_rts_matrix = true;
 
-   shader_p->Use();
+   if (shader_p)
+      shader_p->Use();
    material = material_in;
 
    setup_buffers();
@@ -1220,7 +1226,7 @@ Mesh::draw_instanced(Shader *shader_p,
                       << " -- start -- " << err << std::endl;
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
-   
+
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
    if (err) std::cout << "error:: " << shader_p->name << " draw_instanced() post mvp uniform "
@@ -1252,7 +1258,8 @@ Mesh::draw_instanced(Shader *shader_p,
    shader_p->set_float_for_uniform("material.shininess", material.shininess);
    shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
    err = glGetError();
-   if (err) std::cout << "error draw_instanced(): " << shader_name << " pre-set eye position " << " with GL err " << err << std::endl;
+   if (err) std::cout << "error draw_instanced(): " << shader_name << " post-material "
+                      << " with GL err " << err << std::endl;
    shader_p->set_vec3_for_uniform("eye_position", eye_position);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw_instanced() " << name << " " << shader_name << " post-set eye position "
@@ -1286,7 +1293,6 @@ Mesh::draw_instanced(Shader *shader_p,
 
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?
    err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() inst_rts_buffer_id" << std::endl;
-
 
    if (false)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " drawing n_verts " << n_verts << " n_instances " << n_instances
@@ -1657,6 +1663,8 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    unsigned int n_mats =    mats.size();
    unsigned int n_cols = colours.size();
 
+   //is_instanced = true; 20210910-PE don't do this here. Do it when these buffers are allocated.
+
    if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this Mesh " << name << std::endl;
    glBindVertexArray(vao); // needed?
@@ -1682,7 +1690,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
 
    if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this Mesh " << name << std::endl;
-   glBindVertexArray(vao); // needed?
+   glBindVertexArray(vao); // needed? 20210910-PE I imagine so!
    GLenum err = glGetError();
    if (err)
       std::cout << "GL error Mesh::update_instancing_buffer_data() --start-- " << "binding vao " << vao
@@ -1699,6 +1707,10 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
    }
 
    if (n_mats > 0) {
+      for (unsigned int i=0; i<mats.size(); i++) {
+         std::cout << "debug:: update_instancing_buffer_data()" << inst_rts_buffer_id << " "
+                   << glm::to_string(mats[i]) << std::endl;
+      }
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
       glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
    }

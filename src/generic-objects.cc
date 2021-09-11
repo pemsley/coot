@@ -84,7 +84,7 @@ void to_generic_object_add_line(int object_number,
                           meshed_generic_display_object::FLAT_CAP);
 
          Material material;
-         obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+         obj.mesh.setup(material);
       } else {
          std::cout << "BAD object_number in to_generic_object_add_line"
                    << " out of range high" << object_number << std::endl;
@@ -197,7 +197,8 @@ void to_generic_object_add_point_internal(int object_number,
          meshed_generic_display_object &obj = g.generic_display_objects[object_number];
          Material material;
          g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
-         obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+         // obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+         obj.mesh.setup(material); // fast return if already done
       }
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
@@ -268,7 +269,8 @@ void to_generic_object_add_torus_internal(int object_number,
       g.generic_display_objects[object_number].add_torus(torus);
       meshed_generic_display_object &obj = g.generic_display_objects[object_number];
       Material material;
-      obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+      // obj.mesh.setup(&g.shader_for_moleculestotriangles, material); //20210910-PE 
+      obj.mesh.setup(material);
    }
 }
 
@@ -395,7 +397,8 @@ to_generic_object_add_arrow(int object_number,
                       meshed_generic_display_object::FLAT_CAP);
 
          Material material;
-         obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+         // obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+         obj.mesh.setup(material);
       } else {
          std::cout << "BAD object_number in to_generic_object_add_line"
                    << " out of range high" << object_number << std::endl;

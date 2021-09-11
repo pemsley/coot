@@ -21,7 +21,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include <iomanip> 
+#include <iomanip>
 #include "compat/coot-sysdep.h"
 
 // We don't use gtkgraph these days
@@ -86,7 +86,8 @@ void hole(int imol, float start_x, float start_y, float start_z,
          surface_obj.add_point(colour, colour_name, 4, pt);
       }
       Material material;
-      surface_obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+      // surface_obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done 20210910-PE
+      surface_obj.mesh.setup(material); // fast return if already done
 
       // set_display_generic_object(obj_path,    1);
       set_display_generic_object(obj_surface, 1);
@@ -108,7 +109,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
       std::ofstream radius_stream(file_name.c_str());
       if (! radius_stream) {
 	 std::cout << "WARNING:: failure to open " << file_name<< std::endl;
-      } else { 
+      } else {
 	 for (unsigned int i=0; i<n; i++) {
 	    double f = path_length * double(i)/double(n);
 	    radius_stream << f << "    "  << probe_path[i].second
@@ -139,8 +140,8 @@ void hole(int imol, float start_x, float start_y, float start_z,
 		 << hole_path_and_surface.second[i].colour.hex()
 		 << "\n";
 	    }
-	 } 
-      } 
+	 }
+      }
 
       std::pair<int, int> geom(160, 400);
       simple_text_dialog("Probe radius data", text, geom.first, geom.second);
@@ -152,7 +153,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
       bool export_map = true;
       if (export_map) {
 	 int imol_map = imol_refinement_map();
-	 if (is_valid_map_molecule(imol_map)) { 
+	 if (is_valid_map_molecule(imol_map)) {
 	    const clipper::Xmap<float> &ref_map = g.molecules[imol_map].xmap;
 	    hole.carve_a_map(probe_path, ref_map, "hole.map");
 	 }
@@ -239,7 +240,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-   if (graphics_info_t::use_graphics_interface_flag) { 
+   if (graphics_info_t::use_graphics_interface_flag) {
       coot::goograph* g = new coot::goograph;
       int trace = g->trace_new();
       std::vector<std::pair<double, double> > data;
@@ -353,7 +354,8 @@ void import_bild(const std::string &file_name) {
                             }
                             Material material;
                             gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-                            m.mesh.setup(shader_p, material);
+                            //m.mesh.setup(shader_p, material);
+                            m.mesh.setup(material);
                             graphics_info_t::generic_display_objects.push_back(m);
                          };
 

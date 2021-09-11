@@ -3061,7 +3061,8 @@ graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
    mesh_for_environment_distances.init(environment_object_bonds_box,
                                        background_is_black_p());
    Material material;
-   mesh_for_environment_distances.mesh.setup(&shader_for_moleculestotriangles, material);
+   // mesh_for_environment_distances.mesh.setup(&shader_for_moleculestotriangles, material); 20210910-PE
+   mesh_for_environment_distances.mesh.setup(material);
 
    labels.clear(); // remove everything
    add_distance_labels_for_environment_distances();

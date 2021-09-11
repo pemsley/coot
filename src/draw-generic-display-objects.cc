@@ -96,7 +96,9 @@ coot::old_generic_display_object_t::add_pentakis_dodecahedron(const colour_holde
 // static
 void
 graphics_info_t::draw_generic_objects() {
-   graphics_info_t g;
+
+   // This is the function that draws clash spike capped cylinders
+
    if (! generic_display_objects.empty()) {
 
       bool draw_meshes = true;
@@ -124,9 +126,17 @@ graphics_info_t::draw_generic_objects() {
                   if (! molecules[imol_for_mesh].draw_it_for_map)
                      draw_it = false;
             }
-            if (draw_it)
-               obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
-                             bg_col, do_depth_fog);
+            if (draw_it) {
+               if (obj.mesh.is_instanced) {
+                  // std::cout << "draw_generic_objects() draw_instanced()" << std::endl;
+                  obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, view_rotation,
+                                          lights, eye_position, bg_col, do_depth_fog);
+               } else {
+                  // std::cout << "draw_generic_objects() draw()" << std::endl;
+                  obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
+                                bg_col, do_depth_fog);
+               }
+            }
          }
       }
    }

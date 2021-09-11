@@ -94,7 +94,8 @@ public:
    void import(const std::vector<position_normal_vertex> &verts,
                const std::vector<g_triangle> &indexed_vertices,
                const glm::vec4 &colour);
-   void setup(Shader *shader_p, const Material &material_in);
+   // void setup(Shader *shader_p, const Material &material_in);  I don't need the shader, do I?
+   void setup(const Material &material_in);
    // can be considered as "draw_self()"
    void draw(Shader *shader,
              const glm::mat4 &mvp,

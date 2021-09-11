@@ -159,7 +159,8 @@ Mesh::make_graphical_bonds_spherical_atoms(Shader *shader_p,
             glm::vec3 t(at->x, at->y, at->z);
             float sar = scale * atom_radius;
             glm::vec3 sc(sar, sar, sar);
-            instanced_matrices.push_back(glm::translate(glm::scale(unit, sc), t/sar));
+            glm::mat4 mm = glm::scale(unit, sc);
+            instanced_matrices.push_back(glm::translate(mm, t/sar));
             instanced_colours.push_back(col);
          }
       }

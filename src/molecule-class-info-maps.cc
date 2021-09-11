@@ -766,7 +766,8 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
 
    Mesh gm_cap(map_cap);
    meshes.push_back(gm_cap);
-   meshes.back().setup(shader_p, material);
+   // meshes.back().setup(shader_p, material); 20210910-PE
+   meshes.back().setup(material);
 
 }
 

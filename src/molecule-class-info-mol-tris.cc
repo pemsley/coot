@@ -77,7 +77,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
                Mesh mesh(verts_and_tris);
                mesh.set_name("Mesh for Rainbow Ribbons");
                meshes.push_back(mesh);
-               meshes.back().setup(&molecular_triangles_shader, material); // do I need the shader to do this!?
+               // meshes.back().setup(&molecular_triangles_shader, material); // do I need the shader to do this!? 20210910-PE
+               meshes.back().setup(material); // do I need the shader to do this!?
             }
          }
       }
@@ -103,7 +104,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
          Mesh mesh(meshes_together_pair);
          mesh.set_name(name);
          meshes.push_back(mesh);
-         meshes.back().setup(&molecular_triangles_shader, material);
+         // meshes.back().setup(&molecular_triangles_shader, material); 20210910-PE
+         meshes.back().setup(material);
          // meshes.back().debug_to_file();
       }
    }

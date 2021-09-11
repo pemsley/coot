@@ -1697,8 +1697,18 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
          for (int ii=n_molecules()-1; ii>=0; ii--) {
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
-               m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
-                                 view_rotation, lights, eye_position, bg_col, do_depth_fog);
+               std::cout << "mesh jj " << jj << " of " << m.meshes.size() << " instanced" << m.meshes[jj].is_instanced
+                         << std::endl;
+               if (m.meshes[jj].is_instanced) {
+                  // std::cout << "drawing instanced " << jj << std::endl;
+                  // what a mess
+                  m.meshes[jj].draw_instanced(&shader_for_moleculestotriangles, mvp,
+                                              view_rotation, lights, eye_position,
+                                              bg_col, do_depth_fog);
+               } else {
+                  m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                                    view_rotation, lights, eye_position, bg_col, do_depth_fog);
+               }
             }
             glUseProgram(0);
          }
@@ -1753,6 +1763,7 @@ graphics_info_t::draw_instanced_meshes() {
 
       if (! instanced_meshes.empty()) {
          for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
+            std::cout << "draw own mesh " << jj << std::endl;
             instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
                                       view_rotation, lights, eye_position, bg_col, do_depth_fog);
          }
@@ -1763,7 +1774,7 @@ graphics_info_t::draw_instanced_meshes() {
 void
 graphics_info_t::draw_meshes() {
 
-   // presumes opaque-only
+   // presumes only opaques
 
    draw_meshed_generic_display_object_meshes();
    draw_instanced_meshes();
@@ -3215,19 +3226,19 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    if (use_framebuffers) { // static class variable
 
       GLenum err = glGetError();
-      if (err) std::cout << "render() start " << err << std::endl;
+      if (err) std::cout << "GL ERROR:: render() --- start --- " << err << std::endl;
 
       // is this needed? - does the context ever change?
       gtk_gl_area_make_current(gl_area);
       err = glGetError();
-      if (err) std::cout << "render() post gtk_gl_area_make_current() err " << err << std::endl;
+      if (err) std::cout << "GL ERROR:: render() post gtk_gl_area_make_current() err " << err << std::endl;
 
       glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
       err = glGetError();
-      if (err) std::cout << "render() post glViewport() err " << err << std::endl;
+      if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
       screen_framebuffer.bind();
       err = glGetError();
-      if (err) std::cout << "render() post screen_framebuffer bind() err " << err << std::endl;
+      if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
 
       glEnable(GL_DEPTH_TEST);
 

@@ -32,7 +32,8 @@ Model::Model(const std::vector<molecular_triangles_mesh_t> &mtm,
       const molecular_triangles_mesh_t &m = mtm[i];
       gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area)); // no use.
       Mesh mesh(m);
-      mesh.setup(shader_p, material);
+      // mesh.setup(shader_p, material); 20210910-PE
+      mesh.setup(material);
       meshes.push_back(mesh);
    }
 }
