@@ -707,15 +707,8 @@ void save_preferences() {
   if (! g.run_startup_scripts_flag)
      return;
   
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-  char *tmp_directory = getenv("COOT_HOME");
-  if (!tmp_directory) {
-    tmp_directory = getenv("HOME");
-  } 
-#else      
-  char *tmp_directory = getenv("HOME");
-#endif
-  if (tmp_directory) {
+  std::string tmp_directory = coot::get_home_dir();
+  if (!tmp_directory.empty()) {
     directory = tmp_directory;
   }
 

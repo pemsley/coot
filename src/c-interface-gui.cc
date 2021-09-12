@@ -1336,8 +1336,8 @@ store_window_position(int window_type, GtkWidget *widget) {
 void graphics_window_size_and_position_to_preferences() {
 
    // Note to self: is there a "get preferences dir" function?
-   char *h = getenv("HOME");
-   if (h) {
+   std::string h = coot::get_home_dir();
+   if (!h.empty()) {
       std::string pref_dir = coot::util::append_dir_dir(h, ".coot-preferences");
       if (! coot::is_directory_p(pref_dir)) {
          // make it
@@ -6363,9 +6363,8 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
             std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
             if (checksum_result.first) {
                // I want a function that returns preferences_dir
-               char *home = getenv("HOME");
-               if (home) {
-                  std::string home_directory(home);
+               std::string home_directory = coot::get_home_dir();
+               if (!home_directory.empty()) {
                   std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
                   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                   std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
@@ -6405,8 +6404,8 @@ curlew_uninstall_extension_file(const std::string &file_name) {
    bool r_status = false;
 
    // I want a function that returns preferences_dir
-   char *home = getenv("HOME");
-   if (home) {
+   std::string home = coot::get_home_dir();
+   if (!home.empty()) {
       std::string home_directory(home);
       std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
       std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
@@ -6487,9 +6486,8 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
                            std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
                            if (checksum_result.first) {
 			      // I want a function that returns preferences_dir
-			      char *home = getenv("HOME");
-			      if (home) {
-				 std::string home_directory(home);
+                              std::string home_directory = coot::get_home_dir();
+                              if (!home_directory.empty()) {
 				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
 				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
@@ -6505,7 +6503,6 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
                                     gtk_widget_hide(check_button);
                                     std::cout << "show uninstall_button  " << uninstall_button << std::endl;
                                     gtk_widget_show(uninstall_button);
-                                    
 				    // make the hbox insensitive
 				    if (hbox) {
 				       gtk_widget_set_sensitive(hbox, FALSE);

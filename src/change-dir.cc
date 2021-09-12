@@ -36,6 +36,7 @@
 
 #include <iostream>
 #include "change-dir.hh"
+#include "utils/coot-utils.hh"
 
 // Mac users often start somewhere where thy can't write files
 // 
@@ -52,25 +53,17 @@ void change_directory_maybe() {
 	    // OK
 	 } else {
 	    // No write permission.
-	    const char *s = getenv("HOME");
-	    if (s) {
+        std::string s = coot::get_home_dir();
+       if (!s.empty()) {
 	       std::cout << "INFO:: changing working directory to " << s << std::endl;
-	       int status = chdir(s);
+          int status = chdir(s.c_str());
                if (status != 0)
                   std::cout << "ERROR:: failed to change working directory to " << s << std::endl;
-	    } else {
-	       s = getenv("COOT_HOME");
-	       if (s) {
-		  std::cout << "INFO:: changing working directory to " << s << std::endl;
-		  int status = chdir(s);
-                  if (status != 0)
-                     std::cout << "ERROR:: failed to change working directory to " << s << std::endl;
-	       }
 	    }
-	 } 
-      } 
+     }
+      }
    } else {
       // can't stat .
-   } 
+   }
 
-} 
+}

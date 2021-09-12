@@ -183,19 +183,8 @@ void try_load_dot_coot_and_preferences() {
    // python versionn in coot-setup-python.cc
 
    bool run_startup_scripts_flag = run_startup_scripts_state();
-   
-   char *d1 = getenv("COOT_HOME");
-   char *d2 = getenv("HOME");
 
-   std::string directory;
-   
-   if (d1) {
-      directory = d1;
-   } else {
-      if (d2) {
-	 directory = d2;
-      }
-   }
+   std::string directory = coot::get_home_dir();
 
    if (! directory.empty()) {
 

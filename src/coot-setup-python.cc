@@ -67,28 +67,7 @@ void setup_python(int argc, char **argv) {
                // running .coot.py, eh?
 
   
-  char *hds = getenv("HOME");
-  std::string home_directory;
-
-  if (hds)
-     home_directory = hds;
-
-  // I won't mess with this - not sure what it does.
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-  // In Windows we should use COOT_HOME
-  char *win_home = getenv("COOT_HOME");
-  std::string pkgdirectory = PKGDATADIR;
-  if (win_home) {
-     home_directory = win_home;
-  } else {
-     // if there is no COOT_HOME, there may be a HOME, then use this
-     // usually for advanced users... (set already)
-     if (!hds) {
-        // BL says:: not sure if this is the right fallback place. But where/what else?
-        home_directory = pkgdirectory;
-     }
-  }
-#endif
+  std::string home_directory = coot::get_home_dir();;
 
      short int use_graphics_flag = use_graphics_interface_state();
 
