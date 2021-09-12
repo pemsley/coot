@@ -121,16 +121,17 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
                                             unsigned int n_slices,
                                             bool cap_start, bool cap_end,
                                             cap_type start_cap_type, cap_type end_cap_type,
+                                            bool do_faces,
                                             float unstubby_cap_factor) {
 
    float h = glm::distance(start_end.first, start_end.second);
-   cylinder c(start_end, line_radius, line_radius, h, n_slices, 2);
+   glm::vec4 base_colour(col.red, col.green, col.blue, 1.0f);
+   cylinder c(start_end, line_radius, line_radius, h, base_colour, n_slices, 2); // not colour of base
    c.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
-   glm::vec4 colour(col.red, col.green, col.blue, 1.0f);
    if (false)
       std::cout << "add_cylinder: " << glm::to_string(start_end.first) << " "
                 << glm::to_string(start_end.second) << " "
-                << c.vertices.size() << " " << c.triangle_indices_vec.size()
+                << c.vertices.size() << " " << c.triangles.size()
                 << " with height " << h << std::endl;
 
    if (cap_start) {
@@ -145,10 +146,13 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
       if (end_cap_type == ROUNDED_CAP)
          c.add_octahemisphere_end_cap();
    }
+   if (do_faces)
+      c.add_sad_face();
 
-   for (unsigned int i=0; i<c.vertices.size(); i++)
-      c.vertices[i].color = colour;
-   mesh.import(c.vertices, c.triangle_indices_vec);
+   // for (unsigned int i=0; i<c.vertices.size(); i++)
+   // c.vertices[i].color = colour;
+
+   mesh.import(c.vertices, c.triangles);
 
 }
 
@@ -168,7 +172,7 @@ meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &s
       std::cout << "add_cone: " << glm::to_string(start_end.first) << " "
                 << glm::to_string(start_end.second)
                 << " base_radius " << base_radius << " top_radius " << top_radius << " "
-                << c.vertices.size() << " " << c.triangle_indices_vec.size()
+                << c.vertices.size() << " " << c.triangles.size()
                 << " with height " << h << std::endl;
 
    if (cap_start) {
@@ -188,7 +192,7 @@ meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &s
    for (unsigned int i=0; i<c.vertices.size(); i++)
       c.vertices[i].color = colour;
 
-   mesh.import(c.vertices, c.triangle_indices_vec);
+   mesh.import(c.vertices, c.triangles);
 
 }
 

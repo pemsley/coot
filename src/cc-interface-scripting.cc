@@ -74,6 +74,7 @@ void reload_shaders() {
    graphics_info_t g;
    g.screen_framebuffer.tear_down();
    g.blur_framebuffer.tear_down();
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));  // 20210912-PE added
    g.init_shaders(); // regenerates screen and blur framebuffers also
    g.graphics_draw();
 

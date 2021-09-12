@@ -377,7 +377,7 @@ Mesh::make_graphical_bonds_bonds(Shader *shader_p,
    cylinder c(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
 
    is_instanced = false;
-   import(c.vertices, c.triangle_indices_vec);
+   import(c.vertices, c.triangles);
 
    if (false) // looks fine
       for (unsigned int i=0; i<c.vertices.size(); i++)

@@ -3604,7 +3604,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
          obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
                           meshed_generic_display_object::ROUNDED_CAP,
-                          meshed_generic_display_object::ROUNDED_CAP, unstubby_cap_factor); // does obj.mesh.import()
+                          meshed_generic_display_object::ROUNDED_CAP, true, unstubby_cap_factor); // does obj.mesh.import()
          // now I need to init the buffers of obj.mesh.
          Material material;
          obj.mesh.setup(material); // calls setup_buffers()
@@ -3618,7 +3618,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
             const glm::vec3 &finish = pos_pair.second;
             glm::vec3 b = finish - start;
             glm::vec3 normalized_bond_orientation(glm::normalize(b));
-            glm::mat4 ori  = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
+            glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
             glm::vec3 sc(1.1, 1.1, 0.7);
             glm::mat4 unit(1.0);
             glm::mat4 mt_1 = glm::translate(unit, start);
@@ -3627,6 +3627,8 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
             mats.push_back(mt_3);
             // std::cout << "debug " << i << " mt " << glm::to_string(mt) << std::endl;
          }
+
+         // mats.resize(1);
          std::vector<glm::vec4> cols(c.clashes.size(), clash_col_glm);
          // obj.mesh.is_instanced = true; // is there a better way?
          // obj.mesh.is_instanced_with_rts_matrix = true;

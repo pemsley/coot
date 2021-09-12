@@ -143,7 +143,8 @@ public:
                      const coot::colour_holder &col, float radius,
                      unsigned int n_slices,
                      bool cap_start, bool cap_end,
-                     cap_type start_cap_type, cap_type end_cap_type, float unstubby_cap_factor=1.0);
+                     cap_type start_cap_type, cap_type end_cap_type, bool do_faces=true,
+                     float unstubby_cap_factor=1.0);
    void add_cone(const std::pair<glm::vec3, glm::vec3> &start_end,
                  const coot::colour_holder &col, float base_radius, float top_radius,
                  unsigned int n_slices,

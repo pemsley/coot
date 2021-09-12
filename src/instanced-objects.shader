@@ -5,16 +5,16 @@
 
 #version 330 core
 
+// keep these because they are s_generic_vertex:
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec4 colour; // instanced. For instanced objects, the colour is set
-                                     // in the generic vertex (i.e. this), not the material.
+layout(location = 2) in vec4 colour;
 
 layout(location = 3) in vec4 model_rotation_translation_scale_0; // instanced
 layout(location = 4) in vec4 model_rotation_translation_scale_1;
 layout(location = 5) in vec4 model_rotation_translation_scale_2;
 layout(location = 6) in vec4 model_rotation_translation_scale_3;
-
+layout(location = 7) in vec4 colour_instanced;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
@@ -34,7 +34,8 @@ void main() {
                               model_rotation_translation_scale_2.xyz);
 
    // vec3 t_pos = position + vec3(0,0, 0.5 * sin(0.01 * time));
-   vec3 t_pos = position + vec3(0,0, 0.2 * sin(0.005 * time + 0.1 * gl_InstanceID));
+   // vec3 t_pos = position + vec3(0,0, 0.2 * sin(0.003 * time + 0.2 * gl_InstanceID));
+   vec3 t_pos = position + vec3(0,0, 0.2 * sin(0.004 * time + 0.3 * gl_InstanceID));
    vec4 p4 = vec4(t_pos, 1.0);
    vec4 frag_pos = model_rotation_translation_scale * p4;
 
