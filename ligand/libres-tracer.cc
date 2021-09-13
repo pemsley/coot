@@ -5,6 +5,7 @@
 #include <deque>
 #include <thread>
 
+#include "compat/coot-sysdep.h"
 #include "utils/split-indices.hh"
 #include "utils/coot-fasta.hh"
 #include "cootaneer/buccaneer-prot.h"  // for clipper's globuarise()

@@ -76,6 +76,8 @@ libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 # 20210818-PE consolidating libcoot-res-tracer into libcoot-ligand created various head-scratching memory errors.
 libcoot_res_tracer_la_SOURCES = libres-tracer.cc rama-rsr-extend-fragments.cc new-residue-by-3-phi-psi.cc dSFMT.c
 
+libcoot_res_tracer_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 libcoot_res_tracer_la_LIBADD = libcoot-ligand.la
 
 AM_CXXFLAGS = \
