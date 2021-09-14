@@ -1,8 +1,8 @@
 
 #include <iostream>
 
-#include "Texture.hh"
 #include "stb_image.h"
+#include "Texture.hh"
 
 #ifdef THIS_IS_HMT
 #else

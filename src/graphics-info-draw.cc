@@ -1678,7 +1678,6 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
 
    glm::mat3 vrm(glm::toMat4(graphics_info_t::glm_quat));
    glm::mat3 vrmt = glm::transpose(vrm);
-   glm::mat3 p = vrmt * vrm;
 
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
@@ -1697,8 +1696,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
          for (int ii=n_molecules()-1; ii>=0; ii--) {
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
-               std::cout << "mesh jj " << jj << " of " << m.meshes.size() << " instanced" << m.meshes[jj].is_instanced
-                         << std::endl;
+               // std::cout << "mesh jj " << jj << " of " << m.meshes.size()
+               // << " instanced" << m.meshes[jj].is_instanced << std::endl;
                if (m.meshes[jj].is_instanced) {
                   // std::cout << "drawing instanced " << jj << std::endl;
                   // what a mess

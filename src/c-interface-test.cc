@@ -1145,10 +1145,20 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
+   std::cout << "-------------------------- test_function_py() " << std::endl;
+
    graphics_info_t g;
    PyObject *r = Py_False;
 
    if (true) {
+      Mesh mesh;
+      // mesh.load_from_glTF("blue-eyelashes-1.glb");
+      mesh.load_from_glTF("box-1.glb");
+      // mesh.load_from_glTF("Triangle.gltf");
+      std::cout << "---- mesh end ---" << std::endl;
+   }
+
+   if (false) {
       GtkWidget *glarea = g.glareas[0];
       std::cout << "DEBUG:: sending " << glarea << " size request 900 00 " << std::endl;
       gtk_widget_set_size_request(glarea, 900, 900);

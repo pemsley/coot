@@ -4,6 +4,9 @@
 #ifdef USE_MOLECULES_TO_TRIANGLES
 
 #include <memory>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
 #include <CXXClasses/Camera.h>
@@ -294,11 +297,15 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                   gv.color[i]  = 0.0037f * vcn.color[i];
                }
                gv.color[3] = 1.0;
+               // BoxSectionPrimitive have not had their colours scaled for some reason.
+               if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive) {
+                  // std::cout << "vertex iVertex " << iVertex << " " << glm::to_string(gv.color) << std::endl;
+                  for (int i=0; i<3; i++) gv.color[i] /= 255.0;
+               }
             }
 
             auto indexArray = surface.getIndexArray();
             triangles.clear();
-            unsigned long nIndices = 3 * surface.nTriangles();
             triangles.resize(surface.nTriangles());
             for (unsigned int iTriangle=0; iTriangle<surface.nTriangles(); iTriangle++){
                g_triangle &gt = triangles[iTriangle];

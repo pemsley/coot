@@ -76,6 +76,7 @@ public:
    explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
    explicit Mesh(const molecular_triangles_mesh_t &mtm);
+   void load_from_glTF(const std::string &file_name);
 
    void debug() const;
    void debug_to_file() const;

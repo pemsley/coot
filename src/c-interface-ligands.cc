@@ -3529,6 +3529,14 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       float ball_size = 0.11;
       ball_size = 0.07;
 
+      bool bright_pink_mode = true;
+      float dimmer = 0.6;
+      float unstubby_cap_factor = 0.2 * 1.1/0.7; // see below
+      if (bright_pink_mode) {
+         dimmer = 0.95;
+         unstubby_cap_factor = 2.5;
+      }
+
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
          float specular_strength = 0.5; //  default
@@ -3572,9 +3580,9 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          else
             g.generic_display_objects[clashes_obj_index].clear();
 
-         coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
-         float dimmer = 0.7;
-         glm::vec4 clash_col_glm(clash_col.red * dimmer, clash_col.green * dimmer, clash_col.red * dimmer, 1.0);
+         coot::colour_holder clash_col = colour_values_from_colour_name("#ff59c9");
+         clash_col.scale_intensity(dimmer);
+         glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.blue, 1.0);
          std::vector<Instanced_Markup_Mesh_attrib_t> balls;
          balls.resize(c.clashes.size());
          std::string mesh_name = molecule_name_stub;
@@ -3600,7 +3608,6 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
          float line_radius = 0.062f;
          const unsigned int n_slices = 16;
-         float unstubby_cap_factor = 1.1/0.7; // see below
          std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
          obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
                           meshed_generic_display_object::ROUNDED_CAP,

@@ -557,6 +557,7 @@ libcootsumo_la_SOURCES = \
 	matrix-utils.cc          \
         map-statistics.hh        \
 	Mesh.cc Mesh.hh          \
+	Mesh-from-glTF.cc        \
 	Mesh-from-graphical-bonds-instanced.cc     \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
@@ -642,7 +643,7 @@ libcootsumo_la_SOURCES = \
 	select-atom-info.hh      \
 	sound.hh                 \
 	startup-scripts.hh       \
-	stb_image.h stb_image.c  \
+	stb_image.h   \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
