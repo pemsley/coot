@@ -3576,9 +3576,11 @@ graphics_info_t::get_geometry_torsion() const {
 void
 graphics_info_t::pepflip() {
 
-   molecules[imol_pepflip].pepflip(atom_index_pepflip);
-   normal_cursor();
-   model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
+   if (is_valid_model_molecule(imol_pepflip)) {
+      molecules[imol_pepflip].pepflip(atom_index_pepflip);
+      normal_cursor();
+      model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
+   }
 }
 
 
