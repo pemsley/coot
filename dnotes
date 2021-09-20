@@ -9843,3 +9843,26 @@ data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
 
    -- hadasa https://www.biostars.org/p/9202/
 
+---
+Sun 19 Sep 2021 02:28:11 BST
+
+   interesting game design https://www.youtube.com/watch?v=7L1B5YaxxoA
+   Jonas Tyroller
+
+---
+Mon 20 Sep 2021 17:16:29 BST
+
+   gtk3: a flipped residue (or rotamer fit residue) should flash "white" and emit
+   particles (say little diamond shapes - 12 of them)
+
+   Maybe (like "active residue" marking) - render just the active residue, and blur it?
+
+   Rising pitch feed-back - I like the sound of a marimba
+
+---
+Mon 20 Sep 2021 17:43:55 BST
+
+   rel-to: calculate_maps_and_stats_py() puts the R-factors in the status bar.
+   It would be good to compare this to the previous R-factor and show the delta.
+   Mabye make a graph.
+

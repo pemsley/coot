@@ -5641,7 +5641,7 @@ molecule_class_info_t::close_yourself() {
       was_nxmap = true;
    }
 
-   bool delete_stored_data = false; // does this stop the crash on charybdis?
+   bool delete_stored_data = true; // does this stop the crash on charybdis?
    if (delete_stored_data) {
       if (original_fphis_filled)
          delete original_fphis_p;
