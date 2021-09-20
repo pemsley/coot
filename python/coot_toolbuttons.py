@@ -352,6 +352,11 @@ if (have_coot_python):
     def toolbar_show_text():
       coot_main_toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
 
+    def shiftfield_b_factor_refine_active_molecule():
+        imol = get_active_molecule()  # this will need to use coot_util module for python3
+        if is_valid_model_molecule(imol):
+          shiftfield_b_factor_refinement(imol)
+
     ####################################
     # an assistant to add a toolbutton #
     ####################################
@@ -634,6 +639,7 @@ def list_of_toolbar_functions():
          ['Backrub Rotamers', toggle_backrub_rotamers,
           "Toggle use (or not) of backrub rotamers",
           "auto-fit-rotamer.svg", True, True],
+         ['Shift-field B Refine', "shiftfield_b_factor_refine_active_molecule()", "Shift-field B-factor Refinement", "refine-1.svg"],
          ['Cis<->Trans', "do_cis_trans_conversion_setup(1)", "Convert peptide: cis->trans or trans->cis", "flip-peptide.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["Validation",

@@ -313,7 +313,14 @@ def get_directory(dir_name):
                     return new_dir
                 else:
                     return False
-            
+
+def get_active_molecule():
+    active_atom = closest_atom_simple()
+    if active_atom:
+        return active_atom[0]
+    else:
+        return -1
+
 
 # Pythonize function: return a python boolean.
 #
