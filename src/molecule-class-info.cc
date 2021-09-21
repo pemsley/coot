@@ -263,10 +263,13 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
       // update the maps so that they appear around the new centre.
       //
-      if (reset_rotation_centre)
+      if (reset_rotation_centre) {
          for (int ii=0; ii<g.n_molecules(); ii++) {
             g.molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
          }
+      }
+
+      g.run_post_read_model_hook(imol_no);
 
       // save state strings
       save_state_command_strings_.push_back("handle-read-draw-molecule");

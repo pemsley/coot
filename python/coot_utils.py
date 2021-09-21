@@ -388,6 +388,9 @@ post_manipulation_script = False
 global post_set_rotation_centre_script
 post_set_rotation_centre_script = False
 
+global post_read_model_hook
+post_read_model_hook = False
+
 # return a boolean
 #
 def pre_release_qm():

@@ -712,6 +712,8 @@ class graphics_info_t {
    void run_post_manipulation_hook_py(int imol, int mode);
 #endif
 
+   // void run_post_read_model_hook(int imol); // now public as it is called from handle_read_draw_molecule()
+
    void run_post_set_rotation_centre_hook();
    // which uses the following...
 #ifdef USE_GUILE
@@ -1305,6 +1307,8 @@ public:
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 
    void run_post_manipulation_hook(int imol, int mode);
+
+   void run_post_read_model_hook(int imol); // conditional compilation handled internally
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
