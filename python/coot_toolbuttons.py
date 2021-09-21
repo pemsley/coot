@@ -355,7 +355,15 @@ if (have_coot_python):
     def shiftfield_b_factor_refine_active_molecule():
         imol = get_active_molecule()  # this will need to use coot_util module for python3
         if is_valid_model_molecule(imol):
-          shiftfield_b_factor_refinement(imol)
+          shiftfield_b_factor_refinement(imol) # coot module
+
+    def wrapped_calculate_maps():
+      imol = get_active_molecule()      # this will need to use coot_util module for python3
+      if is_valid_model_molecule(imol): # this will need to use coot module for python3
+          imol_map = imol_refinement_map()
+          imol_diff_map = imol_map + 1 # presumably.
+          if is_difference_map_qm(imol_diff_map):
+            calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
 
     ####################################
     # an assistant to add a toolbutton #
@@ -641,7 +649,8 @@ def list_of_toolbar_functions():
           "auto-fit-rotamer.svg", True, True],
          ['Shift-field B Refine', "shiftfield_b_factor_refine_active_molecule()", "Shift-field B-factor Refinement", "refine-1.svg"],
          ['Cis<->Trans', "do_cis_trans_conversion_setup(1)", "Convert peptide: cis->trans or trans->cis", "flip-peptide.svg"],
-         ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
+         ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"],
+         ["Update Maps", "wrapped_calculate_maps()", "Calculate SFs and Regenerate Maps", "refine-1.svg"]],
         ["Validation",
          ["Update Atom Overlaps", atom_overlaps_for_this_model, "Update the Atom Overlap representation", "auto-fit-rotamer.svg"],
          ["Interactive dots", toggle_interactive_probe_dots,
