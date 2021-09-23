@@ -104,7 +104,7 @@ EXTRA_DIST = \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
         fixup-interface.h.sh \
-	coot_wrap_guile_pre.cc dynarama.glade
+	coot_wrap_guile_pre.cc dynarama.glade single-map-properties-dialog.glade
 
 
 subpkgdatadir = $(pkgdatadir)
@@ -120,7 +120,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader \
 		     model-as-mesh.shader ligand-view.shader symmetry-atoms-lines.shader \
 		     rama-plot-phi-psi-markers.shader rama-plot-axes-and-ticks.shader \
-		     hud-image-texture.shader
+		     hud-image-texture.shader hud-lines.shader
 
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
