@@ -38,7 +38,9 @@ graphics_info_t::init_shaders() {
                                                            shader_for_rama_plot_axes_and_ticks,
                                                            shader_for_ligand_view,
                                                            shader_for_screen,
-                                                           shader_for_blur};
+                                                           shader_for_blur,
+                                                           camera_facing_quad_shader
+   };
 
    bool status = true;  // success
 

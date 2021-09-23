@@ -98,6 +98,7 @@ void main() {
 
    ambient_strength = 0.4;
    diffuse_strength = 0.96;
+   out_col = vec4(0,0,0,1);
 
    // get specular_strength from the material
    float specular_strength = material.specular_strength; // 1.5 is very shiny, shiny is good for transparent maps
@@ -142,7 +143,8 @@ void main() {
          // consider this:
          // vec4 col_specular = specular_strength * spec * specular_light_colour * light_sources[i].specular;
 
-         // float shine_opacity = 1.0 - clamp(specular_strength * spec, 0.0, 1.0);
+         // float shine_opacity = 1.0 - clamp(40.0 * specular_strength * spec, 0.0, 1.0);
+         float shine_opacity = 1.0;
 
          vec4 colour_local = colour_transfer;
 
@@ -160,7 +162,8 @@ void main() {
 
          col_4 = col_3;
 
-         col_4.a = map_opacity; // * shine_opacity; used in making Rob figures
+         // col_4.a = map_opacity; // * shine_opacity; used in making Rob figures
+         col_4.a = map_opacity * shine_opacity; // used in making Rob figures
 
          if (false) {
             // float a = 1.0 + 2.0 * dp_view_reflect;

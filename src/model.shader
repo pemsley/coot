@@ -95,18 +95,23 @@ void main() {
    vec4 bg_col = background_colour;
    vec4 sum_col = vec4(0,0,0,0);
 
-   float specular_strength = 0.4 * material.specular_strength;
+   float specular_strength = material.specular_strength;
+   float shininess = material.shininess;
+   outputColor = vec4(0,0,0,1);
 
    // if (gl_FragCoord.z < 0.5) discard; // useful later maybe (in another shader)
 
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
-         float dp = dot(normal_transfer, light_dir);
+         float dp_raw = dot(normal_transfer, light_dir);
          // we can't have specular lights where there is no diffuse light
+         float dp = dp_raw;
          if (dp <= 0.0)
             specular_strength = 0.0;
-         dp = clamp(dp, 0.0, 1.0); // no negative dot products for diffuse
+
+         // dp = clamp(dp, 0.0, 1.0); // no negative dot products for diffuse
+         dp = abs(dp); // no black model interiors
 
          vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0); // fix these
          vec4 lsd = vec4(0.6, 0.6, 0.6, 1.0);
@@ -114,7 +119,6 @@ void main() {
          vec4 diffuse  = colour_transfer * lsd * dp * 0.9;
 
          // specular
-         float shininess = 150.0;
          vec3 eye_pos = eye_position;
          vec3 norm_2 = normalize(normal_transfer); // not needed, I think
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
@@ -131,7 +135,7 @@ void main() {
          // sum_col = vec4(0.5 * view_dir + vec3(0.5,0.5,0.5), 1.0);
          // sum_col = vec4(0.5 * light_to_eye + vec3(0.5,0.5,0.5), 1.0);
       }
-   }
+    }
 
    float fog_amount = 0.0;
    if (do_depth_fog)
