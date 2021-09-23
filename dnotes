@@ -9845,6 +9845,7 @@ data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
 
    -- hadasa https://www.biostars.org/p/9202/
 
+
 ----
 Thu  9 Sep 22:15:06 BST 2021
 
@@ -9857,3 +9858,22 @@ Fri 10 Sep 15:20:23 BST 2021
 
   CCP4 workshop:
   Rob's ligand 00E got tangled in conformer generation?
+
+---
+Sun 19 Sep 2021 02:28:11 BST
+
+   interesting game design https://www.youtube.com/watch?v=7L1B5YaxxoA
+   Jonas Tyroller
+
+---
+Mon 20 Sep 2021 17:16:29 BST
+
+   gtk3: a flipped residue (or rotamer fit residue) should flash "white" and emit
+   particles (say little diamond shapes - 12 of them)
+
+   Maybe (like "active residue" marking) - render just the active residue, and blur it?
+
+   Rising pitch feed-back - I like the sound of a marimba
+
+---
+Mon 20 Sep 2021 17:43:55 BST

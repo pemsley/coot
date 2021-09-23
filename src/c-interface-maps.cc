@@ -189,7 +189,16 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
                              }
                              PyList_SetItem(c, 4, table_py);
                              return c;
-                          };
+   };
+
+   auto make_status_bar_text = [] (const coot::util::sfcalc_genmap_stats_t &stats) {
+      std::string s;
+      s += "  R-factor: ";
+      s += coot::util::float_to_string_using_dec_pl(100.0 * stats.r_factor, 2);
+      s += " Free-R-factor: ";
+      s += coot::util::float_to_string_using_dec_pl(100.0 * stats.free_r_factor, 2);
+      return s;
+   };
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol_model)) {
@@ -206,6 +215,8 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
             float cls_fofc  = g.molecules[imol_map_fofc].get_contour_level_by_sigma();
             g.molecules[imol_map_2fofc].set_contour_level_by_sigma(cls_2fofc); // does an update
             g.molecules[imol_map_fofc].set_contour_level_by_sigma(cls_fofc);   // does an update
+	    std::string sbt = make_status_bar_text(stats);
+	    add_status_bar_text(sbt.c_str());
             r = pythonize_stats(stats);
          }
       }
