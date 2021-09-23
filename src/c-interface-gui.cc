@@ -5889,7 +5889,7 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
       gtk_grid_attach (GTK_GRID (grid), label,       0, io, 1, 1);
       gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, io, 1, 1);
 
-      if (gdo.mesh.draw_this_mesh)
+      if (gdo.mesh.get_draw_this_mesh())
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",

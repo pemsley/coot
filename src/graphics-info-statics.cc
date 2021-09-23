@@ -1412,6 +1412,7 @@ std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::pre
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
 float graphics_info_t::fps = 0.0;
+float graphics_info_t::fps_std_dev = -1.0;
 std::list<std::chrono::time_point<std::chrono::high_resolution_clock> > graphics_info_t::frame_time_history_list;
 
 std::set<mmdb::Residue *> graphics_info_t::moving_atoms_visited_residues;

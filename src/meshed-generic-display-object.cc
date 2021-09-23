@@ -124,6 +124,7 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
                                             bool do_faces,
                                             float unstubby_cap_factor) {
 
+
    float h = glm::distance(start_end.first, start_end.second);
    glm::vec4 base_colour(col.red, col.green, col.blue, 1.0f);
    cylinder c(start_end, line_radius, line_radius, h, base_colour, n_slices, 2); // not colour of base
@@ -146,13 +147,32 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
       if (end_cap_type == ROUNDED_CAP)
          c.add_octahemisphere_end_cap();
    }
-   if (do_faces)
+   if (do_faces) {
       c.add_sad_face();
+   }
 
    // for (unsigned int i=0; i<c.vertices.size(); i++)
    // c.vertices[i].color = colour;
 
    mesh.import(c.vertices, c.triangles);
+
+   if (do_faces) {
+      Mesh eyelash_r;
+      std::string file_name("grey-eyelashes-many-lashes.glb");
+      eyelash_r.load_from_glTF(file_name, false); // tries local directory first
+      eyelash_r.apply_scale(0.026);
+      eyelash_r.translate_by(glm::vec3(0.07, 0, 0.93));
+      Mesh eyelash_l = eyelash_r;
+      glm::mat4 rm(1.0f);
+      glm::mat4 mirror_y(1.0f); mirror_y[1][1] = -1.0f;
+      eyelash_l.apply_transformation(mirror_y);
+      glm::mat4 m_r = glm::rotate(rm,  0.5f, glm::vec3(0,0,1));
+      glm::mat4 m_l = glm::rotate(rm, -0.5f, glm::vec3(0,0,1));
+      eyelash_r.apply_transformation(m_r);
+      eyelash_l.apply_transformation(m_l);
+      mesh.import(eyelash_r.vertices, eyelash_r.triangles);
+      mesh.import(eyelash_l.vertices, eyelash_l.triangles);
+   }
 
 }
 

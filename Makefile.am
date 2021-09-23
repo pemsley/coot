@@ -38,7 +38,7 @@ else
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton  high-res build greg-tests \
 	python-tests tw lbg cootilus goograph pli fonts pyrogen src data \
-	man rama-data doc rcrane pixmaps textures
+	man rama-data doc rcrane glTF pixmaps textures
 endif
 
 # po, no po today.

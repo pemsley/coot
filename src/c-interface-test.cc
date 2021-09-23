@@ -1153,14 +1153,34 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    if (true) {
       Mesh mesh;
       // mesh.load_from_glTF("blue-eyelashes-1.glb");
-      mesh.load_from_glTF("box-1.glb");
+      // mesh.load_from_glTF("augmented-box.glb");
       // mesh.load_from_glTF("Triangle.gltf");
+      //nnmesh.draw_this_mesh = true;
+      // int imol = 0;
+      // meshed_generic_display_object mgdo(mesh);
+      // g.generic_display_objects.push_back(mgdo);
+      // int obj_index = new_generic_object_number_for_molecule(object_name, imol);
+      // set_display_generic_object_simple(obj_index, 1);
+
+      std::string file_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(i_py));
+
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      std::string object_name("Imported Object");
+      int obj_mesh = new_generic_object_number(object_name);
+      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      obj.mesh.name = object_name;
+      Material material;
+      // obj.mesh.load_from_glTF("augmented-box.glb");
+      obj.mesh.load_from_glTF(file_name);
+      obj.mesh.setup(material); // calls setup_buffers() (again)
+      set_display_generic_object(obj_mesh, 1);
+
       std::cout << "---- mesh end ---" << std::endl;
    }
 
    if (false) {
       GtkWidget *glarea = g.glareas[0];
-      std::cout << "DEBUG:: sending " << glarea << " size request 900 00 " << std::endl;
+      std::cout << "DEBUG:: sending " << glarea << " size request 900 900 " << std::endl;
       gtk_widget_set_size_request(glarea, 900, 900);
       g.graphics_draw();
    }

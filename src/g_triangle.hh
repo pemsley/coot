@@ -2,6 +2,8 @@
 #ifndef G_TRIANGLE_HH
 #define G_TRIANGLE_HH
 
+#include <ostream>
+
 class g_triangle {
 public:
    g_triangle(const unsigned int &a0,
@@ -20,7 +22,9 @@ public:
          point_id[i] += idx_base;
       }
    }
+   friend std::ostream& operator <<(std::ostream &s, const g_triangle &t);
 };
+std::ostream& operator <<(std::ostream &s, const g_triangle &t);
 
 
 #endif // G_TRIANGLE_HH

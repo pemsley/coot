@@ -52,7 +52,6 @@ coot::raytrace_info_t::add_geometry_objects(const std::vector<coot::simple_dista
 
    if (ndist > 0) {
       meshed_generic_display_object mgdo;
-      mgdo.mesh.draw_this_mesh = true;
       mgdo.mesh.set_name("distance-geometry");
       for (int i=0; i<ndist; i++) {
 	 if (g.is_valid_model_molecule(sdov[i].imol_start)) {
@@ -92,6 +91,7 @@ coot::raytrace_info_t::add_geometry_objects(const std::vector<coot::simple_dista
 	    }
 	 }
       }
+      mgdo.mesh.set_draw_this_mesh(true);
 
       for (int i=0; i<ndist; i++) {
 	 if (g.is_valid_model_molecule(sdov[i].imol_start)) {

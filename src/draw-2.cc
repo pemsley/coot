@@ -96,7 +96,7 @@ glarea_tick_func(GtkWidget *widget,
    }
 
    if (graphics_info_t::do_tick_hydrogen_bonds_mesh) {
-      if (graphics_info_t::mesh_for_hydrogen_bonds.draw_this_mesh) {
+      if (graphics_info_t::mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
          std::chrono::time_point<std::chrono::high_resolution_clock> tp_now =
             std::chrono::high_resolution_clock::now();
          std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev =
@@ -119,6 +119,7 @@ glarea_tick_func(GtkWidget *widget,
                 << graphics_info_t::do_tick_happy_face_residue_markers << "  "
                 << graphics_info_t::draw_count_for_happy_face_residue_markers << std::endl;
    if (graphics_info_t::do_tick_happy_face_residue_markers) {
+      // this is a texture mesh, currently direct access to the draw flag.
       if (graphics_info_t::tmesh_for_happy_face_residues_markers.draw_this_mesh) {
          graphics_info_t::draw_count_for_happy_face_residue_markers += 1;
          graphics_info_t g;
@@ -126,7 +127,7 @@ glarea_tick_func(GtkWidget *widget,
             graphics_info_t::do_tick_happy_face_residue_markers = false;
             graphics_info_t::draw_count_for_happy_face_residue_markers = 0;
 
-            graphics_info_t::tmesh_for_happy_face_residues_markers.draw_this_mesh =  false;
+            graphics_info_t::tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
          }
 
          // repeating code in setup_draw_for_happy_face_residue_markers()

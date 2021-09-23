@@ -12,6 +12,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
+#include "utils/coot-utils.hh"
 #include "Mesh.hh"
 
 
@@ -23,7 +24,7 @@ std::ostream& operator <<(std::ostream &s, const g_triangle &t) {
 
 
 void
-Mesh::load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers) {
+Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup_buffers) {
 
    // is this what's in a node?
    class extracted_buffer_info_t {
@@ -286,6 +287,15 @@ Mesh::load_from_glTF(const std::string &file_name, bool include_call_to_setup_bu
    tinygltf::TinyGLTF loader;
    std::string err;
    std::string warn;
+
+   std::string file_name = file_name_in;
+   if (coot::file_exists(file_name)) {
+      // do nothing
+   } else {
+      std::string dir = coot::package_data_dir();
+      std::string dir_2 = coot::util::append_dir_dir(dir, "glTF");
+      file_name = coot::util::append_dir_file(dir_2, file_name);
+   }
 
    // use the extension to check which function to use
    //

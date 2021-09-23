@@ -173,7 +173,7 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
 
 void set_draw_hydrogen_bonds(int state) {
 
-   graphics_info_t::mesh_for_hydrogen_bonds.draw_this_mesh = state;
+   graphics_info_t::mesh_for_hydrogen_bonds.set_draw_this_mesh(state);
 
 }
 

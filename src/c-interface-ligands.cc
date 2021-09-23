@@ -3362,7 +3362,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 		  }
 	       }
 	    }
-	    features_obj.mesh.draw_this_mesh = true;
+	    features_obj.mesh.set_draw_this_mesh(true);
 	    g.generic_display_objects.push_back(features_obj);
 	    graphics_draw();
 	 }
@@ -3480,6 +3480,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/ext.hpp>
+#include <time.h>
 
 void
 coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec) {
@@ -3527,14 +3528,27 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       molecule_name_stub += ": ";
 
       float ball_size = 0.11;
-      ball_size = 0.07;
+      ball_size = 0.07; // 20210923-PE why did I do this?
 
-      bool bright_pink_mode = true;
+      bool extra_annotation = false;
+      bool bright_pink_mode = false;
       float dimmer = 0.6;
-      float unstubby_cap_factor = 0.2 * 1.1/0.7; // see below
+      float z_scale = 0.37;
+      float unstubby_cap_factor = 1.1/z_scale; // see below
+      time_t times = time(NULL);
+      struct tm result;
+      localtime_r(&times, &result);
+      if (result.tm_mday == 1) {
+         if ((result.tm_mon+1)%4==1) { // 1 to 12
+            bright_pink_mode = true;
+         }
+      }
+
       if (bright_pink_mode) {
          dimmer = 0.95;
-         unstubby_cap_factor = 2.5;
+         unstubby_cap_factor = 2.1;
+         z_scale = 0.7;
+         extra_annotation = true;
       }
 
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
@@ -3611,9 +3625,13 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
          obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
                           meshed_generic_display_object::ROUNDED_CAP,
-                          meshed_generic_display_object::ROUNDED_CAP, true, unstubby_cap_factor); // does obj.mesh.import()
+                          meshed_generic_display_object::ROUNDED_CAP, extra_annotation, unstubby_cap_factor); // does obj.mesh.import()
          // now I need to init the buffers of obj.mesh.
          Material material;
+         if (bright_pink_mode) {
+            material.shininess = 199.9;
+            material.specular_strength = 0.9;
+         }
          obj.mesh.setup(material); // calls setup_buffers()
          //
          // now accumulate the instancing matrices (the colours will stay the same)
@@ -3626,7 +3644,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
             glm::vec3 b = finish - start;
             glm::vec3 normalized_bond_orientation(glm::normalize(b));
             glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
-            glm::vec3 sc(1.1, 1.1, 0.7);
+            glm::vec3 sc(1.1, 1.1, z_scale);
             glm::mat4 unit(1.0);
             glm::mat4 mt_1 = glm::translate(unit, start);
             glm::mat4 mt_2 = mt_1 * ori;
@@ -3637,10 +3655,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
 
          // mats.resize(1);
          std::vector<glm::vec4> cols(c.clashes.size(), clash_col_glm);
-         // obj.mesh.is_instanced = true; // is there a better way?
-         // obj.mesh.is_instanced_with_rts_matrix = true;
          unsigned int n_instances = mats.size();
-         // obj.mesh   // drawn with draw_generic_objects()
          obj.mesh.setup_rtsc_instancing(nullptr, mats, cols, n_instances, material); // also does setup_buffers()
          obj.mesh.update_instancing_buffer_data(mats, cols); // is this needed?
          set_display_generic_object_simple(clashes_obj_index, 1);

@@ -4213,6 +4213,7 @@ string   static std::string sessionid;
    static Shader shader_for_hud_lines; // actally in 3D because it uses LinesMesh class
    static long frame_counter;
    static float fps; // for on-screen FPS (fps is not calculated every frame)
+   static float fps_std_dev; // for on-screen FPS IQR (fps is not calculated every frame)
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;

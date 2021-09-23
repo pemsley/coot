@@ -325,7 +325,7 @@ cylinder::add_sad_face()  {
                                  glm::vec3 pt_outer_ring(x, y, z);
                                  glm::vec3 delta = pt_outer_ring - circle_middle;
                                  glm::vec3 pt_inner_ring = circle_middle + glm::vec3(0.6, 0.6, 0.6) * delta;
-                                 glm::vec3 n = glm::normalize(pt_outer_ring - circle_middle * glm::vec3(0.9, 1.0, 1.0)); // not googly-eyed
+                                 glm::vec3 n = glm::normalize(pt_outer_ring - circle_middle * glm::vec3(0.9, 1.0, 1.0));
                                  s_generic_vertex v_i(pt_inner_ring, n, dark_colour);
                                  points.push_back(v_i);
                               }
@@ -401,6 +401,22 @@ cylinder::add_sad_face()  {
    rotate_points_about_z_axis(vertices_and_triangles_2, -30.0 * M_PI/180.0);
    add_vertices_and_triangles(vertices_and_triangles_1);
    add_vertices_and_triangles(vertices_and_triangles_2);
+
+   float inv_fac = 1.0/255.0;
+   glm::vec4 no(232 * inv_fac, 190 * inv_fac , 172 * inv_fac, 1.0f);
+   no = glm::vec4(0.9, 0.4, 0.6, 1.0);
+   std::vector<s_generic_vertex> no_vertices;
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > hemi = tessellate_hemisphere_patch(2);
+   glm::vec3 y(0,1,0);
+   for (auto &vert : hemi.first) {
+      glm::vec3 spos = vert * glm::vec3(0.03f, 0.03f, 0.03f);
+      glm::vec3 rpos = glm::rotate(spos, static_cast<float>(0.5 * M_PI), y);
+      glm::vec3 tpos = rpos + glm::vec3(0.06, 0, 0.8);
+      glm::vec3 norm = glm::rotate(glm::normalize(vert), static_cast<float>(0.5 * M_PI), y);
+      s_generic_vertex g(tpos, norm, no);
+      no_vertices.push_back(g);
+   }
+   add_vertices_and_triangles(std::make_pair(no_vertices, hemi.second));
 
    auto vertices_and_triangles_m = make_mouth();
    add_vertices_and_triangles(vertices_and_triangles_m);

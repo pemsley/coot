@@ -439,6 +439,7 @@ data/rama-coeffs/Makefile
 data/metal/Makefile
 data/cho-models/Makefile
 data/cho-acedrg/Makefile
+glTF/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
 textures/Makefile
