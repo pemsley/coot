@@ -6669,7 +6669,7 @@ void post_scripting_window() {
 
 #ifdef USE_GUILE
    post_scheme_scripting_window();
-#endif    
+#endif
 
 }
 
@@ -6679,36 +6679,36 @@ void post_scheme_scripting_window() {
 
 #ifdef USE_GUILE
 
-  if (graphics_info_t::guile_gui_loaded_flag == TRUE) { 
+  if (graphics_info_t::guile_gui_loaded_flag == TRUE) {
 
      scm_c_eval_string("(coot-gui)");
 
-  } else { 
+  } else {
      // we don't get a proper status from guile_gui_loaded_flag so
      // lets check again here whether MAPVIEW_GUI_DIR was defined.
-     char *t; 
+     char *t;
      t = getenv(COOT_SCHEME_DIR); // was #defined
-     if (t) { 
-	std::cout << COOT_SCHEME_DIR << " was defined to be " << t << std::endl
-		  << "   but loading of scripting window scheme code failed." 
-		  << "   Nevertheless you will get a simple scripting window." 
-		  << std::endl;
+     if (t) {
+        std::cout << COOT_SCHEME_DIR << " was defined to be " << t << std::endl
+                  << "   but loading of scripting window scheme code failed."
+                  << "   Nevertheless you will get a simple scripting window."
+                  << std::endl;
         // load the fallback window if we have COOT_SCHEME_DIR (only Windows?!)
         // only for gtk2!
 
-        GtkWidget *window; 
-        GtkWidget *scheme_entry; 
+        GtkWidget *window;
+        GtkWidget *scheme_entry;
         window = create_scheme_window();
 
         scheme_entry = lookup_widget(window, "scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
-        gtk_widget_show(window);        
+        gtk_widget_show(window);
 
-     } else { 
-	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
-	std::cout << "scripting window" << std::endl; 
-     } 
-  } 
+     } else {
+        std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
+        std::cout << "scripting window" << std::endl;
+     }
+  }
 #endif
 
 }
@@ -6736,8 +6736,8 @@ void post_python_scripting_window() {
         std::cout << "scripting window" << std::endl;
      }
 // so let's load the usual window!!
-  GtkWidget *window; 
-  GtkWidget *python_entry; 
+  GtkWidget *window;
+  GtkWidget *python_entry;
   window = create_python_window();
 
   python_entry = lookup_widget(window, "python_window_entry");
@@ -6755,45 +6755,55 @@ void post_python_scripting_window() {
 
 /* called from c-inner-main */
 // If you edit this again, move it to graphics_info_t.
-// 
+//
 void
 run_command_line_scripts() {
 
-   if (graphics_info_t::command_line_scripts->size()) {
-      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts->size() 
-		<< " command line scripts to run\n";
-      for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
-	 std::cout << "    " << (*graphics_info_t::command_line_scripts)[i].c_str()
-		   << std::endl;
+   // --------- debug/info ------------
+
+   if (graphics_info_t::command_line_scripts.size()) {
+      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
+                << " command line scripts to run\n";
+      for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++)
+         std::cout << "    " << graphics_info_t::command_line_scripts[i] << std::endl;
    }
 
-    for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
-       run_script((*graphics_info_t::command_line_scripts)[i].c_str());
+   // --------- scripts ------------
 
-    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
-       if (graphics_info_t::command_line_commands.is_python)
-	  safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
-       else 
-	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
+   for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++) {
+      std::string fn = graphics_info_t::command_line_scripts[i];
+      std::cout << "calling run_script() for file " << fn << std::endl;
+      run_script(fn.c_str());
+   }
 
-    graphics_info_t g;
-    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
-       std::cout << "get accession code " << graphics_info_t::command_line_accession_codes[i]
-		 << std::endl;
-       std::vector<std::string> c;
-       c.push_back("get-eds-pdb-and-mtz");
-       c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
+   // --------- commands ------------
+   
+   for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
+      if (graphics_info_t::command_line_commands.is_python)
+         safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
+      else
+         safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
+
+   // --------- Accession Codes ------------
+
+   graphics_info_t g;
+   for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
+      std::cout << "get accession code " << graphics_info_t::command_line_accession_codes[i]
+                << std::endl;
+      std::vector<std::string> c;
+      c.push_back("get-eds-pdb-and-mtz");
+      c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
 
 #ifdef USE_GUILE
-       std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
-       safe_scheme_command(sc.c_str());
-#else	  
+      std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
+      safe_scheme_command(sc.c_str());
+#else
 #ifdef USE_PYTHON
-       std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
-       safe_python_command(pc.c_str());
+      std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
+      safe_python_command(pc.c_str());
 #endif
 #endif
-    }
+   }
 }
 
 void run_update_self_maybe() { // called when --update-self given at command line
@@ -6870,7 +6880,9 @@ int full_atom_spec_to_atom_index(int imol, const char *chain, int resno,
 // and python.  We need to choose which script interpretter to use
 // based on filename extension.
 void
-run_script(const char *filename) { 
+run_script(const char *filename) {
+
+   std::cout << "debug:: run_script() on " << filename << std::endl;
 
    struct stat buf;
    int status = stat(filename, &buf);
@@ -7015,7 +7027,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);
-   } 
+   }
    return w;
 }
 
@@ -7030,7 +7042,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
 
    graphics_info_t g;
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);
-   for (unsigned int i=0; i<v.size(); i++) { 
+   for (unsigned int i=0; i<v.size(); i++) {
       //       std::cout << "Got molecule: " << v[i] << std::endl;
       std::string s = "    ";
       s += v[i];
@@ -7038,33 +7050,35 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
       gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);
-   } 
+   }
    return w;
 }
 #endif // USE_PYTHON
 
 
 void
-run_guile_script(const char *filename) { 
+run_guile_script(const char *filename) {
 
+   std::cout << "debug:: run_guile_script() A on " << filename << std::endl;
 #ifdef USE_GUILE
-   std::string thunk("(lambda() "); 
+   std::string thunk("(lambda() ");
    thunk += "(load ";
    thunk += "\"";
    thunk += filename;
    thunk += "\"))";
 
+   std::cout << "debug:: run_guile_script() B on " << filename << std::endl;
    SCM handler = scm_c_eval_string ("(lambda (key . args) "
-     "(display (list \"Error in proc:\" key \" args: \" args)) (newline))"); 
+     "(display (list \"Error in proc:\" key \" args: \" args)) (newline))");
 
    SCM scm_thunk = scm_c_eval_string(thunk.c_str());
    scm_catch(SCM_BOOL_T, scm_thunk, handler);
-#endif // USE_GUILE   
+#endif // USE_GUILE
 
-} 
+}
 
 void
-run_python_script(const char *filename_in) { 
+run_python_script(const char *filename_in) {
 
 #ifdef USE_PYTHON
 

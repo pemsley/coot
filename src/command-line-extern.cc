@@ -83,7 +83,7 @@ handle_command_line_data(command_line_data cld) {
    // store stuff there.
    // 
    for (unsigned int i=0; i< cld.script.size(); i++) {
-      graphics_info_t::command_line_scripts->push_back(cld.script[i]);
+      graphics_info_t::command_line_scripts.push_back(cld.script[i]);
    }
 
    // command line scripting (direct using -c)
