@@ -25,7 +25,7 @@ public:
       specular = glm::vec4(0.5, 0.5, 0.5, 1.0);
       do_specularity = false;
       shininess = 66.0;
-      specular_strength = 1.0;
+      specular_strength = 0.4;
    }
    void turn_specularity_on(bool state) {
       do_specularity = state;

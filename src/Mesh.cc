@@ -71,6 +71,18 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
 }
 
 void
+Mesh::set_draw_this_mesh(bool state) {
+
+   if (state)
+      if (! vertices.empty())
+         if (! triangles.empty())
+            draw_this_mesh = true;
+
+   if (! state)
+      draw_this_mesh = false;
+}
+
+void
 Mesh::close() {
 
    clear();
@@ -140,6 +152,27 @@ Mesh::import(const std::vector<position_normal_vertex> &verts, const std::vector
 
    // now the caller function should call setup(shader, material) so that setup_buffers() is run
 
+}
+
+void
+Mesh::apply_scale(float s) {
+
+   glm::vec3 sf(s, s, s);
+   for (unsigned int ii=0; ii<vertices.size(); ii++)
+      vertices[ii].pos *= s;
+   setup_buffers(); // transfer the coordinates
+}
+
+void
+Mesh::apply_transformation(const glm::mat4 &m) {
+
+   for (unsigned int ii=0; ii<vertices.size(); ii++) {
+      glm::vec4 p_1(vertices[ii].pos, 1.0);
+      glm::vec4 p_2 = p_1 * m;
+      glm::vec3 p_3(p_2);
+      vertices[ii].pos = p_3;
+   }
+   setup_buffers(); // transfer the coordinates
 }
 
 void
@@ -534,8 +567,8 @@ Mesh::setup_buffers() {
    // std::cout << "Mesh::setup_buffers() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    GLenum err = glGetError();
-   if (err) std::cout << "error setup_buffers() on binding vao " << vao << " error "
-                      << err << std::endl;
+   if (err)
+      std::cout << "error setup_buffers() on binding vao " << vao << " error " << err << std::endl;
 
    unsigned int n_vertices = vertices.size();
 
@@ -565,8 +598,8 @@ Mesh::setup_buffers() {
    // layout(location = 2) in vec4 colour;
 
 
-   std::cout << "debug:: in setup_buffers() is_instanced_colours for mesh with name "
-             << name << is_instanced_colours << std::endl;
+   std::cout << "debug:: in setup_buffers() is_instanced_colours for mesh with name \"" << name << "\""
+             << " is_instanced_colours: " << is_instanced_colours << " (not that that should matter any more)" << std::endl;
 
    glEnableVertexAttribArray(2);
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
@@ -1404,7 +1437,7 @@ Mesh::draw(Shader *shader_p,
            bool do_depth_fog) {
 
    if (false)
-      std::cout << "start:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
+      std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
                 << " draw_this_mesh: " << draw_this_mesh << " n-tris:" << triangles.size() << std::endl;
 
    if (! draw_this_mesh) return;
@@ -1492,8 +1525,10 @@ Mesh::draw(Shader *shader_p,
                       << " with GL err " << err << std::endl;
 
    if (vao == VAO_NOT_SET)
-      std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
-                << shader_p->name << std::endl;
+      std::cout << "ERROR:: You forgot to setup this Mesh \"" << name << "\" "
+                << shader_p->name << std::endl; // Or was not set because no vertices or no triangles.. so crash then
+
+   // if (vao == VAO_NOT_SET) return; // maybe?
 
    // std::cout << "Mesh::draw() using vao " << vao << std::endl;
    glBindVertexArray(vao);
