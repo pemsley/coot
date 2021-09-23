@@ -2547,6 +2547,27 @@ if [ -e $install_top_dir/include/gobject-introspection-1.0/giversionmacros.h ] ;
    echo installation has gobject-introspection
 fi
 
+# 200918-PE install meson before using it.
+#
+## --------------- meson ---------------------------------
+##
+pip3 install meson
+
+# we should have meson for pygobject, need version 0.46 or later
+# however, is this the way to install pygobject? Or is done with pip3?
+#
+if meson --version ; then
+   echo we have meson
+   v=$(meson --version)
+   if [[ $v < 0.46 ]] ; then
+      echo meson is too old, current version is $v
+      exit 2
+   fi
+else
+   echo we need meson
+   exit 2
+fi
+
 if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
    (
@@ -2611,24 +2632,6 @@ if [ $test_for_already_installed_dependencies = true ] ; then
 fi
 
 
-## --------------- meson ---------------------------------
-##
-pip3 install meson
-
-# we should have meson for pygobject, need version 0.46 or later
-# however, is this the way to install pygobject? Or is done with pip3?
-#
-if meson --version ; then
-   echo we have meson
-   v=$(meson --version)
-   if [[ $v < 0.46 ]] ; then
-      echo meson is too old, current version is $v
-      exit 2
-   fi
-else
-   echo we need meson
-   exit 2
-fi
 
 # pycairo is a dependency of pygobject.  Is this gtk2 stuff?
 pycairo_version=1.17.0 #  check for a more recent version.
@@ -2650,8 +2653,8 @@ if [ true ] ; then
          echo building pycairo
          tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
          cd pycairo-$pycairo_version
-         python setup.py build
-         python setup.py install
+         python3 setup.py build
+         python3 setup.py install
          cd -
       fi
       ) > $HOSTLOGDIR/07c-pycairo.txt 2>&1
@@ -2677,31 +2680,35 @@ if [ true ] ; then
          skip_build=true
       fi
    fi
-   echo skip_build for pygobject is $skip_build
+   echo :::: skip_build for pygobject is $skip_build
 
    if [ $skip_build = false ] ; then
 
       (
-      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+      echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
-      echo trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
+      echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
       if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
          gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
          cd PyGObject-$pygobject_version
          ### python setup.py build
          ### python setup.py install
-         echo which python3
+         echo ::: which python3
          which python3
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
          unset LD_LIBRARY_PATH
+	 echo :::: inn directory $(pwd)
+	 echo :::: building meson with -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
-            echo meson passed
+            echo :::: meson passed
             cd build
+	    echo :::: ninja
             ninja
+	    echo :::: ninja install
             ninja install
          else
-            echo meson failed
+            echo :::: meson failed
          fi
          export LD_LIBRARY_PATH=$x
       else
@@ -2934,7 +2941,8 @@ if [ "$build_boost" = true ] ; then
       (
       echo building ========================= boost $boost_version =========================
 
-      boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source
+      boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 
@@ -3153,16 +3161,18 @@ fi
 ###############################################################################
 # pygobject
 ###############################################################################
-# this needs to find gobject-introspection-1.0 >= 1.46.0
+# this needs to find gobject-introspection-1.0 >= 1.46.0 (now 1.56.0 apparently)
 # and it does if PKG_CONFIG_PATH is set correctly
 if [ -e $install/include/pygobject-3.0/pygobject.h ] ; then
     echo pygobject is installed
 else
+    (
     echo installing pygobject
     echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
     which pip3
     pip3 install wheel
     pip3 install pygobject
+    ) > $HOSTLOGDIR/17-pip-friends.txt 2>&1
 fi
 
 
@@ -3326,7 +3336,7 @@ if [ "$build_rdkit" = true ] ; then
          echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
 
          if [ $get_the_rdkit_tar_file = true ] ; then
-            # $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             do_rdkit_download=true
             if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
                 s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
@@ -3871,6 +3881,7 @@ date
 pwd
 
 if [ -e coot ] ; then
+   (
    echo CASE 1 coot directory exists
    pwd
    cd coot
@@ -3895,17 +3906,35 @@ if [ -e coot ] ; then
    bash autogen.sh
    echo 66666666666666666666 done bash autogen.sh
    cd -
+   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen 2>&1
 else
-   echo CASE 2 coot directory not exists
+   echo CASE 2 coot directory not exists in $(pwd)
+
+   (
    save_dir=$(pwd)
-   git clone https://github.com/pemsley/coot.git -b gtk3
-   cd coot
-   rm -rf autom4te.cache
-   if [ -e ltmain.sh    ] ; then rm ltmain.sh    ; fi
-   if [ -e config.guess ] ; then rm config.guess ; fi
-   if [ -e config.sub   ] ; then rm config.sub   ; fi
-   bash autogen.sh
+   echo :::: $(pwd)
+   echo cloning coot...
+   echo :::: git clone https://github.com/pemsley/coot.git -b gtk3
+   echo save_ld_library_path=$LD_LIBRARY_PATH
+   # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
+   export LD_LIBRARY_PATH=
+   if git clone https://github.com/pemsley/coot.git -b gtk3 ; then
+      echo git clone https://github.com/pemsley/coot.git -b gtk3 without error status
+      echo done clone
+      cd coot
+      rm -rf autom4te.cache
+      if [ -e ltmain.sh    ] ; then rm ltmain.sh    ; fi
+      if [ -e config.guess ] ; then rm config.guess ; fi
+      if [ -e config.sub   ] ; then rm config.sub   ; fi
+      bash autogen.sh
+   else
+      echo git clone https://github.com/pemsley/coot.git -b gtk3 failed
+      echo done clone
+      cd coot
+   fi
+   LD_LIBRARY_PATH=$save_ld_library_path
    cd $save_dir
+   ) > $HOSTLOGDIR/30-clone-autogen 2>&1
 fi
 
 if test -n "$glib_installed" ; then
