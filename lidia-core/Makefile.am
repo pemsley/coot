@@ -50,9 +50,9 @@ libcoot_lidia_core_la_LIBADD =                    \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la   \
    $(CLIPPER_LIBS)                                \
    $(RDKIT_LIBS) \
-   -lRDKitmaeparser \
    $(SQLITE3_LIBS)
 
+#   -lRDKitmaeparser
 
 # interesting link failure when using -no-undefined.
 #
