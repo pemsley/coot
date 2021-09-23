@@ -357,7 +357,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
    }
 
    Material material;
-   features_obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+   features_obj.mesh.setup(material); // fast return if already done
 
    attach_generic_object_to_molecule(obj_features, imol);
    set_display_generic_object(obj_features, 1);

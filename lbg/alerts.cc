@@ -50,8 +50,8 @@ lbg_info_t::alerts(const RDKit::ROMol &mol) const {
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol, *query, matches, uniquify,
-					  recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol, *query, matches, uniquify, recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
       if (matched) { 
 	 // std::cout << "...... ALERT!" << std::endl;
 	 for (unsigned int im=0; im<matches.size(); im++) {

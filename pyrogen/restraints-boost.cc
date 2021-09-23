@@ -330,9 +330,10 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
    // Note that we get the atom indexing using mol, but we change the
    // molecule r (I hope that the atoms are equivalently indexed).
-   
-   int matched_cooh = RDKit::SubstructMatch(mol,*query_cooh,matches_cooh,uniquify,recursionPossible, useChirality);
-   int matched_n    = RDKit::SubstructMatch(mol,*query_n,   matches_n,   uniquify,recursionPossible, useChirality);
+
+   // 20210923-PE FIXME
+   // int matched_cooh = RDKit::SubstructMatch(mol,*query_cooh,matches_cooh,uniquify,recursionPossible, useChirality);
+   // int matched_n    = RDKit::SubstructMatch(mol,*query_n,   matches_n,   uniquify,recursionPossible, useChirality);
 
    // delete atoms after they have all been identified otherwise the indexing goes haywire.
    // 
@@ -482,10 +483,12 @@ coot::delocalize_guanidinos(RDKit::RWMol *mol) {
 
    // Note that we get the atom indexing using mol, but we change the
    // molecule r (I hope that the atoms are equivalently indexed).
-   
-   int matched = RDKit::SubstructMatch(*mol,*query,matches,uniquify,recursionPossible, useChirality);
 
-   if (1) // this is useful info (at the moment at least)
+   // 20210923-PE FIXME
+   // int matched = RDKit::SubstructMatch(*mol,*query,matches,uniquify,recursionPossible, useChirality);
+   int matched = false;
+
+   if (true) // this is useful info (at the moment at least)
       std::cout << "   delocalize guanidinos matches: " << matches.size() << "\n";
 
    for (unsigned int imatch=0; imatch<matches.size(); imatch++) {

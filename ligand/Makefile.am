@@ -58,6 +58,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
    $(top_builddir)/cootaneer/libcootaneer.la          \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
@@ -165,6 +166,7 @@ identify_protein_bin_SOURCES = identify-protein.cc
 
 identify_protein_bin_LDADD = ./libcoot-ligand.la          \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/utils/libcoot-utils.la            \
         $(CLIPPER_LIBS) $(MMDB_LIBS)

@@ -1098,7 +1098,8 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; //20210923-PE FIXME
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 
@@ -1525,7 +1526,8 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 	    
@@ -1600,7 +1602,8 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
       if (0) // debug
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
@@ -1651,7 +1654,8 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
       if (0) // debug
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 

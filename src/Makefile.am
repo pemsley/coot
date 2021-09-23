@@ -284,6 +284,8 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
            $(top_builddir)/coot-utils/libcoot-coord-utils.la \
            $(top_builddir)/coords/libcoot-coords.la          \
 	   $(top_builddir)/geometry/libcoot-geometry.la      \
+	   $(top_builddir)/pli/libcoot-pli.la                \
+	   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
            $(top_builddir)/utils/libcoot-utils.la            \
            $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
@@ -305,8 +307,11 @@ check_PROGRAMS = test-coot-align test-cholesky
 
 coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc
 
-coot_bin_LDADD = $(top_builddir)/utils/libcoot-utils.la \
-                 libcootsumo.la $(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
+coot_bin_LDADD =  \
+        libcootsumo.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
 
 
 lib_LTLIBRARIES=libcootsumo.la
@@ -851,6 +856,7 @@ dynarama_bin_LDADD = \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
         $(top_builddir)/geometry/libcoot-geometry.la            \
+	$(top_builddir)/pli/libcoot-pli.la                      \
 	$(top_builddir)/db-main/libcoot-db-main.la     		\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\

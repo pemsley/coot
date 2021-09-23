@@ -1502,7 +1502,7 @@ cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_numb
    // graphics_info_t::generic_objects_p->push_back(obj);
 
    Material material;
-   obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already donen
+   obj.mesh.setup(material); // fast return if already done
    set_display_generic_object(water_balls_object, 1);
 
    return water_balls_object;
