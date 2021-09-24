@@ -97,7 +97,7 @@ void main() {
 
    float specular_strength = material.specular_strength;
    float shininess = material.shininess;
-   outputColor = vec4(0,0,0,1);
+   outputColor = vec4(0,0,0,0);
 
    // if (gl_FragCoord.z < 0.5) discard; // useful later maybe (in another shader)
 

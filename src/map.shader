@@ -98,7 +98,7 @@ void main() {
 
    ambient_strength = 0.4;
    diffuse_strength = 0.96;
-   out_col = vec4(0,0,0,1);
+   out_col = vec4(0,0,0,0);
 
    // get specular_strength from the material
    float specular_strength = material.specular_strength; // 1.5 is very shiny, shiny is good for transparent maps
