@@ -9,6 +9,10 @@
 
 #include "draw.hh"
 
+#ifdef WINDOWS_MINGW
+// in windows we need these for some newer openGL functions
+#include <GL/glext.h>
+#endif // WINDOWS_MINGW
 // #define GRAPHICS_TESTING
 
 
@@ -608,7 +612,7 @@ display_density_level_maybe() {
 
 	 // glRasterPos3f();
 	 graphics_info_t::printString_for_density_level(graphics_info_t::display_density_level_screen_string,
-							0.0, 0.95, -0.9);
+							0.0, 0.95, -0.98);
 
          glPopAttrib();
 	 glPopMatrix();

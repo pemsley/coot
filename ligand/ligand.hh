@@ -25,6 +25,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <mmdb2/mmdb_manager.h>
 
@@ -165,7 +166,7 @@ namespace coot {
       // is close to protein, H-bonding distance to an O or N atom.
       short int water_pos_is_chemically_sensible(clipper::Coord_orth new_centre) const;
       short int water_pos_is_chemically_sensible(const clipper::Coord_orth &water_centre,
-						 const std::vector<clipper::Coord_orth> &extra_sites) const;
+						 const std::vector<std::pair<clipper::Coord_orth, float> > &extra_sites) const;
       float density_at_point(const clipper::Coord_orth &a,
 			     const clipper::Xmap<float> &search_map) const;
 
@@ -313,7 +314,7 @@ namespace coot {
       //
       std::string get_first_residue_name(const minimol::molecule &mol) const;
 
-      std::vector<clipper::Coord_orth> water_fit_internal(float sigma_cutoff, int n_cycle);
+      std::vector<std::pair<clipper::Coord_orth, float> > water_fit_internal(float sigma_cutoff, int n_cycle);
 
    float var_limit;
       float water_to_protein_distance_lim_max;

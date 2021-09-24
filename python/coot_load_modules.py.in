@@ -172,6 +172,15 @@ def load_from_search_load_path(file):
     else:
         print "Error finding", file
 
+# coot_toolbar_button must exist if we are in non-graphics-mode because there isn't any
+# "non-graphics" protection in ~/.coot-preferences/coot_toolbuttons.py
+
+def coot_toolbar_button(button_label, cb_function, icon_name=False, tooltip=False, toggle_button=False, use_button=False):
+    pass
+
+def toggle_backrub_rotamers(widget=None):
+    pass
+
 
 for coot_python_file in python_list:
     filename = os.path.join(search_load_path, coot_python_file)

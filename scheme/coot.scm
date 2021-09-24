@@ -47,6 +47,13 @@
 ;; set the prompt to be coot, not guile.
 (set-repl-prompt! "coot> ")
 
+;; 20210915-PE coot tips have been removed from the list in load-all-scheme
+;; but Clemens suggest that there may be users who have (no-coot-tips) in
+;; their ~/.coot script. Give it an empty function.
+;; 
+(define (no-coot-tips) 'null)
+
+
 ;; Note the position of coot-gui is important.  It seem that if there
 ;; are too many files in front of it (even blank ones!) coot barfs
 ;; when it gets to coot-gui.scm.

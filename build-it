@@ -1037,6 +1037,14 @@ if test "$OS" = "Linux" ; then
    fi 
 fi
 
+
+# From Christoph Buhlheller:
+# Guide for CentOS8 to install Coot:
+# yum install libXt-devel
+# yum install gtk2-devel
+# yum install mesa-*
+# yum install gcc-gfortran
+
 if test $OS = Linux ; then 
 
    if [ -e /bin/rpm ] ; then 

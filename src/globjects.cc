@@ -148,7 +148,7 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
-std::vector<std::string> *graphics_info_t::command_line_scripts = 0;
+std::vector<std::string> graphics_info_t::command_line_scripts;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
@@ -486,7 +486,11 @@ int graphics_info_t::undo_molecule = -1;
 
 // backup filenames
 bool graphics_info_t::unpathed_backup_file_names_flag = 0;
+#ifndef WINDOWS_MINGW
 bool graphics_info_t::decoloned_backup_file_names_flag = 0;
+#else
+bool graphics_info_t::decoloned_backup_file_names_flag = 1;
+#endif
 
 // backup compress files (default: compress)
 int graphics_info_t::backup_compress_files_flag = 1;
@@ -3900,11 +3904,13 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 
 	    int im = nearest_atom_index_info.imol;
-	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
-	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
-	    info.setup_graphics_ligand_view(im, r, alt_conf);
-	    info.graphics_draw();
+            if (is_valid_model_molecule(im)) {
+               info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+               mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+               std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
+               info.setup_graphics_ligand_view(im, r, alt_conf);
+               info.graphics_draw();
+            }
 
 	 } else {
 

@@ -1662,15 +1662,59 @@ graphics_info_t::accept_moving_atoms() {
 }
 
 void
+graphics_info_t::run_post_read_model_hook(int imol) {
+
+   std::string s;
+#ifdef USE_GUILE
+
+   s = "post-read-model-hook";
+   SCM v = safe_scheme_command(s.c_str());
+   if (scm_is_true(scm_procedure_p(v))) {
+      s += "(" + s + " " + int_to_string(imol) + ")";
+      SCM result = safe_scheme_command(s);
+   }
+#endif
+
+#ifdef USE_PYTHON
+   s = "post_read_model_hook";
+   PyObject *pName_coot = PyString_FromString("__main__");  // not "coot" at the moment
+   PyObject *pModule = PyImport_Import(pName_coot);
+   PyObject *pDict = PyModule_GetDict(pModule);
+   PyObject *pFunc = PyDict_GetItemString(pDict, s.c_str());
+
+   if (false) {
+      PyObject *keys = PyDict_Keys(pDict);
+      unsigned int l = PyObject_Length(keys);
+      for (std::size_t i=0; i<l; i++) {
+	 PyObject *item = PyList_GetItem(keys, i);
+	 std::cout << "key " << i << " " << PyString_AsString(item) << std::endl;
+      }
+   }
+
+   if (PyCallable_Check(pFunc)) {
+      PyObject *arg_list = PyTuple_New(1);
+      PyObject *imol_py = PyInt_FromLong(imol);
+      PyTuple_SetItem(arg_list, 0, imol_py);
+      PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+      std::cout << "DEBUG:: post_read_model_hook() got result " << result_py << std::endl;
+   } else {
+      std::cout << "INFO:: in run_post_read_model_hook() pFunc " << pFunc << " is not callable" << std::endl;
+      std::cout << "INFO:: in run_post_read_model_hook() pDict " << pDict << " " << std::endl;
+      std::cout << "INFO:: in run_post_read_model_hook() pModule " << pModule << " " << std::endl;
+   }
+#endif
+
+}
+
+void
 graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
 
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#ifdef USE_GUILE
    run_post_manipulation_hook_scm(imol, mode);
 #endif // GUILE
 #ifdef USE_PYTHON
    run_post_manipulation_hook_py(imol, mode);
 #endif
-
 }
 
 #ifdef USE_GUILE
@@ -3576,9 +3620,11 @@ graphics_info_t::get_geometry_torsion() const {
 void
 graphics_info_t::pepflip() {
 
-   molecules[imol_pepflip].pepflip(atom_index_pepflip);
-   normal_cursor();
-   model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
+   if (is_valid_model_molecule(imol_pepflip)) {
+      molecules[imol_pepflip].pepflip(atom_index_pepflip);
+      normal_cursor();
+      model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
+   }
 }
 
 

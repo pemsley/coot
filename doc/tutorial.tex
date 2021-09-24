@@ -28,7 +28,7 @@
 \usepackage{euler}
 \newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
 
-\title{Coot Tutorial}
+\title{\emph{Coot} Tutorial}
 %(Part of Protein Crystallography)}
 
 %\author{Your Workshop Here}
@@ -49,7 +49,8 @@
 %\author{X-ray Methods, CSHL 2014}
 %\author{X-ray Methods, CSHL 2015}
 %\author{X-ray Methods, CSHL 2016}
-\author{X-ray Methods, CSHL 2018}
+%\author{X-ray Methods, CSHL 2018}
+\author{CCP4 Summer School 2021}
 
 \begin{document}
 \maketitle
@@ -112,7 +113,7 @@ First, how do we move around and select things?
 
 In this tutorial, we will learn how to do the following:
 \begin{enumerate}
-\item Start Coot
+\item Start \emph{Coot}
 \item Display coordinates
 \item Display a map
 \item Zoom in and out
@@ -126,76 +127,78 @@ In this tutorial, we will learn how to do the following:
 
 \subsection{Load tutorial data}
 
-To use coot, in a terminal window, type:
-
+Launch \texttt{coot} from a terminal window, by typing:
 
 \texttt{\$ coot}
 
-When you first start \texttt{coot}, it should look
-something like Figure \ref{fig:start-coot}.
+(In the CCP4 Cloud, it's different - there one starts \emph{Coot}
+from an established project. We don't need to do that for this tutorial.)
 
-\begin{figure}[htbp]
-  \begin{center}
-    \leavevmode
-%    \includegraphics[width=70mm]{images/Start-Screenshot.png}
-    \epsfxsize 70mm
-    \epsffile{images/Start-Screenshot.ps}
-    \caption{Coot at Startup}{Not much to see at present...
-      Actually, after this, coot screenshots will be displayed with a
-      white background, whereas you will see a black one}
-    \label{fig:start-coot}
-  \end{center}
-\end{figure}
+% When you first start \texttt{coot}, it should look
+% something like Figure \ref{fig:start-coot}.
+
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+%     \epsfxsize 70mm
+% %    \includegraphics[width=70mm]{images/Start-Screenshot.png}
+%     \epsffile{images/Start-Screenshot.ps}
+%     \caption{\emph{Coot} at Startup}{Not much to see at present...
+%       Actually, after this, coot screenshots will be displayed with a
+%       white background, whereas you will see a black one}
+%     \label{fig:start-coot}
+%   \end{center}
+% \end{figure}
 
 So let's read in the coordinates and data (and thus generate a map)
 
 To load the files on which we will be working:
 
-From Coot's main menu bar, select
-\textsf{Extensions $\rightarrow$ Load tutorial model and data}
+From \emph{Coot}'s main menu bar, select
+\textsf{Calculate $\rightarrow$ Load tutorial model and data}
 
 
-\begin{figure}[htbp]
-  \begin{center}
-    \leavevmode
-%    \includegraphics[width=70mm]{images/Coordinates-Screenshot.png}
-    \epsfxsize 70mm
-    \epsffile{images/Coordinates-Screenshot.ps}
-    \caption{Coot After Loading Coordinates}
-    \label{fig:coordinates-coot}
-  \end{center}
-\end{figure}
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+%     % \includegraphics[width=70mm]{images/Coordinates-Screenshot.png}
+%     \epsfxsize 70mm
+%     \epsffile{images/Coordinates-Screenshot.ps}
+%     \caption{\emph{Coot} After Loading Coordinates}
+%     \label{fig:coordinates-coot}
+%   \end{center}
+% \end{figure}
 
 \subsection{Adjust Virtual Trackball}
-By default, Coot has a ``virtual trackball'' to relate the motion of
-the molecule to the motion of the mouse.  Many people don't like this.
+By default, \emph{Coot} has a ``virtual trackball'' to relate the
+rotation of the molecule to the movement of the mouse.  The default is
+to act like PyMOL - some people don't like this.
 
-So you might like to try the following. In the Coot main menu-bar:
+So you might like to try the following. From the \emph{Coot} main menu-bar:
 
 \textsf{Edit $\rightarrow$ Preferences\ldots}
 
-\textsl{  [Coot displays a Preferences window]}
+\textsl{  [\emph{Coot} displays a Preferences window]}
 
-On the left toolbar select \textsf{General} and then on the right top 
-notebook tab \textsf{HID}. Select \textsf{``Flat''} to change the mouse motion.
+On the left toolbar select \textsf{General} (it should be selected by
+default) and then on the right top notebook tab \textsf{HID}. (You may
+need to resize the window or use the arrow in the top right to get to
+this tab.)  Select \textsf{``Turntable Mode (Flat)''} to change the
+mouse movement. (If you wish, you can use the \textsf{``Spherical
+  Surface''} option to turn it back to how it is by default).
 
-(Use the \textsf{``Spherical Surface''} option to turn it back to how
-it is by default).
-
-
-What is the difference? ``Flat'' mode is like the mode used by ``O''.
+What is the difference?
 In both modes, dragging the mouse near the centre of the screen causes
-the view to rotate about the X- or Y- axis. However in spherical mode
+the view to rotate about the X- or Y- axis. However in Spherical Surface mode
 you can also rotate about the z-axis by dragging the mouse along an
 edge of the window.
 
-\subsection{Display maps}
+% \subsection{Display maps}
 
-We are at the stage where we are looking at the results of the
-refinement.  The refinement programs stores its data (labelled lists
-of structure factor amplitudes and phases) in an ``MTZ'' file.  Let's
-take a look\ldots
-
+% We are at the stage where we are looking at the results of the
+% refinement.  The refinement programs stores its data (labelled lists
+% of structure factor amplitudes and phases) in an ``MTZ'' file.  Let's
+% take a look\ldots
 
 %% Note to self add something here for map sampling 2.4 or something.
 
@@ -218,16 +221,16 @@ take a look\ldots
 %\textsl{  [Coot displays a Dataset Column Label Selection window]}
 
 
-\begin{figure}[htbp]
-  \begin{center}
-    \leavevmode
-%    \includegraphics[width=30mm]{images/ColumnLabel-Screenshot.png}
-    \epsfxsize 30mm
-    \epsffile{images/ColumnLabel-Screenshot.ps}
-    \caption{Coot MTZ Column Label Selection Window}
-    \label{fig:mtz_columns}
-  \end{center}
-\end{figure}
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+% %    \includegraphics[width=30mm]{images/ColumnLabel-Screenshot.png}
+%     \epsfxsize 30mm
+%     \epsffile{images/ColumnLabel-Screenshot.ps}
+%     \caption{\emph{Coot} MTZ Column Label Selection Window}
+%     \label{fig:mtz_columns}
+%   \end{center}
+% \end{figure}
 
 %Notice that you have a selection of different column labels for the
 %``Amplitudes'' and ``Phases'', however, let's use the defaults:
@@ -252,35 +255,37 @@ the opposite way.
 %    \includegraphics[width=70mm]{images/Map-Screenshot.png}
     \epsfxsize 70mm
     \epsffile{images/Map-Screenshot.ps}
-    \caption{Coot after reading an MTZ file and zoomed in.}
+    \caption{\emph{Coot} after reading an MTZ file and zoomed in. Note that the
+      background colour here is white (this has been done to preserve ink). You can
+      use Edit $\rightarrow$ Background Colour to change the background colour if you wish.}
     \label{fig:map_screenshot}
   \end{center}
 \end{figure}
 
 \subsection {Recentre on Different Atoms}
 \begin{itemize}
-\item Select \textsf{``Draw''} from the Coot menu-bar
+\item Select \textsf{``Draw''} from the \emph{Coot} menu-bar
 \item Select \textsf{``Go To Atom\ldots''}
 
-\textsl{  [Coot displays the Go To Atom window]}
+\textsl{  [\emph{Coot} displays the Go To Atom window]}
 
 \item Expand the tree for the ``A'' chain
 \item Select \texttt{1 ASP} in the residue list
 \item Click \textsf{``Apply''} in the Go To Atom window
   
-\item At your leisure, use \textsf{``Next Residue''} and
-  \textsf{``Previous Residue''} (or ``Space'' and ``Shift''
-  ``Space''in the graphics window) to move along the chain.
+\item Use \textsf{``Next Residue''} and
+  \textsf{``Previous Residue''} (or, alternatively use ``Space'' and ``Shift''
+  ``Space'' on the keyboard in the graphics window) to move along the chain.
 
+\item To recentre click middle-mouse over an atom in the graphics window
 
-\item Click Middle-mouse over an atom in the graphics window
+\textsl{[\emph{Coot} recentres on that atom]}
 
-\textsl{[Coot recentres on that atom]}
-
-\item Ctrl Left-mouse \& Drag moves the view around.  If this is a too
-  slow and jerky:
+\item Ctrl Left-mouse \& Drag moves the view around.  Normally, this should
+  happend comfortably fast enough. If you have a slower computer however, this
+  can be too slow and jerky, in that case you can adjust your settings:
   \begin{itemize}
-  \item Select \textsf{Edit $\rightarrow$ Preferences\ldots} from Coot's menu-bar
+  \item Select \textsf{Edit $\rightarrow$ Preferences\ldots} from \emph{Coot}'s menu-bar
   \item Select the \textsf{``Maps''} toolbutton on the left
   \item Select the \textsf{``Dragged Map''} notebook tab.
   \item Select \textsf{``No''} in the ``Active Map on Dragging'' window
@@ -300,9 +305,10 @@ the opposite way.
   \begin{center}
     \leavevmode
 %    \includegraphics[width=70mm]{images/GoToAtom-Screenshot.png}
-    \epsfxsize 70mm
+    \epsfxsize 60mm
     \epsffile{images/GoToAtom-Screenshot.ps}
-    \caption{Coot's Go To Atom Window (it doesn't look \emph{exactly} like this any more).}
+
+    {\emph{Coot}'s Go To Atom Window (it doesn't look \emph{exactly} like this any more).}
     \label{fig:goto-atom}
   \end{center}
 \end{figure}
@@ -310,7 +316,7 @@ the opposite way.
 \item You can display the contacts too, as you do this:
 
   \begin{itemize}
-  \item Select \textsf{``Measures''} from the Coot menu-bar
+  \item Select \textsf{``Measures''} from the \emph{Coot} menu-bar
   \item Select \textsf{``Environment Distances\ldots''}
   \item Click on the \textsf{``Show Residue Environment?''} check-button
     \begin{itemize}
@@ -329,37 +335,43 @@ the opposite way.
 %      \includegraphics[width=70mm]{images/Environment-Screenshot.png}
       \epsfxsize 70mm
       \epsffile{images/Environment-Screenshot.ps}
-      \caption{Coot showing Atom Label and environment distances.}
+      \caption{\emph{Coot} showing Atom Label and environment distances.}
       \label{fig:environment}
     \end{center}
   \end{figure}
 \end{itemize}
 
-You can turn off the Environment distances if you like.
+You can turn off the Environment distances if you like (I recommend that you do).
 
 \subsection{Change the Clipping (Slab)}
 
+You can use
+
+\begin{trivlist}
+\item ``D'' and ``F''\footnote{think:
+    \underline{D}epth of \underline{F}ield.} on the keyboard, or
+\item Control
+Right-mouse up/down\footnote{Control Right-mouse left/right does z-translation}.
+\end{trivlist}
+
+Alternatively,
 \begin{itemize}
-\item Select \textsf{``Draw''} from the Coot menu-bar
+\item Select \textsf{``Draw''} from the \emph{Coot} menu-bar
 \item Select \textsf{``Clipping\ldots''} from the sub-menu
 
-\textsl{ [Coot displays a Clipping window]}
+\textsl{ [\emph{Coot} displays a Clipping window]}
 
 \item Adjust the slider to the clipping of your choice
 \item Click \textsf{``OK''} in the Clipping window
 \end{itemize}
 
-Alternatively, you can use ``D'' and ``F''\footnote{think:
-  \underline{D}epth of \underline{F}ield.} on the keyboard, or Control
-Right-mouse up/down (Control Right-mouse left/right does
-z-translation).
 
 \subsection{Recontour the Map}
 \begin{itemize}
 \item Scroll your scroll-wheel forwards one click\footnote{don't click
     it \emph{down}.}
 
- \textsl{ [Coot recontours the map using a 0.05electron/\AA$^3$ higher
+ \textsl{ [\emph{Coot} recontours the map using a 0.05electron/\AA$^3$ higher
   contour level]}
 
 \item Scroll your scroll-wheel forwards and backwards more notches and
@@ -373,6 +385,9 @@ z-translation).
     default it is the last map, which is not necessarily the map that
     you want.}.
 
+\item Note that if you want to use the trackpad on a MacBook, then see the
+  Coot FAQ for how to set that up.
+
 \end{itemize}
 
 %% Alternatively, use the Display Control window to get
@@ -382,62 +397,53 @@ z-translation).
 
 \subsection{Change the Map Colour}
 \begin{itemize}
-\item Select \textsf{``Edit''} from the Coot menu-bar
+\item Select \textsf{``Edit''} from the \emph{Coot} menu-bar
 \item Select \textsf{``Map Colour''} in the sub-menu
 \item Select \textsf{``1 xxx FWT PHWT''} in the sub-menu
 
-\textsl{ [Coot displays a Map Colour Selection window]}
+\textsl{ [\emph{Coot} displays a Map Colour Selection window]}
 
 \item Choose a new colour by clicking on the colour widgets
 
-\textsl{ [Coot changes the map colour to match the selection ]}
+\textsl{ [\emph{Coot} changes the map colour to match the selection ]}
 
 \item Click \textsf{``OK''} in the Map Colour Selection window
 
 \end{itemize}
 
+Alternatively you can get to the same dialog using the ``Properties'' button
+in the Display Manager.
+
 \subsection{Select a Map}
-Select a map for model building. We prefer you to use the modelling toolbar
-icon buttons (here ``Map'') displayed on the right side of the Coot window.
-Note: If you are not sure which icon corresponds to which function look at
-the displayed tips when over the button with the mouse. Or change
-the display style of the buttons by clicking on the bottom arrow and
-select another style to get only or additionally text displayed.
+Select a map for model building.  There is a ``Map'' button displayed
+on the right side of the \emph{Coot} window in the vertical modelling
+toolbar.  Note: If you are not sure which icon corresponds to which
+function look at the displayed tips when over the button with the
+mouse. Or change the display style of the buttons by clicking on the
+bottom arrow and select another style to get only or additionally text
+displayed.
 
 \begin{trivlist}
 
 \item Right Toolbar: \textsf{``Map''} from the Modelling Toolbar
 
-\item click OK (you want to select the map with ``\ldots FWT PHWT'')
+\item click ``OK'' (you want to select the map with ``\ldots FWT PHWT'')
+
+  In the current example there is only one 2Fo-Fc-style map, so there's
+  not much choice for the map.
+
+  You can set the map weight from this dialog if you wish. 60 is fine
+  for this tutorial.
 
 \end{trivlist}
-
-Alternatively you can use the Model/Fit/Refine window:
-
-\begin{trivlist}
-
-\item Menubar: \textsf{Calculate $\rightarrow$ Model/Fit/Refine...}
-
-\textsl{ [Coot displays the Model/Fit/Refine window]}
-
-\item Select \textsf{``Select Map\ldots''} from the Model/Fit/Refine
-  window
-
-\item click OK (you want to select the map with ``\ldots FWT PHWT'')
-
-\end{trivlist}
-
-Note: Most options found in the Model/Fit/Refine window are available in
-the Modelling Toolbar too. You can change this with Preferences.
-  
 
 %% \subsection{Display rotamers and refine residue}
 %% \begin{itemize}
-%% \item Select ``Draw'' from the Coot menu-bar
+%% \item Select ``Draw'' from the \emph{Coot} menu-bar
 %% \item Select ``Go To Atom...''
 %% \item Select ``89 A PHE'' from the residue list
 %% \item Click ``Apply''\footnote{or double click on the residue label.}
-%% \item Select ``Calculate'' from the Coot menu-bar
+%% \item Select ``Calculate'' from the \emph{Coot} menu-bar
 %% \item Select ``Model/Fit/Refine\ldots'' from the sub-menu
 
 \section{Model Building}
@@ -445,13 +451,13 @@ the Modelling Toolbar too. You can change this with Preferences.
 ``So what's wrong with this structure?'' you might ask.
 
 There are several ways to analyse structural problems and some of them
-are available in Coot.
+are available in \emph{Coot}.
 
 \begin{trivlist}
 % \item Validate $\rightarrow$ Geometry Analysis $\rightarrow$ tutorial.pdb
 \item \textsf{Validate $\rightarrow$ Density Fit Analysis $\rightarrow$ tutorial-modern.pdb}
 
-\textsl{ [Coot displays a bar graph]}
+\textsl{ [\emph{Coot} displays a bar graph]}
 
 \item Look at the graph.  The bigger and redder the bar the worse the
   geometry. There are 2 area of outstanding badness in the A chain,
@@ -459,7 +465,7 @@ are available in Coot.
 \item Let's look at 89A first - click on the block for 89A.
 \end{trivlist}
 
-\textsl{ [Coot moves the view so that 89A CA is at the centre of the
+\textsl{ [\emph{Coot} moves the view so that 89A CA is at the centre of the
   screen ]}
 
 \subsection{Rotamers}
@@ -470,72 +476,60 @@ are available in Coot.
 
 \item Modelling Toolbar: Select the \textsf{``Rotamers''} button
 
-\item Alternatively:
-
-\subitem Menubar: \textsf{Calculate $\rightarrow$ Model/Fit/Refine...}
-
-\textsl{ [Coot displays the Model/Fit/Refine window]}
-
-\subitem Select \textsf{``Rotamers''} from the Model/Fit/Refine window.
-
 \item In the graphics window, (left-mouse) click on an atom of residue
   89A (the C$\gamma$, say)
 
-\textsl{ [Coot displays the ``Select Rotamer'' window]}
+\textsl{ [\emph{Coot} displays the ``Select Rotamer'' window]}
 
 \item Choose the Rotamer that most closely puts the atoms into the
   side-chain density %(it's rotamer 1\footnote{not unusual, that.})
 
 \item Click \textsf{``Accept''} in the ``Select Rotamer'' window
 
-\textsl{ [Coot updates the coordinates to the selected rotamer]}
+\textsl{ [\emph{Coot} updates the coordinates to the selected rotamer]}
 
-\item Click \textsf{``Real Space Refine Zone''} in the
-  Model/Fit/Refine window\footnote{\ldots or use the modelling toolbar button}.
-  
+\item Click \textsf{``Real Space Refine Zone''} in the vertical Modelling toolbar
+
 \item In the graphics window, click on an atom of residue 89A.  Click
   it again.
-  
-  \textsl{ [Coot displays the refined coordinates in white in the
+
+  \textsl{ [\emph{Coot} displays the refined coordinates in white in the
     graphics and a new ``Accept Refinement'' window]}
 
 \item Click \textsf{``Accept''} in the ``Accept Refinement'' window.
-  
-  \textsl{ [Coot updates the coordinates to the refined coordinates.
-    89A now fits the density nicely.]}
 
+  \textsl{ [\emph{Coot} updates the coordinates to the refined coordinates.
+    89A now fits the density nicely.]}
 
 \end{itemize}
 
-OK. That's good.  
+OK. That's good.
 
 Now, how about if we just use Real Space Refinement only?
 
 \begin{itemize}
 \item Click \textsf{``Undo''} twice
 
-  \textsl{ [Coot puts the sidechain back to the original position] } 
-  
-\item Click \textsf{``Real Space Refine Zone''} in the
-  Modelling Toolbar \footnote{\ldots or in the Model/Fit/Refine window}.
-  
+  \textsl{ [\emph{Coot} puts the sidechain back to the original position] }
+
+\item Click \textsf{``Real Space Refine Zone''} in the Modelling Toolbar
+
 \item In the graphics window, click on an atom of residue 89A.  Click
   it again.
 
-  \textsl{ [Coot displays the refined coordinates in white in the
+  \textsl{ [\emph{Coot} displays the refined coordinates in white in the
     graphics and a new ``Accept Refinement'' window]}
-  
-\item Now using left-mouse, click and drag on the intermediate (white)
-  CZ atom of the PHE (if you mis-click the atom, the view will
-  rotate).
-  
+
+\item Now using left-mouse, click and drag on the intermediate (pale-coloured)
+  CZ atom of the PHE (if you mis-click the atom, the view will rotate).
+
 \item Can you pull the atom around so that the side-chain fits the
   density?
 
-  \emph{ [Yes, you can] } 
+  \emph{ [Yes, you can] }
 
 \end{itemize}
-  
+
   \begin{figure}[htbp]
     \begin{center}
       \leavevmode
@@ -553,86 +547,103 @@ Now let's have a look at the other region of outstanding badness:
 \begin{itemize}
 \item Click on the graph block for 41 A
 
-\textsl{ [Coot moves the view so that 41A CA is at the centre of the screen]}
+\textsl{ [\emph{Coot} moves the view so that 41A CA is at the centre of the screen]}
 
 \item Examine the situation\ldots
 \item Residue 41 is in a mess and not fitting to the density.  Can you
   fix it?
 
-  \emph{ [Yes, you can] } 
+  \emph{ [Yes, you can] }
 \item The trick is Real Space Refine that zone. So\ldots
 \item You can either Real Space Refine a few residues (40, 41 and 42)
   or just 41.  Take your pick.
 \item Click on \textsf{``Real Space Refine Zone''} in the
-  Modelling Toolbar (Model/Fit/Refine window)
+  Modelling Toolbar
 \item Select a range by clicking on atoms in the graphics window
   (either atoms in 40 then 42 or an atom in 41 twice)
 
-\textsl{[Coot displays intermediate (white) atoms]}
+\textsl{[\emph{Coot} displays intermediate (white) atoms]}
 
 \item Click and drag on some atoms until the atoms fit nicely in the
-  density.  
+  density.
 
   If you want to move a \emph{single atom} then \emph{Ctrl Left-mouse}
   to pick and move (just) that intermediate atom.
-  
+
   \emph{[Note: Selecting and moving just the Carbonyl Oxygen is a
     good idea - use Ctrl Left-mouse to move just one atom.]}
 
+\end{itemize}
+
+\subsection{Saving}
+
+Use ``Ctrl-S'' for ``Quick Save As'' (you don't get to choose the file
+name, coot will make a file-name for you, using an increasing index so
+that previous versions are not over-written.
+
+
+\subsection{Display Symmetry Atoms}
+
+From the main menubar, select \textsf{``Draw'' $\rightarrow$ ``Cell \& Symmetry''}
+and then
+
+\begin{itemize}
+
+\item
+  Click the \textsf{Symmetry On} radiobutton
+
+
+\item
+  Check the \textsf{Always On} checkbutton if you always want symmetry and never
+  want to be asked again.
 \end{itemize}
 
 
 \section{Blobology}
 
 \subsection{Find Blobs}
-To be found under Validate (called ``Unmodelled Blobs'').  
+To be found under Validate (called ``Unmodelled Blobs'').
 
 %Select the map and the coordinates (which are used to arrange the
-%waters in the unit cell ``close to'' the protein).  
+%waters in the unit cell ``close to'' the protein).
 
-You can use the defaults in the subsequent pop-up. Press ``Find Blobs''
-and wait a short while.
-
+You can use the defaults in the subsequent dialog. Press ``Find Blobs''.
 You will get a new window that tell you that it has found unexplaned
-blobs.  Time to find out what they are.
+blobs sorted by size (biggest first).  Time to find out what they are...
 
 \subsection{Blob 3}
-Let's start from Blob 3 (the blobs are ordered biggest to smallest -
-Blobs 3 and 4 (if you have it) are the smallest).
+Let's start from Blob 3 and 4 (if you have it)
 
 \begin{itemize}
 \item Click on ``Blob 3''
 
-\textsl{ [Coot centres the screen on a blob]}
+\textsl{ [\emph{Coot} centres the screen on a blob]}
 
 \item Examine the situation\ldots
 
-  \emph{[We need something tetrahedral there\ldots]}
-  
-\item \textsf{``Place Atom At Pointer''} on the Modelling 
- Toolbar \footnote{also available in Model/Fit/Refine window}
+  \emph{[We need to add something tetrahedral to the model there\ldots]}
 
-\textsl{ [Coot shows a Pointer Atom Type window]}
+\item \textsf{``Place Atom At Pointer''} on the Modelling Toolbar
 
-\item \textsf{``SO4''} in the new window\ldots
-\item In the ``Pointer Atom Added to Molecule:'' frame, change ``New
-  Molecule'' to `\textsf{`tutorial-modern.pdb''}
+\textsl{ [\emph{Coot} shows a Pointer Atom Type window]}
+
+\item \textsf{``SO4''} in the new window\ldots\footnote{Yes, a sulfate is not an atom}
 \item Click \textsf{OK}.
 \item Examine the situation\ldots
 \item the orientation is not quite right.
 \item Let's Real Space Refine it (you should know what to do by now\ldots)
 \item (\textsf{``Real Space Refine Zone''} then click an atom in the
-  SO$_4$ twice.  Accept)
+  SO$_4$ twice.  Click ``Accept'')
 
 \textsl{[The SO$_4$ fits better now].}
 
 \end{itemize}
 
-Blob 4 is like Blob 3 (isn't it?)
+Blob 4 (if you see it) is like Blob 3 (isn't it?)
 
 \subsection{Blob 2}
 Click on the button \textsf{``Blob 2''} and examine the density.
-Something is missing from the model.  What?
+Something is missing from the model.  What is it?
 
 %% That's what missing: 3' GMP.  So let's add it\ldots
 
@@ -642,46 +653,53 @@ How do we add that?
 
 \begin{itemize}
 \item \textsf{File $\rightarrow$ Seach Monomer library\ldots}
-\item Type \texttt{guanosine} in the box.  
+\item Type \texttt{guanosine mono phosphate} in the entry.
+  Each word component is used to match the names of the compounds in the dictionary.
 
-\item Find the box for 3GP and press return\ldots
+\item Find the button for ``3GP'' and press it\ldots
 
 \textsl{ [3GP appears]}
 
-It is often easier to work without hydrogens, so let's delete
-them for now
+It is often easier to work without hydrogens, so let's delete them for now
 
 \item \textsf{``Delete\ldots''} from the Modelling Toolbar
-  \footnote{Found in the Model/Fit/Refine window too}
+
 \item \textsf{``Hydrogens in Residue''}
 \item click on an atom in 3GP
 
 \textsl{ [Hydrogens disappear]}
 
-The 3GP is displaced from where we want it to be.
+The 3GP is displaced from where we want it to be. Let's do some ligand fitting.
 
-\item \textsf{Calculate $\rightarrow$ Other Modelling Tools $\rightarrow$ Find Ligands\ldots}
+Let's undisplay the reference 3GP so that it doesn't obscure our view of the results
 
-\item In the ``Select Ligands'' fram, click on the checkbutton for the '3GP' ligand
+In \textsf{In Display Manager}, uncheck the ``Display'' checkbutton for the molecule ``3GP\_from\_dict''
+
+\item In the main menu-bar \textsf{Ligands $\rightarrow$ Find Ligands\ldots}
+
+\item In the ``Select Ligands'' frame, click on the checkbutton for the '3GP' ligand.
+    No need to use the ``Flexible'' option.
 
 \item Double-check the protein model and the map are the ones that you want them to be (the
-   defaults should be fine).
+  defaults should be fine).
+
+\item In the \textsf{Where to Search?} frame, choose ``Right Here''
 
 \item Click \textsf{Find Ligands}
 
 You can adjust the position of the atoms of the ligand using Real Space Refinement
 
 \item Click on an atom in the ligand
-  
-  \textsl{ [Coot adds intermediate white atoms and Refinement dialog ]}
+
+  \textsl{ [\emph{Coot} adds intermediate white atoms and Refinement dialog ]}
 
 \item Now pull on the atoms until you are satisfied then press \textsf{OK}
 
 If you like the solution, you can merge this ligand into the protein:
-\item \textsf{Calculate $\rightarrow$ Merge Molecules\ldots}
-\item Click (activate) ``monomer-3GP.pdb''
+\item \textsf{Edit $\rightarrow$ Merge Molecules\ldots}
+\item Click (activate) ``Fitted ligand \#0-0'' (if that is the one that you use for RSR - it should be!)
 \item into Molecule:
-  
+
   \textsf{tutorial-modern.pdb}
 
 \item \textsf{Merge}
@@ -697,11 +715,11 @@ If you like the solution, you can merge this ligand into the protein:
 
   \emph{[We need to add residues to the C-terminus of the A chain.]}
 
-The missing residues are GLN, THR, CYS (QTC).
+The missing residues are GLN, THR, CYS (\texttt{QTC}).
 
 \item \textsf{Calculate $\rightarrow$ Fit Loop\ldots Fit Loop by Rama Search\ldots}
 
-\textsl{ [Coot pops-ups a Fit Loop dialog]}
+\textsl{ [\emph{Coot} pops-ups a Fit Loop dialog]}
 
 Add residue number \texttt{94} to \texttt{96} in the A chain.
 
@@ -709,10 +727,10 @@ The single letter codes of the extra residues are \texttt{QTC}
 
 \item Make sure that you can see the unmodelled density well, then click \textsf{``Fit Loop''}
 
-\item Watch\ldots (fun eh?)
+\item Watch\ldots
 
-\item Examine the density fit. 
-  
+\item Examine the density fit.
+
   \textsl{ [It should be fine, except at the C-terminus.  We need to
     add an OXT atom to the residue]}
 
@@ -720,7 +738,9 @@ The single letter codes of the extra residues are \texttt{QTC}
 
 \item \textsf{Add OXT to Residue\ldots}
 
-\item \textsf{Add it}
+\item Check that it will be added to the correct model and chain (by deafult it will be)
+
+  \textsf{Add it}
 
 \end{itemize}
 
@@ -740,42 +760,49 @@ You can add extra buttons to the interface:
 
 \begin{itemize}
 
-\item Move the curor to the right of the vertical separator in the horizontal tool bar (to the 
-      right of the icon for the ligand)
+\item Move the curor to the right of the vertical separator in the horizontal tool bar (to the
+  right of the icon for the ligand)
 
 \item Right Mouse click
 
-\item Click on the check-buttons for the extra tools you want to add
+\item  Click on \textsf{Manage Buttons (add, delete buttons)}
 
-  \textsl{ [Coot adds new Buttons for the selected functions in the horizontal
-         toolbar]}
+\item Click on the check-buttons for the extra tools you want to add (I like to add ``Sphere Refine +'',
+  ``Tandem Refine'' and ``Backrub Rotamers''
+
+  \textsl{ [\emph{Coot} adds new Buttons for the selected functions in the horizontal
+    toolbar]}
 
 \item Click \textsf{Apply}
 
-\item  Click on \textsf{Manage Buttons (add, delete buttons)}
+
+\item Keyboard accelerators can be added using \textsf{Edit} $\rightarrow$ \textsf{Settings} $\rightarrow$ \textsf{Install Template Keybinding\ldots} (I believe that if you start \emph{Coot} from the CCP4i2 interface
+  similar key-bindings will be added for you).
 
 \end{itemize}
+
+Additional new/different functions can be loaded from \textsf{File} $\rightarrow$ \textsf{Curlew}.
+
+This changes the interface quite a bit. If there's time, it would be useful to run through these
+structural edits using the new buttons and keyboard accelerators.
 
 \section{Extra Fun (if you have time)}
 
 \subsection{Waters}
 Fit waters to the structure
 \begin{itemize}
-\item \textsf{``Find Waters\ldots''} in the Other Modelling Tools
-  dialog \footnote{In older versions of Coot, the Find Waters button
-    can be found in the Model/Fit/Refine dialog or the water drop in
-    the modelling toolbar}, then OK (using the defaults)
+\item \textsf{``Find Waters\ldots''} in the Other Modelling Tools dialog
 
 \textsl{ [Waters appear]}
 
 \end{itemize}
 To check the waters:
 \begin{itemize}
-\item Click on \textsf{``Measures''} in the main menubar.  
+\item Click on \textsf{``Measures''} in the main menubar.
 \item Click on \textsf{Environment Distances}
 \item Click on the \textsf{``Show Residue Environment?''} check-button
 \item Change the distances as you like
-\item Use the Go To Atom widget to go to the first water (probably
+\item Use the \textsf{Go To Atom} widget to go to the first water (probably
   towards the end of the list of residues in the water chain (it might be the ``E'' chain))
 \item Use the Spacebar to navigate to the next residue (and Shift
   Spacebar to go backwards)
@@ -786,6 +813,20 @@ To check the waters:
   \item Click \textsf{General $\rightarrow$ ``Smooth Recentering...''}
   \item Click \textsf{``No''}
   \end{itemize}
+\end{itemize}
+
+\subsection{Display Symmetry Atoms}
+
+More on symmetry - try:
+\begin{itemize}
+\item \textsf{Show Symmetry Atoms? $\rightarrow$ Yes}
+\item \textsf{Symmetry as Calphas?} [on]
+\item \textsf{Colour symmetry by molecule} [on]
+\item \textsf{Symmetry Radius 30\AA}
+\item \textsf{Colour Merge $\rightarrow$ 0.1}
+\item \textsf{Show Unit Cell?} [on]
+\item \textsf{OK}
+\item Zoom out and have a look at how the molecules pack together.
 \end{itemize}
 
 
@@ -823,13 +864,13 @@ improper).
 \item Compare the NCS-related chains using ``NCS jumping''.
 
   This is an alternative way of examining NCS similarities and
-  differences.  Use the Display Manager to undisplay the NCS maps you
-  recently created above.  
+  differences.  Use the \textsf{Display Manager} to undisplay the NCS maps you
+  recently created above.
 
-  Use the ``Goto Atom'' dialog and press the ``Update from Current
-  Position'' button.  
+  Use the \textsf{Goto Atom} dialog and press the ``Update from Current
+  Position'' button.
 
-  \textsl{ [Coot shifts the centre of the screen to the closest
+  \textsl{ [\emph{Coot} shifts the centre of the screen to the closest
     displayed CA atom]}
 
   Identify the chain that you are looking at (for example, by
@@ -837,7 +878,7 @@ improper).
 
   Now press the ``o'' key on the keyboard.
 
-  \textsl{ [Coot shifts the centre of the screen to a NCS-related
+  \textsl{ [\emph{Coot} shifts the centre of the screen to a NCS-related
     chain]}
 
   Identify the chain that you are looking at now.
@@ -857,6 +898,9 @@ improper).
   linked by arrows. Long arrows indicate significant differences.
   Click on a dot to view the residue concerned.
 
+  (After we have fixed up the structure, there is little to see here -
+  to see a problematic structure you can load the tutorial model again)
+
 \end{itemize}
 
 Another tool for identifying NCS differences is the
@@ -865,20 +909,20 @@ histogram of differences.
 
 
 \subsection{Add Terminal Residue}
-[To be found on the Modelling Toolbar\footnote{and in the 
+[To be found on the Modelling Toolbar\footnote{and in the
   Model/Fit/Refine window}]
 
 \begin{itemize}
 \item Use the Go To Atom window to go to residue 72 A.
 
 \item What do you see?
-  
+
   \emph{[You see missing atoms (that is, you don't see them).  This residue
   is supposed to be a CYS!  Bad things have happened to it.  Let's get
   rid of this residue. ]}
-  
-  \emph{[There may also be waters in the side-chain positions too (they have
-  to be removed too).]} 
+
+\emph{[There may also be waters in the side-chain positions too (they have
+  to be removed too).]}
 
 \item \textsf{Delete\ldots}
 
@@ -888,13 +932,13 @@ histogram of differences.
 
 \textsl{  [Residue 72 A disappears]}
 
-\item Lets' put back an ALA.
+\item Let's add back an ALA.
 
 \item \textsf{Add Terminal Residue\ldots}
 
-\textsl{  [Coot adds intermediate white atoms and pops up a dialog]}
+\item Click in a atom in residue 71 (or 73)
 
-\item \textsf{Accept} the new atoms
+\textsl{  [\emph{Coot} adds an ALA]}
 
 OK, we now have a ALA.  We want a CYS:
 
@@ -902,11 +946,11 @@ OK, we now have a ALA.  We want a CYS:
 
 \item Click on an atom in the new ALA
 
-\textsl{  [Coot pops up a residue type chooser]}
+\textsl{  [\emph{Coot} pops up a residue type chooser]}
 
 \item Choose residue type \textsf{CYS}
 
-\textsl{  [Coot mutates and fits a CYS]}
+\textsl{  [\emph{Coot} mutates and fits a CYS]}
 
 \item Examine the situation.
 
@@ -917,21 +961,20 @@ Let's model it
 
 \item \textsf{Add Alt Conf\ldots}
 
-\textsl{  [Coot pops up a residue splitter dialog]}
+\textsl{  [\emph{Coot} pops up a residue splitter dialog]}
 
-\item Choose how you want to split your residue (the Right Way is an
-  unresolved philosophical issue\ldots\footnote{Actually Jane Richardson may disagree with that statement.})
+\item Choose how you want to split your residue - the default is fine
 
 \item Click on an atom in 72 A
-  
-  \textsl{ [Coot adds intermediate white atoms and pops up a Rotamer
+
+  \textsl{ [\emph{Coot} adds intermediate white atoms and pops up a Rotamer
     Chooser]}
-  
+
 \item Choose the correct rotamer - it shouldn't be difficult to tell
   which is the closest.
 
 \item \textsf{Accept} when you are happy with you choice.
-  
+
 \item Now optimize the fit of this new residue with Real Space
   Refinement.
 
@@ -943,7 +986,7 @@ The refinement of each alternate conformations is independent.
 
 \item Press ``A'' (on the keyboard)
 
-  \textsl{ [Coot moves the atoms a bit]}
+  \textsl{ [\emph{Coot} moves the atoms a bit]}
 
 \item \textsf{Accept}
 
@@ -953,27 +996,9 @@ The refinement of each alternate conformations is independent.
 
 \end{itemize}
 
-
-\subsection{Display Symmetry Atoms}
-To be found on \textsf{``Draw'' $\rightarrow$ ``Cell \& Symmetry''}
-menu item in the main menu.
-
-Try:
-\begin{itemize}
-\item \textsf{Show Symmetry Atoms? $\rightarrow$ Yes}
-\item \textsf{Symmetry as Calphas?} [on]
-\item \textsf{Colour symmetry by molecule} [on]
-\item \textsf{Symmetry Radius 30\AA}
-\item \textsf{Colour Merge $\rightarrow$ 0.1}
-\item \textsf{Show Unit Cell?} [on]
-\item \textsf{OK}
-\item Zoom out and have a look at how the molecules pack together.
-\end{itemize}
-
-
 \subsection{Skeletonization and Baton Building}
 
-You can calculate the map skeleton in Coot directly:
+You can calculate the map skeleton in \emph{Coot} directly:
 
 \textsf{Calculate $\rightarrow$ Map Skeleton... $\rightarrow$ On.}
 
@@ -981,97 +1006,73 @@ This can be used to ``baton build'' a map.  You can turn off the
 coordinates and try it if you like (the Baton Building window can be
 found by clicking \textsf{``Ca Baton Mode\ldots''} in the Other
 Modelling Tools dialog\footnote{this is quite advanced}).
-  
+
 If you want to do this, I suggest you use Go To Atom and start residue
 2 A (this allows you to build the complete A chain in the correct
 direction (it takes about 15 minutes or so) and you can compare it to
 the real structure afterwards.
-  
+
   Remember, when you start, you are placing a CA at the baton
   \textbf{tip} and at the start you are placing atom CA 1.  This might
   seem that you are ``double-backing'' on yourself - which can be
   confusing the first time.
 
-\subsection{Refine with Refmac}
+% \subsection{Refine with Refmac}
 
-Refmac is a program that does Maximum Likelihood refinement of the
-model, and the interface to it can be found on the Model/Fit/Refine
-dialog. (By default there is no icon on the toolbar for this action
-- open the window from the calculate menu\footnote{or add your own 
-``Run Refmac'' button to the toolbar or the main/top toolbar. To add 
-the button to the modelling/side toolbar, open the ``Preference'' window.
-Now go to \textsf{Preferences $\rightarrow$ General $\rightarrow$ 
-Refinement Toolbar}. In the right hand window scroll down and tick the
-box besides ``Run Refmac\ldots''. A corresponding button will appear on the 
-modelling toolbar. Alternatively you can add your own ``Run Refmac\ldots'' 
-button to the top toolbar of the Coot window (only in Python 
-versions). Click Right-mouse on the toolbar (besides the ``Display Manager'' 
-button) and you will see a pop-up menu. Select ``Manage Buttons'',  
-tick the box besides ``Add Alt Conf'' and click ``Apply''. A new button 
-named ``Add Alt Conf'' will appear on the toolbar.}). Now 
-click on \textsf{``Run Refmac\ldots''} (at the bottom of the 
-Model/Fit/Refine window).
+% Refmac is a program that does Maximum Likelihood refinement of the
+% model, and the interface to it can be found on the Model/Fit/Refine
+% dialog. (By default there is no icon on the toolbar for this action
+% - open the window from the calculate menu\footnote{or add your own
+% ``Run Refmac'' button to the toolbar or the main/top toolbar. To add
+% the button to the modelling/side toolbar, open the ``Preference'' window.
+% Now go to \textsf{Preferences $\rightarrow$ General $\rightarrow$
+% Refinement Toolbar}. In the right hand window scroll down and tick the
+% box besides ``Run Refmac\ldots''. A corresponding button will appear on the
+% modelling toolbar. Alternatively you can add your own ``Run Refmac\ldots''
+% button to the top toolbar of the \emph{Coot} window (only in Python
+% versions). Click Right-mouse on the toolbar (besides the ``Display Manager''
+% button) and you will see a pop-up menu. Select ``Manage Buttons'',
+% tick the box besides ``Add Alt Conf'' and click ``Apply''. A new button
+% named ``Add Alt Conf'' will appear on the toolbar.}). Now
+% click on \textsf{``Run Refmac\ldots''} (at the bottom of the
+% Model/Fit/Refine window).
 
-The defaults should be fine...
+% The defaults should be fine...
 
-\textsf{``Run Refmac''} in the new window\ldots
+% \textsf{``Run Refmac''} in the new window\ldots
 
-\ldots Wait\ldots
+% \ldots Wait\ldots
 
-\emph{[The cycle continues\ldots]}
+% \emph{[The cycle continues\ldots]}
 
-\begin{itemize}
-\item Use \textsf{``Validate $\rightarrow$ Difference Map Peaks''} to
-  find interesting features in the newly created map and model.
-\item Python enabled version only: a dialog with geometric outliers and
-  other interesting things (if they exist) detected by Refmac shows up
-  \footnote{This is an analysis from the Refmac log file and can 
-  alternatively be opened from \textsf{Extensions... $\rightarrow$ 
-  Refine...  $\rightarrow$ Read REFMAC log}}.
-\end{itemize}
-
-
-\section{Use the EDS and PDB\_REDO}
-
-\begin{itemize}
-\item Let's validate a structure deposited in the PDB.
-
-\item Use a web browser and go to \texttt{http://eds.bmc.uu.se/eds/}.  Use
-the keyword search to find the structure of a particular
-protein/ligand/author.  
-
-\item \textsf{File $\rightarrow$ Fetch PDB \& Map Using EDS\ldots}
-  
-\item Get the accession code and paste it into the entry box that pops
-  up.
-
-\item Similarly, we can retrieve files from the PDB\_REDO server -
-  this actually refines the deposited structure against the deposited
-  data, which often results in a better map and model.
-  
-\item Use the validation tools in Coot to examine how good a PDB file
-  this is... 
-
-\item \emph{[the Difference Map Peaks can be interesting]}
-
-\end{itemize}
+% \begin{itemize}
+% \item Use \textsf{``Validate $\rightarrow$ Difference Map Peaks''} to
+%   find interesting features in the newly created map and model.
+% \item Python enabled version only: a dialog with geometric outliers and
+%   other interesting things (if they exist) detected by Refmac shows up
+%   \footnote{This is an analysis from the Refmac log file and can
+%   alternatively be opened from \textsf{Calculate... $\rightarrow$
+%   Refine...  $\rightarrow$ Read REFMAC log}}.
+% \end{itemize}
 
 
-\subsection{Make a (Pretty?) Picture}
+\subsection{Make a Picture}
 
 (Depends on the appropriate supporting software\footnote{Ethan
-  Merritt's Raster3D} being available):
+  Merritt's Raster3D} being installed):
 
 \begin{itemize}
 \item Arrange a nice view
-\item Press F8
+\item \textsf{Draw} $\rightarrow$ \textsf{Screenshot} $\rightarrow$ \textsf{Raster3D\ldots}
+
+  Accept the deafult file name\ldots
 \item Wait a few seconds\ldots
 \end{itemize}
 
 
-\section*{Colophon}
+%% \section*{Colophon}
 
-This document is written using XEmacs 21.5 in \LaTeX{} using AUC\TeX{}
-and is distributed with the Coot source code.
+%% This document is written using XEmacs 21.5 in \LaTeX{} using AUC\TeX{}
+%% and is distributed with the \emph{Coot} source code.
 
 \end{document}

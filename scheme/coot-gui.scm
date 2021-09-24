@@ -2723,7 +2723,7 @@
 
   (format #t "in associate-pir-with-molecule-gui~%") 
   (generic-chooser-entry-and-file-selector 
-   "Associate Sequence to Model: "
+   "Associate PIR Sequence to Model: "
    valid-model-molecule?
    "Chain ID"
    ""
@@ -2733,6 +2733,18 @@
      (if do-alignment?
         (alignment-mismatches-gui imol)))
     *generic-chooser-entry-and-file-selector-file-entry-default-text*))
+
+;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
+;; 
+(define (associate-sequence-file-with-molecule-gui)
+
+  (format #t "in associate-sequence-file-with-molecule-gui~%")
+  (generic-chooser-and-file-selector
+   "Associate Sequence File to Model: "
+   valid-model-molecule? "Sequence File: " ""
+   (lambda (imol file-name)
+     (associate-sequence-from-file imol file-name))))
+
 
 
 ;; Make a box-of-buttons GUI for the various modifications that need

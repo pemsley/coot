@@ -189,7 +189,16 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
                              }
                              PyList_SetItem(c, 4, table_py);
                              return c;
-                          };
+   };
+
+   auto make_status_bar_text = [] (const coot::util::sfcalc_genmap_stats_t &stats) {
+      std::string s;
+      s += "  R-factor: ";
+      s += coot::util::float_to_string_using_dec_pl(100.0 * stats.r_factor, 2);
+      s += " Free-R-factor: ";
+      s += coot::util::float_to_string_using_dec_pl(100.0 * stats.free_r_factor, 2);
+      return s;
+   };
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol_model)) {
@@ -206,6 +215,8 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
             float cls_fofc  = g.molecules[imol_map_fofc].get_contour_level_by_sigma();
             g.molecules[imol_map_2fofc].set_contour_level_by_sigma(cls_2fofc); // does an update
             g.molecules[imol_map_fofc].set_contour_level_by_sigma(cls_fofc);   // does an update
+	    std::string sbt = make_status_bar_text(stats);
+	    add_status_bar_text(sbt.c_str());
             r = pythonize_stats(stats);
          }
       }
@@ -612,7 +623,7 @@ int make_updating_map(const char *mtz_file_name,
 		      int use_weights, int is_diff_map) {
 
    int status = 1;
-   int imol = make_and_draw_map(mtz_file_name, f_col, phi_col, weight_col, use_weights, is_diff_map);;;
+   int imol = make_and_draw_map(mtz_file_name, f_col, phi_col, weight_col, use_weights, is_diff_map);
 
    if (is_valid_map_molecule(imol)) {
       // use a better constructor?
@@ -2665,6 +2676,31 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
       }
    }
 }
+
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but difference map gets updated automatically on modification of
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmaps(int imol_model, int imol_map_with_data_attached, int imol_updating_2fofc_map, int imol_updating_fofc_map) {
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         if (is_valid_map_molecule(imol_updating_fofc_map)) {
+            if (map_is_difference_map(imol_updating_fofc_map)) {
+               if (is_valid_map_molecule(imol_updating_fofc_map)) {
+
+                  updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached,
+                                                            imol_updating_2fofc_map, imol_updating_fofc_map);
+                  updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
+                  // notice that the trigger in this case is on the *model* (not the difference map as above)
+                  GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_model].updating_coordinates_updates_genmaps);
+                  g_timeout_add(1000, f, u);
+               }
+            }
+         }
+      }
+   }
+}
+
 
 
 

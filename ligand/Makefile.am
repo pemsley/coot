@@ -19,7 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-lib_LTLIBRARIES=libcoot-ligand.la
+lib_LTLIBRARIES=libcoot-ligand.la libcoot-res-tracer.la
 
 EXTRA_DIST = Makefile.simple read-dunbrack.awk side-chain-data.tar.gz
 
@@ -36,8 +36,9 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
 	scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
 	side-chain-densities.hh tube-finder.hh smith-waterman.hh side-chain.hh \
-	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh \
-	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h
+	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh libres-tracer.hh \
+	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h scored-node.hh \
+        rama-rsr-extend-fragments.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -48,7 +49,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc \
-	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc
+	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc 
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords
@@ -71,6 +72,11 @@ libcoot_ligand_la_LIBADD = \
    $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
 
 libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
+
+# 20210818-PE consolidating libcoot-res-tracer into libcoot-ligand created various head-scratching memory errors.
+libcoot_res_tracer_la_SOURCES = libres-tracer.cc rama-rsr-extend-fragments.cc new-residue-by-3-phi-psi.cc dSFMT.c
+
+libcoot_res_tracer_la_LIBADD = libcoot-ligand.la
 
 AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \
@@ -115,9 +121,10 @@ test_tube_finder_LDADD = ./libcoot-ligand.la          \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(CLIPPER_LIBS)
 
-res_tracer_SOURCES = res-tracer.cc rama-rsr-extend-fragments.cc new-residue-by-3-phi-psi.cc dSFMT.c
+res_tracer_SOURCES = res-tracer.cc
 
-res_tracer_LDADD = ./libcoot-ligand.la                \
+res_tracer_LDADD = ./libcoot-res-tracer.la            \
+   libcoot-ligand.la \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/cootaneer/libcootaneer.la          \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \

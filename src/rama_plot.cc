@@ -38,6 +38,7 @@
 #include <string.h>
 #include <iostream>
 #include <algorithm>
+#include <sys/stat.h>
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 

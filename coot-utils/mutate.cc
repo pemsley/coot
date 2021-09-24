@@ -63,6 +63,8 @@ coot::util::mutate_internal(mmdb::Residue *residue,
                std::string atom_name(residue_atoms[i]->name);
                if (atom_name == " HA ")  // PDBv3 FIXME
                   residue->DeleteAtom(i);
+               if (atom_name == " CB ")  // PDBv3 FIXME
+                  residue->DeleteAtom(i);
             }
          } else {
             // don't delete OXT, but do delete other things

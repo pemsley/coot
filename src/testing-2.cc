@@ -100,7 +100,6 @@ int test_parallel_plane_restraints() {
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
-   short int do_link_torsions = 0;
    float rama_plot_restraint_weight = 1.0;
 
    coot::restraint_usage_Flags flags =
@@ -108,14 +107,14 @@ int test_parallel_plane_restraints() {
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
    bool do_trans_peptide_restraints = false;
    int imol = 0; // dummy
-   int nrestraints = 
-      restraints.make_restraints(imol, t.geom, flags,
-				 do_residue_internal_torsions,
-				 do_trans_peptide_restraints,
-				 rama_plot_restraint_weight,
-				 do_rama_restraints, false, false, false,
-				 pseudos);
+   int nrestraints = restraints.make_restraints(imol, t.geom, flags,
+                                                do_residue_internal_torsions,
+                                                do_trans_peptide_restraints,
+                                                rama_plot_restraint_weight,
+                                                do_rama_restraints, false, false, false,
+                                                pseudos);
 
+   std::cout << "INFO:: nrestraints: " << nrestraints << std::endl;
    std::string extra_restraints_file_name("test-base-pairing-extras-I-chain.txt");
    coot::extra_restraints_t er;
    er.read_refmac_extra_restraints(extra_restraints_file_name);

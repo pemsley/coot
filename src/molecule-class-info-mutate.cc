@@ -258,6 +258,7 @@ molecule_class_info_t::mutate_internal(mmdb::Residue *residue, mmdb::Residue *st
 
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
+   coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
 
    // regenerate atom selection
    atom_sel = make_asc(atom_sel.mol);

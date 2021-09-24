@@ -152,7 +152,7 @@
 			(if (= status 0)
 			    new-dir
 			    #f))))))))))
-      
+
 
 ;; schemify function
 ;; 
@@ -223,6 +223,9 @@
 
 ;; do something based on the active residue (presumably)
 (define post-set-rotation-centre-hook #f)
+
+;; a function that takes one argument (the model molecule number)
+(define post-read-model-hook #f)
 
 ;; Return a boolean
 ;; 
@@ -2062,7 +2065,7 @@
 (define (associate-pir-file imol chain-id pir-file-name)
   (let ((seq-text (pir-file-name->pir-sequence pir-file-name)))
     (if seq-text
-	(assign-pir-sequence imol chain-id seq-text)
+	(assign-pir-sequence imol chain-id seq-text) ;; it isn't assigning sequence!
 	(format #t "WARNING:: associate-pir-file: bad text for ~s~%" pir-file-name))))
 
 

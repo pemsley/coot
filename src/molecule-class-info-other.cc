@@ -4041,7 +4041,7 @@ molecule_class_info_t::cell_text_with_embeded_newline() const {
 void
 molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const std::string &seq_in) {
 
-   std::cout << "##################################### assign_fasta_sequence " << chain_id << std::endl;
+   std::cout << "INFO:: assign_fasta_sequence " << chain_id << "\n" << seq_in << std::endl;
 
    // format "> name\n <sequence>", we ignore everything that is not a
    // letter after the newline.
@@ -4081,13 +4081,47 @@ molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const 
    if (seq.length() > 0) {
       std::cout << "debug:: assign_fasta_sequence(): storing sequence: " << seq << " for chain id: " << chain_id
                 << " in molecule number " << imol_no << std::endl;
-      std::cout << "######################## pushing back onto input_sequence" << std::endl;
+      std::cout << "debug:: pushing back onto input_sequence" << std::endl;
       input_sequence.push_back(std::pair<std::string, std::string> (chain_id,seq));
-      std::cout << "######################## input_sequence size " << input_sequence.size() << std::endl;
+      std::cout << "debug:: input_sequence size " << input_sequence.size() << std::endl;
    } else {
       std::cout << "WARNING:: assign_fasta_sequence(): no sequence found or improper fasta sequence format\n";
    }
 }
+
+// add the sequence the file (read depending on file name) to input_sequence vector (chain-id is blank
+// as it could apply to any chain)
+void
+molecule_class_info_t::associate_sequence_from_file(const std::string &seq_file_name) {
+
+   auto file_to_string = [] (const std::string &file_name) {
+                            std::string s;
+                            std::string line;
+                            std::ifstream f(file_name.c_str());
+                            if (!f) {
+                               std::cout << "WARNING:: Failed to open " << file_name << std::endl;
+                            } else {
+                               while (std::getline(f, line)) {
+                                  s += line;
+                                  s += "\n";
+                               }
+                            }
+                            return s;
+                         };
+
+   std::string extension = coot::util::file_name_extension(seq_file_name);
+   std::string chain_id;
+   if (coot::file_exists(seq_file_name)) {
+      std::string seq = file_to_string(seq_file_name);
+      if (extension == ".pir") {
+         assign_pir_sequence(chain_id, seq);
+      } else {
+         assign_fasta_sequence(chain_id, seq);
+      }
+   } else {std::cout << "WARNING:: file does not exist: " << seq_file_name << std::endl;
+   }
+}
+
 
 void
 molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const std::string &seq_in) {

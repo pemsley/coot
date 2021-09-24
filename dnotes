@@ -9437,11 +9437,11 @@ Mon 12 Oct 15:28:53 BST 2020
 
    o microtubule - massive structure: code: 6u42
 
-
 ----
 Wed 11 Nov 18:41:11 GMT 2020
 
    Flex-EM tutorial is 4ki8 into 6422.
+   (hahahaha!)
 
 ----
 Wed 18 Nov 06:39:54 GMT 2020
@@ -9462,11 +9462,11 @@ Wed 18 Nov 19:12:26 GMT 2020
    2ddx is real non-pro cis peptide high res.
 
 
---
+----
 
 
  11203 map model correlation and unmodelled density - linoleic acid
-
+  -- is that part of the EMDA paper now?
 
 ----
 Fri 27 Nov 12:28:00 GMT 2020
@@ -9700,12 +9700,14 @@ Thu 10 Jun 16:14:17 BST 2021
 
 https://stackoverflow.com/questions/14346090/importerror-no-module-named-backend-gdk
 
-In addition to Haldean Brown's answer, note that if you really need to use pip you can force it to recompile matplotlib locally and get "the deep magic that setup.py does" with the --no-binary option:
+In addition to Haldean Brown's answer, note that if you really need to use pip you can force it to
+recompile matplotlib locally and get "the deep magic that setup.py does" with the --no-binary option:
 
 pip uninstall matplotlib
 pip install matplotlib --no-binary=matplotlib
 
-As you want to use the GTKAgg backend, Using pip may prove useful in the future to freeze matplotlib at a version where it is supported (the deprecation warning states it will be dropped in 3.0):
+As you want to use the GTKAgg backend, Using pip may prove useful in the future to freeze matplotlib
+ at a version where it is supported (the deprecation warning states it will be dropped in 3.0):
 
 pip install matplotlib==2.2.2 --no-binary=matplotlib
 
@@ -9801,8 +9803,8 @@ rdkit linking:
 ----
 Sun  4 Jul 02:30:28 BST 2021
 
-  if the atom selection is misteriously going out of date, or changing, then check the function that calls this function hasn't deleted
-  the atom selection before this function is called, DeleteSelection()
+  if the atom selection is misteriously going out of date, or changing, then check the function that
+  calls this function hasn't deleted the atom selection before this function is called, DeleteSelection()
 
 
 ----
@@ -9843,3 +9845,35 @@ data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
 
    -- hadasa https://www.biostars.org/p/9202/
 
+
+----
+Thu  9 Sep 22:15:06 BST 2021
+
+   Re: alphafold: 4lnz example from Tristan's presentation
+
+   There were a few snapshots from Janes' presentation that are worth more thought.
+
+----
+Fri 10 Sep 15:20:23 BST 2021
+
+  CCP4 workshop:
+  Rob's ligand 00E got tangled in conformer generation?
+
+---
+Sun 19 Sep 2021 02:28:11 BST
+
+   interesting game design https://www.youtube.com/watch?v=7L1B5YaxxoA
+   Jonas Tyroller
+
+---
+Mon 20 Sep 2021 17:16:29 BST
+
+   gtk3: a flipped residue (or rotamer fit residue) should flash "white" and emit
+   particles (say little diamond shapes - 12 of them)
+
+   Maybe (like "active residue" marking) - render just the active residue, and blur it?
+
+   Rising pitch feed-back - I like the sound of a marimba
+
+---
+Mon 20 Sep 2021 17:43:55 BST

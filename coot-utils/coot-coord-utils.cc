@@ -2691,8 +2691,8 @@ coot::util::median_temperature_factor(mmdb::PPAtom atom_selection,
                                       int n_atoms,
                                       float low_cutoff,
                                       float high_cutoff,
-                                      short int apply_low_cutoff,
-                                      short int apply_high_cutoff) {
+                                      bool apply_low_cutoff,
+                                      bool apply_high_cutoff) {
 
    float this_b;
    float median = 0;

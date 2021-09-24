@@ -590,9 +590,9 @@
 	  (gtk-widget-show menuitem2)
 	  
 	  (add-simple-coot-menu-menuitem
-	   submenu "1: Associate Sequence...."
+	   submenu "1: Associate Sequence File...."
 	   (lambda ()
-	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
+	     (associate-sequence-file-with-molecule-gui)))
 
 	  ;; 
 	  (if (coot-has-pygtk?)

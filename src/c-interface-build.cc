@@ -3197,6 +3197,20 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
    add_to_history(command_strings);
 }
 
+/*! \brief Associate the sequence to the molecule - to be used later for sequence assignment (.c.f pir file)   */
+void associate_sequence_from_file(int imol, const char *file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].associate_sequence_from_file(std::string(file_name));
+   }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("associate-sequence-from-file");
+   command_strings.push_back(coot::util::int_to_string(imol));
+   command_strings.push_back(single_quote(file_name));
+   add_to_history(command_strings);
+}
+
+
 void assign_sequence_from_file(int imol, const char *file) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));

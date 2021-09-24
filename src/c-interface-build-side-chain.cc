@@ -1179,18 +1179,20 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
                   scd.setup_test_sequence(mol, chain_id, resno_start, resno_end, xmap);
                // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
                if (a_run_of_residues.first.empty()) {
-                  scd.test_sequence(a_run_of_residues.second, xmap, name, sequence);
+                  bool print_slider_results = true;
+                  scd.test_sequence(a_run_of_residues.second, xmap, name, sequence, print_slider_results);
                } else {
                   std::cout << "ERROR:: when generating a run of residues " << std::endl;
                   std::cout << a_run_of_residues.first << std::endl;
                   add_status_bar_text(a_run_of_residues.first.c_str());
                }
             }
+
             bool only_probable = false; // just give me your best shot - I know that it might be wrong.
             bool print_sequencing_solutions_flag = true;
             coot::side_chain_densities::results_t new_sequence_result = scd.get_result(only_probable, print_sequencing_solutions_flag);
             std::string new_sequence = new_sequence_result.sequence;
-            std::cout << "debug:: new_sequence " << new_sequence << std::endl;
+            std::cout << "debug:: apply_fasta_multi_to_fragment(): get_result(): new_sequence " << new_sequence << std::endl;
             int offset = new_sequence_result.offset;
             if (! new_sequence.empty()) {
                int sl = new_sequence.length();

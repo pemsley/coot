@@ -34,6 +34,8 @@
 
 #include <deque>
 
+#include "compat/coot-sysdep.h"
+
 enum {CONTOUR_UP, CONTOUR_DOWN};
 
 // needs:
@@ -768,6 +770,8 @@ public:        //                      public
       // save index
       coot_save_index = 0; // how is this related to the backup history_index?
 
+      previous_backup_index = 0;
+
       other_molecule_backup_index = -1; // unset
 
       // ligand flipping. save the index
@@ -934,7 +938,8 @@ public:        //                      public
 			  std::string weight_col,
 			  int use_weights,
 			  int is_diff_map,
-			  float map_sampling_rate);
+			  float map_sampling_rate,
+                          bool updating_existing_map_flag=false);
 
    void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
 
@@ -949,7 +954,8 @@ public:        //                      public
 					   short int use_reso_flag,
 					   float low_reso_limit,
 					   float high_reso_limit,
-					   float map_sampling_rate);
+					   float map_sampling_rate,
+                                           bool updating_existing_map_flag=false);
 
    // return succes status, if mtz file is broken or empty, or
    // non-existant, return 0.
@@ -2445,13 +2451,18 @@ public:        //                      public
    bool is_fasta_aa(const std::string &a) const;
    bool is_pir_aa  (const std::string &a) const;
 
+   // add the sequence the file (read depending on file name) to input_sequence vector (chain-id is blank
+   // as it could apply to any chain)
+   void associate_sequence_from_file(const std::string &seq_file_name);
+
    // sequence [a -other function]
-   void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
+   void assign_fasta_sequence(const std::string &chain_id, const std::string &seq); // add to input_sequence vector
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
    std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
+   // this does an alignment! How confusing
    void assign_sequence_from_file(const std::string &filename);
 
    // Apply to NCS-related chains too, if present
@@ -3490,7 +3501,14 @@ public:        //                      public
    // watch for changes in the model of a different molecule (denoted by change of backup index)
    // and act on it (by updating this difference map). This needs to be static because its
    // called by g_timeout.
-   static int watch_coordinates_updates(gpointer);
+   static int watch_coordinates_updates(gpointer);  // for just the difference map
+
+   int previous_backup_index;
+   static int updating_coordinates_updates_genmaps(gpointer); // oh dear, the triggers for this work the other way.
+                                                              // i.e. a change in the coordinates forces
+                                                              // a change in the maps, not (as above) where a
+                                                              // map molecule looks for a change in the model.
+                                                              // In this case, both maps are calculated together.
    int other_molecule_backup_index;
    int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
 

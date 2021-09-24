@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -13,10 +14,10 @@
    height="16px"
    id="svg6806"
    sodipodi:version="0.32"
-   inkscape:version="0.45.1"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="connect-to-usf.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:docbase="/home/paule/Projects/coot/pixmaps">
+   version="1.1">
   <defs
      id="defs6808">
     <linearGradient
@@ -448,19 +449,20 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.098901"
-     inkscape:cx="14.275805"
-     inkscape:cy="8.5858602"
-     inkscape:current-layer="layer1"
+     inkscape:zoom="22.197802"
+     inkscape:cx="3.018039"
+     inkscape:cy="7.2205596"
+     inkscape:current-layer="g2368"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="873"
-     inkscape:window-height="690"
-     inkscape:window-x="319"
-     inkscape:window-y="43"
+     inkscape:window-width="1399"
+     inkscape:window-height="892"
+     inkscape:window-x="480"
+     inkscape:window-y="297"
      showguides="true"
-     inkscape:guide-bbox="true">
+     inkscape:guide-bbox="true"
+     inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
        id="grid6875" />
@@ -568,29 +570,29 @@
        id="g2368"
        transform="translate(-0.2327981,0.2251646)">
       <text
-         transform="scale(0.8754908,1.1422164)"
-         sodipodi:linespacing="125%"
+         transform="scale(0.87549084,1.1422164)"
          id="text2482"
-         y="6.2052064"
-         x="1.0569292"
-         style="font-size:7.75220966px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
+         y="6.244647"
+         x="2.5180614"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          xml:space="preserve"><tspan
-           y="6.2052064"
-           x="1.0569292"
+           y="6.244647"
+           x="2.5180614"
            id="tspan2484"
-           sodipodi:role="line">USF</tspan></text>
+           sodipodi:role="line"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.75226688px;line-height:1.25;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">USF</tspan></text>
       <text
-         transform="scale(0.8754908,1.1422164)"
-         sodipodi:linespacing="125%"
+         transform="scale(0.87549084,1.1422164)"
          id="text2478"
-         y="5.7142253"
-         x="0.69649363"
-         style="font-size:7.75220966px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#834f2a;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
+         y="5.7536659"
+         x="2.1576259"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#834f2a;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          xml:space="preserve"><tspan
-           y="5.7142253"
-           x="0.69649363"
+           y="5.7536659"
+           x="2.1576259"
            id="tspan2480"
-           sodipodi:role="line">USF</tspan></text>
+           sodipodi:role="line"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.75226688px;line-height:1.25;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">USF</tspan></text>
     </g>
   </g>
 </svg>

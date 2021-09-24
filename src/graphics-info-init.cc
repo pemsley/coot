@@ -78,7 +78,7 @@ graphics_info_t::init() {
       // db_main = NULL;
 
       // command line scripts:
-      command_line_scripts = new std::vector<std::string>;
+      // command_line_scripts = new std::vector<std::string>; no longer 20210923-PE
 
       // LSQ matching info
       lsq_matchers = new std::vector<coot::lsq_range_match_info_t>;

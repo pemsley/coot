@@ -382,13 +382,13 @@ coot::ligand::water_pos_is_chemically_sensible(clipper::Coord_orth water_centre)
 	   ires<=protein_atoms.fragments[ifrag].max_residue_number();
 	   ires++) {
 	 for (unsigned int iatom=0; iatom<protein_atoms.fragments[ifrag][ires].atoms.size(); iatom++) {
-	    
+
 	    if (protein_atoms[ifrag][ires][iatom].element == " N" ||
 		protein_atoms[ifrag][ires][iatom].element == " O") {
-	       
+
 	       if (protein_atoms[ifrag][ires].name != "WAT" &&
 		   protein_atoms[ifrag][ires].name != "HOH") {
-		  
+
 		  len = clipper::Coord_orth::length(protein_atoms[ifrag][ires][iatom].pos, water_centre);
 // 		  std::cout << protein_atoms[ifrag][ires][iatom].pos.format() << " "
 // 			    << len << " " << water_to_protein_distance_lim_min
@@ -424,7 +424,7 @@ coot::ligand::water_pos_is_chemically_sensible(clipper::Coord_orth water_centre)
 // 
 short int
 coot::ligand::water_pos_is_chemically_sensible(const clipper::Coord_orth &water_centre,
-					       const std::vector<clipper::Coord_orth> &extra_sites) const {
+					       const std::vector<std::pair<clipper::Coord_orth, float>> &extra_sites) const {
 
    // this allows for a water to be accepted because it is
    // OK_GOLDILOCKS to a water, even though it is too far from protein
@@ -435,7 +435,7 @@ coot::ligand::water_pos_is_chemically_sensible(const clipper::Coord_orth &water_
       double len;
       double min_length = 9999.9;
       for (unsigned int i=0; i<extra_sites.size(); i++) {
-	 len = clipper::Coord_orth::length(water_centre, extra_sites[i]);
+	 len = clipper::Coord_orth::length(water_centre, extra_sites[i].first);
 	 if (len < min_length)
 	    min_length = len;
       }
@@ -449,9 +449,8 @@ coot::ligand::water_pos_is_chemically_sensible(const clipper::Coord_orth &water_
    // This rejects water_centre if it is too close to anythin in extra_sites
    if (iret == OK_GOLDILOCKS) {
       double len;
-      double min_length = 9999.9;
       for (unsigned int i=0; i<extra_sites.size(); i++) {
-	 len = clipper::Coord_orth::length(water_centre, extra_sites[i]);
+	 len = clipper::Coord_orth::length(water_centre, extra_sites[i].first);
 	 if (len < water_to_protein_distance_lim_min) {
 	    iret = coot::ligand::TOO_CLOSE;
 	 }
@@ -465,10 +464,7 @@ void
 coot::ligand::write_waters(const std::vector<clipper::Coord_orth> &water_list,
 			   const std::string &file_name) const {
 
-   short int separate_residues = 1;
-   std::cout << "writing "
-	     << water_list.size() << " water atoms to ligand-waters.pdb"
-	     << std::endl;
+   std::cout << "writing " << water_list.size() << " water atoms to ligand-waters.pdb" << std::endl;
    std::string chain_id = protein_atoms.unused_chain_id("W"); // pass the prefered chain id.
    minimol::molecule mol(water_list, "HOH", " O  ", chain_id);
    mol.write_file(file_name, default_b_factor); 
@@ -478,7 +474,7 @@ void
 coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
 
    clipper::Coord_orth new_centre;
-   std::vector<clipper::Coord_orth> water_list;
+   std::vector<std::pair<clipper::Coord_orth, float> > water_list;
 
    if (xmap_masked_stats.first == 0) { 
       clipper::Map_stats stats(xmap_cluster);
@@ -488,26 +484,47 @@ coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
    }
 
    water_list = water_fit_internal(sigma_cutoff, n_cycle);
-   
+
    std::cout << "INFO:: found " << water_list.size()
-	     << " waters in water fitting"
-	     << std::endl;
+             << " waters in water fitting" << std::endl;
    std::cout.flush();
 
    std::string ch = protein_atoms.unused_chain_id("W");
    coot::minimol::molecule mol(water_list, "HOH", " O  ", ch);
-   
+
    mol.set_cell(xmap_cluster.cell());
    std::string spg(xmap_cluster.spacegroup().descr().symbol_hm());
    mol.set_spacegroup(spg);
    water_molecule = mol;
 }
 
-std::vector<clipper::Coord_orth> 
+std::vector<std::pair<clipper::Coord_orth, float> >
 coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 
-   std::vector<clipper::Coord_orth> water_list;
-   std::vector<clipper::Coord_orth> this_round_water_list;
+   auto density_at_point = [] (const clipper::Coord_orth &atom_pos,
+                               const clipper::Xmap<float> &search_map) {
+
+                              clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(search_map.cell());
+                              float dv = search_map.interp<clipper::Interp_cubic>(atom_pos_frc);
+                              return dv;
+                           };
+
+   auto get_b_estimate = [density_at_point] (const clipper::Coord_orth &water_position, const clipper::Xmap<float> &xmap,
+                                             float map_rmsd) {
+                            float d = density_at_point(water_position, xmap);
+                            float z = d/map_rmsd;
+                            float log_z = logf(z);
+                            float log_b_est = -1.2 * log_z + 4.1;
+                            float b_est = expf(log_b_est);
+                            if (false)
+                               std::cout << "debug:: " << water_position.format() << " " << d << " " << z << " "
+                                         << b_est << std::endl;
+                            if (b_est < 10.0) b_est = 10.0;
+                            if (b_est > 80.0) b_est = 80.0;
+                            return b_est;
+                         };
+
+   std::vector<std::pair<clipper::Coord_orth, float> > water_list;
    std::vector<clipper::Coord_orth> raw_water_list;
    std::vector<std::pair<clipper::Coord_orth, double> > blobs;
 
@@ -517,32 +534,29 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
    if (xmap_masked_stats.first == 0) {
       std::cout << "ERROR: xmap_masked_stats not set" << std::endl;
    } else {
-//       std::cout << "DEBUG:: at start of water_fit_internal: map stats: sigma: "
-// 		<< xmap_masked_stats.second.second << std::endl;
-      
-      std::vector <clipper::Coord_orth> sampled_protein_coords =
-	 make_sample_protein_coords();
-      
+
+      //       std::cout << "DEBUG:: at start of water_fit_internal: map stats: sigma: "
+      //                 << xmap_masked_stats.second.second << std::endl;
+
+      std::vector <clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords();
+
       float z_cutoff = sigma_cutoff;
       // std::cout << "DEBUG:: sigma_cutoff in round is " << z_cutoff
       // << std::endl;
       n_clusters = 0;
       cluster.clear();
       find_clusters_internal(z_cutoff, sampled_protein_coords); // fill cluster
-      std::cout << "-------------------------------------------------------------"
-		<< std::endl;
+      std::cout << "-------------------------------------------------" << std::endl;
       // std::cout << "DEBUG:: found " << cluster.size()
       // << " clusters at " << z_cutoff << "z cut." << std::endl;
 
       std::list<coot::map_point_cluster> cluster_list;
       // convert from a vector to a list:
       for (unsigned int ic=0; ic<cluster.size(); ic++) {
-	 cluster_list.push_back(cluster[ic]);
+         cluster_list.push_back(cluster[ic]);
       }
-      
-	 
+
       for(int iround = 0; iround < n_cycle; iround++) {
-	 
 // 	 // useful debugging
 // 	 std::string mapfilename = "xmap_cluster_start_water_fit-";
 // 	 mapfilename += coot::util::int_to_string(iround);
@@ -554,7 +568,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 	 std::vector<std::list<coot::map_point_cluster>::iterator> iterator_remove_list;
 	 //	 std::cout << "DEBUG:: round " << iround << " cluster list size: "
 	 // << cluster_list.size() << "\n";
-	 for(it=cluster_list.begin(); it!=cluster_list.end(); it++) {
+	 for (it=cluster_list.begin(); it!=cluster_list.end(); ++it) {
 	    
 	    clipper::Coord_orth cl_centre(it->eigenvectors_and_centre.trn());
 	    if ((do_cluster_size_check_flag && cluster_is_possible_water(*it))
@@ -565,7 +579,9 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 	       if ((do_chemically_sensible_test_flag &&
 		    (chem_sensible == coot::ligand::OK_GOLDILOCKS))
 		   || (do_chemically_sensible_test_flag == 0)) {
-		  water_list.push_back(new_centre);
+                  float water_b_estimate = get_b_estimate(new_centre, xmap_cluster, map_rms);
+                  auto new_centre_with_b_est = std::make_pair(new_centre, water_b_estimate);
+		  water_list.push_back(new_centre_with_b_est);
 		  iterator_remove_list.push_back(it);
 // 	       } else {
 // 		  std::cout << "INFO:: site at " << new_centre.format()

@@ -377,9 +377,9 @@ return -1 if this is a map or closed.
  */
 int n_residues(int imol);
 
-/*! \brief return the atoms of residues in the molecule,
+/*! \brief return the ATOMs of residues in the molecule,
 
-return -1 if this is a map or closed.
+return -1 if this is a map or closed. HETATMs are not counted.
  */
 int n_atoms(int imol);
 
@@ -1207,6 +1207,12 @@ void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_upd
            map accordingly - but difference map gets updated automatically on modification of
            the imol_model molecule */
 void set_auto_updating_sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
+
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but the 2fofc and difference map get updated automatically on modification of
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmaps(int imol_model, int imol_map_with_data_attached, int imol_updating_2fofc_map, int imol_updating_difference_map);
+
 
 gdouble* get_map_colour(int imol);
 
@@ -6379,10 +6385,10 @@ void setup_base_pairing(int state);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                  sequence (assignment)                                   */
+/*                  sequence file (assignment)                              */
 /*  ----------------------------------------------------------------------- */
-/* section Sequence (Assignment) */
-/*! \name Sequence (Assignment) */
+/* section Sequence File (Assignment/Association) */
+/*! \name Sequence File (Assignment/Association) */
 /* \{ */
 
 /*! \brief Print the sequence to the console of the given molecule */
@@ -6404,7 +6410,7 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);
 /*! \brief Assign a sequence to a given molecule from (whatever) sequence
-  file. */
+  file by alignment. */
 void assign_sequence_from_file(int imol, const char *file);
 /*! \brief Assign a sequence to a given molecule from a simple string */
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq);
@@ -6412,6 +6418,9 @@ void assign_sequence_from_string(int imol, const char *chain_id_in, const char *
 void delete_all_sequences_from_molecule(int imol);
 /*! \brief Delete the sequence for a given chain_id from a given molecule */
 void delete_sequence_by_chain_id(int imol, const char *chain_id_in);
+
+/*! \brief Associate the sequence to the molecule - to be used later for sequence assignment (.c.f assign_pir_sequence)   */
+void associate_sequence_from_file(int imol, const char *file_name);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
