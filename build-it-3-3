@@ -3262,10 +3262,12 @@ build_rdkit=true
 rdkit_version=2017_09_3
 rdkit_version=2019_09_1 # python 3
 rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
+rdkit_version=2020_09_3
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
 rdkit_tar_size=54644792
+rdkit_tar_size=58598385 # 2020_09_3
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
@@ -3324,12 +3326,13 @@ if [ "$build_rdkit" = true ] ; then
          get_the_rdkit_tar_file=true
          echo testing for existance of ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            which stat
             echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
-            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size: $size
-            if [ "$size" = 54644917 ] ; then
+            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            if [ "$size" = $rdkit_tar_size ] ; then
                get_the_rdkit_tar_file=false
             fi
          fi
