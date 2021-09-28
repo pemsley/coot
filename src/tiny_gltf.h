@@ -63,6 +63,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #ifndef TINYGLTF_USE_CPP14
 #include <functional>
@@ -4079,7 +4080,10 @@ static bool ParseBuffer(Buffer *buffer, std::string *err, const json &o,
 
       if ((bin_size == 0) || (bin_data == nullptr)) {
         if (err) {
-          (*err) += "Invalid binary data in `Buffer'.\n";
+          (*err) += "Invalid binary data in `Buffer'.";
+          if (bin_size == 0)       (*err) += " bin_size == 0";
+          if (bin_data == nullptr) (*err) += " bin_data is null";
+          (*err) += "\n";
         }
         return false;
       }
@@ -5646,11 +5650,14 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
         return false;
       }
       Buffer buffer;
+      std::cout << "-------- calling ParseBuffer here ---- " << std::endl;
       if (!ParseBuffer(&buffer, err, o,
                        store_original_json_for_extras_and_extensions_, &fs,
                        base_dir, is_binary_, bin_data_, bin_size_)) {
+         std::cout << "-------- done ParseBuffer here ---- " << std::endl;
         return false;
       }
+      std::cout << "-------- done ParseBuffer here ---- " << std::endl;
 
       model->buffers.emplace_back(std::move(buffer));
       return true;
@@ -6248,10 +6255,12 @@ bool TinyGLTF::LoadBinaryFromMemory(Model *model, std::string *err,
                          model_length);
 
   is_binary_ = true;
-  bin_data_ = bytes + 20 + model_length +
-              8;  // 4 bytes (buffer_length) + 4 bytes(buffer_format)
-  bin_size_ =
-      length - (20 + model_length);  // extract header + JSON scene data.
+  bin_data_ = bytes + 20 + model_length + 8;  // 4 bytes (buffer_length) + 4 bytes(buffer_format)
+  bin_size_ = length - (20 + model_length);  // extract header + JSON scene data.
+
+  std::cout << "----------- LoadBinaryFromMemory() now bin_size_ has been set to " << bin_size_ << std::endl;
+  std::cout << "----------- LoadBinaryFromMemory() bin_size_ length " << length
+            << " model_length " << model_length << std::endl;
 
   bool ret = LoadFromString(model, err, warn,
                             reinterpret_cast<const char *>(&bytes[20]),
@@ -6780,14 +6789,16 @@ static void SerializeGltfAsset(Asset &asset, json &o) {
 
 static void SerializeGltfBufferBin(Buffer &buffer, json &o,
                                    std::vector<unsigned char> &binBuffer) {
-  SerializeNumberProperty("byteLength", buffer.data.size(), o);
-  binBuffer = buffer.data;
 
-  if (buffer.name.size()) SerializeStringProperty("name", buffer.name, o);
+   std::cout << "--- SerializeGltfBufferBin() buffer.data.size() " << buffer.data.size() << std::endl;
+   SerializeNumberProperty("byteLength", buffer.data.size(), o);
+   binBuffer = buffer.data; // copy my data
 
-  if (buffer.extras.Type() != NULL_TYPE) {
-    SerializeValue("extras", buffer.extras, o);
-  }
+   if (buffer.name.size()) SerializeStringProperty("name", buffer.name, o);
+
+   if (buffer.extras.Type() != NULL_TYPE) {
+      SerializeValue("extras", buffer.extras, o);
+   }
 }
 
 static void SerializeGltfBuffer(Buffer &buffer, json &o) {
@@ -7666,89 +7677,101 @@ bool TinyGLTF::WriteGltfSceneToFile(Model *model, const std::string &filename,
                                     bool embedBuffers = false,
                                     bool prettyPrint = true,
                                     bool writeBinary = false) {
-  JsonDocument output;
-  std::string defaultBinFilename = GetBaseFilename(filename);
-  std::string defaultBinFileExt = ".bin";
-  std::string::size_type pos =
+
+   std::cout << "---- debug:: Start WriteGltfSceneToFile()) "
+             << model->buffers.size() << " buffers uri: \"" << model->buffers[0].uri << "\"" << std::endl;
+   JsonDocument output;
+   std::string defaultBinFilename = GetBaseFilename(filename);
+   std::string defaultBinFileExt = ".bin";
+   std::string::size_type pos =
       defaultBinFilename.rfind('.', defaultBinFilename.length());
 
-  if (pos != std::string::npos) {
-    defaultBinFilename = defaultBinFilename.substr(0, pos);
-  }
-  std::string baseDir = GetBaseDir(filename);
-  if (baseDir.empty()) {
-    baseDir = "./";
-  }
-  /// Serialize all properties except buffers and images.
-  SerializeGltfModel(model, output);
+   if (pos != std::string::npos) {
+      defaultBinFilename = defaultBinFilename.substr(0, pos);
+   }
+   std::string baseDir = GetBaseDir(filename);
+   if (baseDir.empty()) {
+      baseDir = "./";
+   }
+   /// Serialize all properties except buffers and images.
+   SerializeGltfModel(model, output);
 
-  // BUFFERS
-  std::vector<std::string> usedUris;
-  std::vector<unsigned char> binBuffer;
-  if (model->buffers.size()) {
-    json buffers;
-    JsonReserveArray(buffers, model->buffers.size());
-    for (unsigned int i = 0; i < model->buffers.size(); ++i) {
-      json buffer;
-      if (writeBinary && i == 0 && model->buffers[i].uri.empty()) {
-        SerializeGltfBufferBin(model->buffers[i], buffer, binBuffer);
-      } else if (embedBuffers) {
-        SerializeGltfBuffer(model->buffers[i], buffer);
-      } else {
-        std::string binSavePath;
-        std::string binUri;
-        if (!model->buffers[i].uri.empty() &&
-            !IsDataURI(model->buffers[i].uri)) {
-          binUri = model->buffers[i].uri;
-        } else {
-          binUri = defaultBinFilename + defaultBinFileExt;
-          bool inUse = true;
-          int numUsed = 0;
-          while (inUse) {
-            inUse = false;
-            for (const std::string &usedName : usedUris) {
-              if (binUri.compare(usedName) != 0) continue;
-              inUse = true;
-              binUri = defaultBinFilename + std::to_string(numUsed++) +
-                       defaultBinFileExt;
-              break;
+   // BUFFERS
+   std::vector<std::string> usedUris;
+   std::vector<unsigned char> binBuffer;
+   std::cout << "---- debug:: aa WriteGltfSceneToFile()) "
+             << model->buffers.size() << " buffers uri: \"" << model->buffers[0].uri << "\"" << std::endl;
+
+   if (model->buffers.size()) {
+      json buffers;
+      JsonReserveArray(buffers, model->buffers.size());
+      for (unsigned int i = 0; i < model->buffers.size(); ++i) {
+         json buffer;
+         std::cout << "---- debug:: bb WriteGltfSceneToFile()) writeBinary " << writeBinary
+                   << " i " << i << " uri \"" << model->buffers[i].uri.empty() << "\"" << std::endl;
+         if (writeBinary && i == 0 && model->buffers[i].uri.empty()) {
+            std::cout << "--- A path ---" << std::endl;
+            SerializeGltfBufferBin(model->buffers[i], buffer, binBuffer); // mine, a-json, local-uchar-vec
+         } else if (embedBuffers) {
+            std::cout << "--- B path ---" << std::endl;
+            SerializeGltfBuffer(model->buffers[i], buffer);
+         } else {
+            std::cout << "--- C path ---" << std::endl;
+            std::string binSavePath;
+            std::string binUri;
+            if (!model->buffers[i].uri.empty() &&
+                !IsDataURI(model->buffers[i].uri)) {
+               binUri = model->buffers[i].uri;
+            } else {
+               std::cout << "--- D path ---" << std::endl;
+               binUri = defaultBinFilename + defaultBinFileExt;
+               bool inUse = true;
+               int numUsed = 0;
+               while (inUse) {
+                  inUse = false;
+                  for (const std::string &usedName : usedUris) {
+                     if (binUri.compare(usedName) != 0) continue;
+                     inUse = true;
+                     binUri = defaultBinFilename + std::to_string(numUsed++) +
+                        defaultBinFileExt;
+                     break;
+                  }
+               }
             }
-          }
-        }
-        usedUris.push_back(binUri);
-        binSavePath = JoinPath(baseDir, binUri);
-        if (!SerializeGltfBuffer(model->buffers[i], buffer, binSavePath,
-                                 binUri)) {
-          return false;
-        }
+            usedUris.push_back(binUri);
+            binSavePath = JoinPath(baseDir, binUri);
+            if (!SerializeGltfBuffer(model->buffers[i], buffer, binSavePath,
+                                     binUri)) {
+               return false;
+            }
+         }
+         JsonPushBack(buffers, std::move(buffer));
       }
-      JsonPushBack(buffers, std::move(buffer));
-    }
-    JsonAddMember(output, "buffers", std::move(buffers));
-  }
+      JsonAddMember(output, "buffers", std::move(buffers));
+   }
 
-  // IMAGES
-  if (model->images.size()) {
-    json images;
-    JsonReserveArray(images, model->images.size());
-    for (unsigned int i = 0; i < model->images.size(); ++i) {
-      json image;
+   // IMAGES
+   if (model->images.size()) {
+      json images;
+      JsonReserveArray(images, model->images.size());
+      for (unsigned int i = 0; i < model->images.size(); ++i) {
+         json image;
 
-      UpdateImageObject(model->images[i], baseDir, int(i), embedImages,
-                        &this->WriteImageData, this->write_image_user_data_);
-      SerializeGltfImage(model->images[i], image);
-      JsonPushBack(images, std::move(image));
-    }
-    JsonAddMember(output, "images", std::move(images));
-  }
+         UpdateImageObject(model->images[i], baseDir, int(i), embedImages,
+                           &this->WriteImageData, this->write_image_user_data_);
+         SerializeGltfImage(model->images[i], image);
+         JsonPushBack(images, std::move(image));
+      }
+      JsonAddMember(output, "images", std::move(images));
+   }
 
-  if (writeBinary) {
-    WriteBinaryGltfFile(filename, JsonToString(output), binBuffer);
-  } else {
-    WriteGltfFile(filename, JsonToString(output, (prettyPrint ? 2 : -1)));
-  }
+   if (writeBinary) {
+      WriteBinaryGltfFile(filename, JsonToString(output), binBuffer);
+   } else {
+      WriteGltfFile(filename, JsonToString(output, (prettyPrint ? 2 : -1)));
+   }
 
-  return true;
+   return true;
 }
 
 }  // namespace tinygltf

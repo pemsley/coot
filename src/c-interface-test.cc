@@ -1170,12 +1170,17 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
       obj.mesh.name = object_name;
       Material material;
+      material.shininess = 30.0;
+      material.specular_strength = 0.3;
+
       // obj.mesh.load_from_glTF("augmented-box.glb");
       obj.mesh.load_from_glTF(file_name);
       obj.mesh.setup(material); // calls setup_buffers() (again)
       set_display_generic_object(obj_mesh, 1);
 
-      std::cout << "---- mesh end ---" << std::endl;
+      bool is_binary_format = true;
+      obj.mesh.export_to_glTF("box-back-to-glTF.glb", is_binary_format);
+
    }
 
    if (false) {
