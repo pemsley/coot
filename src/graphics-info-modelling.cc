@@ -167,6 +167,8 @@ graphics_info_t::stop_refinement_internal() {
    if (continue_threaded_refinement_loop) {
       continue_threaded_refinement_loop = false;
       threaded_refinement_needs_to_clear_up = true;
+      std::cout << "..................................... clear HUD buttons! " << std::endl;
+      clear_hud_buttons(); // if a refinement was running and Esc was pressed, here is where we catch it.
    }
    // now wait until refinement stops... (before we call clear_up_moving_atoms (from the
    // function that calls this function))
@@ -464,6 +466,9 @@ graphics_info_t::clear_up_moving_atoms_wrapper() {
       threaded_refinement_needs_to_clear_up = true;
       std::cout << ".... Esc key tells refinement to clean up" << std::endl;
       continue_threaded_refinement_loop = false;
+
+      clear_hud_buttons(); // if a refinement was running and Esc was pressed, here is where we catch it.
+
    } else {
 
       // refinement was not running. we can clear up the atoms ourselves
@@ -819,7 +824,6 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
          }
       }
    }
-
 }
 
 // static

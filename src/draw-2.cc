@@ -665,19 +665,24 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                                }
                             };
 
+   // atom pulls with left mouse (but not with right mouse also (that's zoom)
+   //
    if (event->state & GDK_BUTTON1_MASK) {
 
-      if (g.in_moving_atoms_drag_atom_mode_flag) {
-         if (g.last_restraints_size() > 0) {
-            // move an already picked atom
-            g.move_atom_pull_target_position(x_as_int, y_as_int);
-         } else {
-            // don't allow translation drag of the
-            // intermediate atoms when they are a rotamer:
-            //
-            if (! g.rotamer_dialog) {
-               // e.g. translate an added peptide fragment.
-               g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
+      if (! (event->state & GDK_BUTTON3_MASK)) {
+
+         if (g.in_moving_atoms_drag_atom_mode_flag) {
+            if (g.last_restraints_size() > 0) {
+               // move an already picked atom
+               g.move_atom_pull_target_position(x_as_int, y_as_int);
+            } else {
+               // don't allow translation drag of the
+               // intermediate atoms when they are a rotamer:
+               //
+               if (! g.rotamer_dialog) {
+                  // e.g. translate an added peptide fragment.
+                  g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
+               }
             }
          }
       }
