@@ -1,4 +1,7 @@
 
+import coot_gui
+import coot_gui_api
+
 def interactive_add_cho_dialog():
 
     def refine_tree_func():

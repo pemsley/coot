@@ -66,7 +66,7 @@ if coot_gui_api.main_menubar():
             for c in menu_child.get_children():
                 try:
                     t = c.get_text()
-                    # print("########### get_existing_submenu get_text on c:", t)
+                    print("########### populate_python_menus get_existing_submenu get_text on c:", t)
                     if t == submenu_label:
                         return menu_child
                 except KeyError as e:

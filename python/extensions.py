@@ -29,6 +29,9 @@ import time
 import numbers
 import coot_utils
 import coot_gui
+import gui_add_linked_cho
+import gui_prosmart
+import shelx_extensions
 
 
 def add_coot_menu_separator(menu):
@@ -73,7 +76,7 @@ if True:
          for c in menu_child.get_children():
            try:
              t = c.get_text()
-             print("########### get_existing_submenu get_text on c:", t)
+             print("########### extensions get_existing_submenu get_text on c:", t)
              if t == submenu_label:
                return menu_child
            except KeyError as e:
@@ -128,9 +131,8 @@ if True:
      # --------------------------------------------------
 
      def add_module_user_defined_restraints():
-       menu = coot_gui.coot_menubar_menu("Restraints")
-       load_from_search_load_path("user_define_restraints.py")
-     
+         import user_define_restraints
+         menu = coot_gui.coot_menubar_menu("Restraints")
      
      # ---------------------------------------------
      #           extensions
@@ -147,6 +149,11 @@ if True:
      edit_menu      = coot_gui.coot_menubar_menu("Edit")
      edit_settings_menu = get_existing_submenu(edit_menu, "Settings...")
      calculate_all_molecule_menu = get_existing_submenu(calculate_menu, "All Molecule...")
+     calculate_map_tools_menu    = get_existing_submenu(calculate_menu, "Map Tools...")
+     calculate_ncs_tools_menu    = get_existing_submenu(calculate_menu, "NCS Model Tools...")
+     calculate_ncs_maps_menu     = get_existing_submenu(calculate_menu, "NCS Maps...")
+     calculate_modelling_menu    = get_existing_submenu(calculate_menu, "Modelling...")
+     calculate_modules_menu      = get_existing_submenu(calculate_menu, "Modules...")
 
      # make submenus:
      submenu_all_molecule = Gtk.Menu()
@@ -155,11 +162,11 @@ if True:
      # print("DEBUG::::::::::::::::::::: calculate_all_molecule_menu:", calculate_menu)
      # print("DEBUG::::::::::::::::::::: submenu_all_molecule:", submenu_all_molecule)
 
-     menuitem_2 = Gtk.MenuItem("All Molecule...")
+     # menuitem_2 = Gtk.MenuItem("All Molecule...")
      submenu_maps = Gtk.Menu()
      menuitem_3 = Gtk.MenuItem("Maps...")
-     submenu_models = Gtk.Menu()
-     menuitem_4 = Gtk.MenuItem("Modelling...")
+     submenu_models = Gtk.Menu() # submenu_modelling really
+     # menuitem_4 = Gtk.MenuItem("Modelling...")
      submenu_refine = Gtk.Menu()
      menuitem_5 = Gtk.MenuItem("Refine...")
      submenu_representation = Gtk.Menu()
@@ -171,26 +178,33 @@ if True:
      submenu_pdbe = Gtk.Menu()
      menuitem_pdbe = Gtk.MenuItem("PDBe...")
      submenu_modules = Gtk.Menu()
-     menuitem_modules = Gtk.MenuItem("Modules...")
+     # menuitem_modules = Gtk.MenuItem("Modules...")
      submenu_ncs = Gtk.Menu()
-     menuitem_ncs = Gtk.MenuItem("NCS...")
+     # menuitem_ncs = Gtk.MenuItem("NCS Tools...") # find existing...
 
      # menuitem_2.set_submenu(submenu_all_molecule) replace by the following
      calculate_all_molecule_menu.set_submenu(submenu_all_molecule)
-     calculate_menu.append(menuitem_2)
-     menuitem_2.show()
+     # calculate_menu.append(menuitem_2)
+     # menuitem_2.show()
 
-     menuitem_3.set_submenu(submenu_maps)
-     calculate_menu.append(menuitem_3)
-     menuitem_3.show()
+     # menuitem_3.set_submenu(submenu_maps)
+     # calculate_menu.append(menuitem_3)
+     # menuitem_3.show()
 
-     menuitem_4.set_submenu(submenu_models)
-     calculate_menu.append(menuitem_4)
-     menuitem_4.show()
+     calculate_map_tools_menu.set_submenu(submenu_maps)
+     calculate_ncs_tools_menu.set_submenu(submenu_ncs)
 
-     menuitem_ncs.set_submenu(submenu_ncs)
-     calculate_menu.append(menuitem_ncs)
-     menuitem_ncs.show()
+     # menuitem_4.set_submenu(submenu_models)
+     #calculate_menu.append(menuitem_4)
+     # menuitem_4.show()
+
+     calculate_modelling_menu.set_submenu(submenu_models)
+
+     # menuitem_ncs.set_submenu(submenu_ncs) 20210928-PE
+     # calculate_menu.append(menuitem_ncs)
+     # menuitem_ncs.show()
+
+     calculate_ncs_tools_menu.set_submenu(submenu_ncs)
 
      menuitem_6.set_submenu(submenu_representation)
      draw_menu.append(menuitem_6)
@@ -205,9 +219,11 @@ if True:
      menu.append(menuitem_7)
      menuitem_7.show()
 
-     menuitem_modules.set_submenu(submenu_modules)
-     calculate_menu.append(menuitem_modules)
-     menuitem_modules.show()
+     calculate_modules_menu.set_submenu(submenu_modules)
+
+     # menuitem_modules.set_submenu(submenu_modules)
+     # calculate_menu.append(menuitem_modules)
+     # menuitem_modules.show()
 
      # menuitem_7.set_submenu(submenu_settings) # already set
      # edit_menu.append(menuitem_7)
@@ -550,6 +566,13 @@ if True:
        "Assign HETATM to molecule...", 
        lambda func: coot_gui.molecule_chooser_gui("Assign HETATMs as per PDB definition", 
 		lambda imol: coot.assign_hetatms(imol)))
+
+     coot_gui.add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Atoms with Zero Occupancies...",
+       lambda func: coot_gui.molecule_chooser_gui(
+         "Which molecule to check for Atoms with zero occupancies?",
+         lambda imol: coot_gui.zero_occ_atoms_gui(imol)))
 
      # in main menu now
      # coot_gui.add_simple_coot_menu_menuitem(
@@ -1013,14 +1036,6 @@ if True:
        lambda func: whats_this()
        )
      
-     
-     # an python extra, this is
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Atoms with Zero Occupancies...",
-       lambda func: coot_gui.molecule_chooser_gui(
-         "Which molecule to check for Atoms with zero occupancies?",
-         lambda imol: coot_gui.zero_occ_atoms_gui(imol)))
 
      #---------------------------------------------------------------------
      #     NCS functions
@@ -1707,24 +1722,8 @@ if True:
      # ---------------------------------------------------------------------
 
      coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "Carbohydrate",
-         lambda func: add_module_carbohydrate_gui())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_modules, "CCP4...",
-       lambda func: coot_gui.add_module_ccp4())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_modules, "SHELX...",
-       lambda func: shelx_extensions.add_module_shelx())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_modules, "User-defined Restraints...",
-       lambda func: add_module_user_defined_restraints())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "ProSMART",
-         lambda func: gui_prosmart.add_module_prosmart())
+         submenu_modules, "CCP4...",
+         lambda func: coot_gui.add_module_ccp4())
 
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
@@ -1733,6 +1732,18 @@ if True:
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Cryo-EM",
          lambda func: coot_gui.add_module_cryo_em())
+
+     coot_gui.add_simple_coot_menu_menuitem(
+         submenu_modules, "ProSMART",
+         lambda func: gui_prosmart.add_module_prosmart())
+
+     coot_gui.add_simple_coot_menu_menuitem(
+         submenu_modules, "SHELX...",
+         lambda func: shelx_extensions.add_module_shelx())
+
+     coot_gui.add_simple_coot_menu_menuitem(
+         submenu_modules, "User-defined Restraints...",
+         lambda func: add_module_user_defined_restraints())
 
      # ---------------------------------------------------------------------
      #     Settings
