@@ -721,7 +721,8 @@ GtkWidget *wrapped_create_bond_parameters_dialog();
 void apply_bond_parameters(GtkWidget *w);
 
 GtkWidget *wrapped_create_add_additional_representation_gui();
-void add_additional_representation_by_widget(GtkWidget *w);
+void add_additional_representation_by_widget(GtkWidget *w); // old 20210929-PE
+void add_additional_representation_by_dialog(GtkDialog *d);
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
 void add_reps_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 

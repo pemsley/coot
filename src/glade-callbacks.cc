@@ -9939,9 +9939,7 @@ void
 on_fixed_atom_close_button_clicked_gtkbuilder_callback     (GtkButton       *button,
                                         gpointer         user_data)
 {
-
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
-				    "fixed_atom_dialog");
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "fixed_atom_dialog");
   gtk_widget_destroy(dialog);
 }
 
@@ -9954,16 +9952,48 @@ on_fixed_atom_dialog_destroy_gtkbuilder_callback           (GtkWidget       *obj
   store_fixed_atom_dialog(0);
 }
 
+// is this better done with a dialog response now?
 extern "C" G_MODULE_EXPORT
 void
-on_add_rep_add_rep_button_clicked_gtkbuilder_callback      (GtkButton       *button,
-                                        gpointer         user_data)
+on_add_rep_add_rep_button_clicked_gtkbuilder_callback (GtkButton       *button,
+                                                       gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "add_reps_dialog");
-  add_additional_representation_by_widget(w);
-  gtk_widget_destroy(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "add_reps_dialog");
+   // add_additional_representation_by_widget(w);
+   // gtk_widget_destroy(w);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_add_reps_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                gint             response_id,
+                                                gpointer         user_data)  {
+
+   std::cout << "response " << response_id << std::endl;
+
+   if (response_id == GTK_RESPONSE_OK) {
+
+      // now read the dialog widgets to see what to represent...
+
+      std::cout << "... read the dialog " << std::endl;
+
+      add_additional_representation_by_dialog(dialog);
+
+   }
+
+   gtk_widget_hide(GTK_WIDGET(dialog));
+
+}
+
+// 
+extern "C" G_MODULE_EXPORT
+void
+on_add_reps_dialog_close_gtkbuilder_callback (GtkDialog *dialog,
+                                              gpointer   user_data) {
+
+   gtk_widget_hide(GTK_WIDGET(dialog));
+
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -9979,8 +10009,10 @@ void
 on_additional_representation1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_create_add_additional_representation_gui();
-  gtk_widget_show(w);
+   // 20210929-PE is this connected now?
+   std::cout << "debug:: on_additional_representation1_activate_gtkbuilder_callback() called" << std::endl;
+   GtkWidget *w = wrapped_create_add_additional_representation_gui();
+   gtk_widget_show(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10135,7 +10167,7 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 extern "C" G_MODULE_EXPORT
 void
 on_save_restraint_chooserdialog_close_gtkbuilder_callback  (GtkDialog       *dialog,
-                                        gpointer         user_data) {
+                                                            gpointer         user_data) {
 }
 
 
@@ -11584,7 +11616,10 @@ void
 on_draw_additional_representations_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
                                                  gpointer         user_data)
 {
-   std::cout << "draw additional representations " << std::endl;
+   std::cout << "on draw additional representations menu item activate" << std::endl;
+  GtkWidget *w = wrapped_create_add_additional_representation_gui();
+  gtk_widget_show(w);
+   
 }
 
 extern "C" G_MODULE_EXPORT

@@ -5081,33 +5081,20 @@ void fill_chi_angles_vbox(GtkWidget *vbox) {
 
 GtkWidget *wrapped_create_add_additional_representation_gui() {
 
+   std::cout << "::::::::::::::: wrapped_create_add_additional_representation_gui() " << std::endl;
+
    GtkWidget *w = 0;
    if (graphics_info_t::use_graphics_interface_flag) {
-      w = create_add_reps_dialog();
-      // update/generate the option menu menu as usual.
-      // GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+
+      // w = create_add_reps_dialog();
+
+      graphics_info_t g;
+      w = widget_from_builder("add_reps_dialog");
+      
       GtkWidget *combobox = lookup_widget(w, "add_reps_molecule_combobox");
-      GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
-      GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
-      GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
-      GtkWidget *ins_code_entry = lookup_widget(w, "add_rep_ins_code_entry");
-      GtkWidget *string_selection_entry = lookup_widget(w, "add_rep_selection_string_entry");
 
-      GtkWidget *position_radiobutton = lookup_widget(w, "add_rep_radiobutton_position");
-      GtkWidget *resno_radiobutton = lookup_widget(w, "add_rep_radiobutton_res_number");
-      GtkWidget *selection_string_radiobutton = lookup_widget(w, "add_rep_radiobutton_selection_string");
-
-      GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(w, "add_rep_rep_fat_bonds_radiobutton");
-      GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
-      GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
-
-      // GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(add_reps_molecule_option_menu_item_select);
-      GCallback signal_func = G_CALLBACK(add_reps_molecule_combobox_changed);
-
-      int imol_active_position = graphics_info_t::add_reps_molecule_combobox_molecule;
-
-      // fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
-      fill_combobox_with_coordinates_options(combobox, signal_func, imol_active_position);
+      int imol_active_position = g.get_active_atom().first;
+      fill_combobox_with_coordinates_options(combobox, nullptr, imol_active_position);
 
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
       // set the active item to be the 8
@@ -5128,7 +5115,110 @@ void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType 
    graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = pos;
 }
 
+void
+add_additional_representation_by_dialog(GtkDialog *dialog) {
 
+   GtkWidget *combobox = widget_from_builder("add_reps_molecule_combobox");
+
+   GtkWidget *chain_id_entry    = widget_from_builder("add_rep_chain_id_entry");
+   GtkWidget *resno_start_entry = widget_from_builder("add_rep_resno_start_entry");
+   GtkWidget *resno_end_entry   = widget_from_builder("add_rep_resno_end_entry");
+   GtkWidget *ins_code_entry    = widget_from_builder("add_rep_ins_code_entry");
+   GtkWidget *string_selection_entry = widget_from_builder("add_rep_selection_string_entry");
+
+   GtkWidget *position_radiobutton = widget_from_builder("add_rep_radiobutton_position");
+   GtkWidget *resno_radiobutton    = widget_from_builder("add_rep_radiobutton_res_number");
+   GtkWidget *selection_string_radiobutton = widget_from_builder("add_rep_radiobutton_selection_string");
+
+   GtkWidget *add_reps_fat_bonds_radiobutton = widget_from_builder("add_rep_rep_fat_bonds_radiobutton");
+   GtkWidget *add_rep_bond_width_combobox = widget_from_builder("add_rep_bond_width_combobox");
+   GtkWidget *add_reps_ball_and_stick_radiobutton = widget_from_builder("add_rep_rep_ball_and_stick_radiobutton");
+
+   int imol_active = -1;
+
+   float bond_width = 8;
+   int bonds_box_type = coot::NORMAL_BONDS;
+   short int representation_type = coot::SIMPLE_LINES;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(add_reps_ball_and_stick_radiobutton))) {
+      representation_type = coot::BALL_AND_STICK;
+   }
+   bool draw_H_flag = 1;
+
+   graphics_info_t g;
+   std::string bond_width_txt = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(combobox));
+
+   if (representation_type == coot::BALL_AND_STICK)
+      bond_width = 0.15; // not 8
+
+   GtkWidget *dcw = g.display_control_window();
+
+   // int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
+   int imol = graphics_info_t::add_reps_molecule_combobox_molecule;
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(position_radiobutton))) {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
+      if (aas.first) {
+	 int imol_active = aas.second.first;
+	 coot::atom_selection_info_t asi(aas.second.second.chain_id,
+					 aas.second.second.res_no,
+					 aas.second.second.res_no,
+					 aas.second.second.ins_code);
+         GtkWidget *glarea_0 = 0;
+         GtkWidget *glarea_1 = 0;
+         if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+         if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+	 gl_context_info_t glci(glarea_0, glarea_1);
+	 g.molecules[imol_active].add_additional_representation(representation_type,
+								bonds_box_type,
+								bond_width,
+								draw_H_flag,
+								asi, dcw, glci, g.Geom_p());
+      }
+   }
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resno_radiobutton))) {
+      // std::cout << "By chainid/resno" << std::endl;
+      std::string chain_id = gtk_entry_get_text(GTK_ENTRY(chain_id_entry));
+      std::string resno_1s = gtk_entry_get_text(GTK_ENTRY(resno_start_entry));
+      std::string resno_2s = gtk_entry_get_text(GTK_ENTRY(resno_end_entry));
+      std::string ins_code = gtk_entry_get_text(GTK_ENTRY(ins_code_entry));
+      if (is_valid_model_molecule(imol)) {
+	 int resno_1 = atoi(resno_1s.c_str());
+	 int resno_2 = atoi(resno_2s.c_str());
+	 coot::atom_selection_info_t asi(chain_id, resno_1, resno_2, ins_code);
+         GtkWidget *glarea_0 = 0;
+         GtkWidget *glarea_1 = 0;
+         if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+         if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+	 gl_context_info_t glci(glarea_0, glarea_1);
+	 graphics_info_t::molecules[imol].add_additional_representation(representation_type,
+									bonds_box_type,
+									bond_width,
+									draw_H_flag,
+									asi, dcw, glci, g.Geom_p());
+      }
+   }
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(selection_string_radiobutton))) {
+      // std::cout << "By selection string" << std::endl;
+      std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
+      coot::atom_selection_info_t asi(s);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
+      graphics_info_t::molecules[imol].add_additional_representation(representation_type,
+								     bonds_box_type,
+								     bond_width,
+								     draw_H_flag,
+								     asi, dcw, glci, g.Geom_p());
+   }
+   graphics_draw();
+   
+
+}
+
+
+// old
 void add_additional_representation_by_widget(GtkWidget *dialog) {
 
    // decode the widgets and add the representation here.
