@@ -1261,11 +1261,11 @@ on_map_and_mol_control1_activate_gtkbuilder_callback       (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_display_only_active1_activate_gtkbuilder_callback       (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_draw_display_only_active_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                          gpointer         user_data)
 {
 
-  /* display only the active mol and the refinement map */
+  /* display only the active mol */
   display_only_active();
 
 }
@@ -5427,18 +5427,32 @@ on_centre_atom_label1_activate_gtkbuilder_callback         (GtkMenuItem     *men
 extern "C" G_MODULE_EXPORT
 void
 on_centre_atom_label_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                        gpointer         user_data)
+                                                            gpointer         user_data)
 {
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "centre_atom_label_dialog");
-  GtkWidget *on  = lookup_widget(dialog, "centre_atom_label_radiobutton_on");
+   GtkWidget *dialog = widget_from_builder("centre_atom_label_dialog");
+   GtkWidget *on  = widget_from_builder("centre_atom_label_radiobutton_on");
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(on))) {
-    set_label_on_recentre_flag(1);
-  } else {
-    set_label_on_recentre_flag(0);
-  }
-  gtk_widget_destroy(dialog);
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(on))) {
+      set_label_on_recentre_flag(1);
+   } else {
+      set_label_on_recentre_flag(0);
+   }
+   gtk_widget_hide(dialog);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_centre_atom_label_radiobutton_on_toggled_gtkbuilder_callback (GtkToggleButton       *button,
+                                                                 gpointer         user_data)
+{
+   GtkWidget *on  = widget_from_builder("centre_atom_label_radiobutton_on");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(on))) {
+      set_label_on_recentre_flag(1);
+   } else {
+      set_label_on_recentre_flag(0);
+   }
+}
+
 
 
 extern "C" G_MODULE_EXPORT

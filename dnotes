@@ -10182,3 +10182,13 @@ Mon  6 Sep 23:54:21 BST 2021
     Model building, refinement, validation, and analysis
     EMD-10553 EMD-10554
     Uses PDB ID 4wrn as starting model
+
+---
+Wed 29 Sep 18:09:40 BST 2021
+
+   to add a dialog that uses response_id:
+   When you add the buttons, don't give them callback in Signals, *do* give them a Response ID in General.
+
+   See add_reps_dialog, but note that "Close" button is a Response, not connected to
+   on_add_reps_dialog_response_gtkbuilder_callback() (I am not sure how to activeate that callback).
+

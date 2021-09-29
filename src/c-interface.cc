@@ -5904,6 +5904,8 @@ void display_only_active() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
 
+   std::cout << "display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+
    if (aa.first) {
       int imol_active = aa.second.first;
       if (is_valid_model_molecule(imol_active)) {

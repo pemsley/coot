@@ -3232,6 +3232,7 @@ Calculate a skeleton now?
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_centre_atom_label_radiobutton_on_toggled_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -11701,6 +11702,7 @@ Do you want to continue?
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Display Only Active</property>
                             <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_display_only_active_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
