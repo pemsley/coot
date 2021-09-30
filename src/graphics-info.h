@@ -1485,7 +1485,8 @@ public:
    // idle function token (holder)
    //
    static int idle_function_spin_rock_token;
-   static long time_holder_for_rocking;
+   // static long time_holder_for_rocking;
+   static std::chrono::time_point<std::chrono::high_resolution_clock> time_holder_for_rocking;
    // drag refine idle function token:
    static int drag_refine_idle_function_token;
    static float idle_function_rotate_angle; // degrees
@@ -4483,6 +4484,7 @@ string   static std::string sessionid;
 
    static bool do_tick_particles;
    static bool do_tick_spin;
+   static bool do_tick_rock;
    static bool do_tick_boids;
    static bool do_tick_hydrogen_bonds_mesh;
    static bool do_tick_constant_draw;

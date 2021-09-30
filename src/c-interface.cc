@@ -1428,44 +1428,46 @@ void set_auto_read_column_labels(const char *fwt, const char *phwt,
 
 }
 
+#include "glarea_tick_function.hh"
 
 void toggle_idle_spin_function() {
 
    graphics_info_t g;
 
-   if (g.idle_function_spin_rock_token == 0) {
-      // g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
-      // g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glareas[0]);
-   } else {
+   if (g.do_tick_spin)
+      g.do_tick_spin = false;
+   else
+      g.do_tick_spin = true;
 
-      std::cout << "GTK-FIXME remove spin idle function here!" << std::endl;
-      // gboolean remove_status = g_idle_remove_by_data(g.idle_function_spin_rock_token);
-      // g.idle_function_spin_rock_token = 0;
+   if (g.do_tick_spin) {
+      if (g.glareas[0]) {
+         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0);
+         g.idle_function_spin_rock_token = new_tick_id;
+      }
    }
+   graphics_draw();
+
    add_to_history_simple("toggle-idle-function");
 }
 
 
 void toggle_idle_rock_function() {
 
-#if 0
    graphics_info_t g;
-   if (g.idle_function_spin_rock_token == 0) {
-      g.idle_function_spin_rock_token =
-// 	 g_timeout_add(25, // 40 fps
-// 			 animate_idle_rock,
-// 			 g.glarea);
-	 g_timeout_add(25, animate_idle_rock, NULL);
-      g.time_holder_for_rocking = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "Timer for rocking need to be fixed\n";
-      g.idle_function_rock_angle_previous =
-	 get_idle_function_rock_target_angle();
-   } else {
-      std::cout << "GTK-FIXME remove rock idle function here!" << std::endl;
-      // g_idle_remove(g.idle_function_spin_rock_token);
-      // g.idle_function_spin_rock_token = 0;
+
+   if (g.do_tick_rock)
+      g.do_tick_rock = false;
+   else
+      g.do_tick_rock = true;
+
+   if (g.do_tick_rock) {
+      g.time_holder_for_rocking = std::chrono::high_resolution_clock::now();
+      if (g.glareas[0]) {
+         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0);
+         g.idle_function_spin_rock_token = new_tick_id;
+      }
    }
-#endif
+   graphics_draw();
    add_to_history_simple("toggle-idle-rock-function");
 }
 

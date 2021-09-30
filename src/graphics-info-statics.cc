@@ -438,7 +438,8 @@ short int graphics_info_t::swap_difference_map_colours = 0; // default: not in J
 // No idle functions to start (but setting them to zero doesn't set that - the
 // idle functions are added by gtk_idle_add()).
 int   graphics_info_t::idle_function_spin_rock_token = -1; // magic "unset" value
-long  graphics_info_t::time_holder_for_rocking = 0;
+std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::time_holder_for_rocking = std::chrono::high_resolution_clock::now();
+
 double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_angle_previous = 0;
@@ -1493,6 +1494,7 @@ bool graphics_info_t::sequence_view_is_docked_flag = true;
 
 bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
+bool graphics_info_t::do_tick_rock = false;
 bool graphics_info_t::do_tick_boids = false;
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 bool graphics_info_t::do_tick_happy_face_residue_markers = false;

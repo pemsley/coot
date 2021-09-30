@@ -8287,15 +8287,8 @@ void
 on_spin_view_on_off1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  toggle_idle_spin_function();
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_rock_view_on_off1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
-                                        gpointer         user_data) {
-  toggle_idle_rock_function();
+   std::cout << "found on_spin_view_on_off1_activate_gtkbuilder_callback() " << std::endl;
+   toggle_idle_spin_function();
 }
 
 
@@ -11596,7 +11589,7 @@ void
 on_draw_rock_view_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
                                                  gpointer         user_data)
 {
-   std::cout << "draw rock view " << std::endl;
+   toggle_idle_rock_function();
 }
 
 
@@ -11614,7 +11607,6 @@ void
 on_draw_label_neighbours_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
                                                  gpointer         user_data)
 {
-   std::cout << "draw label neighbours " << std::endl;
    label_neighbours();
 }
 

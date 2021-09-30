@@ -11795,7 +11795,7 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="draw_rock_view">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Rock View...</property>
+                            <property name="label" translatable="yes">Rock View</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_draw_rock_view_activate_gtkbuilder_callback" swapped="no"/>
                           </object>

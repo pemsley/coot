@@ -2260,11 +2260,10 @@ gint idle_contour_function(gpointer data) {
 
 double
 get_idle_function_rock_target_angle() {
-
+#if 0
    graphics_info_t g;
 
    long t = 0; // glutGet(GLUT_ELAPSED_TIME);
-   std::cout << "Fix get_idle_function_rock_target_angle() timer\n";
    long delta_t = t - g.time_holder_for_rocking;
    double rock_sf = 0.001 * g.idle_function_rock_freq_scale_factor;
 
@@ -2279,6 +2278,8 @@ get_idle_function_rock_target_angle() {
       0.015 * 2 * M_PI * sin(theta);
 
    return target_angle;
+#endif
+   return 0.0;
 }
 
 

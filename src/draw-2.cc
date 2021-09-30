@@ -48,6 +48,7 @@ graphics_info_t::tick_function_is_active() {
 
    if (do_tick_particles ||
        do_tick_spin      ||
+       do_tick_rock      ||
        do_tick_boids     ||
        do_tick_constant_draw       ||
        do_tick_hydrogen_bonds_mesh ||
@@ -57,6 +58,7 @@ graphics_info_t::tick_function_is_active() {
       return gboolean(FALSE);
 }
 
+// Put this and the above into graphics_info_t. And in it's own file.
 
 gboolean
 glarea_tick_func(GtkWidget *widget,
@@ -81,6 +83,19 @@ glarea_tick_func(GtkWidget *widget,
          glm::quat normalized_quat_delta(glm::normalize(quat_delta));
          glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
          graphics_info_t::glm_quat = glm::normalize(product);
+   }
+
+   if (graphics_info_t::do_tick_rock) {
+
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+      auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - graphics_info_t::time_holder_for_rocking);
+      double angle = delta.count() * 0.0007 * graphics_info_t::idle_function_rock_freq_scale_factor;
+      double theta = 0.008 * graphics_info_t::idle_function_rock_amplitude_scale_factor * sin(angle);
+      glm::vec3 EulerAngles(0, theta, 0);
+      glm::quat quat_delta(EulerAngles);
+      glm::quat normalized_quat_delta(glm::normalize(quat_delta));
+      glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
+      graphics_info_t::glm_quat = glm::normalize(product);
    }
 
    if (graphics_info_t::do_tick_constant_draw) {
