@@ -962,8 +962,10 @@ void label_atoms_in_residue() {
       graphics_info_t g;
       coot::residue_spec_t residue_spec(pp.second.second);
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
-      g.molecules[imol].add_atom_labels_for_residue(residue_p);
-      graphics_draw();
+      if (residue_p) {
+         g.molecules[imol].add_atom_labels_for_residue(residue_p);
+         graphics_draw();
+      }
    }
 }
 

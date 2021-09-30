@@ -2203,6 +2203,39 @@ molecule_class_info_t::add_atom_labels_for_residue(mmdb::Residue *residue_p) {
    return n_atoms;
 }
 
+void
+molecule_class_info_t::add_labels_for_all_CAs() {
+
+   int imod = 1;
+   if (! atom_sel.mol) return;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     std::string atom_name(at->name);
+                     if (atom_name == " CA ") { // PDBv3 FIXME
+                        int i = get_atom_index(at);
+                        add_to_labelled_atom_list(i);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+
+
 
 
 int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *atom_id) {

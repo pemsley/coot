@@ -11745,6 +11745,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="draw_label_CA_atoms">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Label CAs</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_label_CA_atoms_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkMenuItem" id="draw_label_neighbours">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>

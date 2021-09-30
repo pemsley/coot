@@ -1237,6 +1237,8 @@ public:        //                      public
    void remove_atom_labels(); // and symm labels
    int add_atom_labels_for_residue(mmdb::Residue *residue_p);
 
+   void add_labels_for_all_CAs();
+
    // xmap information
    //
    // We have problems using static vectors, so to Kevin's irritation,

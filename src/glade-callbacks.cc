@@ -11615,6 +11615,7 @@ on_draw_label_neighbours_activate_gtkbuilder_callback  (GtkMenuItem     *menuite
                                                  gpointer         user_data)
 {
    std::cout << "draw label neighbours " << std::endl;
+   label_neighbours();
 }
 
 extern "C" G_MODULE_EXPORT
@@ -11622,7 +11623,26 @@ void
 on_draw_label_atoms_in_residue_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
                                                               gpointer         user_data)
 {
-   std::cout << "draw label residue atoms " << std::endl;
+   label_atoms_in_residue();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_label_CA_atoms_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                                    gpointer         user_data) {
+
+   // make this function built-in now - this is the first time that activer_atom() is used in this file.
+
+   auto label_all_CAs = [] (int imol) {
+                           graphics_info_t::molecules[imol].add_labels_for_all_CAs();
+                   };
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      label_all_CAs(imol);
+   }
+   
 }
 
 extern "C" G_MODULE_EXPORT
