@@ -10560,22 +10560,32 @@ on_map_sharpening_ok_button_clicked_gtkbuilder_callback    (GtkButton       *but
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_sharpening_optimize_button_clicked_gtkbuilder_callback    ( GtkButton       *button,
-                                        	gpointer         user_data)
+on_map_sharpening_optimize_button_clicked_gtkbuilder_callback ( GtkButton       *button,
+                                                                gpointer         user_data)
 {
-	GtkWidget *w = lookup_widget(GTK_WIDGET(button), "map_sharpening_dialog");
-	calc_and_set_optimal_b_factor(w);
+   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "map_sharpening_dialog");
+   calc_and_set_optimal_b_factor(w);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_sharpening_reset_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                        gpointer         user_data)
+on_map_sharpening_reset_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                           gpointer         user_data)
 {
     // reset to zero!?
     GtkWidget *h_scale = lookup_widget(GTK_WIDGET(button), "map_sharpening_hscale");
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(h_scale));
     gtk_adjustment_set_value(adj, 0.);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_sharpening_dialog_response_gtkbuilder_callback() {
+
+   // there is only one response
+   GtkWidget *dialog = widget_from_builder("map_sharpening_dialog");
+   gtk_widget_hide(dialog);
 
 }
 

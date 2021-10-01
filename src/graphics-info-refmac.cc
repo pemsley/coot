@@ -275,7 +275,8 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
 int
 graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
 						GCallback signal_func,
-						int imol_active_position) {
+						int imol_preferred) {
+
 
    // delete this function on merge - hmm what did I mean by that?
    std::vector<int> maps_vec;
@@ -283,10 +284,17 @@ graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
       if (is_valid_map_molecule(i))
 	 maps_vec.push_back(i);
 
-   fill_combobox_with_molecule_options(combobox, signal_func, imol_active_position,
-				       maps_vec);
+   fill_combobox_with_molecule_options(combobox, signal_func, imol_preferred, maps_vec);
 
-   return -1; // Hmm. Needs checking
+   // fill_combobox_with_molecule_options doesn't return a value (for the active molecule)
+   // sadly, so set the presumed active imol if the imol_preferred is in the molecules in
+   // maps_vec
+
+   int imol = -1;
+   if (std::find(maps_vec.begin(), maps_vec.end(), imol_preferred) != maps_vec.end())
+      imol = imol_preferred;
+
+   return imol;
 }
 
 

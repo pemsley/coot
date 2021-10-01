@@ -5766,20 +5766,25 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
 
 GtkWidget *wrapped_create_map_sharpening_dialog() {
 
+   std::cout << ":::::::::::::::::::::: wrapped_create_map_sharpening_dialog()" << std::endl;
+
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
-   GtkWidget *w = create_map_sharpening_dialog();
+
+   // GtkWidget *w = create_map_sharpening_dialog();
+
+   GtkWidget *w = widget_from_builder("map_sharpening_dialog");
 
    graphics_info_t g;
    GCallback signal_func = G_CALLBACK(map_sharpening_map_select_combobox_changed);
-   GtkWidget *combobx = lookup_widget(w, "map_sharpening_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("map_sharpening_molecule_combobox");
 
    int imol_prefered = imol_refinement_map();
-   int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func, imol_prefered);
+   int imol = g.fill_combobox_with_map_mtz_options(combobox, signal_func, imol_prefered); // map options now
 
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::imol_map_sharpening = imol;
 
-      GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
+      GtkWidget *h_scale = widget_from_builder("map_sharpening_hscale");
 
       GtkAdjustment *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
 					      0.05, 0.2, (sharpening_limit+0.1));
@@ -5788,26 +5793,20 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 			     g_object_ref (adj),
 			     (GDestroyNotify) g_object_unref);
 
-      g_signal_connect(G_OBJECT(adj), "value_changed",
-		       G_CALLBACK(map_sharpening_value_changed), NULL);
+      g_signal_connect(G_OBJECT(adj), "value_changed", G_CALLBACK(map_sharpening_value_changed), NULL);
 
       // set to sharpening value
-      gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
+      gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), g.molecules[imol].sharpen_b_factor());
 
       int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
       for (int i=0; i<=2*ticks; i++) {
 	 float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
-	 std::string pos_string = coot::util::float_to_string_using_dec_pl(p,1);
-	 gtk_scale_add_mark(GTK_SCALE(h_scale),
-			    p,
-			    GTK_POS_BOTTOM, pos_string.c_str());
+	 std::string pos_string = coot::util::float_to_string_using_dec_pl(p,0);
+	 gtk_scale_add_mark(GTK_SCALE(h_scale), p, GTK_POS_BOTTOM, pos_string.c_str());
       }
-      gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
+      gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\n  Sharpen");
       gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
 
-      // Don't display the cancel button.
-      GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
-      gtk_widget_hide(c);
    }
 
    return w;

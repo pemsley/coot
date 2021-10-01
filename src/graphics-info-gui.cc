@@ -2166,6 +2166,8 @@ graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
    int active_idx = 0;
    int n_mol = molecules_index_vec.size();
    for (unsigned int imap=0; imap<molecules_index_vec.size(); imap++) {
+
+      std::cout << "::::::::: debug in fill_combobox_with_molecule_options() imap " << imap << std::endl;
       int imol = molecules_index_vec[imap];
       std::string ss; // = int_to_string(imol); done in renderer now.
       ss += " " ;
