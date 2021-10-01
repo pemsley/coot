@@ -1,11 +1,11 @@
 
-ylim=123
-xlim=160
+ylim=60
+xlim=80
 
-prediction_text_x_placement = 42
+prediction_text_x_placement = 68
 prediction_text_y_placement = 8
 
-legend_x = 40
+legend_x = 60
 legend_y =  7.5
 
 
@@ -13,11 +13,11 @@ source('arrow.r')
 
 predict = function(x_pos, y_pos) {
 
-   scope_start = a$V3[1]
-   scope_end   = a$V3[length(a$V3)]
+   scope_start = a$V4[1]
+   scope_end   = a$V4[length(a$V4)]
 
-   done_start = a$V2[1]
-   done_end   = a$V2[length(a$V2)]
+   done_start = a$V3[1]
+   done_end   = a$V3[length(a$V3)]
 
    s = paste(scope_start, scope_end)
    # print(s)
@@ -45,7 +45,7 @@ predict = function(x_pos, y_pos) {
       today_t = Sys.Date()
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
-      t = paste('Projected Release Day:\n', date_s)
+      t = paste('Projected Completion Day:\n', date_s)
       text(x_pos, y_pos, t, pos=3, cex=0.8)
       s = 3 # should depend on xlim, 3 is good when xlim is 200
       # the ratio between s_x and s_y is the ratio of
@@ -79,19 +79,23 @@ a = read.table('burn-up.tab')
 
 # change the plot resolution
 # png('burn-up.png', res=92, width=640, height=640)
-png('burn-up.png')
+# png('burn-up.png')
 
 do_plot = function() {
    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
-               main="Coot-3-3-3 Development Progress",
-               xlab="Real Days (since development start)",
-               ylab="'Dev' Days")
+               main="Coot-3-3-3 Menu Item Development Progress",
+               xlab="Real Days (since records began (28 Sept 2021)",
+               ylab="Estimated/Actual Days")
 
    grid()
+   # V1 is "days"
+   # V2 is "what's left"
+   # V2 is done
+   # V4 is total scope (what's done and what's left)
    points(a$V1, a$V3*0.5, t='l', lwd=3, lty=1, col='brown')
-   points(a$V1, a$V2*0.5, t='l', lwd=3, lty=1, col='black')
+   points(a$V1, a$V4*0.5, t='l', lwd=3, lty=1, col='black')
 
-   leg.txt <- c("Scope", "Done")
+   leg.txt <- c("Completed", "Scope")
    legend(legend_x, legend_y, legend=leg.txt, col=c("brown", "black"), lty=1:1, lwd=3, cex=0.7)
 }
 
@@ -102,5 +106,5 @@ predict(prediction_text_x_placement, prediction_text_y_placement)
 # betterArrow(2, 14.5, 2, 11.0, col='grey', code=2)
 # text(3, 15.5, labels=" Keele (EM)", col='grey', cex=1.0)
 
-dev.off()
+# dev.off()
 
