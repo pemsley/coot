@@ -67,6 +67,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
 
       int obj_path    = new_generic_object_number("Probe path");
       int obj_surface = new_generic_object_number("Probe surface");
+      unsigned int num_subdivisions = 2;
 
       if (false)
          for (unsigned int i=0; i<probe_path.size(); i++) {
@@ -83,7 +84,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
          coot::colour_holder colour =
             coot::old_generic_display_object_t::colour_values_from_colour_name(colour_name);
          const clipper::Coord_orth &pt = hole_path_and_surface.second[i].position;
-         surface_obj.add_point(colour, colour_name, 4, pt);
+         surface_obj.add_point(colour, colour_name, 4, pt, num_subdivisions);
       }
       Material material;
       // surface_obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done 20210910-PE

@@ -29,9 +29,10 @@ void
 meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
                                          const std::string &colour_name,
                                          const int &size_in,
-                                         const clipper::Coord_orth &coords_in) {
+                                         const clipper::Coord_orth &coords_in,
+                                         unsigned int num_subdivisions) {
 
-   unsigned int num_subdivisions = 1;
+   // unsigned int num_subdivisions = 1;
    float radius = 0.03 * size_in; // changing the scaling is fun
    glm::vec4 col(colour_in.red, colour_in.green, colour_in.blue, 1.0);
    glm::vec3 position = coord_orth_to_glm(coords_in);

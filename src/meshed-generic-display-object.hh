@@ -153,7 +153,8 @@ public:
    void add_point(const coot::colour_holder &colour_in,
                   const std::string &colour_name,
                   const int &size_in,
-                  const clipper::Coord_orth &coords_in);
+                  const clipper::Coord_orth &coords_in,
+                  unsigned int num_subdivisions);
    void add_dodecahedron(const coot::colour_holder &colour_in,
                          const std::string &colour_name,
                          double radius, const clipper::Coord_orth &pos);

@@ -196,7 +196,8 @@ void to_generic_object_add_point_internal(int object_number,
       if (object_number_u < g.generic_display_objects.size()) {
          meshed_generic_display_object &obj = g.generic_display_objects[object_number];
          Material material;
-         g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
+         unsigned int num_subdivisions = 2;
+         g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt, num_subdivisions);
          // obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
          obj.mesh.setup(material); // fast return if already done
       }
