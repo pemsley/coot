@@ -12131,16 +12131,6 @@ Do you want to continue?
                       <object class="GtkMenu" id="help1_menu">
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkImageMenuItem" id="on_line_docs_url1">
-                            <property name="label" translatable="yes">On Line Docs URL...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_on_line_docs_url1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkMenuItem" id="remarks_browser1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -12151,22 +12141,12 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkImageMenuItem" id="about1">
-                            <property name="label" translatable="yes">About...</property>
+                            <property name="label" translatable="yes">About Coot...</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_about1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="hints1">
-                            <property name="label" translatable="yes">Hints...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_hints1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -13917,240 +13897,6 @@ density (too big to be waters):
     <action-widgets>
       <action-widget response="0">lsq_plane_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
-  </object>
-  <object class="GtkWindow" id="main_window_2021">
-    <property name="can_focus">False</property>
-    <child>
-      <object class="GtkBox">
-        <property name="name">main_window_main_hbox</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <child>
-          <object class="GtkBox">
-            <property name="name">main_window_main_vbox</property>
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkMenuBar">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkMenuItem">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">_File</property>
-                    <property name="use_underline">True</property>
-                    <child type="submenu">
-                      <object class="GtkMenu">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-new</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-open</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-save</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-save-as</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-quit</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">_Edit</property>
-                    <property name="use_underline">True</property>
-                    <child type="submenu">
-                      <object class="GtkMenu">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-cut</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <signal name="activate" handler="on___glade_unnamed_94_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-copy</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-paste</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-delete</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">_View</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">_Help</property>
-                    <property name="use_underline">True</property>
-                    <child type="submenu">
-                      <object class="GtkMenu">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkImageMenuItem">
-                            <property name="label">gtk-about</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="main_window_graphics_hbox_2021">
-                <property name="name">main_window_graphics_hbox_2021</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkStatusbar">
-                <property name="name">main_window_status_bar</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">10</property>
-                <property name="margin_right">10</property>
-                <property name="margin_start">10</property>
-                <property name="margin_end">10</property>
-                <property name="margin_top">6</property>
-                <property name="margin_bottom">6</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">2</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Extra</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
     <child type="titlebar">
       <placeholder/>
     </child>
@@ -20447,6 +20193,76 @@ just the cell and symmetry)
     </child>
     <action-widgets>
       <action-widget response="0">refine_params_dialog_ok_button</action-widget>
+    </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkDialog" id="remarks_browser_molecule_chooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Coot Header Browser for Molecule</property>
+    <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_remarks_browser_molecule_chooser_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="remarks_browser_molecule_chooser_dialog_button">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="2remarks_browser_molecule_chooser_dialog_button">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="remarks_browser_molecule_chooser_combobox_text">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-5">remarks_browser_molecule_chooser_dialog_button</action-widget>
+      <action-widget response="-6">2remarks_browser_molecule_chooser_dialog_button</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>

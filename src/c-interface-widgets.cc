@@ -159,8 +159,19 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 
 #include "remarks-browser-gtk-widgets.hh"
 
+void on_remarks_dialog_response(GtkDialog *dialog,
+                                gint       response_id,
+                                gpointer   user_data) {
+
+   gtk_widget_hide(GTK_WIDGET(dialog));
+
+}
+
+
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol) {
+
+   std::cout << "::::: remarks_dialog() with imol " << imol << std::endl;
 
    if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_model_molecule(imol)) {
@@ -238,14 +249,23 @@ void remarks_dialog(int imol) {
 	       }
 
 
-	       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
+	       // GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
 	       // GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(d));
 	       // gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
-               gtk_dialog_add_button(GTK_DIALOG(d), "Close", 6);
 
-	       g_signal_connect(G_OBJECT(close_button), "clicked",
-				G_CALLBACK(on_remarks_dialog_close_button_clicked), NULL);
-	       gtk_widget_show(close_button);
+
+               // 20211001-PE this is not the "orthodox" method to close/hide the dialog
+	       // gtk_widget_show(close_button);
+               // data used by the callback (to hide this dialog)
+               // g_object_set_data(G_OBJECT(close_button), "remarks_dialog", d);
+
+               //  std::cout << "signal connect for close button for dialog d " << d << std::endl;
+	       //  g_signal_connect(G_OBJECT(close_button), "clicked",
+               // G_CALLBACK(on_remarks_dialog_close_button_clicked), d);
+
+               gtk_dialog_add_button(GTK_DIALOG(d), "Close", GTK_RESPONSE_CLOSE);
+               g_signal_connect(d, "response", G_CALLBACK(on_remarks_dialog_response), d);
+
 	       gtk_widget_set_size_request(d, 500, 400);
 	       gtk_widget_show(d);
 	    }
@@ -511,8 +531,19 @@ void
 on_remarks_dialog_close_button_clicked     (GtkButton *button,
 					    gpointer         user_data)
 {
-   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "remarks_dialog");
-   gtk_widget_destroy(window);
+
+   // 20211001-PE  not used now response is used.
+
+   // GtkWidget *window = lookup_widget(GTK_WIDGET(button), "remarks_dialog");
+   // gtk_widget_destroy(window);
+
+   // it's not in the glade file, it's made on the fly
+
+   std::cout << "::::::::::::::: on_remarks_dialog_close_button_clicked() " << std::endl;
+
+   // GtkWidget *dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "remarks_dialog"));
+   GtkWidget *dialog = GTK_WIDGET(user_data);
+   gtk_widget_hide(dialog);
 }
 
 

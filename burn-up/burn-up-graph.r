@@ -78,7 +78,7 @@ a = read.table('burn-up.tab')
 
 
 # change the plot resolution
-# png('burn-up.png', res=92, width=640, height=640)
+png('burn-up.png', res=92, width=640, height=640)
 # png('burn-up.png')
 
 do_plot = function() {
@@ -106,5 +106,5 @@ predict(prediction_text_x_placement, prediction_text_y_placement)
 # betterArrow(2, 14.5, 2, 11.0, col='grey', code=2)
 # text(3, 15.5, labels=" Keele (EM)", col='grey', cex=1.0)
 
-# dev.off()
+dev.off()
 

@@ -10786,6 +10786,31 @@ on_refine_params_weight_matrix_entry_changed_gtkbuilder_callback
 }
 
 
+// extern "C" G_MODULE_EXPORT
+// void
+// on_remarks_browser1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+//                                                   gpointer         user_data) {
+
+//   GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
+//   std::cout << "in on_remarks_browser1_activate_gtkbuilder_callback got w " << w << std::endl;
+//   gtk_widget_show(w);
+
+// }
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_remarks_browser_molecule_chooser_cancel_button_clicked_gtkbuilder_callback
+//                                         (GtkButton       *button,
+// 					 gpointer         user_data) {
+//    // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "remarks_browser_molecule_chooser_dialog");
+//    // gtk_widget_destroy(w);
+
+//    GtkWidget *dialog = widget_from_builder("remarks_browser_molecule_chooser_dialog");
+//    gtk_widget_hide(dialog);
+
+// }
+
+
 extern "C" G_MODULE_EXPORT
 void
 on_remarks_browser1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
@@ -10796,14 +10821,17 @@ on_remarks_browser1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 
 }
 
+
+
 extern "C" G_MODULE_EXPORT
 void
-on_remarks_browser_molecule_chooser_cancel_button_clicked_gtkbuilder_callback
-                                        (GtkButton       *button,
-					 gpointer         user_data) {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "remarks_browser_molecule_chooser_dialog");
-  gtk_widget_destroy(w);
-
+on_remarks_browser_molecule_chooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                                        gint             response_id,
+                                                                        gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      show_remarks_browswer(); // makes an on-the-fly dialog!
+   }
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10812,9 +10840,9 @@ on_remarks_browser_molecule_chooser_ok_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
 					 gpointer         user_data) {
 
+  GtkWidget *w = widget_from_builder("remarks_browser_molecule_chooser_dialog");
+  gtk_widget_hide(w);
   show_remarks_browswer(); // there we look up which molecule to show.
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "remarks_browser_molecule_chooser_dialog");
-  gtk_widget_destroy(w);
 
 }
 

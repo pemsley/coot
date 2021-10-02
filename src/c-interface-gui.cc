@@ -294,25 +294,42 @@ GtkWidget *wrapped_nothing_bad_dialog(const std::string &label) {
    return g.wrapped_nothing_bad_dialog(label);
 }
 
+
+#include "widget-headers.hh"
+#include "widget-from-builder.hh"
+
 GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog() {
 
-   GtkWidget *w = create_remarks_browser_molecule_chooser_dialog();
+   // GtkWidget *w = create_remarks_browser_molecule_chooser_dialog();
+   GtkWidget *w = widget_from_builder("remarks_browser_molecule_chooser_dialog");
    fill_remarks_browswer_chooser(w);
    return w;
 }
 
 void fill_remarks_browswer_chooser(GtkWidget *w) {
 
-   GtkWidget *combobox = lookup_widget(w, "remarks_browser_molecule_combobox");
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *combobox = widget_from_builder("remarks_browser_molecule_chooser_combobox_text");
    if (combobox) {
       graphics_info_t g;
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
       // GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
       GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_combobox_changed);
-      int imol = first_coords_imol();
-      graphics_info_t::imol_remarks_browswer = imol;
-      g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+      int imol_active = first_coords_imol();
+      g.imol_remarks_browswer = imol_active;
+      auto mv = get_model_molecule_vector();
+      g.fill_combobox_with_molecule_options(combobox, callback_func, imol_active, mv);
    } else {
-      std::cout << "failed to get combobox" << std::endl;
+      std::cout << "fill_remarks_browswer_chooser() failed to get combobox" << std::endl;
    }
 }
 
@@ -4243,9 +4260,6 @@ void set_map_colour(int imol, float red, float green, float blue) {
    }
 }
 
-
-#include "widget-headers.hh"
-#include "widget-from-builder.hh"
 
 void add_on_map_colour_choices(GtkWidget *menu) {
 
