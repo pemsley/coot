@@ -6468,15 +6468,15 @@ on_geometry_analysis1_activate_gtkbuilder_callback         (GtkMenuItem     *men
 extern "C" G_MODULE_EXPORT
 void
 on_peptide_omega_analysis1_activate_gtkbuilder_callback    (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+                                                            gpointer         user_data)
 {
-  const char *type = "omega";
-  GtkWidget *menu = widget_from_builder("peptide_omega_analysis1");
-  if (menu) {
-    add_on_validation_graph_mol_options(menu, type);
-  } else {
-    printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
-  }
+   GtkWidget *menu = widget_from_builder("peptide_omega_analysis1");
+   if (menu) {
+      const char *type = "omega";
+      add_on_validation_graph_mol_options(menu, type);
+   } else {
+      printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
+   }
 
 }
 
@@ -6485,13 +6485,13 @@ void
 on_ncs_differences1_activate_gtkbuilder_callback           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  const char *type = "ncs-diffs";
-  GtkWidget *menu = widget_from_builder("ncs_differences1");
-  if (menu) {
-    add_on_validation_graph_mol_options(menu, type);
-  } else {
-    printf("failed to get menu in on_ncs_differences1_activate_gtkbuilder_callback\n");
-  }
+   GtkWidget *menu = widget_from_builder("ncs_differences1");
+   if (menu) {
+      const char *type = "ncs-diffs";
+      add_on_validation_graph_mol_options(menu, type);
+   } else {
+      printf("failed to get menu in on_ncs_differences1_activate_gtkbuilder_callback\n");
+   }
 }
 
 ////B B FACTOR
@@ -6501,12 +6501,12 @@ on_temp_fact_analysis1_activate_gtkbuilder_callback
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  const char *type = "calc b factor";
   GtkWidget *menu = widget_from_builder("temp_fact_analysis1");
   if (menu) {
-    add_on_validation_graph_mol_options(menu, type);
+     const char *type = "calc b factor";
+     add_on_validation_graph_mol_options(menu, type);
   } else {
-    printf("failed to get menu in on_temp_fact_analysis1_activate\n");
+     std::cout << "ERROR:: failed to get menu in on_temp_fact_analysis1_activate\n";
   }
 
 }
@@ -6518,9 +6518,9 @@ on_temp_fact_variance_analysis1_activate_gtkbuilder_callback
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   const char *type = "b factor";
    GtkWidget *menu = widget_from_builder("temp_fact_variance_analysis1");
    if (menu) {
+      const char *type = "b factor";
       add_on_validation_graph_mol_options(menu, type);
    } else {
       printf("failed to get menu in on_temp_fact_variance_analysis1_activate\n");
@@ -6534,9 +6534,9 @@ void
 on_rotamer_analysis1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   const char *type = "rotamer";
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "rotamer_analysis1");
+   GtkWidget *menu = widget_from_builder("rotamer_analysis1");
    if (menu) {
+      const char *type = "rotamer";
       add_on_validation_graph_mol_options(menu, type);
    } else {
       printf("failed to get menu in on_rotamer_analysis1_activate\n");
@@ -6549,9 +6549,9 @@ void
 on_density_fit_analysis1_activate_gtkbuilder_callback      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   const char *type = "density-fit";
    GtkWidget *menu = widget_from_builder("density_fit_analysis1");
    if (menu) {
+      const char *type = "density-fit";
       add_on_validation_graph_mol_options(menu, type);
    } else {
       printf("failed to get menu in on_density_fit1_activate\n");
