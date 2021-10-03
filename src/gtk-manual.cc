@@ -203,48 +203,16 @@ create_initial_map_color_submenu(GtkWidget *window1) {
 void
 create_initial_ramachandran_mol_submenu(GtkWidget *widget) {
 
-
- /* We need to get to window1 */
-
    GtkWidget *window1 = widget;
 
-   // rama_draw = GTK_WIDGET(lookup_widget(window1, "ramachandran_plot1"));
-   GtkWidget *rama_draw = widget_from_builder("ramachandran_plot1");
+   GtkWidget *rama_menu = widget_from_builder("ramachandran_plot1");
+   GtkWidget *rama_draw_submenu = gtk_menu_new();
+   g_object_set_data_full (G_OBJECT (window1), "rama_plot_submenu", rama_draw_submenu, NULL); // 20211002-PE what does this do now?
 
-   GtkWidget *rama_draw_menu = gtk_menu_new();
-
-   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu", rama_draw_menu, NULL); // 20211002-PE what does this do now?
-
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_draw), rama_draw_menu);
-   g_object_set_data(G_OBJECT(rama_draw), "rama_plot_menu", rama_draw_menu);
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_menu), rama_draw_submenu);
+   g_object_set_data(G_OBJECT(rama_menu), "rama_plot_submenu", rama_draw_submenu);
 }
 
-
-void
-update_ramachandran_plot_menu_manual(int imol, const char *name) {
-
-   GtkWidget *menu_item;
-   GtkWidget *window1;
-   GtkWidget *rama_plot_menu;
-   char *text;
-
-   window1 = GTK_WIDGET(lookup_widget(main_window(), "window1"));
-
-   menu_item = gtk_menu_item_new_with_label (name);
-
-   rama_plot_menu = GTK_WIDGET(lookup_widget(window1, "rama_plot_menu"));
-
-   // gtk_widget_ref (menu_item);
-   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu_item",
-			   menu_item, NULL);
-
-  gtk_widget_show (menu_item);
-  gtk_container_add (GTK_CONTAINER (rama_plot_menu), menu_item);
-
-  g_signal_connect (G_OBJECT (menu_item), "activate",
-		    G_CALLBACK (rama_plot_mol_selector_activate),
-		    GINT_TO_POINTER(imol));
-}
 
 
 void

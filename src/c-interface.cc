@@ -7284,29 +7284,14 @@ import_python_module(const char *module_name, int use_namespace) {
 }
 
 
+#include "dynamic-menus.hh"
 
 void add_on_rama_choices() {  // the the menu
 
-   // std::cout << "adding rama molecule options:" << std::endl;
+   std::cout << "adding rama molecule options:" << std::endl;
+   GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
+   add_on_validation_graph_mol_options(menu_item, "ramachandran");
 
-   // first delete all the current menu items.
-   //
-   graphics_info_t g;
-   GtkWidget* menu = lookup_widget(GTK_WIDGET(g.get_main_window()), "rama_plot_menu");
-
-   if (menu) {
-      gtk_container_foreach(GTK_CONTAINER(menu),
-                            my_delete_ramachandran_mol_option,
-                            (gpointer) menu);
-
-      std::string name;
-      for (int i=0; i<g.n_molecules(); i++) {
-         if (g.molecules[i].has_model() > 0) {
-            name = graphics_info_t::molecules[i].dotted_chopped_name();
-            update_ramachandran_plot_menu_manual(i, name.c_str());
-         }
-      }
-   }
 }
 
 

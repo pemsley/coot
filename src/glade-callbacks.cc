@@ -6454,9 +6454,9 @@ void
 on_geometry_analysis1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   const char *type = "geometry";
    GtkWidget *menu = widget_from_builder("geometry_analysis1");
    if (menu) {
+      const char *type = "geometry";
       add_on_validation_graph_mol_options(menu, type);
    } else {
       printf("failed to get menu in on_geometry_analysis1_activate_gtkbuilder_callback\n");
