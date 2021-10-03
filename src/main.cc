@@ -152,6 +152,8 @@ int setup_database();
 #include "draw.hh" // for test_gtk3_adjustment_changed() - maybe that should go elsewhere?
 #include "draw-2.hh"
 
+#include "dynamic-menus.hh"
+
 void
 windows_set_error_mode() {
 
@@ -258,50 +260,7 @@ void do_main_window(const command_line_data &cld) {
 	 gtk_widget_show (window1);
 	 create_rot_trans_menutoolbutton_menu(window1);
 
-	 // We need to somehow connect the submenu to the menu's (which are
-	 // accessible via window1)
-	 //
-	 create_initial_map_color_submenu(window1);
-	 create_initial_ramachandran_mol_submenu(window1);
-	 create_initial_sequence_view_mol_submenu(window1);
-
-	 // old style non-generic functions
-	 //      create_initial_validation_graph_b_factor_submenu(window1);
-	 //      create_initial_validation_graph_geometry_submenu(window1);
-	 //      create_initial_validation_graph_omega_submenu(window1);
-
-	 // OK, these things work thusly:
-	 //
-	 // probe_clashes1 is the name of the menu_item set/created in
-	 // by glade and is in mapview.glade.
-	 //
-	 // probe_submenu is something I make up. It must be the same
-	 // here and in c-interface-validate.cc's
-	 // add_on_validation_graph_mol_options()
-	 //
-	 // attach a function to the menu item activate function
-	 // created by glade in callbacks.c
-	 // (e.g. on_probe_clashes1_activate).  The name that is used
-	 // there to look up the menu is as above (e.g. probe_clashes1).
-	 //
-	 // The type defined there is that checked in
-	 // c-interface-validate.cc's
-	 // add_on_validation_graph_mol_options()
-
-
-	 create_initial_validation_graph_submenu_generic(window1 , "peptide_omega_analysis1", "omega_submenu");
-	 create_initial_validation_graph_submenu_generic(window1 , "geometry_analysis1", "geometry_submenu");
-	 create_initial_validation_graph_submenu_generic(window1 , "temp_fact_variance_analysis1",
-							 "temp_factor_variance_submenu");
-////ADDITION B FACTOR GRAPH
-	create_initial_validation_graph_submenu_generic(window1 , "temp_fact_analysis1", "temp_factor_submenu");
-//// END ADD B FACTOR GRAPH
-	 create_initial_validation_graph_submenu_generic(window1 , "rotamer_analysis1", "rotamer_submenu");
-	 create_initial_validation_graph_submenu_generic(window1 , "density_fit_analysis1", "density_fit_submenu");
-	 create_initial_validation_graph_submenu_generic(window1 , "probe_clashes1", "probe_submenu");
-	 create_initial_validation_graph_submenu_generic(window1 , "gln_and_asn_b_factor_outliers1",
-							 "gln_and_asn_b_factor_outliers_submenu");
-	 create_initial_validation_graph_submenu_generic(window1 , "ncs_differences1", "ncs_diffs_submenu");
+         create_dynamic_menus(window1);
 
          // OK, now we can import the python coot_gui and extensions
          import_python_module("coot_gui",   0);
@@ -357,8 +316,9 @@ bool init_from_gtkbuilder() {
    GtkBuilder *builder = gtk_builder_new();
 
    guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
-   std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << glade_file_full
-             << " add_from_file_status: " << add_from_file_status << std::endl;
+   if (false)
+      std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << glade_file_full
+                << " add_from_file_status: " << add_from_file_status << std::endl;
 
    GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
 
@@ -380,6 +340,8 @@ bool init_from_gtkbuilder() {
          graphics_info_t::set_main_window(main_window);
 
       graphics_info_t::statusbar = sb;
+
+      create_dynamic_menus(main_window);
 
       GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, true);
       if (glarea) {

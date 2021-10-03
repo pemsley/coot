@@ -468,6 +468,8 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	dynamic-menus.hh         \
+	dynamic-menus.cc         \
 	eyes.cc eyes.hh		 \
 	fit-loop-gui.cc          \
 	fit-loop-gui.hh          \

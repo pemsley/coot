@@ -5984,7 +5984,7 @@ on_experimental1_activate              (GtkMenuItem     *menuitem,
 
 }
 
-
+#if 0                           /*  20211002-PE moved to C++ yay */
 void
 on_geometry_analysis1_activate         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -5998,8 +5998,9 @@ on_geometry_analysis1_activate         (GtkMenuItem     *menuitem,
   }
 
 }
+#endif
 
-
+#if 0
 void
 on_peptide_omega_analysis1_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -6011,9 +6012,10 @@ on_peptide_omega_analysis1_activate    (GtkMenuItem     *menuitem,
   } else {
     printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
   }
-
 }
+#endif
 
+#if 0
 void
 on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -6026,7 +6028,9 @@ on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
     printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
   }
 }
+#endif
 
+#if 0
 ////B B FACTOR
 void
 on_temp_fact_analysis1_activate
@@ -6042,8 +6046,10 @@ on_temp_fact_analysis1_activate
   }
 
 }
+#endif
 ////E B FACTOR
 
+#if 0
 void
 on_temp_fact_variance_analysis1_activate
                                         (GtkMenuItem     *menuitem,
@@ -6058,8 +6064,10 @@ on_temp_fact_variance_analysis1_activate
   }
 
 }
+#endif
 
 
+#if 0
 void
 on_rotamer_analysis1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -6072,8 +6080,10 @@ on_rotamer_analysis1_activate          (GtkMenuItem     *menuitem,
     printf("failed to get menu in on_rotamer_analysis1_activate\n");
   }
 }
+#endif
 
 
+#if 0
 void
 on_density_fit_analysis1_activate      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -6087,6 +6097,7 @@ on_density_fit_analysis1_activate      (GtkMenuItem     *menuitem,
   }
 
 }
+#endif
 
 
 void
@@ -9128,7 +9139,7 @@ on_refine_params_use_peptide_omegas_checkbutton_toggled
   }
 }
 
-
+#if 0
 void
 on_probe_clashes1_activate             (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -9142,6 +9153,7 @@ on_probe_clashes1_activate             (GtkMenuItem     *menuitem,
   }
 
 }
+#endif
 
 
 void
@@ -9581,6 +9593,7 @@ on_set_undo_molecule_button_clicked    (GtkButton       *button,
 }
 
 
+#if 0
 void
 on_gln_and_asn_b_factor_outliers1_activate
                                         (GtkMenuItem     *menuitem,
@@ -9595,6 +9608,7 @@ on_gln_and_asn_b_factor_outliers1_activate
   }
 
 }
+#endif
 
 
 

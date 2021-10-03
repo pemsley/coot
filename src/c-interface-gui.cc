@@ -4271,7 +4271,7 @@ void add_on_map_colour_choices(GtkWidget *menu) {
 
    GtkWidget *sub_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu));
    if (!sub_menu) {
-      std::cout << "ERROR:: sub menu map_colour1_menu not found in add_on_map_colour_choices()\n";
+      std::cout << "ERROR:: in add_on_map_colour_choices() sub menu map_colour1_menu not found in add_on_map_colour_choices()\n";
    } else {
       gtk_container_foreach(GTK_CONTAINER(sub_menu),
                             my_delete_menu_items,

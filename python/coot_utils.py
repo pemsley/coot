@@ -3285,8 +3285,8 @@ def pukka_puckers_qm(imol):
                 imol, residue_spec, pucker_atom)
             ls = [residue_spec[0] + " " + str(residue_spec[1]) + residue_spec[2] +
                   ": " + residue[2],
-                  ["set_go_to_atom_molecule(" + str(imol) + ")",
-                   "set_go_to_atom_chain_residue_atom_name(" +
+                  ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
+                   "coot.set_go_to_atom_chain_residue_atom_name(" +
                    "\"" + str(residue_spec[0]) + "\", " +
                    str(residue_spec[1]) + ", " +
                    "\"" + str(at_name) + "\")"]

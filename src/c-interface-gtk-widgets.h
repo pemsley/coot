@@ -579,7 +579,6 @@ void unset_geometry_graph(GtkWidget *dialog); /* set the graphics info
 						 to update the
 						 widget*/
 
-void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
 void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
 void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data);
@@ -597,8 +596,8 @@ void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuit
 						   gpointer         user_data);
 void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
 							 gpointer         user_data);
-void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
-						       gpointer         user_data);
+//void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
+//						       gpointer         user_data);
 
 void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 				  gpointer         user_data);

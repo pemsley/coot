@@ -590,16 +590,14 @@ def interesting_things_with_fix_maybe(title, baddie_list):
     def callback_func2(widget, mol_no, atom_info):
         print("Attempt to go to chain: %s resno: %s atom-name: %s" %
               (atom_info[0], atom_info[1], atom_info[2]))
-        coot_utils.set_go_to_atom_molecule(mol_no)
-        success = coot_utils.set_go_to_atom_chain_residue_atom_name(*atom_info)
+        coot.set_go_to_atom_molecule(mol_no)
+        success = coot.set_go_to_atom_chain_residue_atom_name(*atom_info)
         if success == 0:           # failed?!
             new_name = coot.unmangle_hydrogen_name(atom_info[2])
-            success2 = coot_utils.set_go_to_atom_chain_residue_atom_name(
-                atom_info[0], atom_info[1], new_name)
+            success2 = coot.set_go_to_atom_chain_residue_atom_name(atom_info[0], atom_info[1], new_name)
             if success2 == 0:
                 print("Failed to centre on demangled name: ", new_name)
-                coot_utils.set_go_to_atom_chain_residue_atom_name(
-                    atom_info[0], atom_info[1], " CA ")
+                coot.set_go_to_atom_chain_residue_atom_name(atom_info[0], atom_info[1], " CA ")
 
     # main body
     # to accomodated tooltips we need to either have a Gtk.Window with Gtk.main()
@@ -3964,8 +3962,8 @@ def alignment_mismatches_gui(imol):
                                      " " + str(res_no) + \
                                      " " + coot.residue_name(imol, chain_id, res_no, ins_code) + \
                                      " to " + res_info[0]
-                    button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
-                                       "set_go_to_atom_chain_residue_atom_name(\'" +
+                    button_1_action = ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
+                                       "coot.set_go_to_atom_chain_residue_atom_name(\'" +
                                        chain_id + "\', " +
                                        str(res_no) + ", " +
                                        "\'" + get_sensible_atom_name(res_info) + "\')"]
@@ -3980,8 +3978,8 @@ def alignment_mismatches_gui(imol):
                     ins_code = res_info[4]
                     button_1_label = "Delete " + chain_id + \
                                      " " + str(res_no)
-                    button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
-                                       "set_go_to_atom_chain_residue_atom_name(\'" +
+                    button_1_action = ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
+                                       "coot.set_go_to_atom_chain_residue_atom_name(\'" +
                                        chain_id + "\', " +
                                        str(res_no) + ", " +
                                        "\'" + get_sensible_atom_name(res_info) + "\')"]
@@ -4469,7 +4467,7 @@ def user_mods_gui(imol, pdb_file_name):
                 atom_name + " : " + \
                 info_string + " " + \
                 " score %2.2f" % score
-            func = [cmd2str(set_go_to_atom_molecule, imol),
+            func = [cmd2str(coot.set_go_to_atom_molecule, imol),
                     coot_utils.cmd2str(set_go_to_atom_chain_residue_atom_name,
                                        chain_id, res_no, atom_name)]
             ret.append([label, func])
@@ -4491,7 +4489,7 @@ def user_mods_gui(imol, pdb_file_name):
             ins_code = atom_spec[3]
             atom_name = atom_spec[4]
             alt_conf = atom_spec[5]
-            func = [cmd2str(set_go_to_atom_molecule, imol),
+            func = [cmd2str(coot.set_go_to_atom_molecule, imol),
                     coot_utils.cmd2str(set_go_to_atom_chain_residue_atom_name,
                                        chain_id, res_no, atom_name)]
             ret.append([label, func])
@@ -4876,8 +4874,8 @@ def water_coordination_gui():
                         chain_id = water_spec[1]
                         res_no = water_spec[2]
                         atom_name = water_spec[4]
-                        coot_utils.set_go_to_atom_molecule(imol)
-                        coot_utils.set_go_to_atom_chain_residue_atom_name(
+                        coot.set_go_to_atom_molecule(imol)
+                        coot.set_go_to_atom_chain_residue_atom_name(
                             chain_id, res_no, atom_name)
                     button.connect("clicked", water_func, imol, water_info)
 
@@ -4895,8 +4893,8 @@ def water_coordination_gui():
                     chain_id = metal_spec[1]
                     res_no = metal_spec[2]
                     atom_name = metal_spec[4]
-                    coot_utils.set_go_to_atom_molecule(imol)
-                    coot_utils.set_go_to_atom_chain_residue_atom_name(
+                    coot.set_go_to_atom_molecule(imol)
+                    coot.set_go_to_atom_chain_residue_atom_name(
                         chain_id, res_no, atom_name)
                 button.connect("clicked", metal_func, imol, metal_site)
 

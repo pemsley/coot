@@ -2406,33 +2406,34 @@ g_signal_connect ((gpointer) label_neighbours1, "activate",
   g_signal_connect ((gpointer) check_waters1, "activate",
                     G_CALLBACK (on_check_waters1_activate),
                     NULL);
-  g_signal_connect ((gpointer) geometry_analysis1, "activate",
-                    G_CALLBACK (on_geometry_analysis1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) peptide_omega_analysis1, "activate",
-                    G_CALLBACK (on_peptide_omega_analysis1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) temp_fact_variance_analysis1, "activate",
-                    G_CALLBACK (on_temp_fact_variance_analysis1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) temp_fact_analysis1, "activate",
-                    G_CALLBACK (on_temp_fact_analysis1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) gln_and_asn_b_factor_outliers1, "activate",
-                    G_CALLBACK (on_gln_and_asn_b_factor_outliers1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) rotamer_analysis1, "activate",
-                    G_CALLBACK (on_rotamer_analysis1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) density_fit_analysis1, "activate",
-                    G_CALLBACK (on_density_fit_analysis1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) probe_clashes1, "activate",
-                    G_CALLBACK (on_probe_clashes1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) ncs_differences1, "activate",
-                    G_CALLBACK (on_ncs_differences1_activate),
-                    NULL);
+  // g_signal_connect ((gpointer) geometry_analysis1, "activate",
+  // G_CALLBACK (on_geometry_analysis1_activate),
+  // NULL);
+  // g_signal_connect ((gpointer) peptide_omega_analysis1, "activate",
+  // G_CALLBACK (on_peptide_omega_analysis1_activate),
+  // NULL);
+  //g_signal_connect ((gpointer) temp_fact_variance_analysis1, "activate",
+  //                     G_CALLBACK (on_temp_fact_variance_analysis1_activate),
+  // NULL);
+  // g_signal_connect ((gpointer) temp_fact_analysis1, "activate",
+  // G_CALLBACK (on_temp_fact_analysis1_activate),
+  //                     NULL);
+  // g_signal_connect ((gpointer) gln_and_asn_b_factor_outliers1, "activate",
+  // G_CALLBACK (on_gln_and_asn_b_factor_outliers1_activate),
+  //                     NULL);
+  // g_signal_connect ((gpointer) rotamer_analysis1, "activate",
+  //                     G_CALLBACK (on_rotamer_analysis1_activate),
+  //NULL);
+  //g_signal_connect ((gpointer) density_fit_analysis1, "activate",
+  // G_CALLBACK (on_density_fit_analysis1_activate),
+  // NULL);
+  // g_signal_connect ((gpointer) probe_clashes1, "activate",
+  // G_CALLBACK (on_probe_clashes1_activate),
+  //                     NULL);
+  // g_signal_connect ((gpointer) ncs_differences1, "activate",
+  // G_CALLBACK (on_ncs_differences1_activate),
+  // NULL);
+
   g_signal_connect ((gpointer) remarks_browser1, "activate",
                     G_CALLBACK (on_remarks_browser1_activate),
                     NULL);

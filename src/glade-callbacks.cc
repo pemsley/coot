@@ -50,6 +50,8 @@
 
 #include "widget-from-builder.hh"
 
+void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
+
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
@@ -6453,11 +6455,11 @@ on_geometry_analysis1_activate_gtkbuilder_callback         (GtkMenuItem     *men
                                         gpointer         user_data)
 {
    const char *type = "geometry";
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "geometry_analysis1");
+   GtkWidget *menu = widget_from_builder("geometry_analysis1");
    if (menu) {
       add_on_validation_graph_mol_options(menu, type);
    } else {
-      printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
+      printf("failed to get menu in on_geometry_analysis1_activate_gtkbuilder_callback\n");
    }
 
 }
@@ -6469,7 +6471,7 @@ on_peptide_omega_analysis1_activate_gtkbuilder_callback    (GtkMenuItem     *men
                                         gpointer         user_data)
 {
   const char *type = "omega";
-  GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "peptide_omega_analysis1");
+  GtkWidget *menu = widget_from_builder("peptide_omega_analysis1");
   if (menu) {
     add_on_validation_graph_mol_options(menu, type);
   } else {
@@ -6484,11 +6486,11 @@ on_ncs_differences1_activate_gtkbuilder_callback           (GtkMenuItem     *men
                                         gpointer         user_data)
 {
   const char *type = "ncs-diffs";
-  GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "ncs_differences1");
+  GtkWidget *menu = widget_from_builder("ncs_differences1");
   if (menu) {
     add_on_validation_graph_mol_options(menu, type);
   } else {
-    printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
+    printf("failed to get menu in on_ncs_differences1_activate_gtkbuilder_callback\n");
   }
 }
 
@@ -6500,7 +6502,7 @@ on_temp_fact_analysis1_activate_gtkbuilder_callback
                                         gpointer         user_data)
 {
   const char *type = "calc b factor";
-  GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "temp_fact_analysis1");
+  GtkWidget *menu = widget_from_builder("temp_fact_analysis1");
   if (menu) {
     add_on_validation_graph_mol_options(menu, type);
   } else {
@@ -6517,7 +6519,7 @@ on_temp_fact_variance_analysis1_activate_gtkbuilder_callback
                                         gpointer         user_data)
 {
    const char *type = "b factor";
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "temp_fact_variance_analysis1");
+   GtkWidget *menu = widget_from_builder("temp_fact_variance_analysis1");
    if (menu) {
       add_on_validation_graph_mol_options(menu, type);
    } else {
@@ -6548,7 +6550,7 @@ on_density_fit_analysis1_activate_gtkbuilder_callback      (GtkMenuItem     *men
                                         gpointer         user_data)
 {
    const char *type = "density-fit";
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "density_fit_analysis1");
+   GtkWidget *menu = widget_from_builder("density_fit_analysis1");
    if (menu) {
       add_on_validation_graph_mol_options(menu, type);
    } else {
@@ -6560,9 +6562,9 @@ on_density_fit_analysis1_activate_gtkbuilder_callback      (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_stereo1_activate_gtkbuilder_callback                    (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_stereo1_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                       gpointer         user_data) {
+
    GtkWidget *w = create_stereo_dialog();
    GtkWidget *checkbutton;
 
@@ -8268,17 +8270,19 @@ void
 on_validate1_activate_gtkbuilder_callback                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *menu_item = 0;
+#if 0 // 20211002-PE I no longer wish to do this
+   GtkWidget *menu_item = 0;
 
-  if (probe_available_p() == 0) { /* no */
-    menu_item = lookup_widget(GTK_WIDGET(menuitem), "probe_clashes1");
-    if (!menu_item) {
-      printf("Failed to get probe_clashes1 menu item :-(\n");
-    } else {
-      /* desensitize it */
-      gtk_widget_set_sensitive(menu_item, FALSE);
-    }
-  }
+   if (probe_available_p() == 0) { /* no */
+      menu_item = lookup_widget(GTK_WIDGET(menuitem), "probe_clashes1");
+      if (!menu_item) {
+         printf("Failed to get probe_clashes1 menu item :-(\n");
+      } else {
+         /* desensitize it */
+         gtk_widget_set_sensitive(menu_item, FALSE);
+      }
+   }
+#endif
 }
 
 
@@ -8719,9 +8723,9 @@ on_residue_type_chooser_stub_checkbutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
-    set_residue_type_chooser_stub_state(1);
+     set_residue_type_chooser_stub_state(1);
   else
-    set_residue_type_chooser_stub_state(0);
+     set_residue_type_chooser_stub_state(0);
 }
 
 
@@ -8740,14 +8744,13 @@ on_gln_and_asn_b_factor_outliers1_activate_gtkbuilder_callback
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   const char *type = "gln_and_asn_b_factor_outliers";
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "gln_and_asn_b_factor_outliers1");
+   GtkWidget *menu = widget_from_builder("gln_and_asn_b_factor_outliers1");
    if (menu) {
+      const char *type = "gln_and_asn_b_factor_outliers";
       add_on_validation_graph_mol_options(menu, type);
    } else {
       printf("failed to get menu in on_gln_and_asn_b_factor_outliers1_activate\n");
    }
-
 }
 
 

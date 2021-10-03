@@ -971,7 +971,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    double scroll_height = canvas_usize_y + 20.0;
 
    gtk_widget_set_size_request(GTK_WIDGET(canvas), canvas_usize_x, canvas_usize_y);
-   gtk_widget_set_size_request(dialog, 600, 400);
+   gtk_widget_set_size_request(dialog, 900, 450);
    GtkWidget *scrolled_window = lookup_widget(dialog, "geometry_graphs_scrolledwindow");
 
 

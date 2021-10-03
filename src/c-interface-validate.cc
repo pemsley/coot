@@ -84,6 +84,8 @@
 #include "c-interface-gui.hh"
 #include "widget-headers.hh"
 
+#include "widget-from-builder.hh"
+
 /*  ----------------------------------------------------------------------- */
 /*                  check waters interface                                  */
 /*  ----------------------------------------------------------------------- */
@@ -778,269 +780,11 @@ PyObject *rotamer_graphs_py(int imol) {
 #endif // USE_PYTHON
 
 
-// -----------------------------------------------------
-// The geometry graphs have a home on the range:
-// -----------------------------------------------------
-
-void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
-
-   graphics_info_t g;
-   std::string validation_type(type_in);
-   std::string sub_menu_name;
-   GCallback callback = 0; // depends on type
-   short int found_validation_type = 0;
-
-   if (validation_type == "b factor") {
-      callback = G_CALLBACK(validation_graph_b_factor_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "temp_factor_variance_submenu";
-   }
-////B B GRAPH
-   if (validation_type == "calc b factor") {
-      callback = G_CALLBACK(validation_graph_calc_b_factor_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "temp_factor_submenu";
-   }
-////E B GRAPH
-   if (validation_type == "geometry") {
-      callback = G_CALLBACK(validation_graph_geometry_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "geometry_submenu";
-   }
-   if (validation_type == "omega") {
-      callback = G_CALLBACK(validation_graph_omega_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "omega_submenu";
-   }
-   if (validation_type == "rotamer") {
-      callback = G_CALLBACK(validation_graph_rotamer_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "rotamer_submenu";
-   }
-   if (validation_type == "density-fit") {
-      callback = G_CALLBACK(validation_graph_density_fit_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "density_fit_submenu";
-   }
-   if (validation_type == "probe") {
-      callback = G_CALLBACK(probe_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "probe_submenu";
-   }
-   if (validation_type == "gln_and_asn_b_factor_outliers") {
-      callback = G_CALLBACK(gln_and_asn_b_factor_outlier_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "gln_and_asn_b_factor_outliers_submenu";
-   }
-   if (validation_type == "ncs-diffs") {
-      callback = G_CALLBACK(validation_graph_ncs_diffs_mol_selector_activate);
-      found_validation_type = 1;
-      sub_menu_name = "ncs_diffs_submenu";
-   }
-
-   GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
-
-   if (sub_menu) {
-
-      gtk_container_foreach(GTK_CONTAINER(sub_menu),
-			    my_delete_validaton_graph_mol_option,
-			    (gpointer) sub_menu);
-
-      for(int i=0; i<g.n_molecules(); i++) {
-	 if (g.molecules[i].has_model()) {
-	    std::string name = graphics_info_t::molecules[i].dotted_chopped_name();
-	    add_validation_mol_menu_item(i, name, sub_menu, callback);
-	 }
-      }
-   } else {
-      std::cout << "ERROR:: sub menu not found: " << sub_menu_name << std::endl;
-   }
-
-}
-
-void
-add_validation_mol_menu_item(int imol,
-			     const std::string &name,
-			     GtkWidget *menu,
- 			     GCallback callback) {
-
-    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
-    gtk_container_add(GTK_CONTAINER(menu), menu_item);
-    g_signal_connect(G_OBJECT(menu_item), "activate", callback, GINT_TO_POINTER(imol));
-    gtk_widget_show(menu_item);
-}
-
-
 void
 my_delete_validaton_graph_mol_option(GtkWidget *widget, void *data) {
    gtk_container_remove(GTK_CONTAINER(data), widget);
 }
 
-void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-      graphics_info_t g;
-      g.b_factor_graphs(imol);
-
-}
-
-
-////B B GRAPH
-void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-
-      graphics_info_t g;
-      g.calc_b_factor_graphs(imol);
-
-}
-////E B GRAPH
-
-void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-
-      graphics_info_t g;
-      g.geometric_distortion(imol);
-}
-
-void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-
-   graphics_info_t g;
-   g.omega_graphs(imol);
-
-}
-
-void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
-						     gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-   graphics_info_t g;
-   g.rotamer_graphs(imol);
-
-}
-
-void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuitem,
-							 gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-   graphics_info_t g;
-   g.density_fit_graphs(imol);
-}
-
-void probe_mol_selector_activate (GtkMenuItem     *menuitem,
- 				  gpointer         user_data) {
-
-    int imol = GPOINTER_TO_INT(user_data);
-
-    graphics_info_t g;
-    
-    std::vector<std::string> cmd_strings;
-    cmd_strings.push_back("probe");
-    cmd_strings.push_back(coot::util::int_to_string(imol));
-    run_generic_script(cmd_strings);
-}
-
-
-// is the probe executable available?
-// 1 for yes, 0 for no.
-//
-int probe_available_p() {
-   short int r = graphics_info_t::probe_available;
-
-   if (r == -1) { // initial value: don't know yet
-
-#if defined(USE_GUILE) && !defined(WINDOWS_MINGW)
-
-      std::string command("(command-in-path-or-absolute? *probe-command*)");
-
-      SCM scm_thunk = safe_scheme_command(command);
-
-      int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
-
-      if (was_boolean_flag) {
-         if (scm_is_true(scm_thunk)) {
-            r = 1;
-         } else {
-           r = 0;
-         }
-      } else {
-         r = 0;
-      }
-
-#else
-
-      // BL says:: here comes some (experimental) code to do the same thing in python
-      // it's a bit longer and uses compiled python code but dont see another option
-      // currently (and there might be none..)
-#ifdef USE_PYTHON
-
-      PyObject *result;
-      result = safe_python_command_with_return("coot.command_in_path_qm(probe_command)");
-
-      int was_boolean_flag = PyLong_AsLong(result);
-      if (was_boolean_flag) {
-	 r = 1;
-      } else {
-	 r = 0;
-      }
-
-
-#endif // USE_PYTHON
-#endif // USE_GUILE
-      graphics_info_t::probe_available = r;
-   }
-   return r;
-}
-
-#ifdef USE_PYTHON
-// is the probe executable available?
-// 1 for yes, 0 for no.
-//
-int probe_available_p_py() {
-    int r=0;
-
-    PyObject *result;
-    result = safe_python_command_with_return("command_in_path_qm(probe_command)");
-
-    int was_boolean_flag = PyLong_AsLong(result);
-    if (was_boolean_flag) {
-              r = 1;
-    }
-   return r;
-}
-#endif // USE_PYTHON
-
-void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
-							 gpointer         user_data) {
-
-   int imol = GPOINTER_TO_INT(user_data);
-   gln_asn_b_factor_outliers(imol);
-}
-
-
-void
-create_initial_validation_graph_submenu_generic(GtkWidget *widget,
-						const std::string &menu_name,
-						const std::string &sub_menu_name) {
-
-   GtkWidget *b_factor_menu_item = lookup_widget(widget, menu_name.c_str());
-   GtkWidget *b_factor_sub_menu = gtk_menu_new();
-   // gtk_widget_ref(b_factor_sub_menu);
-   g_object_set_data_full(G_OBJECT(widget),
-			  sub_menu_name.c_str(),
-			  b_factor_sub_menu, NULL);
-
-   gtk_menu_item_set_submenu(GTK_MENU_ITEM(b_factor_menu_item),
-			     b_factor_sub_menu);
-
-}
 
 // ---------------------------------------------------------------------
 //                difference map
@@ -2193,7 +1937,7 @@ void gln_asn_b_factor_outliers(int imol) {
 	    for (unsigned int i=0; i<v.size(); i++) {
 	       std::cout << v[i].second << std::endl;
 	    }
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#if 0 // 20211003-PE Not today, guile gui
 	    graphics_info_t g;
 	    std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
 	    for (unsigned int i=0; i<v.size(); i++) {
@@ -2221,12 +1965,12 @@ void gln_asn_b_factor_outliers(int imol) {
 	    std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
 	    std::cout << "scheme command: " << s << std::endl;
 	    safe_scheme_command(s);
-#else
-#ifdef USE_PYGTK
+#endif
+
             graphics_info_t g;
             std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
             for (unsigned int i=0; i<v.size(); i++) {
-               std::string callback_func = "[do_180_degree_side_chain_flip,";
+               std::string callback_func = "[coot.do_180_degree_side_chain_flip,";
                callback_func += coot::util::int_to_string(imol);
                callback_func += ",";
                callback_func += single_quote(v[i].first.chain_id);
@@ -2243,7 +1987,8 @@ void gln_asn_b_factor_outliers(int imol) {
             }
             std::string error_type = "Z score: ";
             std::vector<std::string> cmd_strings;
-            cmd_strings.push_back("interesting_things_with_fix_maybe");
+            // "import coot_gui" should happen when coot starts with gui.
+            cmd_strings.push_back("import coot_gui ; coot_gui.interesting_things_with_fix_maybe");
             cmd_strings.push_back(single_quote("GLN and ASN B-factor Outliers"));
             std::string ls = coot::util::interesting_things_list_with_fix_py(outlier_atoms, error_type);
             cmd_strings.push_back(ls);
@@ -2251,8 +1996,6 @@ void gln_asn_b_factor_outliers(int imol) {
             std::cout << "python command: " << s << std::endl;
             safe_python_command(s);
 
-#endif // PYGTK
-#endif // USE_GUILE
 	 } else {
 	    std::string label = "Coot detected no GLN or ASN B-factor Outliers";
 	    GtkWidget *w = wrapped_nothing_bad_dialog(label);

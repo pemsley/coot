@@ -12068,16 +12068,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="probe_clashes1">
-                            <property name="label" translatable="yes">Probe clashes</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_probe_clashes1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="ramachandran_plot1">
                             <property name="label" translatable="yes">Ramachandran Plot</property>
                             <property name="visible">True</property>
@@ -12095,6 +12085,15 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_rotamer_analysis1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="temp_fact_analysis1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Temp. fact. analysis</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_temp_fact_analysis1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>

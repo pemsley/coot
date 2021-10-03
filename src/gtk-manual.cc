@@ -203,23 +203,20 @@ create_initial_map_color_submenu(GtkWidget *window1) {
 void
 create_initial_ramachandran_mol_submenu(GtkWidget *widget) {
 
-   GtkWidget *rama_draw_menu;
-   GtkWidget *window1;
-   GtkWidget *rama_draw;
 
  /* We need to get to window1 */
 
-   window1 = widget;
+   GtkWidget *window1 = widget;
 
-   rama_draw = GTK_WIDGET(lookup_widget(window1, "ramachandran_plot1"));
+   // rama_draw = GTK_WIDGET(lookup_widget(window1, "ramachandran_plot1"));
+   GtkWidget *rama_draw = widget_from_builder("ramachandran_plot1");
 
-   rama_draw_menu = gtk_menu_new ();
-   // gtk_widget_ref (rama_draw_menu);
-   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu",
-			   rama_draw_menu, NULL);
+   GtkWidget *rama_draw_menu = gtk_menu_new();
 
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_draw),
-			      rama_draw_menu);
+   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu", rama_draw_menu, NULL); // 20211002-PE what does this do now?
+
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_draw), rama_draw_menu);
+   g_object_set_data(G_OBJECT(rama_draw), "rama_plot_menu", rama_draw_menu);
 }
 
 
@@ -281,14 +278,12 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 /* And similar for sequence view: */
 void create_initial_sequence_view_mol_submenu(GtkWidget *widget) {
 
-   GtkWidget *seq_view_draw = lookup_widget(widget, "sequence_view1");
+   GtkWidget *seq_view_draw = widget_from_builder("sequence_view1");
    GtkWidget *seq_view_menu = gtk_menu_new();
-   // gtk_widget_ref (seq_view_menu);
-   g_object_set_data_full(G_OBJECT(widget), "seq_view_menu",
-			  seq_view_menu,
-			  NULL);
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM(seq_view_draw),
-			      seq_view_menu);
+
+   g_object_set_data_full(G_OBJECT(widget), "seq_view_menu", seq_view_menu, NULL); // 20211002-PE what does this do (likewsie to rama)
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM(seq_view_draw), seq_view_menu);
+   g_object_set_data(G_OBJECT(seq_view_draw), "seq_view_menu", seq_view_menu);
 }
 
 void update_sequence_view_menu_manual(int imol, const char *name) {
