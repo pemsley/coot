@@ -1,5 +1,5 @@
 
-ylim=60
+ylim=80
 xlim=80
 
 prediction_text_x_placement = 68
@@ -84,7 +84,7 @@ png('burn-up.png', res=92, width=640, height=640)
 do_plot = function() {
    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
                main="Coot-3-3-3 Menu Item Development Progress",
-               xlab="Real Days (since records began (28 Sept 2021)",
+               xlab="Real Days (since records began (28 Sept 2021))",
                ylab="Estimated/Actual Days")
 
    grid()
