@@ -46,8 +46,10 @@ public:
    void set_offset_positions(const glm::vec2 &p) { offset_positions = p; offset_positions_have_been_set = true; }
    void update_buffers_for_pulse(float delta_time, int direction=1); // delta time in ms.
    void update_buffers_for_invalid_residue_pulse(unsigned int n_times_called);
+   void setup_vertices_and_indices(const std::vector<s_generic_vertex> &vertices,
+                                   const std::vector<unsigned int> &indices); // calls setup().
    void update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices,
-                                    const std::vector<unsigned int> &indices);
+                                    const std::vector<unsigned int> &indices); // no call to setup(). Just update sub buffer data
    void draw(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation=false);
    void draw(Shader *shader_p, const glm::vec3 &atom_position, const glm::mat4 &mvp,
              const glm::mat4 &view_rotation, bool use_view_rotation=false);

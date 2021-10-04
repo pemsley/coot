@@ -318,6 +318,11 @@ on_glarea_realize(GtkGLArea *glarea) {
       std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
       graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
 
+      unsigned int frame_time_history_list_max_n_elements = 500;
+      std::vector<s_generic_vertex> empty_vertices(frame_time_history_list_max_n_elements + 40); // +40 for base and grid lines
+      std::vector<unsigned int> empty_indices(1500, 0); // or some number
+      g.lines_mesh_for_hud_lines.setup_vertices_and_indices(empty_vertices, empty_indices);
+
       // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
       // gboolean legacy_flag = gdk_gl_context_is_legacy(context);
       // std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;

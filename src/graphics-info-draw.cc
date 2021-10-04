@@ -2273,7 +2273,7 @@ graphics_info_t::draw_hud_fps() {
          s += " ms/frame";
       }
       HUDTextureMesh htm("mesh for FPS");
-      htm.setup_quad();
+      htm.setup_quad(); // oops! Does this use the right framebuffer?
       Shader &shader = shader_for_hud_geometry_tooltip_text;  // change the name of this - it's for general (real) HUD text
       glm::vec4 col(0.7, 0.7, 0.4, 1.0);
       glm::vec4 grey(0.5, 0.5, 0.5, 0.4);
@@ -2286,11 +2286,12 @@ graphics_info_t::draw_hud_fps() {
       htm.draw_label(s, col, &shader, ft_characters);
 
 
-      // ----------------- HUD graph for ms/frame ---------------------------------
+      // ----------------- HUD graph (in ms/frame) ---------------------------------
 
       if (frame_time_history_list.size() > 2) {
+
          std::vector<glm::vec2> data;
-         data.reserve(frame_time_history_list.size()+2);
+         data.reserve(frame_time_history_list.size()+2); // it would be better if this was outside the hot path
 
          // base line
          float x_o = munged_position_offset.x;
@@ -3249,12 +3250,13 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
    int w = allocation.width;
    int h = allocation.height;
+   unsigned int frame_time_history_list_max_n_elements = 500;
 
    GtkWidget *glarea = glareas[0];
    if (glarea) {
       auto tp_now = std::chrono::high_resolution_clock::now();
       frame_time_history_list.push_back(tp_now);
-      if (frame_time_history_list.size() > 501)
+      if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
          frame_time_history_list.pop_front();
    }
 

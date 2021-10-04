@@ -66,12 +66,73 @@ LinesMesh::LinesMesh(const clipper::Cell &cell) {
 }
 
 void
-LinesMesh::update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices_in,
-                                       const std::vector<unsigned int> &indices_in) {
+LinesMesh::setup_vertices_and_indices(const std::vector<s_generic_vertex> &vertices_in,
+                                      const std::vector<unsigned int> &indices_in) {
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: --- update_vertices_and_indices() start" << std::endl;
 
    vertices = vertices_in;
    indices = indices_in;
+
    setup();
+
+   std::cout << "debug::::::::: setup_vertices_and_indices() vertices.size " << vertices.size() << std::endl;
+   std::cout << "debug::::::::: setup_vertices_and_indices() indices.size " << indices.size() << std::endl;
+   std::cout << "debug::::::::: post setup_vertices_and_indices() vao is " << vao << std::endl;
+}
+
+void
+LinesMesh::update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices_in,
+                                       const std::vector<unsigned int> &indices_in) {
+
+   // 20211004-PE
+   // When then object is initialized, this function is called then setup() is called.
+   //
+   // When it is actually displayed, then this function is called to update the buffer data
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: --- update_vertices_and_indices() start" << std::endl;
+
+   // Here check that the new vertices and indices vectors are smaller or equal to the
+   // starting sizes (500, 1500).
+
+   vertices = vertices_in;
+   indices = indices_in; // the size of indices is used in the glDrawElements() function in draw()
+                         // we don't actually need the indices or the vertices as their
+                         // contents gets shoved into the buffer data below and that's the end
+                         // of it. This can be reworked if needed. 20211004-PE
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: update_vertices_and_indices() You forgot to setup this LinesMesh "
+                << name << " " << std::endl;
+   glBindVertexArray(vao);
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: A LinesMesh::update_vertices_and_indices() " << err << "\n";
+
+   unsigned int n_vertices = vertices.size();
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: LinesMesh::update_vertices_and_indices() B1 " << err << "\n";
+
+   // std::cout << "debug:: update buffersubdata with vertices of size " << vertices.size() << std::endl;
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_vertices * sizeof(s_generic_vertex), &(vertices[0]));
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: LinesMesh::update_vertices_and_indices() B2 " << err << "\n";
+
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: C LinesMesh::update_vertices_and_indices() " << err << "\n";
+   unsigned int n_bytes = indices.size() * sizeof(unsigned int);
+   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, n_bytes, &(indices[0]));
+
 }
 
 
@@ -93,7 +154,8 @@ LinesMesh::draw(Shader *shader_p,
    shader_p->Use();
    err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw A()\n";
    if (vao == VAO_NOT_SET)
-      std::cout << "You forgot to setup this mesh " << name << " " << shader_p->name << std::endl;
+      std::cout << "ERROR:: LinesMesh::draw() You forgot to setup this mesh " << name << " "
+                << shader_p->name << std::endl;
    glBindVertexArray(vao);
    err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() B binding vao\n";
    glEnableVertexAttribArray(0);
@@ -113,10 +175,11 @@ LinesMesh::draw(Shader *shader_p,
    if (offset_positions_have_been_set)
       shader_p->set_vec2_for_uniform("offset_positions", offset_positions);
 
-   GLuint n_vertices = indices.size();
+   GLuint n_indices = indices.size();
    if (false)
-      std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
-   glDrawElements(GL_LINES, n_vertices, GL_UNSIGNED_INT, nullptr);
+      std::cout << "debug:: LinesMesh draw() drawing n_indices " << n_indices
+                << " vertices.size() " << vertices.size() << std::endl;
+   glDrawElements(GL_LINES, n_indices, GL_UNSIGNED_INT, nullptr);
    err = glGetError(); if (err) std::cout << "error LinesMesh::draw() glDrawElements()"
                                           << err << std::endl;
    glDisableVertexAttribArray(0);
@@ -137,8 +200,8 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
    shader_p->Use();
    err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw A()\n";
    if (vao == VAO_NOT_SET)
-      std::cout << "You forgot to setup this mesh " << name << " "
-                << shader_p->name << std::endl;
+      std::cout << "ERROR:: LinesMesh::draw() (identification pulse) You forgot to setup this mesh "
+                << name << " " << shader_p->name << std::endl;
    glBindVertexArray(vao);
    err = glGetError(); if (err) std::cout << "GL ERROR:: LinesMesh::draw() B vao\n";
    glEnableVertexAttribArray(0);
@@ -183,7 +246,7 @@ LinesMesh::setup() {
    if (vertices.empty()) return;
    if (indices.empty()) return;
 
-   if (first_time)
+   if (vao == VAO_NOT_SET)
       glGenVertexArrays (1, &vao);
 
    glBindVertexArray (vao);
