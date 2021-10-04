@@ -249,12 +249,14 @@ void create_initial_sequence_view_mol_submenu(GtkWidget *widget) {
    GtkWidget *seq_view_draw = widget_from_builder("sequence_view1");
    GtkWidget *seq_view_menu = gtk_menu_new();
 
-   g_object_set_data_full(G_OBJECT(widget), "seq_view_menu", seq_view_menu, NULL); // 20211002-PE what does this do (likewsie to rama)
+   g_object_set_data_full(G_OBJECT(widget), "sequence_view_menu", seq_view_menu, NULL); // 20211002-PE what does this do (likewsie to rama)
    gtk_menu_item_set_submenu (GTK_MENU_ITEM(seq_view_draw), seq_view_menu);
-   g_object_set_data(G_OBJECT(seq_view_draw), "seq_view_menu", seq_view_menu);
+   g_object_set_data(G_OBJECT(seq_view_draw), "sequence_view_submenu", seq_view_menu);
 }
 
 void update_sequence_view_menu_manual(int imol, const char *name) {
+
+   std::cout << "error:: update_sequence_view_menu_manual(): Don't use this " << std::endl;
 
    char *text;
    GtkWidget *window1 = lookup_widget(main_window(), "window1");
@@ -277,7 +279,7 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 					  gpointer         user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
-  std::cout << "calling do_sequence_view() " << imol  << std::endl;
+  std::cout << "debug:: sequence_view_mol_selector_activate() calling do_sequence_view() " << imol  << std::endl;
    do_sequence_view(imol);
 
 }

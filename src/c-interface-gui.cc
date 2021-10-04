@@ -5566,24 +5566,15 @@ void sequence_view_old_style(int imol) {
 #endif
 }
 
+#include "dynamic-menus.hh"
+
 void
 add_on_sequence_view_choices() {
 
-   graphics_info_t g;
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(g.get_main_window()), "seq_view_menu");
+   std::cout << "debug:: add_on_sequence_view_choices() " << std::endl;
+   GtkWidget *menu_item = widget_from_builder("sequence_view1");
+   add_on_validation_graph_mol_options(menu_item, "sequence_view");
 
-   if (menu) {
-      gtk_container_foreach(GTK_CONTAINER(menu),
-			    my_delete_ramachandran_mol_option,
-			    (gpointer) menu);
-      for(int i=0; i<g.n_molecules(); i++) {
-	 if (g.molecules[i].has_model()) {
-	    std::string name;
-	    name = graphics_info_t::molecules[i].dotted_chopped_name();
-	    update_sequence_view_menu_manual(i, name.c_str());
-	 }
-      }
-   }
 }
 
 

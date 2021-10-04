@@ -209,6 +209,11 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
       found_validation_type = true;
       sub_menu_name = "rama_plot_submenu";
    }
+   if (validation_type == "sequence_view") {
+      callback = G_CALLBACK(sequence_view_mol_selector_activate);
+      found_validation_type = true;
+      sub_menu_name = "sequence_view_submenu";
+   }
    if (validation_type == "b factor") {
       callback = G_CALLBACK(validation_graph_b_factor_mol_selector_activate);
       found_validation_type = 1;

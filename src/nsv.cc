@@ -194,7 +194,8 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
-   sequence_letter_background_colour = "white";
+   // sequence_letter_background_colour = "white";
+   sequence_letter_background_colour = "#202020";
    int y_size_initial = setup_canvas(mol);
 
    //  gtk_window_set_default_size(GTK_WINDOW(top_lev), 1700, y_size_initial + 100);
@@ -526,7 +527,9 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 	 label += " ";
       }
       label += residue_p->GetResName();
-      std::string colour = "black";
+      // std::string colour = "black";
+      std::string text_colour = "white";
+      std::string colour = text_colour;
       double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter - x_offset;
       double y = - pixels_per_chain * chain_position_number - 6;
       
@@ -592,9 +595,9 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 
     GooCanvasItem *text_item;
 	 std::string colour = colour_by_secstr(residue_p);
-	 if (false)
+	 if (true)
 	    std::cout << "drawing text for res " << coot::residue_spec_t(residue_p) << " "
-		      << res_code << " " << x << " " << y << std::endl;
+		      << res_code << " colour " << colour << " " << x << " " << y << std::endl;
     text_item = goo_canvas_text_new(txt_letter_group,
                                     res_code.c_str(),
                                     x, y,
@@ -1295,13 +1298,16 @@ exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
 
    switch (residue_p->SSE)  {
 
-   case mmdb::SSE_Strand : s = "firebrick3";  break;
+      // case mmdb::SSE_Strand : s = "firebrick3";  break;
+   case mmdb::SSE_Strand : s = "fuchsia";  break;
    case mmdb::SSE_Bulge  : s = "firebrick1";  break;
-   case mmdb::SSE_3Turn  : s = "MediumBlue";  break;
+      // case mmdb::SSE_3Turn  : s = "MediumBlue";  break;
+   case mmdb::SSE_3Turn  : s = "LightBlue";  break;
    case mmdb::SSE_4Turn  : s = "SteelBlue4";  break;
-   case mmdb::SSE_5Turn  : s = "DodgerBlue4"; break;
-   case mmdb::SSE_Helix  : s = "navy";        break;
-   case mmdb::SSE_None   : s = "black";       break;
+      // case mmdb::SSE_5Turn  : s = "DodgerBlue4"; break;
+   case mmdb::SSE_5Turn  : s = "cyan"; break;
+   case mmdb::SSE_Helix  : s = "DeepSkyBlue"; break;
+   case mmdb::SSE_None   : s = "white";       break;
    } 
    return s;
 }
