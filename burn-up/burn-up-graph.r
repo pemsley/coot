@@ -1,37 +1,43 @@
 
-ylim=80
-xlim=80
+ylim=105
+xlim=105
 
 prediction_text_x_placement = 68
-prediction_text_y_placement = 8
+prediction_text_y_placement = 18
 
-legend_x = 60
-legend_y =  7.5
+legend_x = 70
+legend_y = 15
 
 
 source('arrow.r')
 
 predict = function(x_pos, y_pos) {
 
-   scope_start = a$V4[1]
-   scope_end   = a$V4[length(a$V4)]
+                                        # 1 is day number
+                                        # 2 is menu item scope
+                                        # 3 is done menu item
+                                        # 4 is other items scope
+                                        # 5 is done other items
 
-   done_start = a$V3[1]
-   done_end   = a$V3[length(a$V3)]
+   menu_item_scope_start = a$V2[1] + a$V3[1]
+   menu_item_scope_end   = a$V2[length(a$V2)] + a$V3[length(a$V2)]
 
-   s = paste(scope_start, scope_end)
+   menu_item_done_start = a$V3[1]
+   menu_item_done_end   = a$V3[length(a$V3)]
+
+   # s = paste(scope_start, scope_end)
    # print(s)
-   s = paste(done_start, done_end)
+   # s = paste(done_start, done_end)
    # print(s)
 
    now_day = a$V1[length(a$V1)]
 
    # print(now_day)
 
-   c1 = done_start
-   c2 = scope_start
-   m1 = (done_end - done_start)/now_day
-   m2 = (scope_end - scope_start)/now_day
+   c1 = menu_item_done_start
+   c2 = menu_item_scope_start
+   m1 = (menu_item_done_end - menu_item_done_start)/now_day
+   m2 = (menu_item_scope_end - menu_item_scope_start)/now_day
 
    m_diff = m1 - m2
    if (m_diff > 0) {
@@ -45,7 +51,7 @@ predict = function(x_pos, y_pos) {
       today_t = Sys.Date()
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
-      t = paste('Projected Completion Day:\n', date_s)
+      t = paste('Projected Menu Items Completion Day:\n', date_s)
       text(x_pos, y_pos, t, pos=3, cex=0.8)
       s = 3 # should depend on xlim, 3 is good when xlim is 200
       # the ratio between s_x and s_y is the ratio of
@@ -90,13 +96,19 @@ do_plot = function() {
    grid()
    # V1 is "days"
    # V2 is "what's left"
-   # V2 is done
-   # V4 is total scope (what's done and what's left)
-   points(a$V1, a$V3*0.5, t='l', lwd=3, lty=1, col='brown')
-   points(a$V1, a$V4*0.5, t='l', lwd=3, lty=1, col='black')
+   # V3 is done
+   # V4 is what's left others
+   # V5 is what's done others
+   points(a$V1, (a$V2+a$V3)*0.5, t='l', lwd=3, lty=1, col='brown')
+   points(a$V1, a$V3*0.5, t='l', lwd=3, lty=1, col='black')
 
-   leg.txt <- c("Completed", "Scope")
-   legend(legend_x, legend_y, legend=leg.txt, col=c("brown", "black"), lty=1:1, lwd=3, cex=0.7)
+                                        # Total scope
+   points(a$V1, (a$V2+a$V3+a$V4+a$V5)*0.5, lwd=3, t='l', col='blue')
+                                        # Total done
+   points(a$V1, (a$V3+a$V5)*0.5, t="l", lwd=3, col="forestgreen")
+
+   leg.txt <- c("Menu Items Completed", "Menu Items Scope", "Total Completed", "Total Scope")
+   legend(legend_x, legend_y, legend=leg.txt, col=c("brown", "black", "forestgreen", "blue"), lty=1:1, lwd=3, cex=0.7)
 }
 
 do_plot()
