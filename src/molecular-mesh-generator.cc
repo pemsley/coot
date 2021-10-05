@@ -1090,50 +1090,6 @@ molecular_triangles_mesh_t::add_to_mesh(const std::vector<s_generic_vertex> &gv,
 
 
 
-std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-molecular_mesh_generator_t::get_worm_mesh(std::string pdb_file_name) {
-
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > pv;
-
-   // the return value from this can be used to be imported into a Mesh
-   mmdb::Manager *mol = new mmdb::Manager;
-
-   if (! pdb_file_name.empty()) {
-      mmdb::ERROR_CODE err = mol->ReadPDBASCII(pdb_file_name.c_str());
-      if (! err) {
-         std::vector<std::vector<std::pair<mmdb::Residue *, glm::vec3> > > fragments = make_CA_fragments(mol);
-         std::vector<std::vector<std::pair<mmdb::Residue *, glm::vec3> > >::const_iterator it;
-         for (it=fragments.begin(); it!=fragments.end(); it++) {
-            const std::vector<std::pair<mmdb::Residue *, glm::vec3> > &frag = *it;
-            unsigned int idx_last_start = frag.size() - 4;
-            for (unsigned int i=0; i<=idx_last_start; i++) {
-               unsigned int n_splined_points = 48;
-               std::vector<glm::vec3> control_points;
-               control_points.push_back(frag[i  ].second);
-               control_points.push_back(frag[i+1].second);
-               control_points.push_back(frag[i+2].second);
-               control_points.push_back(frag[i+3].second);
-               std::vector<glm::vec3> spline_points = generate_spline_points(control_points, n_splined_points);
-
-               // put a ball at the spline points
-               for (unsigned int j=0; j<=n_splined_points; j++) {
-                  if (true) {
-                     float dodec_scale = 0.2;
-                     std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > dodec =
-                        dodec_at_position(dodec_scale, spline_points[j]);
-                     add_to_mesh(&pv, dodec);
-                  }
-               }
-            }
-         }
-      }
-   }
-
-   return pv;
-
-}
-
-
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol) {
@@ -1207,4 +1163,159 @@ molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol
 #endif // USE_MOLECULES_TO_TRIANGLES
 
    return vp;
+}
+
+
+#include "coords/Bond_lines.h"
+#include "oct.hh"
+#include "cylinder.hh"
+
+// Maybe this should just be part of Mesh (20211004-PE but that doesn't as yet use mmdb)
+//
+// maybe this should be const?
+//
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol,
+                                                                            mmdb::Residue *residue_p,
+                                                                            const coot::protein_geometry *geom_in) {
+
+   float atom_radius_scale_factor = 1.0; // this needs to be passed
+   float bond_width = 4; // pass this
+   int model_number = 1; // pass this, I guess
+
+   coot::residue_spec_t res_spec(residue_p); // pass the spec!
+   int selhnd = mol->NewSelection(); // d
+   res_spec.select_atoms(mol, selhnd, mmdb::SKEY_NEW);
+   atom_selection_container_t asc = make_asc(mol);
+   // replace asc innards with the atoms of the residue selection
+   int n_selected_atoms = 0;
+   mmdb::PAtom *atom_selection;
+   mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+   asc.SelectionHandle = selhnd;
+   asc.atom_selection = atom_selection;
+   asc.n_selected_atoms = n_selected_atoms;
+   std::set<int> no_bonds;
+   int include_disulphides = false;
+   int include_hydrogens = true;
+   bool draw_missing_loops_flag = false;
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+                   };
+
+   float radius = 1;
+   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+   glm::vec3 origin(0,0,0);
+   unsigned int num_subdivisions = 2; // 2 should be the default?
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+      make_octasphere(num_subdivisions, origin, radius, col);
+
+   auto make_generic_vertices_for_atoms = [atom_radius_scale_factor, cartesian_to_glm] (const graphical_bonds_container &bonds_box,
+                                                                                        const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &octaball) {
+                                             // change the vertex type later
+                                             std::vector<s_generic_vertex> vertices;
+                                             std::vector<g_triangle> triangles;
+                                             glm::mat4 unit_matrix(1.0f);
+
+                                             float sphere_radius = 0.085 * 1.54; // how big should atoms be?
+                                             float bond_width = 4.0; // pass this
+                                             float radius_scale = 0.2 * bond_width; // arbs
+                                             radius_scale *= atom_radius_scale_factor;
+                                             glm::vec3 sphere_scaling(sphere_radius, sphere_radius, sphere_radius);
+
+                                             for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+                                                for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+                                                   const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
+                                                   float sphere_scale = radius_scale * ai.radius_scale * 1.18;
+                                                   if (ai.is_hydrogen_atom)
+                                                      sphere_scale *= 0.6;
+                                                   glm::vec3 atom_position = cartesian_to_glm(ai.position);
+                                                   unsigned int idx_base = vertices.size();
+
+                                                   for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
+                                                      s_generic_vertex vertex(octaball.first[ibv]);
+                                                      vertex.pos = sphere_scaling * vertex.pos + atom_position;
+                                                      vertices.push_back(vertex);
+                                                   }
+
+                                                   std::vector<g_triangle> octaball_triangles = octaball.second;
+                                                   for (unsigned int ii=0; ii<octaball_triangles.size(); ii++)
+                                                      octaball_triangles[ii].rebase(idx_base);
+                                                   triangles.insert(triangles.end(), octaball_triangles.begin(), octaball_triangles.end());
+                                                }
+                                             }
+                                             return std::make_pair(vertices, triangles);
+                                          };
+
+
+   auto make_generic_vertices_for_bonds = [atom_radius_scale_factor, cartesian_to_glm] (const graphical_bonds_container &bonds_box,
+                                                                                        float bond_width) {
+                                             std::vector<s_generic_vertex> vertices;
+                                             std::vector<g_triangle> triangles;
+
+                                             unsigned int n_slices = 16;
+                                             unsigned int n_stacks = 2;
+                                             glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+
+                                             float radius = 0.02f * bond_width;
+
+                                             for (int i=0; i<bonds_box.num_colours; i++) {
+                                                graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+
+                                                bool do_thinning = false;
+                                                if (ll.thin_lines_flag) do_thinning = true;
+
+                                                for (int j=0; j< ll.num_lines; j++) {
+
+                                                   glm::vec3 start(cartesian_to_glm(ll.pair_list[j].positions.getStart()));
+                                                   glm::vec3 finish(cartesian_to_glm(ll.pair_list[j].positions.getFinish()));
+                                                   std::pair<glm::vec3, glm::vec3> pos_pair(start, finish); // correct way round?
+                                                   glm::vec3 b = finish - start;
+                                                   float bl = glm::distance(b, glm::vec3(0,0,0));
+                                                   float radius_scale = 1.0;
+                                                   if (do_thinning) radius_scale *= 0.5;
+                                                   cylinder c(pos_pair, radius * radius_scale, radius * radius_scale, bl, col, n_slices, n_stacks);
+
+                                                   unsigned int idx_base = vertices.size();
+                                                   unsigned int idx_tri_base = triangles.size();
+
+                                                   vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());
+                                                   triangles.insert(triangles.end(), c.triangles.begin(), c.triangles.end());
+                                                   for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+                                                      triangles[k].rebase(idx_base);
+                                                }
+                                             }
+                                             return std::make_pair(vertices, triangles);
+                                          };
+
+   Bond_lines_container bonds(asc, imol, no_bonds, geom_in, include_disulphides, include_hydrogens, draw_missing_loops_flag,
+                              model_number, "");
+
+   auto bonds_box = bonds.make_graphical_bonds();
+
+   mol->DeleteSelection(selhnd);
+
+   std::vector<glm::vec4> atom_colour_vector(bonds_box.num_colours); // colour is not used to display the outline, but *is* used
+                                                                     // to generate the vertices
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > atom_bits = make_generic_vertices_for_atoms(bonds_box, octaball);
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > bond_bits = make_generic_vertices_for_bonds(bonds_box, bond_width);
+
+   const auto &atom_vertices = atom_bits.first;
+   std::vector<s_generic_vertex> vertices(atom_vertices.size());
+   for (unsigned int i=0; i<atom_vertices.size(); i++)
+      vertices[i] = atom_vertices[i];
+   std::vector<g_triangle> triangles = atom_bits.second;
+
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_tri_base = triangles.size();
+   vertices.insert(vertices.end(), bond_bits.first.begin(), bond_bits.first.end());
+   triangles.insert(triangles.end(), bond_bits.second.begin(), bond_bits.second.end());
+   for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+      triangles[i].rebase(idx_base);
+   
+
+   return std::make_pair(vertices, triangles);
 }

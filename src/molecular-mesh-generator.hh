@@ -32,6 +32,8 @@
 #endif
 #include "molecular-triangles-mesh.hh"
 
+#include "geometry/protein-geometry.hh"
+
 class molecular_mesh_generator_t {
    std::vector<glm::vec3> generate_spline_points(std::vector<glm::vec3> &control_points, unsigned int n=20);
    void smooth_vertices(std::vector<s_generic_vertex> *v_p, unsigned int idx_begin, unsigned int idx_end);
@@ -53,14 +55,10 @@ class molecular_mesh_generator_t {
 
 public:
    molecular_mesh_generator_t() {
-      bool do_worm = false;
       t_previous = std::chrono::high_resolution_clock::now();
       t_start = t_previous;
-      if (do_worm) {
-      } else {
-         fill_atom_positions();
-         update_mats_and_colours();
-      }
+      fill_atom_positions();
+      update_mats_and_colours();
    }
    std::chrono::time_point<std::chrono::high_resolution_clock> t_previous;
    std::chrono::time_point<std::chrono::high_resolution_clock> t_start;
@@ -95,7 +93,6 @@ public:
 #endif
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_twisted_trans_peptides();
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_twisted_trans_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad);
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_worm_mesh(std::string pdb_file_name);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_molecular_triangles_mesh(mmdb::Manager *mol);
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
@@ -110,6 +107,10 @@ public:
                                 const std::string &selection_string, // mmdb-format
                                 const std::string &colour_scheme,
                                 const std::string &style);
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+   get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol, mmdb::Residue *residue_p,
+                                                   const coot::protein_geometry *geom_in);
 
 };
 

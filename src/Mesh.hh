@@ -95,7 +95,7 @@ public:
    void close();
    void set_draw_mesh_state(bool state) { draw_this_mesh = state; }
    void set_name(const std::string &n) { name = n; }
-   void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices); // adds to the messh
+   void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices); // adds to the mesh
    void import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triangle> &indexed_vertices);   // adds to the mesh
    void import(const std::vector<position_normal_vertex> &verts,
                const std::vector<g_triangle> &indexed_vertices,

@@ -52,6 +52,7 @@ graphics_info_t::tick_function_is_active() {
        do_tick_boids     ||
        do_tick_constant_draw       ||
        do_tick_hydrogen_bonds_mesh ||
+       do_tick_outline_for_active_residue ||
        do_tick_happy_face_residue_markers)
       return gboolean(TRUE);
    else
@@ -96,6 +97,13 @@ glarea_tick_func(GtkWidget *widget,
       glm::quat normalized_quat_delta(glm::normalize(quat_delta));
       glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
       graphics_info_t::glm_quat = glm::normalize(product);
+   }
+
+   if (graphics_info_t::do_tick_outline_for_active_residue > 0) {
+      graphics_info_t::outline_for_active_residue_frame_count--;
+      if (graphics_info_t::outline_for_active_residue_frame_count == 0) {
+         graphics_info_t::do_tick_outline_for_active_residue = false;
+      }
    }
 
    if (graphics_info_t::do_tick_constant_draw) {
@@ -327,8 +335,14 @@ on_glarea_realize(GtkGLArea *glarea) {
       // gboolean legacy_flag = gdk_gl_context_is_legacy(context);
       // std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;
 
+      Material dummy_material;
+      std::vector<s_generic_vertex> outline_empty_vertices(1000);
+      std::vector<g_triangle> outline_empty_triangles(1000);
+      g.mesh_for_outline_of_active_residue.import(outline_empty_vertices, outline_empty_triangles);
+      g.mesh_for_outline_of_active_residue.setup(dummy_material);
+
    } else {
-      std::cout << "ERROR:: Shader compilation failed " << std::endl;
+      std::cout << "ERROR:: Shader compilation (init_shaders()) failed " << std::endl;
       exit(1);
    }
 

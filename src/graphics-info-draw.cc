@@ -1547,6 +1547,8 @@ graphics_info_t::draw_molecules() {
 
    // opaque things
 
+   draw_outlined_active_residue();
+
    draw_intermediate_atoms();
 
    draw_intermediate_atoms_rama_balls();
@@ -1647,6 +1649,46 @@ graphics_info_t::draw_environment_graphics_object() {
       }
    }
 }
+
+#include "molecular-mesh-generator.hh"
+
+void
+graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec) {
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      if (mol) {
+         coot::residue_spec_t res_spec(spec);
+         mmdb::Residue *residue_p = molecules[imol].get_residue(res_spec);
+         if (residue_p) {
+            // what about Mesh's make_graphical_bonds_bonds_bonds adn make_graphical_bonds_hemispherical_atoms
+            molecular_mesh_generator_t mmg;
+            std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
+               mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, residue_p, Geom_p());
+            mesh_for_outline_of_active_residue.clear();
+            mesh_for_outline_of_active_residue.import(p);
+            Material mat;
+            mesh_for_outline_of_active_residue.setup(mat);
+         }
+      }
+   }
+}
+
+
+void
+graphics_info_t::draw_outlined_active_residue() {
+
+   if (outline_for_active_residue_frame_count > 0) {
+      glm::mat4 mvp = get_molecule_mvp();
+      std::map<unsigned int, lights_info_t> dummy_lights;
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 view_rotation = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      Shader &shader = shader_for_outline_of_active_residue;
+      mesh_for_outline_of_active_residue.draw(&shader, mvp, view_rotation, dummy_lights, eye_position, bg_col, false);
+   }
+};
 
 
 void
@@ -4239,6 +4281,21 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l29 = [] () {
+
+                 graphics_info_t g;
+                 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+                 if (pp.first) {
+                    g.update_mesh_for_outline_of_active_residue(pp.second.first, pp.second.second);
+                    if (! tick_function_is_active()) {
+                       int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+                    }
+                    outline_for_active_residue_frame_count = 30;
+                    do_tick_outline_for_active_residue = true;
+                 }
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -4268,6 +4325,9 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
+
+   // control
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Control_L, key_bindings_t(l29, "Highlight Active Residue")));
 
    // control keys
 

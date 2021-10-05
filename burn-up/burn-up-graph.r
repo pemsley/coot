@@ -107,7 +107,7 @@ do_plot = function() {
                                         # Total done
    points(a$V1, (a$V3+a$V5)*0.5, t="l", lwd=3, col="forestgreen")
 
-   leg.txt <- c("Menu Items Completed", "Menu Items Scope", "Total Completed", "Total Scope")
+   leg.txt <- c("Menu Items Scope", "Menu Items Completed", "Total Completed", "Total Scope")
    legend(legend_x, legend_y, legend=leg.txt, col=c("brown", "black", "forestgreen", "blue"), lty=1:1, lwd=3, cex=0.7)
 }
 

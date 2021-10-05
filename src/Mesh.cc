@@ -598,8 +598,9 @@ Mesh::setup_buffers() {
    // layout(location = 2) in vec4 colour;
 
 
-   std::cout << "debug:: in setup_buffers() is_instanced_colours for mesh with name \"" << name << "\""
-             << " is_instanced_colours: " << is_instanced_colours << " (not that that should matter any more)" << std::endl;
+   if (false)
+      std::cout << "debug:: in setup_buffers() is_instanced_colours for mesh with name \"" << name << "\""
+                << " is_instanced_colours: " << is_instanced_colours << " (not that that should matter any more)" << std::endl;
 
    glEnableVertexAttribArray(2);
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
@@ -1438,7 +1439,11 @@ Mesh::draw(Shader *shader_p,
 
    if (false)
       std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
-                << " draw_this_mesh: " << draw_this_mesh << " n-tris:" << triangles.size() << std::endl;
+                << " draw_this_mesh: " << draw_this_mesh << " n-tris:" << triangles.size()
+                << " is_instanced " <<  is_instanced
+                << " is_instanced_colours " <<  is_instanced_colours
+                << " is_instanced_with_rts_matrix " <<  is_instanced_with_rts_matrix
+                << std::endl;
 
    if (! draw_this_mesh) return;
 

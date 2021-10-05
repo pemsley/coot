@@ -1496,10 +1496,11 @@ bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_rock = false;
 bool graphics_info_t::do_tick_boids = false;
+bool graphics_info_t::do_tick_constant_draw = false;
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 bool graphics_info_t::do_tick_happy_face_residue_markers = false;
-bool graphics_info_t::do_tick_constant_draw = false;
-int graphics_info_t::n_particles = 120;
+bool graphics_info_t::do_tick_outline_for_active_residue = false;
+int graphics_info_t::n_particles = 220;
 Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
 bool graphics_info_t::setup_draw_for_particles_semaphore = false;
@@ -1512,6 +1513,9 @@ std::vector<std::pair<glm::vec3, glm::vec3> > graphics_info_t::hydrogen_bonds_at
 
 std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::tick_hydrogen_bond_mesh_t_previous = std::chrono::high_resolution_clock::now();
 
+Mesh graphics_info_t::mesh_for_outline_of_active_residue = Mesh("mesh for active residue");
+Shader graphics_info_t::shader_for_outline_of_active_residue;
+unsigned int graphics_info_t::outline_for_active_residue_frame_count = 0;
 
 fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;

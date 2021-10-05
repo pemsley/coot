@@ -4186,6 +4186,7 @@ string   static std::string sessionid;
    static GLuint textureColorbuffer_screen;
    static GLuint textureColorbuffer_blur;
    static GLuint hud_text_array_buffer_id;
+   static Shader shader_for_outline_of_active_residue;
    static Shader shader_for_maps;
    static Shader shader_for_map_caps;
    static Shader shader_for_models;
@@ -4274,6 +4275,7 @@ string   static std::string sessionid;
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
    static void draw_rotation_centre_crosshairs(GtkGLArea *glarea);
+   static void draw_outlined_active_residue();
    static void draw_ligand_view();
    static void draw_hud_buttons();
    static void draw_hud_fps();
@@ -4437,6 +4439,10 @@ string   static std::string sessionid;
    void reset_hud_buttons_size_and_position();
    void clear_hud_buttons(); // called by clear_up_moving_atoms_wrapper();
 
+   static Mesh mesh_for_outline_of_active_residue;
+   void update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec);
+   static unsigned int outline_for_active_residue_frame_count;
+
    // Mesh mesh_for_particles("mesh-for-particles");
    // int n_particles = 100;
    static Mesh mesh_for_particles;
@@ -4487,6 +4493,7 @@ string   static std::string sessionid;
    static bool do_tick_rock;
    static bool do_tick_boids;
    static bool do_tick_hydrogen_bonds_mesh;
+   static bool do_tick_outline_for_active_residue;
    static bool do_tick_constant_draw;
 
    static gboolean tick_function_is_active();

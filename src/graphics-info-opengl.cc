@@ -15,6 +15,7 @@ graphics_info_t::init_shaders() {
    std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
                                                            shader_for_map_caps,
                                                            shader_for_models,
+                                                           shader_for_outline_of_active_residue,
                                                            shader_for_model_as_meshes,
                                                            shader_for_symmetry_atoms_bond_lines,
                                                            shader_for_central_cube,
@@ -52,6 +53,7 @@ graphics_info_t::init_shaders() {
    for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
+   shader_for_outline_of_active_residue.init("outline-of-active-residue.shader", Shader::Entity_t::MODEL);
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
    shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
    shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
@@ -88,6 +90,7 @@ graphics_info_t::init_shaders() {
 
    for (it=shaders.begin(); it!=shaders.end(); ++it) {
       if (! it->get().get_success_status()) {
+         std::cout << "ERROR:: shader \"" <<it->get().name << "\" failed" << std::endl;
          status = false;
       }
    }

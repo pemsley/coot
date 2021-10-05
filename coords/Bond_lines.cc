@@ -196,7 +196,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    if (n_selected_atoms == no_bonds_to_these_atoms.size()) {
       // do nothing
    } else {
-      // sphere refine or some sucn
+      // sphere refine or active-residue marker - or something else
+
       construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0,
                          draw_missing_loops_flag,
                          model_number,
@@ -2043,10 +2044,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    // 20070407 Back here again! Valgrind *does* complain about
    // uninitialized do_bonds_to_hydrogens when I enable NCS ghosts.
 
-
    // and disulfides bond flag:
-   do_disulfide_bonds_flag = 1;
-
+   // do_disulfide_bonds_flag = 1; // 20211005-PE - no, this should be set in the constructor, not here
 
    if (SelAtom.n_selected_atoms <= 0) return;
 
