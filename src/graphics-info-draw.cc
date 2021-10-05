@@ -2350,6 +2350,7 @@ graphics_info_t::draw_hud_fps() {
 
          // make glm::vec2 data and then convert that to OpenGL screen coordinates
          //
+         float ms_to_opengl_y = 0.0025;
          unsigned int time_count = 0;
          std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
          for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
@@ -2358,14 +2359,14 @@ graphics_info_t::draw_hud_fps() {
                const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_this = *it;
                const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_prev = *std::prev(it);
                auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(tp_this - tp_prev).count();
-               data.push_back(glm::vec2(x_o + 0.001 * x, y_o + 0.003 * delta_t));
+               data.push_back(glm::vec2(x_o + 0.001 * x, y_o + ms_to_opengl_y * delta_t));
                time_count++;
             }
          }
 
          // base line and grid lines into vertices first
          //
-         float y_tick_mark = 20.0 * 0.003; // 20ms converted to OpenGL y coord
+         float y_tick_mark = 20.0 * ms_to_opengl_y; // 20ms converted to OpenGL y coord
          vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o,                   -1), norm, full_grey));
          vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o,                   -1), norm, full_grey));
          vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + y_tick_mark,     -1), norm, grey));
@@ -2374,12 +2375,16 @@ graphics_info_t::draw_hud_fps() {
          vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 2 * y_tick_mark, -1), norm, grey));
          vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 3 * y_tick_mark, -1), norm, grey));
          vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 3 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 4 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 4 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o,       y_o + 5 * y_tick_mark, -1), norm, grey));
+         vertices.push_back(s_generic_vertex(glm::vec3(x_o + 0.5, y_o + 5 * y_tick_mark, -1), norm, grey));
 
          for (unsigned int i=0; i<data.size(); i++)
             vertices.push_back(s_generic_vertex(glm::vec3(data[i], -1), norm, col));
 
-         for (unsigned int i=0; i<(data.size()-2+6); i++) {
-            if (i == 1 || i == 3 || i == 5 || i == 7) {
+         for (unsigned int i=0; i<(data.size()-2+10); i++) {
+            if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9 || i == 11) {
                // no line betwween base line and grid lines and start of real data
             } else {
                indices.push_back(i);
