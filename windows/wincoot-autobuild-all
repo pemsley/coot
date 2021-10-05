@@ -165,6 +165,9 @@ else
     install_top_dir=${HOME}/autobuild/${OS}-${HOST}-pre-release-gtk2
 fi
 
+# another checkpoint to remove debug symbols
+strip $install_top_dir/bin/coot-bin.exe
+
 if [ $make_installer_only == 0 ] ; then
 
     while [ $coot_version_status != 0 ]
