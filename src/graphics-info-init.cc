@@ -37,10 +37,10 @@ graphics_info_t::load_freetype_font_textures() {
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
       // only using one byte.
 
-      for (GLubyte ic = 0; ic < 128; ic++) {
+      for (GLubyte ic = 0; ic < 255; ic++) {
          // Load character glyph
          if (FT_Load_Char(face, ic, FT_LOAD_RENDER)) {
-            std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+            std::cout << "ERROR::FREETYTPE: Failed to load Glyph " << ic << std::endl;
             continue;
          }
          // Generate texture
@@ -58,7 +58,8 @@ graphics_info_t::load_freetype_font_textures() {
                        GL_RED,
                        GL_UNSIGNED_BYTE,
                        face->glyph->bitmap.buffer);
-         // std::cout << "load_freetype_font_textures(): character " << ic << " " << face->glyph->bitmap.width << " " << face->glyph->bitmap.rows << std::endl;
+         // std::cout << "load_freetype_font_textures(): character " << ic << " " << face->glyph->bitmap.width
+         // << " " << face->glyph->bitmap.rows << std::endl;
          // Set texture options
          err = glGetError(); if (err) std::cout << "Loading characture textures glTexImage2D err " << err << std::endl;
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -203,10 +204,10 @@ graphics_info_t::init() {
       residue_info_edits = new std::vector<coot::select_atom_info>;
 
       // display distances
-      distance_object_vec = new std::vector<coot::simple_distance_object_t>;
+      // distance_object_vec = new std::vector<coot::simple_distance_object_t>;
 
       // pointer distances
-      pointer_distances_object_vec = new std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >;
+      // pointer_distances_object_vec = new std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >;
 
       // ligand blobs:
       ligand_big_blobs = new std::vector<clipper::Coord_orth>;

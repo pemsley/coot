@@ -22,6 +22,7 @@ class cylinder {
              float base_radius, float top_radius, float height,
              const glm::vec4 &base_colour,
              unsigned int n_slices=8, unsigned int n_stacks=2);
+   void add_flat_cap(int end_type); // 0 for base, 1 for top
 public:
    std::vector<s_generic_vertex> vertices;
    std::vector<g_triangle> triangles;

@@ -663,9 +663,12 @@ coot::db_main graphics_info_t::main_chain;
 coot::fixed_atom_pick_state_t graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
 GtkWidget *graphics_info_t::fixed_atom_dialog = 0;
 
-std::vector<coot::simple_distance_object_t> *graphics_info_t::distance_object_vec = NULL;
-std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *graphics_info_t::pointer_distances_object_vec = NULL;
-std::vector<coot::coord_orth_triple> *graphics_info_t::angle_object_vec = NULL;
+std::vector<coot::simple_distance_object_t> graphics_info_t::measure_distance_object_vec;
+std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > graphics_info_t::pointer_distances_object_vec;
+std::vector<coot::coord_orth_triple> graphics_info_t::measure_angle_object_vec;
+Mesh graphics_info_t::mesh_for_measure_distance_object_vec = Mesh("mesh-for-measure-distance-object-vec");
+Mesh graphics_info_t::mesh_for_measure_angle_object_vec    = Mesh("mesh-for-measure-angle-object-vec");
+std::vector<atom_label_info_t> graphics_info_t::labels_for_mesaure_distances_and_angles;
 
 int graphics_info_t::show_origin_marker_flag = 1;
 
@@ -1518,10 +1521,10 @@ Shader graphics_info_t::shader_for_outline_of_active_residue;
 unsigned int graphics_info_t::outline_for_active_residue_frame_count = 0;
 
 fun::boids_container_t graphics_info_t::boids;
-Mesh graphics_info_t::mesh_for_boids;
+Mesh graphics_info_t::mesh_for_boids = Mesh("mesh for boids");
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
-Mesh graphics_info_t::mesh_for_hydrogen_bonds;
+Mesh graphics_info_t::mesh_for_hydrogen_bonds = Mesh("mesh for hydrogen bonds");
 
 LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
 LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;

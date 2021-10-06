@@ -135,6 +135,8 @@ public:
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
+   void add_dashed(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
+                   const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords, unsigned int n_segments);
    void add_arrow(const arrow_t &arrow);
 
    // I need to say which cap type, flat or rounded.

@@ -3,6 +3,7 @@
 #define ATOM_LABEL_INFO_HH
 
 #include <string>
+#include <glm/glm.hpp>
 
 // not really an atom label.
 

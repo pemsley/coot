@@ -3115,17 +3115,37 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
 // ------------------------------------------------------------------
 //
 float
-graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
-      int imol2, const coot::Cartesian &p2) {
+graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
+                                      const coot::Cartesian &p2) {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+                               return glm::vec3(co.x(), co.y(), co.z());
+                            };
+
+   auto add_measure_distance_label = [coord_orth_to_glm] (const coot::simple_distance_object_t &sdo, const double &dist) {
+                                        clipper::Coord_orth mid_point(0.5 * (sdo.start_pos + sdo.end_pos));
+                                        glm::vec3 offset_mid_point = coord_orth_to_glm(mid_point) + glm::vec3(0.15, 0.05, 0.05);
+                                        std::string label_str = float_to_string_using_dec_pl(static_cast<float>(dist), 2);
+                                        // label_str += "ÅAÅ"; A-ring How to do this!?
+                                        label_str += "A"; 
+                                        glm::vec4 col(0.66, 0.66, 0.66, 1.0);
+                                        atom_label_info_t ali(label_str, offset_mid_point, col);
+                                        labels_for_mesaure_distances_and_angles.push_back(ali);
+                                     };
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
 
    clipper::Coord_orth cp1(p1.x(), p1.y(), p1.z());
    clipper::Coord_orth cp2(p2.x(), p2.y(), p2.z());
-   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, cp1,
-       geometry_atom_index_2_mol_no, cp2);
-   distance_object_vec->push_back(p);
+   double dist = sqrt((cp2-cp1).lengthsq());
+   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, cp1, geometry_atom_index_2_mol_no, cp2);
+   measure_distance_object_vec.push_back(p);
+   Material mat;
+   mesh_for_measure_distance_object_vec.add_dashed_line(p, mat); // add_dashed_line() decides the colour
+   add_measure_distance_label(p, dist);
+   
    graphics_draw();
 
-   double dist = sqrt((cp2-cp1).lengthsq());
    std::cout << "INFO:: distance: " << dist << " Angstroems" << std::endl;
    std::string s = "Distance: ";
    s += float_to_string(dist);
@@ -5368,9 +5388,9 @@ graphics_info_t::make_pointer_distance_objects() {
          }
       }
 
-      pointer_distances_object_vec->clear();
+      pointer_distances_object_vec.clear();
       for (unsigned int id=0; id<distances.size(); id++) {
-         pointer_distances_object_vec->push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth> (distances[id], cen));
+         pointer_distances_object_vec.push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth> (distances[id], cen));
       }
    }
 }
@@ -5378,7 +5398,7 @@ graphics_info_t::make_pointer_distance_objects() {
 void
 graphics_info_t::clear_pointer_distances() {
 
-   pointer_distances_object_vec->resize(0);
+   pointer_distances_object_vec.clear();
    graphics_draw();
 
 }
@@ -5393,21 +5413,34 @@ coot::operator<<(std::ostream &s, simple_distance_object_t o) {
 
 
 void
-graphics_info_t::clear_simple_distances() {
+graphics_info_t::clear_measure_distances() {
 
-   distance_object_vec->clear();
+   measure_distance_object_vec.clear();
    graphics_draw();
 }
 
 void
-graphics_info_t::clear_last_simple_distance() {
+graphics_info_t::clear_last_measure_distance() {
 
-   int n = distance_object_vec->size();
+   unsigned int n = measure_distance_object_vec.size();
+   std::cout << "debug:: graphics_info_t::clear_last_measure_distance() " << n << std::endl;
+
    if (n > 0) {
+      measure_distance_object_vec.pop_back();
 
-      std::vector<coot::simple_distance_object_t>::reverse_iterator it;
-      it = distance_object_vec->rbegin();
-      distance_object_vec->pop_back();
+      // a hack that will often work.
+      if (labels_for_mesaure_distances_and_angles.size() > 0)
+         labels_for_mesaure_distances_and_angles.pop_back();
+
+      // rebuild the mesh for measure_distance_object_vec
+
+      mesh_for_measure_distance_object_vec.clear();
+      Material material;
+
+      for (unsigned int i=0; i<measure_distance_object_vec.size(); i++) {
+         const auto &sdo = measure_distance_object_vec[i];
+         mesh_for_measure_distance_object_vec.add_dashed_line(sdo, material);
+      }
       graphics_draw();
    }
 }
@@ -6250,7 +6283,7 @@ graphics_info_t::measure_lsq_plane_deviant_atom(int imol, int atom_index) {
     s += int_to_string(at->GetSeqNum());
     s += at->GetChainID();
     s += " is ";
-    s += float_to_string(d);
+    s += float_to_string_using_dec_pl(d, 3);
     s += "A from the least squares plane";
     add_status_bar_text(s);
       } else {

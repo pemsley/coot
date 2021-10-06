@@ -440,7 +440,7 @@ graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) {
    return iv;
 }
 
-// distances/angles
+// distances and angles
 void
 graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
@@ -467,20 +467,17 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	 } else {
 
 	    // in_distance_define == 2
-	    geometry_atom_index_2 =
-	       nearest_atom_index_info.atom_index;
-	    geometry_atom_index_2_mol_no =
-	       nearest_atom_index_info.imol;
+	    geometry_atom_index_2 = nearest_atom_index_info.atom_index;
+	    geometry_atom_index_2_mol_no = nearest_atom_index_info.imol;
 
 	    mmdb::Atom *atom2 = molecules[im].atom_sel.atom_selection[geometry_atom_index_2];
 	    coot::Cartesian pos2 = coot::Cartesian(atom2->x, atom2->y, atom2->z);
 
 	    // 20190104-PE Why were we using the symmetry function?
-// 	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
-// 					   geometry_atom_index_2_mol_no, pos2);
+            // 	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
+            // 					   geometry_atom_index_2_mol_no, pos2);
 
-	    display_geometry_distance(geometry_atom_index_1_mol_no, distance_pos_1,
-				      geometry_atom_index_2_mol_no, pos2); // calls graphics_draw()
+	    add_measure_distance(distance_pos_1, pos2); // calls graphics_draw()
 
 	    unset_geometry_dialog_distance_togglebutton();
 	    in_distance_define = 0;  // clear flag
@@ -513,8 +510,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	       // in_distance_define == 2
 	       coot::Cartesian pos2 = symm_nearest_atom_index_info.hybrid_atom.pos;
 	       geometry_atom_index_2_mol_no = symm_nearest_atom_index_info.imol;
-	       display_geometry_distance(geometry_atom_index_1_mol_no, distance_pos_1,
-					 geometry_atom_index_2_mol_no, pos2);
+	       add_measure_distance(distance_pos_1, pos2);
 	       unset_geometry_dialog_distance_togglebutton();
 	       in_distance_define = 0;
 	       pick_pending_flag = 0;
@@ -1936,6 +1932,8 @@ graphics_info_t::check_if_in_lsq_plane_define(GdkEventButton *event) {
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
 	 add_lsq_plane_atom(naii.imol, naii.atom_index);
+	 int im = naii.imol;
+	 molecules[im].add_to_labelled_atom_list(naii.atom_index);
       }
    }
 }

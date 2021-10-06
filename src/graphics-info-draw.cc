@@ -2023,6 +2023,31 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 }
 
 void
+graphics_info_t::draw_measure_distance_and_angles() {
+
+   if (mesh_for_measure_distance_object_vec.get_draw_this_mesh()) {
+      Shader &shader = shader_for_moleculestotriangles;
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      mesh_for_measure_distance_object_vec.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
+                                                bg_col, shader_do_depth_fog_flag);
+
+      if (! labels_for_mesaure_distances_and_angles.empty()) {
+         Shader &shader = shader_for_atom_labels;
+         for (unsigned int i=0; i<labels_for_mesaure_distances_and_angles.size(); i++) {
+            const auto &label = labels_for_mesaure_distances_and_angles[i];
+            tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
+                                             mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                             shader_do_depth_fog_flag, perspective_projection_flag);
+         }
+      }
+   }
+
+}
+
+
+void
 graphics_info_t::setup_lights() {
 
    lights_info_t light;
@@ -3226,12 +3251,16 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                           draw_rotation_centre_crosshairs(gl_area);
 
                           draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
+                                            // so rename this function? Or just bring everything here?  Put this render() function
+                                            // into new file graphics-info-opengl-render.cc
 
                           draw_invalid_residue_pulse();
 
                           draw_identification_pulse();
 
                           draw_delete_item_pulse();
+
+                          draw_measure_distance_and_angles(); // maybe in draw_molecules()? 
 
                           draw_ligand_view();
 

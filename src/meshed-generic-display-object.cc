@@ -18,10 +18,26 @@ glm::vec3 coord_orth_to_glm(const clipper::Coord_orth &co) {
    return glm::vec3(co.x(), co.y(), co.z());
 }
 
+
+glm::vec4
+colour_holder_to_glm(const coot::colour_holder &ch) {
+   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+}
+
 void
 meshed_generic_display_object::add_line(const coot::colour_holder &colour,
                                         const std::string &colour_name, int line_width,
                                         const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords) {
+
+   glm::vec3 start = coord_orth_to_glm(coords.first);
+   glm::vec3 end   = coord_orth_to_glm(coords.second);
+   auto cart_pair = std::make_pair(start, end);
+   float bl = glm::distance(start, end);
+   auto col = colour_holder_to_glm(colour);
+   cylinder c(cart_pair, line_width, line_width, bl, col);
+   c.add_flat_start_cap();
+   c.add_flat_end_cap();
+   mesh.import(c.vertices, c.triangles);
 }
 
 
@@ -244,12 +260,6 @@ glm::vec3 rotate_around_vector(const glm::vec3 &direction,
    glm::vec3 p3 = p2 + origin_shift;
    return p3;
 }
-
-glm::vec4
-colour_holder_to_glm(const coot::colour_holder &ch) {
-   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
-}
-
 
 void
 meshed_generic_display_object::add_arc(const arc_t &arc) {

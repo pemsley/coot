@@ -697,9 +697,13 @@ class graphics_info_t {
    static std::string directory_for_filechooser;
    static std::string directory_for_saving_for_filechooser;
 
-   // distance object vector, and angle
-   static std::vector<coot::simple_distance_object_t> *distance_object_vec;
-   static std::vector<coot::coord_orth_triple> *angle_object_vec;
+   // distance object vector, and angle,
+   // 20211006-PE both the vectors and the Meshes are needed because I will need to
+   // rebuild the mesh if a distance is deleted. (Angle same should that happen one day)
+   static std::vector<coot::simple_distance_object_t> measure_distance_object_vec;
+   static std::vector<coot::coord_orth_triple> measure_angle_object_vec;
+   static Mesh mesh_for_measure_distance_object_vec;
+   static Mesh mesh_for_measure_angle_object_vec;
 
    // 20180217 moving_atoms_dragged_atom_index -> moving_atoms_dragged_atom_indices
    //          Now we can have many dragged atoms
@@ -2350,8 +2354,9 @@ public:
 
    // not const because we add to distance_object_vec
    // return the distance
-   float display_geometry_distance(int imol1, const coot::Cartesian &p1,
-				   int imol2, const coot::Cartesian &p2);
+   float add_measure_distance(const coot::Cartesian &p1,
+                              const coot::Cartesian &p2);
+   static std::vector<atom_label_info_t> labels_for_mesaure_distances_and_angles;
    void display_geometry_angle() const;
    double get_geometry_torsion() const;
    void display_geometry_torsion() const;
@@ -2744,7 +2749,8 @@ public:
    static float pointer_max_dist;
    static int show_pointer_distances_flag;
    void clear_pointer_distances();
-   static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *pointer_distances_object_vec;
+   static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > pointer_distances_object_vec;
+   static Mesh mesh_for_pointer_distances; // here for future-Paul
    static void draw_pointer_distances_objects(); // draw them
    void make_pointer_distance_objects(); // (re)generate them
 
@@ -3123,8 +3129,8 @@ public:
    static void draw_happy_face_residue_markers();
    static void draw_hydrogen_bonds_mesh(); // like boids
    void setup_draw_for_particles();
-   void clear_simple_distances();
-   void clear_last_simple_distance();
+   void clear_measure_distances();
+   void clear_last_measure_distance();
    static GtkWidget *geometry_dialog;
    void unset_geometry_dialog_distance_togglebutton();
    void unset_geometry_dialog_angle_togglebutton();
@@ -4279,6 +4285,7 @@ string   static std::string sessionid;
    static void draw_ligand_view();
    static void draw_hud_buttons();
    static void draw_hud_fps();
+   static void draw_measure_distance_and_angles();
    static std::list<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_time_history_list;
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 

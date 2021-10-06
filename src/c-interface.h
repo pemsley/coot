@@ -3800,8 +3800,8 @@ void clear_residue_info_edit_list();
 
 /* a graphics_info_t function wrapper: */
 void unset_residue_info_widget();
-void clear_simple_distances();
-void clear_last_simple_distance();
+void clear_measure_distances();
+void clear_last_measure_distance();
 
 /* \} */
 

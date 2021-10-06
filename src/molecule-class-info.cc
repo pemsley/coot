@@ -3259,7 +3259,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
 
          }
       } else {
-         std::cout << "INFO:: draw_atom_label() trying to label atom out of range: "
+         std::cout << "ERROR:: draw_atom_label() trying to label atom out of range: "
                    << atom_index << " " << atom_sel.n_selected_atoms
                    << " Removing label\n";
          unlabel_atom(atom_index);

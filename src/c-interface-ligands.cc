@@ -3543,6 +3543,10 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
             bright_pink_mode = true;
          }
       }
+      if (result.tm_mon == 9)
+         if (result.tm_mday > 15)
+            if (result.tm_sec%5==0)
+               bright_pink_mode = true;
 
       if (bright_pink_mode) {
          dimmer = 0.95;

@@ -197,7 +197,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    glEnableVertexAttribArray(3);
 
    err = glGetError();
-   if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_atom_label() " << name << " pre-draw " << err << std::endl;
 
    // scale of 20 make letter separation good
    GLfloat scale = 100.1;
@@ -214,7 +214,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   err = glGetError(); if (err) std::cout << "error:: render_atom_label A0 " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "GL ERROR:: draw_atom_label() A0 " << err << std::endl;
 
 #if THIS_IS_HMT
    std::map<GLchar, FT_character> &ft_characters = display_info_t::ft_characters;
@@ -222,11 +222,12 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    std::map<GLchar, FT_character> &ft_characters = graphics_info_t::ft_characters;
 #endif
 
-   std::string::const_iterator c; // call this it_c
-   for (c = atom_label.begin(); c != atom_label.end(); ++c) {
-      std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*c);
+   for (std::string::const_iterator it_c = atom_label.begin(); it_c != atom_label.end(); ++it_c) {
+      // bitsy spider...
+      std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*it_c);
       if (it == ft_characters.end()) {
-         std::cout << "Failed to lookup glyph for " << *c << std::endl;
+         std::cout << "ERROR:: TextureMesh::draw_atom_label():: Failed to lookup glyph for " << *it_c
+                   << " in " << atom_label << std::endl;
          continue;
       };
       const FT_character &ch = it->second;

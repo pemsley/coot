@@ -7,6 +7,7 @@ const double pi = M_PI;
 #include "cylinder.hh"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include "oct.hh"
 
@@ -132,30 +133,34 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
 
 void
 cylinder::add_flat_start_cap() {
-   add_flat_cap(0.0f);
+   add_flat_cap(0);
 }
 
 
 void
 cylinder::add_flat_end_cap() {
 
-   add_flat_cap(height);
+   add_flat_cap(1);
 }
 
 void
-cylinder::add_flat_cap(float z) {
+cylinder::add_flat_cap(int end_type) {
 
-   glm::vec3 n(0,0,1);
-   if (z == 0.0f) n = -n;
+   glm::vec3 n(0,0,-1);
+   if (end_type == 1) n = -n;
    glm::vec4 n4(n, 1.0f);
+
+   float z = 0.0f;
+   if (end_type == 1) z = height;
 
    unsigned int idx_base = vertices.size();
 
    s_generic_vertex vert;
    vert.pos    = glm::vec3(ori * glm::vec4(0,0,z,1.0f)) + start;
    vert.normal = glm::vec3(ori * n4);
+   vert.color  = basic_colour;
    vertices.push_back(vert);
-
+   
    float one_over_n_slices = 1.0/static_cast<float>(n_slices);
    float radius = base_radius;
 
@@ -163,22 +168,24 @@ cylinder::add_flat_cap(float z) {
       float theta_this = 2.0 * pi * static_cast<float>(i) * one_over_n_slices;
       float x = cosf(theta_this);
       float y = sinf(theta_this);
-      glm::vec4 p_1(x*radius, y*radius, z, 1.0f);
+      glm::vec4 p_1(x * radius, y *radius, z, 1.0);
       s_generic_vertex v;
-      v.pos = glm::vec3(ori * p_1);
-      v.pos += start;
+      v.pos    = glm::vec3(ori * p_1);
+      v.pos+= start;
       v.normal = glm::vec3(ori * n4);
-      v.color = basic_colour;
+      v.color  = basic_colour;
       vertices.push_back(v);
+      // std::cout << "add flat cap vertex " << end_type << " " << i << " " << glm::to_string(v.pos) << std::endl;
    }
 
    for (unsigned int i=0; i<n_slices; i++) {
       unsigned int i_next = idx_base + i + 1 + 1;
       if (i == (n_slices-1)) i_next = idx_base + 1;
+      // hmmm.. .which is the correct winding? Both seem to work OK. // 20211006-PE but then again I am not using backface_culling
+      // g_triangle triangle(idx_base, i_next, idx_base + i + 1);
       g_triangle triangle(idx_base, idx_base + i + 1, i_next);
       triangles.push_back(triangle);
    }
-
 
 }
 

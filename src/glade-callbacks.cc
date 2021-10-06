@@ -4808,12 +4808,13 @@ on_edit_backbone_torsion_cancel_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
-				    "edit_backbone_torsions_dialog");
-/*   clear_moving_atoms_object(); done as part of window destroy
-     callback */
-  destroy_edit_backbone_rama_plot();
-  gtk_widget_destroy(window);
+   GtkWidget *window = widget_from_builder("edit_backbone_torsions_dialog");
+   /*   clear_moving_atoms_object(); done as part of window destroy
+        callback */
+   destroy_edit_backbone_rama_plot(); // 20211006-PE this function name should be changed
+   //gtk_widget_destroy(window);
+   gtk_widget_hide(window);
+
 }
 
 
@@ -4832,7 +4833,7 @@ on_clear_simple_distances2_activate_gtkbuilder_callback    (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-   clear_simple_distances();
+   clear_measure_distances();
 }
 
 
@@ -5159,7 +5160,8 @@ on_geometry_clear_last_distance_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  clear_last_simple_distance();
+   std::cout << "debug:: in on_geometry_clear_last_distance_button_clicked_gtkbuilder_callback()" << std::endl;
+   clear_last_measure_distance();
 
 }
 
@@ -5170,7 +5172,7 @@ on_geometry_clear_all_distances_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  clear_simple_distances();
+  clear_measure_distances();
 }
 
 
@@ -5191,12 +5193,20 @@ on_geometry_dialog_close_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
+#if 0 // 20211006-PE save for reference
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "geometry_dialog");
   /* should we clear geometry on close dialog?  Currently, I think not. */
   /* it is the COOT_DISTANCES_ANGLES_WINDOW, hmm. */
   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
   store_geometry_dialog(NULL);
   gtk_widget_destroy(dialog);
+#endif
+
+  GtkWidget *dialog = widget_from_builder("geometry_dialog");
+  store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
+  store_geometry_dialog(NULL);
+  gtk_widget_hide(dialog);
+  
 
 }
 
@@ -5245,7 +5255,7 @@ on_geometry_dialog_destroy_gtkbuilder_callback             (GtkWidget       *obj
 /*   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, GTK_WIDGET(object)); */
 
   /* However, we do want to unset the geometry_dialog pointer */
-  store_geometry_dialog(NULL);
+   store_geometry_dialog(NULL);
 
 }
 
@@ -5255,8 +5265,10 @@ void
 on_new_ligands_info_dialog_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                                                   gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_ligands_info_dialog");
-  gtk_widget_destroy(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_ligands_info_dialog");
+   // gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
+   gtk_widget_hide(w);
 }
 
 
@@ -5265,8 +5277,10 @@ void
 on_no_new_ligands_info_dialog_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                                                      gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "no_new_ligands_info_dialog");
-  gtk_widget_destroy(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "no_new_ligands_info_dialog");
+   // gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
+   gtk_widget_hide(w);
 }
 
 
@@ -7967,11 +7981,8 @@ on_lsq_plane_add_atom_radiobutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
   if (gtk_toggle_button_get_active(togglebutton)) {
-      setup_lsq_deviation(0);
       setup_lsq_plane_define(1);
-   } else {
       setup_lsq_deviation(0);
-      setup_lsq_plane_define(1);
    }
 }
 
@@ -7983,9 +7994,6 @@ on_lsq_plane_deviant_atom_radiobutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
   if (gtk_toggle_button_get_active(togglebutton)) {
-      setup_lsq_deviation(1);
-      setup_lsq_plane_define(0);
-   } else {
       setup_lsq_deviation(1);
       setup_lsq_plane_define(0);
    }
@@ -11021,7 +11029,6 @@ on_mogul_geometry_dialog_close_button_clicked_gtkbuilder_callback
 					 gpointer         user_data) {
 
    GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "mogul_geometry_results_table_dialog");
-
    /* And the histogram?  How do I look that up? */
    gtk_widget_destroy(dialog);
 }

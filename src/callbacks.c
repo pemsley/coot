@@ -4616,7 +4616,7 @@ on_clear_simple_distances2_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-   clear_simple_distances();
+  //clear_simple_distances();
 }
 
 
@@ -4907,7 +4907,8 @@ on_geometry_clear_last_distance_button_clicked
                                         gpointer         user_data)
 {
 
-  clear_last_simple_distance();
+  // clear_last_simple_distance();
+  printf("on_geometry_clear_last_distance_button_clicked\n");
 
 }
 
@@ -4917,7 +4918,7 @@ on_geometry_clear_all_distances_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  clear_simple_distances();
+  // clear_simple_distances();
 }
 
 

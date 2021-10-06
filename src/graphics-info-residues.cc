@@ -600,7 +600,7 @@ graphics_info_t::add_distance_labels_for_environment_distances() {
       if (! background_is_black_flag)
          dark_bg_cor = 0.29;
       float fidx = static_cast<float>(i);
-      coot::colour_holder col(0.8-dark_bg_cor, 0.8-0.4*fidx-dark_bg_cor, 0.4+0.5*fidx-dark_bg_cor);
+      coot::colour_holder col(0.96-dark_bg_cor, 0.96-0.4*fidx-dark_bg_cor, 0.5+0.5*fidx-dark_bg_cor);
       graphical_bonds_lines_list<graphics_line_t> &ll = environment_object_bonds_box.bonds_[i];
       for (int j=0; j< ll.num_lines; j++) {
          glm::vec3 s = cartesian_to_glm(ll.pair_list[j].positions.getStart());

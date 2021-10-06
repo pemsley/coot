@@ -18,7 +18,8 @@ out vec2 texCoord_transfer;
 void main() {
 
    // float scale = 0.00016;
-   float scale = 0.0001;
+   // float scale = 0.0001;
+   float scale = 0.00008;
    mat4 t = transpose(view_rotation);
    vec4 pos_down = scale * vec4(position, 1.0);
    vec4 p = pos_down + vec4(label_position, 1.0) * t;

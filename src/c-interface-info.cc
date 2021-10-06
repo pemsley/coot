@@ -2382,19 +2382,19 @@ void do_torsion_define() {
 
 }
 
-void clear_simple_distances() {
+void clear_measure_distances() {
    graphics_info_t g;
-   g.clear_simple_distances();
+   g.clear_measure_distances();
    g.normal_cursor();
    std::string cmd = "clear-simple-distances";
    std::vector<coot::command_arg_t> args;
    add_to_history_typed(cmd, args);
 }
 
-void clear_last_simple_distance() {
+void clear_last_measure_distance() {
 
    graphics_info_t g;
-   g.clear_last_simple_distance();
+   g.clear_last_measure_distance();
    g.normal_cursor();
    std::string cmd = "clear-last-simple-distance";
    std::vector<coot::command_arg_t> args;
@@ -2562,8 +2562,7 @@ double
 add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
 
    graphics_info_t g;
-   double d = g.display_geometry_distance(imol_1, coot::Cartesian(x_1, y_1, z_1),
-                                          imol_2, coot::Cartesian(x_2, y_2, z_2));
+   double d = g.add_measure_distance(coot::Cartesian(x_1, y_1, z_1), coot::Cartesian(x_2, y_2, z_2));
    return d;
 }
 
@@ -2589,7 +2588,8 @@ add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom
                // happy path
                coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
                coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
-               d = g.display_geometry_distance(imol_1, pos_1, imol_2, pos_2);
+               // d = g.display_geometry_distance(imol_1, pos_1, imol_2, pos_2); 20211006-PE old function name
+               d = g.add_measure_distance(pos_1, pos_2);
                std::cout << "Distance: " << spec_1 << " to " << spec_2 << " is " << d << " A" << std::endl;
             }
          }
@@ -2620,7 +2620,8 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
                // happy path
                coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
                coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
-               d = g.display_geometry_distance(imol_1, pos_1, imol_2, pos_2);
+               // d = g.display_geometry_distance(imol_1, pos_1, imol_2, pos_2); 20211006-PE old function name
+               d = g.add_measure_distance(pos_1, pos_2);
                std::cout << "Distance: " << spec_1 << " to " << spec_2 << " is " << d << " A" << std::endl;
             }
          }

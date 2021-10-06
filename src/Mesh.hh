@@ -12,6 +12,7 @@
 #include "Material.hh"
 #include "Particle.hh"
 #include "molecular-triangles-mesh.hh"
+#include "simple-distance-object.hh"
 
 #ifdef USE_ASSIMP
 #include <assimp/scene.h>
@@ -245,6 +246,8 @@ public:
 
    // make the matrix (called several times). After which, the calling function calls update_instancing_buffer_data()
    static glm::mat4 make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::vec3 &p2, float theta);
+
+   void add_dashed_line(const coot::simple_distance_object_t &l, const Material &material);
 
    void apply_scale(float scale_factor);  // scale the positions in the vertices
    void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices

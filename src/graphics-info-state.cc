@@ -573,8 +573,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    }
 
    // distance geometry
-   for (unsigned int idist=0; idist<distance_object_vec->size(); idist++) {
-      const coot::simple_distance_object_t &sdo = (*distance_object_vec)[idist];
+   for (unsigned int idist=0; idist<measure_distance_object_vec.size(); idist++) {
+      const coot::simple_distance_object_t &sdo = measure_distance_object_vec[idist];
       if (is_valid_model_molecule(sdo.imol_start)) {
 	 if (is_valid_model_molecule(sdo.imol_end)) {
 	    std::vector<std::string> s(9);

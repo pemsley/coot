@@ -5062,7 +5062,8 @@ GtkWidget *wrapped_create_geometry_dialog() {
 //       else
 // 	 gdk_window_raise(w->window);
    } else {
-      w = create_geometry_dialog();
+      // w = create_geometry_dialog();
+      w = widget_from_builder("geometry_dialog");
    }
    return w;
 }

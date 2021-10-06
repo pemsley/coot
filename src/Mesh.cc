@@ -2276,6 +2276,37 @@ Mesh::make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::ve
    return m;
 }
 
+void
+Mesh::add_dashed_line(const coot::simple_distance_object_t &sdo, const Material &material) {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+                               return glm::vec3(co.x(), co.y(), co.z());
+                            };
+
+   double l = sdo.length();
+   unsigned int n_seg = static_cast<unsigned int>(l) * 3;
+   if (n_seg < 3) n_seg = 3;
+
+   double segment_length = l/(2.0 * static_cast<double>(n_seg));
+   clipper::Coord_orth uv = sdo.uv();
+   glm::vec4 col(0.6, 0.7, 0.5, 1.0);
+
+   for (unsigned int iseg=0; iseg<n_seg; iseg++) {
+      float frac_path_pos_1 = (0.5f + static_cast<float>(2 * iseg)) * segment_length / l;
+      float frac_path_pos_2 = (1.5f + static_cast<float>(2 * iseg)) * segment_length / l;
+      clipper::Coord_orth pos_1(sdo.start_pos + frac_path_pos_1 * uv * l);
+      clipper::Coord_orth pos_2(sdo.end_pos   + frac_path_pos_2 * uv * l);
+
+      auto pp = std::make_pair(coord_orth_to_glm(pos_1), coord_orth_to_glm(pos_2));
+      cylinder c(pp, 0.04, 0.04, segment_length, col);
+      c.add_flat_start_cap();
+      c.add_flat_end_cap();
+      import(c.vertices, c.triangles);
+   }
+   setup(material);
+
+}
+
 #include <fstream>
 
 bool
