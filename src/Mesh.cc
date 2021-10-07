@@ -22,6 +22,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 #include "cylinder.hh"
 
@@ -2306,6 +2307,102 @@ Mesh::add_dashed_line(const coot::simple_distance_object_t &sdo, const Material 
    setup(material);
 
 }
+
+void
+Mesh::add_dashed_angle_markup(const glm::vec3 &pos_1, const glm::vec3 &pos_2, const glm::vec3 &pos_3,
+                              const glm::vec4 &col, const Material &material) {
+
+   // currently not dashed and no end caps.
+
+   auto calculate_normal = [] (const glm::vec3 &d_1, const glm::vec3 &d_3) {
+                              auto uv_1 = glm::normalize(d_1);
+                              auto uv_3 = glm::normalize(d_3);
+                              auto uv_n = glm::cross(uv_1, uv_3);
+                              return uv_n;
+                           };
+
+   const unsigned int n_phi_steps = 20;
+   const unsigned int n_theta_steps = 12;
+   // std::vector<s_generic_vertex> local_vertices((n_theta_steps + 1) * n_phi_steps);
+   std::vector<s_generic_vertex> local_vertices(n_theta_steps * (n_phi_steps + 1));
+
+   // std::cout << "debug:: local_vertices resize to " << local_vertices.size() << std::endl;
+   std::vector<g_triangle> local_triangles;
+   float arc_radius = 0.7;
+   float arc_radius_inner = 0.05;
+   const float R = arc_radius;
+   const float r = arc_radius_inner;
+   const float pi = 3.1415926535;
+
+   glm::vec3 d_1 = pos_1 - pos_2; // direction to pos_1
+   glm::vec3 d_3 = pos_3 - pos_2; // direction to pos_3
+   float theta = glm::angle(glm::normalize(d_1), glm::normalize(d_3));
+   glm::vec3 z(0,0,1);
+   glm::vec3 normal = calculate_normal(d_1, d_3);
+
+   glm::vec3 centre_atom_position = pos_2;
+   glm::mat4 ori_mat_1 = glm::orientation(normal, z);
+
+   glm::mat3 rot_mat(ori_mat_1); // nope
+
+   // try again for the rotation matrix
+   //
+   { // it's just magic (see arc_info_type constructor)
+      glm::vec3 v1 = glm::normalize(d_3);
+      glm::vec3 v2 = glm::normalize(d_1);
+      glm::vec3 v3 = glm::cross(v1, v2);
+      glm::vec3 v4 = glm::cross(v3, v1);
+      rot_mat = glm::mat3(v1, v4, v3);
+   }
+
+   for (unsigned int ip=0; ip<=n_phi_steps; ip++) {
+      float phi = theta * static_cast<float>(ip)/static_cast<float>(n_phi_steps);
+      for (unsigned int it=0; it<n_theta_steps; it++) {
+         float theta = 2.0 * pi * static_cast<float>(it)/static_cast<float>(n_theta_steps);
+         s_generic_vertex v;
+         float x = (R + r * cosf(theta)) * cosf(phi);
+         float y = (R + r * cosf(theta)) * sinf(phi);
+         float z = r * sinf(theta);
+         glm::vec3 basic_pos(x,y,z);
+         float normal_x = cosf(theta) * cosf(phi);
+         float normal_y = cosf(theta) * sinf(phi);
+         float normal_z = sinf(theta);
+         glm::vec3 basic_normal(normal_x, normal_y, normal_z);
+         v.pos = rot_mat * basic_pos + centre_atom_position;
+         v.normal = rot_mat * basic_normal;
+         v.color = col;
+         unsigned int vertex_idx = ip * n_theta_steps + it;
+         local_vertices[vertex_idx] = v;
+      }
+   }
+
+   for (unsigned int ip=0; ip<n_phi_steps; ip++) {
+      unsigned int ip_this = ip;
+      unsigned int ip_next = ip + 1;
+      unsigned int idx_base_phi_00 = ip_this * n_theta_steps;
+      unsigned int idx_base_phi_10 = ip_next * n_theta_steps;
+      for (unsigned int it=0; it<n_theta_steps; it++) {
+         unsigned int it_this = it;
+         unsigned int it_next = it + 1;
+         if (it_next == n_theta_steps) it_next = 0;
+
+         unsigned int idx_00 = idx_base_phi_00 + it_this;
+         unsigned int idx_01 = idx_base_phi_00 + it_next;
+         unsigned int idx_10 = idx_base_phi_10 + it_this;
+         unsigned int idx_11 = idx_base_phi_10 + it_next;
+
+         g_triangle t1(idx_00, idx_10, idx_11);
+         g_triangle t2(idx_00, idx_11, idx_01);
+         local_triangles.push_back(t1);
+         local_triangles.push_back(t2);
+      }
+   }
+   import(local_vertices, local_triangles);
+   setup(material);
+
+
+}
+
 
 #include <fstream>
 

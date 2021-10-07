@@ -2,6 +2,9 @@
 #ifndef ARC_INFO_TYPE_HH
 #define ARC_INFO_TYPE_HH
 
+#include <clipper/core/coords.h>
+#include <mmdb2/mmdb_manager.h>
+
 namespace coot {
 // can throw an exception (e.g. null pointers, overlapping atoms)
    //

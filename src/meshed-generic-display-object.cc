@@ -283,7 +283,8 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
 
    const unsigned int n_phi_steps = 20;
    const unsigned int n_theta_steps = 12;
-   std::vector<s_generic_vertex> vertices((n_theta_steps + 1) * n_phi_steps);
+   std::vector<s_generic_vertex> vertices((n_theta_steps + 1) * n_phi_steps); // 20211007-PE this doesn't look right!
+                                                                              // c.f. add_dashed_angle_markup()
    std::vector<g_triangle> triangles;
    const float R = arc.radius;
    const float r = arc.radius_inner;
@@ -291,7 +292,7 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
 
    float angle_delta_deg = arc.delta_angle;
    float angle_delta = angle_delta_deg * pi / 180.0f;
-   glm::vec3 start_point = coord_orth_to_glm(arc.start_point);
+   glm::vec3 start_point = coord_orth_to_glm(arc.start_point); // this is the central atom position
    glm::vec4 col = colour_holder_to_glm(arc.col);
    glm::mat4 rot_mat = glm::orientation(coord_orth_to_glm(arc.normal), glm::vec3(0.0, 0.0, 1.0));
    std::cout << "rot_mat: " << glm::to_string(rot_mat)<< std::endl;
@@ -318,7 +319,7 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
          // v.normal = glm::vec3(rot_mat * glm::vec4(v.normal, 1.0f));;
          v.pos    = ori_mat * v.pos;
          v.normal = ori_mat * v.normal;
-         v.pos += start_point;
+         v.pos += start_point; // central atom position
          v.color = col;
          unsigned int vertex_idx = ip * n_theta_steps + it;
          vertices[vertex_idx] = v;

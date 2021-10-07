@@ -568,8 +568,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	       angle_tor_pos_3 = pos;
 	       graphics_draw();
 	       
-	       display_geometry_angle(); // uses class members
-	                                 // that we have just set
+	       add_measure_angle(); // uses class members that we have just set
 
 	       in_angle_define = 0;  // clear flag
 	       pick_pending_flag = 0;

@@ -3130,7 +3130,7 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
                                         label_str += "A"; 
                                         glm::vec4 col(0.66, 0.66, 0.66, 1.0);
                                         atom_label_info_t ali(label_str, offset_mid_point, col);
-                                        labels_for_mesaure_distances_and_angles.push_back(ali);
+                                        labels_for_measure_distances_and_angles.push_back(ali);
                                      };
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
@@ -3168,29 +3168,16 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
 // }
 
 void
-graphics_info_t::display_geometry_angle() const {
+graphics_info_t::add_measure_angle() const {
 
-   /// old way, where we dont do symmetry atoms
-//    mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
-//    mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
-//    mmdb::Atom *atom3 = molecules[geometry_atom_index_3_mol_no].atom_sel.atom_selection[geometry_atom_index_3];
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
 
    clipper::Coord_orth p1(angle_tor_pos_1.x(), angle_tor_pos_1.y(), angle_tor_pos_1.z());
    clipper::Coord_orth p2(angle_tor_pos_2.x(), angle_tor_pos_2.y(), angle_tor_pos_2.z());
    clipper::Coord_orth p3(angle_tor_pos_3.x(), angle_tor_pos_3.y(), angle_tor_pos_3.z());
 
-
    clipper::Coord_orth v1 = p2 - p1;
    clipper::Coord_orth v2 = p2 - p3;
-
-//    std::cout << "positions for angles"
-// 	     << "   " << p1.format() << std::endl
-// 	     << "   " << p2.format() << std::endl
-// 	     << "   " << p3.format() << std::endl;
-
-//    std::cout << "display_geometry_angle: " << std::endl
-//  	     << "      " << v1.format() << std::endl
-//  	     << "      " << v2.format() << std::endl;
 
    double dp = clipper::Coord_orth::dot(v1,v2);
    double len_v1 = sqrt(v1.lengthsq());
@@ -3200,28 +3187,32 @@ graphics_info_t::display_geometry_angle() const {
    double cos_theta = dp/(len_v1 * len_v2);
    double theta = acos(cos_theta);
 
-   // no symmetry version, we only have pos now
-//    std::cout << "       angle atom 1: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") "
-// 	     << atom1->name << "/"
-// 	     << atom1->GetChainID()  << "/"
-// 	     << atom1->GetSeqNum()   << "/"
-// 	     << atom1->GetResName() << std::endl;
-//    std::cout << "       angle atom 2: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") "
-// 	     << atom2->name << "/"
-// 	     << atom2->GetChainID()  << "/"
-// 	     << atom2->GetSeqNum()   << "/"
-// 	     << atom2->GetResName() << std::endl;
-//    std::cout << "       angle atom 3: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") "
-// 	     << atom3->name << "/"
-// 	     << atom3->GetChainID()  << "/"
-// 	     << atom3->GetSeqNum()   << "/"
-// 	     << atom3->GetResName() << std::endl;
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+                               return glm::vec3(co.x(), co.y(), co.z());
+                            };
 
-   std::cout << "       angle: " << theta*57.29578 << " degrees "
-        << std::endl;
+   auto add_measure_angle_label = [] (const glm::vec3 &p, double theta) {
+                                     double theta_deg = (180.0/M_PI) * theta;
+                                     std::string label_str = float_to_string_using_dec_pl(static_cast<float>(theta_deg), 2);
+                                     // label_str += "°";  // degrees symbol here
+                                     glm::vec4 col(0.72, 0.72, 0.72, 1.0);
+                                     atom_label_info_t ali(label_str, p, col); // not an atom label of course
+                                     labels_for_measure_distances_and_angles.push_back(ali);
+                                  };
+
+   // p2 is the middle atom
+   Material mat;
+   glm::vec4 colour(0.6, 0.7, 0.5, 1.0); // 20211007-PE same as in add_dashed_line();
+   mesh_for_measure_angle_object_vec.add_dashed_angle_markup(coord_orth_to_glm(p1),
+                                                             coord_orth_to_glm(p2),
+                                                             coord_orth_to_glm(p3), colour, mat);
+
+   clipper::Coord_orth mid_point(0.3333 * (p1+p2+p3));
+   clipper::Coord_orth centre_atom_to_mid_point_uv((mid_point-p2).unit());
+   clipper::Coord_orth adjusted_mid_point(mid_point + 0.2 * centre_atom_to_mid_point_uv);
+   add_measure_angle_label(coord_orth_to_glm(adjusted_mid_point), theta);
+
+   std::cout << "INFO:: angle: " << theta << " radians " << theta*57.29578 << " degrees " << std::endl;
 
    display_density_level_this_image = 1;
    display_density_level_screen_string = "  Angle:  ";
@@ -5429,8 +5420,8 @@ graphics_info_t::clear_last_measure_distance() {
       measure_distance_object_vec.pop_back();
 
       // a hack that will often work.
-      if (labels_for_mesaure_distances_and_angles.size() > 0)
-         labels_for_mesaure_distances_and_angles.pop_back();
+      if (labels_for_measure_distances_and_angles.size() > 0)
+         labels_for_measure_distances_and_angles.pop_back();
 
       // rebuild the mesh for measure_distance_object_vec
 

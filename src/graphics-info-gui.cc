@@ -3670,21 +3670,16 @@ graphics_info_t::unset_geometry_dialog_distance_togglebutton() {
 void
 graphics_info_t::unset_geometry_dialog_dynamic_distance_togglebutton() {
 
-   if (geometry_dialog) {
-      GtkWidget *toggle_button = widget_from_builder("geometry_dynamic_distance_togglebutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
-   }
+   GtkWidget *toggle_button = widget_from_builder("geometry_dynamic_distance_togglebutton");
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
 }
 
 
 void
 graphics_info_t::unset_geometry_dialog_angle_togglebutton() {
 
-   if (geometry_dialog) {
-      GtkWidget *toggle_button = lookup_widget(geometry_dialog,
-					       "geometry_angle_togglebutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
-   }
+   GtkWidget *toggle_button = widget_from_builder("geometry_angle_togglebutton");
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
 }
 
 

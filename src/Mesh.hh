@@ -248,6 +248,8 @@ public:
    static glm::mat4 make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::vec3 &p2, float theta);
 
    void add_dashed_line(const coot::simple_distance_object_t &l, const Material &material);
+   void add_dashed_angle_markup(const glm::vec3 &pos_1, const glm::vec3 &pos_2, const glm::vec3 &pos_3,
+                                const glm::vec4 &colour_in, const Material &mat);
 
    void apply_scale(float scale_factor);  // scale the positions in the vertices
    void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices

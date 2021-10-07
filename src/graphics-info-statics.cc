@@ -668,7 +668,7 @@ std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > graphics_info_
 std::vector<coot::coord_orth_triple> graphics_info_t::measure_angle_object_vec;
 Mesh graphics_info_t::mesh_for_measure_distance_object_vec = Mesh("mesh-for-measure-distance-object-vec");
 Mesh graphics_info_t::mesh_for_measure_angle_object_vec    = Mesh("mesh-for-measure-angle-object-vec");
-std::vector<atom_label_info_t> graphics_info_t::labels_for_mesaure_distances_and_angles;
+std::vector<atom_label_info_t> graphics_info_t::labels_for_measure_distances_and_angles;
 
 int graphics_info_t::show_origin_marker_flag = 1;
 

@@ -2033,10 +2033,13 @@ graphics_info_t::draw_measure_distance_and_angles() {
       mesh_for_measure_distance_object_vec.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
                                                 bg_col, shader_do_depth_fog_flag);
 
-      if (! labels_for_mesaure_distances_and_angles.empty()) {
+      mesh_for_measure_angle_object_vec.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
+                                             bg_col, shader_do_depth_fog_flag);
+
+      if (! labels_for_measure_distances_and_angles.empty()) {
          Shader &shader = shader_for_atom_labels;
-         for (unsigned int i=0; i<labels_for_mesaure_distances_and_angles.size(); i++) {
-            const auto &label = labels_for_mesaure_distances_and_angles[i];
+         for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
+            const auto &label = labels_for_measure_distances_and_angles[i];
             tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
                                              mvp, view_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, perspective_projection_flag);

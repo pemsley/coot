@@ -2356,8 +2356,8 @@ public:
    // return the distance
    float add_measure_distance(const coot::Cartesian &p1,
                               const coot::Cartesian &p2);
-   static std::vector<atom_label_info_t> labels_for_mesaure_distances_and_angles;
-   void display_geometry_angle() const;
+   static std::vector<atom_label_info_t> labels_for_measure_distances_and_angles;
+   void add_measure_angle() const; // uses class variables
    double get_geometry_torsion() const;
    void display_geometry_torsion() const;
    // return the distance
