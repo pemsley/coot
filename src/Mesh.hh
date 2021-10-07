@@ -247,7 +247,7 @@ public:
    // make the matrix (called several times). After which, the calling function calls update_instancing_buffer_data()
    static glm::mat4 make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::vec3 &p2, float theta);
 
-   void add_dashed_line(const coot::simple_distance_object_t &l, const Material &material);
+   void add_dashed_line(const coot::simple_distance_object_t &l, const Material &material, const glm::vec4 &colour);
    void add_dashed_angle_markup(const glm::vec3 &pos_1, const glm::vec3 &pos_2, const glm::vec3 &pos_3,
                                 const glm::vec4 &colour_in, const Material &mat);
 

@@ -11681,6 +11681,7 @@ on_draw_label_CA_atoms_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
    if (pp.first) {
       int imol = pp.second.first;
       label_all_CAs(imol);
+      graphics_draw();
    }
    
 }

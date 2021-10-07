@@ -2747,12 +2747,14 @@ public:
    // Pointer Distances
    static float pointer_min_dist;
    static float pointer_max_dist;
-   static int show_pointer_distances_flag;
+   static bool show_pointer_distances_flag;
    void clear_pointer_distances();
    static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > pointer_distances_object_vec;
-   static Mesh mesh_for_pointer_distances; // here for future-Paul
+   // static Mesh mesh_for_pointer_distances; // here for future-Paul
    static void draw_pointer_distances_objects(); // draw them
    void make_pointer_distance_objects(); // (re)generate them
+   static std::vector<atom_label_info_t> labels_for_pointer_distances;
+
 
    // Dynamic distances to intermediate atoms:
    static short int in_dynamic_distance_define;
@@ -3702,6 +3704,7 @@ public:
    static std::vector<Instanced_Markup_Mesh> instanced_meshes;
 
    static meshed_generic_display_object mesh_for_environment_distances;
+   static meshed_generic_display_object mesh_for_pointer_distances;
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {

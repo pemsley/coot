@@ -174,6 +174,7 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
    mesh.import(c.vertices, c.triangles);
 
    if (do_faces) {
+      std::cout << ":::::::::::::::::::::::::::::::::::::::::::::  do faces! " << std::endl;
       Mesh eyelash_r;
       std::string file_name("grey-eyelashes-many-lashes.glb");
       eyelash_r.load_from_glTF(file_name, false); // tries local directory first
@@ -431,6 +432,18 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
 
    mesh.import(vertices, triangles);
 
+}
+
+void
+meshed_generic_display_object::add_dashed_line(const coot::colour_holder &colour, const std::string &colour_name,
+                                               const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords,
+                                               const Material &material,
+                                               float line_width_scale, unsigned int n_segments) // default args 1.0, 5
+{
+
+   coot::simple_distance_object_t sdo(-1, coords.first, -1, coords.second);
+   glm::vec4 glm_colour(colour.red, colour.green, colour.blue, 1.0);
+   mesh.add_dashed_line(sdo, material, glm_colour);
 }
 
 

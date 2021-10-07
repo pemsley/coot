@@ -3263,7 +3263,9 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
                           draw_delete_item_pulse();
 
-                          draw_measure_distance_and_angles(); // maybe in draw_molecules()? 
+                          draw_measure_distance_and_angles(); // maybe in draw_molecules()?
+
+                          draw_pointer_distances_objects();
 
                           draw_ligand_view();
 
@@ -4067,6 +4069,32 @@ graphics_info_t::draw_delete_item_pulse() {
                                                mvp, view_rotation_matrix, true);
       }
    }
+}
+
+void
+graphics_info_t::draw_pointer_distances_objects() {
+
+   if (show_pointer_distances_flag) {
+      if (! pointer_distances_object_vec.empty()) {
+         Shader &shader = shader_for_moleculestotriangles;
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 view_rotation_matrix = get_view_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+         mesh_for_pointer_distances.mesh.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
+                                              bg_col, shader_do_depth_fog_flag);
+
+         if (! labels_for_pointer_distances.empty()) {
+            Shader &shader = shader_for_atom_labels;
+            for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
+               const auto &label = labels_for_pointer_distances[i];
+               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
+                                                mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                                shader_do_depth_fog_flag, perspective_projection_flag);
+            }
+         }
+      }
+   }
+
 }
 
 

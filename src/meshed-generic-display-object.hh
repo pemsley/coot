@@ -18,6 +18,8 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 
 coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
 
+// useful utils
+glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch);
 glm::vec3 coord_orth_to_glm(const clipper::Coord_orth &co);
 
 class meshed_generic_display_object {
@@ -115,6 +117,7 @@ public:
    };
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() { imol = UNDEFINED; }
+   meshed_generic_display_object(const std::string name_in) { imol = UNDEFINED; mesh.name = name_in; }
    explicit meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
@@ -135,8 +138,9 @@ public:
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
-   void add_dashed(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
-                   const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords, unsigned int n_segments);
+   void add_dashed_line(const coot::colour_holder &colour, const std::string &colour_name,
+                        const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords,
+                        const Material &material, float line_width_scale = 1.0, unsigned int n_segments = 5);
    void add_arrow(const arrow_t &arrow);
 
    // I need to say which cap type, flat or rounded.

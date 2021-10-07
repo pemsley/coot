@@ -531,7 +531,7 @@ std::string graphics_info_t::phs_filename = "";
 // Pointer Distances
 float graphics_info_t::pointer_min_dist = 0.1;
 float graphics_info_t::pointer_max_dist = 3.6;
-int graphics_info_t::show_pointer_distances_flag = 0;
+bool graphics_info_t::show_pointer_distances_flag = false;
 
 
 // Go to Atom widget:
@@ -669,6 +669,10 @@ std::vector<coot::coord_orth_triple> graphics_info_t::measure_angle_object_vec;
 Mesh graphics_info_t::mesh_for_measure_distance_object_vec = Mesh("mesh-for-measure-distance-object-vec");
 Mesh graphics_info_t::mesh_for_measure_angle_object_vec    = Mesh("mesh-for-measure-angle-object-vec");
 std::vector<atom_label_info_t> graphics_info_t::labels_for_measure_distances_and_angles;
+
+// Mesh graphics_info_t::mesh_for_pointer_distances = Mesh("mesh-for-pointer-distances");
+meshed_generic_display_object graphics_info_t::mesh_for_pointer_distances("mesh-in-generic-display-object for pointer distances");
+std::vector<atom_label_info_t> graphics_info_t::labels_for_pointer_distances;
 
 int graphics_info_t::show_origin_marker_flag = 1;
 
