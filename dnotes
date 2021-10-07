@@ -10192,3 +10192,9 @@ Wed 29 Sep 18:09:40 BST 2021
    See add_reps_dialog, but note that "Close" button is a Response, not connected to
    on_add_reps_dialog_response_gtkbuilder_callback() (I am not sure how to activeate that callback).
 
+---
+Thu  7 Oct 07:37:59 BST 2021
+
+   freetype font atlas implementation
+
+   https://gist.github.com/baines/b0f9e4be04ba4e6f56cab82eef5008ff

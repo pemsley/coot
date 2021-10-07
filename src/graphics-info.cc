@@ -3127,7 +3127,9 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
                                         glm::vec3 offset_mid_point = coord_orth_to_glm(mid_point) + glm::vec3(0.15, 0.05, 0.05);
                                         std::string label_str = float_to_string_using_dec_pl(static_cast<float>(dist), 2);
                                         // label_str += "ÅAÅ"; A-ring How to do this!?
-                                        label_str += "A"; 
+                                        // degree symbol: &#176; A-ring symbol: &#197
+                                        unsigned char c = 197;
+                                        label_str += c;
                                         glm::vec4 col(0.66, 0.66, 0.66, 1.0);
                                         atom_label_info_t ali(label_str, offset_mid_point, col);
                                         labels_for_measure_distances_and_angles.push_back(ali);
@@ -3194,7 +3196,9 @@ graphics_info_t::add_measure_angle() const {
    auto add_measure_angle_label = [] (const glm::vec3 &p, double theta) {
                                      double theta_deg = (180.0/M_PI) * theta;
                                      std::string label_str = float_to_string_using_dec_pl(static_cast<float>(theta_deg), 2);
-                                     // label_str += "°";  // degrees symbol here
+                                     // degree symbol: &#176; A-ring symbol: &#197
+                                     unsigned char c = 176;
+                                     label_str += c;
                                      glm::vec4 col(0.72, 0.72, 0.72, 1.0);
                                      atom_label_info_t ali(label_str, p, col); // not an atom label of course
                                      labels_for_measure_distances_and_angles.push_back(ali);
