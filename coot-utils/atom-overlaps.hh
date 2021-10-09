@@ -28,6 +28,7 @@
 
 #include "compat/coot-sysdep.h"
 #include "geometry/protein-geometry.hh"
+#include <unordered_map>
 
 namespace coot {
 
@@ -37,7 +38,7 @@ namespace coot {
       public:
 	 std::string type;
 	 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > positions;
-	 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &operator[](unsigned int idx) {
+	 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &operator[](unsigned int idx) const {
 	    return positions[idx];
 	 }
 	 unsigned int size() const { return positions.size(); }
@@ -53,10 +54,10 @@ namespace coot {
       };
       atom_overlaps_dots_container_t() {
 	 // I think this speeds things up a bit.
-	 dots["close-contact"].reserve(2500);
-	 dots["small-overlap"].reserve(2500);
-	 dots["wide-contact" ].reserve(2500);
 	 dots["big-overlap"  ].reserve(2500);
+	 dots["small-overlap"].reserve(2500);
+	 dots["close-contact"].reserve(2500);
+	 dots["wide-contact" ].reserve(2500);
 	 dots["H-bond"       ].reserve(2500);
 	 dots["vdw-surface"  ].reserve(2500);
       }
@@ -65,18 +66,18 @@ namespace coot {
       // 1,000 a/t -> size  27,000
       explicit atom_overlaps_dots_container_t(unsigned int n_atoms_per_thread) {
 
-	 dots["close-contact"].reserve(25 * n_atoms_per_thread);
-	 dots["small-overlap"].reserve(25 * n_atoms_per_thread);
-	 dots["wide-contact" ].reserve(25 * n_atoms_per_thread);
 	 dots["big-overlap"  ].reserve(25 * n_atoms_per_thread);
+	 dots["small-overlap"].reserve(25 * n_atoms_per_thread);
+	 dots["close-contact"].reserve(25 * n_atoms_per_thread);
+	 dots["wide-contact" ].reserve(25 * n_atoms_per_thread);
 	 dots["H-bond"       ].reserve(25 * n_atoms_per_thread);
 	 dots["vdw-surface"  ].reserve(25 * n_atoms_per_thread);
       }
 
-      std::map<std::string, std::vector<dot_t> > dots;
+      std::unordered_map<std::string, std::vector<dot_t> > dots;
       spikes_t clashes;
       void add(const atom_overlaps_dots_container_t &other) {
-	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
+	 std::unordered_map<std::string, std::vector<dot_t> >::const_iterator it;
 	 for (it=other.dots.begin(); it!=other.dots.end(); ++it)
 	    if (it->second.size())
 	       dots[it->first].insert(dots[it->first].end(),it->second.begin(), it->second.end());
@@ -86,7 +87,7 @@ namespace coot {
 				     other.clashes.positions.end());
       }
       double score() const {
-	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
+	 std::unordered_map<std::string, std::vector<dot_t> >::const_iterator it;
 	 // do these match the types in overlap_delta_to_contact_type()?
 	 double r = 0;
 	 it = dots.find("H-bond");
@@ -103,7 +104,7 @@ namespace coot {
 	 return r;
       }
       void debug() const {
-	 std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+	 std::unordered_map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 	 for (it=dots.begin(); it!=dots.end(); ++it)
 	    std::cout << " contact dot map " << it->first << " size " << it->second.size() << std::endl;
       }

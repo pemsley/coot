@@ -94,7 +94,7 @@ if True:
                                      lambda func: coot_gui.water_coordination_gui())
        coot_gui.add_simple_coot_menu_menuitem(menu, "Atom Overlaps (Coot)",
                                      lambda func:
-                                              coot_utils.using_active_atom(coot_all_atom_contact_dots, "aa_imol"))
+                                              coot_utils.using_active_atom(coot.coot_all_atom_contact_dots, "aa_imol"))
        coot_gui.add_simple_coot_menu_menuitem(menu, "All-Atom Contact Dots (Molprobity)",
                                      lambda func:
                                               coot_utils.using_active_atom(probe, "aa_imol"))

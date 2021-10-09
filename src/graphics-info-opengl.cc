@@ -395,7 +395,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
       molecule_name_stub += coot::util::int_to_string(imol);
       molecule_name_stub += ": ";
 
-      std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+      std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;

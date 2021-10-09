@@ -1,3 +1,4 @@
+
 /* coot-utils/atom-overlaps.cc
  * 
  * Copyright 2016 by Medical Research Council
@@ -1103,7 +1104,7 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
 
-   bool add_vdw_dots = false; // pass this
+   bool add_vdw_dots = true; // pass this
 
    atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
@@ -1753,7 +1754,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 
          if (false) {
             for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-               std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+               std::unordered_map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
                for (it =results_container_vec[i_thread].dots.begin();
                     it!=results_container_vec[i_thread].dots.end();
                     ++it) {
@@ -1768,7 +1769,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 
          if (false) { // debugging
             std::cout << "consolidated" << std::endl;
-            std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+            std::unordered_map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
             for (it=ao.dots.begin(); it!=ao.dots.end(); it++)
                std::cout << " consolidated size "
                          << it->first << " " << it->second.size() << std::endl;

@@ -35,13 +35,17 @@ Instanced_Markup_Mesh::clear() {
 void
 Instanced_Markup_Mesh::close() {
 
-   clear();
-   draw_this_mesh = false;
-   this_mesh_is_closed = true;
+   if (this_mesh_is_closed) {
+      // nothing to do
+   } else {
+      clear();
+      draw_this_mesh = false;
+      this_mesh_is_closed = true;
 
-   if (! first_time) {
-      glDeleteBuffers(1, &buffer_id);
-      glDeleteBuffers(1, &index_buffer_id);
+      if (! first_time) {
+         glDeleteBuffers(1, &buffer_id);
+         glDeleteBuffers(1, &index_buffer_id);
+      }
    }
 }
 

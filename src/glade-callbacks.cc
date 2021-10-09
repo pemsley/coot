@@ -8178,6 +8178,18 @@ on_generic_display_objects1_activate_gtkbuilder_callback   (GtkMenuItem     *men
 
 
 extern "C" G_MODULE_EXPORT
+void on_generic_objects_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                            gint             response_id,
+                                                            gpointer         user_data) {
+
+    if (response_id == GTK_RESPONSE_CLOSE) {
+       gtk_widget_hide(GTK_WIDGET(dialog));
+    }
+}
+
+
+// what a terrible function name!
+extern "C" G_MODULE_EXPORT
 gboolean
 on_entry1_key_press_event_gtkbuilder_callback              (GtkWidget       *widget,
                                         GdkEventKey     *event,
@@ -9189,11 +9201,11 @@ on_aboutdialog_close_gtkbuilder_callback                   (GtkDialog       *dia
 }
 extern "C" G_MODULE_EXPORT
 void
-on_aboutdialog_response_gtkbuilder_callback                (GtkDialog       *dialog,
-                                        gint             response_id,
-                                        gpointer         user_data)
+on_aboutdialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                             gint             response_id,
+                                             gpointer         user_data)
 {
-  gtk_widget_destroy(GTK_WIDGET(dialog));
+  gtk_widget_hide(GTK_WIDGET(dialog));
 }
 extern "C" G_MODULE_EXPORT
 void
@@ -11050,18 +11062,23 @@ on_generic_objects_dialog_closebutton_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
 					 gpointer         user_data) {
 
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generic_objects_dialog");
-  gtk_widget_destroy(w);
-  clear_generic_objects_dialog_pointer();
-  graphics_draw();
+   std::cout << "------------------------ no longer a thing: "
+             << "on_generic_objects_dialog_closebutton_clicked_gtkbuilder_callback" << std::endl;
+
+#if 0 // 20211007-PE
+   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generic_objects_dialog");
+   gtk_widget_destroy(w);
+   clear_generic_objects_dialog_pointer();
+   graphics_draw();
+#endif
 
 }
 
 /* I don't know how this function gets activated, it's not the close button of the dialog */
 extern "C" G_MODULE_EXPORT
 void
-on_generic_objects_dialog_close_gtkbuilder_callback        (GtkDialog       *dialog,
-                                        gpointer         user_data) {
+on_generic_objects_dialog_close_gtkbuilder_callback (GtkDialog       *dialog,
+                                                     gpointer         user_data) {
 
   clear_generic_objects_dialog_pointer(); /* needed here? */
   graphics_draw();
@@ -11080,14 +11097,12 @@ on_generic_objects_dialog_destroy_gtkbuilder_callback      (GtkWidget       *obj
 
 extern "C" G_MODULE_EXPORT
 void
-on_generic_objects_display_all_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_generic_objects_display_all_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                        gpointer         user_data) {
 
   int state = 0;
   if (gtk_toggle_button_get_active(togglebutton))
-    state = 1;
+     state = 1;
   set_display_all_generic_objects(state);
 
 }

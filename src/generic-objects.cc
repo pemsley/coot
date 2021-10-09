@@ -436,12 +436,17 @@ void set_display_generic_object_simple(int object_number, short int istate) {
                 << object_number << std::endl;
    }
 
+#if 0
    if (g.generic_objects_dialog) {
+
       // get the togglebutton and set its state
-      std::string toggle_button_name = "generic_object_" +
-         coot::util::int_to_string(object_number) + "_toggle_button";
-      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
-                                               toggle_button_name.c_str());
+      std::string toggle_button_name = "generic_object_" + coot::util::int_to_string(object_number) + "_toggle_button";
+
+      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str());
+      // GtkWidget *toggle_button = 0;
+
+      std::cout << "::: debug in set_display_generic_object_simple() toggle_button (from lookup_widget()!) "
+                << toggle_button << std::endl;
 
       if (toggle_button) {
          if (istate)
@@ -450,6 +455,7 @@ void set_display_generic_object_simple(int object_number, short int istate) {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
       }
    }
+#endif
 }
 
 void set_display_generic_object(int object_number, short int istate) {
@@ -457,14 +463,27 @@ void set_display_generic_object(int object_number, short int istate) {
    graphics_draw();
 }
 
+#include "widget-from-builder.hh"
 
-/*! \brief display (1) or undisplay (0) all generic display objects */
+/*! \brief display (1) or undisplay (0) all generic objects */
 void set_display_all_generic_objects(int state) {
 
    graphics_info_t g;
-   unsigned int n_objs = g.generic_display_objects.size();
-   for (unsigned int i=0; i<n_objs; i++) {
-      set_display_generic_object_simple(i, state);
+   GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid");
+   if (g.generic_objects_dialog) {
+      unsigned int n_rows = 104;
+      for (unsigned int i_row=0; i_row<n_rows; i_row++) {
+         GtkWidget *checkbutton = gtk_grid_get_child_at(GTK_GRID(grid), 1, i_row);
+         if (! checkbutton) break;
+         // changing the state of the check button calls the callback
+         // which changes the draw state of the mesh. I don't need to do
+         // that explicitly in this function.
+         if (state) {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+         } else {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+         }
+      }
    }
    graphics_draw();
 }
@@ -634,7 +653,7 @@ short int is_closed_generic_object_p(int object_number) {
 
    short int state = 0;
    graphics_info_t g;
-   if (object_number >=0) { 
+   if (object_number >=0) {
       if (object_number < int(g.generic_display_objects.size())) {
 	 state = g.generic_display_objects[object_number].mesh.this_mesh_is_closed;
       }
@@ -645,13 +664,29 @@ short int is_closed_generic_object_p(int object_number) {
 
 void close_all_generic_objects() {
 
+   std::cout << ":::::::::::::: debug:: close_all_generic_objects() " << std::endl;
+
    graphics_info_t g;
+
+   // ----------------- graphics_info meshes --------------------
+
    int n_objs = g.generic_display_objects.size();
    for (int i=0; i<n_objs; i++) {
       meshed_generic_display_object &obj = g.generic_display_objects[i];
       if (! obj.mesh.this_mesh_is_closed) // Hmm.
 	 obj.close_yourself();
    }
+
+   // ----------------- molecule_class_info meshes --------------------
+
+   for (unsigned int i=0; i<g.molecules.size(); i++) {
+      molecule_class_info_t &m = g.molecules[i];
+      for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
+         Instanced_Markup_Mesh &imm = m.instanced_meshes[j];
+         imm.close();
+      }
+   }
+
    graphics_draw();
 }
 
@@ -660,22 +695,22 @@ void generic_objects_gui_wrapper() {
    graphics_info_t g;
    g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
    gtk_widget_show(g.generic_objects_dialog);
-} 
+}
 
 
 
-/*! \brief attach the generic object to a particular molecule 
+/*! \brief attach the generic object to a particular molecule
 
 one might do this if the generic object is specific to a molecule.
  */
 void attach_generic_object_to_molecule(int object_number, int imol) {
 
    graphics_info_t g;
-   if (object_number >=0) { 
+   if (object_number >=0) {
       if (object_number < int(g.generic_display_objects.size())) {
-	 if (is_valid_model_molecule(imol)) {
-	    g.generic_display_objects[object_number].attach_to_molecule(imol);
-	 }
+         if (is_valid_model_molecule(imol)) {
+            g.generic_display_objects[object_number].attach_to_molecule(imol);
+         }
       }
    }
 }
@@ -702,12 +737,12 @@ void generic_object_info() {
       }
    } else {
       std::cout << "No Generic Display Objects" << std::endl;
-   } 
-} 
+   }
+}
 
 // generic object obj_no has things to display?
 // Return 0 or 1.
-// 
+//
 short int generic_object_has_objects_p(int object_number) {
 
    short int r = 0;
@@ -718,10 +753,9 @@ short int generic_object_has_objects_p(int object_number) {
    } else {
       std::cout << "WARNING:: object_number in generic_display_objects "
 		<< object_number << std::endl;
-   } 
+   }
    return r;
-} 
-
+}
 
 
 
