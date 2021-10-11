@@ -5728,8 +5728,8 @@ on_no_bad_chiral_volumes_dialog_ok_button_clicked_gtkbuilder_callback (GtkButton
 						   gpointer         user_data)
 {
 
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "no_bad_chiral_volumes_dialog");
-  gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("no_bad_chiral_volumes_dialog");
+   gtk_widget_hide(w);
 }
 
 
@@ -5738,9 +5738,9 @@ void
 on_check_chiral_volumes_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
 					   gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "check_chiral_volumes_dialog");
-  check_chiral_volumes_from_widget(w);
-  gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("check_chiral_volumes_dialog");
+   check_chiral_volumes_from_widget(w);
+   gtk_widget_hide(w);
 
 }
 
@@ -5750,8 +5750,8 @@ void
 on_check_chiral_volumes_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
 					       gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "check_chiral_volumes_dialog");
-  gtk_widget_destroy(w);
+   GtkWidget *dialog = widget_from_builder("check_chiral_volumes_dialog");
+   gtk_widget_hide(dialog);
 }
 
 
@@ -5780,8 +5780,19 @@ on_chiral_volume_baddies_dialog_cancel_button_clicked_gtkbuilder_callback (GtkBu
 
 extern "C" G_MODULE_EXPORT
 void
+on_bad_chiral_volumes_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                          gint             response_id,
+                                                          gpointer         user_data) {
+
+   if (response_id == GTK_RESPONSE_CLOSE)
+      gtk_widget_hide(GTK_WIDGET(dialog));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_rigid_body_refinement_failed_dialog_ok_button_clicked_gtkbuilder_callback (GtkButton *button,
-							  gpointer user_data)
+                                                                              gpointer user_data)
 {
   GtkWidget *w = lookup_widget(GTK_WIDGET(button),
 			       "rigid_body_refinement_failed_dialog");

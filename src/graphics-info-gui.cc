@@ -3861,54 +3861,56 @@ GtkWidget *
 graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::atom_spec_t> &v,
 						     int imol) {
 
-   GtkWidget *w = NULL;
+   auto make_button_label = [] (const coot::atom_spec_t &as) {
+                               // c.f. how we add rotamers: (fill_rotamer_selection_buttons)
+                               std::string button_label(" ");
+                               button_label += as.chain_id;
+                               button_label += " " ;
+                               button_label += int_to_string(as.res_no);
+                               button_label += " " ;
+                               button_label += as.atom_name;
+                               button_label += " " ;
+                               button_label += as.alt_conf;
+                               button_label += " " ;
+                               return button_label;
+                            };
+
+   auto my_delete_items = [] (GtkWidget *widget, void *data) {
+                             gtk_container_remove(GTK_CONTAINER(data), widget);
+                          };
+
+   auto clear_vbox = [my_delete_items] (GtkWidget *box) {
+                        gtk_container_foreach(GTK_CONTAINER(box), my_delete_items, box);
+                   };
+
+   GtkWidget *dialog = NULL;
 
    std::cout  << "There were " << v.size() << " bad chiral volumes: " << std::endl;
 
    if (v.size() > 0) {
-      GtkWidget *button;
-      w = create_bad_chiral_volumes_dialog ();
-      GtkWidget *bad_chiral_volume_atom_vbox =
-	 lookup_widget(w, "chiral_volume_baddies_vbox");
-      coot::atom_spec_t *atom_spec;
+      dialog = widget_from_builder("bad_chiral_volumes_dialog");
+      GtkWidget *bad_chiral_volume_atom_vbox = widget_from_builder("chiral_volume_baddies_vbox");
+      clear_vbox(bad_chiral_volume_atom_vbox);
       for (unsigned int i=0; i<v.size(); i++) {
-	 std::cout << "  "
-		   << v[i].chain_id << " "
-		   << v[i].res_no << " "
-		   << v[i].atom_name << " "
-		   << v[i].alt_conf << " "
-		   << "\n";
-
-	 // c.f. how we add rotamers: (fill_rotamer_selection_buttons)
-	 std::string button_label(" ");
-	 button_label += v[i].chain_id;
-	 button_label += " " ;
-	 button_label += int_to_string(v[i].res_no);
-	 button_label += " " ;
-	 button_label += v[i].atom_name;
-	 button_label += " " ;
-	 button_label += v[i].alt_conf;
-	 button_label += " " ;
-
-	 button = gtk_button_new_with_label(button_label.c_str());
-	 atom_spec = new coot::atom_spec_t(v[i]);
+         if (false)
+            std::cout << "  " << v[i].chain_id << " " << v[i].res_no << " " << v[i].atom_name << " "
+                      << v[i].alt_conf << " " << "\n";
+         std::string button_label(make_button_label(v[i]));
+         GtkWidget *button = gtk_button_new_with_label(button_label.c_str());
+         coot::atom_spec_t *atom_spec = new coot::atom_spec_t(v[i]);
 	 atom_spec->int_user_data = imol;
-
-	 g_signal_connect(G_OBJECT(button), "clicked",
-			  G_CALLBACK(on_inverted_chiral_volume_button_clicked),
-			  atom_spec);
-
-	 gtk_box_pack_start(GTK_BOX(bad_chiral_volume_atom_vbox),
-			    button, FALSE, FALSE, 0);
-	 gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+	 g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_inverted_chiral_volume_button_clicked), atom_spec);
+	 gtk_box_pack_start(GTK_BOX(bad_chiral_volume_atom_vbox), button, FALSE, FALSE, 0);
+	 gtk_container_set_border_width(GTK_CONTAINER(button), 6);
 	 gtk_widget_show(button);
       }
+      gtk_widget_show(dialog);
 
    } else {
       std::cout << "Congratulations: there are no bad chiral volumes in this molecule.\n";
-      w = create_no_bad_chiral_volumes_dialog();
+      dialog = create_no_bad_chiral_volumes_dialog();
    }
-   return w;
+   return dialog;
 }
 
 // static
