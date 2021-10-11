@@ -6706,9 +6706,9 @@ on_diff_map_peaks_dialog_ok_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "diff_map_peaks_dialog");
-  clear_diff_map_peaks();
-  gtk_widget_destroy(w);
+   GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
+   clear_diff_map_peaks();
+   gtk_widget_hide(dialog);
 }
 
 
@@ -6719,9 +6719,9 @@ on_generate_diff_map_peaks_ok_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generate_diff_map_peaks_dialog");
-  difference_map_peaks_by_widget(w);
-  gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("generate_diff_map_peaks_dialog");
+   difference_map_peaks_by_widget(w); // make the results (and show the results dialog)
+   gtk_widget_hide(w);
 
 }
 
@@ -6732,8 +6732,8 @@ on_generate_diff_map_peaks_cancel_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generate_diff_map_peaks_dialog");
-  gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("generate_diff_map_peaks_dialog");
+   gtk_widget_hide(w);
 
 }
 
@@ -7018,8 +7018,8 @@ on_checked_waters_baddies_cancel_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "checked_waters_baddies_dialog");
-   gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("checked_waters_baddies_dialog");
+   gtk_widget_hide(w);
 
 }
 
@@ -7593,6 +7593,15 @@ on_undo_last_navigation1_activate_gtkbuilder_callback      (GtkMenuItem     *men
                                         gpointer         user_data)
 {
    undo_last_move();
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_undo_symmetry_view1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                     gpointer         user_data)
+{
+   undo_symmetry_view();
 }
 
 

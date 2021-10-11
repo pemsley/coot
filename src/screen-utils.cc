@@ -14,8 +14,8 @@ get_max_effective_screen_height() {
     gboolean ok;
     guchar* raw_data = NULL;
     gint data_len = 0;
-    gint width;
-    gint height;
+    gint width = 200;
+    gint height = 200;
     int max_height;
     max_height = -1;
 
@@ -102,7 +102,7 @@ setup_screen_size_settings() {
 
 void setup_application_icon(GtkWindow *window) {
 
-   std::string splash_screen_pixmap_dir = PKGDATADIR;
+   std::string splash_screen_pixmap_dir = coot::package_data_dir();
    splash_screen_pixmap_dir += "/";
    splash_screen_pixmap_dir += "pixmaps";
 
@@ -113,9 +113,7 @@ void setup_application_icon(GtkWindow *window) {
    }
 
    // now add the application icon
-   std::string app_icon_path =
-      coot::util::append_dir_file(splash_screen_pixmap_dir,
-				  "coot-icon.png");
+   std::string app_icon_path = coot::util::append_dir_file(splash_screen_pixmap_dir, "coot-icon.png");
 
    struct stat buf;
    int status = stat(app_icon_path.c_str(), &buf);
@@ -175,6 +173,7 @@ void setup_application_icon(GtkWindow *window) {
 	    std::string tmp = coot::util::file_name_non_directory(filename);
             stock_id = tmp.c_str();
             if (! tmp.empty()) {
+               // std::cout << "factory adding icon " << stock_id << std::endl;
 	       gtk_icon_factory_add(iconfactory, stock_id, iconset);
 	       gtk_icon_factory_add_default(iconfactory);
 	    }

@@ -4607,6 +4607,7 @@ WARNING:: No Models with Waters Available!
   <object class="GtkDialog" id="checked_waters_baddies_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Questionable Waters</property>
+    <property name="default_width">420</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox84">
@@ -4656,6 +4657,8 @@ WARNING:: No Models with Waters Available!
                   <object class="GtkBox" id="checked_waters_baddies_vbox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_top">1</property>
+                    <property name="margin_bottom">1</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <placeholder/>
@@ -12055,6 +12058,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="undo_symmetry_view1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Undo Symmetry View</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_undo_symmetry_view1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="zoom1">
                             <property name="label" translatable="yes">Zoom...</property>
                             <property name="visible">True</property>
@@ -12162,16 +12174,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="check_waters_by_difference_map_variance1">
-                            <property name="label" translatable="yes">Check waters by Difference Map Variance...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_check_waters_by_difference_map_variance1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="density_fit_analysis1">
                             <property name="label" translatable="yes">Density fit analysis</property>
                             <property name="visible">True</property>
@@ -12189,16 +12191,6 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_difference_map_peaks1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="ramachandran_differences_plot1">
-                            <property name="label" translatable="yes">Kleywegt Plot...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_ramachandran_differences_plot1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -12229,6 +12221,16 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_incorrect_chiral_volumes1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="ramachandran_differences_plot1">
+                            <property name="label" translatable="yes">Kleywegt Plot...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_ramachandran_differences_plot1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>

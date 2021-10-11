@@ -1,3 +1,4 @@
+
 /* src/graphics-info-navigation.cc
  *
  * Copyright 2004, 2005, 2006 by The University of York
@@ -1211,10 +1212,10 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       clipper::Coord_orth pt_1 = centre_pt.transform(rtop_symm.inverse());
       clipper::Coord_orth pt_2 = pt_1 + pre_shift;
 
-      if (0) {
-	 std::cout << "box =================== " << i << " ======================= " << std::endl;
-	 std::cout << "rtop_symm:\n" << rtop_symm.format() << std::endl;
-	 std::cout << "pre_shift: " << pre_shift.format() << std::endl;
+      if (false) {
+         std::cout << "box =================== " << i << " ======================= " << std::endl;
+         std::cout << "rtop_symm:\n" << rtop_symm.format() << std::endl;
+         std::cout << "pre_shift: " << pre_shift.format() << std::endl;
       }
 
       // Now, is pt_2 close to an atom in the imolth molecule?  If so, what is the distance?
@@ -1223,30 +1224,27 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       coot::Cartesian pt_2c(pt_2.x(), pt_2.y(), pt_2.z());
       std::pair<float, int> na = molecules[imol].nearest_atom(pt_2c);
       if (na.second >= 0) {
-	 if (na.first < min_dist) {
-	    min_dist = na.first;
-	    best_rtop_symm = rtop_symm;
-	    best_molecule_centre = pt_2;
-	    r = 1;
-	 }
+         if (na.first < min_dist) {
+            min_dist = na.first;
+            best_rtop_symm = rtop_symm;
+            best_molecule_centre = pt_2;
+            r = 1;
+         }
       }
    }
 
 
    if (r) {
-#if 0   // needs glm_quat version
+
       coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
-      coot::util::quaternion q(quat[0],quat[1],quat[2],quat[3]);
+      coot::util::quaternion q(glm_quat[3], glm_quat[0], glm_quat[1], glm_quat[2]);
+
       clipper::Mat33<double> current_view_mat = q.matrix();
       clipper::Mat33<double>     new_view_mat = best_rtop_symm.inverse().rot() * current_view_mat;
-      coot::util::quaternion vq(new_view_mat);
-      quat[0] = vq.q0;
-      quat[1] = vq.q1;
-      quat[2] = vq.q2;
-      quat[3] = vq.q3;
+      coot::util::quaternion vq(new_view_mat); // maybe not needed, but this works.
+      glm_quat = glm::quat(vq.q0, vq.q1, vq.q2, vq.q3);
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
-#endif
       graphics_draw();
    }
    return r;

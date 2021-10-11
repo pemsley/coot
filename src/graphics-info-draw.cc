@@ -593,6 +593,9 @@ graphics_info_t::myglLineWidth(int n_pixels) {
 void
 graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: gtk3_draw_map_molecules() -- start -- " << err << std::endl;
+
    // run through this molecule loop twice - for opaque then transparent maps
    // first, a block that decides if we need to do anything.
 
@@ -635,7 +638,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    }
 
-   GLenum err = glGetError();
+   err = glGetError();
    if (err) std::cout << "gtk3_draw_map_molecules() A " << err << std::endl;
 
    if (!draw_transparent_maps || n_transparent_maps > 0) {

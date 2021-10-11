@@ -4505,7 +4505,28 @@ graphics_info_t::renumber_residue_range_chain_combobox_changed(GtkWidget *combob
 
 // static
 GtkWidget *
-graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title) {
+graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol,
+                                                      const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
+                                                      float map_sigma,
+                                                      const std::string &dialog_title) {
+
+   auto make_label = [centres, map_sigma] (unsigned int i_peak) {
+                        std::string label = "Peak ";
+                        label += int_to_string(i_peak+1);
+                        label += ": ";
+                        label += float_to_string(centres[i_peak].second);
+                        label += " (";
+                        label += float_to_string(centres[i_peak].second/map_sigma);
+                        label += " rmsd) at ";
+                        label += "(";
+                        label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.x(), 2);
+                        label += ", ";
+                        label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.y(), 2);
+                        label += ", ";
+                        label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.z(), 2);
+                        label += ")";
+                        return label;
+                     };
 
    GtkWidget *w = create_diff_map_peaks_dialog();
 
@@ -4524,32 +4545,22 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
 
    // a cutn'paste jobby from fill_rotamer_selection_buttons().
    for (unsigned int i=0; i<centres.size(); i++) {
-      std::string label = int_to_string(i+1);
-      label += " ";
-      label += float_to_string(centres[i].second);
-      label += " (";
-      label += float_to_string(centres[i].second/map_sigma);
-      label += " rmsd) at ";
-      label += centres[i].first.format();
-      radio_button = gtk_radio_button_new_with_label(diff_map_group,
-						     label.c_str());
+      std::string label = make_label(i);
+      radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
       std::string button_name = "difference_map_peaks_button_";
       button_name += int_to_string(i);
 
       diff_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (radio_button));
       // gtk_widget_ref (radio_button);
-      g_object_set_data_full(G_OBJECT (w),
-			     button_name.c_str(), radio_button, NULL);
+      g_object_set_data_full(G_OBJECT (w), button_name.c_str(), radio_button, NULL);
 
-      // int *iuser_data = new int;
       coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
       hd->ipeak = i;
       hd->pos = centres[i].first;
 
-      // *iuser_data = i;
-      g_signal_connect (G_OBJECT (radio_button), "toggled",
-			  G_CALLBACK(on_diff_map_peak_button_selection_toggled),
-			  hd);
+      g_signal_connect(G_OBJECT (radio_button), "toggled",
+                       G_CALLBACK(on_diff_map_peak_button_selection_toggled),
+                       hd);
 
        gtk_widget_show (radio_button);
        frame = gtk_frame_new(NULL);

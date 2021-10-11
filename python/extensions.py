@@ -154,6 +154,7 @@ if True:
      calculate_ncs_maps_menu     = get_existing_submenu(calculate_menu, "NCS Maps...")
      calculate_modelling_menu    = get_existing_submenu(calculate_menu, "Modelling...")
      calculate_modules_menu      = get_existing_submenu(calculate_menu, "Modules...")
+     draw_representation_menu    = get_existing_submenu(draw_menu, "Representation Tools...")
 
      # make submenus:
      submenu_all_molecule = Gtk.Menu()
@@ -206,9 +207,11 @@ if True:
 
      calculate_ncs_tools_menu.set_submenu(submenu_ncs)
 
-     menuitem_6.set_submenu(submenu_representation)
-     draw_menu.append(menuitem_6)
-     menuitem_6.show()
+     # menuitem_6.set_submenu(submenu_representation)
+     # draw_menu.append(menuitem_6)
+     # menuitem_6.show()
+
+     draw_representation_menu.set_submenu(submenu_representation)
 
      menuitem_pisa.set_submenu(submenu_pisa)
      draw_menu.append(menuitem_pisa)
@@ -1395,116 +1398,6 @@ if True:
      # ---------------------------------------------------------------------
      #
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Undo Symmetry View",
-       lambda func: coot.undo_symmetry_view())
-
-
-     def make_ball_n_stick_func(imol, text):
-       bns_handle = coot.make_ball_and_stick(imol, text, 0.18, 0.3, 1)
-       print("handle: ", bns_handle)
-
-
-     global default_ball_and_stick_selection    # maybe should be at the top of the file
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Ball & Stick...",
-       lambda func: coot_gui.generic_chooser_and_entry("Ball & Stick",
-                                              "Atom Selection:",
-                                              default_ball_and_stick_selection,
-                                              lambda imol, text: make_ball_n_stick_func(imol, text)))
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Add Balls to Simple Sticks",
-       lambda func: [set_draw_stick_mode_atoms(imol, 1) for imol in coot_utils.molecule_number_list()])
-
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Simple Sticks (No Balls)",
-       lambda func: [set_draw_stick_mode_atoms(imol, 0) for imol in coot_utils.molecule_number_list()])
-
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Clear Ball & Stick...",
-       lambda func: coot_gui.molecule_chooser_gui(
-         "Choose a molecule from which to clear Ball&Stick objects",
-         lambda imol: coot.clear_ball_and_stick(imol)))
-
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Electrostatic Surface...",
-       lambda func: coot_gui.molecule_chooser_gui(
-          "Choose a molecule to represent as a surface..." + \
-          "\n" + \
-          "Can be SLOW",
-          lambda imol: coot.do_surface(imol, 1)))  # shall we switch on the light too?!
-
-
-     def surface_func1(clipped = 0):
-       active_atom = active_residue()
-       aa_imol      = active_atom[0]
-       aa_chain_id  = active_atom[1]
-       aa_res_no    = active_atom[2]
-       aa_ins_code  = active_atom[3]
-       aa_atom_name = active_atom[4]
-       aa_alt_conf  = active_atom[5]
-       central_residue = active_residue()
-       residues = residues_near_residue(aa_imol, central_residue[1:4], 6.0)
-       # no waters in surface, thanks.
-       # but what if they have different names?! (only HOH so far)
-       filtered_residues = []
-       for res in residues:
-         if (coot.residue_name(aa_imol, *res) != "HOH"):
-           filtered_residues.append(res)
-       imol_copy = coot.copy_molecule(aa_imol)
-       # delete the interesting residue from the copy (so that
-       # it is not surfaced).
-       coot.delete_residue(imol_copy, aa_chain_id, aa_res_no, aa_ins_code)
-       if clipped:
-         do_clipped_surface(imol_copy, filtered_residues)
-       else:
-         coot.do_surface(imol_copy, 1)
-       
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Clipped Surface Here (This Residue)",
-       lambda func:
-         surface_func1(1))
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Full Surface Around Here (This Residue)",
-       lambda func:
-         surface_func1())
-     
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Un-Surface...",
-       lambda func: coot_gui.molecule_chooser_gui(
-          "Choose a molecule to represent conventionally...",
-          lambda imol: coot.do_surface(imol, 0)))
-
-     def hilight_site_func():
-       active_atom = active_residue()
-       if (active_atom):
-         imol = active_atom[0]
-         centre_residue_spec = [active_atom[1],
-                                active_atom[2],
-                                active_atom[3]]
-         coot_utils.hilight_binding_site(imol, centre_residue_spec, 230,4)
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Highlight Interesting Site (here)...",
-       lambda func: hilight_site_func())
-     
-
      def make_dot_surf_func(imol,text):
         # I think a single colour is better than colour by atom
         coot.set_dots_colour(imol, 0.5, 0.5, 0.5)
@@ -1533,39 +1426,11 @@ if True:
                 "Dots Handle Number:", "0", 
                 lambda imol, text: clear_dot_surf_func(imol, text)))
 
-
-     def limit_model_disp_func(text):
-       try:
-         f = float(text)
-         if f < 0.1:
-           coot.set_model_display_radius(0, 10)
-         else:
-           coot.set_model_display_radius(1, f)
-       except:
-           coot.set_model_display_radius(0, 10)
-         
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Limit Model Display Radius...",
-       lambda func: coot_gui.generic_single_entry("Display Radius Limit (0 for \'no limit\') ",
-                                         #  "15.0" ;; maybe this should be the map radius
-                                         # BL says:: I think it should be the current one
-                                         str(coot.get_map_radius()),
-                                         "Set: ",
-                                         lambda text: limit_model_disp_func(text)))
-
-     
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_representation,
          "HOLE...",
          lambda func: test_hole.hole_ify())
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Label All CAs...",
-       lambda func: coot_gui.molecule_chooser_gui("Choose a molecule to label",
-                                         lambda imol: coot_utils.label_all_CAs(imol)))
- 
      # Views submenu
      submenu = Gtk.Menu()
      menuitem2 = Gtk.MenuItem("Views")
@@ -1613,90 +1478,6 @@ if True:
        lambda func: coot_gui.generic_single_entry("Save Views",
                                          "coot-views.py", " Save ",
                                          lambda txt: coot.save_views(txt)))
-
-
-     #---------------------------------------------------------------------
-     #     3D annotations
-     #---------------------------------------------------------------------
-
-     submenu = Gtk.Menu()
-     menuitem2 = Gtk.MenuItem("3D Annotations...")
- 
-     menuitem2.set_submenu(submenu)
-     submenu_representation.append(menuitem2)
-     menuitem2.show()
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Annotate position...",
-       lambda func: coot_gui.generic_single_entry("Annotation: ", "",
-                                         "Make Annotation",
-                                         lambda txt: coot_utils.add_annotation_here(txt)))
-
-
-     # BL says:: maybe this (and next) should have a file chooser/selector!?
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Save Annotations...",
-       lambda func: coot_gui.generic_single_entry("Save Annotations",
-                                         "coot_annotations.py",
-                                         " Save ",
-                                         lambda file_name: coot_utils.save_annotations(file_name)))
-       
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Load Annotations...",
-       lambda func: coot_gui.generic_single_entry("Load Annotations",
-                                         "coot_annotations.py",
-                                         " Load ",
-                                         lambda file_name: coot_utils.load_annotations(file_name)))
-
-     
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Remove annotation here",
-       lambda func: coot_utils.remove_annotation_here())
-
-     
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Remove annotation near click",
-       lambda func: coot_utils.remove_annotation_at_click())
-     
-
-     #---------------------------------------------------------------------
-     #     Other Representation Programs
-     #
-     #---------------------------------------------------------------------
-
-     # shall use subprocess at some point
-     def ccp4mg_func1():
-        import os
-        pd_file_name = "1.mgpic.py"
-        coot.write_ccp4mg_picture_description(pd_file_name)
-        if os.name == 'nt':
-            ccp4mg_exe = "winccp4mg.exe"
-        else:
-          ccp4mg_exe = "ccp4mg"
-        if coot_utils.command_in_path_qm(ccp4mg_exe):
-          ccp4mg_file_exe = coot_utils.find_exe(ccp4mg_exe, "PATH")
-          pd_file_name = os.path.abspath(pd_file_name)
-          args = [ccp4mg_file_exe, "-pict", pd_file_name]
-          try:
-            import subprocess
-            subprocess.Popen(args).pid
-            print("BL DEBUG:: new subprocess")
-          except:
-            # no subprocess, use old style
-            os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
-        else:
-          print("BL WARNING:: sorry cannot find %s in $PATH" %ccp4mg_exe)
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_representation, "CCP4MG...",
-       lambda func: ccp4mg_func1())
-
 
      # ---------------------------------------------------------------------
      #     PISA Interface and Assemblies
