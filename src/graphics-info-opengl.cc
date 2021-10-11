@@ -40,6 +40,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_ligand_view,
                                                            shader_for_screen,
                                                            shader_for_blur,
+                                                           shader_for_texture_meshes,
                                                            camera_facing_quad_shader
    };
 
@@ -79,6 +80,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
+   shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
 
    // testing image textures
    camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);

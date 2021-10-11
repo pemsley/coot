@@ -29,7 +29,7 @@ graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_
                                             const std::string &alt_conf,
                                             coot::protein_geometry *geom_p) {
 
-   std::cout << "graphics_ligand_mesh_molecule_t::setup_from() !!!!!!!!! " << std::endl;
+   // std::cout << "graphics_ligand_mesh_molecule_t::setup_from() !!!!!!!!! " << std::endl;
 
    bool status = false;
 

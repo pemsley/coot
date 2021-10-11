@@ -1150,7 +1150,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    graphics_info_t g;
    PyObject *r = Py_False;
 
-   if (false) {
+   if (true) {
       Mesh mesh;
       // mesh.load_from_glTF("blue-eyelashes-1.glb");
       // mesh.load_from_glTF("augmented-box.glb");
@@ -1165,23 +1165,36 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       std::string file_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(i_py));
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-      std::string object_name("Imported Object");
-      int obj_mesh = new_generic_object_number(object_name);
-      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
-      obj.mesh.name = object_name;
-      Material material;
-      material.shininess = 30.0;
-      material.specular_strength = 0.3;
 
-      // obj.mesh.load_from_glTF("augmented-box.glb");
-      obj.mesh.load_from_glTF(file_name);
-      obj.mesh.setup(material); // calls setup_buffers() (again)
-      set_display_generic_object(obj_mesh, 1);
+      if (false) {
+         std::string object_name("Imported Object");
+         int obj_mesh = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+         obj.mesh.name = object_name;
+         Material material;
+         material.shininess = 30.0;
+         material.specular_strength = 0.3;
 
-      bool is_binary_format = true;
-      obj.mesh.export_to_glTF("box-back-to-glTF.glb", is_binary_format);
+         // obj.mesh.load_from_glTF("augmented-box.glb");
+         bool status = obj.mesh.load_from_glTF(file_name);
+         if (status) {
+
+            obj.mesh.setup(material); // calls setup_buffers() (again)
+            set_display_generic_object(obj_mesh, 1);
+            bool is_binary_format = true; // no need for this here. binary type is tested internally now.
+            obj.mesh.export_to_glTF(file_name, is_binary_format);
+         }
+      }
+
+      if (true) {
+         TextureMesh tm;
+         g.texture_meshes.push_back(tm);
+         g.texture_meshes.back().load_from_glTF(file_name);
+      }
 
    }
+
+
 
    if (false) {
       GtkWidget *glarea = g.glareas[0];

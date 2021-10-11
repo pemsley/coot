@@ -4,6 +4,7 @@
 #endif
 
 #include <iostream>
+#include <iomanip>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext.hpp>
@@ -16,6 +17,8 @@
 #else
 #include "graphics-info.h"
 #endif
+
+#include <Texture.hh> // experimental
 
 // for the moment make the scales explict, when fixed make the scales default
 void
@@ -621,3 +624,428 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
    glDisableVertexAttribArray(4);
    
 }
+
+// Define these only in *one* .cc file.
+// #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
+#include "tiny_gltf.h"
+
+bool
+TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup_buffers) {
+
+   // is this what's in a node?
+   class extracted_buffer_info_t {
+   public:
+      int buffer_view_index;
+      std::vector<glm::vec3> positions;
+      std::vector<glm::vec3> normals;
+      std::vector<glm::vec2> texture_coords;
+      std::vector<g_triangle> triangles;
+      glm::vec4 base_colour;
+   };
+
+
+   auto indent = [] (unsigned int il) {
+                   std::string s;
+                   for (unsigned int i=0; i<il; i++) s += "   ";
+                   return s;
+                   };
+
+   auto proc_indices = [indent] (tinygltf::Model &model, const tinygltf::Accessor &indices_accessor) {
+
+                          std::vector<g_triangle> triangles;
+                          std::cout << indent(3) << "proc_indices()" << std::endl;
+
+                          std::vector<unsigned int> mesh_indices;
+                          const tinygltf::BufferView &buffer_view = model.bufferViews[indices_accessor.bufferView];
+                          const tinygltf::Buffer &buffer = model.buffers[buffer_view.buffer];
+                          const uint8_t *base = &buffer.data.at(buffer_view.byteOffset + indices_accessor.byteOffset);
+
+                          if (indices_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+                             const uint32_t *p = reinterpret_cast<const uint32_t *>(base);
+                             for (size_t i=0; i<indices_accessor.count; i++)
+                                mesh_indices.push_back(p[i]);
+                          }
+
+                          if (indices_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+                             const uint16_t *p = reinterpret_cast<const uint16_t *>(base);
+                             for (size_t i=0; i<indices_accessor.count; i++)
+                                mesh_indices.push_back(p[i]);
+                          }
+
+                          if (indices_accessor.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+                             const uint8_t *p = reinterpret_cast<const uint8_t *>(base);
+                             for (size_t i=0; i<indices_accessor.count; i++)
+                                mesh_indices.push_back(p[i]);
+                          }
+
+                          unsigned int n_triangles = mesh_indices.size()/3;
+                          if (n_triangles * 3 == mesh_indices.size()) {
+                             for (unsigned int ii=0; ii<mesh_indices.size(); ii+=3) {
+                                g_triangle t(mesh_indices[ii], mesh_indices[ii+1], mesh_indices[ii+2]);
+                                triangles.push_back(t);
+                             }
+                          }
+                          return triangles;
+                       };
+
+   auto proc_material = [] (tinygltf::Model &model, int material_index) {
+
+                           std::cout << "debug:: proc_material(): material_index " << material_index
+                                     << " materials.size() " << model.materials.size() << std::endl;
+
+                           const tinygltf::Material &material = model.materials[material_index];
+
+                           std::cout << "debug:: proc_material(): material.pbrMetallicRoughness() basecolour size"
+                                     << material.pbrMetallicRoughness.baseColorFactor.size() << std::endl;
+
+                           if (false)
+                              std::cout << "Material " << material_index << " name: \"" << material.name << "\""
+                                        << " alphaMode" << material.alphaMode
+                                        << " pbr-metallicroughness colour "
+                                        << material.pbrMetallicRoughness.baseColorFactor[0] << " "
+                                        << material.pbrMetallicRoughness.baseColorFactor[1] << " "
+                                        << material.pbrMetallicRoughness.baseColorFactor[2] << " "
+                                        << material.pbrMetallicRoughness.baseColorFactor[3] << " "
+                                        << " metalicFactor " << material.pbrMetallicRoughness.metallicFactor
+                                        << " roughnessFactor " << material.pbrMetallicRoughness.roughnessFactor
+                                        << std::endl;
+                           glm::vec4 colour(material.pbrMetallicRoughness.baseColorFactor[0],
+                                            material.pbrMetallicRoughness.baseColorFactor[1],
+                                            material.pbrMetallicRoughness.baseColorFactor[2],
+                                            material.pbrMetallicRoughness.baseColorFactor[3]);
+                           return colour;
+                   };
+
+   auto proc_primitive = [proc_indices, proc_material, indent] (tinygltf::Model &model, const tinygltf::Primitive &primitive) {
+
+                            std::cout << indent(2) << "proc_primitive()" << std::endl;
+
+                            extracted_buffer_info_t ebi; // returned object
+
+                            // ------------------- primitive material -------------------
+
+                            std::cout << indent(3) << "primitive material " << primitive.material << std::endl;
+                            if (primitive.material >= 0) {
+                               glm::vec4 colour = proc_material(model, primitive.material);
+                               ebi.base_colour = colour;
+                            } else {
+                               std::cout << "Ooops skipping proc_material()" << std::endl;
+                            }
+
+                            // ------------------- primitive attributes -------------------
+
+                            std::map<std::string, int>::const_iterator it;
+                            unsigned int icount = 0;
+                            for (it=primitive.attributes.begin(); it!=primitive.attributes.end(); ++it) {
+                               const std::string &key = it->first;
+                               std::cout << "::: key " << std::setw(8) << key << " for attribute index "
+                                         << icount << " of " << primitive.attributes.size() << std::endl;
+                               icount++;
+                            }
+
+                            for (it=primitive.attributes.begin(); it!=primitive.attributes.end(); ++it) {
+                               const std::string &key = it->first;
+                               int index = it->second;
+                               std::cout << indent(3) << "primvitive attribute " << key << " " << index << std::endl;
+
+                               const tinygltf::Accessor &accessor = model.accessors[index];
+                               const tinygltf::BufferView &buffer_view = model.bufferViews[accessor.bufferView];
+                               const tinygltf::Buffer &buffer = model.buffers[buffer_view.buffer];
+                               if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER)
+                                  std::cout << indent(3) << "an array buffer" << std::endl;
+                               if (buffer_view.target == TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER)
+                                  std::cout << indent(3) << "an index buffer" << std::endl;
+
+                               if (false)
+                                  std::cout << indent(2) << "accessor componentType " << accessor.componentType
+                                            << " accessor type " << accessor.type << std::endl;
+
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
+                                  std::cout << "      component type byte " << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
+                                  std::cout << "      component type unsigned byte " << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
+                                  std::cout << "      component type short" << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+                                  std::cout << "      component type unsigned short" << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_INT)
+                                  std::cout << "      component type int" << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+                                  std::cout << "      component type unsigned int" << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+                                  std::cout << "      component type float" << std::endl;
+                               if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+                                  std::cout << "      component type double" << std::endl;
+
+                               if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
+                                  if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+                                     if (key == "POSITION") {
+                                        if (accessor.type == TINYGLTF_TYPE_VEC3) {
+                                           // std::cout << "      ---- float array for positions " << std::endl;
+                                           const float *positions = reinterpret_cast<const float *>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+                                           for (size_t ii=0; ii<accessor.count; ii++) {
+                                              float x = positions[ii*3 + 0];
+                                              float y = positions[ii*3 + 1];
+                                              float z = positions[ii*3 + 2];
+                                              ebi.positions.push_back(glm::vec3(x,y,z));
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
+
+                               if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
+                                  if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+                                     if (key == "NORMAL") {
+                                        if (accessor.type == TINYGLTF_TYPE_VEC3) {
+                                           // std::cout << "      ---- float array for normals " << std::endl;
+                                           const float *normals = reinterpret_cast<const float *>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+                                           for (size_t ii=0; ii<accessor.count; ii++) {
+                                              float x = normals[ii*3 + 0];
+                                              float y = normals[ii*3 + 1];
+                                              float z = normals[ii*3 + 2];
+                                              ebi.normals.push_back(glm::vec3(x,y,z));
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
+
+                               if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
+                                  if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+                                     if (key == "TEXCOORD_0") {
+                                        if (accessor.type == TINYGLTF_TYPE_VEC2) {
+                                           std::cout << "      ---- float array for texture coordinates " << std::endl;
+                                           const float *tcs = reinterpret_cast<const float *>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+                                           for (size_t ii=0; ii<accessor.count; ii++) {
+                                              float x = tcs[ii*2 + 0];
+                                              float y = tcs[ii*2 + 1];
+                                              ebi.texture_coords.push_back(glm::vec2(x,y));
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
+                            }
+
+                            // ------------------- primitive indices -------------------
+
+                            const tinygltf::Accessor &indices_accessor = model.accessors[primitive.indices];
+                            std::vector<g_triangle> triangles = proc_indices(model, indices_accessor);
+                            ebi.triangles = triangles; // std::move here?
+
+                            std::cout << indent(2) << "debug:: proc_primitive() returns ebi with " << ebi.positions.size() << " positions "
+                                      << ebi.normals.size() << " normals " << ebi.texture_coords.size() << " texture-coords and "
+                                      << triangles.size() << " triangles" << std::endl;
+
+                            return ebi;
+                         };
+
+   auto proc_mesh = [proc_primitive, indent] (tinygltf::Model &model, const tinygltf::Mesh &mesh) {
+
+                       std::cout << indent(1) << "proc_mesh(): " << mesh.name << std::endl;
+                       std::vector<extracted_buffer_info_t> ebi_vec;
+                       for (unsigned int i=0; i<mesh.primitives.size(); i++) {
+                          std::cout << indent(1) << "proc_mesh(): primitive number " << i << " of " << mesh.primitives.size() << std::endl;
+                          const tinygltf::Primitive &primitive = mesh.primitives[i];
+                          if (primitive.indices >= 0) {
+                             auto new_mesh_primitive = proc_primitive(model, primitive);
+                             ebi_vec.push_back(new_mesh_primitive);
+                          }
+                       }
+                       return ebi_vec;
+                   };
+
+
+   auto proc_node = [proc_mesh] (tinygltf::Model &model, size_t i_node_index, const tinygltf::Node &node) {
+
+                       std::vector<extracted_buffer_info_t> r;
+
+                       std::cout << "Node " << i_node_index << " info:" << std::endl;
+                       std::cout << "   Node name: " << node.name << std::endl;
+                       std::cout << "   Node mesh index: " << node.mesh << std::endl;
+                       std::cout << "   Node rotation vec elements count: " << node.rotation.size() << std::endl;
+                       std::cout << "   Node scale vec elements count:    " << node.scale.size() << std::endl;
+                       std::cout << "   Node scale vec translation count: " << node.translation.size() << std::endl;
+                       if (node.mesh > -1) { // not a light or a camera
+                          r = proc_mesh(model, model.meshes[node.mesh]);
+                       } else {
+                       }
+                       return r;
+                   };
+
+   auto proc_images = [indent] (const tinygltf::Image &image) {
+                         std::cout << indent(1) << "Image name: "   << image.name   << std::endl;
+                         std::cout << indent(1) << "Image bits: "   << image.bits   << std::endl;
+                         std::cout << indent(1) << "Image width: "  << image.width  << std::endl;
+                         std::cout << indent(1) << "Image height: " << image.height << std::endl;
+                         std::cout << indent(1) << "Image component: " << image.component << std::endl;
+                         std::cout << indent(1) << "Image data buffer size:" << image.image.size() << std::endl;
+
+                         Texture texture;
+                         texture.handle_raw_image_data(image.name, image.image, image.width, image.height);
+
+                         return texture;
+                   };
+
+   auto proc_model_v2 = [proc_node, proc_images] (tinygltf::Model &model) {
+
+                           std::vector<extracted_buffer_info_t> r;
+                           std::vector<Texture> textures;
+
+                           unsigned int n_accessors = model.accessors.size();
+                           std::cout << "debug:: model has " << n_accessors << " accessors" << std::endl;
+
+                           // --- Materials ---
+
+                           std::cout << "INFO:: this model contains " << model.materials.size() << " materials" << std::endl;
+                           for (unsigned int imat=0; imat<model.materials.size(); imat++) {
+                              const tinygltf::Material &material = model.materials[imat];
+                              std::cout << "Material " << imat << " name: " << material.name << " alphaMode" << material.alphaMode
+                                        << " pbr-metallicroughness colour "
+                                        << material.pbrMetallicRoughness.baseColorFactor[0] << " "
+                                        << material.pbrMetallicRoughness.baseColorFactor[1] << " "
+                                        << material.pbrMetallicRoughness.baseColorFactor[2] << " "
+                                        << material.pbrMetallicRoughness.baseColorFactor[3] << " "
+                                        << " metalicFactor " << material.pbrMetallicRoughness.metallicFactor
+                                        << " roughnessFactor " << material.pbrMetallicRoughness.roughnessFactor
+                                        << std::endl;
+                           }
+
+                           // --- Vertices and Indices ---
+#if 0
+                           // scenes
+
+                           for (unsigned int iscene=0; iscene<model.scenes.size(); iscene++) {
+                              const tinygltf::Scene &scene = model.scenes[iscene];
+                              std::cout << ":::: This scene contains " << scene.nodes.size() << " nodes "<< std::endl;
+                              for (size_t i = 0; i < scene.nodes.size(); i++) {
+                                 auto nodes = proc_node(model, i, model.nodes[scene.nodes[i]]);
+                                 r.insert(r.end(), nodes.begin(), nodes.end());
+                              }
+                           }
+#endif
+
+                           // model
+
+                           std::cout << "This model contains " << model.nodes.size() << " nodes" << std::endl;
+
+                           for (size_t i = 0; i < model.nodes.size(); i++) {
+                              auto nodes = proc_node(model, i, model.nodes[i]);
+                              r.insert(r.end(), nodes.begin(), nodes.end());
+                           }
+
+                           // images
+
+                           std::cout << "This model contains " << model.images.size() << " images" << std::endl;
+                           for (unsigned int i=0; i<model.images.size(); i++) {
+                              Texture texture = proc_images(model.images[i]);
+                              textures.push_back(texture);
+                           }
+
+                           return std::make_pair(r, textures);
+                        };
+
+   bool status = true;
+   tinygltf::Model model;
+   tinygltf::TinyGLTF loader;
+   std::string err;
+   std::string warn;
+
+   std::string file_name = file_name_in;
+   if (coot::file_exists(file_name)) {
+      // do nothing
+   } else {
+      std::string dir = coot::package_data_dir();
+      std::string dir_2 = coot::util::append_dir_dir(dir, "glTF");
+      file_name = coot::util::append_dir_file(dir_2, file_name);
+   }
+
+   bool use_binary = false;
+   std::string ext = coot::util::file_name_extension(file_name_in);
+   std::cout << "debug:: ext is " << ext << std::endl;
+   if (ext == ".glb") use_binary = true;
+
+   // std::cout << "debug:: TextureMesh::load_from_glTF(): " << file_name_in << " use_binary: " << use_binary << std::endl;
+
+   // use the extension to check which function to use
+   //
+   // bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
+   bool read_success = false;
+
+   if (use_binary) {
+      read_success = loader.LoadBinaryFromFile(&model, &err, &warn, file_name); // for binary glTF(.glb)
+   } else {
+      read_success = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
+   }
+
+   if (!warn.empty()) {
+      std::cout << "WARNING:: load_from_glTF():" << warn << std::endl;
+   }
+
+   if (!err.empty()) {
+      std::cout << "ERROR:: load_from_glTF(): " << err << std::endl;
+   }
+
+   if (read_success == false) {
+      std::cout << "WARNING:: failed to parse glTF from " << file_name << std::endl;
+   }
+
+   if (err.empty() && read_success) { // OK, good, let's go!
+
+      auto r_pair = proc_model_v2(model);
+      std::vector<extracted_buffer_info_t> &r = r_pair.first;
+      std::vector<Texture> &extracted_textures = r_pair.second;
+
+      if (! extracted_textures.empty()) {
+         TextureInfoType ti(extracted_textures[0], "something", "base_texture", 0);
+         textures.push_back(ti);
+      }
+
+      // std::cout << "load_from_glTF(): found " << r.size() << " mesh primitives" << std::endl;
+      for (unsigned int i=0; i<r.size(); i++) {
+         const extracted_buffer_info_t &ebi = r[i];
+         if (ebi.normals.size() > 0) {
+            if (ebi.normals.size() == ebi.positions.size()) {
+               unsigned int max_vertex_index = 0; // set this
+               if (max_vertex_index < ebi.normals.size()) {
+                  unsigned int idx_vert_base = vertices.size();
+                  unsigned int idx_tri_base = triangles.size();
+                  std::cout << "debug ebi sizes " << ebi.positions.size() << " " << ebi.normals.size() << " " << ebi.texture_coords.size()
+                            << std::endl;
+                  if (ebi.texture_coords.size() == ebi.positions.size()) {
+                     for (unsigned int j=0; j<ebi.normals.size(); j++) {
+                        // s_generic_vertex g(ebi.positions[j], ebi.normals[j], ebi.base_colour);
+                        TextureMeshVertex tmv(ebi.positions[j], ebi.normals[j], ebi.base_colour, ebi.texture_coords[j]);
+                        vertices.push_back(tmv);
+                     }
+                  }
+
+                  // 20211011-PE If ebi.texture_coords.size() is 0 - as we would expect for a untextured model, then perhaps we can
+                  // just add a dummy texture_coords and set a flag to say to use the colours and not the textures.
+                  // Another time.
+
+                  triangles.insert(triangles.end(), ebi.triangles.begin(), ebi.triangles.end());
+                  if (idx_vert_base != 0) {
+                     for (unsigned int i=idx_tri_base; i<triangles.size(); i++) {
+                        triangles[i].rebase(idx_vert_base);
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      if (include_call_to_setup_buffers) {
+         std::cout << "pre-setup_buffer() " << vertices.size() << " vertices "  << triangles.size() << " triangles "  << std::endl;
+         setup_buffers();
+      }
+   } else {
+      std::cout << "::::::::::::: non-success path" << std::endl;
+      status = false; // boo
+   }
+
+   std::cout << "load_from_glTF() returns status " << status << std::endl;
+   return status;
+}
+

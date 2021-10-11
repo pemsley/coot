@@ -1560,6 +1560,9 @@ coot::command_history_t graphics_info_t::command_history;
 
 std::vector<Instanced_Markup_Mesh> graphics_info_t::instanced_meshes;
 
+std::vector<TextureMesh> graphics_info_t::texture_meshes;
+Shader graphics_info_t::shader_for_texture_meshes;
+
 std::map<std::string, Texture> graphics_info_t::texture_for_hud_geometry_labels_map;
 Texture graphics_info_t::texture_for_hud_tooltip_background;
 bool graphics_info_t::draw_hud_tooltip_flag = false;

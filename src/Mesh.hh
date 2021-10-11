@@ -77,8 +77,9 @@ public:
    explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
    explicit Mesh(const molecular_triangles_mesh_t &mtm);
-   // If this mesh will become part of another mesh, then we don't wan to setup buffers for this one
-   void load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
+   // If this mesh will become part of another mesh, then we don't want to setup buffers for this one
+   // (return the success status 1 is good)
+   bool load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
    void export_to_glTF(const std::string &file_name, bool use_binary_format); // 20210927-PE I'd rather not include tiny_gltf.h in Mesh.hh
 
    void debug() const;

@@ -11,6 +11,8 @@
 #include "obj_loader.h"
 
 #include "Shader.hh"
+#include "Texture.hh" // now TextureMesh contains a vector of Textures - I am not sure this is a good
+                      // arrangement.
 
 class TextureMeshVertex {
 public:
@@ -20,6 +22,16 @@ public:
    glm::vec2 texCoord;
    TextureMeshVertex(const glm::vec3 &p, const glm::vec3 &n, const glm::vec4 &col, const glm::vec2 &tc) :
       position(p), normal(n), color(col), texCoord(tc) { }
+};
+
+class TextureInfoType {
+public:
+   Texture texture;
+   std::string name;
+   std::string sampler_name; // e.g. "base_texture"
+   GLuint unit;
+   TextureInfoType(const Texture &t, const std::string &n, const std::string &s, GLuint unit_in) :
+      texture(t), name(n), sampler_name(s), unit(unit_in) {}
 };
 
 class TextureMesh {
@@ -59,6 +71,7 @@ public:
       draw_count = 0;
    }
    bool draw_this_mesh;
+   std::vector<TextureInfoType> textures;
    void import(const IndexedModel &ind_model, float scale);
    void import(const std::vector<TextureMeshVertex> &vertices, const std::vector<g_triangle> &triangles_in);
    bool have_instances() const { return is_instanced; }
@@ -94,6 +107,7 @@ public:
    void draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
                        unsigned int draw_count, unsigned int draw_count_max);
 
+   bool load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
 };
 
 #endif // TEXTURE_MESH_HH

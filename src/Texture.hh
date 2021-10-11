@@ -3,6 +3,7 @@
 #define HMT_TEXTURE_HH
 
 #include <string>
+#include <vector>
 #include <epoxy/gl.h>
 
 class Texture {
@@ -28,6 +29,7 @@ public:
    void set_default_directory(const std::string &dir);
    void close();
    std::pair<int, int> get_image_width_and_height() const;
+   void handle_raw_image_data(const std::string &image_name, const std::vector<unsigned char> &image_data, int width, int height);
 
 };
 

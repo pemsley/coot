@@ -3700,6 +3700,10 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+   // -------- Texture Meshes (for importing glTF models) -------------
+   static std::vector<TextureMesh> texture_meshes;
+   static void draw_texture_meshes();
+
    // these are for non-molecule based generic display objects using instancing
    static std::vector<Instanced_Markup_Mesh> instanced_meshes;
 
@@ -4222,6 +4226,7 @@ string   static std::string sessionid;
    static Shader shader_for_rama_plot_axes_and_ticks;
    static Shader shader_for_rama_plot_phi_phis_markers;
    static Shader shader_for_hud_lines; // actally in 3D because it uses LinesMesh class
+   static Shader shader_for_texture_meshes;
    static long frame_counter;
    static float fps; // for on-screen FPS (fps is not calculated every frame)
    static float fps_std_dev; // for on-screen FPS IQR (fps is not calculated every frame)

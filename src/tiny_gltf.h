@@ -5650,14 +5650,14 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
         return false;
       }
       Buffer buffer;
-      std::cout << "-------- calling ParseBuffer here ---- " << std::endl;
+      // std::cout << "-------- calling ParseBuffer here ---- " << std::endl;
       if (!ParseBuffer(&buffer, err, o,
                        store_original_json_for_extras_and_extensions_, &fs,
                        base_dir, is_binary_, bin_data_, bin_size_)) {
-         std::cout << "-------- done ParseBuffer here ---- " << std::endl;
+         // std::cout << "-------- done ParseBuffer here ---- " << std::endl;
         return false;
       }
-      std::cout << "-------- done ParseBuffer here ---- " << std::endl;
+      // std::cout << "-------- done ParseBuffer here ---- " << std::endl;
 
       model->buffers.emplace_back(std::move(buffer));
       return true;
@@ -6213,8 +6213,7 @@ bool TinyGLTF::LoadBinaryFromMemory(Model *model, std::string *err,
     return false;
   }
 
-  if (bytes[0] == 'g' && bytes[1] == 'l' && bytes[2] == 'T' &&
-      bytes[3] == 'F') {
+  if (bytes[0] == 'g' && bytes[1] == 'l' && bytes[2] == 'T' && bytes[3] == 'F') {
     // ok
   } else {
     if (err) {

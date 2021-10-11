@@ -22,7 +22,7 @@ std::ostream& operator <<(std::ostream &s, const g_triangle &t) {
    return s;
 }
 
-void
+bool
 Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup_buffers) {
 
    // is this what's in a node?
@@ -242,11 +242,11 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
                    };
 
 
-   auto proc_node = [proc_mesh] (tinygltf::Model &model, const tinygltf::Node &node) {
+   auto proc_node = [proc_mesh] (tinygltf::Model &model, size_t i_node_index, const tinygltf::Node &node) {
 
                        std::vector<extracted_buffer_info_t> r;
 
-                       std::cout << "Node info:" << std::endl;
+                       std::cout << "Node " << i_node_index << " info:" << std::endl;
                        std::cout << "   Node name: " << node.name << std::endl;
                        std::cout << "   Node mesh index: " << node.mesh << std::endl;
                        std::cout << "   Node rotation vec elements count: " << node.rotation.size() << std::endl;
@@ -283,18 +283,32 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
                            }
 
                            // --- Vertices and Indices ---
+#if 0
+                           // scenes
 
                            for (unsigned int iscene=0; iscene<model.scenes.size(); iscene++) {
                               const tinygltf::Scene &scene = model.scenes[iscene];
+                              std::cout << ":::: This scene contains " << scene.nodes.size() << " nodes "<< std::endl;
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
-                                 auto nodes = proc_node(model, model.nodes[scene.nodes[i]]);
-                                 r.insert(r.end(), nodes.begin(), nodes.end()); // Maybe.
+                                 auto nodes = proc_node(model, i, model.nodes[scene.nodes[i]]);
+                                 r.insert(r.end(), nodes.begin(), nodes.end());
                               }
+                           }
+#endif
+
+                           // model
+
+                           std::cout << "This model contains " << model.nodes.size() << " nodes" << std::endl;
+
+                           for (size_t i = 0; i < model.nodes.size(); i++) {
+                              auto nodes = proc_node(model, i, model.nodes[i]);
+                              r.insert(r.end(), nodes.begin(), nodes.end());
                            }
 
                            return r;
                         };
 
+   bool status = true;
    tinygltf::Model model;
    tinygltf::TinyGLTF loader;
    std::string err;
@@ -309,13 +323,26 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
       file_name = coot::util::append_dir_file(dir_2, file_name);
    }
 
+   bool use_binary = false;
+   std::string ext = coot::util::file_name_extension(file_name_in);
+   std::cout << "debug:: ext is " << ext << std::endl;
+   if (ext == ".glb") use_binary = true;
+
    // use the extension to check which function to use
    //
    // bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
-   bool read_success = loader.LoadBinaryFromFile(&model, &err, &warn, file_name); // for binary glTF(.glb)
+   bool read_success = false;
+
+   if (use_binary) {
+      read_success = loader.LoadBinaryFromFile(&model, &err, &warn, file_name); // for binary glTF(.glb)
+   } else {
+      std::cout << ":::::::::::::::::: read ASCII :::::::::::::::::: " << std::endl;
+      read_success = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
+      std::cout << ":::::::::::::::::: read ASCII success " << read_success << "  :::::::::::::::::: " << std::endl;
+   }
 
    if (!warn.empty()) {
-      std::cout << "WARNING:: " << warn << std::endl;
+      std::cout << "WARNING:: load_from_glTF():" << warn << std::endl;
    }
 
    if (!err.empty()) {
@@ -327,8 +354,10 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
    }
 
    if (err.empty() && read_success) { // OK, good, let's go!
+
+      std::cout << "load_from_glTF(): ::::::::::::: success path" << std::endl;
       std::vector<extracted_buffer_info_t> r = proc_model_v2(model);
-      std::cout << "found " << r.size() << " mesh primitives" << std::endl;
+      std::cout << "load_from_glTF(): found " << r.size() << " mesh primitives" << std::endl;
       for (unsigned int i=0; i<r.size(); i++) {
          const extracted_buffer_info_t &ebi = r[i];
          if (ebi.normals.size() > 0) {
@@ -356,8 +385,13 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
          std::cout << "pre-setup_buffer() " << vertices.size() << " vertices "  << triangles.size() << " triangles "  << std::endl;
          setup_buffers();
       }
+   } else {
+      std::cout << "::::::::::::: non-success path" << std::endl;
+      status = false; // boo
    }
 
+   std::cout << "load_from_glTF() returns status " << status << std::endl;
+   return status;
 }
 
 

@@ -59,6 +59,22 @@ Texture::init(const std::string &file_name_in) {
    // std::cout << "debug::  done Texture::init() " << file_name << std::endl;
 }
 
+void
+Texture::handle_raw_image_data(const std::string &image_name, const std::vector<unsigned char> &image_data, int width, int height) {
+
+   file_name = image_name;
+   glGenTextures(1, &m_texture_handle);
+   glBindTexture(GL_TEXTURE_2D, m_texture_handle);
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data.data());
+}
+
 std::pair<int, int>
 Texture::get_image_width_and_height() const {
    return std::make_pair(image_width, image_height);

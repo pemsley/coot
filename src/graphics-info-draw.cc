@@ -1541,6 +1541,28 @@ graphics_info_t::draw_happy_face_residue_markers() {
    }
 }
 
+void
+graphics_info_t::draw_texture_meshes() {
+
+   if (! texture_meshes.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 view_rotation = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      bool do_depth_fog = shader_do_depth_fog_flag;
+      Shader &shader = shader_for_texture_meshes;
+      for (unsigned int i=0; i<texture_meshes.size(); i++) {
+         TextureMesh &tm = texture_meshes[i];
+         // std::cout << "debug:: in draw_textures_meshes textures size " << tm.textures.size() << std::endl;
+         if (! tm.textures.empty()) {
+            // std::cout << "Binding and drawing the texture mesh" << std::endl;
+            tm.textures[0].texture.Bind(tm.textures[0].unit);
+            tm.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
+         }
+      }
+   }
+}
+
 
 void
 graphics_info_t::draw_molecules() {
@@ -3266,6 +3288,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                           draw_measure_distance_and_angles(); // maybe in draw_molecules()?
 
                           draw_pointer_distances_objects();
+
+                          draw_texture_meshes();
 
                           draw_ligand_view();
 
