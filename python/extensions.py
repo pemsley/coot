@@ -103,71 +103,97 @@ if (have_coot_python):
      #           extensions
      # ---------------------------------------------
 
-     menu = coot_menubar_menu("E_xtensions")
+     # menu = coot_menubar_menu("E_xtensions")
+     menu = False
 
      # make submenus:
-     submenu_all_molecule = gtk.Menu()
-     menuitem_2 = gtk.MenuItem("All Molecule...")
-     submenu_maps = gtk.Menu()
-     menuitem_3 = gtk.MenuItem("Maps...")
-     submenu_models = gtk.Menu()
-     menuitem_4 = gtk.MenuItem("Modelling...")
-     submenu_refine = gtk.Menu()
-     menuitem_5 = gtk.MenuItem("Refine...")
-     submenu_representation = gtk.Menu()
-     menuitem_6 = gtk.MenuItem("Representations")
-     submenu_settings = gtk.Menu()
-     menuitem_7 = gtk.MenuItem("Settings...")
-     submenu_pisa = gtk.Menu()
-     menuitem_pisa = gtk.MenuItem("PISA...")
-     submenu_pdbe = gtk.Menu()
-     menuitem_pdbe = gtk.MenuItem("PDBe...")
-     submenu_modules = gtk.Menu()
-     menuitem_modules = gtk.MenuItem("Modules...")
-     submenu_ncs = gtk.Menu()
-     menuitem_ncs = gtk.MenuItem("NCS...")
+     # submenu_all_molecule = gtk.Menu()
+     # menuitem_2 = gtk.MenuItem("All Molecule...")
+     # submenu_maps = gtk.Menu()
+     # menuitem_3 = gtk.MenuItem("Maps...")
+     # submenu_models = gtk.Menu()
+     # menuitem_4 = gtk.MenuItem("Modelling...")
+     # submenu_refine = gtk.Menu()
+     # menuitem_5 = gtk.MenuItem("Refine...")
+     # submenu_representation = gtk.Menu()
+     # menuitem_6 = gtk.MenuItem("Representations")
+     # submenu_settings = gtk.Menu()
+     # menuitem_7 = gtk.MenuItem("Settings...")
+     # submenu_pisa = gtk.Menu()
+     # menuitem_pisa = gtk.MenuItem("PISA...")
+     # submenu_pdbe = gtk.Menu()
+     # menuitem_pdbe = gtk.MenuItem("PDBe...")
+     # submenu_modules = gtk.Menu()
+     # menuitem_modules = gtk.MenuItem("Modules...")
+     # submenu_ncs = gtk.Menu()
+     # menuitem_ncs = gtk.MenuItem("NCS...")
 
-     menuitem_2.set_submenu(submenu_all_molecule)
-     menu.append(menuitem_2)
-     menuitem_2.show()
-     
-     menuitem_3.set_submenu(submenu_maps)
-     menu.append(menuitem_3)
-     menuitem_3.show()
-     
-     menuitem_4.set_submenu(submenu_models)
-     menu.append(menuitem_4)
-     menuitem_4.show()
-     
-     menuitem_ncs.set_submenu(submenu_ncs)
-     menu.append(menuitem_ncs)
-     menuitem_ncs.show()
-     
-     menuitem_5.set_submenu(submenu_refine)
-     menu.append(menuitem_5)
-     menuitem_5.show()
-     
-     menuitem_6.set_submenu(submenu_representation)
-     menu.append(menuitem_6)
-     menuitem_6.show()
-     
-     menuitem_pisa.set_submenu(submenu_pisa)
-     menu.append(menuitem_pisa)
-     menuitem_pisa.show()
+     def get_coot_menu_from_item(top_label, sub_menu_label):
 
-     menuitem_7.set_submenu(submenu_settings)
-     menu.append(menuitem_7)
-     menuitem_7.show()
+       coot_main_menubar = coot_python.main_menubar()
+       for menu_child in coot_main_menubar.get_children():
+         if menu_child.get_children()[0].get_text() == top_label:
+           # we have a matching top menu
+           for sub_child in menu_child.get_submenu().get_children():
+             sub_child_ls = sub_child.get_children()
+             if sub_child_ls:
+               if sub_child_ls[0].get_text() == sub_menu_label:
+                 return sub_child
+       return False
 
-     menuitem_modules.set_submenu(submenu_modules)
-     menu.append(menuitem_modules)
-     menuitem_modules.show()
+     coot_build_in_menu = get_coot_menu_from_item("Calculate", "Modelling...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_models = menu
 
-     menuitem_pdbe.set_submenu(submenu_pdbe)
-     menu.append(menuitem_pdbe)
-     menuitem_pdbe.show()
-     
-     
+     coot_build_in_menu = get_coot_menu_from_item("Calculate", "Map Tools...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_maps = menu
+
+     coot_build_in_menu = get_coot_menu_from_item("Calculate", "All Molecule...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_all_molecule = menu
+
+     coot_build_in_menu = get_coot_menu_from_item("Calculate", "PISA...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_pisa = menu
+
+     coot_build_in_menu = get_coot_menu_from_item("Calculate", "Modules...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_modules = menu
+
+     coot_build_in_menu = get_coot_menu_from_item("Calculate", "NCS Tools...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_ncs = menu
+
+     coot_build_in_menu = get_coot_menu_from_item("Draw", "Representation Tools...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_representation = menu
+
+     coot_build_in_menu = get_coot_menu_from_item("Edit", "Settings...")
+     if coot_build_in_menu:
+       menu = gtk.Menu()
+       coot_build_in_menu.set_submenu(menu)
+       submenu_settings = menu
+
+     # menuitem_pdbe.set_submenu(submenu_pdbe)
+     # menu.append(menuitem_pdbe)
+     # menuitem_pdbe.show()
+
+
 
      #---------------------------------------------------------------------
      #     Post MR
