@@ -713,12 +713,17 @@ public:        //                      public
 			  int brief_atom_labels_flag,
 			  short int seg_ids_in_atom_labels_flag) const;
 
-   void draw_atom_label(int atom_index, int brief_atom_labels_flag,
+   void draw_atom_label(int atom_index,
+                        int brief_atom_labels_flag,
                         short int seg_ids_in_atom_labels_flag,
                         const glm::vec4 &atom_label_colour,
                         const glm::mat4 &mvp,
-                        const glm::mat4 &view_rotation,
-                        const glm::vec3 &eye_position);
+                        const glm::mat4 &view_rotation);
+
+   void draw_symm_atom_label(int atom_index, const std::pair <symm_trans_t, Cell_Translation> &st,
+                             const glm::vec4 &atom_label_colour,
+                             const glm::mat4 &mvp,
+                             const glm::mat4 &view_rotation);
 
    // don't count the mainchain of the peptide-linked residues
    //
@@ -1035,12 +1040,13 @@ public:        //                      public
    float atom_radius_scale_factor; // 3 is quite nice, 1 by default.
    void set_atom_radius_scale_factor(float sf); // regenerate
 
+   // atom labels and symmetry atom labels, that is.
+   //
    void draw_atom_labels(int brief_atom_labels_flag,
                          short int seg_ids_in_atom_labels_flag,
                          const glm::vec4 &atom_label_colour,
                          const glm::mat4 &mvp,
-                         const glm::mat4 &view_rotation,
-                         const glm::vec3 &eye_position);
+                         const glm::mat4 &view_rotation);
 
    //
    void update_molecule_after_additions(); // cleanup, new

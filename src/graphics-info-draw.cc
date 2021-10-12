@@ -1,3 +1,4 @@
+
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
@@ -1001,20 +1002,11 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
    }
 
    int n_atoms_to_label = m.labelled_atom_index_list.size();
-   if (n_atoms_to_label == 0) return;
+   int n_symm_atoms_to_label = m.labelled_symm_atom_index_list.size();
+   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) return;
 
-   // maybe pass these?
-   GtkAllocation allocation;
-   GtkWidget *widget = graphics_info_t::glareas[0];
-   if (! widget) return;
-   gtk_widget_get_allocation(widget, &allocation);
-
-   // this doesn't seem sensibly arranged.
-   glm::vec3 unused(0,0,0);
-   m.draw_atom_labels(brief_atom_labels_flag,
-                      seg_ids_in_atom_labels_flag,
-                      label_colour,
-                      mvp, view_rotation, unused);
+   m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
+                      label_colour, mvp, view_rotation);
 
    glDisable(GL_BLEND);
 
@@ -1659,8 +1651,7 @@ graphics_info_t::draw_environment_graphics_object() {
                   // caches these textures in a map std::map<std::string, thing> where
                   // the key is the label.
                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
-                                                   mvp, view_rotation, lights, eye_position,
-                                                   bg_col, do_depth_fog,
+                                                   mvp, view_rotation, bg_col, do_depth_fog,
                                                    perspective_projection_flag);
                }
             }
@@ -2066,7 +2057,7 @@ graphics_info_t::draw_measure_distance_and_angles() {
          for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
             const auto &label = labels_for_measure_distances_and_angles[i];
             tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
-                                             mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                             mvp, view_rotation_matrix, bg_col,
                                              shader_do_depth_fog_flag, perspective_projection_flag);
          }
       }
@@ -4115,7 +4106,7 @@ graphics_info_t::draw_pointer_distances_objects() {
             for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
                const auto &label = labels_for_pointer_distances[i];
                tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
-                                                mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                                mvp, view_rotation_matrix, bg_col,
                                                 shader_do_depth_fog_flag, perspective_projection_flag);
             }
          }

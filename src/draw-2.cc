@@ -524,6 +524,20 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
                   g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
                   g.add_picked_atom_info_to_status_bar(im, nearest_atom_index_info.atom_index);
                   g.graphics_draw();
+               } else {
+
+                  // try symmetry atom click (c.f. middle button release)
+                  //
+                  if (g.show_symmetry) {
+                     coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_pick();
+                     if (sap.success) {
+                        g.add_picked_atom_info_to_status_bar(sap.imol, sap.atom_index);
+                        g.molecules[sap.imol].add_atom_to_labelled_symm_atom_list(sap.atom_index,
+                                                                                  sap.symm_trans,
+                                                                                  sap.pre_shift_to_origin);
+                        g.graphics_draw();
+                     }
+                  }
                }
             }
          }
@@ -565,7 +579,6 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
                if (g.show_symmetry) {
                   coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_pick();
                   if (sap.success) {
-                     std::cout << "sap success" << std::endl;
                      coot::Cartesian pos = sap.hybrid_atom.pos;
                      g.setRotationCentre(pos);
                      g.add_picked_atom_info_to_status_bar(sap.imol, sap.atom_index);

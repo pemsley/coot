@@ -97,8 +97,6 @@ public:
                         Shader *shader,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation_matrix,
-                        const std::map<unsigned int, lights_info_t> &lights,
-                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                         const glm::vec4 &background_colour,
                         bool do_depth_fog,
                         bool is_perspective_projection);
