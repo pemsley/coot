@@ -97,6 +97,7 @@
 
 #include "guile-fixups.h"
 
+
 #if 0
 int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
@@ -276,7 +277,6 @@ int
 graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
 						GCallback signal_func,
 						int imol_preferred) {
-
 
    // delete this function on merge - hmm what did I mean by that?
    std::vector<int> maps_vec;

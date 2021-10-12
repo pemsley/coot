@@ -2151,13 +2151,74 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 }
 #endif
 
+// Caller clears the vbox something like this:
+//      GtkWidget *vbox = widget_from_builder("check_chiral_volumes_dialog_vbox");
+//      auto my_delete_box_items = [] (GtkWidget *widget, void *data) { gtk_container_remove(GTK_CONTAINER(data), widget); };
+//      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+// Caller creates a new combobox_molecule, shows it and packs it,
+//       GtkWidget *combobox_new = gtk_combo_box_new();
+//      gtk_widget_show(combobox_new);
+//      gtk_box_pack_start(GTK_BOX(vbox), combobox_new, FALSE, FALSE, 4);
+// Caller then calls this function
+//
+// Maybe fill_combobox_with_molecule_options() can be used like this too?
+//
+void
+graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule,
+                                                            GCallback callback_func,
+                                                            int imol_active) {
 
-// this is not a refmac thing
+   // This presumes that the combobox_molecule is fresh and packed into a widget already
+
+   auto get_molecule_indices = [] () {
+                                  std::vector<int> molecule_indices;
+                                  for (int i=0; i<graphics_info_t::n_molecules(); i++) {
+                                     if (graphics_info_t::molecules[i].has_model()) {
+                                        molecule_indices.push_back(i);
+                                     }
+                                  }
+                                  return molecule_indices;
+                               };
+
+   std::vector<int> molecule_indices = get_molecule_indices();
+
+   GtkTreeModel *model_1 = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox_molecule));
+   std::cout << "debug:: model_1 " << model_1 << std::endl;
+   GtkListStore *list_store = GTK_LIST_STORE(model_1);
+   std::cout << "debug:: list_store " << list_store << std::endl;
+   // gtk_list_store_clear(list_store);
+
+   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+
+   std::cout << "debug:: list_store " << store << std::endl;
+
+   GtkTreeIter iter;
+   for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
+      const auto &imol = molecule_indices[ii];
+      const molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      std::string ss = std::to_string(imol) + " " + m.name_for_display_manager();
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
+      if (imol == imol_active) {
+         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol);
+      }
+   }
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);
+   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_molecule), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_molecule), model);
+
+   if (callback_func)
+      g_signal_connect(combobox_molecule, "changed", callback_func, NULL);
+
+}
+
 void
 graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
-						     GCallback signal_func,
-						     int imol_active_position,
-						     const std::vector<int> &molecules_index_vec) {
+                                                     GCallback signal_func,
+                                                     int imol_active_position,
+                                                     const std::vector<int> &molecules_index_vec) {
 
    // This might be OK if combobox had been created by us, not glade code, and has been added to an hbox already.
 
@@ -3841,15 +3902,18 @@ graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 GtkWidget *
 graphics_info_t::wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const {
 
-   GtkWidget *w = create_chiral_restraints_problem_dialog();
+   // 20211011-PE FIXME This needs testing
 
-   GtkWidget *label = lookup_widget(w, "chiral_volume_restraints_problem_label");
+   // GtkWidget *w = create_chiral_restraints_problem_dialog();
+   GtkWidget *w = widget_from_builder("chiral_restraints_problem_dialog");
+
+   GtkWidget *label = widget_from_builder("chiral_volume_restraints_problem_label");
    std::string s = "\n   Problem finding restraints for the following residues:   \n\n";
    for (unsigned int i=0; i<sv.size(); i++) {
       s += sv[i];
       s += "  ";
       if (10*((i+1)/10) == (i+1))
-	 s += "\n";
+         s += "\n";
    }
    s += "\n";
    gtk_label_set_text(GTK_LABEL(label), s.c_str());

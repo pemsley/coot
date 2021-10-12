@@ -2393,24 +2393,48 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
 // void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
 // }
 
+// 20211012-PE temporary arrangement
+void
+new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule, GCallback callback_func, int imol_active);
+
 
 void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
 
-   GtkWidget *combobox = lookup_widget(dialog, "check_chiral_volumes_molecule_combobox");
+   // GtkWidget *combobox = lookup_widget(dialog, "check_chiral_volumes_molecule_combobox");
 
-   // now set chiral_volume_molecule_option_menu_item_select_molecule to the top of the list
-   for (int i=0; i<graphics_info_t::n_molecules(); i++) {
-      if (graphics_info_t::molecules[i].has_model()) {
-	 graphics_info_t::check_chiral_volume_molecule = i;
-	 break;
-      }
-   }
+   GtkWidget *combobox = widget_from_builder("check_chiral_volumes_molecule_combobox");
 
    graphics_info_t g;
-   int imol = graphics_info_t::check_chiral_volume_molecule;
+   // int imol = graphics_info_t::check_chiral_volume_molecule;
    GCallback callback_func = G_CALLBACK(g.check_chiral_volume_molecule_combobox_changed);
 
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   GtkWidget *vbox = widget_from_builder("check_chiral_volumes_dialog_vbox");
+
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                 gtk_container_remove(GTK_CONTAINER(data), widget);
+                              };
+   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+
+   // 20211011-PE the code says not to use this function - I don't know why
+   // g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   //
+   // Use fill_combobox_with_molecule_options() instead.
+
+   std::vector<int> molecule_indices;
+   std::vector<int> maps_vec;
+   for (int i=0; i<g.n_molecules(); i++)
+      if (is_valid_model_molecule(i))
+         molecule_indices.push_back(i);
+
+   if (! molecule_indices.empty()) {
+      int imol_first = molecule_indices[0];
+      // g.fill_combobox_with_molecule_options(combobox, callback_func, imol_first, molecule_indices);
+      GtkWidget *combobox_new = gtk_combo_box_new();
+      gtk_widget_show(combobox_new);
+      gtk_box_pack_start(GTK_BOX(vbox), combobox_new, FALSE, FALSE, 4);
+      new_fill_combobox_with_coordinates_options(combobox_new, callback_func, imol_first);
+   }
+
 }
 
 

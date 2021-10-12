@@ -9,46 +9,12 @@
 #include "graphics-info.h"
 
 
-// put this in graphics_info_t when it's solid.
-//
 void
-new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule, GCallback callback_func, int imol_active) {
-
-   // This presumes that the combobox_molecule is fresh and packed into a widget already
-
-   auto get_molecule_indices = [] () {
-                                  std::vector<int> molecule_indices;
-                                  for (int i=0; i<graphics_info_t::n_molecules(); i++) {
-                                     if (graphics_info_t::molecules[i].has_model()) {
-                                        molecule_indices.push_back(i);
-                                     }
-                                  }
-                                  return molecule_indices;
-                               };
-
-   std::vector<int> molecule_indices = get_molecule_indices();
-
-   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
-   GtkTreeIter iter;
-   for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
-      const auto &imol = molecule_indices[ii];
-      const molecule_class_info_t &m = graphics_info_t::molecules[imol];
-      std::string ss = std::to_string(imol) + " " + m.name_for_display_manager();
-      gtk_list_store_append(store, &iter);
-      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
-      if (imol == imol_active) {
-         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol);
-      }
-   }
-   GtkTreeModel *model = GTK_TREE_MODEL(store);
-   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);
-   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_molecule), renderer, "text", 1, NULL);
-   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_molecule), model);
-
-   if (callback_func)
-      g_signal_connect(combobox_molecule, "changed", callback_func, NULL);
-
+new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule,
+                                           GCallback callback_func,
+                                           int imol_active) {
+   graphics_info_t g;
+   g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
 }
 
 void

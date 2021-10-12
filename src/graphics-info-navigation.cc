@@ -944,7 +944,7 @@ graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
 	    // std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
 	 }
       } else {
-	 std::cout << "DEBUG:: combobox_get_imol(): bad state (no active itier)" << std::endl;
+	 std::cout << "DEBUG:: combobox_get_imol(): bad state (no active iter in combobox)" << std::endl;
       }
    }
    return imol;

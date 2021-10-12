@@ -3744,7 +3744,7 @@ Calculate a skeleton now?
             <property name="border_width">7</property>
             <property name="label_xalign">0</property>
             <child>
-              <object class="GtkBox" id="vbox111">
+              <object class="GtkBox" id="check_chiral_volumes_dialog_vbox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
@@ -3764,7 +3764,15 @@ Calculate a skeleton now?
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBox" id="check_chiral_volumes_molecule_combobox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
             </child>

@@ -5761,9 +5761,10 @@ on_find_bad_chiral_atoms1_activate_gtkbuilder_callback     (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = create_check_chiral_volumes_dialog();
-  fill_chiral_volume_molecule_combobox(w);
-  gtk_widget_show(w);
+   // GtkWidget *w = create_check_chiral_volumes_dialog();
+   GtkWidget *w = widget_from_builder("check_chiral_volumes_dialog");
+   fill_chiral_volume_molecule_combobox(w);
+   gtk_widget_show(w);
 }
 
 
@@ -6206,9 +6207,10 @@ void
 on_incorrect_chiral_volumes1_activate_gtkbuilder_callback  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *w = create_check_chiral_volumes_dialog();
-  fill_chiral_volume_molecule_combobox(w);
-  gtk_widget_show(w);
+   // GtkWidget *w = create_check_chiral_volumes_dialog();
+   GtkWidget *w = widget_from_builder("check_chiral_volumes_dialog");
+   fill_chiral_volume_molecule_combobox(w);
+   gtk_widget_show(w);
 
 }
 

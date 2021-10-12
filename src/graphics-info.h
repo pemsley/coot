@@ -1653,6 +1653,11 @@ public:
 								 int imol,
 								 bool fill_with_small_molecule_only_flag);
 
+   // use this.
+   void new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule,
+                                                   GCallback callback_func,
+                                                   int imol_active);
+
    void fill_combobox_with_coordinates_options(GtkWidget *combobox,
 					       GCallback callback_func,
 					       int imol_active);
