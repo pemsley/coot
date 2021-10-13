@@ -4284,7 +4284,7 @@ string   static std::string sessionid;
    static gboolean render(bool render_to_screendump_framebuffer_flag=false, const std::string &output_file_name="coot-screendump.tga");
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
-   static void render_scene_to_base_framebuffer();
+   static void render_scene_with_screen_ao_shader();
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();
    static void draw_intermediate_atoms();

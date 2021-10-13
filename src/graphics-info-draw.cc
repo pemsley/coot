@@ -3408,15 +3408,13 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       render_scene(gl_area);
 
-      update_fps_statistics();
-
       if (make_image_for_screen) {
 
          glViewport(0, 0, w, h);
          // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
          gtk_gl_area_attach_buffers(gl_area);
 
-         render_scene_to_base_framebuffer(); // render current framebuffer to base framebuffer
+         render_scene_with_screen_ao_shader(); // render to base framebuffer
 
          // And finally draw the HUD elements to the GTK framebuffer
          draw_hud_elements();
@@ -3431,7 +3429,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          unsigned int index_offset = 0;
          screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
          screendump_framebuffer.bind();
-         render_scene_to_base_framebuffer();
+         render_scene_with_screen_ao_shader();
          gtk_gl_area_attach_buffers(gl_area);
          screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
@@ -3449,11 +3447,13 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
 
+   update_fps_statistics();
+
    return FALSE;
 }
 
 void
-graphics_info_t::render_scene_to_base_framebuffer() {
+graphics_info_t::render_scene_with_screen_ao_shader() {
 
    glEnable(GL_DEPTH_TEST);
    shader_for_screen.Use();
