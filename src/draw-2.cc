@@ -623,9 +623,12 @@ do_drag_pan_gtk3(GtkWidget *widget) {
    glm::vec3 delta_v3(delta);
 
    g.add_to_rotation_centre(delta_v3);
-   g.update_maps();
-   if (graphics_info_t::glareas.size() > 0)
-      int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+
+   // g.update_maps();
+   // if (graphics_info_t::glareas.size() > 0)
+   // int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+
+   g.update_things_on_move(); // 20211013-PE do I need the _and_redraw() version of this function?
 }
 
 gboolean
