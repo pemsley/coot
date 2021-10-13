@@ -46,7 +46,6 @@ float quadVertices[] = { // vertex attributes for a quad that fills the entire s
 void
 graphics_info_t::init_screen_quads() {
 
-   // graphics_info_t::shader_for_screen.Use();
    // screen quad VAO
    unsigned int quadVBO;
    glGenVertexArrays(1, &screen_quad_vertex_array_id);
@@ -89,6 +88,8 @@ graphics_info_t::init_screen_quads() {
 void
 graphics_info_t::init_blur_quads() {
 
+   // This is the 2020 version - this function can be deleted when the new version works.
+
    graphics_info_t::shader_for_blur.Use();
    // screen quad VAO
    unsigned int quadVBO;
@@ -113,7 +114,6 @@ graphics_info_t::init_buffers() {
    init_central_cube();
    init_screen_quads();
    init_blur_quads();
-
 }
 
 void
@@ -3402,7 +3402,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
       err = glGetError();
       if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
-      screen_framebuffer.bind();
+      screen_framebuffer.bind(); // screen_ao, that is
       err = glGetError();
       if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
 
@@ -3412,12 +3412,27 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
          glViewport(0, 0, w, h);
          // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
-         gtk_gl_area_attach_buffers(gl_area);
+         // gtk_gl_area_attach_buffers(gl_area);
 
-         render_scene_with_screen_ao_shader(); // render to base framebuffer
+         if (shader_do_depth_of_field_blur_flag) {
 
-         // And finally draw the HUD elements to the GTK framebuffer
-         draw_hud_elements();
+            blur_y_framebuffer.bind();
+            render_scene_with_screen_ao_shader();
+            blur_x_framebuffer.bind();
+            render_scene_with_y_blur();
+            gtk_gl_area_attach_buffers(gl_area);
+            render_scene_with_x_blur();
+            // And finally draw the HUD elements to the GTK framebuffer
+            draw_hud_elements();
+
+         } else {
+
+            gtk_gl_area_attach_buffers(gl_area);
+            render_scene_with_screen_ao_shader();
+            // And finally draw the HUD elements to the GTK framebuffer
+            draw_hud_elements();
+
+         }
 
       } else {
 
@@ -3506,6 +3521,22 @@ graphics_info_t::render_scene_with_x_blur() {
 void
 graphics_info_t::render_scene_with_y_blur() {
 
+   shader_for_y_blur.Use();
+   glBindVertexArray(blur_y_quad_vertex_array_id);
+
+   const glm::vec3 &bg = background_colour;
+   glClearColor(bg[0], bg[1], bg[2], 1.0); // needed?
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   glActiveTexture(GL_TEXTURE0 + 0);
+   glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_colour());
+   glActiveTexture(GL_TEXTURE0 + 1);
+   glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_depth());
+   shader_for_x_blur.set_int_for_uniform("screenTexture", 0);
+   GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() D err " << err << std::endl;
+
+   glDrawArrays(GL_TRIANGLES, 0, 6);
+   err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() E err " << err << std::endl;
 }
 
 

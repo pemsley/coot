@@ -1459,9 +1459,10 @@ coot::Cartesian graphics_info_t::smooth_scroll_target_point = coot::Cartesian(0,
 coot::Cartesian graphics_info_t::smooth_scroll_start_point = coot::Cartesian(0,0,0);
 
 bool graphics_info_t::shader_do_ambient_occlusion_flag = true;
-bool graphics_info_t::shader_do_depth_blur_flag = true;
+bool graphics_info_t::shader_do_depth_blur_flag = true; // 2020 version
 bool graphics_info_t::shader_do_depth_fog_flag = true;
 bool graphics_info_t::shader_do_outline_flag = false;
+bool graphics_info_t::shader_do_depth_of_field_blur_flag = false;
 bool graphics_info_t::draw_normals_flag = false;
 
 // static

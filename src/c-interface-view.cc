@@ -142,12 +142,16 @@ int use_ambient_occlusion_state() {
 
 //! \brief set use depth blur
 void set_use_depth_blur(short int state) {
-   graphics_info_t::shader_do_depth_blur_flag = state;
+   // graphics_info_t::shader_do_depth_blur_flag = state; // 2020
+   graphics_info_t::shader_do_depth_of_field_blur_flag = state;
    graphics_draw();
 }
 //! \brief query use depth blur
 int use_depth_blur_state() {
-   return graphics_info_t::shader_do_depth_blur_flag;
+
+   // return graphics_info_t::shader_do_depth_blur_flag; 2020
+   return graphics_info_t::shader_do_depth_of_field_blur_flag;
+
 }
 
 
