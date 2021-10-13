@@ -296,6 +296,8 @@ do_self_tests() {
 
 void on_glarea_realize(GtkGLArea *glarea);
 
+#include "widget-from-builder.hh"
+
 // return success status
 bool init_from_gtkbuilder() {
 
@@ -329,6 +331,9 @@ bool init_from_gtkbuilder() {
       GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
       GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
+
+      GtkWidget *main_window_deletable_label = widget_from_builder("main_window_deletable_label");
+      gtk_widget_destroy(main_window_deletable_label);
 
       if (false) {
          std::cout << "debug:: main_window "   << main_window << std::endl;

@@ -437,9 +437,9 @@ Mesh::make_symmetry_atoms_bond_lines(Shader *shader_p,
 
    if (first_time) {
       glGenVertexArrays(1, &vao);
-      std::cout << "make_symmetry_atoms_bond_lines() created vao " << vao << std::endl;
+      // std::cout << "make_symmetry_atoms_bond_lines() created vao " << vao << std::endl;
    } else {
-      std::cout << "make_symmetry_atoms_bond_lines() using pre-existing vao " << vao << std::endl;
+      // std::cout << "make_symmetry_atoms_bond_lines() using pre-existing vao " << vao << std::endl;
    }
    glBindVertexArray(vao);
 

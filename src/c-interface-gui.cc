@@ -5505,8 +5505,11 @@ void nsv(int imol) {
 	 graphics_info_t g;
          GtkWidget *main_window_vbox = 0;
          if (g.sequence_view_is_docked_flag) {
-            main_window_vbox = lookup_widget(g.glareas[0], "main_window_vbox");
+            main_window_vbox = widget_from_builder("main_window_vbox");
          }
+
+         std::cout << "::::::::::::::::::: debug:: sequence_view_is_docked_flag " << g.sequence_view_is_docked_flag
+                   << " main_window_vbox " << main_window_vbox << std::endl;
 	 std::string name = g.molecules[imol].name_for_display_manager();
 	 exptl::nsv *seq_view =
 	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,

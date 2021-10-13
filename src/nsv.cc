@@ -89,19 +89,20 @@ exptl::nsv::on_canvas_button_press(GtkWidget      *canvas,
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
       gtk_widget_show(menu);
       gtk_widget_show(item);
+
+#if 0      // was old 20211013-PE 
       // const GdkEvent *trigger_event = NULL;
       // use gtk_menu_popup_at_pointer?
-
-      std::cout << "FIXME on_canvas_button_press() " << std::endl;
-#if 0      
       gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 0,
                      (event != NULL) ? event->time
                      : gtk_get_current_event_time());
 #endif
+      gtk_menu_popup_at_pointer(GTK_MENU(menu), NULL);
    }
    return TRUE;
 }
 
+#include "widget-from-builder.hh"
 
 exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
@@ -118,14 +119,20 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    // The glarea widget and the sequence will be the widgets in the pane.
    // According to docs, the pane should not be apparent if the sequence is not docked.
 
-   GtkWidget *paned = lookup_widget(main_window_vbox, "main_window_vpaned");
+   GtkWidget *paned = widget_from_builder("main_window_vpaned");
+   std::cout << ":::::::::: widget_from_builder for paned returned " << paned << std::endl;
    bool make_top_level_dialog = true;
-   if (main_window_vbox) make_top_level_dialog = false;
+   if (main_window_vbox)
+      make_top_level_dialog = false;
    if (paned) {
       GtkWidget *pane_child_1 = gtk_paned_get_child1(GTK_PANED(paned));
+      GtkWidget *pane_child_2 = gtk_paned_get_child2(GTK_PANED(paned));
+      std::cout << "::::::::::::::: paned child 1 " << pane_child_1 << std::endl;
+      std::cout << "::::::::::::::: paned child 2 " << pane_child_2 << std::endl;
       if (pane_child_1) {
-         std::cout << "Something already here!" << std::endl;
-         make_top_level_dialog = true;
+         std::cout << "DEBUG:: nsv::nsv Something already in slot 1!" << std::endl;
+         // make_top_level_dialog = true;
+         gtk_widget_destroy(pane_child_1);
       }
    }
 
@@ -157,48 +164,40 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL); // needed for tooltips
 
    canvas_group = goo_canvas_get_root_item(GOO_CANVAS(canvas));
-
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+   g_object_set_data(G_OBJECT(scrolled_window), "imol", GINT_TO_POINTER(molecule_number));
+   gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(canvas));
+
    if (make_top_level_dialog) {
       gtk_box_pack_start(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
-      gtk_widget_set_size_request(top_lev, 120, 70);
-   } else {
-      // if the sequence view is docked then we use two use panes
-      gtk_paned_add1(GTK_PANED(paned), scrolled_window);
-      gtk_widget_set_size_request(scrolled_window, -1, 70);
-   }
-
-   g_object_set_data(G_OBJECT(scrolled_window), "imol", GINT_TO_POINTER(molecule_number));
-
-   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					 GTK_WIDGET(canvas));
-
-   if (make_top_level_dialog) {
+      gtk_widget_set_size_request(top_lev, -1, 80);
       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
       GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(top_lev));
       gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
-
-      g_signal_connect(G_OBJECT(close_button), "clicked",
-                       G_CALLBACK(on_nsv_close_button_clicked), NULL);
-
-      g_signal_connect(G_OBJECT(top_lev), "destroy",
-                       G_CALLBACK(on_nsv_dialog_destroy), top_lev);
+      g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_nsv_close_button_clicked), NULL);
+      g_signal_connect(G_OBJECT(top_lev), "destroy", G_CALLBACK(on_nsv_dialog_destroy), top_lev);
       gtk_widget_show(close_button);
       gtk_widget_show(aa); // needed?
       gtk_widget_show(top_lev);
-   }
-
-   // used on destroy
-   if (top_lev)
+      // used on destroy
       g_object_set_data(G_OBJECT(top_lev), "molecule_number", GINT_TO_POINTER(molecule_number));
+   } else {
+      // in the main window.
+      // 20211013-PE There is a weird effect here. The widget for the graphics window is not
+      // resized when we add the sequence view. So the middle of the gtkglarea is moved
+      // down toward the bottow of at visible widget - its a bit strange. Maybe I need to
+      // do the eqivalent of a resize for the gtkglarea, so that it knows it has less
+      // height now. Fix later.
+      gtk_paned_add1(GTK_PANED(paned), scrolled_window);
+      gtk_widget_set_size_request(scrolled_window, -1, 90);
+   }
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
    // sequence_letter_background_colour = "white";
-   sequence_letter_background_colour = "#202020";
+   sequence_letter_background_colour = "#202020"; // for a dark background, should be configurable
    int y_size_initial = setup_canvas(mol);
 
-   //  gtk_window_set_default_size(GTK_WINDOW(top_lev), 1700, y_size_initial + 100);
    if (top_lev)
       gtk_widget_set_size_request(top_lev, 799, y_size_initial + 100);
 
@@ -209,7 +208,6 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    // set_sequence_view_is_displayed(canvas, molecule_number) is run
    // by nsv() (currently that's its name)
-
 
    // Do I want to open all of these to capture a simple right-mouse press?
    //
@@ -484,6 +482,8 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
 			lowest_resno, x_offset);  // adds items to canvas_item_vec
    }
 
+   std::string annotation_colour = "grey80"; // make this a class member - we need "dark mode"/"light mode " settings
+
    // now the chain label:
    std::string chain_label = "Chain ";
    chain_label += chain_p->GetChainID();
@@ -498,7 +498,7 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
                               x, y,
                               -1,
                               GOO_CANVAS_ANCHOR_WEST,
-                              "fill_color", "#111111",
+                              "fill_color", annotation_colour.c_str(),
                               "font", fixed_font_str.c_str(),
                               NULL);
 }
@@ -595,7 +595,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 
     GooCanvasItem *text_item;
 	 std::string colour = colour_by_secstr(residue_p);
-	 if (true)
+	 if (false)
 	    std::cout << "drawing text for res " << coot::residue_spec_t(residue_p) << " "
 		      << res_code << " colour " << colour << " " << x << " " << y << std::endl;
     text_item = goo_canvas_text_new(txt_letter_group,
@@ -1204,6 +1204,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
    GooCanvasPoints *points;
    points = goo_canvas_points_new(2);
    float font_scaler = pixels_per_letter;
+   std::string annotation_colour = "grey80"; //  make this a class member
 
    // ticks and text
    int irn_start = tick_start_number(lrn);
@@ -1241,7 +1242,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       item = goo_canvas_polyline_new(canvas_group, FALSE, 0,
                                      "points", points,
                                      "line-width", 1.0,
-                                     "stroke-color", "black",
+                                     "stroke-color", annotation_colour.c_str(),
                                      NULL);
       // tick marks and tick labels
       for (int irn=irn_start; irn<=brn; irn+=5) {
@@ -1260,7 +1261,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
        item = goo_canvas_polyline_new(canvas_group, FALSE, 0,
                                       "points", points,
                                       "line-width", 1.0,
-                                      "stroke-color", "black",
+                                      "stroke-color", annotation_colour.c_str(),
                                       NULL);
        item = goo_canvas_text_new(canvas_group,
                                   lab.c_str(),
@@ -1268,7 +1269,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
                                   -1,
                                   GOO_CANVAS_ANCHOR_CENTER,
                                   "font", fixed_font_str.c_str(),
-                                  "fill_color", "black",
+                                  "fill_color", annotation_colour.c_str(),
                                   NULL);
 	 } 
       }
