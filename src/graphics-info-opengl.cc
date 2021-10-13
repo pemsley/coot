@@ -41,7 +41,8 @@ graphics_info_t::init_shaders() {
                                                            shader_for_screen,
                                                            shader_for_x_blur,
                                                            shader_for_y_blur,
-                                                           shader_for_blur,
+                                                           shader_for_dof_blur_by_texture_combination,
+                                                           shader_for_blur, // old, 2020 version
                                                            shader_for_texture_meshes,
                                                            camera_facing_quad_shader
    };
@@ -92,7 +93,8 @@ graphics_info_t::init_shaders() {
    shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
    shader_for_x_blur.init("blur-x.shader", Shader::Entity_t::SCREEN);
    shader_for_y_blur.init("blur-y.shader", Shader::Entity_t::SCREEN);
-   shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
+   shader_for_dof_blur_by_texture_combination.init("depth-of-field.shader", Shader::Entity_t::SCREEN);
+   shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN); // old
 
    for (it=shaders.begin(); it!=shaders.end(); ++it) {
       if (! it->get().get_success_status()) {

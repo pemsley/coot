@@ -4201,8 +4201,9 @@ string   static std::string sessionid;
    // STATIC GLuint framebuffer_id;  // now we get access from the framebuffer class
    static GLuint blur_x_quad_vertex_array_id;
    static GLuint blur_y_quad_vertex_array_id;
+   static GLuint combine_textures_using_depth_quad_vertex_array_id;
    static GLuint screen_quad_vertex_array_id;
-   static GLuint blur_quad_vertex_array_id;
+   static GLuint blur_quad_vertex_array_id; // old
    static GLuint textureColorbuffer_screen;
    static GLuint textureColorbuffer_blur;
    static GLuint hud_text_array_buffer_id;
@@ -4221,7 +4222,8 @@ string   static std::string sessionid;
    static Shader shader_for_screen;
    static Shader shader_for_x_blur;
    static Shader shader_for_y_blur;
-   static Shader shader_for_blur;
+   static Shader shader_for_dof_blur_by_texture_combination;
+   static Shader shader_for_blur; // old, not used now
    static Shader shader_for_symmetry_atoms_bond_lines;
    static Shader shader_for_lines;
    static Shader shader_for_rama_balls;
@@ -4254,6 +4256,7 @@ string   static std::string sessionid;
    static framebuffer blur_x_framebuffer;
    static framebuffer blur_y_framebuffer;
    static framebuffer blur_framebuffer; // from 2020
+   static framebuffer combine_textures_using_depth_framebuffer;
    static unsigned int framebuffer_scale;
 
    // ---------------------------------------------

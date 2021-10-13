@@ -253,17 +253,23 @@ on_glarea_realize(GtkGLArea *glarea) {
                                                 << err << std::endl;
          index_offset = 1;
          graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur-y");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_y_framebuffer init() err is "
                                                 << err << std::endl;
          index_offset = 2;
          graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur-x");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_x_framebuffer init() err is "
                                                 << err << std::endl;
          index_offset = 3;
+         graphics_info_t::combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 4;
          graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
          err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
                                                 << err << std::endl;
 
+         // do these go here or in the draw() hot path?
+         //
          graphics_info_t::shader_for_screen.Use();
          err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);

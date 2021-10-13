@@ -1369,6 +1369,7 @@ GLuint graphics_info_t::hud_text_array_buffer_id = 0;
 GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
 GLuint graphics_info_t::blur_x_quad_vertex_array_id = 0;
 GLuint graphics_info_t::blur_y_quad_vertex_array_id = 0;
+GLuint graphics_info_t::combine_textures_using_depth_quad_vertex_array_id = 0;
 GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
 GLuint graphics_info_t::textureColorbuffer_screen = 0;
 GLuint graphics_info_t::textureColorbuffer_blur = 0;
@@ -1381,6 +1382,7 @@ bool graphics_info_t::use_framebuffers = true;
 framebuffer graphics_info_t::screen_framebuffer;
 framebuffer graphics_info_t::blur_x_framebuffer;
 framebuffer graphics_info_t::blur_y_framebuffer;
+framebuffer graphics_info_t::combine_textures_using_depth_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer; // 2020
 unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
 
@@ -1409,7 +1411,8 @@ Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_x_blur;
 Shader graphics_info_t::shader_for_y_blur;
-Shader graphics_info_t::shader_for_blur;
+Shader graphics_info_t::shader_for_blur;  // old
+Shader graphics_info_t::shader_for_dof_blur_by_texture_combination;
 Shader graphics_info_t::shader_for_hud_lines;
 Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_lines_pulse;

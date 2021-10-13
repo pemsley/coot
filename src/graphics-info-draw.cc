@@ -84,6 +84,18 @@ graphics_info_t::init_screen_quads() {
    err = glGetError();
    if (err) std::cout << "init_screen_quads() C err is " << err << std::endl;
 
+   glGenVertexArrays(1, &combine_textures_using_depth_quad_vertex_array_id);
+   glBindVertexArray(combine_textures_using_depth_quad_vertex_array_id);
+   glGenBuffers(1, &quadVBO);
+   glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+   err = glGetError();
+   if (err) std::cout << "init_screen_quads() D err is " << err << std::endl;
+
 }
 void
 graphics_info_t::init_blur_quads() {
@@ -3276,38 +3288,20 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                           draw_hud_fps();
                    };
 
-   auto render_scene = [] (GtkGLArea *gl_area) {
+   auto render_3d_scene = [] (GtkGLArea *gl_area) {
                           
                           //  ------------------- render scene ----------------------------
 
                           glEnable(GL_DEPTH_TEST);
                           const glm::vec3 &bg = graphics_info_t::background_colour;
                           glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
-                          GLenum err = glGetError(); if (err) std::cout << "render_scene lambda B err " << err << std::endl;
+                          GLenum err = glGetError(); if (err) std::cout << "render_3d_scene lambda B err " << err << std::endl;
                           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                          err = glGetError(); if (err) std::cout << "render_scene lambda C err " << err << std::endl;
+                          err = glGetError(); if (err) std::cout << "render_3d_scene lambda C err " << err << std::endl;
 
                           draw_origin_cube(gl_area);
                           err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-
-                          bool draw_test_image = false;
-                          if (draw_test_image) {
-                             glEnable(GL_BLEND);
-                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                             texture_for_camera_facing_quad.Bind(0);
-
-                             // 20210831-PE testing... this gives us an image at the origin that's in the world and facing the camera.
-                             // interesting but not useful
-                             // tmesh_for_camera_facing_quad.draw(&camera_facing_quad_shader, mvp, quat_mat, lights, eye_position,
-                             //                         bg_col, shader_do_depth_fog_flag);
-
-                             tmesh_for_hud_image_testing.set_position(glm::vec2(-0.3, 0.5));
-                             tmesh_for_hud_image_testing.set_scales(glm::vec2(0.6, 0.2));
-                             tmesh_for_hud_image_testing.draw(&shader_for_hud_geometry_labels);
-                          }
-
-                          // draw_central_cube(gl_area);
                           draw_rotation_centre_crosshairs(gl_area);
 
                           draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
@@ -3391,26 +3385,19 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
    if (use_framebuffers) { // static class variable
 
-      GLenum err = glGetError();
-      if (err) std::cout << "GL ERROR:: render() --- start --- " << err << std::endl;
-
-      // is this needed? - does the context ever change?
-      gtk_gl_area_make_current(gl_area);
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: render() post gtk_gl_area_make_current() err " << err << std::endl;
-
       glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
-      err = glGetError();
+      GLenum err = glGetError();
       if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
       screen_framebuffer.bind(); // screen_ao, that is
       err = glGetError();
       if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
 
-      render_scene(gl_area);
+      render_3d_scene(gl_area);
 
       if (make_image_for_screen) {
 
          glViewport(0, 0, w, h);
+
          // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
          // gtk_gl_area_attach_buffers(gl_area);
 
@@ -3420,8 +3407,12 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
             render_scene_with_screen_ao_shader();
             blur_x_framebuffer.bind();
             render_scene_with_y_blur();
+
+            // combine_textures_using_depth_framebuffer.bind();
             gtk_gl_area_attach_buffers(gl_area);
+
             render_scene_with_x_blur();
+
             // And finally draw the HUD elements to the GTK framebuffer
             draw_hud_elements();
 
@@ -3452,11 +3443,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    } else {
       //  simple/direct - for debugging framebuffers
       gtk_gl_area_attach_buffers(gl_area);
-      glEnable(GL_DEPTH_TEST); // needed?
-      render_scene(gl_area);
+      render_3d_scene(gl_area);
    }
-
-   glEnable(GL_DEPTH_TEST); // what's this for?
 
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -3556,6 +3544,9 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
       blur_y_framebuffer.init(sf * width, sf * height, index_offset, "blur-y");
+      err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
+
+      combine_textures_using_depth_framebuffer.init(sf * width, sf * height, index_offset, "combine");
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
       // index_offset = 0;
