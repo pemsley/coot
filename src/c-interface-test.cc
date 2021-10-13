@@ -1141,6 +1141,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
 
 #include "utils/dodec.hh"
+#include "widget-from-builder.hh"
 
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
@@ -1192,8 +1193,15 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          g.texture_meshes.back().load_from_glTF(file_name);
       }
 
+      GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
+      GtkWidget *label = gtk_label_new("Ramachandran Restraints Enabled ");
+      gtk_widget_show(label);
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), label);
+      gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), label, TRUE);
+      // top right
+      gtk_widget_set_halign(label, GTK_ALIGN_END);
+      gtk_widget_set_valign(label, GTK_ALIGN_START);
    }
-
 
 
    if (false) {

@@ -12594,18 +12594,27 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="main_window_graphics_hbox">
+                  <object class="GtkOverlay" id="main_window_graphics_overlay">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
+                      <object class="GtkBox" id="main_window_graphics_hbox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="index">-1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="resize">False</property>
+                    <property name="resize">True</property>
                     <property name="shrink">True</property>
                   </packing>
                 </child>
