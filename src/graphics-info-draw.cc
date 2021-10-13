@@ -3261,9 +3261,26 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
 
+   auto draw_hud_elements = [] () {
+
+                          draw_ligand_view();
+
+                          draw_hud_geometry_bars();
+
+                          draw_hud_geometry_tooltip(); // background and text
+
+                          draw_ramachandran_plot();
+
+                          draw_hud_buttons();
+
+                          draw_hud_fps();
+                   };
+
    auto render_scene = [] (GtkGLArea *gl_area) {
                           
                           //  ------------------- render scene ----------------------------
+
+                          glEnable(GL_DEPTH_TEST);
                           const glm::vec3 &bg = graphics_info_t::background_colour;
                           glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
                           GLenum err = glGetError(); if (err) std::cout << "render_scene lambda B err " << err << std::endl;
@@ -3309,19 +3326,6 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
                           draw_texture_meshes();
 
-                          draw_ligand_view();
-
-                          draw_hud_geometry_bars();
-
-                          draw_hud_geometry_tooltip(); // background and text
-
-                          draw_ramachandran_plot();
-
-                          draw_hud_buttons();
-
-                          draw_hud_fps();
-
-                          glBindVertexArray(0); // here is not the place to call this.
                        };
 
    auto do_fps_std_dev_stuff = [] {
@@ -3352,7 +3356,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                               }
                            };
 
-   auto do_fps_stuff = [do_fps_std_dev_stuff] () {
+   auto update_fps_statistics = [do_fps_std_dev_stuff] () {
                           if (GetFPSFlag()) {
                              frame_counter++;
                              std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
@@ -3383,6 +3387,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          frame_time_history_list.pop_front();
    }
 
+   bool make_image_for_screen = ! to_screendump_framebuffer_flag;
+
    if (use_framebuffers) { // static class variable
 
       GLenum err = glGetError();
@@ -3400,14 +3406,24 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       err = glGetError();
       if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
 
-      glEnable(GL_DEPTH_TEST);
-
       render_scene(gl_area);
 
-      do_fps_stuff();
+      update_fps_statistics();
 
-      if (to_screendump_framebuffer_flag) {
+      if (make_image_for_screen) {
 
+         glViewport(0, 0, w, h);
+         // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
+         gtk_gl_area_attach_buffers(gl_area);
+
+         render_scene_to_base_framebuffer(); // render current framebuffer to base framebuffer
+
+         // And finally draw the HUD elements to the GTK framebuffer
+         draw_hud_elements();
+
+      } else {
+
+         // screendump
          glDisable(GL_DEPTH_TEST);
          unsigned int sf = framebuffer_scale;
          glViewport(0, 0, sf * w, sf * h);
@@ -3419,11 +3435,6 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          gtk_gl_area_attach_buffers(gl_area);
          screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
-      } else {
-         glViewport(0, 0, w, h);
-         // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
-         gtk_gl_area_attach_buffers(gl_area);
-         render_scene_to_base_framebuffer(); // render current framebuffer to base framebuffer
       }
    } else {
       //  simple/direct - for debugging framebuffers
@@ -3469,6 +3480,34 @@ graphics_info_t::render_scene_to_base_framebuffer() {
    err = glGetError(); if (err) std::cout << "render() E err " << err << std::endl;
 
 }
+
+void
+graphics_info_t::render_scene_with_x_blur() {
+
+   shader_for_x_blur.Use();
+   glBindVertexArray(blur_x_quad_vertex_array_id);
+
+   const glm::vec3 &bg = background_colour;
+   glClearColor(bg[0], bg[1], bg[2], 1.0); // needed?
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   glActiveTexture(GL_TEXTURE0 + 0);
+   glBindTexture(GL_TEXTURE_2D, blur_x_framebuffer.get_texture_colour());
+   glActiveTexture(GL_TEXTURE0 + 1);
+   glBindTexture(GL_TEXTURE_2D, blur_x_framebuffer.get_texture_depth());
+   shader_for_x_blur.set_int_for_uniform("screenTexture", 0);
+   GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() D err " << err << std::endl;
+
+   glDrawArrays(GL_TRIANGLES, 0, 6);
+   err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() E err " << err << std::endl;
+
+}
+
+void
+graphics_info_t::render_scene_with_y_blur() {
+
+}
+
 
 
 void
