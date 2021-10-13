@@ -252,7 +252,15 @@ on_glarea_realize(GtkGLArea *glarea) {
          err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
                                                 << err << std::endl;
          index_offset = 1;
-         graphics_info_t::blur_framebuffer.init(w,h, index_offset, "blur");
+         graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 2;
+         graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 3;
+         graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
          err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
                                                 << err << std::endl;
 

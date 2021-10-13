@@ -46,11 +46,11 @@ float quadVertices[] = { // vertex attributes for a quad that fills the entire s
 void
 graphics_info_t::init_screen_quads() {
 
-   graphics_info_t::shader_for_screen.Use();
+   // graphics_info_t::shader_for_screen.Use();
    // screen quad VAO
    unsigned int quadVBO;
-   glGenVertexArrays(1, &graphics_info_t::screen_quad_vertex_array_id);
-   glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
+   glGenVertexArrays(1, &screen_quad_vertex_array_id);
+   glBindVertexArray(screen_quad_vertex_array_id);
    glGenBuffers(1, &quadVBO);
    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
@@ -59,7 +59,31 @@ graphics_info_t::init_screen_quads() {
    glEnableVertexAttribArray(1);
    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
    GLenum err = glGetError();
-   if (err) std::cout << "init_screen_quads() err is " << err << std::endl;
+   if (err) std::cout << "init_screen_quads() A err is " << err << std::endl;
+
+   glGenVertexArrays(1, &blur_y_quad_vertex_array_id);
+   glBindVertexArray(blur_y_quad_vertex_array_id);
+   glGenBuffers(1, &quadVBO);
+   glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+   err = glGetError();
+   if (err) std::cout << "init_screen_quads() B err is " << err << std::endl;
+
+   glGenVertexArrays(1, &blur_x_quad_vertex_array_id);
+   glBindVertexArray(blur_x_quad_vertex_array_id);
+   glGenBuffers(1, &quadVBO);
+   glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+   err = glGetError();
+   if (err) std::cout << "init_screen_quads() C err is " << err << std::endl;
 
 }
 void
@@ -3457,6 +3481,12 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
       // << width << " x " << height << std::endl;
       screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
       GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
+
+      blur_x_framebuffer.init(sf * width, sf * height, index_offset, "blur-x");
+      err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
+
+      blur_y_framebuffer.init(sf * width, sf * height, index_offset, "blur-y");
+      err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
       // index_offset = 0;
       // g.blur_framebuffer.init(width, height, index_offset, "blur");

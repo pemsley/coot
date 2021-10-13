@@ -19,16 +19,13 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
 
    GLenum err = glGetError();
    if (err)
-      std::cout << "--- start screen_framebuffer " << name
-                << " init() err is " << err << std::endl;
+      std::cout << "--- start framebuffer " << name << " init() err is " << err << std::endl;
 
    if (false)
       std::cout << "debug:: calling generate_framebuffer_object() " << name
                 << " with " << width << " " << height << std::endl;
-   generate_framebuffer_object(width, height,
-                               attachment_index_color_texture); // try 2 * width here for
-                                                                // supersampling at some stage
 
+   generate_framebuffer_object(width, height, attachment_index_color_texture);
    err = glGetError();
    if (err) std::cout << "done framebuffer::init() with error " << err << std::endl;
 

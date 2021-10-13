@@ -39,6 +39,8 @@ graphics_info_t::init_shaders() {
                                                            shader_for_rama_plot_axes_and_ticks,
                                                            shader_for_ligand_view,
                                                            shader_for_screen,
+                                                           shader_for_x_blur,
+                                                           shader_for_y_blur,
                                                            shader_for_blur,
                                                            shader_for_texture_meshes,
                                                            camera_facing_quad_shader
@@ -88,6 +90,8 @@ graphics_info_t::init_shaders() {
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
    shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
+   shader_for_x_blur.init("blur-x.shader", Shader::Entity_t::SCREEN);
+   shader_for_y_blur.init("blur-y.shader", Shader::Entity_t::SCREEN);
    shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
 
    for (it=shaders.begin(); it!=shaders.end(); ++it) {

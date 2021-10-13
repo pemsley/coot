@@ -1367,6 +1367,8 @@ GLuint graphics_info_t::central_cube_index_buffer_id = 0;
 GLuint graphics_info_t::hud_text_vertexarray_id = 0;
 GLuint graphics_info_t::hud_text_array_buffer_id = 0;
 GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
+GLuint graphics_info_t::blur_x_quad_vertex_array_id = 0;
+GLuint graphics_info_t::blur_y_quad_vertex_array_id = 0;
 GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
 GLuint graphics_info_t::textureColorbuffer_screen = 0;
 GLuint graphics_info_t::textureColorbuffer_blur = 0;
@@ -1377,7 +1379,9 @@ GLuint graphics_info_t::rotation_centre_crosshairs_index_buffer_id = 0;
 
 bool graphics_info_t::use_framebuffers = true;
 framebuffer graphics_info_t::screen_framebuffer;
-framebuffer graphics_info_t::blur_framebuffer;
+framebuffer graphics_info_t::blur_x_framebuffer;
+framebuffer graphics_info_t::blur_y_framebuffer;
+framebuffer graphics_info_t::blur_framebuffer; // 2020
 unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
 
 bool graphics_info_t::perspective_projection_flag = false;
@@ -1403,6 +1407,8 @@ Shader graphics_info_t::shader_for_hud_image_texture;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
+Shader graphics_info_t::shader_for_x_blur;
+Shader graphics_info_t::shader_for_y_blur;
 Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_hud_lines;
 Shader graphics_info_t::shader_for_lines;
