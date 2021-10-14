@@ -903,6 +903,7 @@ graphics_info_t::draw_model_molecules() {
                    << m.n_vertices_for_model_VertexArray << std::endl;
       if (m.n_vertices_for_model_VertexArray > 0) {
 
+         // glEnable(GL_BLEND); // 20211014-PE meh
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
@@ -3408,10 +3409,13 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
             blur_x_framebuffer.bind();
             render_scene_with_y_blur();
 
-            // combine_textures_using_depth_framebuffer.bind();
-            gtk_gl_area_attach_buffers(gl_area);
+            combine_textures_using_depth_framebuffer.bind();
 
             render_scene_with_x_blur();
+
+            gtk_gl_area_attach_buffers(gl_area);
+
+            render_scene_with_texture_combination_for_depth_blur();
 
             // And finally draw the HUD elements to the GTK framebuffer
             draw_hud_elements();
@@ -3525,6 +3529,39 @@ graphics_info_t::render_scene_with_y_blur() {
 
    glDrawArrays(GL_TRIANGLES, 0, 6);
    err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() E err " << err << std::endl;
+}
+
+void
+graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
+
+   shader_for_dof_blur_by_texture_combination.Use();
+   glBindVertexArray(combine_textures_using_depth_quad_vertex_array_id);
+
+   const glm::vec3 &bg = background_colour;
+   glClearColor(bg[0], bg[1], bg[2], 1.0); // needed?
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   // shader:
+   // uniform sampler2D screenTexture1;
+   // uniform sampler2D screenTexture2;
+   // uniform sampler2D screenDepth;
+
+   glActiveTexture(GL_TEXTURE0 + 0);
+   glBindTexture(GL_TEXTURE_2D, combine_textures_using_depth_framebuffer.get_texture_colour());
+   glActiveTexture(GL_TEXTURE0 + 1);
+   glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_colour());
+   glActiveTexture(GL_TEXTURE0 + 2);
+   glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_depth());
+
+   shader_for_dof_blur_by_texture_combination.set_int_for_uniform("screenTexture1", 0);
+   shader_for_dof_blur_by_texture_combination.set_int_for_uniform("screenTexture2", 1);
+   shader_for_dof_blur_by_texture_combination.set_int_for_uniform("screenDepth",    2);
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: render_scene_with_texture_combination_for_depth_blur() D err " << err << std::endl;
+
+   glDrawArrays(GL_TRIANGLES, 0, 6);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: render_scene_with_texture_combination_for_depth_blur() E err " << err << std::endl;
 }
 
 

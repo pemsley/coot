@@ -4289,6 +4289,7 @@ string   static std::string sessionid;
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
    static void render_scene_with_screen_ao_shader();
+   static void render_scene_with_texture_combination_for_depth_blur();
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();
    static void draw_intermediate_atoms();
