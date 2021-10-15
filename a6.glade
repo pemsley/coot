@@ -12261,6 +12261,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="peptide_flips_from_difference_map1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Peptide Flips from Difference Map...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="peptide_omega_analysis1">
                             <property name="label" translatable="yes">Peptide omega analysis</property>
                             <property name="visible">True</property>
@@ -18456,6 +18465,139 @@ Nucleotide Builder
     </child>
     <action-widgets>
       <action-widget response="0">other_modelling_tools_close_button</action-widget>
+    </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkDialog" id="pepflips_by_difference_map_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="close" handler="on_pepflips_by_difference_map_dialog_close_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_pepflips_by_difference_map_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="pepflips_by_difference_map_dialog_internal_vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="pepflips_by_difference_map_dialog_apply_button">
+                <property name="label" translatable="yes">Apply</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="pepflips_by_difference_map_dialog_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pepflips_by_difference_map_dialog_vbox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Difference Map:</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Model:</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="pepflips_by_difference_map_dialog_entry_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">   n-rmsd cut-off:  </property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="pepflips_by_difference_map_dialog_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-10">pepflips_by_difference_map_dialog_apply_button</action-widget>
+      <action-widget response="-6">pepflips_by_difference_map_dialog_cancel_button</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>

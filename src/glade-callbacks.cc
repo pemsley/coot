@@ -33,6 +33,7 @@
 #include "positioned-widgets.h"
 #include "interface.h"
 #include "coot-references.h"
+#include "c-interface-gui.hh"
 
 // put preferences functions into their own file, not here.
 #include "coot-preferences.h"
@@ -6505,6 +6506,49 @@ on_peptide_omega_analysis1_activate_gtkbuilder_callback    (GtkMenuItem     *men
       printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
    }
 
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade(GtkMenuItem     *menuitem,
+                                                                gpointer         user_data)
+{
+   pepflips_by_difference_map_dialog(); // in c-interface-gui. Sets data for the
+                                        // model_combobox and the map_combobox
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_pepflips_by_difference_map_dialog_close_gtkbuilder_callback (GtkDialog *dialog,
+                                                                gpointer   user_data) {
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+// use a header for this - which one? c-interface-gui.hh?
+void pepflips_by_difference_map_results_dialog(int imol_coords, int imol_map, float n_sigma);
+
+extern "C" G_MODULE_EXPORT
+void
+on_pepflips_by_difference_map_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                                  gint             response_id,
+                                                                  gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_APPLY) {
+      GtkWidget *model_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "model_combobox"));
+      GtkWidget   *map_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog),   "map_combobox"));
+      GtkWidget *entry = widget_from_builder("pepflips_by_difference_map_dialog_entry");
+      std::string s = gtk_entry_get_text(GTK_ENTRY(entry));
+      try {
+         int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+         int imol_map    = my_combobox_get_imol(GTK_COMBO_BOX(  map_combobox));
+         float n_sigma = coot::util::string_to_float(s);
+         pepflips_by_difference_map_results_dialog(imol_coords, imol_map, n_sigma);
+      }
+      catch (const std::runtime_error &rte) {
+         // log this
+         std::cout << "Failed to convert " << s << " to a number" << std::endl;
+      }
+   }
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 extern "C" G_MODULE_EXPORT

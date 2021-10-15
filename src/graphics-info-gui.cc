@@ -1030,6 +1030,50 @@ graphics_info_t::show_select_map_dialog_gtkbuilder() {
    }
 }
 
+void on_dialog_box_of_buttons_close_button(GtkWidget *button,
+                                           gpointer   user_data) {
+   GtkWidget *dialog = GTK_WIDGET(user_data);
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+
+GtkWidget *
+graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
+                                                const std::vector<std::tuple<std::string, GCallback, gpointer> > &buttons,
+                                                const std::string &close_button_label) {
+
+
+   GtkWidget *dialog = gtk_dialog_new();
+   GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+   gtk_window_set_default_size(GTK_WINDOW(dialog), 160, 500);
+   gtk_window_set_title(GTK_WINDOW(dialog), window_title.c_str());
+   GtkWidget *vbox_outer = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+   GtkWidget *vbox       = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+   GtkWidget *close_button = gtk_button_new_with_label(close_button_label.c_str());
+   for (unsigned int i=0; i<buttons.size(); i++) {
+      GtkWidget *button  = gtk_button_new_with_label(std::get<0>(buttons[i]).c_str());
+      GCallback callback = std::get<1>(buttons[i]);
+      gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 1);
+      // should we do this here?
+      g_signal_connect(G_OBJECT(button), "clicked", callback, std::get<2>(buttons[i]));
+      gtk_widget_show(button);
+   }
+   gtk_box_pack_start(GTK_BOX(vbox_outer), scrolled_window, TRUE, TRUE, 2);
+   gtk_container_add(GTK_CONTAINER(scrolled_window), vbox);
+   GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(dialog));
+   gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
+   // gtk_dialog_add_button(dialog, close_button, GTK_RESPONSE_CLOSE); // 20211014-PE for the future
+   // GCallback cbc = G_CALLBACK(on_dialog_box_of_buttons_close_button_response);
+   // g_signal_connect(dialog, "response", cbc, NULL);
+   g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_dialog_box_of_buttons_close_button), dialog);
+   gtk_widget_show(scrolled_window);
+   gtk_widget_show(vbox);
+   gtk_widget_show(vbox_outer);
+   gtk_widget_show(close_button);
+   return dialog;
+}
+
+
 
 GtkWidget *
 graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) {
@@ -2151,7 +2195,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 }
 #endif
 
-// Caller clears the vbox something like this:
+// Caller (optionally) clears the vbox something like this:
 //      GtkWidget *vbox = widget_from_builder("check_chiral_volumes_dialog_vbox");
 //      auto my_delete_box_items = [] (GtkWidget *widget, void *data) { gtk_container_remove(GTK_CONTAINER(data), widget); };
 //      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);

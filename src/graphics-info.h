@@ -1586,9 +1586,12 @@ public:
 					      const char *atom_name, const char *altLoc);
    void set_go_to_residue_intelligent(const std::string &chain_id, int resno,
 				      const std::string &ins_code);
+   // 20211015-PE why doesn't this function exist already?
+   void go_to_residue(int imol, const coot::residue_spec_t &rs);
    static std::pair<std::string, std::string> split_atom_name(const std::string &atom_name);
    static std::pair<std::string, std::string> split_resno_inscode(const std::string &atom_name);
 
+   mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec) const;
 
    void set_go_to_atom_molecule(int pos);
 
@@ -1669,6 +1672,10 @@ public:
    int combobox_get_imol(GtkComboBox *combobox) const;
 
    static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
+
+   GtkWidget *dialog_box_of_buttons_internal(const std::string &window_title,
+                                             const std::vector<std::tuple<std::string, GCallback, gpointer> > &buttons,
+                                             const std::string &close_button_label);
 
 #if 0
 

@@ -142,6 +142,32 @@ int graphics_info_t::go_to_atom_residue() {
    return go_to_atom_residue_;
 }
 
+mmdb::Residue *
+graphics_info_t::get_residue(int imol, const coot::residue_spec_t &spec) const {
+
+   mmdb::Residue *r = 0;
+   if (is_valid_model_molecule(imol)) {
+      r = molecules[imol].get_residue(spec);
+   }
+   return r;
+}
+
+void
+graphics_info_t::go_to_residue(int imol, const coot::residue_spec_t &spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = get_residue(imol, spec);
+      if (residue_p) {
+         mmdb::Atom *atom = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
+         if (atom) {
+            clipper::Coord_orth pt = coot::co(atom);
+            set_rotation_centre(pt);
+         }
+      }
+   }
+}
+
+
 int graphics_info_t::go_to_atom_molecule() {
 
    return go_to_atom_molecule_;

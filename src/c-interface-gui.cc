@@ -2432,9 +2432,95 @@ void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
       GtkWidget *combobox_new = gtk_combo_box_new();
       gtk_widget_show(combobox_new);
       gtk_box_pack_start(GTK_BOX(vbox), combobox_new, FALSE, FALSE, 4);
-      new_fill_combobox_with_coordinates_options(combobox_new, callback_func, imol_first);
+      g.new_fill_combobox_with_coordinates_options(combobox_new, callback_func, imol_first);
    }
 
+}
+
+void
+pepflips_by_difference_map_dialog() {
+
+   GtkWidget *dialog = widget_from_builder("pepflips_by_difference_map_dialog");
+   GtkWidget *vbox = widget_from_builder("pepflips_by_difference_map_dialog_vbox");
+
+   // clear combox boxes from that vbox:
+   //
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                 if (GTK_IS_COMBO_BOX(widget))
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+
+   GtkWidget *entry = widget_from_builder("pepflips_by_difference_map_dialog_entry");
+   gtk_entry_set_text(GTK_ENTRY(entry), "3.6");
+   // create new comboboxes
+   GtkWidget *model_combobox = gtk_combo_box_new();
+   GtkWidget *map_combobox   = gtk_combo_box_new();
+   gtk_box_pack_start(GTK_BOX(vbox),   map_combobox, FALSE, FALSE, 6);
+   gtk_box_pack_start(GTK_BOX(vbox), model_combobox, FALSE, FALSE, 6);
+   gtk_widget_show(model_combobox);
+   gtk_widget_show(map_combobox);
+   graphics_info_t g;
+   int imol_active = 0; // doesn't matter
+   int imol_map = imol_refinement_map();
+   GCallback callback = G_CALLBACK(NULL); // combox box is only read on Apply button press
+   g.new_fill_combobox_with_coordinates_options(model_combobox, callback, imol_active);
+   g.fill_combobox_with_difference_map_options(map_combobox, callback, imol_map);
+   gtk_box_reorder_child(GTK_BOX(vbox),   map_combobox, 1);
+   gtk_box_reorder_child(GTK_BOX(vbox), model_combobox, 3);
+   gtk_widget_show(dialog);
+
+   g_object_set_data(G_OBJECT(dialog), "model_combobox", model_combobox);
+   g_object_set_data(G_OBJECT(dialog),   "map_combobox",   map_combobox);
+}
+
+#include "coot-utils/pepflip-using-difference-map.hh"
+
+void
+on_pepflip_residue_button_clicked(GtkButton *button, gpointer user_data) {
+
+   coot::residue_spec_t *spec = reinterpret_cast<coot::residue_spec_t *>(user_data);
+   graphics_info_t g;
+   int imol = spec->int_user_data;
+   g.go_to_residue(imol, *spec);
+
+}
+
+
+void pepflips_by_difference_map_results_dialog(int imol_coords, int imol_difference_map, float n_sigma) {
+
+   typedef std::tuple<std::string, GCallback, gpointer> button_tuple;
+
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_difference_map)) {
+         graphics_info_t g;
+         if (g.molecules[imol_difference_map].is_difference_map_p()) {
+            const clipper::Xmap<float> &diff_xmap = g.molecules[imol_difference_map].xmap;
+            mmdb::Manager *mol = g.molecules[imol_coords].atom_sel.mol;
+            coot::pepflip_using_difference_map pf(mol, diff_xmap);
+            std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+
+            if (! flips.empty()) {
+               std::vector<button_tuple> buttons;
+               for (unsigned int i=0; i<flips.size(); i++) {
+                  mmdb::Residue *residue_p = flips[i].get_residue(mol);
+                  if (residue_p) {
+                     GCallback cb = G_CALLBACK(on_pepflip_residue_button_clicked);
+                     std::string res_name = residue_p->GetResName();
+                     std::string button_label = flips[i].label(res_name);
+                     coot::residue_spec_t *spec = new coot::residue_spec_t(flips[i]);
+                     spec->int_user_data = imol_coords;
+                     button_tuple bt = std::tuple<std::string, GCallback, gpointer>(button_label, cb, spec);
+                     buttons.push_back(bt);
+                  }
+               }
+               GtkWidget *dialog = g.dialog_box_of_buttons_internal("Pepflips", buttons, " Close ");
+               gtk_widget_show(dialog);
+            } else {
+               info_dialog("No pepflips found");
+            }
+         }
+      }
+   }
 }
 
 

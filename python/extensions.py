@@ -85,7 +85,7 @@ if True:
        return False
        
      # --------------------------------------------------
-     #           coordinated water validation dialog
+     #           Validation
      # --------------------------------------------------
 
      menu = coot_gui.coot_menubar_menu("Validate")
@@ -107,8 +107,9 @@ if True:
        coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: coot_gui.water_coordination_gui())
 
-       coot_gui.add_simple_coot_menu_menuitem(menu, "Pepflips from Difference Map...",
-                                     lambda func: coot_gui.pepflips_by_difference_map_gui())
+       # this does not exist. Let's do in in C++ with glade
+       #coot_gui.add_simple_coot_menu_menuitem(menu, "Pepflips from Difference Map...",
+       #                               lambda func: coot_gui.pepflips_by_difference_map_gui())
 
 
        def validation_outliers_func():
