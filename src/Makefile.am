@@ -120,8 +120,9 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader \
 		     model-as-mesh.shader ligand-view.shader symmetry-atoms-lines.shader \
 		     rama-plot-phi-psi-markers.shader rama-plot-axes-and-ticks.shader \
-		     hud-image-texture.shader hud-lines.shader
-
+		     hud-image-texture.shader hud-lines.shader \
+		     depth-of-field.shader blur-x.shader blur-y.shader texture-meshes.shader \
+		     camera-facing-quad-shader-for-testing.shader outline-of-active-residue.shader
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
