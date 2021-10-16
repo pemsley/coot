@@ -922,7 +922,7 @@ def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None
             print(e, 'count ', count, " for mol", mol)
         except IOError as e:
             print(e, 'count ', count, " for mol", mol)
-        except Exception, e:
+        except Exception as e:
             print(e, 'count ', count, " for mol", mol)
     b = io.BytesIO()
     composite.save(b, 'png')
