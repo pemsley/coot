@@ -289,9 +289,9 @@ gl_rama_plot_t::setup_buffers(float rama_plot_scale_in) {
    hud_tmesh_for_global_distribution_non_gly_pro.setup_quad();
    texture_for_global_distribution_non_gly_pro.init("rama-standard-inverted.png");
    hud_tmesh_for_global_distribution_pro.setup_quad();
-   texture_for_global_distribution_pro.init("test-image.png");
+   texture_for_global_distribution_pro.init("rama-standard-inverted.png"); // needs fixing
    hud_tmesh_for_global_distribution_gly.setup_quad();
-   texture_for_global_distribution_gly.init("test-image.png");
+   texture_for_global_distribution_gly.init("rama-standard-inverted.png"); // needs fixing
 
    // add bar geometry to hud_mesh_for_axes_and_ticks
 

@@ -30,4 +30,6 @@ dist_coottexture_DATA = \
 	rama-plot-pro-normal.png rama-plot-pro-outlier.png \
 	rama-plot-gly-normal.png rama-plot-gly-outlier.png \
 	rama-plot-other-normal.png rama-plot-other-outlier.png \
-	rama-standard-inverted.png
+	rama-standard-inverted.png \
+	hud-label-NBC-small.png hud-label-pull-small.png \
+	hud-label-rama-small.png hud-label-rota-small.png
