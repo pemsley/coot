@@ -908,8 +908,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
     gtk_entry_set_text(GTK_ENTRY(entry2), name);
   }
 
-  std::cout << "set entry not editable" << std::endl;
-  // gtk_entry_set_editable(GTK_ENTRY (entry2), FALSE);
+  gtk_editable_set_editable(GTK_EDITABLE(entry2), FALSE);
 
   gtk_widget_show (entry2);
   gtk_box_pack_start (GTK_BOX (hbox31), entry2, TRUE, TRUE, 0);
