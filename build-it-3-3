@@ -3368,12 +3368,16 @@ if [ "$build_rdkit" = true ] ; then
              exit 2
          fi
          cd rdkit-Release_$rdkit_version
+         ${WGET} $extras_place/rdkit-maeparser.patch
+         pwd
+         echo patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
+         patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
+
          mkdir -p build
          cd build
          pwd
          tree_from_build=..
       fi
-
 
       # New (1.60) boost uses BOOST_PYTHON not Boost_PYTHON
       #
@@ -3441,6 +3445,7 @@ if [ "$build_rdkit" = true ] ; then
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                 $tree_from_build
@@ -3452,6 +3457,7 @@ if [ "$build_rdkit" = true ] ; then
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                 $tree_from_build ; then
