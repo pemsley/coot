@@ -369,14 +369,14 @@ coot::contact_dots_from_coordinates_file(const std::string &file_name, bool add_
 	    bool ignore_waters = false;
 	    coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_waters, 0.5, 0.25);
 	    coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dot_density);
-	    const std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> > &dots = c.dots;
+	    // const std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> > &dots = c.dots;
 	    const coot::atom_overlaps_dots_container_t::spikes_t &clashes = c.clashes;
 	    PyObject *atom_overlaps_py = PyList_New(2);
 	    PyObject *dots_map_py = PyDict_New();
 	    PyObject *clashes_py  = PyList_New(clashes.size());
 
-	    std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-	    for (it = dots.begin(); it!=dots.end(); it++) {
+            std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+	    for (it = c.dots.begin(); it!=c.dots.end(); it++) {
 	       std::string col_key = it->first;
 	       // std::cout << col_key << std::endl;
 	       const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
