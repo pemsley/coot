@@ -26,12 +26,15 @@ public:
 
 class TextureInfoType {
 public:
+   enum texture_type_t { BASE_TEXTURE, NORMAL_MAP }; // and others at some stage.
    Texture texture;
    std::string name;
+   // Hmm. Maybe sampler_name and texture_type are denoting the same thing.
    std::string sampler_name; // e.g. "base_texture"
-   GLuint unit;
+   GLuint unit;  // 0 for base colour, 1 for normal map, say.
+   texture_type_t texture_type;
    TextureInfoType(const Texture &t, const std::string &n, const std::string &s, GLuint unit_in) :
-      texture(t), name(n), sampler_name(s), unit(unit_in) {}
+      texture(t), name(n), sampler_name(s), unit(unit_in) { texture_type = BASE_TEXTURE; }
 };
 
 class TextureMesh {

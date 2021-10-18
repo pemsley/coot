@@ -200,6 +200,8 @@ HUDTextureMesh::draw(Shader *shader_p) {
    glEnableVertexAttribArray(0);   // vec2 vertices
    glEnableVertexAttribArray(1);   // vec2 texCoords;
 
+   glDisable(GL_DEPTH_TEST);
+
    if (false) {
       std::cout << "HUDTextureMesh::draw() " << name << " sending position " << glm::to_string(position) << std::endl;
       std::cout << "HUDTextureMesh::draw() " << name << " sending scales "   << glm::to_string(scales) << std::endl;

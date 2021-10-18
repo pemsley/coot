@@ -34,7 +34,7 @@ public:
    Instanced_Markup_Mesh_attrib_t() {}
    Instanced_Markup_Mesh_attrib_t(const glm::vec4 &c, glm::vec3 &p, float s) : colour(c), position(p), size(s) {
       specular_strength = 0.5;
-      shininess = 65.0;
+      shininess = 64.0;
    }
 };
 

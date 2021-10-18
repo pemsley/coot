@@ -381,17 +381,20 @@ TextureMesh::draw(Shader *shader_p,
    glActiveTexture(GL_TEXTURE1);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw() A4 " << err << std::endl;
 
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
-                                          << err << std::endl;
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() i "
-                                          << err << std::endl;
+   shader_p->set_int_for_uniform("base_texture", 0);
+   shader_p->set_int_for_uniform("normal_map",   1);
 
-   glEnableVertexAttribArray(0);
-   glEnableVertexAttribArray(1);
-   glEnableVertexAttribArray(2);
-   glEnableVertexAttribArray(3);
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id); // 20211017-PE  needed?
+   err = glGetError();
+   if (err) std::cout << "   error draw() glBindBuffer() v " << err << std::endl;
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "   error draw() glBindBuffer() i " << err << std::endl;
+
+   glEnableVertexAttribArray(0);  // position
+   glEnableVertexAttribArray(1);  // normal
+   glEnableVertexAttribArray(2);  // colour (not used)
+   glEnableVertexAttribArray(3);  // texture coordinates
 
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
@@ -639,6 +642,8 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
       std::vector<glm::vec2> texture_coords;
       std::vector<g_triangle> triangles;
       glm::vec4 base_colour;
+      int normal_map_texture_image_index; // NormalTextureInfo is part of a Material. It tells us
+                                          // which image has the normal info (if any)
    };
 
 
@@ -686,18 +691,18 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                           return triangles;
                        };
 
-   auto proc_material = [] (tinygltf::Model &model, int material_index) {
-
-                           std::cout << "debug:: proc_material(): material_index " << material_index
-                                     << " materials.size() " << model.materials.size() << std::endl;
-
-                           const tinygltf::Material &material = model.materials[material_index];
+   auto proc_material = [] (const tinygltf::Material &material) {
 
                            std::cout << "debug:: proc_material(): material.pbrMetallicRoughness() basecolour size"
                                      << material.pbrMetallicRoughness.baseColorFactor.size() << std::endl;
+                           std::cout << "debug:: proc_material(): material.normalTexture:"
+                                     << " index    " << material.normalTexture.index
+                                     << " texCoord " << material.normalTexture.texCoord
+                                     << " scale    " << material.normalTexture.scale
+                                     << std::endl;
 
                            if (false)
-                              std::cout << "Material " << material_index << " name: \"" << material.name << "\""
+                              std::cout << "Material name: \"" << material.name << "\""
                                         << " alphaMode" << material.alphaMode
                                         << " pbr-metallicroughness colour "
                                         << material.pbrMetallicRoughness.baseColorFactor[0] << " "
@@ -724,8 +729,13 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
 
                             std::cout << indent(3) << "primitive material " << primitive.material << std::endl;
                             if (primitive.material >= 0) {
-                               glm::vec4 colour = proc_material(model, primitive.material);
-                               ebi.base_colour = colour;
+                               int material_index = primitive.material;
+                               std::cout << "debug:: proc_primitive(): material_index " << material_index << " of "
+                                         << " materials.size() " << model.materials.size() << std::endl;
+                               const tinygltf::Material &material = model.materials[material_index];
+                               ebi.base_colour = proc_material(material);
+                               ebi.normal_map_texture_image_index = material.normalTexture.index;
+                               // other maps are available, emissive, roughness, occlussion
                             } else {
                                std::cout << "Ooops skipping proc_material()" << std::endl;
                             }
@@ -759,21 +769,21 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                                             << " accessor type " << accessor.type << std::endl;
 
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
-                                  std::cout << "      component type byte " << std::endl;
+                                  std::cout << indent(3) <<"component type byte " << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-                                  std::cout << "      component type unsigned byte " << std::endl;
+                                  std::cout << indent(3) <<"component type unsigned byte " << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
-                                  std::cout << "      component type short" << std::endl;
+                                  std::cout << indent(3) <<"component type short" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-                                  std::cout << "      component type unsigned short" << std::endl;
+                                  std::cout << indent(3) <<"component type unsigned short" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_INT)
-                                  std::cout << "      component type int" << std::endl;
+                                  std::cout << indent(3) <<"component type int" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
-                                  std::cout << "      component type unsigned int" << std::endl;
+                                  std::cout << indent(3) <<"component type unsigned int" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
-                                  std::cout << "      component type float" << std::endl;
+                                  std::cout << indent(3) <<"component type float" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
-                                  std::cout << "      component type double" << std::endl;
+                                  std::cout << indent(3) <<"component type double" << std::endl;
 
                                if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
                                   if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
@@ -872,21 +882,25 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                        return r;
                    };
 
-   auto proc_images = [indent] (const tinygltf::Image &image) {
-                         std::cout << indent(1) << "Image name: "   << image.name   << std::endl;
-                         std::cout << indent(1) << "Image bits: "   << image.bits   << std::endl;
-                         std::cout << indent(1) << "Image width: "  << image.width  << std::endl;
-                         std::cout << indent(1) << "Image height: " << image.height << std::endl;
-                         std::cout << indent(1) << "Image component: " << image.component << std::endl;
-                         std::cout << indent(1) << "Image data buffer size:" << image.image.size() << std::endl;
+   auto proc_image = [indent] (const tinygltf::Image &image) {
 
-                         Texture texture;
-                         texture.handle_raw_image_data(image.name, image.image, image.width, image.height);
+                        std::cout << "Image:" << std::endl;
+                        std::cout << indent(1) << "Image name: "   << image.name   << std::endl;
+                        std::cout << indent(1) << "Image bits: "   << image.bits   << std::endl;
+                        std::cout << indent(1) << "Image width: "  << image.width  << std::endl;
+                        std::cout << indent(1) << "Image height: " << image.height << std::endl;
+                        std::cout << indent(1) << "Image component: " << image.component << std::endl;
+                        std::cout << indent(1) << "Image data buffer size:" << image.image.size() << std::endl;
+                        std::cout << indent(1) << "Image.bufferView:" << image.bufferView << std::endl;
 
-                         return texture;
+                        Texture texture;
+                        texture.handle_raw_image_data(image.name, image.image, image.width, image.height);
+                        std::cout << "debug:: made a texture with m_texture_handle " << texture.m_texture_handle << std::endl;
+
+                        return texture;
                    };
 
-   auto proc_model_v2 = [proc_node, proc_images] (tinygltf::Model &model) {
+   auto proc_model_v2 = [proc_node, proc_image] (tinygltf::Model &model) {
 
                            std::vector<extracted_buffer_info_t> r;
                            std::vector<Texture> textures;
@@ -937,7 +951,7 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
 
                            std::cout << "This model contains " << model.images.size() << " images" << std::endl;
                            for (unsigned int i=0; i<model.images.size(); i++) {
-                              Texture texture = proc_images(model.images[i]);
+                              Texture texture = proc_image(model.images[i]);
                               textures.push_back(texture);
                            }
 
@@ -996,8 +1010,23 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
       std::vector<Texture> &extracted_textures = r_pair.second;
 
       if (! extracted_textures.empty()) {
-         TextureInfoType ti(extracted_textures[0], "something", "base_texture", 0);
-         textures.push_back(ti);
+         for (unsigned int idx_texture=0; idx_texture<extracted_textures.size(); idx_texture++) {
+            const auto &texture = extracted_textures[idx_texture];
+            int idx_texture_as_int = idx_texture; // sigh
+            TextureInfoType ti(texture, "something", "base_texture", 0);
+            // now, was this marked as a normal map by any of the buffer infos?
+            for (unsigned int i=0; i<r.size(); i++) {
+               const extracted_buffer_info_t &ebi = r[i];
+               if (ebi.normal_map_texture_image_index == idx_texture_as_int) {
+                  ti.texture_type = TextureInfoType::NORMAL_MAP;
+                  ti.unit = 1; // for rendering using textures-meshes.shader
+                  ti.sampler_name = "normal_map";
+               }
+            }
+            std::cout << "load_from_glTF() pushing back a textureinfo " << ti.name << " " << ti.sampler_name << " unit "
+                      << ti.unit << " texture_type_t " << ti.texture_type << " filename " << ti.texture.file_name << std::endl;
+            textures.push_back(ti);
+         }
       }
 
       // std::cout << "load_from_glTF(): found " << r.size() << " mesh primitives" << std::endl;

@@ -1576,6 +1576,8 @@ graphics_info_t::draw_happy_face_residue_markers() {
 void
 graphics_info_t::draw_texture_meshes() {
 
+   // std::cout << "draw_texture_meshes() --- start --- " << std::endl;
+
    if (! texture_meshes.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::vec3 eye_position = get_world_space_eye_position();
@@ -1588,8 +1590,31 @@ graphics_info_t::draw_texture_meshes() {
          // std::cout << "debug:: in draw_textures_meshes textures size " << tm.textures.size() << std::endl;
          if (! tm.textures.empty()) {
             // std::cout << "Binding and drawing the texture mesh" << std::endl;
-            tm.textures[0].texture.Bind(tm.textures[0].unit);
-            tm.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
+
+            //
+            // 20211018-PE it matters that these get called in the right order!
+            //
+            // BASE_TEXTURE before NORMAL_MAP
+            // I've reversed the indexing of idx_texture for now - there's probably a better
+            // way of sorting this out.
+            // texture.unit for BASE_TEXTURE is 0
+            // texture.unit for NORMAL_MAP is 1
+            // as it should be (AFAICS)
+            //
+            // for (unsigned int idx_texture=0; idx_texture<tm.textures.size(); idx_texture++) {
+            int idx_start = tm.textures.size() - 1;
+            for (int idx_texture=idx_start; idx_texture>=0; idx_texture--) {
+               const auto &texture = tm.textures[idx_texture];
+               if (texture.texture_type == TextureInfoType::BASE_TEXTURE) {
+                  // std::cout << "   binding BASE_TEXTURE texture_unit " << texture.unit << std::endl;
+                  tm.textures[idx_texture].texture.Bind(texture.unit);
+               }
+               if (texture.texture_type == TextureInfoType::NORMAL_MAP) {
+                  // std::cout << "   binding NORMAL_MAP texture_unit " << texture.unit << std::endl;
+                  tm.textures[idx_texture].texture.Bind(texture.unit);
+               }
+               tm.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
+            }
          }
       }
    }
@@ -2412,6 +2437,8 @@ graphics_info_t::draw_hud_fps() {
       // ----------------- HUD graph (in ms/frame) ---------------------------------
 
       if (frame_time_history_list.size() > 2) {
+
+         myglLineWidth(1.0); // even Apple should have no problem with this.
 
          std::vector<glm::vec2> data;
          data.reserve(frame_time_history_list.size()+2); // it would be better if this was outside the hot path
@@ -3276,7 +3303,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
    auto draw_hud_elements = [] () {
 
-                          draw_ligand_view();
+                          draw_hud_ligand_view();
 
                           draw_hud_geometry_bars();
 
@@ -3981,15 +4008,23 @@ graphics_info_t::setup_draw_for_boids() {
 }
 
 void
-graphics_info_t::draw_ligand_view() {
+graphics_info_t::draw_hud_ligand_view() {
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    float w = allocation.width;
    float h = allocation.height;
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "draw_ligand_view() --- start --- " << err << std::endl;
+
+   myglLineWidth(2.0);
    graphics_ligand_mesh_molecule.draw(&shader_for_ligand_view,
                                       &shader_for_hud_geometry_tooltip_text,
                                       w, h, ft_characters);
+   err = glGetError();
+   if (err)
+      std::cout << "draw_ligand_view() --- end --- " << err << std::endl;
 }
 
 

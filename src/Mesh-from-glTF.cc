@@ -317,6 +317,7 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
    std::string file_name = file_name_in;
    if (coot::file_exists(file_name)) {
       // do nothing
+      std::cout << "debug:: file " << file_name << " exists and will be  read" << std::endl;
    } else {
       std::string dir = coot::package_data_dir();
       std::string dir_2 = coot::util::append_dir_dir(dir, "glTF");
@@ -325,7 +326,6 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
 
    bool use_binary = false;
    std::string ext = coot::util::file_name_extension(file_name_in);
-   std::cout << "debug:: ext is " << ext << std::endl;
    if (ext == ".glb") use_binary = true;
 
    // use the extension to check which function to use

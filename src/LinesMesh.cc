@@ -78,9 +78,11 @@ LinesMesh::setup_vertices_and_indices(const std::vector<s_generic_vertex> &verti
 
    setup();
 
-   std::cout << "debug::::::::: setup_vertices_and_indices() vertices.size " << vertices.size() << std::endl;
-   std::cout << "debug::::::::: setup_vertices_and_indices() indices.size " << indices.size() << std::endl;
-   std::cout << "debug::::::::: post setup_vertices_and_indices() vao is " << vao << std::endl;
+   if (false) {
+      std::cout << "debug::::::::: setup_vertices_and_indices() vertices.size " << vertices.size() << std::endl;
+      std::cout << "debug::::::::: setup_vertices_and_indices() indices.size " << indices.size() << std::endl;
+      std::cout << "debug::::::::: post setup_vertices_and_indices() vao is " << vao << std::endl;
+   }
 }
 
 void

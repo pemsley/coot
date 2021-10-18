@@ -1,3 +1,4 @@
+
 #ifndef GRAPHICS_LIGAND_MESH_MOLECULE_HH
 #define GRAPHICS_LIGAND_MESH_MOLECULE_HH
 
@@ -29,7 +30,7 @@ public:
 };
 
 class graphics_ligand_mesh_molecule_t : public lig_build::molecule_t<graphics_ligand_mesh_atom,
-                                                                     graphics_ligand_mesh_bond>  {
+                                                                     graphics_ligand_mesh_bond> {
 
 
    class position_triple_t {

@@ -4315,7 +4315,7 @@ string   static std::string sessionid;
    static void draw_origin_cube(GtkGLArea *glarea);
    static void draw_rotation_centre_crosshairs(GtkGLArea *glarea);
    static void draw_outlined_active_residue();
-   static void draw_ligand_view();
+   static void draw_hud_ligand_view();
    static void draw_hud_buttons();
    static void draw_hud_fps();
    static void draw_measure_distance_and_angles();

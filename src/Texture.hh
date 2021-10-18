@@ -8,11 +8,8 @@
 
 class Texture {
 
-   GLuint m_texture_handle;
    std::string default_directory;
-   std::string file_name;
-   std::string type;
-   unsigned int id;
+   unsigned int id; // not used
    int image_width;
    int image_height;
 
@@ -20,6 +17,9 @@ public:
    Texture() {}
    explicit Texture(const std::string &file_name);
    ~Texture(); // don't close
+   GLuint m_texture_handle; // make this private after this testing              
+   std::string file_name;
+   std::string type;
 
    void init(const std::string &file_name);
    void init(const std::string &local_file_name, const std::string &directory);
