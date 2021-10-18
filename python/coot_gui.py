@@ -4674,10 +4674,10 @@ def solvent_ligands_gui():
 
          else:
             print "======== not jiggling - no map ======== "
-         if valid_model_molecule_qm(imol):
-            merge_molecules([imol_ligand], imol)
-            set_mol_active(imol_ligand, 0)
-            set_mol_displayed(imol_ligand, 0)
+            if valid_model_molecule_qm(imol):
+               merge_molecules([imol_ligand], imol)
+               set_mol_active(imol_ligand, 0)
+               set_mol_displayed(imol_ligand, 0)
    
    # add a button for a 3-letter-code to the scrolled vbox that runs
    # add-ligand-func when clicked.
