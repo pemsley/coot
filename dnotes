@@ -10099,7 +10099,7 @@ Sat 17 Jul 15:40:16 BST 2021
 
    called by molecule_class_info_t::make_map_from_mtz_by_calc_phases
 
-  called by API function map_from_mtz_by_calc_phases()
+   called by API function map_from_mtz_by_calc_phases()
 
 
 ----
@@ -10206,3 +10206,32 @@ Thu  7 Oct 07:37:59 BST 2021
 
 https://en.m.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_02
 
+----
+Tue 19 Oct 08:18:30 BST 2021
+
+   Lots of blender materials - good stuff!
+   https://blenderartists.org/t/yet-another-thread-about-cycles-materials/562346/276
+
+---
+Tue 19 Oct 14:09:13 BST 2021
+
+   Here's how to do a modern python Gtk molecule combobox
+
+    combobox = Gtk.ComboBox()
+    combobox_mol_items = make_store_for_model_molecule_combobox()
+    combobox.set_model(combobox_mol_items)
+    renderer_text = Gtk.CellRendererText()
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+    combobox.set_active(0) # or whatever
+
+    When the gui/dialog is read, use this:
+
+    def get_molecule():
+        tree_iter = combobox_molecule.get_active_iter()
+        imol = -1
+        if tree_iter is not None:
+            model = combobox_molecule.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol

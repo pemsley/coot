@@ -1666,11 +1666,11 @@ if True:
        lambda imol: coot_utils.pukka_puckers_qm(imol)))
 
      coot_gui.add_simple_coot_menu_menuitem(
-       menu,
-       "Alignment vs PIR...",
-       lambda func: coot_gui.molecule_chooser_gui("Alignment vs PIR info for molecule:",
-                                         lambda imol: coot_gui.wrapper_alignment_mismatches_gui(imol)))
-          
+         menu,
+         "Alignment vs PIR...",
+         #lambda func: coot_gui.molecule_chooser_gui("Alignment vs PIR info for molecule:",
+         #   lambda imol: coot_gui.wrapper_alignment_mismatches_gui(imol)))
+         lambda func: coot_gui.associate_pir_wih_molecule_gui(True))
 
   else:
     print("BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!")

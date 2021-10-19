@@ -2848,7 +2848,7 @@ Calculate a skeleton now?
   </object>
   <object class="GtkDialog" id="bond_parameters_dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Bond Parameters</property>
+    <property name="title" translatable="yes">Coot Bond Parameters</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox59">
@@ -2867,7 +2867,6 @@ Calculate a skeleton now?
                 <child>
                   <object class="GtkButton" id="bond_parameters_apply_button">
                     <property name="label" translatable="yes">  Apply  </property>
-                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="border_width">4</property>
@@ -2884,7 +2883,6 @@ Calculate a skeleton now?
                 <child>
                   <object class="GtkButton" id="bond_parameters_ok_button">
                     <property name="label" translatable="yes">       OK       </property>
-                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="border_width">4</property>
@@ -2899,14 +2897,14 @@ Calculate a skeleton now?
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="bond_parameters_cancel_button">
+                  <object class="GtkButton" id="bond_parameters_close_button">
                     <property name="label" translatable="yes">  Close  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="border_width">4</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_bond_parameters_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_bond_parameters_close_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -2939,7 +2937,7 @@ Calculate a skeleton now?
               <placeholder/>
             </child>
             <child>
-              <object class="GtkBox" id="hbox93">
+              <object class="GtkBox" id="bond_parameters_hbox_for_molecule_combobox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="border_width">6</property>
@@ -2996,7 +2994,15 @@ Calculate a skeleton now?
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="bond_parameters_bond_width_combobox_text">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label191">
@@ -11443,124 +11449,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="background_colour1">
-                            <property name="label" translatable="yes">Background Colour...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_background_colour1_activate_gtkbuilder_callback" swapped="no"/>
-                            <child type="submenu">
-                              <object class="GtkMenu" id="background_colour1_menu">
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkRadioMenuItem" id="background_black1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Black</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="active">True</property>
-                                    <signal name="activate" handler="on_background_black1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkRadioMenuItem" id="background_white1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">White</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="active">True</property>
-                                    <property name="group">background_black1</property>
-                                    <signal name="activate" handler="on_background_white1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="bond_colours1">
-                            <property name="label" translatable="yes">Bond Colours...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_bond_colours1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="bond_parameters1">
-                            <property name="label" translatable="yes">Bond Parameters...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_bond_parameters1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="map_colour1">
-                            <property name="label" translatable="yes">Map Colour...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_map_colour1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="density_size1">
-                            <property name="label" translatable="yes">Map Parameters...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_density_size1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="skeleton_parameters1">
-                            <property name="label" translatable="yes">Skeleton Parameters</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <child type="submenu">
-                              <object class="GtkMenu" id="skeleton_parameters1_menu">
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkImageMenuItem" id="skeleton_colour1">
-                                    <property name="label" translatable="yes">Skeleton Colour...</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="use_stock">False</property>
-                                    <signal name="activate" handler="on_skeleton_colour1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="skeleton_box_radius1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Skeleton Box Radius...</property>
-                                    <property name="use_underline">True</property>
-                                    <signal name="activate" handler="on_skeleton_box_radius1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="skeletonization_level1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Skeletonization Level...</property>
-                                    <property name="use_underline">True</property>
-                                    <signal name="activate" handler="on_skeletonization_level1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkSeparatorMenuItem">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -11843,13 +11731,59 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="anisotropic_atoms1">
-                            <property name="label" translatable="yes">Anisotropic Atoms...</property>
+                          <object class="GtkImageMenuItem" id="background_colour1">
+                            <property name="label" translatable="yes">Background Colour...</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_anisotropic_atoms1_activate_gtkbuilder_callback" swapped="no"/>
+                            <signal name="activate" handler="on_background_colour1_activate_gtkbuilder_callback" swapped="no"/>
+                            <child type="submenu">
+                              <object class="GtkMenu" id="background_colour1_menu">
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkRadioMenuItem" id="background_black1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Black</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="active">True</property>
+                                    <signal name="activate" handler="on_background_black1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkRadioMenuItem" id="background_white1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">White</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="active">True</property>
+                                    <property name="group">background_black1</property>
+                                    <signal name="activate" handler="on_background_white1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="bond_colours1">
+                            <property name="label" translatable="yes">Bond Colours...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_bond_colours1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="bond_parameters1">
+                            <property name="label" translatable="yes">Bond Parameters...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_bond_parameters1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -11967,6 +11901,26 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkImageMenuItem" id="map_colour1">
+                            <property name="label" translatable="yes">Map Colour...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_map_colour1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="density_size1">
+                            <property name="label" translatable="yes">Map Parameters...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <signal name="activate" handler="on_density_size1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="ncs_ghost_control1">
                             <property name="label" translatable="yes">NCS Ghost Control...</property>
                             <property name="visible">True</property>
@@ -11983,6 +11937,48 @@ Do you want to continue?
                             <property name="label" translatable="yes">Representation Tools...</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_draw_representation_tools_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImageMenuItem" id="skeleton_parameters1">
+                            <property name="label" translatable="yes">Skeleton Parameters</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">False</property>
+                            <child type="submenu">
+                              <object class="GtkMenu" id="skeleton_parameters1_menu">
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkImageMenuItem" id="skeleton_colour1">
+                                    <property name="label" translatable="yes">Skeleton Colour...</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="use_stock">False</property>
+                                    <signal name="activate" handler="on_skeleton_colour1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuItem" id="skeleton_box_radius1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Skeleton Box Radius...</property>
+                                    <property name="use_underline">True</property>
+                                    <signal name="activate" handler="on_skeleton_box_radius1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuItem" id="skeletonization_level1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Skeletonization Level...</property>
+                                    <property name="use_underline">True</property>
+                                    <signal name="activate" handler="on_skeletonization_level1_activate_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </child>
                         <child>

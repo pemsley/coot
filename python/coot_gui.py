@@ -838,6 +838,7 @@ def make_store_for_model_molecule_combobox():
         if coot.is_valid_model_molecule(imol) == 1:
             label_str = coot.molecule_name(imol)
             m_label_str = str(imol) + ' ' + label_str
+            print("debug:: make_store_for_model_molecule_combobox appending", imol, m_label_str)
             mol_store.append([imol, m_label_str])
     return mol_store
 
@@ -1104,43 +1105,60 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
         window.destroy()
         return False
 
+    def get_molecule():
+        tree_iter = combobox.get_active_iter()
+        imol = -1
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
+
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(
-            option_menu, model_mol_list)
+        # active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
+        imol = get_molecule()
+        print("on_ok_button_clicked, got imol", imol)
 
         try:
-            active_mol_no = int(active_mol_no)
+            active_mol_no = int(imol)
             text = entry.get_text()
             file_sel_text = file_sel_entry.get_text()
             if (c_button and c_button.get_active()):
                 # use alt function
-                alternative_callback_function(active_mol_no,
-                                              text, file_sel_text)
+                alternative_callback_function(imol, text, file_sel_text)
             else:
-                callback_function(active_mol_no, text, file_sel_text)
+                callback_function(imol, text, file_sel_text)
             delete_event()
-        except:
+        except KeyError as e:
+            print(e)
             print("Failed to get a (molecule) number")
 
     window = Gtk.Window()
+    window.set_title("Coot generic_chooser_entry_and_file_selector")
     label = Gtk.Label(chooser_label)
     vbox = Gtk.VBox(False, 2)
-    hbox_for_entry = Gtk.HBox(False, 0)
+    hbox_for_entry = Gtk.HBox(False, 2)
     entry = Gtk.Entry()
     entry_label = Gtk.Label(entry_hint_text)
     hbox_buttons = Gtk.HBox(True, 2)
-    option_menu = Gtk.combo_box_new_text()
     ok_button = Gtk.Button("  OK  ")
     cancel_button = Gtk.Button(" Cancel ")
     h_sep = Gtk.HSeparator()
-    model_mol_list = fill_option_menu_with_mol_options(
-        option_menu, chooser_filter)
+    # model_mol_list = fill_option_menu_with_mol_options(option_menu, chooser_filter)
+    # name_store = fill_combobox_with_model_molecule_options(combobox)
+    combobox = Gtk.ComboBox()
+    combobox_mol_items = make_store_for_model_molecule_combobox()
+    combobox.set_model(combobox_mol_items)
+    renderer_text = Gtk.CellRendererText()
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+    combobox.set_active(0)
 
     window.set_default_size(400, 100)
     window.add(vbox)
     vbox.pack_start(label, False, False, 5)
-    vbox.pack_start(option_menu, True, True, 0)
+    vbox.pack_start(combobox, True, True, 0)
     vbox.pack_start(hbox_for_entry, False, False, 5)
     hbox_buttons.pack_start(ok_button, True, False, 5)
     hbox_buttons.pack_start(cancel_button, False, False, 5)
@@ -1154,12 +1172,12 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
         c_button = Gtk.CheckButton(check_button_label)
         vbox.pack_start(c_button, False, False, 2)
 
-    file_sel_entry = file_chooser_entry(vbox, file_selector_hint)
+    file_sel_entry = file_chooser_entry(window, vbox, file_selector_hint)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
 
     # button callbacks
-    ok_button.connect("clicked", on_ok_button_clicked, entry, option_menu,
+    ok_button.connect("clicked", on_ok_button_clicked, entry, combobox,
                       callback_function,
                       c_button, alternative_callback_function)
     cancel_button.connect("clicked", delete_event)
@@ -1236,7 +1254,7 @@ def generic_chooser_and_file_selector(chooser_label,
     hbox_buttons.pack_start(ok_button, True, False, 5)
     hbox_buttons.pack_start(cancel_button, False, False, 5)
 
-    file_sel_entry = file_chooser_entry(vbox, file_selector_hint, default_file_name)
+    file_sel_entry = file_chooser_entry(window, vbox, file_selector_hint, default_file_name)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
 
@@ -1633,12 +1651,10 @@ def generic_interesting_things(imol, gui_title_string, residue_test_func):
     else:
         print("BL WARNING:: no valid model molecule ", imol)
 
-# A gui that makes a generic number chooser the go function is a
+# A gui that makes a generic number chooser: the go_function is a
 # function that takes the value of the active menu item - as a
 # number.
 #
-
-
 def generic_number_chooser(number_list, default_option_value, hint_text,
                            go_button_label, go_function):
 
@@ -1694,8 +1710,6 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
         if i == default_option_value:
             combobox.set_active(i)
 
-
-            
     vbox.pack_start(hbox1, True, False, 0)
     vbox.pack_start(function_label, True, False, 0)
     vbox.pack_start(combobox, True, False, 0)
@@ -1720,9 +1734,7 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
 #
 
 
-def entry_do_button(vbox, hint_text,
-                    button_label, button_press_func,
-                    entry_text=False):
+def entry_do_button(vbox, hint_text, button_label, button_press_func, entry_text=False):
 
     hbox = Gtk.HBox(False, 0)
     entry = Gtk.Entry()
@@ -1730,7 +1742,7 @@ def entry_do_button(vbox, hint_text,
     label = Gtk.Label(hint_text)
 
     hbox.pack_start(label, False, False, 2)
-    hbox.pack_start(entry, True, False, 2)
+    hbox.pack_start(entry, True, True, 2)
     hbox.pack_start(button, False, False, 2)
     button.connect("clicked", button_press_func, entry)
 
@@ -1740,7 +1752,7 @@ def entry_do_button(vbox, hint_text,
     button.show()
     entry.show()
     hbox.show()
-    vbox.pack_start(hbox, True, False)
+    vbox.pack_start(hbox, True, False, 2)
     return entry
 
 # pack a hint text and a molecule chooser option menu into the given vbox.
@@ -1782,38 +1794,36 @@ def generic_molecule_chooser(hbox, hint_text):
 #
 
 
-def file_chooser_entry(hbox, hint_text, default_file_name=False):
+def file_chooser_entry(parent_window, hbox, hint_text, default_file_name=False):
 
-    if Gtk.pygtk_version > (2, 3, 90):
-
-        vbox = Gtk.VBox(False, 0)
+    #$ if Gtk.pygtk_version > (2, 3, 90):
+    if True:
 
         def file_func1(*args):
+
             def file_ok_sel(*args):
-                t = fc_window.get_filename()
+                t = file_chooser_dialog.get_filename()
                 print(t)
                 entry.set_text(t)
-                fc_window.destroy()
+                file_chooser_dialog.destroy()
 
-            fc_window = Gtk.FileChooserDialog("file selection",
-                                              None,
-                                              Gtk.FILE_CHOOSER_ACTION_OPEN,
-                                              (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL,
-                                               Gtk.STOCK_OPEN, Gtk.RESPONSE_OK))
-            response = fc_window.run()
-            if response == Gtk.RESPONSE_OK:
-                file_ok_sel(fc_window, entry)
-            elif response == Gtk.RESPONSE_CANCEL:
-                fc_window.destroy()
+            file_chooser_dialog = Gtk.FileChooserDialog("Please choose a file", parent_window,
+                                                        Gtk.FileChooserAction.OPEN,
+                                                        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                                         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
-        entry = entry_do_button(vbox, hint_text, "  File...  ",
-                                file_func1, default_file_name)
+            response = file_chooser_dialog.run()
+            if response == Gtk.ResponseType.OK:
+                file_ok_sel(file_chooser_dialog, entry)
+            elif response == Gtk.ResponseType.CANCEL:
+                file_chooser_dialog.destroy()
 
+        vbox = Gtk.VBox(False, 0)
+        entry = entry_do_button(vbox, hint_text, "  File...  ", file_func1, default_file_name)
         hbox.pack_start(vbox, False, False, 2)
         vbox.show()
         return entry
     else:
-        print("PyGtk 2.3.90 or later required for this function!")
         return False
 
 # The gui for the strand placement function
@@ -3693,7 +3703,7 @@ def cootaneer_gui_bl():
     fill_table_with_sequences()
 
     vbox.pack_start(h_sep, False, False, 2)
-    file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
+    file_sel_entry = file_chooser_entry(window, vbox, "Select PIR file")
     vbox.pack_start(import_button, False, False, 6)
 
     buttons_hbox.pack_start(go_button, False, False, 6)
@@ -3929,7 +3939,7 @@ def alignment_mismatches_gui(imol):
         chain_id = res_info[2]
         res_no = res_info[3]
         ins_code = res_info[4]
-        residue_atoms = residue_info(imol, chain_id, res_no, ins_code)
+        residue_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
         if not residue_atoms:
             return " CA "  # wont work of course
         else:
@@ -3939,7 +3949,7 @@ def alignment_mismatches_gui(imol):
             return residue_atoms[0][0][0]
 
     # main line
-    am = alignment_mismatches(imol)
+    am = coot.alignment_mismatches_py(imol)
 
     if (am == []):
         coot.info_dialog("No sequence mismatches")
@@ -3958,16 +3968,20 @@ def alignment_mismatches_gui(imol):
                     chain_id = res_info[2]
                     res_no = res_info[3]
                     ins_code = res_info[4]
-                    button_1_label = "Mutate " + chain_id + \
-                                     " " + str(res_no) + \
-                                     " " + coot.residue_name(imol, chain_id, res_no, ins_code) + \
-                                     " to " + res_info[0]
-                    button_1_action = ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
-                                       "coot.set_go_to_atom_chain_residue_atom_name(\'" +
-                                       chain_id + "\', " +
-                                       str(res_no) + ", " +
-                                       "\'" + get_sensible_atom_name(res_info) + "\')"]
-                    ret_buttons.append([button_1_label, button_1_action])
+                    res_name = coot.residue_name(imol, chain_id, res_no, ins_code)
+                    button_1_label = "Mutate " + chain_id + " " + str(res_no) + " " + res_name + " to " + res_info[0]
+
+                    def generator(imol, chain_id, res_no):
+                        func = lambda imol_c=imol, chain_id_c=chain_id, res_no_c=res_no: button_1_action(imol_c, chain_id_c, res_no_c)
+                        def button_1_action(imol, chain_id, res_no):
+                            print("debug:: button_1_action(): res_no:", res_no)
+                            nrbs_spec = coot.nearest_residue_by_sequence_py(imol, chain_id, res_no, ins_code)
+                            coot.set_go_to_atom_chain_residue_atom_name(chain_id, coot_utils.residue_spec_to_res_no(nrbs_spec), " CA ")
+                        def action(button):
+                            func(imol, chain_id, res_no)
+                        return action
+
+                    ret_buttons.append([button_1_label, generator(imol, chain_id, res_no)])
                 return ret_buttons
 
             def delete_buttons():
@@ -3976,14 +3990,29 @@ def alignment_mismatches_gui(imol):
                     chain_id = res_info[2]
                     res_no = res_info[3]
                     ins_code = res_info[4]
-                    button_1_label = "Delete " + chain_id + \
-                                     " " + str(res_no)
-                    button_1_action = ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
-                                       "coot.set_go_to_atom_chain_residue_atom_name(\'" +
-                                       chain_id + "\', " +
-                                       str(res_no) + ", " +
-                                       "\'" + get_sensible_atom_name(res_info) + "\')"]
-                    ret_buttons.append([button_1_label, button_1_action])
+                    button_1_label = "Delete " + chain_id + " " + str(res_no)
+                    # button_1_action = ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
+                    #                    "coot.set_go_to_atom_chain_residue_atom_name(\'" +
+                    #                    chain_id + "\', " +
+                    #                    str(res_no) + ", " +
+                    #                    "\'" + get_sensible_atom_name(res_info) + "\')"]
+
+                    def button_1_action(imol, chain_id, res_no, res_info):
+                        atom_name = get_sensible_atom_name(res_info)
+                        coot.set_go_to_atom_molecule(imol)
+                        coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
+
+                    def generator(imol, chain_id, res_no, res_info):
+                        func = lambda imol_c=imol, chain_id_c=chain_id, res_no_c=res_no, res_info_c=res_info: button_1_action(imol_c, chain_id_c, res_no_c, res_info_c)
+                        def button_1_action(imol, chain_id, res_no, res_info):
+                            atom_name = get_sensible_atom_name(res_info)
+                            coot.set_go_to_atom_molecule(imol)
+                            coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
+                        def action(button):
+                            func(imol, chain_id, res_no, res_info)
+                        return action
+
+                    ret_buttons.append([button_1_label, generator(imol, chain_id, res_no, res_info)])
                 return ret_buttons
 
             def insert_buttons():
@@ -3992,22 +4021,29 @@ def alignment_mismatches_gui(imol):
                     chain_id = res_info[2]
                     res_no = res_info[3]
                     ins_code = res_info[4]
-                    button_1_label = "Insert " + chain_id + \
-                                     " " + str(res_no)
+                    button_label = "Insert " + chain_id + " " + str(res_no)
                     #button_1_action = "info_dialog(" + button_1_label + ")"
                     # oh dear, will that work? I dont think I can pass asignments
                     # here. Need to rethink this! FIXME
                     # messy but should work (without too much hazzle)
-                    button_1_action = ["info_dialog(\'" + button_1_label + "\')",
-                                       "set_go_to_atom_chain_residue_atom_name(\'" +
-                                       chain_id + "\', " +
-                                       "nearest_residue_by_sequence(" +
-                                       str(imol) + ", \'" +
-                                       chain_id + "\', " +
-                                       str(res_no) + ", " +
-                                       "\'" + ins_code + "\')[2], " +
-                                       "\' CA \')"]
-                    ret_buttons.append([button_1_label, button_1_action])
+                    # button_1_action = ["info_dialog(\'" + button_1_label + "\')",
+                    #                    "set_go_to_atom_chain_residue_atom_name(\'" +
+                    #                    chain_id + "\', " +
+                    #                    "nearest_residue_by_sequence(" +
+                    #                    str(imol) + ", \'" +
+                    #                    chain_id + "\', " +
+                    #                    str(res_no) + ", " +
+                    #                    "\'" + ins_code + "\')[2], " +
+                    #                    "\' CA \')"]
+
+                    def button_action(button):
+                        print("button action arg button:", button)
+                        # coot.info_dialog(button_label) wretched python. How do I capture button_label?
+                        # by using lambda arg_copy=arg: something(arg_copy)
+                        rnbs_spec = coot.nearest_residue_by_sequence_py(imol, chain_id, res_no, ins_code)
+                        coot.set_go_to_atom_chain_residue_atom_name(chain_id, coot_utils.residue_spec_to_res_no(rnbs_spec), " CA ")
+
+                    ret_buttons.append([button_label, button_action])
                 return ret_buttons
 
             buttons = delete_buttons()
@@ -4024,7 +4060,7 @@ def alignment_mismatches_gui(imol):
 
 def wrapper_alignment_mismatches_gui(imol):
 
-    seq_info = sequence_info(imol)
+    seq_info = coot.sequence_info_py(imol)
     print("BL DEBUG:: sequence_info", seq_info)
     if seq_info:
         alignment_mismatches_gui(imol)
@@ -4756,6 +4792,7 @@ def water_coordination_gui():
         imol = get_molecule()
         d = get_distance()
         if d:
+            print("now call update_water_results() with imol", imol, "coordination number", n, "imol", imol)
             update_water_results(imol, n, d)
 
     def key_press_event(widget, event):
@@ -4767,24 +4804,29 @@ def water_coordination_gui():
                 update_water_results(imol, n, d)
 
     def atom_spec_to_text(atom_spec):
-        return " ".join(map(str, atom_spec))
+        # remove the leading element (user_int, I think)
+        # return " ".join(map(str, atom_spec))
+        remains = atom_spec[1:]
+        return " ".join(map(str, remains))
 
     def get_ele(imol, atom_spec):
-        from types import ListType
-        atoms = residue_info(imol,
-                             atom_spec[1],
-                             atom_spec[2],
-                             atom_spec[3])
+        # print("debug:: get_ele() with imol", imol, " atom_spec", atom_spec)
+        atoms = coot.residue_info_py(imol, atom_spec[1], atom_spec[2], atom_spec[3])
+        # print("debug:: get_ele() with atoms", atoms)
         input_atom_name = atom_spec[4]
-        if type(atoms) is ListType:
+        try:
             for atom in atoms:
                 if atom[0][0] == input_atom_name:
                     return atom[1][2]
+        except KeyError as e:
+            print(e)
         return False
 
     # add info about bumps (to non-H-bonding atoms or so).  given a
     # water info (a central atom spec and a list of its contacts).
+    #
     def make_bump_text(imol, water_info):
+        # print("debug:: in make_bump_text with imol", imol, "water_info", water_info)
         central_atom = water_info[0]
         contact_list = water_info[1]
         rv = ""
@@ -4798,10 +4840,19 @@ def water_coordination_gui():
         # print "   checking if %s is in %s... result: %s" %(atom_spec, metal_results, atom_spec in metal_results)
         return atom_spec in metal_results
 
+    def make_store(number_list):
+        name_store = Gtk.ListStore(int, str)
+        for i in number_list:
+            label_str = str(i)
+            name_store.append([i, label_str])
+        return name_store
+
     window = Gtk.Window()
+    window.set_title("Coot Highly-Coordinated Waters")
     vbox = Gtk.VBox(False, 0)
     results_vbox = Gtk.VBox(False, 0)
     water_results_label = Gtk.Label("Other Coordinated Waters")
+    metal_results_frame = Gtk.Frame()
     metal_results_vbox = Gtk.VBox(False, 0)
     metal_results_label = Gtk.Label("Potential Metals: ")
     h_sep = Gtk.HSeparator()
@@ -4810,14 +4861,40 @@ def water_coordination_gui():
     hbox_max_dist = Gtk.HBox(False, 0)
     hbox_number_chooser = Gtk.HBox(False, 0)
     number_text = Gtk.Label("Coordination Number: ")
-    molecule_chooser_option_menu_and_model_list = generic_molecule_chooser(
-        hbox_chooser, hint_text)
-    molecule_chooser_option_menu = molecule_chooser_option_menu_and_model_list[0]
-    model_list = molecule_chooser_option_menu_and_model_list[1]
+    # molecule_chooser_option_menu_and_model_list = generic_molecule_chooser(hbox_chooser, hint_text)
+    # molecule_chooser_option_menu = molecule_chooser_option_menu_and_model_list[0]
+
+    combobox_molecule = Gtk.ComboBox()
+    combobox_mol_items = make_store_for_model_molecule_combobox()
+    combobox_molecule.set_model(combobox_mol_items)
+
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_mol_items) > 0:
+        combobox_molecule.set_active(0)
+    combobox_molecule.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox_molecule.pack_start(renderer_text, True)
+    combobox_molecule.add_attribute(renderer_text, "text", 1)
+
+    print("debug:: water_coordination_gui(): combobox_mol_items:", combobox_mol_items)
+    print("debug:: water_coordination_gui(): combobox_molecule:",  combobox_molecule)
+    # print("debug:: water_coordination_gui(): something:", something)
+
+    combobox_molecule.set_active(0)
+
+    # model_list = molecule_chooser_option_menu_and_model_list[1]
     scrolled_win = Gtk.ScrolledWindow()
     metal_results_scrolled_win = Gtk.ScrolledWindow()
-    number_menu = Gtk.combo_box_new_text()
-    coot_utils.number_list = list(range(3, 10))
+
+    # https://python-gtk-3-tutorial.readthedocs.io/en/latest/combobox.html
+
+    # coordination number combobox
+    combobox_coordination = Gtk.ComboBoxText.new()
+    for i in range(3,10):
+        combobox_coordination.append_text(str(i))
+
+    combobox_coordination.set_active(2)
+
     dist_label = Gtk.Label("Max Dist: ")
     dist_entry = Gtk.Entry()
     close_button = Gtk.Button("  Close  ")
@@ -4825,12 +4902,18 @@ def water_coordination_gui():
     hbox_buttons = Gtk.HBox(False, 6)
 
     def get_molecule():
-        return get_option_menu_active_molecule(molecule_chooser_option_menu,
-                                               model_list)
+        tree_iter = combobox_molecule.get_active_iter()
+        imol = -1
+        if tree_iter is not None:
+            model = combobox_molecule.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
 
     def get_number():
-        return int(get_option_menu_active_item(number_menu,
-                                               coot_utils.number_list))
+        at = combobox_coordination.get_active_text()
+        n = int(at)
+        return n
 
     def get_distance():
         t = dist_entry.get_text()
@@ -4851,7 +4934,7 @@ def water_coordination_gui():
             # this_vbox.show()
 
     def update_water_results(imol, n, d):
-        results = highly_coordinated_waters(imol, n, d)
+        results = coot.highly_coordinated_waters_py(imol, n, d)
         clear_previous_results()
         import time
         time.sleep(2)
@@ -4875,8 +4958,7 @@ def water_coordination_gui():
                         res_no = water_spec[2]
                         atom_name = water_spec[4]
                         coot.set_go_to_atom_molecule(imol)
-                        coot.set_go_to_atom_chain_residue_atom_name(
-                            chain_id, res_no, atom_name)
+                        coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
                     button.connect("clicked", water_func, imol, water_info)
 
             # now handle metal results
@@ -4900,12 +4982,16 @@ def water_coordination_gui():
 
     window.add(vbox)
 
-    fill_option_menu_with_number_options(
-        number_menu, coot_utils.number_list, 5)
+    # fill_option_menu_with_number_options(number_menu, coot_utils.number_list, 5)
 
     scrolled_win.add_with_viewport(results_vbox)
 
-    metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
+    metal_results_scrolled_win.add_with_viewport(metal_results_frame)
+    metal_results_frame.add(metal_results_vbox)
+    # metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
+    
+
+    vbox.pack_start(combobox_molecule, False, False, 2)
 
     hbox_max_dist.pack_start(dist_label, False, False, 2)
     hbox_max_dist.pack_start(dist_entry, False, False, 2)
@@ -4913,7 +4999,8 @@ def water_coordination_gui():
     vbox.pack_start(hbox_chooser, False, False, 6)
 
     hbox_number_chooser.pack_start(number_text, False, False, 2)
-    hbox_number_chooser.pack_start(number_menu, False, False, 2)
+    # hbox_number_chooser.pack_start(number_menu, False, False, 2)
+    hbox_number_chooser.pack_start(combobox_coordination, False, False, 2)
 
     vbox.pack_start(hbox_number_chooser, False, False, 6)
 
@@ -4927,8 +5014,8 @@ def water_coordination_gui():
     vbox.pack_start(water_results_label, False, False, 2)
     vbox.pack_start(scrolled_win, True, True, 0)  # expand fill padding
     vbox.pack_start(h_sep, False, False, 2)
-    hbox_buttons.pack_start(close_button, False, False, 2)
     hbox_buttons.pack_start(apply_button, False, False, 2)
+    hbox_buttons.pack_start(close_button, False, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 2)
 
     # From the Nayal and Di Cera (1996) paper, it seems that 2.7
@@ -4936,6 +5023,7 @@ def water_coordination_gui():
     # interesting things
     #
     dist_entry.set_text("2.7")
+    dist_entry.set_width_chars(5)
 
     close_button.connect("clicked", delete_event)
 
@@ -5228,6 +5316,36 @@ def auto_assign_sequence_from_map():
     backrub_rotamers_for_chain(imol, ch_id)
     refine_residues(imol, fragment_residues)
 
+    
+# ;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
+# ;; 
+# (define (associate-pir-with-molecule-gui do-alignment?)
+
+#   (format #t "in associate-pir-with-molecule-gui~%") 
+#   (generic-chooser-entry-and-file-selector 
+#    "Associate PIR Sequence to Model: "
+#    valid-model-molecule?
+#    "Chain ID"
+#    ""
+#    "Select PIR Alignment file"
+#    (lambda (imol chain-id file-name)
+#      (associate-pir-file imol chain-id file-name)
+#      (if do-alignment?
+#         (alignment-mismatches-gui imol)))
+#     *generic-chooser-entry-and-file-selector-file-entry-default-text*))
+
+
+def associate_pir_wih_molecule_gui(do_alignment_flag):
+
+    def lambda_fn(imol, ch_id, file_name):
+        coot_utils.associate_pir_file(imol, ch_id, file_name)
+        if do_alignment_flag:
+            alignment_mismatches_gui(imol)
+
+    generic_chooser_entry_and_file_selector("Associate PIR Sequence to Model",
+                                            coot_utils.valid_model_molecule_qm, "Chain ID", "", " PIR Alignment File: ",
+                                            lambda imol, ch_id, file_name: lambda_fn(imol, ch_id, file_name))
+
 
 def add_module_cryo_em():
     if coot_gui_api.main_menubar():
@@ -5321,7 +5439,7 @@ def add_module_cryo_em_gui():
                                     lambda func:
                                     generic_chooser_entry_and_file_selector(
                                         "Align Sequence to Model: ",
-                                        valid_model_molecule_qm,
+                                        coot_utils.valid_model_molecule_qm,
                                         "Chain ID",
                                         "",
                                         "Select PIR Alignment file",
@@ -5368,7 +5486,7 @@ def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
         print("INFO:: no (or too many) alt confs, no gui!")
     else:
         # only do if 2 alt confs (plus no)
-        res_info = residue_info(imol, chain_id, res_no, ins_code)
+        res_info = coot.residue_info_py(imol, chain_id, res_no, ins_code)
         alt_conf = alt_confs[0]
 
         def get_occ_for_alt_conf(atom_ls, alt_conf):
