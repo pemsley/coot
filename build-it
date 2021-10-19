@@ -412,7 +412,8 @@
 # 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
 # 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
 # 5.57 20211019 add another make for guile-lib. Add texinfo to the dependencies for debian
-script_version=5.57
+# 5.58 20211019 Add a sort to the awk result when determining the tar file for the stable release
+script_version=5.58
 
 
 
@@ -1628,14 +1629,17 @@ else
     echo ========== awk results:
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html
+    echo ==== sorted awk results ==========
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | sort
     echo ==== with tail ==========
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
-       ${AUTOBUILD_SOURCES}/index.html | tail -1
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1
     echo =========== from ${AUTOBUILD_SOURCES}/index.html 
     cat ${AUTOBUILD_SOURCES}/index.html 
     echo ==============
     coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
-       ${AUTOBUILD_SOURCES}/index.html | tail -1)
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
@@ -1650,17 +1654,12 @@ fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
 
-####################################################
-# exit
-####################################################
-
-
-
 echo coot_version_pre is $coot_version_pre
 echo build_coot_prerelease: $build_coot_prerelease
 echo release_server_dir $release_server_dir 
 echo coot_version $coot_version
 
+# exit # for testing release version extraction
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
