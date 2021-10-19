@@ -411,7 +411,8 @@
 # 5.54 20210706 build sqllite3
 # 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
 # 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
-script_version=5.56
+# 5.57 20211019 add another make for guile-lib. Add texinfo to the dependencies for debian
+script_version=5.57
 
 
 
@@ -1215,7 +1216,8 @@ case $dist_name in
       #
       # cmake libncurses5-dev libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev
       # libgnomecanvas2-dev libxt-dev libjpeg-dev
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
+      # 20211019-PE also texinfo (for makeinfo for guile-lib)
+      dep_list='libncurses5-dev g++ libxext-dev libxt-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip texinfo cmake ligjpeg-dev'
       for dep in $dep_list 
       do 
          echo $dep
@@ -3441,6 +3443,13 @@ fi
 # https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
 
 if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; then
+   build_pillow=no
+fi
+if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2-py2.7-linux-x86_64.egg ] ; then
+   build_pillow=no
+fi
+
+if [ $build_pillow = no ] ; then
    echo not building Pillow:
 else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
@@ -4013,8 +4022,11 @@ gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
 cd guile-lib-$guile_lib_version
 # the prefix for guile-lib must be the prefix of guile, or else the sxml and 
 # other library files will not be found
+# 20211019-PE strangely the second make seems to pass after the first one has failed
+# (in the doc directory)
 ./configure $generic_prefix
 $MAKE
+make
 $MAKE install
 ) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
 else 
