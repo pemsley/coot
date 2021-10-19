@@ -4658,6 +4658,9 @@ if [ "$build_coot_prerelease" = 1 ] ; then
 fi
 
 clear_up_type=
+if [ $shared_static_flag != "--enable-shared" ] ; then
+    clear_up_type=clear-static
+fi   
 if [ $shared_static_flag != "--disable-static" ] ; then
     clear_up_type=clear-static
 fi   
