@@ -512,7 +512,7 @@ on_map_colour1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 {
    // GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "rotamer_analysis1");
 
-   std::cout << "::::::::::::::::::::::::: on_map_colour1_activate_gtkbuilder_callback() " << std::endl;
+   //std::cout << "::::::::::::::::::::::::: on_map_colour1_activate_gtkbuilder_callback() " << std::endl;
 
    GtkWidget *menu = widget_from_builder("map_colour1");
    if (menu) {
@@ -3922,7 +3922,7 @@ on_single_map_properties_colour_button_clicked_gtkbuilder_callback (GtkButton   
                                                                     gpointer         user_data)
 {
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-   std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
+   // std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
    show_map_colour_selector(imol);
 }
 
@@ -5943,8 +5943,8 @@ on_draw_hydrogens_yes_radiobutton_toggled_gtkbuilder_callback
 {
   // Applying the bond parameters applies the bond width too, which is
   // a bit of extra overhead.
-  GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "bond_parameters_dialog");
-  apply_bond_parameters(w);
+   GtkWidget *w = widget_from_builder("bond_parameters_dialog");
+   apply_bond_parameters(w);
 }
 
 
@@ -6104,9 +6104,9 @@ void
 on_bond_parameters_ok_button_clicked_gtkbuilder_callback   (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "bond_parameters_dialog");
-  apply_bond_parameters(w);
-  gtk_widget_destroy(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "bond_parameters_dialog");
+   // apply_bond_parameters(w);
+   // gtk_widget_destroy(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -6115,8 +6115,8 @@ on_bond_parameters_apply_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "bond_parameters_dialog");
-  apply_bond_parameters(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "bond_parameters_dialog");
+   // apply_bond_parameters(w);
 }
 
 
@@ -6124,12 +6124,12 @@ on_bond_parameters_apply_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_bond_parameters_cancel_button_clicked_gtkbuilder_callback
+on_bond_parameters_close_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "bond_parameters_dialog");
-  gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("bond_parameters_dialog");
+   gtk_widget_hide(w);
 
 }
 

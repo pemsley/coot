@@ -112,7 +112,7 @@ void
 Texture::Bind(unsigned int unit) {
 
    // unit should be less than 32
-   std::cout << "   Texture::Bind(); unit " << unit << " m_texture_handle " << m_texture_handle << std::endl;
+   // std::cout << "   Texture::Bind(); unit " << unit << " m_texture_handle " << m_texture_handle << std::endl;
    glActiveTexture(GL_TEXTURE0 + unit);
    glBindTexture(GL_TEXTURE_2D, m_texture_handle);
    GLenum err = glGetError();

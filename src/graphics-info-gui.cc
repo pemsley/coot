@@ -2227,14 +2227,14 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
    std::vector<int> molecule_indices = get_molecule_indices();
 
    GtkTreeModel *model_1 = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox_molecule));
-   std::cout << "debug:: model_1 " << model_1 << std::endl;
+   std::cout << "debug:: new_fill_combobox_with_coordinates_options() model_1 " << model_1 << std::endl;
    GtkListStore *list_store = GTK_LIST_STORE(model_1);
-   std::cout << "debug:: list_store " << list_store << std::endl;
+   std::cout << "debug:: new_fill_combobox_with_coordinates_options() list_store " << list_store << std::endl;
    // gtk_list_store_clear(list_store);
 
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
 
-   std::cout << "debug:: list_store " << store << std::endl;
+   std::cout << "debug:: new_fill_combobox_with_coordinates_options() list_store " << store << std::endl;
 
    GtkTreeIter iter;
    for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
@@ -4061,97 +4061,41 @@ graphics_info_t::check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpo
 
 
 void
-graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
+graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule, int imol) {
 
    graphics_info_t g;
 
    // GtkWidget *bond_width_option_menu = lookup_widget(w, "bond_parameters_bond_width_optionmenu");
-   GtkWidget *bond_width_combobox = lookup_widget(w, "bond_parameters_bond_width_combobox");
+   GtkWidget *bond_width_combobox = widget_from_builder("bond_parameters_bond_width_combobox_text");
+   gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(bond_width_combobox));
 
-   GtkWidget *draw_hydrogens_yes_radiobutton  = lookup_widget(w, "draw_hydrogens_yes_radiobutton");
-   GtkWidget *draw_hydrogens_no_radiobutton   = lookup_widget(w, "draw_hydrogens_no_radiobutton");
-   GtkWidget *draw_ncs_ghosts_yes_radiobutton = lookup_widget(w, "draw_ncs_ghosts_yes_radiobutton");
-   GtkWidget *draw_ncs_ghosts_no_radiobutton  = lookup_widget(w, "draw_ncs_ghosts_no_radiobutton");
+   GtkWidget *draw_hydrogens_yes_radiobutton  = widget_from_builder("draw_hydrogens_yes_radiobutton");
+   GtkWidget *draw_hydrogens_no_radiobutton   = widget_from_builder("draw_hydrogens_no_radiobutton");
+   GtkWidget *draw_ncs_ghosts_yes_radiobutton = widget_from_builder("draw_ncs_ghosts_yes_radiobutton");
+   GtkWidget *draw_ncs_ghosts_no_radiobutton  = widget_from_builder("draw_ncs_ghosts_no_radiobutton");
 
-   g.bond_thickness_intermediate_value = -1;
+   bond_thickness_intermediate_value = -1;
 
-   /*
-   // Fill the bond width option menu.
-   // Put a redraw on the menu item activate callback.
-   // We do the thing with the new menu for the option_menu
-   //
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(bond_width_option_menu));
-   GCallback signal_func = G_CALLBACK(graphics_info_t::bond_width_item_select);
-   if (menu)
-      gtk_widget_destroy(menu);
-   menu = gtk_menu_new();
-   GtkWidget *menu_item;
-   int current_bond_width = 3;
-   if (imol >= 0 ) {
-      if (imol < n_molecules()) {
-	 if (molecules[imol].has_model()) {
-	    current_bond_width = molecules[imol].bond_thickness();
-	 }
-      }
-      }
-
-   for (int i=1; i<21; i++) {
-      std::string s = int_to_string(i);
-      menu_item = gtk_menu_item_new_with_label(s.c_str());
-      g_signal_connect(G_OBJECT(menu_item), "activate",
-		       G_CALLBACK(signal_func),
-		       GINT_TO_POINTER(i));
-      gtk_menu_append(GTK_MENU(menu), menu_item);
-      gtk_widget_show(menu_item);
-      if (i == current_bond_width) {
-	 gtk_menu_set_active(GTK_MENU(menu), i);
-      }
-   }
-   gtk_menu_set_active(GTK_MENU(menu), current_bond_width-1); // 0 offset
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(bond_width_option_menu), menu);
-   */
-
-   // Now the combobox version of that:
-
+   int idx_active = -1; // changed if the current bond width is the same as a comboxbox item
    int current_bond_width = 3;
    if (is_valid_model_molecule(imol))
       current_bond_width = molecules[imol].get_bond_thickness();
 
-   std::cout << "debug current_bond_width " << current_bond_width << std::endl;
-
-   GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(bond_width_combobox));
-   GtkListStore *store_from_model = GTK_LIST_STORE(model_from_combobox);
-   gtk_list_store_clear(store_from_model);
-
-   GtkListStore *store = gtk_list_store_new(1, G_TYPE_INT);
-   GtkTreeIter iter;
-   int idx_active = -1;
    for (int i=1; i<21; i++) {
-
-      std::string ss = int_to_string(imol);
-      gtk_list_store_append(store, &iter);
-      gtk_list_store_set(store, &iter, 0, i, -1);
-
-      // doesn't work (because there is not yet a connection between the
-      // iter/moodel and the combobox)
-      // gtk_combo_box_set_active_iter(GTK_COMBO_BOX(bond_width_combobox), &iter);
-
-      if (i == current_bond_width) {
-	 idx_active = i-1;
-      }
+      std::string s(int_to_string(i));
+      gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(bond_width_combobox), nullptr, s.c_str());
+      if (i == current_bond_width)
+         idx_active = i-1; // not very elegant
    }
-
-   GtkTreeModel *model = GTK_TREE_MODEL(store);
-   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(bond_width_combobox), renderer, TRUE);
-   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(bond_width_combobox), renderer, "text", 0, NULL);
-   gtk_combo_box_set_model(GTK_COMBO_BOX(bond_width_combobox), model);
-
    if (idx_active >= 0)
-      gtk_combo_box_set_active(GTK_COMBO_BOX(bond_width_combobox), 4);
+      gtk_combo_box_set_active(GTK_COMBO_BOX(bond_width_combobox), idx_active);
 
    GCallback combobox_changed_func = G_CALLBACK(bond_parameters_bond_width_combobox_changed);
    g_signal_connect(bond_width_combobox, "changed", combobox_changed_func, NULL);
+
+   std::cout << "debug:: g_object set data on bond_width_combobox " << bond_width_combobox
+             << " to  combobox_for_molecule " << combobox_for_molecule << std::endl;
+   g_object_set_data(G_OBJECT(bond_width_combobox), "bond_parameters_molecule_combobox", combobox_for_molecule);
 
 
    // Draw Hydrogens?
@@ -4184,8 +4128,9 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
 	 }
       }
    }
+
    // Make the frame be insensitive if there is no NCS.
-   GtkWidget *frame = lookup_widget(w, "ncs_frame");
+   GtkWidget *frame = widget_from_builder("ncs_frame");
    short int make_insensitive = 1;
    if (imol >= 0 ) {
       if (imol < n_molecules()) {
@@ -4215,9 +4160,9 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
 
 // static
 void
-graphics_info_t::bond_parameters_bond_width_combobox_changed(GtkWidget *combobox, gpointer data) {
+graphics_info_t::bond_parameters_bond_width_combobox_changed(GtkWidget *bond_width_combobox, gpointer data) {
 
-   int id = gtk_combo_box_get_active(GTK_COMBO_BOX(combobox));
+   int id = gtk_combo_box_get_active(GTK_COMBO_BOX(bond_width_combobox));
 
    // we can't treat this as a comboboxtext if we have added numbers to it (not text)
    //
@@ -4229,9 +4174,18 @@ graphics_info_t::bond_parameters_bond_width_combobox_changed(GtkWidget *combobox
    if (id >= 0) {
       graphics_info_t g;
       int bw = 1 + id;
-      GtkWidget *molecule_combobox = lookup_widget(combobox, "bond_parameters_molecule_combobox");
-      int imol = g.combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
-      g.set_bond_thickness(imol, bw);
+      GtkWidget *molecule_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(bond_width_combobox), "bond_parameters_molecule_combobox"));
+      std::cout << "debug:: g_object get data on bond_width_combobox " << bond_width_combobox
+                << " for molecule_combobox " << molecule_combobox << std::endl;
+
+      if (GTK_IS_COMBO_BOX(molecule_combobox)) {
+         std::cout << "debug:: " << molecule_combobox << " IS a combobox" << std::endl;
+         int imol = g.combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
+         std::cout << "debug:: imol  from " << molecule_combobox << " is " << imol << std::endl;
+         g.set_bond_thickness(imol, bw);
+      } else {
+         std::cout << "debug:: " << molecule_combobox << " is NOT a combobox" << std::endl;
+      }
    }
 
 }

@@ -4373,8 +4373,6 @@ void set_map_colour(int imol, float red, float green, float blue) {
 
 void add_on_map_colour_choices(GtkWidget *menu) {
 
-   std::cout << "in add_on_map_colour_choices()" << std::endl;
-
    // GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
    // GtkWidget *sub_menu = widget_from_builder(sub_menu_name); // No, because it's dynamically added
    //                                                           // in create_initial_map_color_submenu()
@@ -4522,11 +4520,28 @@ add_map_scroll_wheel_mol_menu_item(int imol, const std::string &name,
 
 GtkWidget *wrapped_create_bond_parameters_dialog() {
 
+   // move this into graphics_info_t I think
+
+   std::cout << "wrapped_create_bond_parameters_dialog() " << std::endl;
+
    graphics_info_t g;
 
-   GtkWidget *widget = create_bond_parameters_dialog();
+   // GtkWidget *widget = create_bond_parameters_dialog();
+   GtkWidget *dialog = widget_from_builder("bond_parameters_dialog");
 
-   GtkWidget *combobox = lookup_widget(widget, "bond_parameters_molecule_combobox");
+   std::cout << "debug:: wrapped_create_bond_parameters_dialog() dialog " << dialog << std::endl;
+
+   // old way 20211018-PE
+   // GtkWidget *combobox = widget_from_builder("bond_parameters_molecule_combobox");
+
+   GtkWidget *vbox = widget_from_builder("bond_parameters_hbox_for_molecule_combobox");
+
+   // clear the old molecule combox boxes from that vbox (if it exists)
+   //
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                 if (GTK_IS_COMBO_BOX(widget))
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
 
    GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
 
@@ -4554,13 +4569,23 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
       // g.bond_parameters_molecule not set yet.
       g.bond_parameters_molecule = imol;
 
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-   graphics_info_t::fill_bond_parameters_internals(widget, imol);
+   // g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
 
-   return widget;
+   GtkWidget *combobox = gtk_combo_box_new();
+   gtk_widget_show(combobox);
+
+   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+
+   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   g.fill_bond_parameters_internals(combobox, imol);
+
+   return dialog;
 }
 
 void apply_bond_parameters(GtkWidget *w) {
+
+   // 20211018-PE  Old, no longer used. Delete?
 
    graphics_info_t g;
    int imol = g.bond_parameters_molecule;

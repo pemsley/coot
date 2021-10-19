@@ -3160,6 +3160,8 @@ void set_default_representation_type(int type) {
 
 void set_bond_thickness(int imol, float t) {
    graphics_info_t g;
+   std::cout << "debug:: -----------------------------------set_bond_thickness() called with imol "
+             << imol << " thickness " << t << std::endl;
    g.set_bond_thickness(imol, t);
 }
 
@@ -4911,6 +4913,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
    }
+   g.update_environment_distances_by_rotation_centre_maybe(go_to_atom_molecule_number());
    graphics_draw();
    return success;
 }

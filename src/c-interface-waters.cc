@@ -480,30 +480,36 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
          wc.get_highly_coordinated_waters(coordination_number, dist_max);
       PyObject *r = PyList_New(water_contacts.size()); // a list (at least) because we didn't fail.
       for (unsigned int j=0; j<water_contacts.size(); j++) {
-         PyObject *atom_and_neighbours = PyList_New(2);
-         PyObject *atom_spec_central_py = atom_spec_to_py(coot::atom_spec_t(water_contacts[j].central_atom()));
-         PyObject *neighbours = PyList_New(0);
-         for (unsigned int k=0; k<water_contacts[j].size(); k++) {
-            coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
-            if (at.dist < dist_max) {
-               PyObject *contactor_py = atom_spec_to_py(coot::atom_spec_t(at.at));
-               PyList_Append(neighbours, contactor_py);
+         const coot::util::contact_atoms_info_t &water_contact = water_contacts[j];
+         mmdb::Atom *central_atom = water_contact.central_atom();
+         if (central_atom) {
+            PyObject *atom_and_neighbours = PyList_New(2);
+            PyObject *atom_spec_central_py = atom_spec_to_py(coot::atom_spec_t(central_atom));
+            // atom_spec_central_py = PyFloat_FromDouble(5);
+            PyObject *neighbours = PyList_New(0);
+            for (unsigned int k=0; k<water_contacts[j].size(); k++) {
+               coot::util::contact_atoms_info_t::contact_atom_t at = water_contacts[j][k];
+               if (at.dist < dist_max) {
+                  PyObject *contactor_py = atom_spec_to_py(coot::atom_spec_t(at.at));
+                  PyList_Append(neighbours, contactor_py);
+               }
             }
             PyList_SetItem(atom_and_neighbours, 0, atom_spec_central_py);
             PyList_SetItem(atom_and_neighbours, 1, neighbours);
             PyList_SetItem(r, j, atom_and_neighbours);
          }
-         if (mol_has_symmetry)
-            delete mol; // it was a copy
-
          ret = PyList_New(2);
          PyList_SetItem(ret, 0, metal_results);
          PyList_SetItem(ret, 1, r);
       }
-      if (PyBool_Check(ret)) {
-         Py_INCREF(ret);
-      }
+
+      if (mol_has_symmetry)
+         delete mol; // it was a copy
+
    }
+
+   if (PyBool_Check(ret))
+      Py_INCREF(ret);
    return ret;
 }
 #endif

@@ -4420,17 +4420,19 @@ graphics_info_t::Undo_molecule(coot::undo_type undo_type) const {
 void
 graphics_info_t::set_bond_thickness(int imol, float t) {
 
-   if (imol < n_molecules()) {
-      if (imol >= 0) {
-    if (graphics_info_t::molecules[imol].has_model()) {
-       molecules[imol].set_bond_thickness(t);
-       molecules[imol].make_bonds_type_checked(__FUNCTION__);
-       graphics_draw();
-    }
+   auto close_float_p = [] (float f1, float f2) {
+                           return (fabsf(f1-f2) < 0.001);
+                        };
+
+   std::cout << "debug:: graphics_info_t::set_bond_thickness() called with imol " << imol << " thickness " << t << std::endl;
+   if (is_valid_model_molecule(imol)) {
+      if (molecules[imol].has_model()) {
+         if (! close_float_p(molecules[imol].get_bond_thickness(), t)) {
+            molecules[imol].set_bond_thickness(t);
+            molecules[imol].make_bonds_type_checked(__FUNCTION__);
+            graphics_draw();
+         }
       }
-   } else {
-      std::cout << "Ignoring attempt to set bond with for molecule "
-   << imol << std::endl;
    }
 }
 
@@ -5774,13 +5776,13 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
 // }
 
 // static
-void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox_molecule, gpointer data) {
 
    graphics_info_t g;
-   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
-   g.bond_parameters_molecule = imol;
-   GtkWidget *w = lookup_widget(GTK_WIDGET(combobox), "bond_parameters_dialog");
-   fill_bond_parameters_internals(w, imol);
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox_molecule)); // not static
+   bond_parameters_molecule = imol;
+   GtkWidget *w = widget_from_builder("bond_parameters_dialog");
+   fill_bond_parameters_internals(combobox_molecule, imol);
 
 }
 
