@@ -42,11 +42,12 @@ void main() {
 
    int n_pixels_max = 10;
    vec3 sum = vec3(0.0, 0.0, 0.0);
+   float nf = 0.11; // normalizing factor
    for (int ix=-n_pixels_max; ix<=n_pixels_max; ix++) {
       float k = kern[abs(ix)];
       vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, 0.0);
       vec3 t = texture(screenTexture, offset_coords).rgb;
-      sum += t * vec3(k,k,k) * vec3(0.13, 0.13, 0.13);
+      sum += t * vec3(k,k,k) * vec3(nf);
    }
    result = sum;
 

@@ -42,15 +42,16 @@ void main() {
 
    int n_pixels_max = 10;
    vec3 sum = vec3(0.0, 0.0, 0.0);
+   float nf = 0.11;
    for (int iy=-n_pixels_max; iy<=n_pixels_max; iy++) {
       float k = kern[abs(iy)];
       vec2 offset_coords = TexCoords + vec2(0.0, tex_scale.y * iy);
       vec3 t = texture(screenTexture, offset_coords).rgb;
-      sum += t * vec3(k,k,k) * vec3(0.13, 0.13, 0.13);
+      sum += t * vec3(k,k,k) * vec3(nf);
    }
    result = sum;
 
-   result = texture(screenTexture, TexCoords).rgb;
+   // result = texture(screenTexture, TexCoords).rgb;
    out_colour = vec4(result, 1.0);
 
    // out_colour = vec4(0,1,1,0);
