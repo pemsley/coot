@@ -4537,6 +4537,10 @@ string   static std::string sessionid;
    static bool do_tick_constant_draw;
 
    static gboolean tick_function_is_active();
+
+   static void fullscreen();
+   static void unfullscreen();
+
 };
 
 

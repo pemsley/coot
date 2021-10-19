@@ -1,25 +1,15 @@
 
 #include "cc-interface.hh"
 
-#include "widget-from-builder.hh"
+#include "graphics-info.h"
+
+// 20211019-PE these have moved into graphics_info_t now because I want to add a
+// key-binding "Esc" to do an unfullscreen()
 
 void fullscreen() {
-
-   GtkWidget *window = widget_from_builder("main_window");
-
-   if (GTK_IS_WINDOW(window)) {
-      gtk_window_fullscreen(GTK_WINDOW(window));
-   }
-                                                           
-
+   graphics_info_t::fullscreen();
 }
 
 void unfullscreen() {
-
-   GtkWidget *window = widget_from_builder("main_window");
-
-   if (GTK_IS_WINDOW(window)) {
-      gtk_window_unfullscreen(GTK_WINDOW(window));
-   }
-
+   graphics_info_t::unfullscreen();
 }

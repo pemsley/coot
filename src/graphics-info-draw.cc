@@ -4376,7 +4376,15 @@ graphics_info_t::setup_key_bindings() {
 
    auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); return gboolean(TRUE); };
 
-   auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); g.clear_gl_rama_plot(); return gboolean(TRUE); };
+   auto l19 = []() {
+                 graphics_info_t g;
+                 if (g.moving_atoms_asc) {
+                    g.clear_up_moving_atoms_wrapper(); g.clear_gl_rama_plot();
+                 } else {
+                    unfullscreen();
+                 }
+                 return gboolean(TRUE);
+              };
 
    auto l20 = []() { graphics_info_t g; g.eigen_flip_active_residue(); return gboolean(TRUE); };
 
@@ -4735,5 +4743,27 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       display_density_level_this_image = 1;
 
       graphics_draw(); // queue
+   }
+}
+
+#include "widget-from-builder.hh"
+
+//static
+void
+graphics_info_t::fullscreen() {
+
+   GtkWidget *window = widget_from_builder("main_window");
+
+   if (GTK_IS_WINDOW(window)) {
+      gtk_window_fullscreen(GTK_WINDOW(window));
+   }
+}
+
+//static
+void
+graphics_info_t::unfullscreen() {
+   GtkWidget *window = widget_from_builder("main_window");
+   if (GTK_IS_WINDOW(window)) {
+      gtk_window_unfullscreen(GTK_WINDOW(window));
    }
 }
