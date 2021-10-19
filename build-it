@@ -1211,6 +1211,10 @@ case $dist_name in
       ;;
 
     debian)
+      # note from Dirk Kostrewa 20211018-PE:
+      #
+      # cmake libncurses5-dev libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev
+      # libgnomecanvas2-dev libxt-dev libjpeg-dev
       dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
       for dep in $dep_list 
       do 
@@ -3442,11 +3446,13 @@ else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
     ${WGET} --no-if-modified-since $pillow_url
     if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
+        (
         tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
         cd Pillow-6.2.2
         python setup.py build
         python setup.py install
         cd -
+        ) > $HOSTLOGDIR/17-pillow.txt 2>&1
     fi
 fi
 
