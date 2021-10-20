@@ -2027,8 +2027,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     def add_text_to_text_widget(text_box, description):
         textbuffer = text_box.get_buffer()
         start = textbuffer.get_start_iter()
-        textbuffer.create_tag("tag", foreground="black",
-                              background="#c0e6c0")
+        textbuffer.create_tag("tag", foreground="black", background="#c0e6c0")
         textbuffer.insert_with_tags_by_name(start, description, "tag")
 
     def close_cb_func(*args):
@@ -2089,7 +2088,9 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
         text_buffer.insert_with_tags_by_name(start, description, "tag")
 
     # main line
+
     button_label = button_info[0]
+    # print("debug in add_button_info_to_box_of_buttons_vbox with button bits", button_label, button_info[1])
     if ((button_label == "HSep") and (len(button_info) == 1)):
         # insert a HSeparator rather than a button
         button = Gtk.HSeparator()
@@ -2101,10 +2102,10 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
             description = button_info[2]
         button = Gtk.Button(button_label)
 
-        # 20210827-PE functions must be real functions, not strings - bleugh
+        # 20210827-PE functions must be real functions, not strings
         button.connect("clicked", callback)
 
-        if (description):
+        if description:
             text_view = Gtk.TextView()
             text_view.set_editable(False)
             buff = text_view.get_buffer()
@@ -4050,8 +4051,7 @@ def alignment_mismatches_gui(imol):
             buttons += mutate_buttons()
             buttons += insert_buttons()
 
-            dialog_box_of_buttons("Residue mismatches", [300, 300],
-                                  buttons, "  Close  ")
+            dialog_box_of_buttons("Residue mismatches", [300, 300], buttons, "  Close  ")
 
 # Wrapper in that we test if there have been sequence(s) assigned to
 # imol before we look for the sequence mismatches

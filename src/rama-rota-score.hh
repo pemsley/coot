@@ -20,6 +20,9 @@
  * 02110-1301, USA
  */
 
+#include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/coot-rama.hh"
+
 namespace coot {
 
    // ------------ molecule probability scoring ------------

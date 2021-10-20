@@ -76,7 +76,7 @@ if True:
          for c in menu_child.get_children():
            try:
              t = c.get_text()
-             print("########### extensions get_existing_submenu get_text on c:", t)
+             # print("########### extensions get_existing_submenu get_text on c:", t)
              if t == submenu_label:
                return menu_child
            except KeyError as e:
@@ -91,16 +91,15 @@ if True:
      menu = coot_gui.coot_menubar_menu("Validate")
      if menu:
          import generic_objects
+         import dynamic_atom_overlaps_and_other_outliers as dao
          coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                                 lambda func: coot_gui.water_coordination_gui())
          coot_gui.add_simple_coot_menu_menuitem(menu, "Atom Overlaps (Coot)",
                                                 lambda func: coot_utils.using_active_atom(coot.coot_all_atom_contact_dots, "aa_imol"))
          coot_gui.add_simple_coot_menu_menuitem(menu, "All-Atom Contact Dots (Molprobity)",
                                                 lambda func: coot_utils.using_active_atom(generic_objects.probe, "aa_imol"))
-
-         coot_gui.add_simple_coot_menu_menuitem(menu,"Atom Overlaps Dialog",
-                                                lambda func: using_active_atom(coot_gui.molecule_atom_overlaps_gui, "aa_imol"))
-
+         #coot_gui.add_simple_coot_menu_menuitem(menu,"Atom Overlaps Dialog",
+         #                                      lambda func: coot_utils.using_active_atom(dao.make_quick_test_validation_buttons, "aa_imol"))
          coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                                 lambda func: coot_gui.water_coordination_gui())
 

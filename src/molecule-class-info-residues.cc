@@ -553,7 +553,6 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
 
    coot::rama_score_t rs;
 
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    coot::rama_plot rp;
    rp.generate_phi_psis(atom_sel.mol, true);
 
@@ -686,7 +685,6 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    rs.score = log_p_sum;
    rs.score_non_sec_str = log_p_non_sec_str_sum;
 
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    return rs;
 }
 

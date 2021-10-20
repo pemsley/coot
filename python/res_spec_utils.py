@@ -25,6 +25,17 @@ def residue_spec_to_res_no(rs):
                 return rs[2]
         return False
 
+def residue_spec_to_ins_code(rs):
+    if not isinstance(rs, list):
+        return False
+    else:
+        if (len(rs) == 3):
+            return rs[2]
+        else:
+            if (len(rs) == 4):
+                return rs[3]
+        return False
+
 
 def residue_atom_to_position(ra):
     if not isinstance(ra, list):
