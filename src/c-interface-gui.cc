@@ -4522,16 +4522,12 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    // move this into graphics_info_t I think
 
-   std::cout << "wrapped_create_bond_parameters_dialog() " << std::endl;
-
    graphics_info_t g;
 
    // GtkWidget *widget = create_bond_parameters_dialog();
    GtkWidget *dialog = widget_from_builder("bond_parameters_dialog");
 
-   std::cout << "debug:: wrapped_create_bond_parameters_dialog() dialog " << dialog << std::endl;
-
-   // old way 20211018-PE
+      // old way 20211018-PE
    // GtkWidget *combobox = widget_from_builder("bond_parameters_molecule_combobox");
 
    GtkWidget *vbox = widget_from_builder("bond_parameters_hbox_for_molecule_combobox");

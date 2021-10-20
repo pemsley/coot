@@ -1619,82 +1619,32 @@ wrapped_create_fast_ss_search_dialog() {
 /* ------------------------------------------------------------------------ */
 void  do_edit_copy_molecule() {
 
-#ifdef USE_PYTHON
-#ifdef USE_GUILE
-   short int state_lang = coot::STATE_SCM;
-#else
-   short int state_lang = coot::STATE_PYTHON;
-#endif
-#else // python not used
-#ifdef USE_GUILE
-   short int state_lang = coot::STATE_SCM;
-#else
-   short int state_lang = 0;
-#endif
-#endif
-
-#ifdef USE_GUILE
-
-   // std::string cmd = "(molecule-chooser-gui \"Molecule to Copy...\" (lambda (imol) (copy-molecule imol)))";
-
-   // This and do_edit_copy_fragment() are hideous. Do it in pure gtk/C++ - how hard can it be!?
-
-   std::string cmd =
-      "(generic-chooser-and-entry-and-checkbutton \"Copy Molecule\" \"Selection\" \"/\" \"Move Molecule Here?\" (lambda (imol text button-state) (let ((imol-new (copy-molecule imol))) (if button-state (move-molecule-to-screen-centre imol-new) (valid-model-molecule? imol-new)))))";
-
-   if (state_lang == coot::STATE_SCM) {
-      safe_scheme_command(cmd);
-   }
-#else
-#ifdef USE_PYTHON
-   if (state_lang == coot::STATE_PYTHON) {
-
-      std::string cmd = "import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
-      safe_python_command(cmd);
-   }
-#endif // PYTHON
-#endif // GUILE
+   std::string cmd = "import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   safe_python_command(cmd);
 
 }
 
 void  do_edit_copy_fragment() {
 
-#ifdef USE_PYTHON
-#ifdef USE_GUILE
-   short int state_lang = coot::STATE_SCM;
-#else
-   short int state_lang = coot::STATE_PYTHON;
-#endif
-#else // python not used
-#ifdef USE_GUILE
-   short int state_lang = coot::STATE_SCM;
-#else
-   short int state_lang = 0;
-#endif
-#endif
+   graphics_info_t g;
+   GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
+   GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
+   int imol = g.get_active_atom().first;
 
-#ifdef USE_GUILE
-   std::string cmd = "(generic-chooser-and-entry-and-checkbutton \"From which molecule shall we copy the fragment?\" \"Atom selection for fragment\" \"//A/1-10\" \"Move new molecule here?\" (lambda (imol text button-state) (let ((imol (new-molecule-by-atom-selection imol text))) (if button-state (move-molecule-to-screen-centre imol)) (valid-model-molecule? imol))) #f)";
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                 if (GTK_IS_COMBO_BOX(widget))
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+   GtkWidget *combobox = gtk_combo_box_new();
+   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
+   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
+   gtk_widget_show(combobox);
+   gtk_widget_show(dialog);
 
-   if (state_lang == coot::STATE_SCM) {
-      std::ofstream f("debug.scm");
-      f.write(cmd.c_str(), cmd.size());
-      f.write("\n", 1);
-      f.close();
-      safe_scheme_command(cmd);
-   }
-#else
-#ifdef USE_PYTHON
-   if (state_lang == coot::STATE_PYTHON) {
-
-      // This is a tricky, long winded one. We first make a function which is
-      // then executed and all has to reside within exec as we cannot have
-      // multiple line statements in python... lets try
-      std::string cmd = "exec(\'import coot_gui\\ndef atom_selection_from_fragment_func(imol, text, button_state):\\n \\t jmol = coot.new_molecule_by_atom_selection(imol, text) \\n \\t if button_state: coot.move_molecule_to_screen_centre_internal(jmol) \\n \\t return coot_utils.valid_model_molecule_qm(jmol) \\ncoot_gui.generic_chooser_and_entry_and_check_button(\"From which molecule shall we copy the fragment?\", \"Atom selection for fragment\", \"//A/1-10\", \"Move new molecule here?\", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)\')";
-      safe_python_command(cmd);
-   }
-#endif // PYTHON
-#endif // GUILE
+   // the dialog response callback for this is on_copy_fragment_dialog_response_gtkbuilder_callback()
 
 }
 

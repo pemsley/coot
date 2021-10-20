@@ -5014,7 +5014,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
 		      << std::endl;
-	    std::string s = "Oops! failed to create fragment.  ";
+	    std::string s = "WARNING:: Oops! failed to create fragment.  ";
 	    s += "No atoms selected\n";
 	    s += "Incorrect atom specifier? ";
 	    s += "\"";
@@ -5030,7 +5030,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 // good mmdb::Manager pointer.
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
-	 std::string s = "Oops! failed to create fragment.  ";
+	 std::string s = "WARNING:: Oops! failed to create fragment.  ";
 	 s += "Incorrect atom specifier?\n";
 	 s += "\"";
 	 s += atom_selection_str;

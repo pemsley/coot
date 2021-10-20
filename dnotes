@@ -10235,3 +10235,40 @@ Tue 19 Oct 14:09:13 BST 2021
             it = model[tree_iter]
             imol = it[0]
         return imol
+
+---
+Wed 20 Oct 14:02:54 BST 2021
+
+   Here's how to do a modern dialog with molecule combobox
+
+   graphics_info_t g;
+   GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
+   GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
+   int imol = g.get_active_atom().first;
+
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                 if (GTK_IS_COMBO_BOX(widget))
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+   GtkWidget *combobox = gtk_combo_box_new();
+   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
+   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
+   gtk_widget_show(combobox);
+   gtk_widget_show(dialog);
+
+   // Here's the callback
+
+   if (response_id == GTK_RESPONSE_OK) {
+      graphics_info_t g;
+      GtkWidget *entry = widget_from_builder("copy_fragment_entry");
+      std::string text = gtk_entry_get_text(GTK_ENTRY(entry));
+      GtkWidget *combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "combobox"));
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+      int imol_new = copy_fragment(imol, text);
+   }
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }

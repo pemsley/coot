@@ -11338,7 +11338,6 @@ void
 on_edit_copy_molecule_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
                                                            gpointer         user_data)
 {
-
   do_edit_copy_molecule();
 }
 
@@ -11349,6 +11348,31 @@ on_edit_copy_fragment_activate_gtkbuilder_callback        (GtkMenuItem     *menu
                                         gpointer         user_data)
 {
   do_edit_copy_fragment();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_fragment_dialog_response_gtkbuilder_callback(GtkDialog *dialog,
+                                                     gint response_id,
+                                                     gpointer user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      graphics_info_t g;
+      GtkWidget *entry = widget_from_builder("copy_fragment_atom_selection_entry");
+      std::string text = gtk_entry_get_text(GTK_ENTRY(entry));
+      GtkWidget *combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "combobox"));
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+      int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
+      GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+         move_molecule_to_screen_centre_internal(imol_new);
+      if (is_valid_model_molecule(imol_new))
+         gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
 }
 
 
