@@ -16,6 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import coot
 
 global probe_command
@@ -58,6 +59,11 @@ def generic_object_with_name(obj_name):
 #
 def generic_objects_gui():
 
+    print(":::::::::::::::::: generic_objects_gui() needs a redo")
+    # this is old. just call the build-in one.
+
+    return
+
     pygtk_flag = False
     try:
       import pygtk
@@ -65,7 +71,7 @@ def generic_objects_gui():
       import gtk, pango
       pygtk_flag = True
     except:
-      print("BL WARNING:: no pygtk2. Function wont work!!!")
+      print("Fail")
 
     if (pygtk_flag and coot_utils.using_gui()):
       # Now we run the gui
@@ -213,17 +219,21 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
     # return status == 0
     return True
 
-  
+
 global old_pdb_style
 old_pdb_style = False
   
 reduce_molecule_updates_current = False
-       
+
+reduce_command = "molprobity.reduce"
+probe_command = "molprobity.probe"
+
 # run molprobity (well reduce and probe) to make generic objects (and
 # display the generic objects gui)
 #
 def probe(imol):
   import os
+  import coot_utils
   global reduce_command, probe_command
   global old_pdb_style
     
@@ -314,7 +324,7 @@ def probe(imol):
           # getting refined).
 
           coot.handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
-          generic_objects_gui()
+          # generic_objects_gui() old
           coot.graphics_draw()
 
 
@@ -325,20 +335,26 @@ def probe(imol):
 #
 def write_reduce_het_dict(imol, reduce_het_dict_file_name):
 
-  import shutil
+  print("debug:: reduce_het_dict_file_name", reduce_het_dict_file_name)
+
   con_file_names = []
-  for res_name in non_standard_residue_names(imol):
-    f_name = "coot-molprobity/conn-" + res_name + ".txt"
-    status = coot.write_connectivity(res_name, f_name)
-    if (status == 1):
-      con_file_names.append(f_name)
+  for res_name in coot.non_standard_residue_names_py(imol):
+      f_name = "coot-molprobity/conn-" + res_name + ".txt"
+      status = coot.write_connectivity(res_name, f_name)
+      if (status == 1):
+          con_file_names.append(f_name)
   if con_file_names:
-    fin = open(reduce_het_dict_file_name, 'w')
-    for file_name in con_file_names:
-      shutil.copyfileobj(open(file_name, 'rb'), fin)
-    fin.close()
-    
-      
+      # fin = open(reduce_het_dict_file_name, 'w')
+      #for file_name in con_file_names:
+      #    shutil.copyfileobj(open(file_name, 'rb'), fin)
+      # fin.close()
+
+      with open(reduce_het_dict_file_name, 'w') as out_file:
+          for file_name in con_file_names:
+              print("debug:: file_name", file_name)
+              with open(file_name) as in_file:
+                  out_file.write(in_file.read())
+
 # Prepare file for probe, i.e. remove 'USER' from file
 def prepare_file_for_probe(file_in, file_out):
     
@@ -347,7 +363,7 @@ def prepare_file_for_probe(file_in, file_out):
     except IOError:
       print("BL WARNING:: Cannot read ", file_in)
     try:
-      fout = file(file_out,'w')
+      fout = open(file_out,'w')
     except IOError:
       print("BL WARNING:: Cannot write ", file_out)
     if (fin and fout):

@@ -191,6 +191,9 @@ void to_generic_object_add_point_internal(int object_number,
    graphics_info_t g;
 
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+
+      std::cout << "......... to_generic_object_add_point_internal() " << object_number
+                << " " << colour << " " << pt.format() << std::endl;
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       unsigned int object_number_u(object_number);
       if (object_number_u < g.generic_display_objects.size()) {
@@ -509,8 +512,7 @@ int new_generic_object_number(const std::string &name_string) {
    int n_new = g.new_generic_object_number(name_string);
 
    if (g.generic_objects_dialog) {
-      GtkWidget *grid = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
-                                      "generic_objects_dialog_grid");
+      GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid"); // changed 20211020-PE
       if (grid) {
          const meshed_generic_display_object &gdo = g.generic_display_objects[n_new];
          generic_objects_dialog_grid_add_object_internal(gdo,
@@ -667,12 +669,16 @@ void close_all_generic_objects() {
    std::cout << ":::::::::::::: debug:: close_all_generic_objects() " << std::endl;
 
    graphics_info_t g;
+   unsigned int n_for_row_delete = 0;
 
    // ----------------- graphics_info meshes --------------------
 
    int n_objs = g.generic_display_objects.size();
+   n_for_row_delete += n_objs;
    for (int i=0; i<n_objs; i++) {
       meshed_generic_display_object &obj = g.generic_display_objects[i];
+      std::cout << ":::::::::::::: debug:: close_all_generic_objects() closing internal generic object "
+                << obj.mesh.name << std::endl;
       if (! obj.mesh.this_mesh_is_closed) // Hmm.
 	 obj.close_yourself();
    }
@@ -683,9 +689,18 @@ void close_all_generic_objects() {
       molecule_class_info_t &m = g.molecules[i];
       for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
          Instanced_Markup_Mesh &imm = m.instanced_meshes[j];
+         std::cout << ":::::::::::::: debug:: close_all_generic_objects() closing molecule generic object "
+                   << imm.get_name() << std::endl;
          imm.close();
+         n_for_row_delete++;
       }
    }
+
+   // now clear the grid widgets
+
+   GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid");
+   for (unsigned int i=0; i<n_for_row_delete; i++)
+      gtk_grid_remove_row(GTK_GRID(grid), 0);
 
    graphics_draw();
 }
@@ -865,6 +880,8 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
    std::vector<coot::atom_spec_t> clash_atoms;
    bool hybrid_36_enabled_probe_flag = 1; // new style
    //bool hybrid_36_enabled_probe_flag = 0; // old style
+
+   graphics_info_t g; // we use meshed_generic_display_objects now
    
    if (dots_file) {
 
@@ -918,10 +935,30 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 
 	 std::string scan_line = ":%d->%d:%2c:%15c:%15c:%f:%f:%f:%f:%f:%f:%f:%s";
 	 if (hybrid_36_enabled_probe_flag) 
-	    scan_line = ":%d->%d:%2c:%16c:%16c:%f:%f:%f:%f:%f:%f:%f:%s";	 
+	    scan_line = ":%d->%d:%2c:%16c:%16c:%f:%f:%f:%f:%f:%f:%f:%s";
+
+         std::set<int> mgdos_needing_a_setup;
+
+         std::map<std::string, coot::colour_holder> colour_map;
+         colour_map["blue"      ] = ::colour_values_from_colour_name("blue");
+         colour_map["sky"       ] = ::colour_values_from_colour_name("sky");
+         colour_map["sea"       ] = ::colour_values_from_colour_name("sea");
+         colour_map["greentint" ] = ::colour_values_from_colour_name("greentint");
+         colour_map["darkpurple"] = ::colour_values_from_colour_name("darkpurple");
+         colour_map["green"     ] = ::colour_values_from_colour_name("green");
+         colour_map["orange"    ] = ::colour_values_from_colour_name("orange");
+         colour_map["orangered" ] = ::colour_values_from_colour_name("orangered");
+         colour_map["yellow"    ] = ::colour_values_from_colour_name("yellow");
+         colour_map["yellowtint"] = ::colour_values_from_colour_name("yellowtint");
+         colour_map["red"       ] = ::colour_values_from_colour_name("red");
+         colour_map["#55dd55"   ] = ::colour_values_from_colour_name("#55dd55");
+         colour_map["hotpink"   ] = ::colour_values_from_colour_name("hotpink");
+         colour_map["grey"      ] = ::colour_values_from_colour_name("grey");
+         colour_map["magenta"   ] = ::colour_values_from_colour_name("magenta");
+         colour_map["royalblue" ] = ::colour_values_from_colour_name("royalblue");
 
 	 while ( fgets( line, 240, dots ) != NULL ) {
-	    n_input_lines++; 
+	    n_input_lines++;
 	    for (int i=0; i<3; i++) contact_type1[i] = 0;
 	    for (int i=0; i<3; i++) contact_type2[i] = 0;
 
@@ -989,6 +1026,9 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			// do we need a new object?
 			if (contact_type != current_contact_type) {
 
+                           // indexing into
+                           // static std::vector<meshed_generic_display_object> generic_display_objects;
+
 			   current_useful_name = probe_dots_short_contact_name_to_expanded_name(contact_type);
 			   // do we have an object of that name already?
 			   int maybe_old_object = generic_object_index(current_useful_name.c_str());
@@ -1006,9 +1046,11 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			}
 
 			float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
-			if (length2 > 0.04) {
 
-			   // hydrogen bond are not drawn as spikes,
+#if 0 // ------------------------ old method for reference ---------------------------------------------------------------
+                        if (length2 > 0.04) {
+
+			   // hydrogen bonds are not drawn as spikes,
 			   // they should be drawn as pillow surfaces.
 			   if (contact_type == "hb") {
 			      to_generic_object_add_point(obj_no, current_colour.c_str(),
@@ -1027,6 +1069,26 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			   to_generic_object_add_point(obj_no, current_colour.c_str(), dot_size * dot_size_scale_factor,
 						       x1, x2, x3);
 			}
+#endif // ------------------------ old method for reference ---------------------------------------------------------------
+
+// ------------------------ new method ---------------------------------------------------------------
+                        const unsigned int num_subdivisions = 2;
+                        const int size = 2;
+                        meshed_generic_display_object &mgdo = g.generic_display_objects[obj_no];
+                        mgdos_needing_a_setup.insert(obj_no); // setup called after the for loop
+                        if (length2 > 0.04) {
+                           clipper::Coord_orth pt_1(x1, x2, x3);
+                           clipper::Coord_orth pt_2(x4, x5, x6);
+                           coot::colour_holder col = colour_map[current_colour];
+                           mgdo.add_point(col, current_colour, size, pt_1, num_subdivisions);
+                           mgdo.add_point(col, current_colour, size, pt_2, num_subdivisions);
+                        } else {
+                           n_points++; // not useful
+                           clipper::Coord_orth pt_1(x1, x2, x3);
+                           coot::colour_holder col = colour_map[current_colour];
+                           mgdo.add_point(col, current_colour, size, pt_1, num_subdivisions);
+                        }
+// ------------------------ end new method ---------------------------------------------------------------
 
 			if (length2 > 5) {
 			   // a really long
@@ -1056,13 +1118,16 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			   
 			   coot::atom_spec_t at_spec(chain_id, resno, insertion_code, atom_name, altconf);
 
+                           // 20211020-PE Wow this is very Old School way of adding to a set of atom specs
+                           // (clash_atoms).
+                           // The gui that uses clash atoms has been removed for the moment
 			   bool ifound = false;
 			   for (unsigned int ic=0; ic<clash_atoms.size(); ic++) {
 			      if (resno == clash_atoms[ic].res_no) {
 				 if (insertion_code == clash_atoms[ic].ins_code) {
 				    if (altconf == clash_atoms[ic].alt_conf) {
 				       if (chain_id == clash_atoms[ic].chain_id) {
-				 
+
 					  // we are intested in bad (low) gaps
 					  if (gap2 < clash_atoms[ic].float_user_data)
 					     clash_atoms[ic].float_user_data = gap2;
@@ -1088,58 +1153,20 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	       }
 	    }
 	 }
+         // setup the meshed_generic_display_objects that need a setup
+         Material material;
+         material.do_specularity = true;
+         material.specular_strength = 1;
+         material.shininess = 128;
+         std::set<int>::const_iterator it;
+         for (it=mgdos_needing_a_setup.begin(); it!=mgdos_needing_a_setup.end(); ++it) {
+            g.generic_display_objects[*it].mesh.setup(material);
+         }
+
 	 if (show_clash_gui_flag) {
 	    if (graphics_info_t::use_graphics_interface_flag) {
 		if (show_clash_gui_flag == 2) {
-#ifdef USE_PYGTK
-		   graphics_info_t g;
-		   std::vector<std::string> cmd_strings;
-		   cmd_strings.push_back("run_with_gtk_threading");
-		   cmd_strings.push_back("interesting_things_gui");
-		   cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
-		   std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
-		   std::string ls = coot::util::interesting_things_list_py(clash_atoms);
-		   cmd_strings.push_back(ls);
-		   std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
-		   safe_python_command(s);
-#else
-#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
-		   graphics_info_t g;
-		   std::vector<std::string> cmd_strings;
-		   cmd_strings.push_back("interesting-things-gui");
-		   cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
-		   std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
-		   std::string ls = coot::util::interesting_things_list(clash_atoms);
-		   cmd_strings.push_back(ls);
-		   std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
-		   safe_scheme_command(s);
-#endif // GUILE_GTK
-#endif // PYGTK
-		} else {
-#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
-		   graphics_info_t g;
-		   std::vector<std::string> cmd_strings;
-		   cmd_strings.push_back("interesting-things-gui");
-		   cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
-		   std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
-		   std::string ls = coot::util::interesting_things_list(clash_atoms);
-		   cmd_strings.push_back(ls);
-		   std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
-		   safe_scheme_command(s);
-#else
-#ifdef USE_PYGTK
-		   graphics_info_t g;
-		   std::vector<std::string> cmd_strings;
-		   cmd_strings.push_back("run_with_gtk_threading");
-		   cmd_strings.push_back("interesting_things_gui");
-		   cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
-		   std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
-		   std::string ls = coot::util::interesting_things_list_py(clash_atoms);
-		   cmd_strings.push_back(ls);
-		   std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
-		   safe_python_command(s);
-#endif // PYGTK
-#endif // GUILE
+                   // something here.
 		}
 	    }
 	 }

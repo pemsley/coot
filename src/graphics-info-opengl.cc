@@ -358,7 +358,6 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
-
    unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
 
    if (true) {
@@ -387,6 +386,10 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
                                             };
 
       coot::atom_overlaps_dots_container_t c;
+
+#if 0 // why did I want to add contact dots for a (static) molecule when moving atoms were being displayed?
+      // Weird.
+
       // get_moving_atoms_lock(__FUNCTION__);
       if (moving_atoms_asc) {
          if (moving_atoms_asc->mol) {
@@ -397,6 +400,11 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
          }
       }
       // release_moving_atoms_lock(__FUNCTION__);
+#endif
+
+      // more sensible
+      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+      c = overlaps.all_atom_contact_dots(contact_dots_density, true);
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Contact Dots for Molecule ";
@@ -407,6 +415,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+         // std::cout << "dots type " << type << " count " << v.size() << std::endl;
          float point_size = 0.10;
          float specular_strength = 0.5; // default
          if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles

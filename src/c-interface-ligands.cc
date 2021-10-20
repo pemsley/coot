@@ -3848,6 +3848,8 @@ void set_all_atom_contact_dots_ignore_water(short int state) {
 //
 void coot_all_atom_contact_dots_old(int imol) {
 
+   std::cout << "coot_all_atom_contact_dots_old()" << std::endl;
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -3959,6 +3961,8 @@ void coot_all_atom_contact_dots_instanced(int imol) {
 }
 
 void coot_all_atom_contact_dots(int imol) {
+
+   std::cout << "coot_all_atom_contact_dots() for imol " << imol << std::endl;
 
    coot_all_atom_contact_dots_instanced(imol);
 }

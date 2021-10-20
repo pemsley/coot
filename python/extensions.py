@@ -90,41 +90,39 @@ if True:
 
      menu = coot_gui.coot_menubar_menu("Validate")
      if menu:
-       coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
-                                     lambda func: coot_gui.water_coordination_gui())
-       coot_gui.add_simple_coot_menu_menuitem(menu, "Atom Overlaps (Coot)",
-                                     lambda func:
-                                              coot_utils.using_active_atom(coot.coot_all_atom_contact_dots, "aa_imol"))
-       coot_gui.add_simple_coot_menu_menuitem(menu, "All-Atom Contact Dots (Molprobity)",
-                                     lambda func:
-                                              coot_utils.using_active_atom(probe, "aa_imol"))
+         import generic_objects
+         coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
+                                                lambda func: coot_gui.water_coordination_gui())
+         coot_gui.add_simple_coot_menu_menuitem(menu, "Atom Overlaps (Coot)",
+                                                lambda func: coot_utils.using_active_atom(coot.coot_all_atom_contact_dots, "aa_imol"))
+         coot_gui.add_simple_coot_menu_menuitem(menu, "All-Atom Contact Dots (Molprobity)",
+                                                lambda func: coot_utils.using_active_atom(generic_objects.probe, "aa_imol"))
 
-       coot_gui.add_simple_coot_menu_menuitem(menu,"Atom Overlaps Dialog",
-                                     lambda func:
-                                     using_active_atom(
-                                       coot_gui.molecule_atom_overlaps_gui, "aa_imol"))
+         coot_gui.add_simple_coot_menu_menuitem(menu,"Atom Overlaps Dialog",
+                                                lambda func: using_active_atom(coot_gui.molecule_atom_overlaps_gui, "aa_imol"))
 
-       coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
-                                     lambda func: coot_gui.water_coordination_gui())
+         coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
+                                                lambda func: coot_gui.water_coordination_gui())
 
        # this does not exist. Let's do in in C++ with glade
        #coot_gui.add_simple_coot_menu_menuitem(menu, "Pepflips from Difference Map...",
        #                               lambda func: coot_gui.pepflips_by_difference_map_gui())
 
 
-       def validation_outliers_func():
-         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+         def validation_outliers_func():
+             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
-           imol_map = coot.imol_refinement_map()
-           if not coot_utils.valid_map_molecule_qm(imol_map):
-             coot.info_dialog_and_text("Refinement Map is currently not set")
-           else:
-             find_baddies.validation_outliers_dialog(aa_imol, imol_map)
-       coot_gui.add_simple_coot_menu_menuitem(menu, "Validation Outliers",
-                                     lambda func: validation_outliers_func())
+                 imol_map = coot.imol_refinement_map()
+                 if not coot_utils.valid_map_molecule_qm(imol_map):
+                     coot.info_dialog_and_text("Refinement Map is currently not set")
+                 else:
+                     find_baddies.validation_outliers_dialog(aa_imol, imol_map)
 
-       coot_gui.add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
-                                     lambda func: rama_outlier_gui())
+         coot_gui.add_simple_coot_menu_menuitem(menu, "Validation Outliers",
+                                                lambda func: validation_outliers_func())
+
+         coot_gui.add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
+                                                lambda func: rama_outlier_gui())
 
 
      # --------------------------------------------------
