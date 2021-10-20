@@ -7291,7 +7291,6 @@ import_python_module(const char *module_name, int use_namespace) {
 
 void add_on_rama_choices() {  // the the menu
 
-   std::cout << "adding rama molecule options:" << std::endl;
    GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
    add_on_validation_graph_mol_options(menu_item, "ramachandran");
 

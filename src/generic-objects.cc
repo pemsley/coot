@@ -1077,11 +1077,19 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
                         meshed_generic_display_object &mgdo = g.generic_display_objects[obj_no];
                         mgdos_needing_a_setup.insert(obj_no); // setup called after the for loop
                         if (length2 > 0.04) {
-                           clipper::Coord_orth pt_1(x1, x2, x3);
-                           clipper::Coord_orth pt_2(x4, x5, x6);
                            coot::colour_holder col = colour_map[current_colour];
-                           mgdo.add_point(col, current_colour, size, pt_1, num_subdivisions);
-                           mgdo.add_point(col, current_colour, size, pt_2, num_subdivisions);
+                           if (contact_type == "hb") {
+                              clipper::Coord_orth pt_1(x1, x2, x3);
+                              clipper::Coord_orth pt_2(x4, x5, x6);
+                              mgdo.add_point(col, current_colour, size, pt_1, num_subdivisions);
+                              mgdo.add_point(col, current_colour, size, pt_2, num_subdivisions);
+                           } else {
+                              auto start_end = std::make_pair(glm::vec3(x1, x2, x3), glm::vec3(x4,x5,x6));
+                              mgdo.add_cylinder(start_end, col, 0.05 * dot_size_scale_factor, 12, true, true,
+                                                meshed_generic_display_object::ROUNDED_CAP,
+                                                meshed_generic_display_object::ROUNDED_CAP, false, 1.0);
+                              n_lines++;
+                           }
                         } else {
                            n_points++; // not useful
                            clipper::Coord_orth pt_1(x1, x2, x3);
