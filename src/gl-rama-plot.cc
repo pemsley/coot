@@ -103,10 +103,17 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
                 << std::endl;
 
    // mark the corners of the plot for scaling and offset testing
-   // new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf * -180.0));
-   // new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf * -180.0));
-   // new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
-   // new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
+
+   new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf * -180.0));
+   new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf * -180.0));
+   new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
+   new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
+
+   if (false) // check the z-depth and/or draw order
+      for (unsigned int i=0; i<new_other_normal_positions.size(); i++)
+         std::cout << "new_other_normal_positions " << i << " " << glm::to_string(new_other_normal_positions[i])
+                   << std::endl;
+
 
    // for the background
    // float ff = -0.5 * rama_plot_scale + 0.9;
@@ -418,11 +425,26 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    // glDisable(GL_DEPTH_TEST); // interesting.
    // glDisable(GL_BLEND);
 
-   glEnable(GL_BLEND);
+   glDisable(GL_BLEND);
+
    glm::vec2 offset_position_natural(0.1, -0.1);
    auto p_s = get_munged_offset_and_scale(BOTTOM_LEFT, offset_position_natural, 1.0, 1.0, glarea_width, glarea_height);
    glm::vec2 munged_position_offset = p_s.first;
    glm::vec2 munged_scales = p_s.second;
+
+   if (true) {
+      texture_for_global_distribution_non_gly_pro.Bind(0);
+      // munged_position_offset = glm::vec2(0,0);
+      // munged_scales = glm::vec2(1,1);
+      hud_tmesh_for_global_distribution_non_gly_pro.set_scales(glm::vec2(rama_plot_scale * 0.5, rama_plot_scale * 0.5));
+      float ff = -0.5 * rama_plot_scale + 0.9;
+      hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
+      hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+      hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
+      hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
+   }
+
+   glEnable(GL_BLEND);
 
    hud_mesh_for_axes_and_ticks.set_scales(munged_scales);
    hud_mesh_for_axes_and_ticks.set_offset_positions(munged_position_offset * glm::vec2(10,10));
@@ -478,17 +500,6 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    glDisable(GL_BLEND);
    // glDisable(GL_DEPTH_TEST);
-   if (true) {
-      texture_for_global_distribution_non_gly_pro.Bind(0);
-      // munged_position_offset = glm::vec2(0,0);
-      // munged_scales = glm::vec2(1,1);
-      hud_tmesh_for_global_distribution_non_gly_pro.set_scales(glm::vec2(rama_plot_scale * 0.5, rama_plot_scale * 0.5));
-      float ff = -0.5 * rama_plot_scale + 0.9;
-      hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
-      hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
-      hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
-      hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
-   }
 
 }
 
