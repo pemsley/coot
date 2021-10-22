@@ -1671,7 +1671,7 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
  /* go somewhere if keypress was a carriage return  */
 
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-    handle_get_accession_code(widget);
+    // handle_get_accession_code(widget);
   }
 
   return FALSE;
@@ -1682,7 +1682,7 @@ on_accession_code_ok_button_clicked    (GtkButton       *button,
                                         gpointer         user_data) {
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "accession_code_entry");
-  handle_get_accession_code(entry);
+  // handle_get_accession_code(entry);
 }
 
 

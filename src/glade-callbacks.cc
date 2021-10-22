@@ -1684,12 +1684,9 @@ void
 on_phs_cell_choice_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                                               gpointer         user_data)
 {
-  GtkWidget *window;
-
    printf("Cancel trying to read a phs file.\n");
-
-  window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
-  gtk_widget_destroy(window);
+   GtkWidget *window = widget_from_builder("phs_cell_choice_window");
+   gtk_widget_hide(window);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1735,11 +1732,10 @@ on_fetch_pdb_using_code1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem
                                                        gpointer         user_data)
 {
 
-  GtkWidget *window;
-  int n = 1;
-  window = create_accession_code_window();
-  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-  gtk_widget_show(window);
+   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
 }
 
 
@@ -1748,11 +1744,10 @@ void
 on_fetch_pdb_and_sf_using_code1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *window;
-  int n = 2;
-  window = create_accession_code_window();
-  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-  gtk_widget_show(window);
+   int n = COOT_ACCESSION_CODE_WINDOW_OCA_WITH_SF;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
 }
 
 
@@ -1761,11 +1756,10 @@ void
 on_fetch_pdb_and_map_using_eds1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                                               gpointer         user_data)
 {
-  GtkWidget *window;
-  int n = COOT_ACCESSION_CODE_WINDOW_EDS;
-  window = create_accession_code_window();
-  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-  gtk_widget_show(window);
+   int n = COOT_ACCESSION_CODE_WINDOW_EDS;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
 }
 
 
@@ -1774,11 +1768,10 @@ void
 on_fetch_pdb_and_map_using_pdb_redo1_activate_gtkbuilder_callback
                                         (GtkMenuItem     *menuitem,
 					 gpointer         user_data) {
-  GtkWidget *window;
-  int n = 3;
-  window = create_accession_code_window();
-  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-  gtk_widget_show(window);
+   int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
 
 }
 
@@ -1793,7 +1786,9 @@ on_accession_code_entry_key_press_event_gtkbuilder_callback (GtkWidget       *wi
  /* go somewhere if keypress was a carriage return  */
 
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-    handle_get_accession_code(widget);
+     GtkWidget *entry = widget;
+     GtkWidget *dialog = widget_from_builder("accession_code_window");
+     handle_get_accession_code(dialog, entry);
   }
 
   return FALSE;
@@ -1801,11 +1796,12 @@ on_accession_code_entry_key_press_event_gtkbuilder_callback (GtkWidget       *wi
 
 extern "C" G_MODULE_EXPORT
 void
-on_accession_code_ok_button_clicked_gtkbuilder_callback    (GtkButton       *button,
-                                        gpointer         user_data) {
+on_accession_code_get_it_button_clicked_gtkbuilder_callback    (GtkButton       *button,
+                                                                gpointer         user_data) {
 
-  GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "accession_code_entry");
-  handle_get_accession_code(entry);
+   GtkWidget *entry = widget_from_builder("accession_code_entry");
+   GtkWidget *dialog = widget_from_builder("accession_code_window");
+   handle_get_accession_code(dialog, entry);
 }
 
 
@@ -7667,11 +7663,11 @@ void
 on_get_pdb_and_map_using_eds1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *window;
-  int n = COOT_ACCESSION_CODE_WINDOW_EDS;
-  window = create_accession_code_window();
-  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-  gtk_widget_show(window);
+   int n = COOT_ACCESSION_CODE_WINDOW_EDS;
+   // GtkWidget *window = create_accession_code_window();
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
 }
 
 

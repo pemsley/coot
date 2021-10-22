@@ -17,12 +17,17 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #  02110-1301, USA
 
-import pygtk, gtk, pango
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+# import pygtk, gtk, pango
 import xml.etree.ElementTree as et
 import string
 import math
 import types
 import gzip
+import coot
 
 class PDB_Entry:
 
@@ -504,27 +509,28 @@ class validation_entry_to_canvas:
         self.vbox = False
 
         if self.entry_validation_info != False:
-            window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+            window = Gtk.Window()
             title = "PDB Validation Report for " # ...
             if self.entry_validation_info.pdbid:
                  title += self.entry_validation_info.pdbid
             else:
                  title += self.entry_validation_info.xml_file_name
             window.set_title(title)
-            self.vbox = gtk.VBox(False, 0)
+            self.vbox = Gtk.VBox(False, 0)
             self.vbox.set_border_width(5)
-            h_sep = gtk.HSeparator()
-            da = gtk.DrawingArea()
+            h_sep = Gtk.HSeparator()
+            da = Gtk.DrawingArea()
             da.set_size_request(560,280)
-            close_button = gtk.Button("  Close  ")
-            hbox = gtk.HBox(False, 0)
-            self.vbox.pack_start(da,           False, 6)
-            self.vbox.pack_start(h_sep,        False, 6)
-            hbox.pack_start(close_button, True, 6)
-            self.vbox.pack_end(hbox,         False, 6)
+            close_button = Gtk.Button("  Close  ")
+            hbox = Gtk.HBox(False, 0)
+            self.vbox.pack_start(da, False, False, 6)
+            self.vbox.pack_start(h_sep, False, False, 6)
+            hbox.pack_start(close_button, True, False, 6)
+            self.vbox.pack_end(hbox, False, False, 6)
             window.add(self.vbox)
             window.show_all()
-            da.connect("expose-event", self.on_drawing_area_expose)
+            # da.connect("expose-event", self.on_drawing_area_expose)
+            da.connect("configure-event", self.on_drawing_area_expose)
             close_button.connect("clicked", lambda a : window.destroy())
             self.pangolayout = da.create_pango_layout("")
 
@@ -548,11 +554,17 @@ class validation_entry_to_canvas:
                 c[idx  ] = chr(r)
                 c[idx+1] = chr(g)
                 c[idx+2] = chr(b)
-        self.colour_bar_buff = string.join(c, '')
+        # self.colour_bar_buff = string.join(c, '') 20211021-PE 
+        # is this what I want (now)?
+        # print("debug:: c", c)
+        self.colour_bar_buff = ""
+        self.colour_bar_buff.join(c)
+        print("debug:: self.colour_bar_buff", self.colour_bar_buff)
 
     def on_drawing_area_expose(self, da, event):
+
         style = da.get_style()
-        gc = style.fg_gc[gtk.STATE_NORMAL]
+        gc = style.fg_gc[Gtk.STATE_NORMAL]
 
         n_sliders = self.draw_sliders(da, gc)
         self.draw_top_labels(da, gc)
@@ -575,7 +587,7 @@ class validation_entry_to_canvas:
     def draw_rgb_image(self, da, gc, x, y):
 
         da.window.draw_rgb_image(gc, x, y, self.bar_length, self.bar_height,
-                                 gtk.gdk.RGB_DITHER_NONE, self.colour_bar_buff, self.bar_length*3)
+                                 Gtk.gdk.RGB_DITHER_NONE, self.colour_bar_buff, self.bar_length*3)
 
     def bar_for_abs(self, abs_percent, y_min, da, gc):
 
@@ -787,9 +799,9 @@ def add_residue_buttons(subgroups, vbox, imol):
         set_go_to_atom_from_res_spec(residue_spec)
 
     if vbox:
-        vbox_residue_buttons = gtk.VBox(False, 0)
-        scrolled_win = gtk.ScrolledWindow()
-        scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+        vbox_residue_buttons = Gtk.VBox(False, 0)
+        scrolled_win = Gtk.ScrolledWindow()
+        # scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
         scrolled_win.add_with_viewport(vbox_residue_buttons)
         scrolled_win.set_size_request(-1, 200)
         for group in subgroups:
@@ -807,18 +819,18 @@ def add_residue_buttons(subgroups, vbox, imol):
                     ri_string += '\n'
                     ri_string += '    '
                     ri_string += p_i
-                residue_button = gtk.Button(ri_string)
+                residue_button = Gtk.Button(ri_string)
                 if group.icode == ' ':
                     group.icode = ''
                 try:
                     r_n = int(group.resnum)
                     residue_spec = [group.chain, r_n, group.icode ]
                     residue_button.connect("clicked", go_to_residue, residue_spec)
-                    vbox_residue_buttons.pack_start(residue_button, False, 2)
+                    vbox_residue_buttons.pack_start(residue_button, False, False, 2)
                     residue_button.show()
                 except ValueError:
                     print('problem parsing', group.chain, group.resnum, group.icode)
-        vbox.pack_start(scrolled_win, True, 2)
+        vbox.pack_start(scrolled_win, True, True, 2)
         scrolled_win.show()
         vbox_residue_buttons.show()
 
@@ -842,7 +854,7 @@ def pdb_validate(accession_code, imol):
             url += '/'
             url += accession_code
             url += '_validation.xml.gz'
-            status = coot_get_url(url, gz_file_name)
+            status = coot.coot_get_url(url, gz_file_name)
             # turn the gz_file_name into a string
             vi = False
             try:

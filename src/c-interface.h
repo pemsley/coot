@@ -46,6 +46,9 @@
 #ifndef C_INTERFACE_H
 #define C_INTERFACE_H
 
+// Python is no longer conditionally compiled
+#include "Python.h"
+
 /*
   The following extern stuff here because we want to return the
   filename from the file entry box.  That code (e.g.)

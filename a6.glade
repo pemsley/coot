@@ -382,21 +382,47 @@ Bernhard Lohkamp
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
+                <property name="padding">4</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="accession_code_entry">
+              <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <signal name="key-press-event" handler="on_accession_code_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkEntry" id="accession_code_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <signal name="key-press-event" handler="on_accession_code_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">2</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="accession_code_get_it_button">
+                    <property name="label" translatable="yes">Get It</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_accession_code_get_it_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="padding">2</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -11187,22 +11213,87 @@ Do you want to continue?
   <object class="GtkImage" id="image16">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
+    <property name="pixbuf">pixmaps/refine-1.png</property>
   </object>
   <object class="GtkImage" id="image17">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
+    <property name="pixbuf">pixmaps/regularize.png</property>
   </object>
   <object class="GtkImage" id="image18">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
+    <property name="pixbuf">pixmaps/anchor.png</property>
   </object>
   <object class="GtkImage" id="image19">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
+    <property name="pixbuf">pixmaps/rigid-body.png</property>
+  </object>
+  <object class="GtkImage" id="image20">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/rtz.png</property>
+  </object>
+  <object class="GtkImage" id="image21">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/auto-fit-rotamer.png</property>
+  </object>
+  <object class="GtkImage" id="image22">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/rotamers.png</property>
+  </object>
+  <object class="GtkImage" id="image23">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/edit-chi.png</property>
+  </object>
+  <object class="GtkImage" id="image24">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/torsion-general.png</property>
+  </object>
+  <object class="GtkImage" id="image25">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/flip-peptide.png</property>
+  </object>
+  <object class="GtkImage" id="image26">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/side-chain-180.png</property>
+  </object>
+  <object class="GtkImage" id="image27">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/edit-backbone.png</property>
+  </object>
+  <object class="GtkImage" id="image28">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/mutate-auto-fit.png</property>
+  </object>
+  <object class="GtkImage" id="image29">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/mutate.png</property>
+  </object>
+  <object class="GtkImage" id="image30">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/add-peptide-1.png</property>
+  </object>
+  <object class="GtkImage" id="image31">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/add-alt-conf.png</property>
+  </object>
+  <object class="GtkImage" id="image32">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/atom-at-pointer.png</property>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
@@ -11310,32 +11401,28 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="fetch_pdb_using_code1">
-                            <property name="label" translatable="yes">Fetch PDB using Accession Code...</property>
+                          <object class="GtkMenuItem" id="fetch_pdb_using_code1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Fetch PDB using Accession Code...</property>
                             <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
                             <signal name="activate" handler="on_fetch_pdb_using_code1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="fetch_pdb_and_map_using_eds1">
-                            <property name="label" translatable="yes">Fetch PDB &amp; Map using EDS...</property>
+                          <object class="GtkMenuItem" id="fetch_pdb_and_map_using_eds1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Fetch PDB &amp; Map using EDS...</property>
                             <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
                             <signal name="activate" handler="on_fetch_pdb_and_map_using_eds1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="fetch_pdb_and_map_using_pdb_redo1">
-                            <property name="label" translatable="yes">Fetch PDB and Map Using PDB-REDO...</property>
+                          <object class="GtkMenuItem" id="fetch_pdb_and_map_using_pdb_redo1_gtkbuilder_callback">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="image">image16</property>
-                            <property name="use_stock">False</property>
+                            <property name="label" translatable="yes">xxFetch PDB and Map Using PDB-REDO...</property>
                             <signal name="activate" handler="on_fetch_pdb_and_map_using_pdb_redo1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
@@ -11392,23 +11479,17 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="export_map1">
-                            <property name="label" translatable="yes">Export Map...</property>
+                          <object class="GtkMenuItem" id="export_map1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="image">image17</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_export_map1_activate_gtkbuilder_callback" swapped="no"/>
+                            <property name="label" translatable="yes">Export Map...</property>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="export_map_fragment1">
-                            <property name="label" translatable="yes">Export Map Fragment...</property>
+                          <object class="GtkMenuItem" id="export_map_fragment1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="image">image18</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_export_map_fragment1_activate" swapped="no"/>
+                            <property name="label" translatable="yes">Export Map Fragment...</property>
                           </object>
                         </child>
                         <child>
@@ -11434,14 +11515,11 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="curlew1">
-                            <property name="label" translatable="yes">Curlew...</property>
+                          <object class="GtkMenuItem" id="curlew1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">Coot Utility and Refinement Library Extension Wrangler</property>
-                            <property name="image">image19</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_curlew1_activate" swapped="no"/>
+                            <property name="label" translatable="yes">Curlew...</property>
                           </object>
                         </child>
                         <child>
@@ -12832,6 +12910,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Real Space Refinement</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image16</property>
                         <signal name="toggled" handler="on_model_toolbar_refine_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12845,6 +12924,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Regularization</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image17</property>
                         <signal name="toggled" handler="on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12858,6 +12938,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Fixed Atoms...</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image18</property>
                         <signal name="toggled" handler="on_model_toolbar_fixed_atoms_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12871,6 +12952,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Rigid Body Fit</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image19</property>
                         <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12884,6 +12966,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Rotation/Translation</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image20</property>
                         <signal name="toggled" handler="on_model_toolbar_rot_trans_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12897,6 +12980,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Autofit Rotamer</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image21</property>
                         <signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12910,6 +12994,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Rotamers</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image22</property>
                         <signal name="toggled" handler="on_model_toolbar_rotamers_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12923,6 +13008,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Edit Chi Angles</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image23</property>
                         <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12936,6 +13022,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Torsion General</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image24</property>
                         <signal name="toggled" handler="on_model_toolbar_torsion_general_toggletoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12949,6 +13036,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Flip Peptide</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image25</property>
                         <signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12962,6 +13050,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes"> Sidechain 180° Flip</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image26</property>
                         <signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12975,6 +13064,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Edit Backbone Torsions</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image27</property>
                         <signal name="toggled" handler="on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -12998,6 +13088,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Mutate &amp; Auto-fit</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image28</property>
                         <signal name="toggled" handler="on_model_toolbar_mutate_and_autofit_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13011,6 +13102,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Simple Mutate</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image29</property>
                         <signal name="toggled" handler="on_model_toolbar_simple_mutate_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13024,6 +13116,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Add Terminal Residue</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image30</property>
                         <signal name="toggled" handler="on_model_toolbar_add_terminal_residue_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13037,6 +13130,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Add Alt Conf...</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image31</property>
                         <signal name="clicked" handler="on_model_toolbar_add_alt_conf_toolbutton_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13050,6 +13144,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Place Atom at Pointer</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_widget">image32</property>
                         <signal name="clicked" handler="on_model_toolbar_add_atom_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13063,6 +13158,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Clear Pending Picks</property>
                         <property name="use_underline">True</property>
+                        <property name="stock_id">gtk-clear</property>
                         <signal name="clicked" handler="on_model_toolbar_clear_pending_picks_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13082,11 +13178,13 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkMenuItem">
+                      <object class="GtkImageMenuItem">
+                        <property name="label">gtk-delete</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">             Delete This...              </property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
                         <child type="submenu">
                           <object class="GtkMenu">
                             <property name="visible">True</property>
@@ -13176,6 +13274,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Undo</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_name">edit-undo</property>
                         <signal name="clicked" handler="on_model_toolbar_undo_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13189,6 +13288,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Redo</property>
                         <property name="use_underline">True</property>
+                        <property name="icon_name">edit-redo</property>
                         <signal name="clicked" handler="on_model_toolbar_redo_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
@@ -13231,6 +13331,11 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
     <child type="titlebar">
       <placeholder/>
     </child>
+  </object>
+  <object class="GtkImage" id="image33">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-missing-image</property>
   </object>
   <object class="GtkDialog" id="interesting_waters_by_difference_map_check_dialog">
     <property name="height_request">200</property>

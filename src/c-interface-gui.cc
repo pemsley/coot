@@ -2153,92 +2153,56 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 
 /* Accession code, and dispatch guile command to download and display
    the model.  Hmmm.  */
-void handle_get_accession_code(GtkWidget *widget) {
+void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
 
-   const gchar *text_c = gtk_entry_get_text(GTK_ENTRY(widget));
-   std::string text;
+   auto python_network_get = [] (const std::string text, int n) {
+
+                                std::string python_command;
+                                if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
+                                      python_command = "import get_ebi ; get_ebi.get_ebi_pdb(";
+                                      python_command += single_quote(text);
+                                      python_command += ")";
+                                } else {
+
+                                   if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+                                      // 20050725 EDS code:
+                                      python_command = "import get_ebi ; get_ebi.get_eds_pdb_and_mtz(";
+                                      python_command += single_quote(text);
+                                      python_command += ")";
+                                   } else {
+                                      if (n == COOT_ACCESSION_CODE_WINDOW_OCA_WITH_SF) {
+                                         // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+                                         python_command = "import get_ebi ; get_ebi.get_ebi_pdb_and_sfs(";
+                                         python_command += single_quote(text);
+                                         python_command += ")";
+                                      } else {
+                                         if (n == COOT_ACCESSION_CODE_WINDOW_PDB_REDO) {
+                                            python_command = "import get_ebi ; get_ebi.get_pdb_redo(";
+                                            python_command += single_quote(text);
+                                            python_command += ")";
+                                         }
+                                      }
+                                   }
+                                }
+                                safe_python_command(python_command);
+                             };
+
+   const gchar *text_c = gtk_entry_get_text(GTK_ENTRY(entry));
 
    if (! text_c) {
       std::cout << "WARNING:: handle_get_accession_code no text " << std::endl;
    } else {
       std::string text_s = std::string(text_c);
-      text = coot::util::remove_trailing_whitespace(text_s);
+      std::string text = coot::util::remove_trailing_whitespace(text_s);
       std::cout << "PDB Accession Code: " << text << std::endl;
-
-      // is this the correct widget from which to extract data?
-      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "accession_code"));
-
+      std::cout << "dialog: " << dialog << std::endl;
+      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "mode"));
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
-
-
-#ifdef USE_GUILE
-      std::string scheme_command;
-
-      if (n == 1) {
-         get_coords_for_accession_code(text);
-         std::cout << "Here with mode n " << n << " guile path " << std::endl;
-      } else {
-         if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
-	    // 20050725 EDS code:
-	    scheme_command = "(get-eds-pdb-and-mtz ";
-	    scheme_command += single_quote(text);
-	    scheme_command += ")";
-         } else {
-
-	    if (n == 2) {
-	       // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	       scheme_command = "(get-ebi-pdb-and-sfs ";
-	       scheme_command += single_quote(text);
-	       scheme_command += ")";
-	    } else {
-	       if (n == 3) {
-		  scheme_command = "(get-pdb-redo ";
-		  scheme_command += single_quote(text);
-		  scheme_command += ")";
-	       }
-	    }
-	 }
-	 safe_scheme_command(scheme_command);
-      }
-
-#else
-
-#ifdef USE_PYTHON
-      std::string python_command;
-      if (n == 1) {
-	 get_coords_for_accession_code(text);
-      } else {
-
-	 if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
-	    // 20050725 EDS code:
-	    python_command = "get_eds_pdb_and_mtz(";
-	    python_command += single_quote(text);
-	    python_command += ")";
-	 } else {
-	    if (n == 2) {
-	       // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	       python_command = "get_ebi_pdb_and_sfs(";
-	       python_command += single_quote(text);
-	       python_command += ")";
-	    } else {
-	       if (n == 3) {
-		  python_command = "get_pdb_redo(";
-		  python_command += single_quote(text);
-		  python_command += ")";
-	       }
-	    }
-	 }
-	 safe_python_command(python_command);
-      }
-
-#endif // USE_PYTHON
-
-#endif // USE_GUILE
-
+      python_network_get(text_c, n);
    }
 
-   // and kill the accession code window
-   gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "accession_code_window"));
+   // and hide the accession code window
+   gtk_widget_hide(dialog);
 }
 
 
