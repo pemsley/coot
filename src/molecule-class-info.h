@@ -1068,7 +1068,15 @@ public:        //                      public
    void setup_unit_cell(Shader *shader_p);
    void draw_unit_cell(Shader *shader_p, const glm::mat4 &mvp);
 
-   void draw_dots();
+   void draw_dots(); // 20211022-PE delete this old OpenGL function
+   void draw_dots(Shader *shader_p,
+                  const glm::mat4 &mvp,
+                  const glm::mat4 &view_rotation_matrix,
+                  const std::map<unsigned int, lights_info_t> &lights,
+                  const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                  const glm::vec4 &background_colour,
+                  bool do_depth_fog);
+
    // return the status of whether or not the dots were cleared.
    bool clear_dots(int dots_handle);
    // clear the first open dots object with the given name.

@@ -297,6 +297,7 @@ molecule_class_info_t::setup_internal() {
    //
    dots_colour = coot::colour_t(0.3,0.4,0.5);
    dots_colour_set = false; // so use atom-element colouring
+   dots_colour_set = true; // don't use atom-element colouring
 
    // solid surface density representation
    //

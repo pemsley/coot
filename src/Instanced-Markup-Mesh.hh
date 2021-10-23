@@ -55,8 +55,10 @@ class Instanced_Markup_Mesh {
    bool draw_this_mesh;
    bool first_time;
    bool this_mesh_is_closed;
+   enum { VAO_NOT_SET = 99999999 };
 
 public:
+   Instanced_Markup_Mesh() { name = "Unset-Instanced-Mesh"; init(); }
    Instanced_Markup_Mesh(const std::string &n) : name(n) { init(); }
    bool is_closed() const {return this_mesh_is_closed; }  // once closed, it's gone.
    std::string get_name() const { return name; }

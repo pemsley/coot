@@ -1,15 +1,31 @@
+
+import coot
+import coot_gui
+import coot_utils
+import os
+
 global pisa_command
 pisa_command = "pisa"
 global pisa_min_version
 pisa_min_version = "v1.13"
+
+def pisa_molecule_chooser_gui(mode):
+
+    if mode == "interfaces":
+        coot_gui.molecule_chooser_gui("Choose molecule for PISA assembly analysis",
+                                      lambda imol: pisa_interfaces(imol))
+
+    if mode == "assemblies":
+        coot_gui.molecule_chooser_gui("Choose molecule for PISA assembly analysis",
+                                      lambda imol: pisa_assemblies(imol))
+
 
 def pisa_assemblies(imol):
 
     global pisa_min_version
     pisa_exe = pisa_new_enough_qm()
     if not pisa_exe:
-        msg = "Your pisa version it too old.  Need at least " + \
-              pisa_min_version + "."
+        msg = "Your pisa version it too old.  Need at least " + pisa_min_version + "."
         coot.info_dialog(msg)
     else:
         #

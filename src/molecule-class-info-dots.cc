@@ -1,4 +1,7 @@
 
+//  testing using attach_buffers here fixes the GL ERROR
+#include "graphics-info.h"
+
 #include "dots-representation.hh"
 
 // ---------------------------------------------------------------------------------------
@@ -9,11 +12,13 @@
 coot::dots_representation_info_t::dots_representation_info_t(mmdb::Manager *mol) {
 
    is_closed = 0;
+   imm.setup_octasphere(2);
    int SelHnd = mol->NewSelection();
    mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    mmdb::Manager *dum = NULL;
    colour_t dummy_col;
-   add_dots(SelHnd, mol, dum, 1.0, dummy_col, false);
+   bool use_single_colour = false;
+   add_dots(SelHnd, mol, dum, 1.0, dummy_col, use_single_colour);
    mol->DeleteSelection(SelHnd);
 }
 
@@ -21,10 +26,12 @@ coot::dots_representation_info_t::dots_representation_info_t(mmdb::Manager *mol,
 							     mmdb::Manager *mol_exclude) {
 
    is_closed = 0;
+   imm.setup_octasphere(2);
    int SelHnd = mol->NewSelection();
    mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    colour_t dummy_col;
-   add_dots(SelHnd, mol, mol_exclude, 1.0, dummy_col, false);
+   bool use_single_colour = false;
+   add_dots(SelHnd, mol, mol_exclude, 1.0, dummy_col, use_single_colour);
    mol->DeleteSelection(SelHnd);
 }
 
@@ -75,23 +82,26 @@ coot::dots_representation_info_t::get_colour(const std::string &ele) const {
       col = coot::colour_t(0.5, 0.5, 0.2);
 
    return col;
-} 
+}
 
 // 20111123 modern usage
 //
 void
 coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
-					   mmdb::Manager *mol_exclude,
-					   double dot_density,
-					   const coot::colour_t &single_colour,
-					   bool use_single_colour) {
+                                           mmdb::Manager *mol_exclude,
+                                           double dot_density,
+                                           const coot::colour_t &single_colour,
+                                           bool use_single_colour) {
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: add_dots() --- start --- with GL err " << err << std::endl;
 
    mmdb::PPAtom atoms = NULL;
    int n_atoms;
 
    double phi_step = 5.0 * (M_PI/180.0);
    double theta_step = 5.0 * (M_PI/180.0);
-   if (dot_density > 0.0) { 
+   if (dot_density > 0.0) {
       phi_step   /= dot_density;
       theta_step /= dot_density;
    }
@@ -103,9 +113,9 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
       std::string ele(atoms[iat]->element);
       radius[iat] = get_radius(ele);
       if (use_single_colour)
-	 colour[iat] = single_colour;
-      else 
-	 colour[iat] = get_colour(ele);
+         colour[iat] = single_colour;
+      else
+         colour[iat] = get_colour(ele);
    }
 
 
@@ -118,85 +128,84 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
       mol_exclude->GetSelIndex(SelHnd_exclude, atoms_exclude, n_atoms_exclude);
       radius_exclude.resize(n_atoms_exclude);
       for (int iat=0; iat<n_atoms_exclude; iat++) {
-	 std::string ele(atoms_exclude[iat]->element);
-	 radius_exclude[iat] = get_radius(ele);
+         std::string ele(atoms_exclude[iat]->element);
+         radius_exclude[iat] = get_radius(ele);
       }
    }
-   
+
    for (int iatom=0; iatom<n_atoms; iatom++) {
       std::vector<clipper::Coord_orth> local_points;
       coot::colour_t col = colour[iatom];
-      if (! atoms[iatom]->isTer()) { 
-	 clipper::Coord_orth centre(atoms[iatom]->x,
-				    atoms[iatom]->y,
-				    atoms[iatom]->z);
-	 bool even = 1;
-	 for (double theta=0; theta<M_PI; theta+=theta_step) {
-	    double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-	    for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-	       if (even) {
+      if (! atoms[iatom]->isTer()) {
+         clipper::Coord_orth centre(atoms[iatom]->x,
+                                    atoms[iatom]->y,
+                                    atoms[iatom]->z);
+         bool even = true;
+         for (double theta=0; theta<M_PI; theta+=theta_step) {
+            double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
+            for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
+               if (even) {
 
-		  // Is there another atom in the same residue as this
-		  // atom, that is closer to pt than the centre atom?
-		  // If so, don't draw this point.
+                  // Is there another atom in the same residue as this
+                  // atom, that is closer to pt than the centre atom?
+                  // If so, don't draw this point.
 
-		  double atom_radius = radius[iatom];
-		  double atom_radius_squard = atom_radius * atom_radius;
+                  double atom_radius = radius[iatom];
 
-		  clipper::Coord_orth pt(atom_radius*cos(phi)*sin(theta),
-					 atom_radius*sin(phi)*sin(theta),
-					 atom_radius*cos(theta));
-		  pt += centre;
+                  clipper::Coord_orth pt(atom_radius*cos(phi)*sin(theta),
+                                         atom_radius*sin(phi)*sin(theta),
+                                         atom_radius*cos(theta));
+                  pt += centre;
 
-		  bool draw_it = 1;
+                  bool draw_it = 1;
 
-		  // it might be possible to speed this up by precalculating all dot
-		  // points and then doing a findcontacts to the atoms of the atom
-		  // selection. That is involved though.
-	       
-		  for (int jatom=0; jatom<n_atoms; jatom++) {
-		     if (jatom != iatom) {
-			if (! atoms[jatom]->isTer()) {
-			   double radius_j = radius[jatom];
-			   double radius_j_squared = radius_j * radius_j;
-			   clipper::Coord_orth pt_j(atoms[jatom]->x, atoms[jatom]->y, atoms[jatom]->z);
-			   if ((pt-pt_j).lengthsq() < radius_j_squared) {
-			      draw_it = 0;
-			      break;
-			   }
-			}
-		     }
-		  }
+                  // it might be possible to speed this up by precalculating all dot
+                  // points and then doing a findcontacts to the atoms of the atom
+                  // selection. That is involved though.
 
-		  // and now, don't draw if far from exclude molecule
-		  // atoms (if there are any).
-		  //
-		  if (n_atoms_exclude) { 
-		     if (draw_it) {
-			draw_it = 0;
-			double dist_j = 4.0;
-			double dist_j_squared = dist_j * dist_j;
-			for (int jatom=0; jatom<n_atoms_exclude; jatom++) {
-			   if (! atoms_exclude[jatom]->isTer()) {
-			      clipper::Coord_orth pt_j(atoms_exclude[jatom]->x,
-						       atoms_exclude[jatom]->y,
-						       atoms_exclude[jatom]->z);
-			      if ((pt-pt_j).lengthsq() < dist_j_squared) {
-				 draw_it = 1;
-				 break;
-			      }
-			   }
-			}
-		     }
-		  }
-		  
-		  if (draw_it) {
-		     local_points.push_back(pt);
-		  }
-	       }
-	       even = 1 - even;
-	    }
-	 }
+                  for (int jatom=0; jatom<n_atoms; jatom++) {
+                     if (jatom != iatom) {
+                        if (! atoms[jatom]->isTer()) {
+                           double radius_j = radius[jatom];
+                           double radius_j_squared = radius_j * radius_j;
+                           clipper::Coord_orth pt_j(atoms[jatom]->x, atoms[jatom]->y, atoms[jatom]->z);
+                           if ((pt-pt_j).lengthsq() < radius_j_squared) {
+                              draw_it = false;
+                              break;
+                           }
+                        }
+                     }
+                  }
+
+                  // and now, don't draw if far from exclude molecule
+                  // atoms (if there are any).
+                  //
+                  if (n_atoms_exclude) {
+                     if (draw_it) {
+                        draw_it = false;
+                        double dist_j = 4.0;
+                        double dist_j_squared = dist_j * dist_j;
+                        for (int jatom=0; jatom<n_atoms_exclude; jatom++) {
+                           if (! atoms_exclude[jatom]->isTer()) {
+                              clipper::Coord_orth pt_j(atoms_exclude[jatom]->x,
+                                                       atoms_exclude[jatom]->y,
+                                                       atoms_exclude[jatom]->z);
+                              if ((pt-pt_j).lengthsq() < dist_j_squared) {
+                                 draw_it = true;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                  }
+
+                  if (draw_it) {
+                     local_points.push_back(pt);
+                  }
+               }
+               even = 1 - even;
+            }
+         }
       }
       std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > p(col, local_points);
       points.push_back(p);
@@ -204,4 +213,33 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
    if (mol_exclude) {
       mol_exclude->DeleteSelection(SelHnd_exclude);
    }
+
+   unsigned int n_balls = 0;
+   for (unsigned int i=0; i<points.size(); i++)
+      n_balls += points[i].second.size();
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: add_dots() pre-setup with GL err " << err << std::endl;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: add_dots() attach buffers with GL err " << err << std::endl;
+   imm.setup_instancing_buffers(n_balls);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: add_dots() post-setup with GL err " << err << std::endl;
+   std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+   float scale = 0.05;
+   for (unsigned int i=0; i<points.size(); i++) {
+      glm::vec4 col = points[i].first.to_glm();
+      const auto &pt_vec = points[i].second;
+      for (unsigned int j=0; j<pt_vec.size(); j++) {
+         const auto &pt = pt_vec[j];
+         glm::vec3 pos(pt.x(), pt.y(), pt.z());
+         Instanced_Markup_Mesh_attrib_t ball(col, pos, scale);
+         balls.push_back(ball);
+      }
+   }
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: add_dots() pre-update_instancing_buffers() with GL err " << err << std::endl;
+   imm.update_instancing_buffers(balls);
+   if (err) std::cout << "GL ERROR:: add_dots() post-update_instancing_buffers() with GL err " << err << std::endl;
 }

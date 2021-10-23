@@ -11722,6 +11722,27 @@ on_calculate_pisa_activate_gtkbuilder_callback             (GtkMenuItem     *men
 
 }
 
+#include "cc-interface-scripting.hh"
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_calculate_pisa_assemblies_activate_gtkbuilder_callback             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+   safe_python_command("import parse_pisa_xml");
+   safe_python_command("parse_pisa_xml.pisa_molecule_chooser_gui('assemblies')");
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_calculate_pisa_interfaces_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                           gpointer         user_data)
+{
+   safe_python_command("import parse_pisa_xml");
+   safe_python_command("parse_pisa_xml.pisa_molecule_chooser_gui('interfaces')");
+}
 
 
 extern "C" G_MODULE_EXPORT

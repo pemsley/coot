@@ -951,6 +951,8 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 	 if (c_2.first)
 	    centre_2 = c_2.second;
 
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
 	 coot::dots_representation_info_t d1(frag_mol_1, frag_mol_2);
 	 coot::dots_representation_info_t d2(frag_mol_2, frag_mol_1);
 

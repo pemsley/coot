@@ -17,7 +17,7 @@ Instanced_Markup_Mesh::init() {
    max_n_instances = 0;
    draw_this_mesh = true;
    this_mesh_is_closed = false;
-   vao = 99999999;
+   vao = VAO_NOT_SET;
 }
 
 void
@@ -57,6 +57,9 @@ Instanced_Markup_Mesh::setup_buffers() {
 
    if (first_time)
       glGenVertexArrays(1, &vao);
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: in Instanced_Markup_Mesh::setup_buffers() vao not set" << std::endl;
 
    glBindVertexArray(vao);
 
@@ -118,10 +121,21 @@ Instanced_Markup_Mesh::setup_buffers() {
 void
 Instanced_Markup_Mesh::setup_instancing_buffers(unsigned int max_nun_instances) {
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: Instanced_Markup_Mesh::setup_instancing_buffers() "
+                      << name << " -- start -- " << err << std::endl;
+
    max_n_instances = max_nun_instances;
    n_instances = 0;
 
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: in Instanced_Markup_Mesh::setup_instancing_buffers() vao not set" << std::endl;
+
    glBindVertexArray (vao);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Instanced_Markup_Mesh::setup_instancing_buffers() "
+                      << name << " A4 " << err << std::endl;
 
    glEnableVertexAttribArray(2);
    glEnableVertexAttribArray(3);
@@ -137,6 +151,10 @@ Instanced_Markup_Mesh::setup_instancing_buffers(unsigned int max_nun_instances) 
    // 4 float size              (instanced)
    // 5 float specular_strength (instanced)
    // 6 float shininess         (instanced)
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Instanced_Markup_Mesh::setup_instancing_buffers() "
+                      << name << " A4 " << err << std::endl;
 
    glGenBuffers(1, &inst_attribs_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_attribs_buffer_id);
@@ -166,6 +184,10 @@ Instanced_Markup_Mesh::setup_instancing_buffers(unsigned int max_nun_instances) 
                          reinterpret_cast<void *>(sizeof(glm::vec4) + sizeof(glm::vec3) + 2 * sizeof(float)));
    glVertexAttribDivisor(6, 1);
 
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Instanced_Markup_Mesh::setup_instancing_buffers() "
+                      << name << " B " << err << std::endl;
+
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
    glDisableVertexAttribArray(4);
@@ -174,6 +196,8 @@ Instanced_Markup_Mesh::setup_instancing_buffers(unsigned int max_nun_instances) 
 
    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+   if (err) std::cout << "GL ERROR:: Instanced_Markup_Mesh::setup_instancing_buffers() "
+                      << name << " C " << err << std::endl;
 }
 
 void
@@ -194,7 +218,7 @@ Instanced_Markup_Mesh::update_instancing_buffers(const std::vector<Instanced_Mar
 void
 Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
 
-   // really wee want a version of make_octasphere that only returns
+   // really we want a version of make_octasphere that only returns
    // vectors (glm::vec3) and triangles - radius 1.
 
    glm::vec3 position(0,0,0);
@@ -230,6 +254,7 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
    }
    triangles = v2;
 
+   std::cout << "debug:: in setup_octasphere() calling setup_buffers" << std::endl;
    setup_buffers();
 
 }

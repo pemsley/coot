@@ -21,11 +21,13 @@
 
 #ifndef DOTS_REPRESENTATION_HH
 #define DOTS_REPRESENTATION_HH
+
 #include <string>
 #include <vector>
 #include <clipper/core/coords.h>
 #include <mmdb2/mmdb_manager.h>
 
+#include "Instanced-Markup-Mesh.hh"
 #include "coot-colour.hh"
 #include "lbg/solvent-exposure-difference.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -38,16 +40,20 @@ namespace coot {
       std::string name_;
    public:
       dots_representation_info_t() {
-	 is_closed = 0;
+	 is_closed = false;
+         imm.setup_octasphere(2);
       }
       std::vector<std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > > points;
+      Instanced_Markup_Mesh imm;
       // 20111123 modern usage
       dots_representation_info_t(const std::string &name_in) {
 	 name_ = name_in;
+         imm.setup_octasphere(2);
       }
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
 	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));
 	 is_closed = 0;
+         imm.setup_octasphere(2);
       }
       dots_representation_info_t(mmdb::Manager *mol);
       // make dots around the atoms of mol, only if they are close to
@@ -87,6 +93,7 @@ namespace coot {
       solvent_accessibilities(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
       std::vector<solvent_exposure_difference_helper_t>
       solvent_exposure_differences(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
+
    };
 
 }

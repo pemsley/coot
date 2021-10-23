@@ -988,7 +988,7 @@ graphics_info_t::draw_model_molecules() {
                             << shader.name << " with err " << err << std::endl;
 
          // draw with the vertex count, not the index count.
-         GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
+         GLuint n_verts = molecules[ii].n_indices_for_model_triangles;
 
          // std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
          err = glGetError();
@@ -1000,6 +1000,9 @@ graphics_info_t::draw_model_molecules() {
                             << " n_vertices " << n_verts << " with GL err " << err << std::endl;
 
          draw_molecule_atom_labels(m, mvp, view_rotation);
+
+         m.draw_dots(&shader_for_rama_balls, mvp, view_rotation, lights, eye_position,
+                     bgc, shader_do_depth_fog_flag);
 
       }
    }
