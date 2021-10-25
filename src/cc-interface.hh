@@ -1486,9 +1486,17 @@ void reload_map_shader();
 //! \brief
 void reload_model_shader();
 
+//! \brief
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
+//! \brief
 void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
+
+//! \brief
+void set_focus_blur_z_depth(float z);
+
+//! \brief
+void set_focus_blur_strength(float st);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */

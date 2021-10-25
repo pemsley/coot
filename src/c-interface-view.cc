@@ -289,6 +289,18 @@ void set_fresnel_colour(int imol, float red, float green, float blue, float opac
    }
 }
 
+//! \brief
+void set_focus_blur_z_depth(float z) {
+   graphics_info_t::focus_blur_z_depth = z;
+   graphics_draw();
+}
+
+//! \brief
+void set_focus_blur_strength(float st) {
+   graphics_info_t::focus_blur_strength = st;
+   graphics_draw();
+}
+
 
 
 

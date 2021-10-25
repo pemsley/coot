@@ -3890,8 +3890,7 @@ def map_sharpening_gui(imol):
 #
 # added checkbox to assign for all protein chains
 #
-def associate_sequence_with_chain_gui(sequence_format="FASTA",
-                                      do_alignment=False):
+def associate_sequence_with_chain_gui(sequence_format="FASTA", do_alignment=False):
 
     def associate_func(imol, chain_id_in, pir_file_name,
                        use_all_chains=False):

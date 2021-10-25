@@ -3576,6 +3576,9 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
    // uniform sampler2D screenTexture2;
    // uniform sampler2D screenDepth;
 
+   shader_for_dof_blur_by_texture_combination.set_float_for_uniform("focus_blur_z_depth",  focus_blur_z_depth);
+   shader_for_dof_blur_by_texture_combination.set_float_for_uniform("focus_blur_strength", focus_blur_strength);
+
    glActiveTexture(GL_TEXTURE0 + 0);
    glBindTexture(GL_TEXTURE_2D, combine_textures_using_depth_framebuffer.get_texture_colour());
    glActiveTexture(GL_TEXTURE0 + 1);

@@ -4526,6 +4526,10 @@ string   static std::string sessionid;
    void setup_draw_for_hydrogen_bonds();
    // this can be made more sophisticated later
    static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs;
+
+   static float focus_blur_z_depth;
+   static float focus_blur_strength;
+
    static std::chrono::time_point<std::chrono::high_resolution_clock> tick_hydrogen_bond_mesh_t_previous;
 
    static bool do_tick_particles;
