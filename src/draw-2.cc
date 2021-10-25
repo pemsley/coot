@@ -87,7 +87,6 @@ glarea_tick_func(GtkWidget *widget,
    }
 
    if (graphics_info_t::do_tick_rock) {
-
       std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
       auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - graphics_info_t::time_holder_for_rocking);
       double angle = delta.count() * 0.0007 * graphics_info_t::idle_function_rock_freq_scale_factor;
@@ -141,12 +140,13 @@ glarea_tick_func(GtkWidget *widget,
       std::cout << "### in the glarea_tick_func() "
                 << graphics_info_t::do_tick_happy_face_residue_markers << "  "
                 << graphics_info_t::draw_count_for_happy_face_residue_markers << std::endl;
+
    if (graphics_info_t::do_tick_happy_face_residue_markers) {
       // this is a texture mesh, currently direct access to the draw flag.
       if (graphics_info_t::tmesh_for_happy_face_residues_markers.draw_this_mesh) {
          graphics_info_t::draw_count_for_happy_face_residue_markers += 1;
          graphics_info_t g;
-         if (graphics_info_t::draw_count_for_happy_face_residue_markers >= g.draw_count_max_for_happy_face_residue_markers) {
+         if (g.draw_count_for_happy_face_residue_markers >= g.draw_count_max_for_happy_face_residue_markers) {
             graphics_info_t::do_tick_happy_face_residue_markers = false;
             graphics_info_t::draw_count_for_happy_face_residue_markers = 0;
 
@@ -159,7 +159,10 @@ glarea_tick_func(GtkWidget *widget,
          glm::vec3 up_uv = g.get_screen_y_uv();
          unsigned int draw_count = g.draw_count_for_happy_face_residue_markers;
          unsigned int draw_count_max = g.draw_count_max_for_happy_face_residue_markers;
-         g.tmesh_for_happy_face_residues_markers.update_instancing_buffer_data_for_happy_faces(positions, draw_count, draw_count_max, up_uv);
+         g.tmesh_for_happy_face_residues_markers.update_instancing_buffer_data_for_happy_faces(positions,
+                                                                                               draw_count,
+                                                                                               draw_count_max,
+                                                                                               up_uv);
       }
    }
 

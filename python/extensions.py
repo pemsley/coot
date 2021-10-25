@@ -1399,8 +1399,9 @@ if True:
      def make_dot_surf_func(imol,text):
         # I think a single colour is better than colour by atom
         coot.set_dots_colour(imol, 0.5, 0.5, 0.5)
-        coot.dots_handle = dots(imol, text, text, 2, 1)
-        print("dots handle: ", dots_handle)
+        density = 1.0
+        dots_handle = coot.dots(imol, text, text, density, 1)
+        print("INFO::dots handle: ", dots_handle)
 
      coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
@@ -1411,11 +1412,11 @@ if True:
 
 
      def clear_dot_surf_func(imol,text):
-        try:
-          n = int(text)
-          coot.clear_dots(imol,n)
-        except:
-          print("BL WARNING:: dots handle number shall be an integer!!")
+         try:
+             n = int(text)
+             coot.clear_dots(imol,n)
+         except:
+             print("WARNING:: dots handle number should be an integer")
 
      coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
@@ -1424,10 +1425,11 @@ if True:
                 "Dots Handle Number:", "0", 
                 lambda imol, text: clear_dot_surf_func(imol, text)))
 
+     import coot_hole
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_representation,
          "HOLE...",
-         lambda func: test_hole.hole_ify())
+         lambda func: coot_hole.hole_ify())
 
      # Views submenu
      submenu = Gtk.Menu()

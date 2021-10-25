@@ -77,6 +77,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
                                         probe_path[i].first.z());
          }
 
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       meshed_generic_display_object &surface_obj = g.generic_display_objects[obj_surface];
 
       for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) {

@@ -65,6 +65,7 @@ namespace coot {
       void close_yourself() {
 	 points.clear();
 	 is_closed = 1;
+         imm.clear();
       }
       void pure_points(mmdb::Manager *mol); // don't surface mol, the surface points *are* the
 					   // (synthetic) atoms in mol.

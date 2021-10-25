@@ -19,7 +19,7 @@ void main() {
    gl_Position = mvp * vec4(position, 1.0);
 
    frag_pos = position;
-   normal_transfer = normalize(normal);
+   normal_transfer = normalize(normal); // * transpose(mat3(view_rotation)); (you'd think)
    colour_transfer = colour;
 }
 
@@ -145,6 +145,7 @@ void main() {
 
          // float shine_opacity = 1.0 - clamp(40.0 * specular_strength * spec, 0.0, 1.0);
          float shine_opacity = 1.0;
+         float front_opacity = 1.0; // sqrt(sqrt(gl_FragCoord.z)); // 20211014-PE looks terrible with solid surfaces
 
          vec4 colour_local = colour_transfer;
 
@@ -163,7 +164,8 @@ void main() {
          col_4 = col_3;
 
          // col_4.a = map_opacity; // * shine_opacity; used in making Rob figures
-         col_4.a = map_opacity * shine_opacity; // used in making Rob figures
+         // col_4.a = map_opacity * shine_opacity; // used in making Rob figures
+         col_4.a = map_opacity * front_opacity;
 
          if (false) {
             // float a = 1.0 + 2.0 * dp_view_reflect;

@@ -8911,7 +8911,9 @@ molecule_class_info_t::draw_dots(Shader *shader_p,
 
    if (! dots.empty())
       for (unsigned int i=0; i<dots.size(); i++)
-         dots[i].imm.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+         if (dots[i].is_open_p() == 1)
+            dots[i].imm.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position,
+                             background_colour, do_depth_fog);
 
 }
 
@@ -8923,6 +8925,7 @@ molecule_class_info_t::clear_dots(int dots_handle) {
    bool r = 0;
    if ((dots_handle >= 0) && (dots_handle < int(dots.size()))) {
       if (dots[dots_handle].is_open_p()) {
+         std::cout << "closing dots " << dots_handle << std::endl;
          dots[dots_handle].close_yourself();
          r = 1;
       }

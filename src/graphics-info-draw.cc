@@ -3680,7 +3680,7 @@ graphics_info_t::translate_in_screen_z(float step_size) {
    glm::vec3 delta_uv = normalize(delta);
 
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
-   glm::vec3 step = 0.005 * step_size * zoom * delta_uv;
+   glm::vec3 step = 0.005f * step_size * zoom * delta_uv;
 
    if (false) // debug
       std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)

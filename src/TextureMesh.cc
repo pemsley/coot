@@ -217,7 +217,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
 
    err = glGetError(); if (err) std::cout << "GL ERROR:: draw_atom_label() A0 " << err << std::endl;
 
-#if THIS_IS_HMT
+#ifdef THIS_IS_HMT
    std::map<GLchar, FT_character> &ft_characters = display_info_t::ft_characters;
 #else
    std::map<GLchar, FT_character> &ft_characters = graphics_info_t::ft_characters;
@@ -332,10 +332,10 @@ TextureMesh::draw(Shader *shader_p,
    const std::string &shader_name = shader_p->name;
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-   err = glGetError(); if (err) std::cout << "   error:: " << shader_p->name << " draw() post mvp uniform "
-                                          << err << std::endl;
-   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
+   err = glGetError();
+   if (err) std::cout << "   error:: " << shader_p->name << " draw() post mvp uniform " << err << std::endl;
 
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
    if (err) std::cout << "   error:: " << shader_p->name << " draw() post view rotation uniform "
                       << err << std::endl;
