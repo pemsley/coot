@@ -2276,8 +2276,6 @@ PyObject *get_symmetry_py(int imol) {
   this symmetry position.  */
 int undo_symmetry_view() {
 
-   std::cout << "Here we are in undo_symmetry_view(()"  << std::endl;
-
    int r=0;
 
    int imol = first_molecule_with_symmetry_displayed();

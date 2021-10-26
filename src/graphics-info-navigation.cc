@@ -1258,17 +1258,15 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
          }
       }
    }
-
+   coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
 
    if (r) {
-
-      coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
-      coot::util::quaternion q(glm_quat[3], glm_quat[0], glm_quat[1], glm_quat[2]);
-
-      clipper::Mat33<double> current_view_mat = q.matrix();
-      clipper::Mat33<double>     new_view_mat = best_rtop_symm.inverse().rot() * current_view_mat;
-      coot::util::quaternion vq(new_view_mat); // maybe not needed, but this works.
-      glm_quat = glm::quat(vq.q0, vq.q1, vq.q2, vq.q3);
+      clipper::Mat33<double> symm_mat = best_rtop_symm.inverse().rot();
+      glm::mat3 glm_symm_mat(symm_mat(0,0), symm_mat(0,1), symm_mat(0,2),
+                             symm_mat(1,0), symm_mat(1,1), symm_mat(1,2),
+                             symm_mat(2,0), symm_mat(2,1), symm_mat(2,2));
+      glm::quat glm_sym_mat_quat = glm::toQuat(glm_symm_mat);
+      glm_quat *= glm_sym_mat_quat;
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
       graphics_draw();
