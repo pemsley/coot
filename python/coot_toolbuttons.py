@@ -46,7 +46,7 @@ def register_coot_icons():
         name = os.path.basename(full_name)
         icon_info_ls.append([name, full_name])
     for stock_id, filename in icon_info_ls:
-        print("# register icon:", stock_id, filename)
+        # print("# register icon:", stock_id, filename)
         # only load image files when our stock_id is not present
         if ((stock_id not in stock_ids) and not ('phenixed' in filename)):
             if os.path.isfile(filename):
