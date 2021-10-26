@@ -1556,8 +1556,7 @@ TextureMesh graphics_info_t::tmesh_for_camera_facing_quad;
 Shader graphics_info_t::camera_facing_quad_shader;
 HUDTextureMesh graphics_info_t::tmesh_for_hud_image_testing;
 
-TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers =
-   TextureMesh("tmesh-for-happy-faces");
+TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers = TextureMesh("tmesh-for-happy-faces");
 Texture graphics_info_t::texture_for_happy_face_residue_marker;
 std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_positions;
 
