@@ -4819,8 +4819,8 @@ void set_secondary_structure_restraints_type(int itype) {
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 
-   // adjust the GUI (non-elegant logic :-))
-   //
+#if 0 // 20211027-PE these icons no longer exist
+
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string wa_name = "main_toolbar_restraints_alpha_label";
       std::string wb_name = "main_toolbar_restraints_beta_label";
@@ -4839,6 +4839,8 @@ void set_secondary_structure_restraints_type(int itype) {
 	 gtk_widget_show(w_b);
       }
    }
+#endif
+
 #endif // HAVE_GSL
 }
 

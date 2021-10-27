@@ -2172,8 +2172,11 @@ on_model_refine_dialog_refine_params_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = wrapped_create_refine_params_dialog();
-  gtk_widget_show(widget);
+
+   // 20211026-PE I don't think that this is used. Call back is in glade-callbacks-main-window.cc
+   // GtkWidget *widget = wrapped_create_refine_params_dialog();
+   // GtkWidget *widget = widget_from_builder("refinement_and_regularization_parameters_dialog");
+   // gtk_widget_show(widget);
 }
 
 
@@ -2538,12 +2541,11 @@ void
 on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback (GtkToggleButton *togglebutton,
 						   gpointer         user_data)
 {
-   GtkWidget *omega_checkbutton =
-      lookup_widget(GTK_WIDGET(togglebutton),
-		    "refine_params_use_peptide_omegas_checkbutton");
-   GtkWidget *phi_psi_restraints_vbox =
-      lookup_widget(GTK_WIDGET(togglebutton),
-		    "peptide_torsions_restraints_vbox");
+#if 0 // 20211026-PE  old
+   GtkWidget *omega_checkbutton = lookup_widget(GTK_WIDGET(togglebutton),
+                                                "refine_params_use_peptide_omegas_checkbutton");
+   GtkWidget *phi_psi_restraints_vbox = lookup_widget(GTK_WIDGET(togglebutton),
+                                                      "peptide_torsions_restraints_vbox");
 
    do_torsions_toggle(GTK_WIDGET(togglebutton));
 
@@ -2555,6 +2557,9 @@ on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback (GtkToggle
       gtk_widget_set_sensitive(phi_psi_restraints_vbox, FALSE);
       /* no rama restraints */
    }
+#endif
+
+   do_torsions_toggle(GTK_WIDGET(togglebutton));
 }
 
 extern "C" G_MODULE_EXPORT
@@ -11909,16 +11914,8 @@ on_refine_params_more_control_togglebutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-
    if (togglebutton) {
-      GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "refine_params_more_control_frame");
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-         gtk_widget_show(frame);
-         set_refine_params_dialog_more_control_frame_is_active(1);
-      } else {
-         gtk_widget_hide(frame);
-         set_refine_params_dialog_more_control_frame_is_active(0);
-      }
+      GtkWidget *frame = widget_from_builder("refine_params_more_control_frame");
    }
 }
 

@@ -46,6 +46,7 @@
 #include "read-phs.h"
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
+#include "widget-from-builder.hh"
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
@@ -54,16 +55,137 @@
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
+#include <vector>
+#include "utils/coot-utils.hh"
+#include "graphics-info.h"
+
+
+// Let's put the new refinement and regularization control tools together here
+// (although not strictly main window)
+
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_refine_control_button_clicked_gtkbuilder_callback
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
+on_model_toolbar_refine_control_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                   gpointer         user_data)
 {
-  GtkWidget *widget = wrapped_create_refine_params_dialog();
-  gtk_widget_show(widget);
+   // GtkWidget *widget = wrapped_create_refine_params_dialog();
+   GtkWidget *dialog = widget_from_builder("refinement_and_regularization_parameters_dialog");
+
+   // 20211027-PE this is how the old dialog was filled.
+   // set_refine_params_toggle_buttons(dialog);
+   // set_refine_params_comboboxes(dialog);
+
+   // but let's do it in place here now. (There was a lot of widget frobbery that is not
+   // needed in the new dialog).
+
+   GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
+   std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
+   graphics_info_t g;
+   float w = g.geometry_vs_map_weight;
+   for (auto m : mv) {
+      std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(overall_weight_combobox), t.c_str());
+   }
+   gtk_combo_box_set_active(GTK_COMBO_BOX(overall_weight_combobox), 4);
+
+   GtkWidget *use_torsions_checkbutton = widget_from_builder("refine_params_use_torsions_checkbutton");
+   GtkWidget *use_planepep_checkbutton = widget_from_builder("refine_params_use_planar_peptides_checkbutton");
+   GtkWidget *use_transpep_checkbutton = widget_from_builder("refine_params_use_trans_peptide_restraints_checkbutton");
+   GtkWidget *use_rama_restr_checkbutton = widget_from_builder("refine_params_use_ramachandran_goodness_torsions_checkbutton");
+
+   std::cout << "debug:: do_torsions " << g.do_torsion_restraints << std::endl;
+   std::cout << "debug:: do_trans_peptide_restraints " << g.do_trans_peptide_restraints << std::endl;
+   std::cout << "debug:: planar peptides " << planar_peptide_restraints_state() << std::endl;
+
+   if (g.do_torsion_restraints)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), TRUE);
+   else
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), FALSE);
+
+   if (g.do_trans_peptide_restraints)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), TRUE);
+   else
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), FALSE);
+
+   if (planar_peptide_restraints_state())
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), TRUE);
+   else
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), FALSE);
+
+   if (g.do_rama_restraints)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), TRUE);
+   else
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), FALSE);
+
+  gtk_widget_show(dialog);
 }
+
+
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_refinement_and_regularization_parameters_dialog_close_gtkbuilder_callback(GtkDialog *dialog,
+                                                                              gpointer   user_data) {
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_refinement_and_regularization_parameters_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                                                gint             response_id,
+                                                                                gpointer         user_data) {
+
+   std::cout << "in on_refinement_and_regularization_parameters_dialog_response_gtkbuilder_callback() got response_id " << response_id << std::endl;
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_refine_params_torsion_weight_combobox_changed_gtkbuilder_callback(GtkComboBox     *combobox,
+//                                                                      gpointer         user_data) {
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_refine_params_rama_restraints_combobox_changed_gtkbuilder_callback(GtkComboBox     *combobox,
+//                                                                       gpointer         user_data) {
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_sec_str_rest_strand_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                     gpointer         user_data) {
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_sec_str_rest_helix_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                    gpointer         user_data) {
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_sec_str_rest_no_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                 gpointer         user_data) {
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                       gpointer         user_data) {
+// }
+
 
 
 extern "C" G_MODULE_EXPORT
@@ -96,11 +218,11 @@ on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
-  if (active)
-    do_regularize(1);
-  else
-    do_regularize(0);		/* unclick button */
+   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   if (active)
+      do_regularize(1);
+   else
+      do_regularize(0);		/* unclick button */
 }
 
 extern "C" G_MODULE_EXPORT
@@ -109,10 +231,9 @@ on_model_toolbar_fixed_atoms_togglebutton_toggled_gtkbuilder_callback
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_create_fixed_atom_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_fixed_atom_dialog();
+   gtk_widget_show(w);
 }
-
 
 
 extern "C" G_MODULE_EXPORT
@@ -121,13 +242,13 @@ on_model_toolbar_rigid_body_fit_togglebutton_toggled_gtkbuilder_callback
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
-  if (active) {
-    printf("Rigid Body:\n");
-    do_rigid_body_refine(1);
-  } else {
-     do_rigid_body_refine(0);
-  }
+   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   if (active) {
+      printf("Rigid Body:\n");
+      do_rigid_body_refine(1);
+   } else {
+      do_rigid_body_refine(0);
+   }
 }
 
 
@@ -139,11 +260,10 @@ on_model_toolbar_rot_trans_togglebutton_toggled_gtkbuilder_callback
 {
    gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
    if (active) {
-    do_rot_trans_setup(1);
-  } else {
-    do_rot_trans_setup(0);
-  }
-
+      do_rot_trans_setup(1);
+   } else {
+      do_rot_trans_setup(0);
+   }
 }
 
 extern "C" G_MODULE_EXPORT
@@ -362,3 +482,55 @@ on_model_toolbar_refmac_button_clicked_gtkbuilder_callback (GtkToolButton   *too
   wrapped_create_simple_refmac_dialog();
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_refine_params_torsion_weight_combobox_changed_gtkbuilder_callback(GtkComboBox     *combobox,
+                                                                     gpointer         user_data) {
+
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_torsion_weight_from_text(active_item_idx, t);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_refine_params_rama_restraints_combobox_changed_gtkbuilder_callback (GtkComboBox     *combobox,
+                                                                       gpointer         user_data) {
+
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
+}
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_sec_str_rest_strand_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//n                                                                    gpointer         user_data) {
+//  if (gtk_toggle_button_get_active(togglebutton))
+//    set_secondary_structure_restraints_type(2);
+//}
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_sec_str_rest_helix_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                    gpointer         user_data) {
+//   if (gtk_toggle_button_get_active(togglebutton))
+//     set_secondary_structure_restraints_type(1);
+// }
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_sec_str_rest_no_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                 gpointer         user_data) {
+//   if (gtk_toggle_button_get_active(togglebutton))
+//     set_secondary_structure_restraints_type(0);
+// }
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+//                                                                       gpointer         user_data) {
+//    do_torsions_toggle(GTK_WIDGET(togglebutton));
+// }
+

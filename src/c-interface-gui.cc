@@ -2207,26 +2207,16 @@ void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
 
 
 
-// Set the internal state of the torsion restraints and de-sensitize
-// the peptide restraints if the torsion toggle button goes off.
-//
+// Set the internal state of the torsion restraints
+// (hang-over from old interface)
 void do_torsions_toggle(GtkWidget *togglebutton) {
 
    graphics_info_t g;
-   GtkWidget *peptide_checkbutton =
-      lookup_widget(togglebutton,
-		    "refine_params_use_peptide_torsions_checkbutton");
-
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
       g.do_torsion_restraints = 1;
    else
       g.do_torsion_restraints = 0;
 
-   if (g.do_torsion_restraints == 0) {
-      gtk_widget_set_sensitive(peptide_checkbutton, FALSE);
-   } else {
-      gtk_widget_set_sensitive(peptide_checkbutton, TRUE);
-   }
 }
 
 GtkWidget *wrapped_create_refine_params_dialog() {

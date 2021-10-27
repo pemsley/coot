@@ -9807,6 +9807,11 @@ on_model_toolbar_refine_control_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
+
+  printf("------------------------------------------------ on_model_toolbar_refine_control_button_clicked ---------------------------------\n");
+  printf("------------------------------------------------ on_model_toolbar_refine_control_button_clicked ---------------------------------\n");
+  printf("------------------------------------------------ on_model_toolbar_refine_control_button_clicked ---------------------------------\n");
+
   GtkWidget *widget = wrapped_create_refine_params_dialog();
   gtk_widget_show(widget);
 }

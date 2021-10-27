@@ -13504,11 +13504,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
       <placeholder/>
     </child>
   </object>
-  <object class="GtkImage" id="image33">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
-  </object>
   <object class="GtkDialog" id="interesting_waters_by_difference_map_check_dialog">
     <property name="height_request">200</property>
     <property name="can_focus">False</property>
@@ -20485,500 +20480,493 @@ just the cell and symmetry)
       <placeholder/>
     </child>
   </object>
-  <object class="GtkDialog" id="refine_params_dialog">
+  <object class="GtkDialog" id="refinement_and_regularization_parameters_dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Refinement and Regularization Parameters</property>
+    <property name="title" translatable="yes">(New) Refinement and Regularization Parameters</property>
     <property name="type_hint">dialog</property>
-    <signal name="destroy" handler="on_refine_params_dialog_destroy_gtkbuilder_callback" swapped="no"/>
+    <signal name="close" handler="on_refinement_and_regularization_parameters_dialog_close_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_refinement_and_regularization_parameters_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox8">
-        <property name="visible">True</property>
+      <object class="GtkBox">
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area8">
-            <property name="visible">True</property>
+          <object class="GtkButtonBox">
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="refine_params_dialog_ok_button">
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes"> Close </property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">False</property>
-                <signal name="clicked" handler="on_refine_params_dialog_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkAlignment" id="alignment44">
+                  <object class="GtkAlignment">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
+                    <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkBox" id="hbox195">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
+                        <property name="margin_start">8</property>
+                        <property name="margin_end">8</property>
+                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkImage" id="image1513">
+                          <object class="GtkCheckButton" id="refine_params_use_torsions_checkbutton">
+                            <property name="label" translatable="yes">Use Torsion Restraints</property>
+                            <property name="name">refine_params_use_torsions_checkbutton</property>
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-ok</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">False</property>
+                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label369">
+                          <object class="GtkCheckButton" id="refine_params_use_planar_peptides_checkbutton">
+                            <property name="label" translatable="yes">Use Planar Peptide Restraints</property>
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">OK</property>
-                            <property name="use_underline">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_refine_params_use_planar_peptides_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">False</property>
+                            <property name="fill">True</property>
                             <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="refine_params_use_trans_peptide_restraints_checkbutton">
+                            <property name="label" translatable="yes">Use Trans-peptide Restraints</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_refine_params_use_trans_peptide_restraints_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
+                            <property name="label" translatable="yes">Use Ramachandran Restraints</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                       </object>
                     </child>
                   </object>
                 </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes"> Restraints </property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="margin_start">8</property>
+                        <property name="margin_end">8</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkRadioButton" id="sec_str_rest_no_rest_radiobutton">
+                            <property name="label" translatable="yes">No Secondary Structure Restraints</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_sec_str_rest_no_rest_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="sec_str_rest_helix_rest_radiobutton">
+                            <property name="label" translatable="yes">Alpha Helix Restraints</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">sec_str_rest_no_rest_radiobutton</property>
+                            <signal name="toggled" handler="on_sec_str_rest_helix_rest_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="sec_str_rest_strand_rest_radiobutton">
+                            <property name="label" translatable="yes">Beta Strand Restraints</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">sec_str_rest_no_rest_radiobutton</property>
+                            <signal name="toggled" handler="on_sec_str_rest_strand_rest_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes"> Secondary Structure Restraints </property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="refinement_and_regularization_parameters_weight_matrix_frame">
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes"> Weight Matrix </property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="refine_params_more_control_hbox">
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkToggleButton" id="refine_params_more_control_togglebutton">
+                    <property name="label" translatable="yes"> More Control...</property>
+                    <property name="name">refine_params_more_control_togglebutton</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="toggled" handler="on_refine_params_more_control_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="padding">3</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">4</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkGrid">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="margin_bottom">2</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Overall Weight</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Geman-McClure alpha</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Lennard-Jones epsilon</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Rama Restraints Weight </property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Torsion Weight</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="refine_params_overall_weight_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <signal name="changed" handler="on_refine_params_overall_weight_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="refine_params_geman_mcclure_alpha_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="active">2</property>
+                            <items>
+                              <item translatable="yes">0.001</item>
+                              <item translatable="yes">0.003</item>
+                              <item translatable="yes">0.01</item>
+                              <item translatable="yes">0.03</item>
+                              <item translatable="yes">0.1</item>
+                              <item translatable="yes">0.3</item>
+                              <item translatable="yes">1.0</item>
+                              <item translatable="yes">3.0</item>
+                              <item translatable="yes">1.0</item>
+                            </items>
+                            <signal name="changed" handler="on_refine_params_geman_mcclure_alpha_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="refine_params_lennard_jones_epsilon_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="active">3</property>
+                            <items>
+                              <item translatable="yes">0.1</item>
+                              <item translatable="yes">0.2</item>
+                              <item translatable="yes">0.5</item>
+                              <item translatable="yes">1.0</item>
+                              <item translatable="yes">2.0</item>
+                              <item translatable="yes">5.0</item>
+                              <item translatable="yes">10.0</item>
+                            </items>
+                            <signal name="changed" handler="on_refine_params_lennard_jones_epsilon_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="refine_params_rama_restraints_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="active">3</property>
+                            <items>
+                              <item translatable="yes">0.1</item>
+                              <item translatable="yes">0.2</item>
+                              <item translatable="yes">0.5</item>
+                              <item translatable="yes">1.0</item>
+                              <item translatable="yes">2.0</item>
+                              <item translatable="yes">5.0</item>
+                              <item translatable="yes">10.0</item>
+                              <item translatable="yes">20.0</item>
+                              <item translatable="yes">50.0</item>
+                              <item translatable="yes">100.0</item>
+                            </items>
+                            <signal name="changed" handler="on_refine_params_rama_restraints_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="refine_params_torsion_weight_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="active">3</property>
+                            <items>
+                              <item translatable="yes">0.1</item>
+                              <item translatable="yes">0.2</item>
+                              <item translatable="yes">0.5</item>
+                              <item translatable="yes">1.0</item>
+                              <item translatable="yes">2.0</item>
+                              <item translatable="yes">5.0</item>
+                              <item translatable="yes">10.0</item>
+                              <item translatable="yes">20.0</item>
+                              <item translatable="yes">50.0</item>
+                              <item translatable="yes">100.0</item>
+                            </items>
+                            <signal name="changed" handler="on_refine_params_torsion_weight_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">4</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame42">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="border_width">2</property>
-            <property name="label_xalign">0</property>
-            <child>
-              <object class="GtkBox" id="vbox51">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <object class="GtkBox" id="vbox52">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">5</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkLabel" id="label13">
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">
-  LINK TORSION RESTRAINTS 
-  CURRENTLY DON'T WORK!   
-</property>
-                        <property name="justify">center</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label79">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">For Regularization and Refinement:</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">4</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="vbox60">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkCheckButton" id="refine_params_use_torsions_checkbutton">
-                            <property name="label" translatable="yes">Use Torsion Restraints</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="draw_indicator">True</property>
-                            <signal name="toggled" handler="on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkBox" id="phi_psi_restraints_vbox">
-                            <property name="can_focus">False</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkBox" id="hbox140">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkLabel" id="label14">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">    </property>
-                                    <property name="justify">center</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkCheckButton" id="refine_params_use_peptide_torsions_checkbutton">
-                                    <property name="label" translatable="yes">Use Phi/Psi Restraints</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_refine_params_use_peptide_torsions_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox" id="peptide_torsions_restraints_vbox">
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="can_focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkBox" id="hbox137">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <child>
-                                      <object class="GtkLabel" id="label276">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">         </property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkRadioButton" id="refine_params_use_helix_peptide_torsions_radiobutton">
-                                        <property name="label" translatable="yes">Use Alpha Helix Restraints</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
-                                        <signal name="toggled" handler="on_refine_params_use_helix_peptide_torsions_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox" id="hbox138">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <child>
-                                      <object class="GtkLabel" id="label277">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">         </property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkRadioButton" id="refine_params_use_beta_strand_peptide_torsions_radiobutton">
-                                        <property name="label" translatable="yes">Use Beta Strand Restraints</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">refine_params_use_helix_peptide_torsions_radiobutton</property>
-                                        <signal name="toggled" handler="on_refine_params_use_beta_strand_peptide_torsions_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox" id="hbox139">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <child>
-                                      <object class="GtkLabel" id="label278">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">         </property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkRadioButton" id="refine_params_use_ramachandran_goodness_torsions_radiobutton">
-                                        <property name="label" translatable="yes">Restrain to Ramachandran Goodness</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">refine_params_use_helix_peptide_torsions_radiobutton</property>
-                                        <signal name="toggled" handler="on_refine_params_use_ramachandran_goodness_torsions_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <object class="GtkBox" id="hbox141">
-                            <property name="can_focus">False</property>
-                            <child>
-                              <object class="GtkLabel" id="label15">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">    </property>
-                                <property name="justify">center</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="refine_params_use_peptide_omegas_checkbutton">
-                                <property name="label" translatable="yes">Use Omega Restraints</property>
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_underline">True</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="on_refine_params_use_peptide_omegas_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="refine_params_use_initial_pos_checkbutton">
-                            <property name="label" translatable="yes">Use Initial Position Restraints</property>
-                            <property name="sensitive">False</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">False</property>
-                            <property name="border_width">2</property>
-                            <property name="use_underline">True</property>
-                            <property name="draw_indicator">True</property>
-                            <signal name="toggled" handler="on_refine_params_use_initial_pos_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">5</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFrame" id="frame174">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label_xalign">0</property>
-                            <child>
-                              <object class="GtkBox" id="sec_struct_restraints_vbox">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkRadioButton" id="sec_str_rest_no_rest_radiobutton">
-                                    <property name="label" translatable="yes">No Secondary Structure Restraints</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_sec_str_rest_no_rest_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkRadioButton" id="sec_str_rest_helix_rest_radiobutton">
-                                    <property name="label" translatable="yes">Alpha Helix Restraints</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                    <property name="group">sec_str_rest_no_rest_radiobutton</property>
-                                    <signal name="toggled" handler="on_sec_str_rest_helix_rest_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkRadioButton" id="sec_str_rest_strand_rest_radiobutton">
-                                    <property name="label" translatable="yes">Beta Strand Restraints</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                    <property name="group">sec_str_rest_no_rest_radiobutton</property>
-                                    <signal name="toggled" handler="on_sec_str_rest_strand_rest_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">6</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">refine_params_dialog_ok_button</action-widget>
+      <action-widget response="-7">button1</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>
