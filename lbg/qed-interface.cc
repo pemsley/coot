@@ -59,9 +59,9 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
 
          silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
       }
+      Py_XDECREF(pModule);
    }
    Py_DECREF(pName);
-   Py_XDECREF(pModule);
 }
 
 // needs a properly initialized (say, via rdkit_mol_sanitize()) molecule.
