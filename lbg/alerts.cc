@@ -26,7 +26,8 @@ void
 lbg_info_t::setup_user_defined_alert_smarts() {
 
    PyObject *m = PyImport_AddModule("__main__");
-   user_defined_alerts_smarts_py = PyObject_GetAttrString(m,"user_defined_alert_smarts");
+   if (m)
+      user_defined_alerts_smarts_py = PyObject_GetAttrString(m,"user_defined_alert_smarts");
 }
 
 
