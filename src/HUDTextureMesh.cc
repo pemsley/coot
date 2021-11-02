@@ -17,6 +17,8 @@ HUDTextureMesh::init() {
    is_instanced = false;
    window_resize_scales_correction_set = false;
    window_resize_position_correction_set = false;
+   window_resize_position_correction = glm::vec2(0,0);
+   window_resize_scales_correction   = glm::vec2(1,1);
 }
 
 
@@ -180,7 +182,7 @@ HUDTextureMesh::update_instancing_buffer_data(const std::vector<glm::vec2> &new_
 
 
 void
-HUDTextureMesh::draw(Shader *shader_p) {
+HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position_origin) {
 
    if (! draw_this_mesh) return;
 
@@ -207,10 +209,29 @@ HUDTextureMesh::draw(Shader *shader_p) {
       std::cout << "HUDTextureMesh::draw() " << name << " sending scales "   << glm::to_string(scales) << std::endl;
    }
 
+   bool rel_top   = false;
+   bool rel_right = false;
+   if (screen_position_origin == TOP_RIGHT) {
+      rel_top   = true;
+      rel_right = true;
+   }
+   if (screen_position_origin == BOTTOM_RIGHT) {
+      rel_right = true;
+   }
+   if (screen_position_origin == TOP_LEFT) {
+      rel_top   = true;
+   }
+   shader_p->set_bool_for_uniform("relative_to_top",   rel_top);
+   shader_p->set_bool_for_uniform("relative_to_right", rel_right);
+
    glm::vec4 text_colour(0.8, 0.7, 0.5, 1.0);                 // what's this used for?
    shader_p->set_vec2_for_uniform("position", position);
    shader_p->set_vec2_for_uniform("scales", scales);
    shader_p->set_vec4_for_uniform("text_colour", text_colour);
+
+   shader_p->set_int_for_uniform("image_texture", 0); // sampler2D - we don't *need* to set this uniform for the sampler
+                                                      // (as there are only 1 sampler2Ds) but it's good practice to do
+                                                      // so, I suppose
 
    if (window_resize_position_correction_set)
       shader_p->set_vec2_for_uniform("window_resize_position_correction", window_resize_position_correction);
@@ -219,7 +240,7 @@ HUDTextureMesh::draw(Shader *shader_p) {
 
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
    GLenum err = glGetError();
-   if (err) std::cout << "error HUDMesh::draw() glDrawElementsInstanced()"
+   if (err) std::cout << "GL ERROR:: HUDMesh::draw() glDrawElementsInstanced()"
                       << " of HUDMesh \"" << name << "\""
                       << " with shader" << shader_p->name
                       << std::endl;

@@ -1890,7 +1890,6 @@ coot::protein_geometry::planar_peptide_restraint_state() const {
 	 }
       }
    }
-   std::cout << "in planar_peptide_restraint_state() return ifound " << ifound << std::endl;
    return ifound;
 }
 

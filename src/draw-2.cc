@@ -271,8 +271,6 @@ on_glarea_realize(GtkGLArea *glarea) {
          err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
                                                 << err << std::endl;
 
-         // do these go here or in the draw() hot path?
-         //
          graphics_info_t::shader_for_screen.Use();
          err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
@@ -281,7 +279,7 @@ on_glarea_realize(GtkGLArea *glarea) {
          err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
 
          graphics_info_t::shader_for_blur.Use();
-         err = glGetError(); if (err) std::cout << "on_glarea_realize() blur shader-framebuffer B err " << err << std::endl;
+         err = glGetError(); if (err) std::cout << "on_glarea_realize() blur B shader-framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_blur.set_int_for_uniform("screenTexture", 0);
          err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
@@ -292,6 +290,11 @@ on_glarea_realize(GtkGLArea *glarea) {
       setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
       std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_atom_labels.name << std::endl;
       setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
+
+      g.tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("HUD tmesh for refinement dialog arrow");
+      g.tmesh_for_hud_refinement_dialog_arrow.setup_quad();
+      g.texture_for_hud_refinement_dialog_arrow             = Texture("refinement-dialog-arrrow.png");
+      g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png");
 
       gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
@@ -443,6 +446,18 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
+   auto check_if_refinement_dialog_arrow_tab_was_clicked = [] () {
+                                                              graphics_info_t g;
+                                                              gboolean handled = FALSE;
+                                                              if (g.hud_refinement_dialog_arrow_is_moused_over) {
+                                                                 g.show_refinement_and_regularization_parameters_dialog();
+                                                                 g.hud_refinement_dialog_arrow_is_moused_over = false; // job done
+                                                                 handled = TRUE;
+                                                                 g.graphics_draw(); // unhighlight the arrow
+                                                              }
+                                                              return gboolean(handled);
+                                                           };
+
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);
    g.SetMouseClicked(event->x, event->y);
@@ -456,6 +471,7 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    bool was_a_double_click = false;
    if (event->type == GDK_2BUTTON_PRESS)
       was_a_double_click = true;
+
 
    GdkModifierType state;
 
@@ -471,6 +487,9 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
       // first thing to test is the HUD bar
       handled = g.check_if_hud_bar_clicked(event->x, event->y);
+
+      if (! handled)
+         handled = check_if_refinement_dialog_arrow_tab_was_clicked();
 
       if (! handled) {
 
@@ -692,6 +711,30 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                                }
                             };
 
+   auto check_for_hud_refinemement_dialog_arrow_mouse_over = [widget] (double mouse_x, double mouse_y) {
+                                                                 graphics_info_t g;
+                                                                 // set hud_refinement_dialog_arrow_is_moused_over as needed.
+                                                                 g.hud_refinement_dialog_arrow_is_moused_over = false; // initially
+                                                                 if (g.showing_intermediate_atoms_from_refinement()) {
+                                                                    GtkAllocation allocation;
+                                                                    gtk_widget_get_allocation(widget, &allocation);
+                                                                    int w = allocation.width;
+                                                                    int h = allocation.height;
+                                                                    float xx =    2.0 * mouse_x/static_cast<float>(w) - 1.0f;
+                                                                    float yy = - (2.0 * mouse_y/static_cast<float>(h) - 1.0f);
+                                                                    // std::cout << "xx " << xx << " yy " << yy << std::endl;
+                                                                    float arrow_size = 0.04;
+                                                                    if (xx > (1.0 - 2.0 * arrow_size)) {
+                                                                       if (yy > (0.9-arrow_size)) {
+                                                                          if (yy < (0.9+arrow_size)) {
+                                                                             g.hud_refinement_dialog_arrow_is_moused_over = true;
+                                                                          }
+                                                                       }
+                                                                    }
+                                                                 }
+                                                             };
+
+
    graphics_info_t g;
 
    // split this function up before it gets too big.
@@ -711,6 +754,8 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.mouse_current_y = event->y;
 
    check_for_hud_bar_tooltip(event->x, event->y);
+
+   check_for_hud_refinemement_dialog_arrow_mouse_over(event->x, event->y);
 
    // if not right mouse pressed:
    if (event->state & GDK_BUTTON3_MASK) {

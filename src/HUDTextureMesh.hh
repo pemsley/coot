@@ -45,6 +45,8 @@ class HUDTextureMesh {
 public:
    HUDTextureMesh() { init(); }
    explicit HUDTextureMesh(const std::string &n) : name(n) { init(); }
+   enum screen_position_origins_t { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
+
    void setup_quad(); // camera-facing, of course
    // for the tooltip background, the position is dynamic (depending on the mouse position)
    // but the scale is fixed - we shouldn't be setting the scale of the tooltop background
@@ -64,7 +66,7 @@ public:
       window_resize_position_correction_set = true;
    }
    void update_instancing_buffer_data(const std::vector<glm::vec2> &new_positions); // oh, we want ramaa-data for mouse-over?
-   void draw(Shader *shader_p);
+   void draw(Shader *shader_p, screen_position_origins_t=BOTTOM_LEFT);
    void draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p,
                    const std::map<GLchar, FT_character> &ft_characters);
    void draw_label(const std::string &label, glm::vec4 &text_colour, Shader *shader_p,

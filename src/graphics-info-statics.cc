@@ -1549,7 +1549,6 @@ LinesMesh graphics_info_t::lines_mesh_for_hud_lines;
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
 HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
-
 // these 3 for testing images (20210831-PE may be usefule for mip mappsing testing later)
 Texture graphics_info_t::texture_for_camera_facing_quad;
 TextureMesh graphics_info_t::tmesh_for_camera_facing_quad;
@@ -1560,8 +1559,12 @@ TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers = TextureMesh
 Texture graphics_info_t::texture_for_happy_face_residue_marker;
 std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_positions;
 
-HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label =
-   HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");
+HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label = HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");
+
+HUDTextureMesh graphics_info_t::tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("tmesh-for-hud-refinement-dialog-arrow");
+Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow;
+Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow_highlighted;
+bool graphics_info_t::hud_refinement_dialog_arrow_is_moused_over = false;
 
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 

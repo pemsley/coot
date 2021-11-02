@@ -2182,6 +2182,33 @@ on_model_refine_dialog_refine_params_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
+on_refinement_and_regularization_vbox_close_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                               gpointer         user_data) {
+
+
+   // we need this function for "older" versions of Gtk.
+   // //
+   // auto gtk_overlay_remove_overlay = [] (GtkContainer *c, GtkWidget *w) {
+   //                                      GtkWidget *designated_child = gtk_bin_get_child(GTK_BIN(c));
+   //                                      if (w == designated_child) {
+   //                                         // GTK_CONTAINER_CLASS(gtk_overlay_parent_class)->remove(c, w);
+   //                                      }
+   //                                   };
+
+   GtkWidget *dialog = widget_from_builder("refinement_and_regularization_parameters_dialog");
+   GtkWidget *vbox_container = widget_from_builder("refinement_and_regularization_vbox_container");
+   GtkWidget *vbox_outer     = widget_from_builder("refinement_and_regularization_vbox_outer"); // inside vbox_container
+   GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
+
+   gtk_container_remove(GTK_CONTAINER(overlay), vbox_outer);
+   gtk_container_add(GTK_CONTAINER(vbox_container), vbox_outer); // so it's there for next time.
+                                                                 // see graphics_info_t::show_refinement_and_regularization_parameters_dialog()
+   gtk_widget_hide(vbox_outer);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_refine_params_dialog_ok_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)

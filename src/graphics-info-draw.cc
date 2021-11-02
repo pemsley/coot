@@ -1558,7 +1558,7 @@ graphics_info_t::draw_happy_face_residue_markers() {
    // on the screen).
 
    if (tmesh_for_happy_face_residues_markers.draw_this_mesh) {
-      
+
       if (tmesh_for_happy_face_residues_markers.have_instances()) {
 
          // the update of the instanced positions is done in the tick function
@@ -1622,6 +1622,75 @@ graphics_info_t::draw_texture_meshes() {
       }
    }
 }
+
+void
+graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
+
+   if (showing_intermediate_atoms_from_refinement()) {
+      // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
+      // can be shown (as an overlay)
+
+      auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
+                                              const glm::vec2 &offset_natural,
+                                              float scale_x_natural, float scale_y_natural,
+                                              int glarea_width, int glarea_height) {
+
+                                             glm::vec2 offset_rel = glm::vec2(0,0);
+
+                                             // we don't need to be clever now that the shader is passed
+                                             // the relative origin.
+                                             // So this code may not be needed.
+
+                                             float w = static_cast<float>(glarea_width);
+                                             float h = static_cast<float>(glarea_height);
+
+                                             float wr = static_cast<float>(900)/static_cast<float>(glarea_width);
+                                             float hr = static_cast<float>(900)/static_cast<float>(glarea_height);
+
+                                             if (spo == HUDTextureMesh::TOP_LEFT)
+                                                offset_rel = glm::vec2(-1.0 + offset_natural.x/wr, 1.0 + offset_natural.y/hr) - offset_natural;
+                                             if (spo == HUDTextureMesh::BOTTOM_LEFT)
+                                                offset_rel = glm::vec2(wr - 1.0, hr - 1.0) * offset_natural;
+                                             if (spo == HUDTextureMesh::BOTTOM_RIGHT)
+                                                offset_rel = glm::vec2(1.0 + offset_natural.x/wr, -1.0 + offset_natural.y/hr);
+
+                                             if (spo == HUDTextureMesh::TOP_RIGHT) {
+                                             }
+
+                                             glm::vec2 scales_new(scale_x_natural * wr, scale_y_natural * hr);
+
+                                             return std::pair<glm::vec2, glm::vec2>(offset_rel, scales_new);
+                                          };
+
+      glDisable(GL_DEPTH_TEST);
+      if (hud_refinement_dialog_arrow_is_moused_over) {
+         texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
+      } else {
+         texture_for_hud_refinement_dialog_arrow.Bind(0);
+      }
+
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      float wf = static_cast<float>(w);
+
+      tmesh_for_hud_refinement_dialog_arrow.set_scales(glm::vec2(0.04, 0.04));
+      glm::vec2 position_natural(-0.04f, -0.1f); // relative to top right
+      tmesh_for_hud_refinement_dialog_arrow.set_position(position_natural);
+      auto p_s = get_munged_offset_and_scale(HUDTextureMesh::TOP_RIGHT, position_natural, 1.0, 1.0, w, h);
+      glm::vec2 munged_position_offset = p_s.first;
+
+      glm::vec2 munged_scales = p_s.second;
+      auto scaled_munged_pos_cor = munged_position_offset;
+      tmesh_for_hud_refinement_dialog_arrow.set_window_resize_position_correction(scaled_munged_pos_cor);
+      tmesh_for_hud_refinement_dialog_arrow.set_window_resize_scales_correction(munged_scales);
+
+      Shader &shader = shader_for_hud_image_texture;
+      tmesh_for_hud_refinement_dialog_arrow.draw(&shader, HUDTextureMesh::TOP_RIGHT);
+   }
+}
+
 
 
 void
@@ -3317,6 +3386,9 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                           draw_hud_buttons();
 
                           draw_hud_fps();
+
+                          draw_hud_refinement_dialog_arrow_tab();
+
                    };
 
    auto render_3d_scene = [] (GtkGLArea *gl_area) {
@@ -4762,6 +4834,37 @@ graphics_info_t::fullscreen() {
 
    if (GTK_IS_WINDOW(window)) {
       gtk_window_fullscreen(GTK_WINDOW(window));
+
+      GtkWidget *vbox       = widget_from_builder("main_window_vbox");
+      GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
+      GtkWidget *menu_bar   = widget_from_builder("main_window_menubar");
+
+      gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
+      // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
+      gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
+      gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
+
+      if (false) {
+         gtk_container_remove(GTK_CONTAINER(vbox), tool_bar);
+         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), tool_bar);
+         gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), tool_bar, TRUE);
+         gtk_widget_set_halign(tool_bar, GTK_ALIGN_START);
+         gtk_widget_set_valign(tool_bar, GTK_ALIGN_START);
+      }
+
+      if (false) {
+         gtk_container_remove(GTK_CONTAINER(vbox), menu_bar);
+         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), menu_bar);
+         gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), menu_bar, TRUE);
+         gtk_widget_set_halign(menu_bar, GTK_ALIGN_START);
+         gtk_widget_set_valign(menu_bar, GTK_ALIGN_START);
+      }
+
+      gtk_widget_hide(menu_bar);
+      gtk_widget_hide(tool_bar);
    }
 }
 
@@ -4771,5 +4874,26 @@ graphics_info_t::unfullscreen() {
    GtkWidget *window = widget_from_builder("main_window");
    if (GTK_IS_WINDOW(window)) {
       gtk_window_unfullscreen(GTK_WINDOW(window));
+
+      // unoverlay and reparent here.
+
+      GtkWidget *vbox       = widget_from_builder("main_window_vbox");
+      GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
+      GtkWidget *menu_bar   = widget_from_builder("main_window_menubar");
+#if 0
+      gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), tool_bar);
+      gtk_container_add(GTK_CONTAINER(vbox), tool_bar);
+
+      gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), status_bar);
+      gtk_container_add(GTK_CONTAINER(vbox), status_bar);
+#endif
+
+      std::cout << "show widget " << menu_bar << std::endl;
+      std::cout << "show widget " << tool_bar << std::endl;
+
+      gtk_widget_show(menu_bar);
+      gtk_widget_show(tool_bar);
    }
 }

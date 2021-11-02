@@ -33,3 +33,16 @@ graphics_info_t::shiftfield_xyz_factor_refinement(int imol) {
 }
 
 
+//static
+bool
+graphics_info_t::showing_intermediate_atoms_from_refinement() {
+
+   if (use_graphics_interface_flag) {
+      if (moving_atoms_asc) {
+         if (last_restraints) {
+            return true;
+         }
+      }
+   }
+   return false;
+}

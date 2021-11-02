@@ -12,8 +12,8 @@ layout (location = 1) in vec2 texCoord;
 
 out vec2 texCoord_transfer;
 
-// This shader is for textures - there is no instancing
-// 20210908-PE uses the same window resize scale and offset correct as is in rama-plot-phi-psi-markers.shader
+// This shader is for textures - there is no instancing.
+// 20210908-PE uses the same window resize scale and offset correction as is in rama-plot-phi-psi-markers.shader
 
 uniform vec2 position;
 uniform vec2 scales;
@@ -21,23 +21,22 @@ uniform vec2 scales;
 uniform vec2 window_resize_position_correction;
 uniform vec2 window_resize_scales_correction;
 
+uniform bool relative_to_right = true;
+uniform bool relative_to_top   = true;
+
 void main() {
-
-   // Note to self: the text of the tooltip needs to go over the
-   // background of the tooltip
-
-   // vec2 window_resize_scales_correction   = vec2(1,1);
-   // vec2 window_resize_position_correction = vec2(0,0);
 
    vec2 scaled_vertices = vertex  * scales;
    vec2 p1 = scaled_vertices + position;
    vec2 p2 = p1 * window_resize_scales_correction;
-   vec2 p3 = p2 + window_resize_position_correction;
+   vec2 p3 = p2;
+   bool xx_relative_to_right = true;
+   bool xx_relative_to_top   = true;
+   if (relative_to_right) p3.x += 1.0;
+   if (relative_to_top)   p3.y += 1.0;
+   vec2 p4 = p3 + window_resize_position_correction;
 
-   // gl_Position = vec4(scaled_vertices + position , -1.0, 1.0);
-
-   gl_Position = vec4(p3 , -1.0, 1.0);
-
+   gl_Position = vec4(p4, 0.0, 1.0);
    texCoord_transfer = texCoord;
 }
 
@@ -46,7 +45,7 @@ void main() {
 
 #version 330 core
 
-uniform sampler2D text; // change this confusing name - "image_texture"
+uniform sampler2D image_texture;
 
 in vec2 texCoord_transfer;
 
@@ -56,11 +55,11 @@ void main() {
 
    bool this_is_the_hud_bar_labels = false; // pass this as a uniform
 
-   vec4 sampled = texture(text, texCoord_transfer);
+   vec4 sampled = texture(image_texture, texCoord_transfer);
    // sampled = vec4(text_colour.r, text_colour.r, text_colour.r, sampled.r);
    outputColor = sampled;
 
-   if (outputColor.a < 0.5) discard;
+   if (outputColor.a < 0.5) discard; // for text as textures rendering
 
    // outputColor.a = 0.9; // why did I have this? For the rama underlying distribution? Hmm.
                            // OK I guess I need a uniform for that if I'm going to use this shader

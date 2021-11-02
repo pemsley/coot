@@ -1509,7 +1509,9 @@ public:
    void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
 #endif
    void run_post_intermediate_atoms_moved_hook_maybe(); // set a python variable when the intermediate
-                                                      // atoms move
+                                                        // atoms move
+
+   static bool showing_intermediate_atoms_from_refinement();
 
 #ifdef USE_GUILE
    SCM refinement_results_to_scm(const coot::refinement_results_t &rr) const;
@@ -2436,6 +2438,14 @@ public:
    static Shader shader_for_hud_geometry_tooltip_text; // shader for the above tmesh (not like atom labels
                                                        // HUD labels are in 2D, don't need mvp, eye position
                                                        // etc.).
+   static HUDTextureMesh tmesh_for_hud_refinement_dialog_arrow;
+   static Texture texture_for_hud_refinement_dialog_arrow;
+   static Texture texture_for_hud_refinement_dialog_arrow_highlighted;
+   static bool hud_refinement_dialog_arrow_is_moused_over;
+
+   void show_refinement_and_regularization_parameters_dialog(); // 20211102-PE it's here because the dialog can be
+                                                                // shown by pressing the green arrow during refinement.
+
    static float get_x_base_for_hud_geometry_bars();
 
    static Texture texture_for_camera_facing_quad; // debugging            
@@ -4304,6 +4314,7 @@ string   static std::string sessionid;
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
+   static void draw_hud_refinement_dialog_arrow_tab();
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
