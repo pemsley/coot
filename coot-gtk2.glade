@@ -17542,6 +17542,22 @@ checks the value of this checkbutton</property>
 	      </child>
 
 	      <child>
+		<widget class="GtkButton" id="accept_reject_reverse_button">
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Reverse</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <signal name="clicked" handler="on_accept_reject_reverse_button_clicked" last_modification_time="Tue, 02 Nov 2021 17:28:58 GMT"/>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkFrame" id="accept_reject_lights_frame">
 		  <property name="label_xalign">0</property>
 		  <property name="label_yalign">0.5</property>
