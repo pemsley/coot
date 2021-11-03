@@ -2179,6 +2179,7 @@ on_model_refine_dialog_refine_params_button_clicked_gtkbuilder_callback
    // gtk_widget_show(widget);
 }
 
+#include "graphics-info.h"
 
 extern "C" G_MODULE_EXPORT
 void
@@ -2204,6 +2205,14 @@ on_refinement_and_regularization_vbox_close_button_clicked_gtkbuilder_callback(G
    gtk_container_add(GTK_CONTAINER(vbox_container), vbox_outer); // so it's there for next time.
                                                                  // see graphics_info_t::show_refinement_and_regularization_parameters_dialog()
    gtk_widget_hide(vbox_outer);
+
+   // pressing the button means that the focus goes elsewhere (not sure where). So bring it back to the graphics
+   // widget;
+
+   graphics_info_t g;
+   GtkWidget *glarea = g.glareas[0];
+   gtk_widget_grab_focus(glarea);
+
 
 }
 
@@ -5662,8 +5671,6 @@ on_single_map_properties_absolute_radiobutton_toggled_gtkbuilder_callback (GtkTo
    }
 
 }
-
-#include "graphics-info.h"
 
 void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
 
