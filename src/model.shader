@@ -135,11 +135,34 @@ void main() {
          // sum_col = vec4(0.5 * view_dir + vec3(0.5,0.5,0.5), 1.0);
          // sum_col = vec4(0.5 * light_to_eye + vec3(0.5,0.5,0.5), 1.0);
       }
-    }
+   }
 
    float fog_amount = 0.0;
    if (do_depth_fog)
       fog_amount = get_fog_amount(gl_FragCoord.z);
    outputColor += mix(sum_col, bg_col, fog_amount);
 
+   // If we are doing depth blur, we need to make the forground objects look more
+   // like the background colour (*not* using alpha channel), something like this:
+   //
+   // uniform bool do_depth_fog
+   // uniform float focus_blur_z_depth;
+   // uniform float focus_blur_strength;
+   //
+   // if (do_depth_blur) (
+   //    float d = 0.5 * (gl_FragCoord.z + 1); // converts to range 0 -> 1 (I think)
+   //    float rc_z = focus_blur_z_depth;
+   //    float dd = d - rc_z;
+   //    float mf = abs(focus_blur_strength * dd);
+   //    if (dd < 0.0) {
+   //       outputColor = mix(outputColor, bg_col, mf);
+   //    }
+   // }
+   //
+   // Fingers crossed that will work well with the depth-of-fields shader pass.
+   //
+   // Also something similar for the map shader, I guess.
+
 }
+
+
