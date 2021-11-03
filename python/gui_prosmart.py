@@ -16,16 +16,59 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import coot_utils
-import coot_gui_api
+import os
 from gi.repository import Gtk
-import coot
 import gi
 gi.require_version('Gtk', '3.0')
+import coot
+import coot_gui_api
+import coot_utils
 import coot_gui
 
+# target is my molecule, ref is the homologous (high-res) model
+#
+# extra arg: include_side_chains=False
+#
+def run_prosmart(imol_target, imol_ref, include_side_chains=False):
+    """
+    target is my molecule, ref is the homologous (high-res) model
 
-def add_module_prosmart():
+    extra arg: include_side_chains=False
+    """
+
+    dir_stub = "coot-ccp4"
+    coot.make_directory_maybe(dir_stub)
+    r_t_name = coot.molecule_name_stub_py(imol_target, 0).replace(" ", "_");
+    r_r_name = coot.molecule_name_stub_py(imol_ref,    0).replace(" ", "_");
+    target_pdb_file_name =    os.path.join(dir_stub, r_t_name + "-prosmart.pdb")
+    reference_pdb_file_name = os.path.join(dir_stub, r_r_name + "-prosmart-ref.pdb")
+    prosmart_out = os.path.join("ProSMART_Output", r_t_name + "-prosmart.txt")
+
+    coot.write_pdb_file(imol_target, target_pdb_file_name)
+    coot.write_pdb_file(imol_ref, reference_pdb_file_name)
+    prosmart_exe = coot_utils.find_exe("prosmart")
+    if prosmart_exe:
+        l = ["-p1", target_pdb_file_name,
+             "-p2", reference_pdb_file_name,
+             "-restrain_seqid", "30"]
+        if include_side_chains:
+            l += ["-side"]
+        coot_utils.popen_command(prosmart_exe,
+                                 l,
+                                 [],
+                                 os.path.join(dir_stub, "prosmart.log"),
+                                 False)
+        if (not os.path.isfile(prosmart_out)):
+            print("file not found", prosmart_out)
+        else:
+            print("Reading ProSMART restraints from", prosmart_out)
+            coot.add_refmac_extra_restraints(imol_target, prosmart_out)
+    else:
+        coot.info_dialog("No prosmart")
+
+
+
+def add_module_prosmart_old():
     
     if True:
         if coot_gui_api.main_menubar():
@@ -99,6 +142,47 @@ def add_module_prosmart():
         if coot_gui_api.main_menubar():
             menu = coot_gui.coot_menubar_menu("ProSMART")
 
+            def combobox_to_molecule_number(combobox):
+                imol = -1
+                tree_iter = combobox.get_active_iter()
+                if tree_iter is not None:
+                    model = combobox.get_model()
+                    it = model[tree_iter]
+                    imol = it[0]
+                return imol
+
+            def launch_prosmart_gui():
+                def go_button_cb(*args):
+                    imol_tar = combobox_to_molecule_number(combobox_tar)
+                    imol_ref = combobox_to_molecule_number(combobox_ref)
+                    do_side_chains = check_button.get_active()
+                    run_prosmart(imol_tar, imol_ref, do_side_chains)
+                    window.destroy()
+                window = Gtk.Window()
+                hbox = Gtk.HBox(False, 0)
+                vbox = Gtk.VBox(False, 0)
+                h_sep = Gtk.HSeparator()
+                chooser_hint_text_1 = " Target molecule "
+                chooser_hint_text_2 = " Reference (high-res) molecule "
+                go_button = Gtk.Button(" ProSMART ")
+                cancel_button = Gtk.Button("  Cancel  ")
+                check_button = Gtk.CheckButton("Include Side-chains")
+
+                combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
+                combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
+
+                vbox.pack_start(check_button, False, False, 2)
+                vbox.pack_start(h_sep, False, False, 2)
+                vbox.pack_start(hbox, False, False, 2)
+                hbox.pack_start(go_button, False, False, 6)
+                hbox.pack_start(cancel_button, False, False, 6)
+                window.add(vbox)
+
+                cancel_button.connect("clicked", lambda w: window.destroy())
+
+                go_button.connect("clicked", go_button_cb)
+                window.show_all()
+
             def generate_self_restraint_func(sig):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -134,13 +218,17 @@ def add_module_prosmart():
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
 
-            coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Restraint Representation To CA",
-                lambda func: restraint_to_ca_func(1))
+            # # clutter
+            # coot_gui.add_simple_coot_menu_menuitem(
+            #     menu, "Restraint Representation To CA",
+            #     lambda func: restraint_to_ca_func(1))
+
+            # coot_gui.add_simple_coot_menu_menuitem(
+            #     menu, "Restraint Representation To Home Atom",
+            #     lambda func: restraint_to_ca_func(0))
 
             coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Restraint Representation To Home Atom",
-                lambda func: restraint_to_ca_func(0))
+                menu, "Run ProSMART...", lambda func: launch_prosmart_gui())
 
             ## extra
             

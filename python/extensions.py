@@ -1503,7 +1503,7 @@ if True:
      # ---------------------------------------------------------------------
 
      coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "CCP4...",
+         submenu_modules, "CCP4",
          lambda func: coot_gui.add_module_ccp4())
 
      coot_gui.add_simple_coot_menu_menuitem(
@@ -1519,8 +1519,14 @@ if True:
          lambda func: gui_prosmart.add_module_prosmart())
 
      coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "SHELX...",
+         submenu_modules, "SHELX",
          lambda func: shelx_extensions.add_module_shelx())
+
+     import refine
+
+     coot_gui.add_simple_coot_menu_menuitem(
+         submenu_modules, "Refine",
+         lambda func: refine.add_module_refine())
 
      coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "User-defined Restraints...",
