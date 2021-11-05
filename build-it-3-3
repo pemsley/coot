@@ -1750,6 +1750,8 @@ else
    build_freetype2=1
 fi
 
+# building PyGObject 3.36.1 requires glib 2.58.0 or later.
+
 if pkg-config --atleast-version=2.14.5 glib ; then
    # have glib
    echo glib is up to date
@@ -3000,10 +3002,12 @@ if [ -e $install_top_dir/include/goocanvas-2.0/goocanvas.h ] ; then
    build_goocanvas=no
 fi
 
+# https://download-fallback.gnome.org/sources/goocanvas/2.0/
 
 if [ "$build_goocanvas" != "no" ] ; then
     echo BUILDING goocanvas
-    ${WGET} http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0/goocanvas-2.0.0.tar.gz
+    goocanvas_dir=https://download-fallback.gnome.org/sources/goocanvas/2.0
+    ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-2.0.4.tar.xz
     (date
      echo building in: $PWD
      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
@@ -3012,8 +3016,8 @@ if [ "$build_goocanvas" != "no" ] ; then
      echo CPPFLAGS: $CPPFLAGS
      echo LDFLAGS: $LDFLAGS
      pwd
-     gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-2.0.0.tar.gz | tar xf -
-     cd goocanvas-2.0.0
+     tar xf ${AUTOBUILD_SOURCES}/goocanvas-2.0.4.tar.xz
+     cd goocanvas-2.0.4
      # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
      # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
      if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
