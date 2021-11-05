@@ -411,7 +411,9 @@
 # 5.54 20210706 build sqllite3
 # 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
 # 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
-script_version=5.56
+# 5.57 20211019 add another make for guile-lib. Add texinfo to the dependencies for debian
+# 5.58 20211019 Add a sort to the awk result when determining the tar file for the stable release
+script_version=5.58
 
 
 
@@ -1211,7 +1213,12 @@ case $dist_name in
       ;;
 
     debian)
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
+      # note from Dirk Kostrewa 20211018-PE:
+      #
+      # cmake libncurses5-dev libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev
+      # libgnomecanvas2-dev libxt-dev libjpeg-dev
+      # 20211019-PE also texinfo (for makeinfo for guile-lib)
+      dep_list='libncurses5-dev g++ libxext-dev libxt-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip texinfo cmake libjpeg-dev'
       for dep in $dep_list 
       do 
          echo $dep
@@ -1622,14 +1629,17 @@ else
     echo ========== awk results:
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html
+    echo ==== sorted awk results ==========
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | sort
     echo ==== with tail ==========
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
-       ${AUTOBUILD_SOURCES}/index.html | tail -1
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1
     echo =========== from ${AUTOBUILD_SOURCES}/index.html 
     cat ${AUTOBUILD_SOURCES}/index.html 
     echo ==============
     coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
-       ${AUTOBUILD_SOURCES}/index.html | tail -1)
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
@@ -1644,17 +1654,12 @@ fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
 
-####################################################
-# exit
-####################################################
-
-
-
 echo coot_version_pre is $coot_version_pre
 echo build_coot_prerelease: $build_coot_prerelease
 echo release_server_dir $release_server_dir 
 echo coot_version $coot_version
 
+# exit # for testing release version extraction
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
@@ -3437,16 +3442,25 @@ fi
 # https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
 
 if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; then
+   build_pillow=no
+fi
+if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2-py2.7-linux-x86_64.egg ] ; then
+   build_pillow=no
+fi
+
+if [ $build_pillow = no ] ; then
    echo not building Pillow:
 else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
     ${WGET} --no-if-modified-since $pillow_url
     if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
+        (
         tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
         cd Pillow-6.2.2
         python setup.py build
         python setup.py install
         cd -
+        ) > $HOSTLOGDIR/17-pillow.txt 2>&1
     fi
 fi
 
@@ -4007,8 +4021,11 @@ gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
 cd guile-lib-$guile_lib_version
 # the prefix for guile-lib must be the prefix of guile, or else the sxml and 
 # other library files will not be found
+# 20211019-PE strangely the second make seems to pass after the first one has failed
+# (in the doc directory)
 ./configure $generic_prefix
 $MAKE
+make
 $MAKE install
 ) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
 else 
@@ -4641,6 +4658,9 @@ if [ "$build_coot_prerelease" = 1 ] ; then
 fi
 
 clear_up_type=
+if [ $shared_static_flag != "--enable-shared" ] ; then
+    clear_up_type=clear-static
+fi   
 if [ $shared_static_flag != "--disable-static" ] ; then
     clear_up_type=clear-static
 fi   

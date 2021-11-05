@@ -8984,6 +8984,7 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *extra_text_label;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *accept_reject_dialog_no_progress_label;
+  GtkWidget *accept_reject_reverse_button;
   GtkWidget *accept_reject_lights_frame;
   GtkWidget *alignment107;
   GtkWidget *hbox273;
@@ -9087,6 +9088,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (accept_reject_dialog_no_progress_label);
   gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_dialog_no_progress_label, FALSE, FALSE, 0);
   gtk_label_set_use_markup (GTK_LABEL (accept_reject_dialog_no_progress_label), TRUE);
+
+  accept_reject_reverse_button = gtk_button_new_with_mnemonic ("Reverse");
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_reverse_button, FALSE, FALSE, 0);
 
   accept_reject_lights_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_lights_frame, TRUE, TRUE, 0);
@@ -9406,6 +9410,9 @@ create_accept_reject_refinement_dialog (void)
   g_signal_connect ((gpointer) accept_reject_refinement_dialog, "destroy",
                     G_CALLBACK (on_accept_reject_refinement_dialog_destroy),
                     NULL);
+  g_signal_connect ((gpointer) accept_reject_reverse_button, "clicked",
+                    G_CALLBACK (on_accept_reject_reverse_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) accept_reject_refinement_atom_pull_autoclear_checkbutton, "toggled",
                     G_CALLBACK (on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled),
                     NULL);
@@ -9443,6 +9450,7 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, extra_text_label, "extra_text_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_dialog_no_progress_label, "accept_reject_dialog_no_progress_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_reverse_button, "accept_reject_reverse_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_lights_frame, "accept_reject_lights_frame");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment107, "alignment107");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox273, "hbox273");
