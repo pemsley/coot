@@ -77,7 +77,8 @@ AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(SQLITE3_CFLAGS) \
-	$(COOT_WINDOWS_CFLAGS)
+	$(COOT_WINDOWS_CFLAGS) \
+        $(LIBPNG_CFLAGS)
 
 # ligands-2016.db is made and updated by make-ligands-db
 #
