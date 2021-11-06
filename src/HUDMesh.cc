@@ -2,6 +2,11 @@
 #include <iostream>
 #include "HUDMesh.hh"
 
+// static
+constexpr float HUD_button_info_t::button_width; //  = 0.30;
+// static
+constexpr float HUD_button_info_t::button_height; // = 0.06;
+
 void
 HUDMesh::init() {
 
