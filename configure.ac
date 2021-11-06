@@ -83,15 +83,6 @@ AC_SUBST([OPENMP_CXXFLAGS])
 AX_CXX_COMPILE_STDCXX_11
 AX_CXX_HAVE_THREAD
 
-AC_ARG_WITH(glsl, [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
-  coot_with_glsl=true,
-  coot_with_glsl=false)
-
-if $coot_with_glsl = true ; then
-   COOT_USE_GLSL=-DUSE_GLSL
-   AC_SUBST(COOT_USE_GLSL)
-fi
-
 # AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
 if test $HAVE_CXX11 = 1 ; then
    CXXFLAGS="$CXXFLAGS -std=c++11"
@@ -144,7 +135,12 @@ AM_PATH_SQLITE3
 dnl =========================== crystallographic libraries ================================
 dnl Check for gpp4
 
-AC_ARG_WITH([gpp4], AS_HELP_STRING([--with-gpp4], [Build with the gpp4 library (default is NO)]))
+AC_ARG_WITH([backward], AS_HELP_STRING([--with-backward], [Build with the backward header (better debugging info on GNU/Linux)]))
+if test "xwith_backward" ; then
+   # tested in utils/Makefile.am
+   USE_BACKWARD=use_backward
+fi
+AC_SUBST(USE_BACKWARD)
 
 if test "x$with_gpp4" = "xyes"; then
     PKG_CHECK_MODULES([CCP4], [gpp4])
