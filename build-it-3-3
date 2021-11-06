@@ -1741,7 +1741,7 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
   if test -n "$gtk" ; then
      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig
   else
-     PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:gtk/lib/pkgconfig
+     PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
   endif
 else
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
