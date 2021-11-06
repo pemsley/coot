@@ -40,9 +40,9 @@ AM_CPPFLAGS = \
 	$(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
-     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) 
-AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
+     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) $(LIBPNG_CFLAGS)
 
+AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
 #libcoot_ideal_la_LIBADD = ../coot-utils/libcoot-utils.la                       \
 #	../coot-utils/libcoot-coord-utils.la                                   \
