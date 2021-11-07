@@ -389,20 +389,29 @@ Shader::create() const {
    std::string message;
 
    glAttachShader(program, vs);
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: Shader::create() " << name << " A " << err << std::endl;
    glAttachShader(program, fs);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Shader::create() " << name << " B " << err << std::endl;
    glLinkProgram(program);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Shader::create() " << name << " C " << err << std::endl;
    glValidateProgram(program);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Shader::create() " << name << " D " << err << std::endl;
    GLint status;
    glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
    if (status == GL_TRUE) {
       // good
       message = "success";
    } else {
+      std::cout << "WARNING:: failed to link shader " << name << std::endl;
       message = "fail";
    }
-   GLuint err = glGetError();
+   err = glGetError();
    if (err) {
-      std::cout << "Shader::create() err " << err << std::endl;
+      std::cout << "GL ERROR:: Shader::create() post glGetProgram() err " << err << std::endl;
       message = "error"; // this value is tested in init().
    }
    glDeleteShader(vs);
