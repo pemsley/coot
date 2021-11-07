@@ -491,7 +491,7 @@ if test "$OS" = "Darwin" ; then
    else
       # gtk was not set, let's try to guess
       testdir=$HOME/gtk/inst
-      if test -d $testdir ;
+      if test -d $testdir ; then
          gtk=$HOME/gtk/inst
       else
          echo this build script needs to know where gtk has been installed
