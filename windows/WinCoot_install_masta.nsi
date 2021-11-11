@@ -26,7 +26,7 @@
 !include "WinVer.nsh"
 
 !ifndef src_dir
-!define src_dir "C:\MinGW\msys\1.0\home\bernhard\autobuild\MINGW32_NT-6.1-bernie-pc-pre-release-gtk2"
+!define src_dir "C:\msys64\home\bernhard\autobuild\MINGW64_NT-6.1-bernie-pre-release-gtk2-shared"
 !endif
 ; pre setting of Coot version
 !include "${src_dir}\coot-version"
@@ -59,10 +59,10 @@ Var STARTDIR
 ; Welcome page (allow 3 lines if long pre-release)
 !define MUI_WELCOMEPAGE_TITLE_3LINES
 !define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
-!define MUI_WELCOMEFINISHPAGE_BITMAP "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_welcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "C:\msys64\home\bernhard\installer\coot_pic_welcome.bmp"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP_NOSTRETCH
-!define MUI_HEADERIMAGE_BITMAP "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "C:\msys64\home\bernhard\installer\coot_pic_header.bmp"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE InitPreFunction
 !insertmacro MUI_PAGE_WELCOME
 ; Components page
@@ -72,12 +72,12 @@ Var STARTDIR
 !define MUI_PAGE_CUSTOMFUNCTION_PRE CheckForUpdate
 !define MUI_LICENSEPAGE_TEXT_TOP "Coot licence"
 !define MUI_LICENSEPAGE_CHECKBOX
-!insertmacro MUI_PAGE_LICENSE "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\COPYING"
+!insertmacro MUI_PAGE_LICENSE "C:\msys64\home\bernhard\autobuild\extras\COPYING"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipProbeReduceInfo
 !define MUI_LICENSEPAGE_TEXT_TOP "Probe && Reduce information"
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "This is just for your information. No licence as such is required."
 !define MUI_LICENSEPAGE_BUTTON "Got it!"
-!insertmacro MUI_PAGE_LICENSE "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\probe_reduce.txt"
+!insertmacro MUI_PAGE_LICENSE "C:\msys64\home\bernhard\autobuild\extras\probe_reduce.txt"
 ; Directory page (install directory)
 !define MUI_PAGE_CUSTOMFUNCTION_PRE ComponentPost
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW DirectoryShow
@@ -177,11 +177,11 @@ Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
 ; default to pre-release output dir
-!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
+!define binary_dir "C:\msys64\home\bernhard\public_html\software\binaries\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
-!define src_dir "C:\MinGW\msys\1.0\home\bernhard\autobuild\MINGW32_NT-6.1-bernie-pc-pre-release-gtk2"
+!define src_dir "C:\msys64\home\bernhard\autobuild\MINGW64_NT-6.1-bernie-pre-release-gtk2-shared"
 !endif
 !define outputname "${binary_dir}\${PRODUCT_NAME}-${PRODUCT_VERSION}.exe"
 OutFile "${outputname}"
@@ -221,11 +221,11 @@ Section "!WinCoot" SEC01
   ;install_single_user:
   ;  SetShellVarContext current
   ;continue_user:
-  
-;  !insertmacro BIMAGE "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic.bmp" /RESIZETOFIT
+
+;  !insertmacro BIMAGE "C:\msys64\home\bernhard\installer\coot_pic.bmp" /RESIZETOFIT
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR"
-  
+
 ; check if wincoot.bat exists, if so ask if overwrite (or not)
 ; New logic:
 ; check if wincoot.bat exists, if so make a backup copy
@@ -257,10 +257,12 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\mini-rsr-bin.exe"
   File "${src_dir}\bin\dynarama-bin.exe"
   File "${src_dir}\bin\pyrogen.bat"
-  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\dynarama.bat"
+  File "C:\msys64\home\bernhard\Projects\coot\windows\dynarama.bat"
+  File "C:\msys64\home\bernhard\Projects\coot\windows\findligand.bat"
+  File "C:\msys64\home\bernhard\Projects\coot\windows\findwaters.bat"
   SetOverwrite ifnewer
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\rama_all.ico"
+  File "C:\msys64\home\bernhard\autobuild\extras\coot-icon.ico"
+  File "C:\msys64\home\bernhard\autobuild\extras\rama_all.ico"
   File "${src_dir}\bin\*.dll"
   File "${src_dir}\bin\coot-bfactan.exe"
   File "${src_dir}\bin\coot"
@@ -273,151 +275,51 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\findligand"
   File "${src_dir}\bin\findwaters"
   File "${src_dir}\bin\coot-fix-nomenclature-errors.exe"
-  File "${src_dir}\bin\gdk-pixbuf-csource.exe"
   File "${src_dir}\bin\gdk-pixbuf-query-loaders.exe"
-  File "${src_dir}\bin\glib-genmarshal.exe"
-  File "${src_dir}\bin\glib-gettextize"
-  File "${src_dir}\bin\glib-mkenums"
-  File "${src_dir}\bin\gobject-query.exe"
-  File "${src_dir}\bin\gsl-config"
-  File "${src_dir}\bin\gspawn-win32-helper-console.exe"
-  File "${src_dir}\bin\gspawn-win32-helper.exe"
-  File "${src_dir}\bin\gtk-builder-convert"
-  File "${src_dir}\bin\gtk-demo.exe"
-  File "${src_dir}\bin\gtk-query-immodules-2.0.exe"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\gunzip"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\gzip.exe"
-  File "${src_dir}\bin\iconv.exe"
   ; render (or more?) from raster3d?!
   File "${src_dir}\bin\render.exe"
   ;gunzip needed?? dont think so
   File "C:\msys64\home\bernhard\autobuild\extras\gunzip"
   File "C:\msys64\home\bernhard\autobuild\extras\gzip.exe"
->>>>>>> 8216c40e1... Windows fix to pyrogen and raster3d
   File "${src_dir}\bin\lidia.exe"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\msvcr90.dll"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\Microsoft.VC90.CRT.manifest"
-  File "${src_dir}\bin\pango-querymodules.exe"
-  File "${src_dir}\bin\pango-view.exe"
-  File "${src_dir}\bin\pkg-config.exe"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\ppm2bmp.exe"
+  ;still needed?
+;  File "C:\msys64\home\bernhard\autobuild\extras\msvcr90.dll"
+;  File "C:\msys64\home\bernhard\autobuild\extras\Microsoft.VC90.CRT.manifest"
+;  File "${src_dir}\bin\pkg-config.exe"
+  File "C:\msys64\home\bernhard\autobuild\extras\ppm2bmp.exe"
   ; now the new mingw files for static compilation (or not)
   ; FIXME:: seems to be only needed in newer versions of msys
   ; ....... and maybe if we have shared compilation - not yet
   ; 19/2/19 take the system file on the system its build on
-  File "C:\MinGW\bin\libstdc++-6.dll"
-  File "C:\MinGW\bin\libgcc_s_dw2-1.dll"
+  ; included in bundling
+  ;File "C:\MinGW\bin\libstdc++-6.dll"
+  ;File "C:\MinGW\bin\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
-  SetOutPath "$INSTDIR\python27"
-  File /r "${src_dir}\python27\*.*"
-; etc things
-  SetOutPath "$INSTDIR\etc\fonts"
-  File "${src_dir}\etc\fonts\*"
-  SetOutPath "$INSTDIR\etc\gtk-2.0"
-  File "${src_dir}\etc\gtk-2.0\gtk.immodules"
-  SetOutPath "$INSTDIR\etc\pango"
-  File "${src_dir}\etc\pango\pango.modules"
+; now in lib/python2.7 see below
+  ;SetOutPath "$INSTDIR\python27"
+  ;File /r "${src_dir}\python27\*.*"
+; etc things - not all needed any more?!?!? FIXME
+;  SetOutPath "$INSTDIR\etc\fonts"
+;  File "${src_dir}\etc\fonts\*"
+;  SetOutPath "$INSTDIR\etc\gtk-2.0"
+;  File "${src_dir}\etc\gtk-2.0\gtk.immodules"
+;  SetOutPath "$INSTDIR\etc\pango"
+;  File "${src_dir}\etc\pango\pango.modules"
 ; for ccp4 version
   SetOutPath "$INSTDIR\etc"
-  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot_ccp4.bat"
-  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot_ccp4_vista.bat"
+  File "C:\msys64\home\bernhard\Projects\coot\windows\runwincoot_ccp4.bat"
+  File "C:\msys64\home\bernhard\Projects\coot\windows\runwincoot_ccp4_vista.bat"
 ; SHARE
   SetOutPath "$INSTDIR\share\icons"
   File /r "${src_dir}\share\icons\*.*"
   SetOutPath "$INSTDIR\share\coot"
-  File "${src_dir}\share\coot\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers"
-  File "${src_dir}\share\coot\lib\data\monomers\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\0"
-  File "${src_dir}\share\coot\lib\data\monomers\0\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\1"
-  File "${src_dir}\share\coot\lib\data\monomers\1\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\2"
-  File "${src_dir}\share\coot\lib\data\monomers\2\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\3"
-  File "${src_dir}\share\coot\lib\data\monomers\3\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\4"
-  File "${src_dir}\share\coot\lib\data\monomers\4\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\5"
-  File "${src_dir}\share\coot\lib\data\monomers\5\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\6"
-  File "${src_dir}\share\coot\lib\data\monomers\6\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\7"
-  File "${src_dir}\share\coot\lib\data\monomers\7\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\8"
-  File "${src_dir}\share\coot\lib\data\monomers\8\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\9"
-  File "${src_dir}\share\coot\lib\data\monomers\9\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\a"
-  File "${src_dir}\share\coot\lib\data\monomers\a\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\b"
-  File "${src_dir}\share\coot\lib\data\monomers\b\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\c"
-  File "${src_dir}\share\coot\lib\data\monomers\c\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\d"
-  File "${src_dir}\share\coot\lib\data\monomers\d\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\e"
-  File "${src_dir}\share\coot\lib\data\monomers\e\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\f"
-  File "${src_dir}\share\coot\lib\data\monomers\f\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\g"
-  File "${src_dir}\share\coot\lib\data\monomers\g\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\h"
-  File "${src_dir}\share\coot\lib\data\monomers\h\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\i"
-  File "${src_dir}\share\coot\lib\data\monomers\i\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\j"
-  File "${src_dir}\share\coot\lib\data\monomers\j\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\k"
-  File "${src_dir}\share\coot\lib\data\monomers\k\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\l"
-  File "${src_dir}\share\coot\lib\data\monomers\l\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\list"
-  File "${src_dir}\share\coot\lib\data\monomers\list\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\m"
-  File "${src_dir}\share\coot\lib\data\monomers\m\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\n"
-  File "${src_dir}\share\coot\lib\data\monomers\n\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\o"
-  File "${src_dir}\share\coot\lib\data\monomers\o\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\p"
-  File "${src_dir}\share\coot\lib\data\monomers\p\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\q"
-  File "${src_dir}\share\coot\lib\data\monomers\q\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\r"
-  File "${src_dir}\share\coot\lib\data\monomers\r\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\s"
-  File "${src_dir}\share\coot\lib\data\monomers\s\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\t"
-  File "${src_dir}\share\coot\lib\data\monomers\t\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\u"
-  File "${src_dir}\share\coot\lib\data\monomers\u\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\v"
-  File "${src_dir}\share\coot\lib\data\monomers\v\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\w"
-  File "${src_dir}\share\coot\lib\data\monomers\w\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\x"
-  File "${src_dir}\share\coot\lib\data\monomers\x\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\y"
-  File "${src_dir}\share\coot\lib\data\monomers\y\*"
-  SetOutPath "$INSTDIR\share\coot\lib\data\monomers\z"
-  File "${src_dir}\share\coot\lib\data\monomers\z\*"
-  SetOutPath "$INSTDIR\share\coot"
-  File "${src_dir}\share\coot\*"
-  SetOutPath "$INSTDIR\share\coot\pixmaps"
-  File "${src_dir}\share\coot\pixmaps\*"
-  SetOutPath "$INSTDIR\share\coot\protein_db"
-  File "${src_dir}\share\coot\protein_db\*"
-  SetOutPath "$INSTDIR\share\coot\reference-structures"
-  File "${src_dir}\share\coot\reference-structures\*"
-  SetOutPath "$INSTDIR\share\coot\rama-data"
-  File "${src_dir}\share\coot\rama-data\*"
-  SetOutPath "$INSTDIR\share\coot\scheme"
-  File "${src_dir}\share\coot\scheme\*"
+  File /r "${src_dir}\share\coot\*.*"
   ;lib
   ; maybe the boost and rdkit dlls should be in bin rather than lib?!
   SetOutPath "$INSTDIR\lib"
   File /r "${src_dir}\lib\*.dll"
+  SetOutPath "$INSTDIR\lib\python2.7"
+  File /r "${src_dir}\lib\python2.7\*.*"
   SetOutPath "$INSTDIR\lib\gdk-pixbuf-2.0"
   File /r "${src_dir}\lib\gdk-pixbuf-2.0\*.*"
   SetOutPath "$INSTDIR\lib\gtk-2.0"
@@ -459,29 +361,15 @@ Section "!WinCoot" SEC01
   File "${src_dir}-guile\share\guile\site\*"
 !endif
 ; WITH_GUILE
-  ;examples
-  ; 9/7/17 not needed any more
-  ;SetOutPath "$INSTDIR\examples"
-  ;File "${src_dir}\share\coot\data\*"
-  ; NEW data dir
-  SetOutPath "$INSTDIR\share\coot\data"
-  File "${src_dir}\share\coot\data\*"
-  SetOutPath "$INSTDIR\share\coot\data\cho-acedrg"
-  File "${src_dir}\share\coot\data\cho-acedrg\*"
-  SetOutPath "$INSTDIR\share\coot\data\cho-models"
-  File "${src_dir}\share\coot\data\cho-models\*"
-  SetOutPath "$INSTDIR\share\coot\data\rama"
-  SetOutPath "$INSTDIR\share\coot\data\rama\zo-tables"
-  File "${src_dir}\share\coot\data\rama\zo-tables\*"
   ;docs
   SetOutPath "$INSTDIR\doc"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-user-manual.pdf"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\crib-sheet.pdf"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\tutorial.pdf"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\tutorial-2.pdf"
+  File "C:\msys64\home\bernhard\autobuild\extras\coot-user-manual.pdf"
+  File "C:\msys64\home\bernhard\autobuild\extras\crib-sheet.pdf"
+  File "C:\msys64\home\bernhard\autobuild\extras\tutorial.pdf"
+  File "C:\msys64\home\bernhard\autobuild\extras\tutorial-2.pdf"
   ;;secondary structure(s)
   ;SetOutPath "$INSTDIR\share\coot\ss-reference-structures"
-  ;File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\ss-reference-structures\*"
+  ;File "C:\msys64\home\bernhard\autobuild\extras\ss-reference-structures\*"
   ;make a backupdir, so that COOT_BACKUP_DIR has a defined directory
   SetOutPath "$INSTDIR\coot-backup"
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
@@ -501,7 +389,7 @@ Section /o "Windows feel" SEC02
   ClearErrors
   SetOverwrite on
   SetOutPath "$INSTDIR\share\coot"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\cootrc"
+  File "C:\msys64\home\bernhard\autobuild\extras\cootrc"
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
   IfErrors 0 +5
@@ -513,19 +401,19 @@ Section /o "Windows feel" SEC02
 
 SectionEnd
 
-; probe and reduce here 
+; probe and reduce here
 Section /o "Add probe&reduce" SEC03
   ClearErrors
   SetOverwrite on
   ; This needs to go in another bin as to void conflicst with the libstd and
   ; libgcc dlls. Needs addition to PATH as well
   SetOutPath "$INSTDIR\bin\extras"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\probe.exe"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\reduce.exe"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  File "C:\msys64\home\bernhard\autobuild\extras\probe.exe"
+  File "C:\msys64\home\bernhard\autobuild\extras\reduce.exe"
+  File "C:\msys64\home\bernhard\autobuild\extras\libstdc++-6.dll"
+  File "C:\msys64\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
   SetOutPath "$INSTDIR\share\coot"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\reduce_wwPDB_het_dict.txt"
+  File "C:\msys64\home\bernhard\autobuild\extras\reduce_wwPDB_het_dict.txt"
   SetOverwrite ifnewer
 
   IfErrors 0 +5
@@ -605,7 +493,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "This is 'default' WinCoot (${WinCootVersion}) $\n$\nPython scripting only"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want a $\nWindowsy feeling to WinCoot"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Select if you want $\nprobe and reduce installed.$\nNote: Not required if you have CCP4."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Select if you want $\nprobe and reduce installed.$\nNote: Usually not required if you have CCP4 installed."
 ; disable guile for now
 !ifdef WITH_GUILE
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Tick if you want additionally $\nGuile/Scheme scripting"
@@ -617,75 +505,7 @@ Section Uninstall
   ClearErrors
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\share\coot\*"
-  Delete "$INSTDIR\share\coot\ss-reference-structures\*"
-  Delete "$INSTDIR\share\coot\scheme\*"
-  Delete "$INSTDIR\share\coot\reference-structures\*"
-  Delete "$INSTDIR\share\coot\rama-data\*"
-;keep the python dirs here for now so it will be uninstalled if old exists
-  Delete "$INSTDIR\share\coot\python\rcrane\data\*"
-  Delete "$INSTDIR\share\coot\python\rcrane\*"
-  Delete "$INSTDIR\share\coot\python\*"
-  Delete "$INSTDIR\share\coot\pixmaps\*"
-  Delete "$INSTDIR\share\coot\protein_db\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\z\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\y\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\x\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\w\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\v\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\u\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\t\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\s\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\r\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\q\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\p\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\o\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\n\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\m\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\list\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\l\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\k\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\j\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\i\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\h\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\g\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\f\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\e\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\d\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\c\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\b\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\a\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\9\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\8\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\7\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\6\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\5\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\4\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\3\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\2\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\1\*"
-  Delete "$INSTDIR\share\coot\lib\data\monomers\0\*"
-  Delete "$INSTDIR\share\coot\data\cho-acedrg\*"
-  Delete "$INSTDIR\share\coot\data\cho-models\*"
-  Delete "$INSTDIR\share\coot\data\rama\zo-tables\*"
-  Delete "$INSTDIR\share\coot\data\rama\*"
-  Delete "$INSTDIR\share\coot\data\*"
-  Delete "$INSTDIR\share\guile\site\*"
-  Delete "$INSTDIR\share\guile\gui\*"
-  Delete "$INSTDIR\share\guile\gtk-2.0\*"
-  Delete "$INSTDIR\share\guile\gtk\*"
-  Delete "$INSTDIR\share\guile\1.8\srfi\*"
-  Delete "$INSTDIR\share\guile\1.8\scripts\*"
-  Delete "$INSTDIR\share\guile\1.8\oop\goops\*"
-  Delete "$INSTDIR\share\guile\1.8\oop\*"
-  Delete "$INSTDIR\share\guile\1.8\lang\elisp\primitives\*"
-  Delete "$INSTDIR\share\guile\1.8\lang\elisp\internals\*"
-  Delete "$INSTDIR\share\guile\1.8\lang\elisp\*"
-  Delete "$INSTDIR\share\guile\1.8\ice-9\debugger\*"
-  Delete "$INSTDIR\share\guile\1.8\ice-9\*"
-  Delete "$INSTDIR\share\guile\1.8\*"
-  Delete "$INSTDIR\share\*"
+  RMDir /r "$INSTDIR\share"
   ; keep the next 2 in case it was there from previous installations
   Delete "$INSTDIR\bin\Lib\*"
   Delete "$INSTDIR\bin\DLLs\*"
@@ -710,9 +530,11 @@ Section Uninstall
   Delete "$INSTDIR\bin\findligand"
   Delete "$INSTDIR\bin\findligand-bin.exe"
   Delete "$INSTDIR\bin\findligand-real.exe"
+  Delete "$INSTDIR\bin\findligand.bat"
   Delete "$INSTDIR\bin\findwaters"
   Delete "$INSTDIR\bin\findwaters-bin.exe"
   Delete "$INSTDIR\bin\findwaters-real.exe"
+  Delete "$INSTDIR\bin\findwaters.bat"
   Delete "$INSTDIR\bin\coot-available-comp-id.exe"
   Delete "$INSTDIR\bin\coot-compare-dictionaries.exe"
   Delete "$INSTDIR\bin\coot-density-score-by-residue-bin.exe"
@@ -751,16 +573,10 @@ Section Uninstall
   Delete "$INSTDIR\bin\readline5.dll"
   Delete "$INSTDIR\bin\libltdl3.dll"
   ; continue deleting everything
-  Delete "$INSTDIR\etc\pango\*"
-  Delete "$INSTDIR\etc\gtk-2.0\*"
-  Delete "$INSTDIR\etc\fonts\*"
-  Delete "$INSTDIR\etc\*"
-  Delete "$INSTDIR\lib\*"
-  Delete "$INSTDIR\lib\gdk-pixbuf-2.0\*"
-  Delete "$INSTDIR\lib\gtk-2.0\engines\*"
-  Delete "$INSTDIR\lib\gtk-2.0\2.10.0\loaders\*"
-  Delete "$INSTDIR\examples\*"
-  Delete "$INSTDIR\doc\*"
+  RMDir /r "$INSTDIR\etc"
+  RMDir /r "$INSTDIR\lib"
+  RMDir /r "$INSTDIR\examples"
+  RMDir /r "$INSTDIR\doc"
   ; we shall only remove installed files here (to e.g. keep .coot.py untouched)
   Delete "$INSTDIR\*wincoot*.bat"
   Delete "$INSTDIR\Coot.url"
@@ -777,97 +593,15 @@ Section Uninstall
   Delete "$QUICKLAUNCH\WinCoot.lnk"
   RMDir "$SMPROGRAMS\$ICONS_GROUP"
 
-  RMDir "$INSTDIR\share\coot\ss-reference-structures"
-  RMDir "$INSTDIR\share\coot\scheme"
-  RMDir "$INSTDIR\share\coot\reference-structures"
-  RMDir "$INSTDIR\share\coot\rama-data"
-  RMDir "$INSTDIR\share\coot\python\rcrane\data"
-  RMDir "$INSTDIR\share\coot\python\rcrane"
-  RMDir "$INSTDIR\share\coot\python"
-  RMDir "$INSTDIR\share\coot\pixmaps"
-  RMDir "$INSTDIR\share\coot\protein_db"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\z"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\y"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\x"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\w"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\v"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\u"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\t"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\s"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\r"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\q"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\p"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\o"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\n"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\m"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\list"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\l"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\k"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\j"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\i"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\h"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\g"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\f"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\e"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\d"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\c"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\b"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\a"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\9"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\8"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\7"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\6"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\5"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\4"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\3"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\2"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\1"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers\0"
-  RMDir "$INSTDIR\share\coot\lib\data\monomers"
-  RMDir "$INSTDIR\share\coot\lib\data"
-  RMDir "$INSTDIR\share\coot\lib"
-  RMDir "$INSTDIR\share\coot\data\cho-acedrg"
-  RMDir "$INSTDIR\share\coot\data\cho-models"
-  RMDir "$INSTDIR\share\coot\data\rama\zo-tables"
-  RMDir "$INSTDIR\share\coot\data\rama\zo-tables"
-  RMDir "$INSTDIR\share\coot\data\rama"
-  RMDir "$INSTDIR\share\coot\data"
-  RMDir "$INSTDIR\share\coot"
-  RMDir "$INSTDIR\share\guile\site"
-  RMDir "$INSTDIR\share\guile\gui"
-  RMDir "$INSTDIR\share\guile\gtk-2.0"
-  RMDir "$INSTDIR\share\guile\gtk"
-  RMDir "$INSTDIR\share\guile\1.8\srfi"
-  RMDir "$INSTDIR\share\guile\1.8\scripts"
-  RMDir "$INSTDIR\share\guile\1.8\oop\goops"
-  RMDir "$INSTDIR\share\guile\1.8\oop"
-  RMDir "$INSTDIR\share\guile\1.8\lang\elisp\primitives"
-  RMDir "$INSTDIR\share\guile\1.8\lang\elisp\internals"
-  RMDir "$INSTDIR\share\guile\1.8\lang\elisp"
-  RMDir "$INSTDIR\share\guile\1.8\lang"
-  RMDir "$INSTDIR\share\guile\1.8\ice-9\debugger"
-  RMDir "$INSTDIR\share\guile\1.8\ice-9"
-  RMDir "$INSTDIR\share\guile\1.8"
-  RMDir "$INSTDIR\share\guile"
-  RMDir /r "$INSTDIR\share\icons"
-  RMDir "$INSTDIR\share"
   ; keep these in case they exist from previous versions
   RMDir /r "$INSTDIR\bin\Lib"
   RMDir "$INSTDIR\bin\DLLs"
-  RMDir "$INSTDIR\etc\pango"
-  RMDir "$INSTDIR\etc\gtk-2.0"
-  RMDir "$INSTDIR\etc\fonts"
-  RMDir "$INSTDIR\etc"
   RMDir "$INSTDIR\bin\extras"
   RMDir "$INSTDIR\bin"
-  RMDir /r "$INSTDIR\lib\gdk-pixbuf-2.0"
-  RMDir /r "$INSTDIR\lib\gtk-2.0"
-  RMDir "$INSTDIR\lib"
-  RMDir "$INSTDIR\libexec"
-  ; FIXME:: what to do with python? 
+  RMDir /r "$INSTDIR\libexec"
+  ; FIXME:: what to do with python?
+  ; this is only for old installs...
   RMDir /r "$INSTDIR\python27"
-  RMDir "$INSTDIR\examples"
-  RMDir "$INSTDIR\doc"
   ; will only be removed if empty
   RMDir "$INSTDIR\.coot-preferences"
   RMDir "$INSTDIR\coot-backup"
@@ -888,7 +622,7 @@ SectionEnd
 # 'BUILD-IN' FUNCTIONS
 ######################
 
-# BL says:: disable for now, since no guile available anyway 
+# BL says:: disable for now, since no guile available anyway
 !ifdef WITH_GUILE
 Function .onSelChange
    ${If} ${SectionIsSelected} ${SEC03}
@@ -910,11 +644,11 @@ Function .onInit
       Delete $TEMP\install.log.1
     Rename $TEMP\install.log $TEMP\install.log.1
   ; Seems install.log always goes to $INSTDIR, since this doesnt
-  ; exists yet we try to set it in another way 
-  Push $INSTDIR 
-  StrCpy $INSTDIR $TEMP 
+  ; exists yet we try to set it in another way
+  Push $INSTDIR
+  StrCpy $INSTDIR $TEMP
   LogSet on
-  Pop $INSTDIR 
+  Pop $INSTDIR
 
     ; Get Command line parameters
         var /GLOBAL INSTDIR_TMP
@@ -1005,7 +739,7 @@ Function .onGUIEnd
     Exec 'cmd /c rmdir /s /q "$EXEDIR"'
    ${EndIf}
   ${EndIf}
-  
+
   ; Finally if run then start WinCoot in StartDir
   ${If} $start_coot = 1
     SetOutPath $STARTDIR
@@ -1041,7 +775,7 @@ Function MakeBackground
     ; from dark green to dark red : 0 0x80 0 0x80 0 0
     BgImage::SetBg /GRADIENT 0 0x80 0 0x80 0 0
     BgImage::AddText "$(^Name) Installer"
-    ;BgImage::AddImage C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_welcome.bmp 150 0
+    ;BgImage::AddImage C:\msys64\home\bernhard\installer\coot_pic_welcome.bmp 150 0
     CreateFont $R0 "Comic Sans MS" 30 700
     # add a blue shadow for the text
     BgImage::AddText "$(^Name) Installer" $R0 0 0 255 48 48 798 198
