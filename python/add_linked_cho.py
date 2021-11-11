@@ -1,3 +1,5 @@
+import coot
+import coot_utils
 
 def add_pyranose_pseudo_ring_plane_restraints(comp_id):
 
@@ -6,7 +8,7 @@ def add_pyranose_pseudo_ring_plane_restraints(comp_id):
     def filter_out(plane_name_sub_string, plane_restraints):
         return [s for s in plane_restraints if not plane_name_sub_string in s[0]]
 
-    restraints = monomer_restraints(comp_id)
+    restraints = coot.monomer_restraints_py(comp_id)
 
     if (not isinstance(restraints, dict)):
         print("failed to get %s restraints" %comp_id)
@@ -18,7 +20,7 @@ def add_pyranose_pseudo_ring_plane_restraints(comp_id):
                                 filter_out("pseudo-ring-", plane_restraints) # should be list already
         restraints["_chem_comp_plane_atom"] = new_plane_restraints
 
-        set_monomer_restraints(comp_id, restraints)
+        coot.set_monomer_restraints_py(comp_id, restraints)
 
 def add_synthetic_pyranose_planes():
     for comp_id in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP"]:
@@ -46,8 +48,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
         coot.set_dragged_refinement_steps_per_frame(300)
 
         if (not isinstance(current_residue_spec, list)):
-            print("OOps not a proper res_spec %s with residue_to_add: %s" \
-                  %(current_residue_spec, residue_to_add))
+            print("OOps not a proper res_spec %s with residue_to_add: %s" %(current_residue_spec, residue_to_add))
             return False
         else:
             if not residue_to_add:
@@ -510,7 +511,7 @@ def delete_all_cho():
     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                aa_atom_name, aa_alt_conf]:
         if coot_utils.valid_model_molecule_qm(aa_imol):
-            with NoBackups(aa_imol):
+            with coot_utils.NoBackups(aa_imol):
                 for chain_id in coot_utils.chain_ids(aa_imol):
                     for res_serial in range(coot.chain_n_residues(chain_id, aa_imol)):
                         res_no = coot.seqnum_from_serial_number(aa_imol,
@@ -526,6 +527,6 @@ def delete_all_cho():
 #                    coot.delete_residue(aa_imol,
 #                                   res_spec_utils.residue_spec_to_chain_id(cho_res_spec),
 #                                   res_spec_utils.residue_spec_to_res_no(cho_res_spec), "")
-                delete_residues(aa_imol, delete_cho_ls)
+                coot.delete_residues_py(aa_imol, delete_cho_ls)
 
 

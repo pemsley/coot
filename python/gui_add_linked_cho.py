@@ -1,6 +1,8 @@
 
 import coot_gui
 import coot_gui_api
+import coot_utils
+import add_linked_cho
 
 def interactive_add_cho_dialog():
 
