@@ -70,8 +70,9 @@ coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_p
    init_status = create_dynarama_window();
    if (init_status) {
       psi_axis_mode = psi_axis; // or should this be in init_internal?!
-      init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0,
-                    is_kleywegt_plot_flag_in);
+
+      std::cout << "::::::::::::::: calling init_internal() " << std::endl;
+      init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0, is_kleywegt_plot_flag_in);
       gtk_widget_set_sensitive(rama_view_menu, TRUE);
       plot_type = RAMA;
    }
@@ -147,10 +148,9 @@ coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
       new_width = event->width;
       new_height = event->height;
 
-      zoom_factor = (sqrt(new_height*new_height*1. + new_width*new_width*1.)
-                     / sqrt(oldh*oldh*1. + oldw*oldw*1.));
-
+      zoom_factor = (sqrt(new_height*new_height*1. + new_width*new_width*1.) / sqrt(oldh*oldh*1. + oldw*oldw*1.));
       zoom *= zoom_factor;
+
       if (zoom < 0.8) {
          zoom = 0.8;
          g_print("BL INFO:: already smallest size to fit the window, wont make canvas smaller.\n");
@@ -187,63 +187,65 @@ coot::rama_plot::resize_mode_changed(int state) {
 bool
 coot::rama_plot::create_dynarama_window() {
 
+   std::cout << "::::::::::::::::::::::::::::::::::::::::::::::::: create_dynarama_window() called " << std::endl;
+
    if (dynawin) {
       // we already have a window, probably hidden, so no need to make a new one
       return 1;
-   }
-   else {
-   int status = 0;
-   GtkWidget *widget = NULL;
-   GtkBuilder *builder = NULL;
-   std::string glade_file = "dynarama.glade";
-
-   std::string glade_file_full = coot::package_data_dir();
-   glade_file_full += "/";
-   glade_file_full += glade_file;
-
-   bool glade_file_exists = 0;
-   struct stat buf;
-   int err = stat(glade_file_full.c_str(), &buf);
-   if (! err)
-      glade_file_exists = 1;
-
-   if (! glade_file_exists) {
-      std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } else {
 
-      // If we are using the graphics interface then we want non-null from the builder.
-      // add_from_file_status should be good or we are in trouble.
-      //
-      // If not, we need not call gtk_builder_add_from_file().
-      //
+      int status = 0;
+      GtkBuilder *builder = NULL;
+      std::string glade_file = "dynarama.glade";
 
-      int use_graphics_interface_flag = 1;
-      if (use_graphics_interface_flag) {
+      std::string glade_file_full = coot::package_data_dir();
+      glade_file_full += "/";
+      glade_file_full += glade_file;
 
-         builder = gtk_builder_new ();
-         guint add_from_file_status =
-            gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
-         if (! add_from_file_status) {
+      bool glade_file_exists = 0;
+      struct stat buf;
+      int err = stat(glade_file_full.c_str(), &buf);
+      if (! err)
+         glade_file_exists = 1;
 
-            // Handle error...
+      if (! glade_file_exists) {
+         std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
+      } else {
 
-            std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full
-                      << "\" failed." << std::endl;
-            if (builder) {
-               std::cout << "ERROR:: where builder was non-null" << std::endl;
+         // If we are using the graphics interface then we want non-null from the builder.
+         // add_from_file_status should be good or we are in trouble.
+         //
+         // If not, we need not call gtk_builder_add_from_file().
+         //
+
+         int use_graphics_interface_flag = 1;
+         if (use_graphics_interface_flag) {
+            builder = gtk_builder_new();
+            // 20211103-PE old dynarama.glade had problems with action area. Delete those file dialogs for now
+            guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+
+            if (! add_from_file_status) {
+
+               // Handle error...
+
+               std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full
+                         << "\" failed." << std::endl;
+               if (builder) {
+                  std::cout << "ERROR:: where builder was non-null" << std::endl;
+               } else {
+                  std::cout << "ERROR:: where builder was NULL" << std::endl;
+               }
+
             } else {
-               std::cout << "ERROR:: where builder was NULL" << std::endl;
-            }
 
-         } else {
+               // Happy Path
 
-            // Happy Path
+               std::cout << "Happy Path" << std::endl;
 
-               coot::rama_plot *plot;
                GtkWidget *dynarama_viewport = 0;
                dynawin = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_window"));
                dynarama_ok_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_ok_button"));
-               dynarama_cancel_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_cancel_button"));
+               dynarama_close_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_close_button"));
                dynarama_label = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_label"));
                scrolled_window = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_scrolledwindow"));
                dynarama_viewport = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_viewport"));
@@ -255,9 +257,9 @@ coot::rama_plot::create_dynarama_window() {
                selection_apply_button = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                           "dynarama_selection_apply_button"));
                outliers_only_tooglebutton = GTK_WIDGET(gtk_builder_get_object(builder,
-                                                                             "dynarama2_outliers_only_togglebutton"));
+                                                                              "dynarama2_outliers_only_togglebutton"));
                zoom_resize_togglebutton = GTK_WIDGET(gtk_builder_get_object(builder,
-                                                     "dynarama2_zoom_resize_togglebutton"));
+                                                                            "dynarama2_zoom_resize_togglebutton"));
                rama_stats_frame =  GTK_WIDGET(gtk_builder_get_object(builder, "rama_stats_frame"));
                rama_stats_label1 = GTK_WIDGET(gtk_builder_get_object(builder, "rama_stats_label_1"));
                rama_stats_label2 = GTK_WIDGET(gtk_builder_get_object(builder, "rama_stats_label_2"));
@@ -278,7 +280,7 @@ coot::rama_plot::create_dynarama_window() {
                kleywegt_radiomenuitem = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                           "kleywegt_radiomenuitem"));
                outliers_only_menuitem = GTK_WIDGET(gtk_builder_get_object(builder,
-                                                  "outliers_only_menuitem"));
+                                                                          "outliers_only_menuitem"));
                psi_axis_classic_radioitem = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                               "psi_axis_classic_radioitem"));
                psi_axis_paule_radioitem = GTK_WIDGET(gtk_builder_get_object(builder,
@@ -290,21 +292,20 @@ coot::rama_plot::create_dynarama_window() {
                kleywegt_chain_combobox2 = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                             "kleywegt_chain_combobox2"));
 
-               gtk_builder_connect_signals (builder, dynawin);
+               gtk_builder_connect_signals(builder, dynawin);
                g_object_unref (G_OBJECT (builder));
                status = add_from_file_status;
-	       gtk_widget_hide(rama_stats_label2);
+               gtk_widget_hide(rama_stats_label2);
 
                // new goocanvass don't wan't or need the viewport. So add the canvas to the scrolled_window
+               std::cout << "::::::: calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
                gtk_widget_destroy(dynarama_viewport);
+               std::cout << "::::::: back from calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
+            }
          }
       }
+      return status;
    }
-
-   return status;
-
-   }
-
 }
 
 
@@ -332,7 +333,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
    if (hide_buttons == 1) {
       gtk_widget_hide(dynarama_ok_button);
-      gtk_widget_hide(dynarama_cancel_button);
+      gtk_widget_hide(dynarama_close_button);
    }
 
    if (! is_kleywegt_plot_flag_local){
@@ -378,10 +379,20 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
    gtk_container_add(GTK_CONTAINER(scrolled_window), canvas);
    // gtk_widget_ref(canvas);
+
+   // new 20211103-PE
+   std::cout << ":::::::::: debug setting data for close_button " << dynarama_close_button << " \"rama_plot\" " << this << std::endl;
+   g_object_set_data(G_OBJECT(dynarama_close_button), "rama_plot", (gpointer) this);
+
+   std::cout << ":::::::::: debug setting data for canvas " << canvas << " \"rama_plot\" " << this << std::endl;
    g_object_set_data(G_OBJECT(canvas),  "rama_plot", (gpointer) this);
    g_object_set_data(G_OBJECT(canvas), " user_data", (gpointer) this);
    g_object_set_data(G_OBJECT(dynawin), "dynawin", (gpointer) this);
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL);
+
+   // 20211103-PE dynawin is what is connected as user data in gtk_builder_connect_signals().
+   // all the callback - that try to get the plot will be send dynawin as user data
+   g_object_set_data(G_OBJECT(dynawin), "rama_plot", (gpointer) this);
 
    gtk_widget_add_events(GTK_WIDGET(canvas),
                          GDK_EXPOSURE_MASK      |
@@ -610,6 +621,8 @@ coot::rama_plot::draw_rect() {
 
 void
 coot::rama_plot::draw_it(mmdb::Manager *mol) {
+
+   std::cout << "here in rama_plot::draw_it with mol " << mol << std::endl;
 
    if (mol) {
       clear_canvas_items();
