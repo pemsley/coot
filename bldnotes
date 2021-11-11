@@ -16,7 +16,6 @@ KCX, TPP
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 Fix a preferences dir function (in graphics-info already)
-
 Make requirement for probe/reduce more obvious, i.e. give better error message
  and better info in installer (which no one reads).
 
