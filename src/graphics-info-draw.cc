@@ -3552,6 +3552,12 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       render_3d_scene(gl_area);
    }
 
+   // 20211112-PE
+   // This seems to do bad things to the frame-rate on the PC (although fullscreen mode seems
+   // unaffected and looks to be *faster* than windowed mode (could be a gtk thing)).
+   // This is vital to see anything sane on the Mac.
+   glFlush();
+
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
@@ -4846,8 +4852,9 @@ graphics_info_t::fullscreen() {
       // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
       gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
       gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
+      gtk_widget_grab_focus(glareas[0]);
 
-      if (false) {
+         if (false) {
          gtk_container_remove(GTK_CONTAINER(vbox), tool_bar);
          gtk_overlay_add_overlay(GTK_OVERLAY(overlay), tool_bar);
          gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), tool_bar, TRUE);
