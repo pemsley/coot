@@ -400,7 +400,7 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
 
    // make a tinygltf::Model and use that for export
 
-   // perhasps this can go in the header - it's the same as in the reader
+   // perhaps this can go in the header - it's the same as in the reader
    class extracted_buffer_info_t {
    public:
       int buffer_view_index;

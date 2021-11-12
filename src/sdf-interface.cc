@@ -25,6 +25,7 @@
 
 // We need this high so that dcgettext() so we don't get expected unqualified-id before 'const'
 // errors when we read libintl from rdkit-interface.hh
+#include "graphics-info.h"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <libintl.h>
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -40,7 +41,6 @@
 #include <iostream> // for istream?
 #include <istream> // for istream?
 
-#include "graphics-info.h"
 #include "c-interface-generic-objects.h"
 #include "sdf-interface.hh"
 

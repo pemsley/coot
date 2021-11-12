@@ -2,6 +2,12 @@
 #include <iostream>
 #include "HUDMesh.hh"
 
+// Maybe these should not be static?
+// static
+constexpr float HUD_button_info_t::button_width;
+// static
+constexpr float HUD_button_info_t::button_height;
+
 void
 HUDMesh::init() {
 

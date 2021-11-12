@@ -4,6 +4,8 @@
 #include <thread>
 #include <chrono>
 
+#include "compat/coot-sysdep.h"
+
 #include <boost/math/distributions/skew_normal.hpp>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 

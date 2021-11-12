@@ -27,12 +27,12 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <iostream>
+
 #ifdef USE_SQLITE3
 #include <sqlite3.h>
 #include "ligands-db.hh"
 #endif
-#include <iostream>
-
 
 void print_usage(const std::string &argv_0) {
 

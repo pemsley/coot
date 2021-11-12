@@ -26,8 +26,6 @@
 //           do we need python here at all?!
 #endif
 
-#include "compat/coot-sysdep.h"
-
 
 #ifdef _MSC_VER
 #include <windows.h>

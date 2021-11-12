@@ -1194,19 +1194,12 @@ store_window_position(int window_type, GtkWidget *widget) {
 
    gint upositionx, upositiony;
 
-// BL says:: in windows root is not properly defined as in X11, so ok to use
-// simple gdk_window_get_position function, I hope!
-#ifdef WINDOWS_MINGW
-   gdk_window_get_position(widget->window, &upositionx, &upositiony);
-#else
-
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
    graphics_info_t::file_selection_dialog_x_size = allocation.width;
    graphics_info_t::file_selection_dialog_y_size = allocation.height;
 
    gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
-#endif // MINGW
 
    if (window_type == COOT_MODEL_REFINE_DIALOG) {
       graphics_info_t::model_fit_refine_x_position = upositionx;

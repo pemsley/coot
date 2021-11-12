@@ -30,7 +30,7 @@ void check_reference_structures_dir() {
    } else {
 
       // check in the default place: pkgdatadir = $prefix/share/coot
-      std::string pkgdatadir = PKGDATADIR;
+      std::string pkgdatadir = coot::package_data_dir();
       std::string ref_structs_dir = pkgdatadir;
       ref_structs_dir += "/";
       ref_structs_dir += "reference-structures";
@@ -38,7 +38,8 @@ void check_reference_structures_dir() {
       int status = stat(ref_structs_dir.c_str(), &buf);
       if (status != 0) { // file was not found in default location either
 	 std::cout << "WARNING:: No reference-structures found (in default location)."
-		   << "          and COOT_REF_STRUCTS was not defined." << std::endl;
+                   << "   " << ref_structs_dir
+		   << " and COOT_REF_STRUCTS was not defined." << std::endl;
 	 std::cout << "          Ca->Mainchain will not be possible." << std::endl;
       }
    }

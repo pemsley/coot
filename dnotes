@@ -10280,3 +10280,10 @@ Fri 22 Oct 06:52:45 BST 2021
    o Does your HOLE look like this? https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4078027/
 
 
+---
+Sat  6 Nov 2021 12:28:51 GMT
+
+   This is how to update AC_TRY_LINK usage:
+
+   https://gitlab.gnome.org/GNOME/glib/-/merge_requests/1899/diffs
+

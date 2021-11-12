@@ -479,6 +479,29 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 # Suggested value: comment out this line
 specs=${specs:=$HOME/autobuild/build-scripts/${HOST}-specials}
 
+
+# where has gtk been installed if this is Mac OS?
+if test "$OS" = "Darwin" ; then
+   if test -n "$gtk" ; then
+      if test -d $gtk" ; then
+         : # pass, good
+      else
+         echo gtk variable must point to the directory where gtk has been installed
+      fi
+   else
+      # gtk was not set, let's try to guess
+      testdir=$HOME/gtk/inst
+      if test -d $testdir ; then
+         gtk=$HOME/gtk/inst
+      else
+         echo this build script needs to know where gtk has been installed
+         echo \(at the moment\)
+         echo set gtk to point to the directory where gtk has been installed
+         exit 2
+      fi
+   fi
+fi
+
 # Make nightly binary tarballs?
 # You probably don't want to do this, so recommended is do_nightlies=0
 do_nightlies=${do_nightlies:=1}
@@ -1113,8 +1136,7 @@ case $dist_name in
        libglu1-mesa-dev
        libjpeg-dev
        mesa-common-dev
-       libgtk-3-dev
-       libgnomecanvas2-dev'
+       libgtk-3-dev'
        # converted from libgtk2.0-dev - not tested
        # not libgtk-3-dev
 
@@ -1143,8 +1165,8 @@ case $dist_name in
       ;;
 
     debian)
-      dep_list='libncurses5-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev libgtk3.0-dev libgnomecanvas2-dev m4'
-      # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev'
+      dep_list='libncurses5-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev libgtk3.0-dev m4'
+      # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
 
       for dep in $dep_list
@@ -1716,13 +1738,25 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
   #   pygobject-3.0.pc
   #   py3cairo.pc
   #   glm.pc
-  PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig
+  if test -n "$gtk" ; then
+     PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig
+  else
+     PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
+  endif
 else
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
    if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
-      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      if test -n "$gtk" ; then
+         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      else
+         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      endif
    else
-      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      if test -n "$gtk" ; then
+         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      else
+         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      fi
    fi
 fi
 
@@ -1749,6 +1783,8 @@ else
    echo freetype2 should be built
    build_freetype2=1
 fi
+
+# building PyGObject 3.36.1 requires glib 2.58.0 or later.
 
 if pkg-config --atleast-version=2.14.5 glib ; then
    # have glib
@@ -1969,17 +2005,6 @@ else
     echo libtool should be built
 fi
 
-# test for libgnomecanvas
-if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-    echo system has libgnomecanvas
-else
-    if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-       echo installation has libgnomecanvas - you clever fellow
-    else
-       build_libgnomecanvas=1
-    fi
-fi
-
 
 # ============= python ================
 #
@@ -1990,11 +2015,19 @@ python_version=python3.9
 pver=3.9.5
 python_version_extension=3.9 # extract this
 
+
+# for compatibility with gtk build system
+python_version=3.9
+pvers=3.9.12
+python_version_extension=3.8
+
+
 #
 # but more modern pythons do not compile (at least on my mac)
 # 20201225-PE this needs checking
 if [ $OS = Darwin ] ; then
    pver=3.6.5
+   pver=3.8.12
 fi
 
 
@@ -2040,32 +2073,6 @@ else
    fi
 fi
 
-
-
-# ##############################################################
-#   test for gnomecanvas
-# ##############################################################
-
-# on new Scientific Linux (7.3) we need to test for libgnomecanvas, not libgnomecanvas-2.0
-#
-# test for libgnomecanvas here
-if pkg-config --modversion libgnomecanvas-2.0 ; then
-   :
-else
-   # echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
-   # pkg_hnd=yum
-   # if [ "$dist_name" = debian ] ; then
-   #    pkg_hnd=apt-get
-   # fi
-   # if [ "$dist_name" = ubuntu ] ; then
-   #    pkg_hnd=apt-get
-   # fi
-   # echo consider: $pkg_hnd install libgnomecanvas-devel
-   # my_exit 2
-
-   echo ================ set build_libgnomecanvas=1
-   build_libgnomecanvas=1
-fi
 
 
 # test for mmdb: Does mmdb_model.h exist, and if it does, does it
@@ -2507,10 +2514,14 @@ if test -n "$build_python" ; then
    cd Python-$pver
 
    # --with-ensurepip=install
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
+   # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
+   # /Users/pemsley/ccp4/devtools/install
+   # this should be configured
+   openssl_prefix=$HOME/ccp4/devtools/install
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix $python_lib_flags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -2534,7 +2545,7 @@ fi
 ###############################################################################
 ##########         gobject-introspection before python            #############
 ###############################################################################
-# this needs to be reconsidered because gobejct-intropsection needs python3
+# this needs to be reconsidered because gobject-intropsection needs python3
 # to build.
 
 test_for_already_installed_dependencies=true
@@ -2684,6 +2695,8 @@ if [ true ] ; then
 
    if [ $skip_build = false ] ; then
 
+      echo building pygobject $pygobject_version
+      echo building pygobject $pygobject_version 2>& 1
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
@@ -2719,6 +2732,7 @@ if [ true ] ; then
    fi
 else
    echo not building pygobject:
+   echo not building pygobject: 2>&1
 fi
 
 # Now we need:
@@ -3000,10 +3014,15 @@ if [ -e $install_top_dir/include/goocanvas-2.0/goocanvas.h ] ; then
    build_goocanvas=no
 fi
 
+# https://download-fallback.gnome.org/sources/goocanvas/2.0/
 
 if [ "$build_goocanvas" != "no" ] ; then
     echo BUILDING goocanvas
-    ${WGET} http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0/goocanvas-2.0.0.tar.gz
+    echo BUILDING goocanvas 2>& 1
+    goocanvas_dir=https://download-fallback.gnome.org/sources/goocanvas/2.0
+    # or maybe http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0
+    goocanvas_version=2.0.4
+    ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-$goocanvas_version.tar.xz
     (date
      echo building in: $PWD
      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
@@ -3012,10 +3031,11 @@ if [ "$build_goocanvas" != "no" ] ; then
      echo CPPFLAGS: $CPPFLAGS
      echo LDFLAGS: $LDFLAGS
      pwd
-     gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-2.0.0.tar.gz | tar xf -
-     cd goocanvas-2.0.0
+     tar xf ${AUTOBUILD_SOURCES}/goocanvas-$goocanvas_version.tar.xz
+     cd goocanvas-$goocanvas_version
      # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
      # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
+     echo ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS
      if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
         if ! $MAKE ; then
            echo make of goocanvas failed
@@ -3165,14 +3185,17 @@ fi
 # and it does if PKG_CONFIG_PATH is set correctly
 if [ -e $install/include/pygobject-3.0/pygobject.h ] ; then
     echo pygobject is installed
+    echo pygobject is installed 2>&1
 else
+    echo installing pygobject with pip3
+    echo installing pygobject with pip3 2>&1
     (
     echo installing pygobject
     echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
     which pip3
     pip3 install wheel
     pip3 install pygobject
-    ) > $HOSTLOGDIR/17-pip-friends.txt 2>&1
+    ) > $HOSTLOGDIR/17-pip-wheel-pygobject.txt 2>&1
 fi
 
 
@@ -3285,6 +3308,7 @@ if [ "$build_rdkit" = true ] ; then
    if [ $skip_this = false ] ;  then
 
       echo building rdkit $rdkit_version
+      echo building rdkit $rdkit_version 2>&1
       (
       echo building ========================= rdkit ==============================
 

@@ -1952,8 +1952,9 @@ coot::protein_geometry::init_standard() {
 		     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
 		  }
 	       } else {
-		  std::cout << "WARNING:: COOT_PREFIX not set, all attemps to "
+		  std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
 			    << "find dictionary lib failed\n";
+                  mon_lib_dir.clear();
 	       }
 	    }
 	 }
@@ -1976,39 +1977,39 @@ coot::protein_geometry::init_standard() {
       } else {
 	 // OK 
       }
-   } else { 
-      std::cout << "WARNING: Failed to read restraints dictionary. "
-		<< std::endl; 
-   }
 
-   // setting up CCP4 sets mon_lib_cif to
-   // $CCP4_MASTER/lib/data/monomers (by using $CLIBD_MON).
-   // 
-   std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
-   std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
-   if (using_clibd_mon) {
-      mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
-      energy_cif_file_name = mon_lib_dir + "/ener_lib.cif";
-   }
-   if (cmld) { 
-      mon_lib_cif = cmld;
-      mon_lib_cif += "/list/mon_lib_list.cif";
-      energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
-   }
-   
-   init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
-   // now the protein monomers:
-   read_number = 1;
-   std::vector <std::string> protein_mono = standard_protein_monomer_files();
-   for (unsigned int i=0; i<protein_mono.size(); i++) { 
-      std::string monomer_cif_file = protein_mono[i];
-      if (!cmld && !using_clibd_mon) {
-	 monomer_cif_file = "data/monomers/" + monomer_cif_file;
+      // setting up CCP4 sets mon_lib_cif to
+      // $CCP4_MASTER/lib/data/monomers (by using $CLIBD_MON).
+      //
+      std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
+      std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
+      if (using_clibd_mon) {
+         mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
+         energy_cif_file_name = mon_lib_dir + "/ener_lib.cif";
       }
-      refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
-   }
+      if (cmld) {
+         mon_lib_cif = cmld;
+         mon_lib_cif += "/list/mon_lib_list.cif";
+         energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
+      }
+   
+      init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
+      // now the protein monomers:
+      read_number = 1;
+      std::vector <std::string> protein_mono = standard_protein_monomer_files();
+      for (unsigned int i=0; i<protein_mono.size(); i++) {
+         std::string monomer_cif_file = protein_mono[i];
+         if (!cmld && !using_clibd_mon) {
+	    monomer_cif_file = "data/monomers/" + monomer_cif_file;
+         }
+         refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
+      }
 
-   read_energy_lib(energy_cif_file_name);
+      read_energy_lib(energy_cif_file_name);
+   } else {
+      std::cout << "WARNING: Failed to read restraints dictionary. "
+                << std::endl;
+   }
 
    return read_number;
 }

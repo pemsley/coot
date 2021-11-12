@@ -197,6 +197,13 @@ AM_CFLAGS = \
 # But DEFAULT_INCLUDES is *before* INCLUDES
 # DEFAULT_INCLUDES = ... snip.  Rethink...
 
+# get this from configure
+# /Users/pemsley/python-3.8/lib/python3.8/site-packages/PyGObject-3.36.1-py3.8-macosx-11.5-x86_64.egg/include/pygobject-3.0/pygobject.h
+# /Users/pemsley/test/ccp4-20210929/include/pygobject-3.0/pygobject.h
+PYGOBJECT_CFLAGS=-I$(HOME)/python-3.8/lib/python3.8/site-packages/PyGObject-3.36.1-py3.8-macosx-11.5-x86_64.egg/include
+
+
+
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
@@ -209,6 +216,7 @@ AM_CXXFLAGS = \
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
+        $(PYGOBJECT_CFLAGS)     \
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)	\
 	$(COOT_WINDOWS_CFLAGS) 	\
@@ -697,6 +705,13 @@ libcootsumo_la_SOURCES = \
 EXTRA_DIST += coot_wrap_python_pre.cc
 dist_python_PYTHON = coot.py coot.pth
 
+if OS_WIN32
+# Python .pyd modules are simply DLLs, but they have to be called .pyd for
+# python to find them, and libtool only creates .dll.
+install-exec-hook:
+	mv $(pyexecdir)/_coot-0.dll $(pyexecdir)/_coot.pyd
+endif
+
 # testcartesian_SOURCES = testcartesian.cc
 
 # graphics_crash_test_SOURCES = graphics-crash-test.cc graphics-crash-test.h
@@ -773,6 +788,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS)       \
 		-lfreetype \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@ \
+		$(SHARED_LDFLAGS)       \
 		-lpthread
 
 # make freetype a configure variable FREETYPE_LIBS
