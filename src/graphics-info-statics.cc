@@ -1502,7 +1502,6 @@ graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) 
 #endif
 }
 
-float graphics_info_t::contact_dots_density = 1.0;
 
 bool graphics_info_t::draw_missing_loops_flag = true;
 
@@ -1600,7 +1599,9 @@ bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 
 std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
 
+float graphics_info_t::contact_dots_density = 1.0;
 bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;
+bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
 
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 

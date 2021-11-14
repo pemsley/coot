@@ -158,6 +158,9 @@ void coot_all_atom_contact_dots(int imol);
 //! \brief set if all atom contact should ignore water-water interactions (default off)
 void set_all_atom_contact_dots_ignore_water(short int state);
 
+//! \brief set if all atom contact should make the vdw surface (default off/false)
+void set_all_atom_contact_dots_do_vdw_surface(short int state);
+
 #ifdef USE_PYTHON
 void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
 // change HE2 to HD1 and vice versa

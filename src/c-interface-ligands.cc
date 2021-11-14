@@ -3843,6 +3843,13 @@ void set_all_atom_contact_dots_ignore_water(short int state) {
 
 }
 
+//! \brief set if all atom contact should make the vdw surface (default off/false)
+void set_all_atom_contact_dots_do_vdw_surface(short int state) {
+
+   graphics_info_t::all_atom_contact_dots_do_vdw_surface = state; // short int to bool conversion
+}
+
+
 
 // all-atom contact dots.  This is not the place for this definition (not a ligand function)
 //

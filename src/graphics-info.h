@@ -3106,8 +3106,6 @@ public:
 								      const atom_selection_container_t &asc,
 								      short int is_regular_residue_flag) const;
 
-   static bool all_atom_contact_dots_ignore_water_flag; // false by default
-
    // Do 180 degree sidechain flip stuff
    //
    static short int in_180_degree_flip_define;
@@ -4114,7 +4112,10 @@ string   static std::string sessionid;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
 
+   static bool all_atom_contact_dots_ignore_water_flag; // false by default
+   static bool all_atom_contact_dots_do_vdw_surface; // false by default
    static float contact_dots_density; // 1 by default
+
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
 

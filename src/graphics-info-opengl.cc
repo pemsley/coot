@@ -404,7 +404,8 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
 
       // more sensible
       coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
-      c = overlaps.all_atom_contact_dots(contact_dots_density, true);
+      bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
+      c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Contact Dots for Molecule ";
@@ -434,6 +435,9 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
          for (unsigned int i=0; i<v.size(); i++) {
             glm::vec3 position(v[i].pos.x(), v[i].pos.y(), v[i].pos.z());
             const std::string &colour_string = v[i].col;
+            if (false) // debugging
+               if (type != "vdw-surface")
+                  std::cout << " type " << type << " " << i << " colour_string: " << colour_string << std::endl;
             if (colour_string == previous_colour_string) {
                Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size);
                attribs.specular_strength = specular_strength;
