@@ -40,6 +40,7 @@ public:
    void add_octahemisphere_start_cap();
    void set_unstubby_rounded_cap_factor(float f) { unstubby_rounded_cap_factor = f; }
    void add_sad_face(); // to move the eyesballs. the eyes would have to be in a different mesh.
+   void crenulations();
 };
 
 #endif

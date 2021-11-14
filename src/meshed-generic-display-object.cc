@@ -148,8 +148,9 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
 
    float h = glm::distance(start_end.first, start_end.second);
    glm::vec4 base_colour(col.red, col.green, col.blue, 1.0f);
-   if (do_faces) start_cap_type = meshed_generic_display_object::FLAT_CAP;
+   if (do_faces) cap_start = false;
    cylinder c(start_end, line_radius, line_radius, h, base_colour, n_slices, 2); // not colour of base
+   if (do_faces) c.crenulations();
    c.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
    if (false)
       std::cout << "add_cylinder: " << glm::to_string(start_end.first) << " "

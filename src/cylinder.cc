@@ -429,3 +429,172 @@ cylinder::add_sad_face()  {
    add_vertices_and_triangles(vertices_and_triangles_m);
 
 }
+
+void
+cylinder::crenulations() {
+
+   glm::vec4 col(0.2, 0.2, 0.2, 1.0);
+
+   // vertices.clear();
+   // triangles.clear();
+   unsigned int idx_base = vertices.size();
+
+   // top and bottom rings
+   unsigned int n_stacks = 2;
+   unsigned int n_slices = 80; // or so
+
+   // add_flat_start_cap();
+
+   // each vertex has 3 occurrances, because (although the positions are the same), the normals are different
+   // (one is tangential the other is from connecting points with different radii), the third is to
+   // fill the gaps on the z = (0,1) planes
+   //
+   std::vector<s_generic_vertex> vertices_local(n_slices * n_stacks * 3);
+
+   for (unsigned int i_stack=0; i_stack<n_stacks; i_stack++) {
+      glm::vec3 n(0,0,-1);
+      if (i_stack == 1) n = glm::vec3(0,0,1);
+      for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
+         unsigned int idx_0 = i_stack * n_slices * 3 + 3 * i_slice;
+         unsigned int idx_1 = i_stack * n_slices * 3 + 3 * i_slice + 1;
+         unsigned int idx_2 = i_stack * n_slices * 3 + 3 * i_slice + 2;
+
+         float f_this = static_cast<float>(i_slice  )/static_cast<float>(n_slices);
+         float f_prev = static_cast<float>(i_slice-1)/static_cast<float>(n_slices);
+         float f_next = static_cast<float>(i_slice+1)/static_cast<float>(n_slices);
+         float x_this = cosf(2.0 * M_PI * f_this);
+         float y_this = sinf(2.0 * M_PI * f_this);
+         float x_prev = cosf(2.0 * M_PI * f_prev);
+         float y_prev = sinf(2.0 * M_PI * f_prev);
+         float x_next = cosf(2.0 * M_PI * f_next);
+         float y_next = sinf(2.0 * M_PI * f_next);
+         float z = static_cast<float>(i_stack);
+         int rem = i_slice % 4;
+         float out_fac = 1.1f;
+         if (rem == 0) {
+            x_prev *= out_fac;
+            y_prev *= out_fac;
+         }
+         if (rem == 1) {
+            x_next *= out_fac;
+            y_next *= out_fac;
+         }
+         if (rem == 2) {
+            x_this *= out_fac;
+            y_this *= out_fac;
+            x_next *= out_fac;
+            y_next *= out_fac;
+         }
+         if (rem == 3) {
+            x_this *= out_fac;
+            y_this *= out_fac;
+         }
+
+         // positions
+         glm::vec3 pos(x_this, y_this, z);
+         vertices_local[idx_0].pos = pos;
+         vertices_local[idx_1].pos = pos;
+         vertices_local[idx_2].pos = pos;
+
+         // normals
+         glm::vec3 delta_to_prev(x_this-x_prev, y_this-y_prev, 0.0f); // order will need fiddling
+         glm::vec3 delta_to_next(x_next-x_this, y_next-y_this, 0.0f);
+
+         float angle = - M_PI/2.0;
+         glm::vec3 n1 = glm::rotate(delta_to_prev, angle, glm::vec3(0,0,1));
+         glm::vec3 n2 = glm::rotate(delta_to_next, angle, glm::vec3(0,0,1));
+
+         vertices_local[idx_0].normal = glm::normalize(n1);
+         vertices_local[idx_1].normal = glm::normalize(n2);
+         vertices_local[idx_2].normal = n; // for top and bottom face completion
+
+         std::cout << "vertex_local idx " << idx_0 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_0].normal) << std::endl;
+         std::cout << "vertex_local idx " << idx_1 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_1].normal) << std::endl;
+         std::cout << "vertex_local idx " << idx_2 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_2].normal) << std::endl;
+
+         vertices_local[idx_0].color = col;
+         vertices_local[idx_1].color = col;
+         vertices_local[idx_2].color = col;
+      }
+   }
+
+   float z_height = 0.08;
+   for (unsigned int i=0; i<vertices_local.size(); i++) {
+      auto &v = vertices_local[i];
+      v.pos.z *= z_height;
+      v.pos.z -= z_height;
+      v.pos.x *= 0.06;
+      v.pos.y *= 0.06;
+      std::cout << " scale-down " << i << " " << glm::to_string(v.pos) << std::endl;
+   }
+
+   s_generic_vertex offset_origin(glm::vec3(0.0f, 0.0f, -z_height), glm::vec3(0,0,-1), col);
+   vertices_local.push_back(offset_origin);
+
+   vertices.insert(vertices.end(), vertices_local.begin(), vertices_local.end());
+   unsigned int idx_offset_origin = vertices.size() - 1;
+
+   // -------- triangles -----------
+
+   for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
+      unsigned int idx_this_z0 = idx_base +                3 * i_slice;
+      unsigned int idx_this_z1 = idx_base + 3 * n_slices + 3 * i_slice;
+
+      unsigned int idx_1 = idx_this_z0 + 1;
+      unsigned int idx_2 = idx_this_z0 + 3;
+      unsigned int idx_3 = idx_this_z1 + 1;
+      unsigned int idx_4 = idx_this_z1 + 3;
+
+      if ((i_slice+1) == n_slices) { // last slice
+         idx_2 = idx_base;
+         idx_4 = idx_base + 3 * n_slices;
+      }
+      std::cout << "adding triangle " << idx_1 << " " << idx_2 << " " << idx_3 << " "
+                << glm::to_string(vertices[idx_1].pos) << " "
+                << glm::to_string(vertices[idx_2].pos) << " "
+                << glm::to_string(vertices[idx_3].pos) << " "
+                << std::endl;
+      triangles.push_back(g_triangle(idx_1, idx_2, idx_3));
+      triangles.push_back(g_triangle(idx_2, idx_3, idx_4));
+   }
+
+   // fill in the horizontal gaps at the top and bottom (face completion)
+   //
+   for (unsigned int i_stack=0; i_stack<n_stacks; i_stack++) {
+      for (unsigned int i_slice=1; i_slice<n_slices; i_slice += 4) {
+
+         unsigned int idx_1 = idx_base + i_stack * 3 * n_slices + 3 * i_slice       + 2;
+         unsigned int idx_2 = idx_base + i_stack * 3 * n_slices + 3 * (i_slice + 1) + 2;
+         unsigned int idx_3 = idx_base + i_stack * 3 * n_slices + 3 * (i_slice + 2) + 2;
+         unsigned int idx_4 = idx_base + i_stack * 3 * n_slices + 3 * (i_slice + 3) + 2;
+
+         if (i_slice >= (n_slices-3)) {
+            idx_4 = idx_base + i_stack * 3 * n_slices + 3 * (0) + 2;
+         }
+
+         if ((i_slice+1) == n_slices) { // last slice
+            idx_2 = idx_base + i_slice * 3 * n_slices + 2;
+            idx_4 = idx_base + i_slice * 3 * n_slices;
+         }
+
+         // std::cout << "adding triangle " << idx_1 << " " << idx_2 << " " << idx_3 << " "
+         // << glm::to_string(vertices[idx_1].pos) << " "
+         // << glm::to_string(vertices[idx_2].pos) << " "
+         // << glm::to_string(vertices[idx_3].pos) << " "
+         // << std::endl;
+
+         triangles.push_back(g_triangle(idx_1, idx_2, idx_3));
+         triangles.push_back(g_triangle(idx_1, idx_3, idx_4));
+      }
+   }
+
+   // the flat start cap
+   for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
+      unsigned int idx_this = idx_base + (i_slice    ) * 3 + 2;
+      unsigned int idx_next = idx_base + (i_slice + 1) * 3 + 2;
+      if ((i_slice+1) == n_slices) { // last slice
+         idx_next = idx_base + (0) * 3 + 2;
+      }
+      triangles.push_back(g_triangle(idx_offset_origin, idx_this, idx_next));
+   }
+}
