@@ -435,7 +435,7 @@ void set_display_generic_object_simple(int object_number, short int istate) {
    if (object_number >=0  && object_number < int(g.generic_display_objects.size())) {
       g.generic_display_objects[object_number].mesh.set_draw_this_mesh(istate);
    } else {
-      std::cout << "BAD object_number in to_generic_object_add_point: "
+      std::cout << "ERROR:: BAD object_number in to_generic_object_add_point: "
                 << object_number << std::endl;
    }
 
@@ -528,11 +528,8 @@ int new_generic_object_number(const std::string &name_string) {
 //
 int new_generic_object_number_for_molecule(const std::string &name, int imol) {
 
-   int idx = new_generic_object_number(name);
    graphics_info_t g;
-   g.generic_display_objects.at(idx).imol = imol;
-
-   return idx;
+   return g.new_generic_object_number_for_molecule(name, imol);
 }
 
 

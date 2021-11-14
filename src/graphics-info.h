@@ -92,6 +92,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/atom-overlaps.hh"
 
 #include "positioned-widgets.h"
 
@@ -3737,6 +3738,11 @@ public:
       generic_display_objects.push_back(meshed);
       return generic_display_objects.size() - 1;
    }
+   int new_generic_object_number_for_molecule(const std::string &name, int imol) {
+      int idx = new_generic_object_number(name);
+      generic_display_objects.at(idx).imol = imol;
+      return idx;
+   }
    static int generic_object_index(const std::string &name) {
       int index = -1;
       int nobjs = generic_display_objects.size();
@@ -4115,6 +4121,9 @@ string   static std::string sessionid;
    static bool all_atom_contact_dots_ignore_water_flag; // false by default
    static bool all_atom_contact_dots_do_vdw_surface; // false by default
    static float contact_dots_density; // 1 by default
+   static void setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
+                                      int imol, bool extra_annotation=false);
+   
 
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
