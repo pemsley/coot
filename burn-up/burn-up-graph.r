@@ -115,8 +115,12 @@ do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
-# betterArrow(2, 14.5, 2, 11.0, col='grey', code=2)
-# text(3, 15.5, labels=" Keele (EM)", col='grey', cex=1.0)
+betterArrow(37, 8, 37, 32, 0.2, col='grey', code=2)
+text(50, 13., labels="Dead Computer", col='grey', cex=1.0)
+text(43, 9., labels="Illness", col='grey', cex=1.0)
+
+betterArrow(70, 32, 44, 38.3, 0.2, col='grey', code=2)
+text(84, 32., labels="Runs on Mac OS", col='grey', cex=1.0)
 
 dev.off()
 
