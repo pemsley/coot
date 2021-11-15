@@ -1960,7 +1960,7 @@ def view_saver_gui():
             # now is a view already called str?
             jview = 0
             while jview or jview == 0:
-                jview_name = view_name(jview)
+                jview_name = coot.view_name_py(jview)
                 if jview >= coot.n_views():
                     return strr
                 elif jview_name == False:
@@ -1973,10 +1973,11 @@ def view_saver_gui():
         return strr
 
     def add_view_local_func(text):
-        new_view_number = coot_utils.add_view_here(text)
-        coot_utils.add_view_to_views_panel(text, new_view_number)
+        new_view_number = coot.add_view_here(text)
+        add_view_to_views_panel(text, new_view_number)
+
     generic_single_entry("View Name: ", local_view_name(), " Add View ",
-                         lambda text: coot_utils.add_view_local_func(text))
+                         lambda text: add_view_local_func(text))
 
 
 def add_view_to_views_panel(view_name, view_number):
@@ -2096,6 +2097,7 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
         button = Gtk.HSeparator()
     else:
         callback = button_info[1]
+        print("debug:: in add_button_info_to_box_of_buttons_vbox, callback is", callback)
         if (len(button_info) == 2):
             description = False
         else:
@@ -2336,12 +2338,20 @@ def views_panel_gui():
     number_of_views = coot.n_views()
     buttons = []
 
+    def generator(button_number):
+        func = lambda button_number_c=button_number : coot.go_to_view_number(button_number_c, 0)
+        def action(arg):
+            print("debug in action() arg is", arg, "button_number is", button_number)
+            func(button_number)
+        return action
+
     for button_number in range(number_of_views):
-        button_label = view_name(button_number)
-        desciption = view_description(button_number)
-# BL says:: add the decisption condition!!
-        buttons.append([button_label, "go_to_view_number(" +
-                        str(button_number) + ",0)", desciption])
+        button_label = coot.view_name_py(button_number)
+        desciption = coot.view_description_py(button_number)
+        # BL says:: add the description condition
+        # func = "go_to_view_number(" + str(button_number) + ",0)" 20211115-PE no to string functions
+        func = generator(button_number)
+        buttons.append([button_label, func, desciption])
 
     if len(buttons) > 1:
         def view_button_func():
@@ -2352,8 +2362,7 @@ def views_panel_gui():
         view_button = ["  Play Views ", lambda func: view_button_func()]
         buttons.insert(0, view_button)
 
-    views_vbox = dialog_box_of_buttons(
-        "Views", [200, 140], buttons, "  Close  ")
+    views_vbox = dialog_box_of_buttons("Views", [200, 140], buttons, "  Close  ")
     views_dialog_vbox = views_vbox
 
 # nudge screen centre box.  Useful when Ctrl left-mouse has been

@@ -10287,3 +10287,28 @@ Sat  6 Nov 2021 12:28:51 GMT
 
    https://gitlab.gnome.org/GNOME/glib/-/merge_requests/1899/diffs
 
+---
+Mon 15 Nov 01:06:56 GMT 2021
+
+old style function (as a executable string)
+
+        func = "go_to_view_number(" + str(button_number) + ",0)" 20211115-PE no to string functions
+        buttons.append([button_label, func, desciption])
+
+so try this:
+
+        func = lambda w : coot.go_to_view_number(button_number, 0)
+        buttons.append([button_label, func, desciption])
+
+Doesn't work because button_number is not captured. We need a generator
+
+    def generator(button_number):
+        func = lambda button_number_c=button_number : coot.go_to_view_number(button_number_c, 0)
+        def action(arg):
+            print("debug in action() arg is", arg, "button_number is", button_number)
+            func(button_number)
+        return action
+
+   ...
+        func = generator(button_number)
+        buttons.append([button_label, func, desciption])

@@ -1449,10 +1449,10 @@ if True:
        submenu,
        "Add a Spin View...",
        lambda func: coot_gui.generic_double_entry("Number of Steps", 
-                         "Number of Degrees (total)", "3600", "360", 
-                         False, False,                 #check button text and callback
-                         "  Add Spin  ",
-                         lambda text_1, text_2: coot.add_spin_view("Spin", int(text_1), float(text_2))))
+                                                  "Number of Degrees (total)", "3600", "360", 
+                                                  False, False,                 #check button text and callback
+                                                  "  Add Spin-xxx  ",
+                                                  lambda text_1, text_2, active_state: coot.add_spin_view("Spin", int(text_1), float(text_2))))
 
      coot_gui.add_simple_coot_menu_menuitem(
        submenu,
