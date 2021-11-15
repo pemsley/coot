@@ -37,6 +37,8 @@
 extern "C" G_MODULE_EXPORT void
 on_dynarama2_window_destroy(GObject *caller, gpointer user_data) {
 
+   std::cout << "on_dynarama2_window_destroy() caller-object: " << caller << std::endl;
+
    // maybe no callback from builder for mainwindow!?
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
@@ -91,13 +93,33 @@ on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
 
 }
 
-extern "C" G_MODULE_EXPORT void
-on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
+// extern "C" G_MODULE_EXPORT void
+// on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
 
-   GtkWidget *canvas = GTK_WIDGET(user_data);
-   coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
+//    GtkWidget *canvas = GTK_WIDGET(user_data);
+//    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
+//    if (!plot) {
+//       std::cout<<"debug:: on_dynarama2_cancel_button_clicked() failed to get the plot from " << canvas <<std::endl;
+//    } else {
+//       if (plot->is_stand_alone()) {
+//          // gtk_exit(0);
+//          std::cout << "exit here in on_dynarama2_cancel_button_clicked() " << std::endl;
+//       } else {
+//          int imol = plot->molecule_number();
+//          if (imol == -9999)
+//             clear_moving_atoms_object();
+//          gtk_widget_destroy(plot->dynawin);
+//       }
+//    }
+// }
+
+extern "C" G_MODULE_EXPORT void
+on_dynarama2_close_button_clicked_gtkbuilder_callback(GtkButton *button, gpointer user_data) {
+
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(button), "rama_plot"));
    if (!plot) {
-      std::cout<<"debug:: on_dynarama2_cancel_button_clicked() failed to get the plot from " << canvas <<std::endl;
+      std::cout << "debug:: on_dynarama2_close_button_clicked() failed to get the plot from button "
+                << button << std::endl;
    } else {
       if (plot->is_stand_alone()) {
          // gtk_exit(0);
@@ -106,14 +128,14 @@ on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
          int imol = plot->molecule_number();
          if (imol == -9999)
             clear_moving_atoms_object();
-         gtk_widget_destroy(plot->dynawin);
+         gtk_widget_hide(plot->dynawin);
       }
    }
 }
 
 
 extern "C" G_MODULE_EXPORT void
-on_kleywegt_apply_chain_button_clicked(GtkButton *button, gpointer user_data) {
+on_kleywegt_apply_chain_button_clicked_gtkbuilder_callback(GtkButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
@@ -126,18 +148,24 @@ on_kleywegt_apply_chain_button_clicked(GtkButton *button, gpointer user_data) {
 }
 
 extern "C" G_MODULE_EXPORT void
-on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointer user_data) {
+on_dynarama2_outliers_only_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
+
+   std::cout << "debug:: on_dynarama2_outliers_only_togglebutton_toggled_gtkbuilder_callback canvas " << canvas
+             << " plot " << plot << std::endl;
    if (plot) {
       int state = gtk_toggle_button_get_active(button);
       plot->show_outliers_only(state);
+   } else {
+      std::cout << "debug:: in on_dynarama2_outliers_only_togglebutton_toggled_gtkbuilder_callback() null plot"
+                << " from canvas " << canvas << std::endl;
    }
 }
 
 extern "C" G_MODULE_EXPORT void
-on_dynarama_selection_checkbutton_toggled(GtkToggleButton *button, gpointer user_data){
+on_dynarama_selection_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *button, gpointer user_data){
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
@@ -148,7 +176,7 @@ on_dynarama_selection_checkbutton_toggled(GtkToggleButton *button, gpointer user
 }
 
 extern "C" G_MODULE_EXPORT void
-on_dynarama_selection_entry_activate(GtkEntry *entry, gpointer  user_data) {
+on_dynarama_selection_entry_activate_gtkbuilder_callback(GtkEntry *entry, gpointer  user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
@@ -158,7 +186,7 @@ on_dynarama_selection_entry_activate(GtkEntry *entry, gpointer  user_data) {
 }
 
 extern "C" G_MODULE_EXPORT void
-on_dynarama_selection_apply_button_clicked(GtkButton *button, gpointer user_data){
+on_dynarama_selection_apply_button_clicked_gtkbuilder_callback(GtkButton *button, gpointer user_data){
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));

@@ -172,7 +172,7 @@ namespace coot {
       //GtkCanvas *canvas;
       GtkWidget *canvas;
       GtkWidget *dynarama_ok_button;
-      GtkWidget *dynarama_cancel_button;
+      GtkWidget *dynarama_close_button; // 20211103-PE was cancel button.
       GtkWidget *dynarama_label;
       GtkWidget *scrolled_window;
       GtkWidget *outliers_only_tooglebutton;

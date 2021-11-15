@@ -139,8 +139,10 @@ AC_ARG_WITH([backward], AS_HELP_STRING([--with-backward], [Build with the backwa
 if test "xwith_backward" ; then
    # tested in utils/Makefile.am
    USE_BACKWARD=use_backward
+else
+   USE_BACKWARD=no
 fi
-AC_SUBST(USE_BACKWARD)
+AM_CONDITIONAL(USE_BACKWARD, [test $USE_BACKWARD = use_backward])
 
 if test "x$with_gpp4" = "xyes"; then
     PKG_CHECK_MODULES([CCP4], [gpp4])
