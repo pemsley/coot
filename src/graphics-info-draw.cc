@@ -3328,11 +3328,16 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 
       glEnable(GL_DEPTH_TEST);
       glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-      texture_for_hud_tooltip_background.Bind(0);
-      mesh_for_hud_tooltip_background.set_scales(glm::vec2(0.163, 0.05)); // hud-tooltip.png is 103x50
-      mesh_for_hud_tooltip_background.draw(&shader_for_hud_geometry_labels);
+      bool draw_background = false; // 20211124-PE backgrounds are not correctly scaled at the moment
+
+      if (draw_background) {
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+         texture_for_hud_tooltip_background.Bind(0);
+         mesh_for_hud_tooltip_background.set_scales(glm::vec2(0.163, 0.05)); // hud-tooltip.png is 103x50
+         mesh_for_hud_tooltip_background.draw(&shader_for_hud_geometry_labels);
+      }
 
       // now the text that goes into (on top of) the background
 
@@ -3352,7 +3357,6 @@ graphics_info_t::draw_hud_geometry_tooltip() {
       // this is now done in setup_hud_geometry_bars() which is called by resize()
       // glm::vec2 label_scale(0.00015, 0.00015); // fixed.
       // tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
-
 
       bool use_label_highlight = true;
       mmdb::Residue *residue_p = 0;
@@ -3634,7 +3638,7 @@ graphics_info_t::render_scene_with_y_blur() {
    glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_colour());
    glActiveTexture(GL_TEXTURE0 + 1);
    glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_depth());
-   shader_for_x_blur.set_int_for_uniform("screenTexture", 0);
+   shader_for_y_blur.set_int_for_uniform("screenTexture", 0);
    GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() D err " << err << std::endl;
 
    glDrawArrays(GL_TRIANGLES, 0, 6);

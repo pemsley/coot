@@ -354,9 +354,10 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 #include "glarea_tick_function.hh"
 
 // static
+// extra_annotation is a default argument, default false;
 void
 graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
-                                        int imol, bool extra_annotation) {
+                                        int imol, float tube_radius, bool extra_annotation) {
 
    // clashes - 20211008-PE this should be in a lambda for clarity
    //
@@ -388,6 +389,7 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
       // instancing for capped cylinders
       meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
       float line_radius = 0.062f;
+      line_radius = tube_radius;
       const unsigned int n_slices = 16;
       std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
       obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
@@ -417,7 +419,6 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
          glm::mat4 mt_2 = mt_1 * ori;
          glm::mat4 mt_3 = glm::scale(mt_2, sc);
          mats.push_back(mt_3);
-         // std::cout << "debug " << i << " mt " << glm::to_string(mt) << std::endl;
       }
 
       auto set_display_generic_object_simple = [] (int object_number, short int istate) {
@@ -437,11 +438,33 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
       set_display_generic_object_simple(clashes_obj_index, 1);
 
       // add continuous updating
+      if (! tick_function_is_active()) {
+         tick_function_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0); // turn off by turn off FPS monitor
+      }
       g.do_tick_constant_draw = true;
-      gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0); // turn off by turn off FPS monitor
    }
 };
 
+
+//static
+bool
+graphics_info_t::get_exta_annotation_state() {
+
+   bool extra_annotation = false;
+   time_t times = time(NULL);
+   struct tm result;
+   localtime_r(&times, &result);
+
+   if (result.tm_mday == 1)
+      if (result.tm_mon == 3)
+         if (result.tm_sec%5==0)
+            extra_annotation = true;
+   if (result.tm_mon == 9)
+      if (result.tm_mday > 15)
+         if (result.tm_sec%5==0)
+            extra_annotation = true;
+   return extra_annotation;
+}
 
 
 
@@ -451,6 +474,7 @@ void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
    unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
+   octasphere_subdivisions = contact_dot_sphere_subdivisions; // 20211129-PE done
 
    if (true) {
       bool ignore_waters = true;
@@ -504,15 +528,16 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
       molecule_name_stub += coot::util::int_to_string(imol);
       molecule_name_stub += ": ";
 
+      float point_size = 0.05f;
       std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
+         float point_size_inner = point_size;
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          // std::cout << "dots type " << type << " count " << v.size() << std::endl;
-         float point_size = 0.10;
          float specular_strength = 0.5; // default
          if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
-         if (type == "vdw-surface") point_size = 0.03;
+         if (type == "vdw-surface") point_size_inner = 0.03;
          std::string mesh_name = molecule_name_stub + type;
 
          Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
@@ -531,13 +556,13 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
                if (type != "vdw-surface")
                   std::cout << " type " << type << " " << i << " colour_string: " << colour_string << std::endl;
             if (colour_string == previous_colour_string) {
-               Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size);
+               Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size_inner);
                attribs.specular_strength = specular_strength;
                balls[i] = attribs;
             } else {
                coot::colour_holder ch = colour_string_to_colour_holder(colour_string);
                glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
-               Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size);
+               Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size_inner);
                attribs.specular_strength = specular_strength;
                balls[i] = attribs;
                previous_colour_string = colour_string;
@@ -547,7 +572,8 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
          im.update_instancing_buffers(balls);
       }
 
-      setup_cylinder_clashes(c, imol);
+      float tube_size = point_size * 1.1f;
+      setup_cylinder_clashes(c, imol, tube_size, get_exta_annotation_state());
 
    }
 

@@ -508,9 +508,11 @@ cylinder::crenulations() {
          vertices_local[idx_1].normal = glm::normalize(n2);
          vertices_local[idx_2].normal = n; // for top and bottom face completion
 
-         std::cout << "vertex_local idx " << idx_0 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_0].normal) << std::endl;
-         std::cout << "vertex_local idx " << idx_1 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_1].normal) << std::endl;
-         std::cout << "vertex_local idx " << idx_2 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_2].normal) << std::endl;
+         if (false) {
+            std::cout << "vertex_local idx " << idx_0 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_0].normal) << std::endl;
+            std::cout << "vertex_local idx " << idx_1 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_1].normal) << std::endl;
+            std::cout << "vertex_local idx " << idx_2 << " position " << glm::to_string(pos) << "     normal " << glm::to_string(vertices_local[idx_2].normal) << std::endl;
+         }
 
          vertices_local[idx_0].color = col;
          vertices_local[idx_1].color = col;
@@ -523,8 +525,8 @@ cylinder::crenulations() {
       auto &v = vertices_local[i];
       v.pos.z *= z_height;
       v.pos.z -= z_height;
-      v.pos.x *= 0.06;
-      v.pos.y *= 0.06;
+      v.pos.x *= base_radius;
+      v.pos.y *= base_radius;
       std::cout << " scale-down " << i << " " << glm::to_string(v.pos) << std::endl;
    }
 

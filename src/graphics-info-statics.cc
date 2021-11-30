@@ -1508,6 +1508,7 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
 
+int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_rock = false;
@@ -1600,6 +1601,7 @@ bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
 
 float graphics_info_t::contact_dots_density = 1.0;
+float graphics_info_t::contact_dot_sphere_subdivisions = 1;
 bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;
 bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
 

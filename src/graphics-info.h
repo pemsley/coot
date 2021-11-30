@@ -4122,11 +4122,13 @@ string   static std::string sessionid;
    static bool all_atom_contact_dots_do_vdw_surface; // false by default
    static float contact_dots_density; // 1 by default
    static void setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
-                                      int imol, bool extra_annotation=false);
+                                      int imol, float tube_radius, bool extra_annotation=false);
    
 
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
+   static float contact_dot_sphere_subdivisions;
+   static bool get_exta_annotation_state();
 
    static void fill_rotamer_probability_tables() {
 
@@ -4553,6 +4555,7 @@ string   static std::string sessionid;
 
    static std::chrono::time_point<std::chrono::high_resolution_clock> tick_hydrogen_bond_mesh_t_previous;
 
+   static int tick_function_id; // store the return value from gtk_widget_add_tick_callback()
    static bool do_tick_particles;
    static bool do_tick_spin;
    static bool do_tick_rock;

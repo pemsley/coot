@@ -10312,3 +10312,6 @@ Doesn't work because button_number is not captured. We need a generator
    ...
         func = generator(button_number)
         buttons.append([button_label, func, desciption])
+
+
+  maybe this could be made more compact.

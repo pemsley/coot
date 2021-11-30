@@ -604,11 +604,11 @@ if True:
 
      coot_gui.add_simple_coot_menu_menuitem(
        submenu_models, "Delete Hydrogen Atoms",
-       lambda func: using_active_atom(delete_hydrogens, "aa_imol"))
+       lambda func: coot_utils.using_active_atom(delete_hydrogens, "aa_imol"))
 
      coot_gui.add_simple_coot_menu_menuitem(
        submenu_models, "Delete Side-chains for Active Chain",
-       lambda func: using_active_atom(
+       lambda func: coot_utils.using_active_atom(
          delete_sidechains_for_chain, "aa_imol", "aa_chain_id"))
 
      # now in main menu

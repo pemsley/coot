@@ -1167,7 +1167,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-      if (false) {
+      if (true) {
          std::string object_name("Imported Object");
          int obj_mesh = new_generic_object_number(object_name);
          meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
@@ -1178,16 +1178,27 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
          // obj.mesh.load_from_glTF("augmented-box.glb");
          bool status = obj.mesh.load_from_glTF(file_name);
+
+         std::cout << "debug:: obj mesh load_from_glTF returned status " << status << std::endl;
          if (status) {
 
-            obj.mesh.setup(material); // calls setup_buffers() (again)
-            set_display_generic_object(obj_mesh, 1);
+            // obj.mesh.setup(material); // calls setup_buffers() (again)
+            // set_display_generic_object(obj_mesh, 1);
+
+            // can I get a ribbon diagram out?
+            int imol = read_pdb("A-chain.pdb");
+            std::string ass = "//A";
+            std::string cs = "colorRampChainsScheme";
+            std::string style = "Ribbon";
+            graphics_info_t::molecules[imol].add_molecular_representation(ass, cs, style);
+            std::cout << "debug:: meshes size " << graphics_info_t::molecules[imol].meshes.size() << std::endl;
+            auto &mesh = graphics_info_t::molecules[imol].meshes[0];
             bool is_binary_format = true; // no need for this here. binary type is tested internally now.
-            obj.mesh.export_to_glTF(file_name, is_binary_format);
+            mesh.export_to_glTF("exported-to-gltf.glb", is_binary_format);
          }
       }
 
-      if (true) {
+      if (false) {
          TextureMesh tm;
          g.texture_meshes.push_back(tm);
          g.texture_meshes.back().load_from_glTF(file_name);

@@ -3553,25 +3553,13 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Molecule " + coot::util::int_to_string(imol) + ": Ligand Contact Dots ";
 
-      bool extra_annotation = false;
-      {
-         time_t times = time(NULL);
-         struct tm result;
-         localtime_r(&times, &result);
-         if (result.tm_mday == 1) {
-            if ((result.tm_mon+1)%4==1) { // 1 to 12
-               extra_annotation = true;
-            }
-         }
-         if (result.tm_mon == 9)
-            if (result.tm_mday > 15)
-               if (result.tm_sec%5==0)
-                  extra_annotation = true;
-      }
-
-      g.setup_cylinder_clashes(c, imol, extra_annotation);
+      bool extra_annotation = graphics_info_t::get_exta_annotation_state();
 
       float ball_size = 0.07; // about the right size
+      ball_size = 0.06; // 20211129-PE try this
+      float tube_radius = ball_size;
+      g.setup_cylinder_clashes(c, imol, tube_radius, extra_annotation);
+
       std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
          float specular_strength = 0.5; //  default
@@ -3580,7 +3568,8 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          // if (type != "big-overlap") continue;
          const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          float point_size = ball_size;
-         if (type == "vdw-surface") point_size = 0.05;
+         // if (type == "vdw-surface") point_size = 0.05;
+         if (type == "vdw-surface") point_size = 0.03;
          if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
          std::string mesh_name = molecule_name_stub + type;
          Instanced_Markup_Mesh im_in(mesh_name);
@@ -3878,6 +3867,13 @@ void set_contact_dots_density(float density) {
 
    graphics_info_t::contact_dots_density = density;
 }
+
+//! \brief set the number of subdivisions of contact dot density sphere (1=low (default), 3=high)
+void set_contact_dot_sphere_n_subdivisions(unsigned int n_subdivisions) {
+
+   graphics_info_t::contact_dot_sphere_subdivisions = n_subdivisions;
+}
+
 
 
 void coot_all_atom_contact_dots_instanced(int imol) {

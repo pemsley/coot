@@ -845,7 +845,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    GdkModifierType my_button3_mask = info.gdk_button3_mask();
 
-   GdkModifierType state;
+   GdkModifierType state = GDK_SHIFT_MASK; // 20211124-PE give it an initial value, stops the compiler complaining
    short int button_was_pressed = 0;
 
    if (event->is_hint) {

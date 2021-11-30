@@ -234,6 +234,10 @@ init_pathology_data() {
 
 #endif
 
+    // keep the compiler from giving a warning that this is not returning a type
+    PyObject *p = 0;
+    return p;
+
 }
 
 #endif // USE_PYTHON

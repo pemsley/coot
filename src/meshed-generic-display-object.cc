@@ -180,7 +180,6 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
    mesh.import(c.vertices, c.triangles);
 
    if (do_faces) {
-      std::cout << ":::::::::::::::::::::::::::::::::::::::::::::  do faces! " << std::endl;
       Mesh eyelash_r;
       std::string file_name("grey-eyelashes-many-lashes.glb");
       eyelash_r.load_from_glTF(file_name, false); // tries local directory first
@@ -188,7 +187,7 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
       eyelash_r.translate_by(glm::vec3(0.07, 0, 0.93));
       Mesh eyelash_l = eyelash_r;
       glm::mat4 rm(1.0f);
-      glm::mat4 mirror_y(1.0f); mirror_y[1][1] = -1.0f;
+      glm::mat4 mirror_y(1.0f); mirror_y[1][1] = -1.0f; // does this change the normals also?
       eyelash_l.apply_transformation(mirror_y);
       glm::mat4 m_r = glm::rotate(rm,  0.5f, glm::vec3(0,0,1));
       glm::mat4 m_l = glm::rotate(rm, -0.5f, glm::vec3(0,0,1));
