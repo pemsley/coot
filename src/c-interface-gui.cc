@@ -6023,7 +6023,7 @@ on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled(GtkToggleB
 
    int combo_ints = GPOINTER_TO_INT(user_data);
    int imol = combo_ints/1000;
-   int obj_no = combo_ints - imol;
+   int obj_no = combo_ints - 1000 * imol;
    bool state = false;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
       state = 1;
@@ -6091,6 +6091,7 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
    if (! imm.is_closed()) {
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = imm.get_name();
+      // label_str = "NMO: "  + label_str;
       GtkWidget *label = gtk_label_new(label_str.c_str());
 
       int i_row = grid_row_offset;
