@@ -3771,7 +3771,10 @@ graphics_info_t::change_peptide_carbonyl_by_current_button_pos(int ix, int iy) {
 }
 
 //      ----------------- sequence view ----------------
-#if defined (HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+// 20211201-PE do we need this function!?
+
+#if 0 // was defined (HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 //
 // return NULL on failure to find the class for this molecule
 coot::sequence_view *

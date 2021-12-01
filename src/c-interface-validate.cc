@@ -635,14 +635,21 @@ void free_geometry_graph(GtkWidget *dialog) {
       GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
       if (w) {
 	 GtkObject *obj = GTK_OBJECT(w);
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-	 coot::geometry_graphs *graphs = (coot::geometry_graphs *) gtk_object_get_user_data(obj);
-	 if (!graphs) {
-	    std::cout << "ERROR:: NULL graphs in free_geometry_graph\n";
-	 } else {
-	    graphs->close_yourself();
-	 }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
+         // Note to self: FIXME - where is this set?
+	 // coot::geometry_graphs *graphs = (coot::geometry_graphs *) gtk_object_get_user_data(obj);
+         GObject *o = g_object_get_data(obj, "graphs");
+         if (o) {
+            coot::geometry_graphs *graphs = static_cast<coot::geometry_graphs *> (o);
+            if (!graphs) {
+               std::cout << "ERROR:: NULL graphs in free_geometry_graph\n";
+            } else {
+               graphs->close_yourself();
+            }
+         } else {
+            std::cout << "ERROR:: failed convert old gtk lookup to new gobject lookup " << std::endl;
+         }
+
       }
    }
 #endif // HAVE_GSL
@@ -655,22 +662,20 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 						 to update the
 						 widget*/
 #ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
-   graphics_info_t g;
 
    int imol;
    if (dialog) {
       GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
       if (w) {
-	 GtkObject *obj = GTK_OBJECT(w);
-	 coot::geometry_graphs *graphs = (coot::geometry_graphs *) gtk_object_get_user_data(obj);
-	 if (!graphs) {
+	 GObject *obj = G_OBJECT(w);
+         void *o = g_object_get_data(obj, "graphs");
+	 if (!o) {
 
-	    std::cout << "ERROR:: NULL graphs in unset_geometry_graph\n";
+	    std::cout << "ERROR:: NULL graphs in unset_geometry_graph() FIXME\n";
 
 	 } else {
 
+            coot::geometry_graphs *graphs = static_cast<coot::geometry_graphs *>(o);
 	    imol = graphs->Imol();
 
 	    if (is_valid_model_molecule(imol)) {
@@ -704,7 +709,7 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
       }
    }
    // std::cout << "Done unset_geometry_graph\n";
-#endif
+
 #endif // HAVE_GSL
 }
 
@@ -1236,6 +1241,8 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
    GtkWidget *w = 0; // Not NULL, compiler (maybe).
 
+   std::cout << "ERROR:: using unconverted wrapped_ramachandran_plot_differences_dialog()" << std::endl;
+
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    w = create_ramachandran_plot_differences_dialog();
@@ -1405,6 +1412,8 @@ void set_kleywegt_plot_n_diffs(int ndiffs) {
 
 void
 ramachandran_plot_differences(int imol1, int imol2) {
+
+   std::cout << "ERROR:: called unconverted ramachandran_plot_differences()" << std::endl;
 
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
@@ -1577,21 +1586,22 @@ void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *c
 //
 void set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
+   std::cout << "set_dynarama_is_displayed() called with " << dyna_toplev << " for imol " << imol << std::endl;
+
    graphics_info_t g;
    g.set_dynarama_is_displayed(dyna_toplev, imol);
+
 }
 
 GtkWidget *dynarama_is_displayed_state(int imol) {
 
    GtkWidget *w = NULL;
 
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
    if (is_valid_model_molecule(imol)) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
-#endif
+
    return w;
 }
 
@@ -1599,12 +1609,10 @@ GtkWidget *dynarama_is_displayed_state(int imol) {
 GtkWidget *dynarama_widget(int imol) {
 
    GtkWidget *w = NULL;
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol < graphics_info_t::n_molecules()) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
-#endif
    return w;
 }
 
@@ -1616,6 +1624,9 @@ GtkWidget *dynarama_widget(int imol) {
 int get_mol_from_dynarama(GtkWidget *window) {
 
    int imol = -1;
+
+   std::cout << "ERROR:: using unconverted get_mol_from_dynarama() FIXME " << std::endl;
+
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    // graphics_info_t g;
    if (window) {
@@ -1648,21 +1659,19 @@ int get_mol_from_dynarama(GtkWidget *window) {
 void
 resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
     coot::rama_plot rp;
     rp.resize_rama_canvas_internal(widget, event);
-#endif // HAVE_GTK_CANVAS
 
 }
 
 
 void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    int imol = get_mol_from_dynarama(window);
    GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
    if (canvas) {
-      coot::rama_plot * plot = (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(canvas));
+      // 20211201-PE FIXME - where was (should have been) this set?
+      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(canvas), "rama_plot");
       if (plot) {
 	 if (is_valid_model_molecule(imol)) {
 	    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -1672,7 +1681,6 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 	 }
       }
    }
-#endif // HAVE_GTK_CANVAS
 }
 
 void set_ramachandran_psi_axis_mode(int mode) {

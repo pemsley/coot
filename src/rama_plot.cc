@@ -537,7 +537,7 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    rama_threshold_preferred = 0.1;
    rama_threshold_allowed = 0.005;
 
-   // cliper defaults: 
+   // clipper defaults: 
    rama_threshold_preferred = 0.01; 
    rama_threshold_allowed = 0.0005;
 
@@ -622,7 +622,7 @@ coot::rama_plot::draw_rect() {
 void
 coot::rama_plot::draw_it(mmdb::Manager *mol) {
 
-   std::cout << "here in rama_plot::draw_it with mol " << mol << std::endl;
+   // std::cout << "here in rama_plot::draw_it with mol " << mol << std::endl;
 
    if (mol) {
       clear_canvas_items();

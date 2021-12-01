@@ -2089,6 +2089,8 @@ public:
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
    void update_geometry_graphs(int imol_moving_atoms); // convenience function
    void update_validation_graphs(int imol);  // and ramachandran
+   // 20211201-PE currently upadte_geometry
+   void update_ramachandran_plot(int imol);
 
 
    // Display the graphical object of the regularization

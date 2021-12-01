@@ -3632,13 +3632,14 @@ new_close_molecules(GtkWidget *window) {
 // 			 << imol << "] is "
 // 			 << graphics_info_t::sequence_view_is_displayed[imol] << std::endl;
 
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
 	       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 	       if (w) {
 		  // gtk_widget_destroy(graphics_info_t::sequence_view_is_displayed[imol]);
 		  //
 		  // use undisplay().  But how do we get to the object?
 		  graphics_info_t g;
+#if 0 // 20211201-PE sequence-view.cc doesn't compile ATM
 		  coot::sequence_view *seq_view = g.get_sequence_view(imol);
 		  if (seq_view) {
 		     seq_view->undisplay(imol);
@@ -3646,6 +3647,7 @@ new_close_molecules(GtkWidget *window) {
 		     std::cout << "ERROR:! missing seq_view for molecule number : "
 			       << imol << std::endl;
 		  }
+#endif
 		  GtkWidget *window = lookup_widget(w, "sequence_view_dialog");
 		  if (window) {
 		     gtk_widget_destroy(window);
@@ -3655,7 +3657,6 @@ new_close_molecules(GtkWidget *window) {
 			gtk_widget_destroy(window);
 		  }
 	       }
-#endif
 	       //graphics_info_t::molecules[imol].close_yourself();
 	       close_molecule(imol);
 	       closed_something_flag = 1;

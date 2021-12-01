@@ -729,17 +729,15 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(GTK_OBJECT(w), "rama_plot"));
+      coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(w), "rama_plot"));
 
       plot->big_square(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
       // need to put show appropriate background here. Make a function to show
       // background by passing residue spec.
       update_ramachandran_plot_background_from_res_spec(plot, imol, res_spec);
    }
-#endif // HAVE_GTK_CANVAS
 
 }
 
@@ -1949,22 +1947,22 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    // first delete the old plot for this molecule (if it exists)
    //
-   if (imol < graphics_info_t::n_molecules() && imol >= 0) {
+   if (is_valid_model_molecule(imol)) {
 
       // Clear out the old one if it was there.
       GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
       if (w) {
          coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
-         // g_print("BL DEBUG:: deleting rama plot!!!\n");
          delete plot;
       }
       coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
+   } else {
+      std::cout << "DEBUG:: in graphics_info_t::set_dynarama_is_displayed() imol " << imol
+                << " is not valid" << std::endl;
    }
-#endif // HAVE_GTK_CANVAS
 }
 
 void
@@ -4270,7 +4268,7 @@ graphics_info_t::apply_undo() {
                   update_go_to_atom_window_on_changed_mol(umol);
 
                   // update the ramachandran, if there was one
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
                   GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
                   if (w) {
                      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -4280,7 +4278,7 @@ graphics_info_t::apply_undo() {
                   atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
                   update_geometry_graphs(u_asc, umol);
-#endif // HAVE_GTK_CANVAS
+
                   run_post_manipulation_hook(umol, 0);
                }
             } else {
@@ -4338,7 +4336,7 @@ graphics_info_t::apply_redo() {
             update_go_to_atom_window_on_changed_mol(umol);
             // BL says:: from undo, maybe more should be updated!?!
             // update the ramachandran, if there was one
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
             GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
             if (w) {
                coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -4348,7 +4346,7 @@ graphics_info_t::apply_redo() {
             atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
             update_geometry_graphs(u_asc, umol);
-#endif // HAVE_GTK_CANVAS
+
             run_post_manipulation_hook(umol, 0);
 
          } else {
@@ -4552,7 +4550,7 @@ graphics_info_t::alt_conf_split_type_number() {
 void
 graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4576,13 +4574,13 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
    } else {
       std::cout << "Can't find ramachandran angles for this residue" << std::endl;
    }
-#endif // HAVE_GTK_CANVAS
+
 }
 
 void
 graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4604,13 +4602,12 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
       edit_phi_psi_plot->draw_it(phipsi);
 
    }
-#endif // HAVE_GTK_CANVAS
+
 }
 
 void
 graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4632,7 +4629,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
       edit_phi_psi_plot->draw_it(phipsi);
 
    }
-#endif // HAVE_GTK_CANVAS
+
 }
 
 // activated from the edit torsion angles cancel button (and OK button, I
@@ -4643,7 +4640,6 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
    printf("start graphics_info_t::destroy_edit_backbone_rama_plot()\n");
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    if (edit_phi_psi_plot) {
       // we need to get to the widget "dynarama_window" and destroy it.
       edit_phi_psi_plot->destroy_yourself();
@@ -4651,8 +4647,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
    } else {
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";
    }
-#endif // HAVE_GTK_CANVAS
-   printf("done in graphics_info_t::destroy_edit_backbone_rama_plot()\n");
+
 }
 
 
