@@ -9773,27 +9773,26 @@ molecule_class_info_t::clear_all_fixed_atoms() {
 void
 molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bool state) {
 
+   std::cout << "--------------------- mci: mark_atom_as_fixed() " << atom_spec << " " <<  state << std::endl;
+
    if (has_model()) {
       int imod = 1;
       bool found = 0;
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-         chain_p = model_p->GetChain(ichain);
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
          std::string chain_id_model = chain_p->GetChainID();
          if (atom_spec.chain_id == chain_id_model) {
             int nres = chain_p->GetNumberOfResidues();
-            mmdb::PResidue residue_p;
-            mmdb::Atom *at;
             for (int ires=0; ires<nres; ires++) {
-               residue_p = chain_p->GetResidue(ires);
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                int resno_model = residue_p->GetSeqNum();
                if (resno_model == atom_spec.res_no) {
                   int n_atoms = residue_p->GetNumberOfAtoms();
 
                   for (int iat=0; iat<n_atoms; iat++) {
-                     at = residue_p->GetAtom(iat);
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
                      if (atom_spec.matches_spec(at)) {
                         if (state) {
                            // try to get the atom index of this atom

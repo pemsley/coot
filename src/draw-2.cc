@@ -334,6 +334,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.setup_draw_for_happy_face_residue_markers_init();
 
+      g.setup_draw_for_anchored_atom_markers_init();
+
       g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
 
       if (false) { // testing how textures work

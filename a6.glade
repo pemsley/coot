@@ -8895,6 +8895,107 @@ Do you want to continue?
       <placeholder/>
     </child>
   </object>
+  <object class="GtkDialog" id="fixed_atom_dialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Fixed Atoms for Refinement</property>
+    <property name="type_hint">dialog</property>
+    <signal name="close" handler="on_fixed_atom_dialog_close_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_fixed_atom_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="fixed_atom_dialog_close_button">
+                <property name="label" translatable="yes">Close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkToggleButton" id="fixed_atom_dialog_fix_atom_togglebutton">
+                <property name="label" translatable="yes">Fix Atom</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="toggled" handler="on_fixed_atom_dialog_fix_atom_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="fixed_atom_dialog_unfix_atom_togglebutton">
+                <property name="label" translatable="yes">Unfix Atom</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="toggled" handler="on_fixed_atom_dialog_unfix_atom_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="fixed_atom_dialog_clear_all_fixed_atoms_button">
+                <property name="label" translatable="yes">Clear All Fixed Atoms</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_fixed_atom_dialog_clear_all_fixed_atoms_button_clicked_gtkbuilder_callback" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-7">fixed_atom_dialog_close_button</action-widget>
+    </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkWindow" id="font_size_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">window2</property>

@@ -1578,6 +1578,20 @@ graphics_info_t::draw_happy_face_residue_markers() {
    }
 }
 
+// static
+void
+graphics_info_t::draw_anchored_atom_markers()  {
+
+   if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
+      if (tmesh_for_anchored_atom_markers.have_instances()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 view_rotation = get_view_rotation();
+         texture_for_anchored_atom_markers.Bind(0);
+         tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, view_rotation);
+      }
+   }
+}
+
 void
 graphics_info_t::draw_texture_meshes() {
 
@@ -1727,6 +1741,8 @@ graphics_info_t::draw_molecules() {
    draw_particles();
 
    draw_happy_face_residue_markers();
+
+   draw_anchored_atom_markers();
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
@@ -3889,6 +3905,29 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
 }
 
 void
+graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
+
+   // run this once - call from realize()
+
+   const unsigned int max_anchored_atoms = 200; // surely enough?
+   
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   GLenum err = glGetError();
+   if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
+                      << "Post attach buffers err is " << err << std::endl;
+
+   // If not found in this directory, then try default directory.
+   texture_for_anchored_atom_markers.set_default_directory(coot::package_data_dir());
+   texture_for_anchored_atom_markers.init("anchor-for-fixed-atoms.png");
+
+   shader_for_anchored_atom_markers.Use();
+   tmesh_for_anchored_atom_markers.setup_camera_facing_quad(&shader_for_happy_face_residue_markers, 1.0, 1.0);
+   tmesh_for_anchored_atom_markers.setup_instancing_buffers(max_anchored_atoms);
+   tmesh_for_anchored_atom_markers.draw_this_mesh = false;
+
+}
+
+void
 graphics_info_t::setup_draw_for_happy_face_residue_markers() {
 
    // run this at the start of a "show animated happy faces"
@@ -3908,10 +3947,60 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers() {
    tmesh_for_happy_face_residues_markers.draw_this_mesh = true;
    draw_count_for_happy_face_residue_markers = 0;
    if (! tick_function_is_active()) {
-      gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+      tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
    }
    do_tick_happy_face_residue_markers = true;
 
+}
+
+void
+graphics_info_t::setup_draw_for_anchored_atom_markers() {
+
+   // these move frame by frame (on moving atoms coordinates updates)
+   // 
+   auto get_intermediate_atoms_anchored_atoms_positions = [] () {
+                                          std::vector<glm::vec3> positions;
+                                          if (moving_atoms_asc) {
+                                             if (moving_atoms_asc->n_selected_atoms > 0) {
+                                                for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+                                                   std::vector<coot::atom_spec_t> fixed = molecules[imol_moving_atoms].get_fixed_atoms();
+                                                   for (unsigned int ifixed=0; ifixed<fixed.size(); ifixed++) {
+                                                   }
+                                                }
+                                             }
+                                          }
+                                          return positions;
+                                       };
+
+   // these are fixed on the molecule
+   //
+   auto get_anchored_atoms_positions = [] (int imol, const glm::vec3 up_uv) {
+                                          std::vector<glm::vec3> positions;
+                                          const auto &m = molecules[imol];
+                                          std::vector<coot::Cartesian> fap = m.fixed_atom_positions;
+                                          for (unsigned int i=0; i<fap.size(); i++) {
+                                             glm::vec3 p(fap[i].x(), fap[i].y(), fap[i].z());
+                                             p += up_uv * 0.3f;
+                                             positions.push_back(p);
+                                          }
+                                          return positions;
+                                       };
+
+   std::pair<int, mmdb::Atom *> aa = get_active_atom();
+   if (aa.second) {
+      int imol = aa.first;
+      glm::vec3 up_uv = get_screen_y_uv();
+      std::vector<glm::vec3> positions = get_anchored_atoms_positions(imol, up_uv);
+
+      if (positions.empty()) {
+         tmesh_for_anchored_atom_markers.draw_this_mesh = false;
+      } else {
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+         tmesh_for_anchored_atom_markers.draw_this_mesh = true;
+         tmesh_for_anchored_atom_markers.update_instancing_buffer_data(positions);
+      }
+   }
+   
 }
 
 #include "coot-utils/fib-sphere.hh"

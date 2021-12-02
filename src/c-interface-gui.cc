@@ -5154,12 +5154,11 @@ void store_geometry_dialog(GtkWidget *w) {
 }
 
 
-
+#if 0 // 20211202-PE we no longer want to do this
 void store_fixed_atom_dialog(GtkWidget *w) {
-
    graphics_info_t::fixed_atom_dialog = w;
-
 }
+#endif
 
 
 /* not for user consumption, this finds (from itself) the residue type

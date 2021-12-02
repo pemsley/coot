@@ -10068,13 +10068,14 @@ on_clear_fixed_atoms_button_clicked_gtkbuilder_callback    (GtkButton       *but
 extern "C" G_MODULE_EXPORT
 void
 on_fixed_atom_close_button_clicked_gtkbuilder_callback     (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                                            gpointer         user_data) {
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "fixed_atom_dialog");
   gtk_widget_destroy(dialog);
 }
 
 
+#if 0 // 20211202-PE there is no destroy on this now. It has been remade (indeed,
+      // it was not even in the glade file!)
 extern "C" G_MODULE_EXPORT
 void
 on_fixed_atom_dialog_destroy_gtkbuilder_callback           (GtkWidget       *object,
@@ -10082,6 +10083,49 @@ on_fixed_atom_dialog_destroy_gtkbuilder_callback           (GtkWidget       *obj
 {
   store_fixed_atom_dialog(0);
 }
+#endif
+
+extern "C" G_MODULE_EXPORT
+void
+on_fixed_atom_dialog_close_gtkbuilder_callback(GtkDialog       *dialog,
+                                               gpointer         user_data) {
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_fixed_atom_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                  gint             response_id,
+                                                  gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      GtkWidget *dialog = widget_from_builder("fixed_atom_dialog");
+      gtk_widget_hide(dialog);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_fixed_atom_dialog_clear_all_fixed_atoms_button_clicked_gtkbuilder_callback(GtkButton *togglebutton,
+                                                                       gpointer         user_data) {
+
+   clear_fixed_atoms_all(); // or maybe clear_all_fixed_atom(imol);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_fixed_atom_dialog_fix_atom_togglebutton_toggled_gtkbuilder_callback(GtkButton *togglebutton,
+                                                                       gpointer         user_data) {
+
+   setup_fixed_atom_pick(1, 0); // set a pending pick (not an unpick)
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_fixed_atom_dialog_unfix_atom_togglebutton_toggled_gtkbuilder_callback(GtkButton *togglebutton,
+                                                                       gpointer         user_data) {
+   setup_fixed_atom_pick(1, 1);
+}
+
 
 // is this better done with a dialog response now?
 extern "C" G_MODULE_EXPORT

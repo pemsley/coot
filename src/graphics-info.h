@@ -1845,7 +1845,7 @@ public:
    static int add_reps_molecule_combobox_molecule;
 
    static coot::fixed_atom_pick_state_t in_fixed_atom_define;
-   static GtkWidget *fixed_atom_dialog;
+   // static GtkWidget *fixed_atom_dialog; 20211202-PE extract this from glade each time.
 
    static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
@@ -3152,6 +3152,7 @@ public:
    static void draw_particles();
    static void draw_boids();
    static void draw_happy_face_residue_markers();
+   static void draw_anchored_atom_markers();
    static void draw_hydrogen_bonds_mesh(); // like boids
    void setup_draw_for_particles();
    void clear_measure_distances();
@@ -3175,6 +3176,16 @@ public:
    void setup_draw_for_happy_face_residue_markers(); // run this every time we want to see faces,
                                                      // it sets the start position of the faces.
    static Texture texture_for_happy_face_residue_marker;
+   // likewise
+   static std::vector<glm::vec3> anchored_atom_marker_texture_positions; // based on residues
+                                                                         // and filled by
+                                                                         // setup_draw_for_anchored_atom_markers()
+                                                                          // which is called once per refinement.
+   void setup_draw_for_anchored_atom_markers_init(); // run this once to setup instancing buffer
+   void setup_draw_for_anchored_atom_markers();     // run this every time we want to anchored atoms
+                                                    // it sets the start position of the textures
+   static Texture texture_for_anchored_atom_markers;
+   static TextureMesh tmesh_for_anchored_atom_markers;
 
    static bool find_hydrogen_torsions_flag;
 
@@ -3205,8 +3216,8 @@ public:
    static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
    static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
    // static std::vector<mmdb::Atom *> fixed_intermediate_atoms;
-   static bool fixed_atom_for_refinement_p(mmdb::Atom *);  // examines the imol_moving_atoms molecule
-                                                      // for correspondence
+   static bool fixed_atom_for_refinement_p(mmdb::Atom *); // examines the imol_moving_atoms molecule
+                                                          // for correspondence
 
    // mol is new (not from molecules[imol]) molecule for the moving atoms.
    //
@@ -4265,6 +4276,7 @@ string   static std::string sessionid;
    static Shader shader_for_lines_pulse; // "you are here" pulse
    static Shader shader_for_ligand_view;
    static Shader shader_for_happy_face_residue_markers;
+   static Shader shader_for_anchored_atom_markers;
    static Shader shader_for_rama_plot_axes_and_ticks;
    static Shader shader_for_rama_plot_phi_phis_markers;
    static Shader shader_for_hud_lines; // actally in 3D because it uses LinesMesh class

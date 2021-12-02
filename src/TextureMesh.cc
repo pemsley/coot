@@ -483,6 +483,19 @@ TextureMesh::import(const IndexedModel &ind_model, float scale) {
 
 }
 
+void
+TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positions) {
+
+   glBindVertexArray(vao);
+   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   int n_positions = positions.size();
+   n_instances = n_positions;
+   if (n_positions > n_instances_allocated)
+      n_positions = n_instances_allocated;
+   glBufferData(GL_ARRAY_BUFFER, n_positions * sizeof(glm::vec3), &(positions[0]), GL_STATIC_DRAW);
+
+}
+
 // for happy faces that drift up the screen
 void
 TextureMesh::update_instancing_buffer_data_for_happy_faces(const std::vector<glm::vec3> &positions_in, // original positions
@@ -558,6 +571,72 @@ TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
 }
 
 
+// for anchored atom markers
+void
+TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation) {
+
+  if (! draw_this_mesh) return;
+   // this can happen when all the particles have life 0 - and have been removed.
+   if (n_instances == 0) return;
+   if (triangles.empty()) return;
+
+   shader_p->Use();
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_instances() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   // this will need tangent and bitangent when lighting/crow code is merged.
+
+   glEnableVertexAttribArray(0); // vertex positions
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // vertex colours
+   glEnableVertexAttribArray(3); // texture coords
+   glEnableVertexAttribArray(4); // instanced position
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
+                      << " draw_instances() post mvp uniform " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
+                      << " draw_instances() post view_rotation uniform " << err << std::endl;
+
+   float opacity = 1.0f;
+   shader_p->set_float_for_uniform("opacity", opacity);
+
+   float scale = 0.3;
+   shader_p->set_float_for_uniform("canvas_scale", scale);
+
+   glActiveTexture(GL_TEXTURE0); // is this the right texture?
+   err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "
+                                          << err << std::endl;
+
+   glEnable(GL_DEPTH_TEST); // not the problem
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   unsigned int n_verts = 6;
+   // std::cout << "TextureMesh::draw_instances() C " << n_verts << " " << n_instances << std::endl;
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+   err = glGetError();
+   if (err) std::cout << "error draw_instances() on glDrawElementsInstanced() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+
+}
+
+// for happy faces
 void
 TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
                             unsigned int draw_count, unsigned int draw_count_max) {
@@ -583,6 +662,8 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
                       << " glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
+   // this will need tangent and bitangent when lighting/crow code is merged.
+
    glEnableVertexAttribArray(0); // vertex positions
    glEnableVertexAttribArray(1); // vertex normal
    glEnableVertexAttribArray(2); // vertex colours
@@ -600,6 +681,9 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
                       << " draw_instances() post view_rotation uniform " << err << std::endl;
 
    shader_p->set_float_for_uniform("opacity", opacity);
+
+   float scale = 0.8; // for happy faces
+   shader_p->set_float_for_uniform("canvas_scale", scale);
 
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "

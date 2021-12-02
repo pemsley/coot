@@ -1951,6 +1951,8 @@ graphics_info_t::check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event
 }
 
 
+#include "widget-from-builder.hh"
+
 void
 graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
 					       const GdkModifierType &state) {
@@ -1974,7 +1976,7 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
       if (naii.success == GL_TRUE) {
 	 coot::atom_spec_t as(molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]);
 	 mark_atom_as_fixed(naii.imol, as, pick_state);
-	 std::cout << "   " << as << " is a marked as fixed " << pick_state << std::endl;
+	 std::cout << "INFO:: " << as << " is a marked as fixed: " << pick_state << std::endl;
 	 graphics_draw();
 
 	 // Sadly, Ctrl + left mouse click is intercepted upstream of
@@ -1982,11 +1984,16 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
 	 
 	 if (! (state & GDK_CONTROL_MASK)) { 
 	    // Ctrl key is not pressed.
+
+            GtkWidget *fixed_atom_dialog = widget_from_builder("fixed_atom_dialog");
+
 	    if (!fixed_atom_dialog) {
-	       std::cout << "Ooops fixed atom dialog has gone!" << std::endl;
-	    } else { 
-	       GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
-	       GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
+	       std::cout << "ERROR:: Ooops fixed atom dialog has gone!" << std::endl;
+	    } else {
+	       // GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
+	       // GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
+               GtkWidget *button1 = widget_from_builder("fixed_atom_dialog_fix_atom_togglebutton");
+               GtkWidget *button2 = widget_from_builder("fixed_atom_dialog_unfix_atom_togglebutton");
 	       if (button1)
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button1), FALSE);
 	       if (button2)
