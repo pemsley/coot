@@ -3443,6 +3443,8 @@ fi
 
 if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; then
    build_pillow=no
+else
+   build_pillow=yes
 fi
 if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2-py2.7-linux-x86_64.egg ] ; then
    build_pillow=no
@@ -3800,6 +3802,8 @@ fi
 ${WGET} $extras_place/guile-${guile_version}.tar.gz
 ${WGET} $extras_place/guile-1.8.7-updated.patch
 ${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
+${WGET} $extras_place/guile-fink.patch
+${WGET} $extras_place/guile-configure.patch
 
 
 # if debian, unset LD_LIBRARY_PATH and set it back again when done.
@@ -3853,6 +3857,8 @@ fi
 # gcc 6.1.1 - harmless for others
 #
 patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.8-gc-segment.c.patch
+# patch -p0 < ${AUTOBUILD_SOURCES}/guile-fink.patch
+# patch -p0 < ${AUTOBUILD_SOURCES}/guile-configure.patch
 
 echo =========== make ====================
 $MAKE
