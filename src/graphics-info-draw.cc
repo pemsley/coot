@@ -1873,6 +1873,16 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes() {
 
+   // This function doesn't draw these
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots wide-contact
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots close-contact
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots small-overlap
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
+
+   // std::cout << "------------- draw_meshed_generic_display_object_meshes() " << std::endl;
+
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
 
@@ -1887,7 +1897,6 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
    // << mvp[0][0] << " " << mvp[1][1] << " " << mvp[2][2] << std::endl;
 
    glm::mat3 vrm(glm::toMat4(graphics_info_t::glm_quat));
-   glm::mat3 vrmt = glm::transpose(vrm);
 
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
@@ -1902,14 +1911,16 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
       }
 
       if (have_meshes_to_draw) {
+         // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
          glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
+            // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
                // std::cout << "mesh jj " << jj << " of " << m.meshes.size()
                // << " instanced" << m.meshes[jj].is_instanced << std::endl;
                if (m.meshes[jj].is_instanced) {
-                  // std::cout << "drawing instanced " << jj << std::endl;
+                  // std::cout << "   drawing instanced " << jj << std::endl;
                   // what a mess
                   m.meshes[jj].draw_instanced(&shader_for_moleculestotriangles, mvp,
                                               view_rotation, lights, eye_position,
@@ -1962,6 +1973,7 @@ graphics_info_t::draw_instanced_meshes() {
          molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
          if (molecules[ii].draw_it) {
             for (unsigned int jj=0; jj<m.instanced_meshes.size(); jj++) {
+               // std::cout << "   graphics_info_t::draw_instanced_meshes() A " << m.instanced_meshes[jj].get_name() << std::endl;
                m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
                                            view_rotation, lights, eye_position, bg_col, do_depth_fog);
             }
@@ -1972,7 +1984,8 @@ graphics_info_t::draw_instanced_meshes() {
 
       if (! instanced_meshes.empty()) {
          for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
-            std::cout << "draw own mesh " << jj << std::endl;
+            // std::cout << "   graphics_info_t::draw_instanced_meshes() our own " << jj << " "
+            // << instanced_meshes[jj].get_name() << std::endl;
             instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
                                       view_rotation, lights, eye_position, bg_col, do_depth_fog);
          }
@@ -1983,10 +1996,15 @@ graphics_info_t::draw_instanced_meshes() {
 void
 graphics_info_t::draw_meshes() {
 
+   // I don't think that this function is called - which is good because draw_meshed_generic_display_object_meshes()
+   // and draw_instanced_meshes() are called from elsewhere.
+
    // presumes only opaques
 
-   draw_meshed_generic_display_object_meshes();
-   draw_instanced_meshes();
+   // std::cout << "------------------- draw_meshes() " << std::endl;
+
+   // draw_meshed_generic_display_object_meshes();
+   // draw_instanced_meshes();
 }
 
 void
@@ -4236,9 +4254,11 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
-      mesh_for_hydrogen_bonds.draw(&shader_for_instanced_objects,
-                                   mvp, view_rotation_matrix, lights, eye_position, bg_col,
-                                   shader_do_depth_fog_flag);
+      // 20211210-PE  note that we are not calling the draw_instanced() - that seems perverse to me.
+      // Hmm.
+      mesh_for_hydrogen_bonds.draw_instanced(&shader_for_instanced_objects,
+                                             mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                             shader_do_depth_fog_flag, false, true, 0, 0, 0, 0.2);
    }
 }
 

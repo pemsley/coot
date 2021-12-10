@@ -169,6 +169,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "gl-rama-plot.hh"
 
+#include "glarea_tick_function.hh"
+
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
 	 NEW_COORDS_ADD = 1,                 // not used?
@@ -4568,6 +4570,12 @@ string   static std::string sessionid;
    static float focus_blur_strength;
 
    static std::chrono::time_point<std::chrono::high_resolution_clock> tick_hydrogen_bond_mesh_t_previous;
+
+   static void add_a_tick() {
+      // needs glarea-tick-func.hh
+      if (! tick_function_is_active())
+         tick_function_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
+   }
 
    static int tick_function_id; // store the return value from gtk_widget_add_tick_callback()
    static bool do_tick_particles;

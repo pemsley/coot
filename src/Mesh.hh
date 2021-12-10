@@ -140,7 +140,13 @@ public:
                        const std::map<unsigned int, lights_info_t> &lights,
                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                        const glm::vec4 &background_colour,
-                       bool do_depth_fog);
+                       bool do_depth_fog,
+                       bool do_pulse = false,
+                       bool do_rotate_z = false,
+                       float pulsing_amplitude = 0.0f,
+                       float pulsing_frequency = 0.f,
+                       float pulsing_phase_distribution = 0.0f,
+                       float z_rotation_angle = 0.0f);
 
    // testing/example functions
    void setup_rama_balls(Shader *shader_p, const Material &material_in); // call fill_rama_balls() and setup_buffers()
