@@ -115,6 +115,9 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 
    if (n_contacts > 0) {
       if (pscontact) {
+         // we want to stop water-water Hbonds being added twice.
+         // so store the hashed key here.
+         std::set<std::string> existing_h_bond_keys;
          for (int i_contact=0; i_contact<n_contacts; i_contact++) {
             mmdb::Atom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
             mmdb::Atom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
@@ -131,19 +134,19 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
             bool swap = false;
             bool ligand_atom_is_donor = true;
 
-            if ((hb_type_1 == coot::HB_DONOR || hb_type_1 == coot::HB_BOTH) &&
-           (hb_type_2 == coot::HB_ACCEPTOR || hb_type_2 == coot::HB_BOTH)) {
-             match = true;
+            if ((hb_type_1 == coot::HB_DONOR    || hb_type_1 == coot::HB_BOTH) &&
+                (hb_type_2 == coot::HB_ACCEPTOR || hb_type_2 == coot::HB_BOTH)) {
+               match = true;
             }
 
             if ((hb_type_1 == coot::HB_ACCEPTOR || hb_type_1 == coot::HB_BOTH) &&
-           (hb_type_2 == coot::HB_DONOR || hb_type_2 == coot::HB_BOTH)) {
-           match = 1;
-           swap = 1;
-           ligand_atom_is_donor = 0;
+                (hb_type_2 == coot::HB_DONOR    || hb_type_2 == coot::HB_BOTH)) {
+               match = true;
+               swap = true;
+               ligand_atom_is_donor = false;
             }
 
-            if (0) { 
+            if (false) {
                std::cout << "atom 1st selection: " << coot::atom_spec_t(at_1) << " has hb_type "
                          << hb_type_1 << std::endl;
                std::cout << "atom 2nd selection: " << coot::atom_spec_t(at_2) << " has hb_type "
@@ -153,14 +156,13 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 
             if (match) {
 
-          if (false)
-             std::cout << "MATCH (pre-swap) H-bond donor acceptor match "
-                                 << coot::atom_spec_t(at_1) << " " << at_1->GetResName()
-                                 << " to " << coot::atom_spec_t(at_2) << " " << at_2->GetResName() << "\n";
+               if (false)
+                  std::cout << "MATCH (pre-swap) H-bond donor acceptor match "
+                            << coot::atom_spec_t(at_1) << " " << at_1->GetResName()
+                            << " to " << coot::atom_spec_t(at_2) << " " << at_2->GetResName() << "\n";
 
-               if (swap) { 
-             std::swap(at_1, at_2);
-               }
+               if (swap)
+                  std::swap(at_1, at_2);
 
                // donor first: xxx_1
                // 
@@ -174,11 +176,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
                double angle_2_0 = -1; // assigned later
                
                // std::cout << "   #donor-neighbs: " << nm_1.size()
-                         // << " #acceptor-neighbs: " << nm_2.size()
-                         // << " res_type_1 " << res_type_1
-                         // << " res_type_2 " << res_type_2
-                         // << std::endl;
-               
+               // << " #acceptor-neighbs: " << nm_2.size()
+               // << " res_type_1 " << res_type_1
+               // << " res_type_2 " << res_type_2
+               // << std::endl;
+
                if (((nm_1.size() > 0) || (res_type_1 == "HOH")) &&
                    ((nm_2.size() > 0) || (res_type_2 == "HOH"))) {
 
@@ -232,7 +234,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
                      // no angle_2)).
                      // 
                      if ((angle_2 < 90) && ((res_type_1 != "HOH") && (res_type_2 != "HOH"))) {
-                        neighbour_angles_are_good = 0;
+                        neighbour_angles_are_good = false;
                         if (debug) 
                            std::cout << "Rejecting (acceptor) "
                                      << coot::atom_spec_t(at_1) << "..."
@@ -254,7 +256,23 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
                         hb.angle_1 = angle_1_0;
                         hb.angle_2 = angle_2_0;
                         hb.ligand_atom_is_donor = ligand_atom_is_donor; // selHnd_1 is presumed "ligand"
-                        
+
+                        bool add_it = true;
+                        std::string at_name_1(at_1->GetAtomName());
+                        std::string at_name_2(at_1->GetAtomName());
+                        std::string ch_id_1 = std::string(at_1->GetChainID());
+                        std::string ch_id_2 = std::string(at_2->GetChainID());
+                        std::string rn_1 = std::to_string(at_1->GetSeqNum());
+                        std::string rn_2 = std::to_string(at_2->GetSeqNum());
+                        std::string key_1 = at_name_1 + ch_id_1 + rn_1 + at_name_2 + ch_id_2 + rn_2;
+                        std::string key_2 = at_name_2 + ch_id_2 + rn_2 + at_name_1 + ch_id_1 + rn_1;
+                        if (existing_h_bond_keys.find(key_1) != existing_h_bond_keys.end()) add_it = false;
+                        if (existing_h_bond_keys.find(key_2) != existing_h_bond_keys.end()) add_it = false;
+                        if (add_it) {
+                           existing_h_bond_keys.insert(key_1);
+                           existing_h_bond_keys.insert(key_2);
+                        }
+
                         // Don't add h-bonds that somehow have not had
                         // donor_neigh and acceptor_neigh assigned.
                         //
@@ -263,10 +281,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
                         //
                         // Otherwise, do add it.
                         // 
-                        if (0) 
+                        if (false)
                            std::cout << "Adding an H-bond " << coot::atom_spec_t(hb.donor)
                                      << " to " << coot::atom_spec_t(hb.acceptor) << std::endl;
-                        v.push_back(hb);
+
+                        if (add_it) v.push_back(hb);
 
                      }
                   }
