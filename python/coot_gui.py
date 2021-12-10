@@ -1135,7 +1135,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
             print("Failed to get a (molecule) number")
 
     window = Gtk.Window()
-    window.set_title("Coot generic_chooser_entry_and_file_selector")
+    window.set_title("Coot Chooser")
     label = Gtk.Label(chooser_label)
     vbox = Gtk.VBox(False, 2)
     hbox_for_entry = Gtk.HBox(False, 2)
@@ -3928,7 +3928,7 @@ def associate_sequence_with_chain_gui(sequence_format="FASTA", do_alignment=Fals
         lambda imol, chain_id, pir_file_name:
         associate_func(imol, chain_id, pir_file_name),
         use_check_button=True,
-        check_button_label="Assign all protein chains (ignoring chain above)",
+        check_button_label="Assign sequence to all protein chains (ignoring the chain specified above)",
         alternative_callback_function=(lambda imol, chain_id, pir_file_name:
                                        associate_func(imol, chain_id, pir_file_name,
                                                       use_all_chains=True)))
