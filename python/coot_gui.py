@@ -2097,7 +2097,7 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
         button = Gtk.HSeparator()
     else:
         callback = button_info[1]
-        print("debug:: in add_button_info_to_box_of_buttons_vbox, callback is", callback)
+        # print("debug:: in add_button_info_to_box_of_buttons_vbox, callback is", callback)
         if (len(button_info) == 2):
             description = False
         else:
@@ -5763,6 +5763,110 @@ def yes_no_dialog(label_text, title_text=None):
     dialog.destroy()
 
     return ret
+
+# Function based on Davis et al. (2007) Molprobity: all atom contacts
+# and structure validation for proteins and nucleic acids, Nucleic
+# Acids Research 35, W375-W383.
+#
+#    "RNA sugar puckers (C3'endo or C2'endo) is strongly correlated
+#    to the perpendicular distance between the following (3')
+#    phosphate and either the plane of the base or the C1'-N1/9
+#    glycosidic bond vector. [] .. a sugar pucker is very difficult
+#    to determine directly from the electron density at resolutions
+#    typical for RNAs."
+#
+# To paraphrase:
+# The distance of the plane of the base to the following phosphate
+# is highly correlated to the pucker of the ribose.
+#
+# An analysis of the structures in RNADB2005 shows that a critical
+# distance of 3.3A provides a partition function to separate C2' from
+# C3' endo puckering.  Not all ribose follow this rule.  There may be
+# some errors in the models comprising RNADB2005. So we check the
+# distance of the following phosphate to the plane of the ribose and
+# record the riboses that are inconsitent.  We also report puckers
+# that are not C2' or C3'.  The puckers are determined by the most
+# out-of-plane atom of the ribose (the rms deviation of the 4 atoms
+# in the plane is calculated, but not used to determine the
+# puckering atom).
+#
+# THis is a GUI, why is it here and not in coot_gui.py?
+
+def pukka_puckers_qm(imol):
+
+    import types
+
+    residue_list = []
+    crit_d = 3.0  # Richardson's grup value to partition C2'-endo from C3'-endo
+
+    def add_questionable(r):
+        residue_list.append(r)
+
+    def get_ribose_residue_atom_name(imol, residue_spec, pucker_atom):
+        r_info = coot.residue_info_py(imol, residue_spec[0], residue_spec[1], residue_spec[2])
+        t_pucker_atom = pucker_atom[0:3] + "*"
+        if (pucker_atom in [at[0][0] for at in r_info]):
+            return pucker_atom
+        else:
+            return t_pucker_atom
+
+    # main line
+    for chain_id in coot_utils.chain_ids(imol):
+        if (not coot_utils.is_solvent_chain_qm(imol, chain_id)):
+            n_residues = coot.chain_n_residues(chain_id, imol)
+
+            for serial_number in range(n_residues):
+
+                res_name = coot.resname_from_serial_number(imol, chain_id, serial_number)
+                res_no = coot.seqnum_from_serial_number(imol, chain_id, serial_number)
+                ins_code = coot.insertion_code_from_serial_number(imol, chain_id, serial_number)
+
+                if (not res_name == "HOH"):
+
+                    residue_spec = [chain_id, res_no, ins_code]
+                    pi = coot.pucker_info_py(imol, residue_spec, 1)
+                    if pi:
+                        try:
+                            if len(pi) == 4:
+                                pucker_atom = pi[1]
+                                if ((abs(pi[0]) > crit_d) and (pucker_atom == " C2'")):
+                                    add_questionable([pucker_atom, residue_spec, "Inconsistent phosphate distance for C2' pucker"])
+                                if ((abs(pi[0]) < crit_d) and (pucker_atom == " C3'")):
+                                    add_questionable([pucker_atom, residue_spec, "Inconsistent phosphate distance for C3' pucker"])
+                                if not ((pucker_atom == " C2'") or (pucker_atom == " C3'")):
+                                    add_questionable([pucker_atom, residue_spec, "puckered atom:" + pucker_atom])
+                        except NameError as e:
+                            print(e)
+                        except TypeError as e:
+                            print(e)
+
+    def go(imol, residue_spec, at_name):
+        ch_id = residue_spec_to_chain_id(residue_spec)
+        res_no = residue_spec_to_res_no(residue_spec)
+        coot.set_go_to_atom_molecule(imol)
+        coot.set_go_to_atom_chain_residue_atom_name(ch_id, res_no, at_name)
+
+    def generator(imol, residue_spec, at_name):
+        func = lambda imol_c = imol, residue_spec_c = residue_spec, at_name_c = at_name : go(imol_c, residue_spec_c, at_name_c)
+        def action(arg):
+            func(imol, residue_spec, at_name)
+        return action
+
+    if len(residue_list) == 0:
+        coot.info_dialog("No bad puckers.")
+    else:
+        buttons = []
+        for residue in residue_list:
+            residue_spec = residue[1]
+            pucker_atom  = residue[0]
+            info_string  = residue[2]
+            at_name = get_ribose_residue_atom_name(imol, residue_spec, pucker_atom)
+            label = residue_spec[0] + " " + str(residue_spec[1]) + residue_spec[2] + ": " + info_string
+            func = generator(imol, residue_spec, at_name)
+            ls = [label, func]
+            buttons.append(ls)
+        dialog_box_of_buttons("Non-pukka puckers", [370, 250], buttons, "  Close  ")
+
 
 
 # let the c++ part of mapview know that this file was loaded:

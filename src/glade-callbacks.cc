@@ -6531,17 +6531,32 @@ on_geometry_analysis1_activate_gtkbuilder_callback         (GtkMenuItem     *men
 extern "C" G_MODULE_EXPORT
 void
 on_peptide_omega_analysis1_activate_gtkbuilder_callback    (GtkMenuItem     *menuitem,
-                                                            gpointer         user_data)
-{
+                                                            gpointer         user_data) {
+
    GtkWidget *menu = widget_from_builder("peptide_omega_analysis1");
    if (menu) {
       const char *type = "omega";
       add_on_validation_graph_mol_options(menu, type);
    } else {
-      printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
+      std::cout << "ERROR:: failed to get menu in on_peptide_omega_analysis1_activate" << std::endl;
    }
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_pukka_puckers_1_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                                gpointer         user_data) {
+
+   GtkWidget *menu = widget_from_builder("pukka_puckers_1");
+   if (menu) {
+      const char *type = "puckers";
+      add_on_validation_graph_mol_options(menu, type);
+   } else {
+      std::cout << "ERROR:: failed to get menu in on_pukka_puckers_activate_gtkbuilder_callback" << std::endl;
+   }
+}
+
 
 extern "C" G_MODULE_EXPORT
 void

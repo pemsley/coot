@@ -27,6 +27,8 @@ import re
 import string
 import numbers
 import coot
+import coot_utils
+import coot_gui
 from redefine_functions import *
 
 # hack this in for now
@@ -1248,7 +1250,7 @@ def get_atom_from_spec(imol, atom_spec):
 
 def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
 
-    res_info = residue_info(imol, chain_id, resno, "")
+    res_info = coot.residue_info_py(imol, chain_id, resno, "")
 
     if (not res_info):
         return False
@@ -1580,7 +1582,7 @@ def python_representation(imol, chains=[]):
             res_name = coot.resname_from_serial_number(imol, chain_id, n)
             res_no = coot.seqnum_from_serial_number(imol, chain_id, n)
             ins_code = coot.insertion_code_from_serial_number(imol, chain_id, n)
-            return [res_no, ins_code, res_name, residue_info(imol, chain_id, res_no, ins_code)]
+            return [res_no, ins_code, res_name, coot.residue_info_py(imol, chain_id, res_no, ins_code)]
 
         if not chains:
             # use all
@@ -2327,7 +2329,7 @@ def residues_with_alt_confs(imol):
     # a list of the residue's spec [chain_id, res_no, ins_code]
     def alt_func1(chain_id, res_no, ins_code, res_serial_no):
         r = False
-        atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+        atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
         for i in range(len(atom_ls)):
             alt_conf_str = atom_ls[i][0][1]
             if alt_conf_str:
@@ -2344,7 +2346,7 @@ def residues_with_alt_confs(imol):
 
 def residue_alt_confs(imol, chain_id, res_no, ins_code):
 
-    atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+    atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
     alt_confs = []
 
     if atom_ls:
@@ -2370,7 +2372,7 @@ def atoms_with_zero_occ(imol):
             res_no = coot.seqnum_from_serial_number(imol, chain_id, serial_number)
             ins_code = coot.insertion_code_from_serial_number(
                 imol, chain_id, serial_number)
-            res_info = residue_info(imol, chain_id, res_no, ins_code)
+            res_info = coot.residue_info_py(imol, chain_id, res_no, ins_code)
             for atom_info in res_info:
                 occ = atom_info[1][0]
                 name = atom_info[0][0]
@@ -2387,7 +2389,7 @@ def atoms_with_zero_occ(imol):
     return r
 
 # not to be confused with residue_atom_to_atom_name
-# (which uses the output of residue_info)
+# (which uses the output of coot.residue_info_py)
 #
 # extraction function
 #
@@ -2518,7 +2520,7 @@ def residue_spec_to_atom_for_centre(imol, chain_id, res_no, ins_code):
 
     from types import ListType
     # residue-info can return False
-    atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+    atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
 
     centre_atom_name_alt_conf = False
 
@@ -2863,7 +2865,7 @@ def label_all_atoms_in_residue(imol, chain_id, resno, inscode):
 
     import types
 
-    atom_list = residue_info(imol, chain_id, resno, inscode)
+    atom_list = coot.residue_info_py(imol, chain_id, resno, inscode)
     if type(atom_list) is ListType:
         for atom_info in atom_list:
             coot.add_atom_label(imol, chain_id, resno, atom_info[0][0])
@@ -2878,7 +2880,7 @@ def label_all_active_residue_atoms():
     resno = active_atom[2]
     inscode = active_atom[3]
 
-    atom_list = residue_info(imol, chain_id, resno, inscode)
+    atom_list = coot.residue_info_py(imol, chain_id, resno, inscode)
     if type(atom_list) is ListType:
         for atom_info in atom_list:
             coot.add_atom_label(imol, chain_id, resno, atom_info[0][0])
@@ -2938,7 +2940,7 @@ def sanitise_alt_confs(atom_info, atom_ls):
 def sanitise_alt_confs_in_residue(imol, chain_id, resno, inscode):
 
     atom_info = [imol, chain_id, resno, inscode, "dummy", "dummy"]
-    atom_ls = residue_info(imol, chain_id, resno, inscode)
+    atom_ls = coot.residue_info_py(imol, chain_id, resno, inscode)
     sanitise_alt_confs(atom_info, atom_ls)
 
 # Resets alt confs and occupancies of atoms in residue that have
@@ -2954,7 +2956,7 @@ def sanitise_alt_confs_active_residue():
         resno = active_atom[2]
         inscode = active_atom[2]
 
-        atom_ls = residue_info(imol, chain_id, resno, inscode)
+        atom_ls = coot.residue_info_py(imol, chain_id, resno, inscode)
 
         if atom_ls:
             sanitise_alt_confs(active_atom, atom_ls)
@@ -3195,110 +3197,6 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
 
 
 highlight_binding_site = hilight_binding_site  # typo?
-
-
-# Function based on Davis et al. (2007) Molprobity: all atom contacts
-# and structure validation for proteins and nucleic acids, Nucleic
-# Acids Research 35, W375-W383.
-#
-#    "RNA sugar puckers (C3'endo or C2'endo) is strongly correlated
-#    to the perpendicular distance between the following (3')
-#    phosphate and either the plane of the base or the C1'-N1/9
-#    glycosidic bond vector. [] .. a sugar pucker is very difficult
-#    to determine directly from the electron density at resolutions
-#    typical for RNAs."
-#
-# To paraphrase:
-# The distance of the plane of the base to the following phosphate
-# is highly correlated to the pucker of the ribose.
-#
-# An analysis of the structures in RNADB2005 shows that a critical
-# distance of 3.3A provides a partition function to separate C2' from
-# C3' endo puckering.  Not all ribose follow this rule.  There may be
-# some errors in the models comprising RNADB2005. So we check the
-# distance of the following phosphate to the plane of the ribose and
-# record the riboses that are inconsitent.  We also report puckers
-# that are not C2' or C3'.  The puckers are determined by the most
-# out-of-plane atom of the ribose (the rms deviation of the 4 atoms
-# in the plane is calculated, but not used to determine the
-# puckering atom).
-#
-def pukka_puckers_qm(imol):
-
-    import types
-
-    residue_list = []
-    crit_d = 3.0  # Richardson's grup value to partition C2'-endo from C3'-endo
-
-    def add_questionable(r):
-        residue_list.append(r)
-
-    def get_ribose_residue_atom_name(imol, residue_spec, pucker_atom):
-        r_info = residue_info(
-            imol, residue_spec[0], residue_spec[1], residue_spec[2])
-        t_pucker_atom = pucker_atom[0:3] + "*"
-        if (pucker_atom in [at[0][0] for at in r_info]):
-            return pucker_atom
-        else:
-            return t_pucker_atom
-
-    # main line
-    for chain_id in chain_ids(imol):
-        if (not is_solvent_chain_qm(imol, chain_id)):
-            n_residues = coot.chain_n_residues(chain_id, imol)
-
-            for serial_number in range(n_residues):
-
-                res_name = coot.resname_from_serial_number(
-                    imol, chain_id, serial_number)
-                res_no = coot.seqnum_from_serial_number(
-                    imol, chain_id, serial_number)
-                ins_code = coot.insertion_code_from_serial_number(
-                    imol, chain_id, serial_number)
-
-                if (not res_name == "HOH"):
-
-                    residue_spec = [chain_id, res_no, ins_code]
-                    pi = pucker_info(imol, residue_spec, 1)
-                    if (pi):
-                        if (type(pi) is ListType):
-                            if (len(pi) == 4):
-                                pucker_atom = pi[1]
-                                if ((abs(pi[0]) > crit_d) and
-                                        (pucker_atom == " C2'")):
-                                    add_questionable([pucker_atom, residue_spec,
-                                                      "Inconsistent phosphate distance for C2' pucker"])
-                                if ((abs(pi[0]) < crit_d) and
-                                        (pucker_atom == " C3'")):
-                                    add_questionable([pucker_atom, residue_spec,
-                                                      "Inconsistent phosphate distance for C3' pucker"])
-                                if not ((pucker_atom == " C2'") or
-                                        (pucker_atom == " C3'")):
-                                    add_questionable([pucker_atom, residue_spec,
-                                                      "puckered atom:" + pucker_atom])
-
-    if (len(residue_list) == 0):
-        coot.info_dialog("No bad puckers.")
-    else:
-        buttons = []
-        for residue in residue_list:
-            residue_spec = residue[1]
-            pucker_atom = residue[0]
-            at_name = get_ribose_residue_atom_name(
-                imol, residue_spec, pucker_atom)
-            ls = [residue_spec[0] + " " + str(residue_spec[1]) + residue_spec[2] +
-                  ": " + residue[2],
-                  ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
-                   "coot.set_go_to_atom_chain_residue_atom_name(" +
-                   "\"" + str(residue_spec[0]) + "\", " +
-                   str(residue_spec[1]) + ", " +
-                   "\"" + str(at_name) + "\")"]
-                  ]
-            buttons.append(ls)
-        coot_gui.dialog_box_of_buttons("Non-pukka puckers",
-                                       [370, 250],
-                                       buttons,
-                                       "  Close  ")
 
 
 # Generate restraints from the residue at the centre of the screen
@@ -4309,7 +4207,7 @@ def toggle_full_screen(widget=None):
             coot.full_screen(0)
     else:
         # no alternative for now (could just go by state and change back and forth)
-        print("BL WARNING:: no widget")
+        print("WARNING:: no widget")
 
 
 def split_active_water():
@@ -4411,7 +4309,7 @@ def set_alt_conf_occ(imol, chain_id, res_no, ins_code, alt_conf_list):
     # first check if we have alt confs:
     alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
     if (alt_confs > 1):
-        atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+        atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
         change_list = []
         for i in range(len(atom_ls)):
             alt_conf_str = atom_ls[i][0][1]
@@ -4702,7 +4600,7 @@ def rename_alt_confs(imol, chain_id, res_no, ins_code,
         # first check if we have alt confs:
         alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
         if (alt_confs > 1):
-            atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+            atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
             change_list = []
             for i in range(len(atom_ls)):
                 alt_conf_str = atom_ls[i][0][1]

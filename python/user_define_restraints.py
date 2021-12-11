@@ -77,7 +77,7 @@ def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
                                               atom_spec_2[5],
                                               atom_spec_2[6],
                                               bl, 0.035)
-            user_defined_click(2, make_restr_dist)
+            coot.user_defined_click(2, make_restr_dist)
             if continue_qm:
                 user_defined_add_arbitrary_length_bond_restraint(bl)
 
