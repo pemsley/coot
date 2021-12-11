@@ -5790,8 +5790,6 @@ def yes_no_dialog(label_text, title_text=None):
 # in the plane is calculated, but not used to determine the
 # puckering atom).
 #
-# THis is a GUI, why is it here and not in coot_gui.py?
-
 def pukka_puckers_qm(imol):
 
     import types

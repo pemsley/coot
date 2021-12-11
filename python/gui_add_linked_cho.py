@@ -1,10 +1,18 @@
 
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+import coot
 import coot_gui
 import coot_gui_api
 import coot_utils
 import add_linked_cho
 
 def interactive_add_cho_dialog():
+
+    def dummy_func():
+        print("dummy_func()")
+        pass
 
     def refine_tree_func():
         with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
@@ -15,7 +23,7 @@ def interactive_add_cho_dialog():
     add_linked_cho.use_unimodal_pyranose_ring_torsions()
     # button list with [label, function]
     buttons = [
-        ["Update for Current Residue", lambda func: coot_utils.printf("dummy")],
+        ["Update for Current Residue", lambda func: dummy_func()], # dummy_func replaced later
         ["Refine Tree", lambda func: refine_tree_func()],
         ["Add a NAG-ASN NAG",
          lambda func:
@@ -82,13 +90,13 @@ def interactive_add_cho_dialog():
                                  gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
 
     # add a widget to allow the user to choose the tree type
-    table = gtk.Table(3, 2, False)
-    butt_1 = gtk.RadioButton(None, "High Mannose")
-    butt_2 = gtk.RadioButton(butt_1, "Hybrid (Mammal)")
-#    butt_3 = gtk.RadioButton(butt_1, "Hybrid (Plant)")
-    butt_4 = gtk.RadioButton(butt_1, "Complex (Mammal)")
-    butt_5 = gtk.RadioButton(butt_1, "Complex (Plant)")
-    butt_6 = gtk.RadioButton(butt_1, "Expert User Mode")
+    table = Gtk.Table(3, 2, False)
+    butt_1 = Gtk.RadioButton(None, "High Mannose")
+    butt_2 = Gtk.RadioButton(butt_1, "Hybrid (Mammal)")
+#    butt_3 = Gtk.RadioButton(butt_1, "Hybrid (Plant)")
+    butt_4 = Gtk.RadioButton(butt_1, "Complex (Mammal)")
+    butt_5 = Gtk.RadioButton(butt_1, "Complex (Plant)")
+    butt_6 = Gtk.RadioButton(butt_1, "Expert User Mode")
 
     butt_1.show()
     butt_2.show()
@@ -97,14 +105,14 @@ def interactive_add_cho_dialog():
     butt_5.show()
     butt_6.show()
 
-    # add buttons for nice(?) layout/order
-    table.attach(butt_1, 0, 1, 0, 1, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0) # high mannose
-    table.attach(butt_4, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0) # complex mammal
-    table.attach(butt_6, 0, 1, 1, 2, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0) # Expert
-#    table.attach(butt_3, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
-    table.attach(butt_5, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0) # complex plant
-    table.attach(butt_2, 2, 3, 0, 1, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0) # hybrid mammal
-    
+    # this is now how we do it these days. FIXME-PE
+    #     # add buttons for nice(?) layout/order
+    #     table.attach(butt_1, 0, 1, 0, 1, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # high mannose
+    #     table.attach(butt_4, 1, 2, 0, 1, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # complex mammal
+    #     table.attach(butt_6, 0, 1, 1, 2, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # Expert
+    # #    table.attach(butt_3, 1, 2, 1, 2, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0)
+    #     table.attach(butt_5, 1, 2, 1, 2, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # complex plant
+    #     table.attach(butt_2, 2, 3, 0, 1, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # hybrid mammal
     
     vbox.pack_start(table, True, True, 2)
     table.show()
@@ -411,9 +419,9 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
         tree_type = "oligomannose"
         children = vbox.get_children()
         for child in children:
-            if type(child) == gtk.Table:
+            if type(child) == Gtk.Table:
                 for table_child in child:
-                    if type(table_child) == gtk.RadioButton:
+                    if type(table_child) == Gtk.RadioButton:
                         if table_child.get_active():
                             l = table_child.get_label()
                             # this is a bit ugly because we are testing that these strings
@@ -434,7 +442,7 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
 
     with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
-        glyco_id = glyco_tree_residue_id(aa_imol, aa_res_spec)
+        glyco_id = coot.glyco_tree_residue_id_py(aa_imol, aa_res_spec)
         # Paule says:
         # if it was an ASP create a level-0 glyco-id for that (glyco-tree-residue-id doesn't
         # do that (not sure why)).
@@ -447,7 +455,7 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
             tree_type = get_tree_type()
             children = vbox.get_children()
             for child in children:
-                if (type(child) == gtk.Button):
+                if (type(child) == Gtk.Button):
                     glyco_tree_dialog_set_button_active_state(child, glyco_id,
                                                               tree_type)
             return True
@@ -625,8 +633,8 @@ def add_module_carbohydrate_gui():
                 with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                                aa_ins_code, aa_atom_name,
                                                aa_alt_conf, aa_res_spec]:
-                    residues = residues_near_residue(aa_imol, aa_res_spec, 10)
-                    imol_region = new_molecule_by_residue_specs(aa_imol, residues)
+                    residues = coot.residues_near_residue_py(aa_imol, aa_res_spec, 10)
+                    imol_region = coot.new_molecule_by_residue_specs(aa_imol, residues)
                     # BL says:: why not do a new mol by sphere selection?!
                     m = coot.median_temperature_factor(imol_region)
                     coot.close_molecule(imol_region)
@@ -766,7 +774,7 @@ def add_module_carbohydrate_gui():
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     centre_residue = [aa_chain_id,aa_res_no, aa_ins_code]
-                    residues = residues_near_residue(aa_imol, centre_residue, 1.9)
+                    residues = coot.residues_near_residue_py(aa_imol, centre_residue, 1.9)
                     residues.append(centre_residue)
                     coot.multi_residue_torsion_fit(aa_imol, residues, 30000)
                     if refine:
@@ -793,15 +801,15 @@ def add_module_carbohydrate_gui():
                 menu, "Use Unimodal ring torsion restraints",
                 lambda func: add_linked_cho.use_unimodal_pyranose_ring_torsions())
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Display Extra Restraints",
                 lambda func: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 1))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Undisplay Extra Restraints",
                 lambda func: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 0))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Extract this Tree",
                 lambda func:
                 add_linked_cho.new_molecule_from_this_glyco_tree())

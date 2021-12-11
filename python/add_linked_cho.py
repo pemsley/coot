@@ -34,7 +34,7 @@ def use_unimodal_pyranose_ring_torsions():
 def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
     "---------------- multi-add-linked-residue", imol, res_spec
-    coot_utils.set_go_to_atom_molecule(imol)
+    coot.set_go_to_atom_molecule(imol)
     wm = coot.matrix_state()
     coot.set_matrix(wm/4.)
 
