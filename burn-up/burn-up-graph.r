@@ -122,5 +122,8 @@ text(43, 9., labels="Illness", col='grey', cex=1.0)
 betterArrow(70, 32, 44, 38.3, 0.2, col='grey', code=2)
 text(84, 32., labels="Runs on Mac OS", col='grey', cex=1.0)
 
+betterArrow(50, 57, 73, 52.0, 0.2, col='grey', code=2)
+text(40, 58., labels="Goodbye PISA", col='grey', cex=1.0)
+
 dev.off()
 
