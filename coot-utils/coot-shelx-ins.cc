@@ -606,8 +606,10 @@ coot::ShelxIns::read_file(const std::string &filename) {
          if (spacegroup_ok) {
             // std::cout << "INFO:: set space group to \"" << space_group.descr().symbol_xhm() << "\""
             // << std::endl;
-            mmdb::cpstr sg = space_group.descr().symbol_xhm().c_str();
-            mol->SetSpaceGroup(sg);
+            char spacegroup_c[40];
+            strcpy(spacegroup_c, space_group.descr().symbol_xhm().c_str());
+            // mmdb::cpstr sg = space_group.descr().symbol_xhm().c_str();
+            mol->SetSpaceGroup(spacegroup_c);
             char *spg = mol->GetSpaceGroup();
             if (spg) { 
                std::string sgrp(spg);
