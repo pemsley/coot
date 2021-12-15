@@ -1052,6 +1052,7 @@ public:
    static short int in_wall_eyed_side_by_side_stereo_mode;
    enum stereo_eye_t { FRONT_EYE, LEFT_EYE, RIGHT_EYE };
    static stereo_eye_t which_eye;
+   static bool stereo_style_2010;
 
    // return a vector of the current valid map molecules
    std::vector<int> valid_map_molecules() const;

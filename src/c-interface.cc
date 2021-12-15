@@ -1216,6 +1216,24 @@ int stereo_mode_state() {
    return graphics_info_t::display_mode;
 }
 
+
+/*! \brief set the stereo mode (the relative view of the eyes)
+
+0 is 2010-mode
+1 is modern mode
+*/
+void set_stereo_style(int mode) {
+
+   if (mode == 0)
+      graphics_info_t::stereo_style_2010 = true;
+   else 
+      graphics_info_t::stereo_style_2010 = false;
+
+   graphics_draw();
+}
+   
+
+
 void set_hardware_stereo_angle_factor(float f) {
    graphics_info_t::hardware_stereo_angle_factor = f;
    std::string cmd = "set-hardware-stereo-angle-factor";

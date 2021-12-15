@@ -2316,6 +2316,15 @@ void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 void zalman_stereo_mode();
 /*! \brief try to turn on stereo mode  */
 void hardware_stereo_mode();
+
+
+/*! \brief set the stereo mode (the relative view of the eyes)
+
+0 is 2010-mode
+1 is modern mode
+*/
+void set_stereo_style(int mode);
+
 /*! \brief what is the stero state?
 
   @return 1 for in hardware stereo, 2 for side by side stereo, else return 0. */
@@ -3922,11 +3931,12 @@ int  show_pointer_distances_state();
 /*! \brief scale the view by f
 
    external (scripting) interface (with redraw)
-    @param f the smaller f, the bigger the zoom, typical value 1.3*/
+    @param f the smaller f, the bigger the zoom, typical value 1.3.
+    Values outside the range 0.5 to 1.8 are filtered out */
 void scale_zoom(float f);
 /* internal interface */
 void scale_zoom_internal(float f);
-/*! \brief return the current zoom factor */
+/*! \brief return the current zoom factor i.e. get_zoom_factor() */
 float zoom_factor();
 
 /*! \brief set smooth scroll with zoom
@@ -3937,6 +3947,8 @@ void set_smooth_scroll_do_zoom(int i);
 int      smooth_scroll_do_zoom();
 float    smooth_scroll_zoom_limit();
 void set_smooth_scroll_zoom_limit(float f);
+
+/*! \brief set the zoom factor (absolute value) - maybe should be called set_zoom_factor() */
 void set_zoom(float f);
 
 /* \} */
