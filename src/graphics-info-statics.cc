@@ -41,3 +41,5 @@ bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;
 
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 
+bool graphics_info_t::stereo_style_2010 = false;
+

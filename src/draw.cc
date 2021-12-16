@@ -45,47 +45,69 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
                 << "do first and second " << do_first << " " << do_second << std::endl;
 
    if (do_first || do_second) {
-      float skew_factor = 0.05 * graphics_info_t::hardware_stereo_angle_factor;
-      float view_skew_matrix[16];
 
-      // identity matrices first
-      for(unsigned int ii=0; ii<16; ii++) view_skew_matrix[ii]   = 0.0;
-      for(unsigned int ii=0; ii<4;  ii++) view_skew_matrix[ii*5] = 1.0;
-      float trans_fac = 0.038;
+      if (graphics_info_t::stereo_style_2010) {
 
-      if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) {
-         if (do_first) {
-            view_skew_matrix[8] = -skew_factor; // 8 because this is the transpose
-            glMultMatrixf(view_skew_matrix);
-            glTranslatef(-trans_fac, 0.0, 0.0);
-         } else {
-            view_skew_matrix[8] = skew_factor;
-            glMultMatrixf(view_skew_matrix);
-            glTranslatef(trans_fac, 0.0, 0.0);
-         }
-      }
+         float skew_factor = 0.05 * graphics_info_t::hardware_stereo_angle_factor;
+         float view_skew_matrix[16];
 
-      if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) {
+         // identity matrices first
+         for(unsigned int ii=0; ii<16; ii++) view_skew_matrix[ii]   = 0.0;
+         for(unsigned int ii=0; ii<4;  ii++) view_skew_matrix[ii*5] = 1.0;
+
          if (do_first) {
             view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
             glMultMatrixf(view_skew_matrix);
-            glTranslatef(trans_fac, 0.0, 0.0);
+            glTranslatef(-0.1, 0.0, 0.0); // maybe needs more, reversed sign
          } else {
             view_skew_matrix[8] = -skew_factor;
             glMultMatrixf(view_skew_matrix);
-            glTranslatef(-trans_fac, 0.0, 0.0);
+            glTranslatef(0.1, 0.0, 0.0);
          }
-      }
 
-      if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
-         if (do_first) {
-            view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
-            glMultMatrixf(view_skew_matrix);
-            glTranslatef(trans_fac, 0.0, 0.0);
-         } else {
-            view_skew_matrix[8] = -skew_factor;
-            glMultMatrixf(view_skew_matrix);
-            glTranslatef(-trans_fac, 0.0, 0.0);
+      } else {
+         float skew_factor = 0.05 * graphics_info_t::hardware_stereo_angle_factor;
+         float view_skew_matrix[16];
+
+         // identity matrices first
+         for(unsigned int ii=0; ii<16; ii++) view_skew_matrix[ii]   = 0.0;
+         for(unsigned int ii=0; ii<4;  ii++) view_skew_matrix[ii*5] = 1.0;
+         float trans_fac = 0.038;
+
+         if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) {
+            if (do_first) {
+               view_skew_matrix[8] = -skew_factor; // 8 because this is the transpose
+               glMultMatrixf(view_skew_matrix);
+               glTranslatef(-trans_fac, 0.0, 0.0);
+            } else {
+               view_skew_matrix[8] = skew_factor;
+               glMultMatrixf(view_skew_matrix);
+               glTranslatef(trans_fac, 0.0, 0.0);
+            }
+         }
+
+         if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) {
+            if (do_first) {
+               view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+               glMultMatrixf(view_skew_matrix);
+               glTranslatef(trans_fac, 0.0, 0.0);
+            } else {
+               view_skew_matrix[8] = -skew_factor;
+               glMultMatrixf(view_skew_matrix);
+               glTranslatef(-trans_fac, 0.0, 0.0);
+            }
+         }
+
+         if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
+            if (do_first) {
+               view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+               glMultMatrixf(view_skew_matrix);
+               glTranslatef(trans_fac, 0.0, 0.0);
+            } else {
+               view_skew_matrix[8] = -skew_factor;
+               glMultMatrixf(view_skew_matrix);
+               glTranslatef(-trans_fac, 0.0, 0.0);
+            }
          }
       }
    }
@@ -690,8 +712,8 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
-   bool draw_old = false;
-   if (draw_old) {
+   if (graphics_info_t::stereo_style_2010) {
+
       // tinker with graphics_info_t::quat, rotate it left, draw it,
       // rotate it right, draw it.
       graphics_info_t g; // is this a slow thing?
@@ -720,6 +742,7 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
       // show it
       GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable(widget);
       gdk_gl_drawable_swap_buffers(gldrawable);
+
    } else {
 
       // do the skew thing in draw_mono() depending on which stereo eye.
