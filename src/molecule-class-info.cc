@@ -5646,14 +5646,22 @@ molecule_class_info_t::close_yourself() {
 
    bool delete_stored_data = true; // does this stop the crash on charybdis?
    if (delete_stored_data) {
-      if (original_fphis_filled)
-         delete original_fphis_p;
+      if (original_fphis_filled) {
+	 // do I have a race condition?
+	 clipper::HKL_data< clipper::datatypes::F_phi<float> >  *tmp_p = original_fphis_p;
+	 original_fphis_p = 0;
+         delete tmp_p;
+      }
       
-      if (original_fobs_sigfobs_filled)
+      if (original_fobs_sigfobs_filled) {
          delete original_fobs_sigfobs_p;
+	 original_fobs_sigfobs_p = 0;
+      }
       
-      if (original_r_free_flags_p) // no flag for filled?
+      if (original_r_free_flags_p) { // no flag for filled?
          delete original_r_free_flags_p;
+	 original_r_free_flags_p = 0;
+      }
    }
       
    // delete from display manager combo box
