@@ -1780,7 +1780,7 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
    // note initialization n_labelled_atoms is 0;
    //
-   if (is_in_labelled_list(atom_index) == 1) {
+   if (is_in_labelled_list(atom_index) == true) {
       unlabel_atom(atom_index);
    } else {
       labelled_atom_index_list.push_back(atom_index);
