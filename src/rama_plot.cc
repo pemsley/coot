@@ -934,7 +934,7 @@ coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_typ
    abs_file_name += file_name;
 
    // check if file exists? Done by pixbuf I guess
-   pixbuf = gdk_pixbuf_new_from_file(abs_file_name.c_str(), NULL);
+   pixbuf = gdk_pixbuf_new_from_file_at_size(abs_file_name.c_str(), 360, 360, NULL);
    if (pixbuf) {
       item = goo_canvas_image_new(bg_group, pixbuf,
                                   -180.0, -180.0,
@@ -1177,6 +1177,9 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
    int config;
    int start_angle;
    int end_angle;
+   float line_width;
+
+   line_width = 1.0;
 
    if (psi_axis_mode == PSI_CLASSIC) {
       start_angle = -180.0;
@@ -1207,7 +1210,7 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
                                                 x2,y2,
 //                                                "stroke-color", "black",
                                                 "stroke-color", "grey60",
-                                                "line-width", 0.5,
+                                                "line-width", line_width,
 				NULL);
          }
       }
@@ -3550,9 +3553,13 @@ coot::rama_plot::make_bg_images() {
 void
 coot::rama_plot::write_png_simple(std::string &file_name, GooCanvasItem *item) {
 
+   float scale;
    gdouble x1, y1, x2, y2;
    int size_x;
    int size_y;
+   // If you ever want to enlarge the Rama background images, then increase
+   // this scale. The block size should be lowered at the same time.
+   scale = 1.;
    if (item) {
       gdouble width, height;
       g_object_get(GOO_CANVAS_GROUP(item),
@@ -3577,13 +3584,16 @@ coot::rama_plot::write_png_simple(std::string &file_name, GooCanvasItem *item) {
       size_y = (int)y2 - (int)y1;
    }
 
+   size_x*=scale;
+   size_y*=scale;
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
    /* move closer to the centre
    Not sure where to move x1, y1 or centre?!*/
    cairo_translate (cr, size_x/2, size_y/2);
+   cairo_scale (cr, scale, scale);
 
-   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0);
+   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, scale);
    cairo_surface_write_to_png(surface, file_name.c_str());
    cairo_surface_destroy (surface);
    cairo_destroy (cr);

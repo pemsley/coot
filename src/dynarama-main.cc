@@ -86,7 +86,6 @@ print_help(std::string cmd) {
              << "\n";
    std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
 
-
 }
 
 int
@@ -258,13 +257,18 @@ main(int argc, char *argv[]) {
          do_help = false;
          break;
 
+      case '?':
+         std::cout << "Unrecognised option: " << optopt << std::endl;
+         break;
+
       default:
          std::cout << "default coot_optarg: " << coot_optarg << std::endl;
          break;
       }
    }
 
-   for (index = optind; index < argc; index++) {
+   // any unhandled arguments which could be a pdb?
+   for (index = n_used_args+1; index < argc; index++) {
       if (coot::util::extension_is_for_coords(coot::util::file_name_extension(argv[index])))
          pdb_file_name = argv[index];
       else {
@@ -484,6 +488,9 @@ main(int argc, char *argv[]) {
 
       gtk_init(&argc, &argv);
    }
+
+   std::cout << "BL DBEUG:: returning now n_used_args" << n_used_args <<std::endl;
+
    return 0;
 
 }
