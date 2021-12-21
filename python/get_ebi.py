@@ -50,27 +50,38 @@ pdbe_file_name_tail = "ent"
 # returns download filename upon success or False when fail
 # should we return the response header too?
 #
-def coot_urlretrieve(url, file_name, reporthook=None):
 
-    """Helper function to avoid downloading empty files
-    returns download filename upon success or False when fail."""
+# def coot_urlretrieve(url, file_name, reporthook=None):
 
-    import urllib
-    local_filename = False
-    class CootURLopener(urllib.FancyURLopener):
-        def http_error_default(self, url, fp, errcode, errmsg, headers):
-            # handle errors the way you'd like to
-            # we just pass
-            pass
+#     """Helper function to avoid downloading empty files
+#     returns download filename upon success or False when fail."""
 
-    opener = CootURLopener(context=ssl_context)
-    try:
-        local_filename, header = opener.retrieve(url, file_name, reporthook)
-    except:
-        # we could catch more here, but dont bother for now
-        print "BL WARNING:: retrieve of url %s failed" %url
+#     import urllib
+#     local_filename = False
+#     class CootURLopener(urllib.FancyURLopener):
+#         def http_error_default(self, url, fp, errcode, errmsg, headers):
+#             # handle errors the way you'd like to
+#             # we just pass
+#             pass
 
-    return local_filename
+#     opener = CootURLopener(context=ssl_context)
+#     try:
+#         local_filename, header = opener.retrieve(url, file_name, reporthook)
+#     except:
+#         # we could catch more here, but dont bother for now
+#         print "BL WARNING:: retrieve of url %s failed" %url
+
+#     return local_filename
+
+import requests
+
+def coot_urlretrieve(url, file_name):
+    r = requests.get(url, timeout=2)
+    r.raise_for_status()
+    if r.status_code == 200:
+        f = open(file_name, "w")
+        f.write(r.text)
+        f.close()
 
 # we dont need something like net-get-url in python 
 # since we have build in functions like urlretrieve (in module urllib)
