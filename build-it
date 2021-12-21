@@ -1415,10 +1415,14 @@ if make --version ; then
       memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
       if [ "$memory_kb" -gt 2000512 ] ; then
          if [ -e /proc/cpuinfo ] ; then
-            if np=$(grep processor /proc/cpuinfo | wc -l) ; then
+            if np_raw=$(grep processor /proc/cpuinfo | wc -l) ; then
                # limit to 8 processors
+               np=$np_raw # cooked
                if [ "$np" -gt 8 ] ; then
                   np=8
+               fi
+               if [ "$np_raw" = 224 ] ; then
+                  np=64 # teehee!
                fi
                echo using $np processors in compilation
                MAKE="make -j$np"
@@ -3450,7 +3454,7 @@ if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2-py2.7-linux-x8
    build_pillow=no
 fi
 
-if [ $build_pillow = no ] ; then
+if [ "$build_pillow" = no ] ; then
    echo not building Pillow:
 else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
@@ -4664,13 +4668,13 @@ if [ "$build_coot_prerelease" = 1 ] ; then
 fi
 
 clear_up_type=
-if [ $shared_static_flag != "--enable-shared" ] ; then
+if [ $shared_static_flag = "--enable-shared" ] ; then
     clear_up_type=clear-static
 fi   
-if [ $shared_static_flag != "--disable-static" ] ; then
+if [ $shared_static_flag = "--disable-static" ] ; then
     clear_up_type=clear-static
 fi   
-if [ $shared_static_flag != "--disable-shared" ] ; then
+if [ $shared_static_flag = "--disable-shared" ] ; then
     clear_up_type=clear-dynamic
 fi   
 
@@ -4680,7 +4684,7 @@ if [ $clear_up_type != "" ] ; then
    else
       slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk2
    fi
-   echo post-install slim... >&2
+   echo post-install slim... with clear-up type $clear_up_type >&2
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
