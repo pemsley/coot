@@ -756,12 +756,6 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
          make_isolines(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
 #endif
       }
-   } else {
-#ifdef CLIPPER_HAS_TOP8000
-      make_background(r_ileval, bg_ileval);
-      make_background(r_pre_pro, bg_pre_pro);
-      make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
-#endif
    }
 
 
