@@ -369,11 +369,11 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    if (dynarama_label)
       gtk_label_set_text(GTK_LABEL(dynarama_label), mol_name.c_str());
 
-   int ysize = 500;
+   int ysize = 600;
    if (! is_kleywegt_plot_flag_local) // extra space needed
-      ysize = 535;
+      ysize = 635;
 
-   GtkAllocation alloc = { 0, 0, 400, ysize };
+   GtkAllocation alloc = { 0, 0, 500, ysize };
    gtk_widget_size_allocate(dynawin, &alloc);
    if (dynawin) {
       gtk_widget_show(dynawin);
@@ -390,7 +390,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    canvas = goo_canvas_new();
    root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
-   gtk_widget_set_size_request(canvas, 400, 400);
+   gtk_widget_set_size_request(canvas, 462, 472);
    gtk_container_add(GTK_CONTAINER(scrolled_window),
                      canvas);
    gtk_widget_ref(canvas);
@@ -528,7 +528,7 @@ coot::rama_plot::reinitialise() {
 void
 coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
-   zoom = 0.8;
+   zoom = 1.0; // 20211221-PE new size
    have_sticky_labels = 0; 
 
    n_diffs = 50; // default value.
