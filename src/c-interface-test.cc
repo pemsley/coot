@@ -1226,6 +1226,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          bool status = obj.mesh.load_from_glTF(file_name);
 
          std::cout << "debug:: obj mesh load_from_glTF returned status " << status << std::endl;
+// not always available
+#ifdef USE_MOLECULES_TO_TRIANGLES
          if (status) {
 
             // obj.mesh.setup(material); // calls setup_buffers() (again)
@@ -1242,6 +1244,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             bool is_binary_format = true; // no need for this here. binary type is tested internally now.
             mesh.export_to_glTF("exported-to-gltf.glb", is_binary_format);
          }
+#endif // USE_MOLECULES_TO_TRIANGLES
       }
 
       if (false) {
