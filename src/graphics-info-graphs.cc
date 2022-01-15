@@ -1612,6 +1612,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 	 double occ_sum = coot::util::occupancy_sum(residue_atoms, n_residue_atoms);
 	 if (occ_sum > 0) {
             float distortion_max_abs = 132.0;
+            distortion_max_abs = 140; // 20220115-PE let's say
             float distortion_max = distortion_max_abs;
 	    residue_density_score /= occ_sum;
 	    std::string str = int_to_string(this_resno);
@@ -1626,16 +1627,17 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 
 	    // std::cout << "DEBUG::          max_grid_factor " << max_grid_factor
 	    // << " score " << residue_density_score << std::endl;
-	    double sf = residue_density_fit_scale_factor * 1.25;
+	    double sf = residue_density_fit_scale_factor * 0.72; // 20220115-PE  was 1.25;
 	    // high resolution maps have high grid factors (say 0.5) and high
 	    // residue_density_ scores (say 2.0)
 	    // double distortion = sf/(pow(max_grid_factor,3) * residue_density_score);
 	    double distortion = sf/(pow(max_grid_factor,4) * residue_density_score);  // Hmm.
 
-            std::cout << " residue " << coot::residue_spec_t(residue_p) << " distortion: " << distortion
-                      << " vs distortion_max " << distortion_max
-                      << " and distortion_max_abs " << distortion_max_abs
-                      << std::endl;
+            if (false) // debug
+               std::cout << " residue " << coot::residue_spec_t(residue_p) << " distortion: " << distortion
+                         << " vs distortion_max " << distortion_max
+                         << " and distortion_max_abs " << distortion_max_abs
+                         << std::endl;
 
 	    // distortion *= distortion; // non-linear, provides distinction.
 
