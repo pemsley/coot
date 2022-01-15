@@ -3814,6 +3814,8 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
     if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("SO4");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_po4"));
     if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("PO4");
+    tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_zn"));
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("ZN");
   }
   /* Recall that the molecule is set by the callback from menu item "activate" */
 

@@ -11494,6 +11494,7 @@ create_pointer_atom_type_dialog (void)
   GtkWidget *pointer_atom_type_radiobutton_br;
   GtkWidget *pointer_atom_type_radiobutton_so4;
   GtkWidget *pointer_atom_type_radiobutton_po4;
+  GtkWidget *pointer_atom_type_radiobutton_zn;
   GtkWidget *frame81;
   GtkWidget *hbox70;
   GtkWidget *pointer_atom_type_other_button;
@@ -11581,6 +11582,12 @@ create_pointer_atom_type_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_po4), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_po4));
 
+  pointer_atom_type_radiobutton_zn = gtk_radio_button_new_with_mnemonic (NULL, "Zn");
+  gtk_widget_show (pointer_atom_type_radiobutton_zn);
+  gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_zn, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_zn), pointer_atom_type_radiobutton_water_group);
+  pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_zn));
+
   frame81 = gtk_frame_new (NULL);
   gtk_widget_show (frame81);
   gtk_box_pack_start (GTK_BOX (vbox78), frame81, TRUE, TRUE, 0);
@@ -11655,6 +11662,7 @@ create_pointer_atom_type_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_br, "pointer_atom_type_radiobutton_br");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_so4, "pointer_atom_type_radiobutton_so4");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_po4, "pointer_atom_type_radiobutton_po4");
+  GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_zn, "pointer_atom_type_radiobutton_zn");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, frame81, "frame81");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, hbox70, "hbox70");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_other_button, "pointer_atom_type_other_button");
