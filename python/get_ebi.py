@@ -42,7 +42,7 @@ pdbe_file_name_tail = "ent"
 # 'coordinates rather than 'pdb in the future.
 # 
 # The optional argument imol-coords-arg-list is necessary for
-# ouptutting sfs, because we need coordinates from which we can
+# outputting sfs, because we need coordinates from which we can
 # calculate phases.
 #
 
