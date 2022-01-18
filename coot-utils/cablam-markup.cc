@@ -82,11 +82,13 @@ coot::calc_cablam(mmdb::Chain *chain_p, mmdb::Residue *residue_this_p,
    } else {
       return cm; // fail on tandem residues test
    }
+#if 0
    // I am not yet that I want this test.
    if (residue_next_next_p->GetSeqNum() - 2 == residue_this_p->GetSeqNum()) {
    } else {
       return cm; // fail on tandem residues test
    }
+#endif
    mmdb::Atom *O_this = 0;
    mmdb::Atom *O_prev = 0;
    mmdb::Atom *O_next = 0;
@@ -180,7 +182,7 @@ coot::make_cablam_markups(const std::vector<std::pair<residue_spec_t, double> > 
 
    std::vector<cablam_markup_t> v;
    std::vector<std::pair<residue_spec_t, double> >::const_iterator it;
-   for (it=residues.begin(); it!=residues.end(); it++) {
+   for (it=residues.begin(); it!=residues.end(); ++it) {
       const residue_spec_t &cablam_res_spec(it->first);
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
@@ -272,7 +274,7 @@ coot::cablam_like_geometry_stats_t::cablam_like_geometry_stats_t(const coot::cab
    residue = cm.residue;
    dp_prev_to_mid = a1;
    dp_next_to_mid = a2;
-   dist_proj_point_prev_to_next = sqrt(dd);
+   dist_proj_point_prev_to_next = d;
 
 }
 

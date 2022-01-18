@@ -30,6 +30,8 @@ public:
 void
 make_a_map(const std::vector<table_info_t> &table) {
 
+   std::cout << "Making a map" << std::endl;
+
    std::string map_file_name = "table_as_map.map";
    double d_1_min =  9999999999.9;
    double d_1_max = -9999999999.9;
@@ -70,10 +72,6 @@ make_a_map(const std::vector<table_info_t> &table) {
    // limits -5.6 to 5.2
    // limits 2.7 8.0
 
-   float r1 = 5.2 - -5.6;
-   float r2 = 5.2 - -5.6;
-   float r3 = 8.0 - 2.7;
-
    clipper::Spacegroup spacegroup(clipper::Spgr_descr("P1"));
    clipper::Cell cell(clipper::Cell_descr(100, 100, 100));
    clipper::Grid_sampling grid_sampling(100, 100, 100);
@@ -81,13 +79,20 @@ make_a_map(const std::vector<table_info_t> &table) {
 
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = t.first(); !ix.last(); ix.next() )  { // iterator index.
-      t[ix] == 0.0;
+      t[ix] = 0.0;
    }
 
+   float r1 = 5.2 - -5.6;
+   float r2 = 5.2 - -5.6;
+   float r3 = 8.0 - 2.7;
+   float min_x =  -5.6;
+   float min_y =  -5.6;
+   float min_z =  -2.7;
+
    for (const auto &entry : table) {
-      int bin_x = static_cast<int>(100 * (entry.dp_prev_to_mid- -5.6)/r1);
-      int bin_y = static_cast<int>(100 * (entry.dp_next_to_mid- -5.6)/r2);
-      int bin_z = static_cast<int>(100 * (entry.dist_proj_point_prev_to_next- -2.7)/r3);
+      int bin_x = static_cast<int>(100 * (entry.dp_prev_to_mid - min_x)/r1);
+      int bin_y = static_cast<int>(100 * (entry.dp_next_to_mid - min_y)/r2);
+      int bin_z = static_cast<int>(100 * (entry.dist_proj_point_prev_to_next - min_z)/r3);
       clipper::Coord_grid cg(bin_x, bin_y, bin_z);
       int inc = t.get_data(cg) + 1;
       t.set_data(cg, inc);
@@ -109,10 +114,56 @@ make_a_map(const std::vector<table_info_t> &table) {
 
    clipper::HKL_info::HKL_reference_index hri;
    for (hri = fphis.first(); !hri.last(); hri.next()) {
-      float irs = hri.invresolsq();
-      std::cout << hri.hkl().format() << " has reso " << irs <<  " f " << fphis[hri].f() << std::endl;
+      // float irs = hri.invresolsq();
+      // std::cout << hri.hkl().format() << " has reso " << irs <<  " f " << fphis[hri].f() << std::endl;
+   }
+}
+
+void write_a_big_table(const std::vector<table_info_t> &table) {
+
+   std::cout << "Making a table " << std::endl;
+
+   clipper::Spacegroup spacegroup(clipper::Spgr_descr("P1"));
+   clipper::Cell cell(clipper::Cell_descr(100, 100, 100));
+   clipper::Grid_sampling grid_sampling(100, 100, 100);
+   clipper::Xmap<float> t(spacegroup, cell, grid_sampling);
+
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = t.first(); !ix.last(); ix.next() )  { // iterator index.
+      t[ix] = 0.0;
    }
 
+   float r1 = 5.2 - -5.6;
+   float r2 = 5.2 - -5.6;
+   float r3 = 8.0 - 2.7;
+   float min_x =  -5.6;
+   float min_y =  -5.6;
+   float min_z =  -2.7;
+
+   for (const auto &entry : table) {
+      int bin_x = static_cast<int>(100 * (entry.dp_prev_to_mid - min_x)/r1);
+      int bin_y = static_cast<int>(100 * (entry.dp_next_to_mid - min_y)/r2);
+      int bin_z = static_cast<int>(100 * (entry.dist_proj_point_prev_to_next - min_z)/r3);
+      clipper::Coord_grid cg(bin_x, bin_y, bin_z);
+      int inc = t.get_data(cg) + 1;
+      t.set_data(cg, inc);
+   }
+
+   // reverse of that indexing:
+   //
+   // p_1 = (bin_x + 0.5) * r1 + min_x
+   // p_2 = (bin_y + 0.5) * r2 + min_y
+   // p_3 = (bin_z + 0.5) * r3 + min_z
+
+   std::string table_file_name("big.table");
+   std::ofstream f(table_file_name.c_str());
+   if (f) {
+      for (ix = t.first(); !ix.last(); ix.next() )  { // iterator index.
+         clipper::Coord_grid cg = ix.coord();
+         f << cg.u() << " " << cg.v()  << " " << cg.w() << " " << t[ix] << "\n";
+      }
+      f.close();
+   }
 }
 
 void proc_results(const std::string &dir) {
@@ -146,6 +197,7 @@ void proc_results(const std::string &dir) {
    std::cout << "table has " << table.size() << " entries" << std::endl;
 
    make_a_map(table);
+   write_a_big_table(table);
 
 }
 
@@ -153,6 +205,8 @@ int main(int argc, char **argv) {
 
    if (argc < 2) {
       std::cout << "Usage: make-cablam-like-stats <filename>" << std::endl;
+      std::cout << "or " << std::endl;
+      std::cout << "Usage: make-cablam-like-stats proc-results <tables-dir-name>" << std::endl;
       exit(0);
    } else {
 
