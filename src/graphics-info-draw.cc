@@ -3721,6 +3721,10 @@ void
 graphics_info_t::reset_frame_buffers(int width, int height) {
 
    if (use_framebuffers) {
+
+
+      // 20220108-PE note to self. Try using the framebuffer::reset() function instead
+
       unsigned int sf = framebuffer_scale;
       unsigned int index_offset = 0;
       // std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
@@ -4993,6 +4997,7 @@ graphics_info_t::fullscreen() {
 //static
 void
 graphics_info_t::unfullscreen() {
+
    GtkWidget *window = widget_from_builder("main_window");
    if (GTK_IS_WINDOW(window)) {
       gtk_window_unfullscreen(GTK_WINDOW(window));
@@ -5004,7 +5009,8 @@ graphics_info_t::unfullscreen() {
       GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
       GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
       GtkWidget *menu_bar   = widget_from_builder("main_window_menubar");
-#if 0
+
+#if (GTK_MAJOR_VERSION > 3)
       gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), tool_bar);
       gtk_container_add(GTK_CONTAINER(vbox), tool_bar);
 

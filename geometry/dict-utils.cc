@@ -954,7 +954,6 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
    // This contains the atom indices of of atom_info (0-indexed).  An
    // mmdb graph is 1-indexed.
    // 
-   int vertex_indexing[atom_info.size()];
    
    mmdb::math::Graph *graph = new mmdb::math::Graph;
    int i_atom = 0;
@@ -981,11 +980,11 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
 
 	 if (it_1 == name_map.end()) {
 	    if (use_hydrogens || !is_hydrogen(br.atom_id_1_4c()))
-	       std::cout << "Not found in name map atom 1 :" << br.atom_id_1() << ":" << std::endl;
+	       std::cout << "WARNING:: Not found in name map atom 1 :" << br.atom_id_1() << ":" << std::endl;
 	 } else { 
 	    if (it_2 == name_map.end()) {
 	       if (use_hydrogens || !is_hydrogen(br.atom_id_2_4c()))
-		  std::cout << "Not found in name map atom 2 :" << br.atom_id_2() << ":" << std::endl;
+		  std::cout << "WARNING:: Not found in name map atom 2 :" << br.atom_id_2() << ":" << std::endl;
 	    } else {
 
 	       if (use_hydrogens || (!is_hydrogen(br.atom_id_1_4c()) &&

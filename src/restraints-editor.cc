@@ -36,8 +36,6 @@
 #include <string.h>  // strcpy
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
 #include "interface.h"
 #include "support.h"
 
@@ -1470,4 +1468,3 @@ coot::restraints_editor::get_tree_view_by_notebook_page(gint current_page_index)
    return tree_view;
 }
 
-#endif // (GTK_MAJOR_VERSION > 1)

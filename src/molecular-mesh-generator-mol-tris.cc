@@ -210,7 +210,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 
       if (colour_scheme == "colorRampChainsScheme" || colour_scheme == "Ramp") {
 
-         std::cout << "here with colorRampChainsScheme" << std::endl;
+         std::cout << "debug:: in get_molecular_triangles_mesh() with colorRampChainsScheme" << std::endl;
          for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
             mmdb::Model *model_inner_p = mol->GetModel(imod);
             if (model_p) {
@@ -244,7 +244,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
       r->redraw();
       std::vector<std::shared_ptr<DisplayPrimitive> > vdp = r->getDisplayPrimitives();
       auto displayPrimitiveIter = vdp.begin();
-      int i=0;
+      // int i=0;
       std::vector<s_generic_vertex> vertices;
       std::vector<g_triangle> triangles;
 
@@ -270,7 +270,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 #endif
 
       unsigned int idx = 0;
-      for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++, idx++) {
+      for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++, ++idx) {
 
          molecular_triangles_mesh_t current_primitives;
 
@@ -300,7 +300,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                // BoxSectionPrimitive have not had their colours scaled for some reason.
                if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive) {
                   // std::cout << "vertex iVertex " << iVertex << " " << glm::to_string(gv.color) << std::endl;
-                  for (int i=0; i<3; i++) gv.color[i] /= 255.0;
+                  for (int ii=0; ii<3; ii++) gv.color[ii] /= 255.0;
                }
             }
 

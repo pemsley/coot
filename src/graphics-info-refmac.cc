@@ -1116,14 +1116,8 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     // if given mtz file: get the parameters from coot::refmac::saved_refmac_parameters
     std::string file_mtz_filename;
     GtkWidget *twin_mtz_label = lookup_widget(map_optionmenu, "run_refmac_mtz_file_label");
-#if (GTK_MAJOR_VERSION > 1)
     const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
     file_mtz_filename = mtz_filename;
-#else
-    gchar **mtz_filename = 0;
-    gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
-    file_mtz_filename = (char *)mtz_filename;
-#endif // GTK
     std::string tmp_mtz;
     for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].Refmac_file_mtz_filename().size() > 0) {

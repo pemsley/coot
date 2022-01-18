@@ -95,6 +95,7 @@ void main() {
             specular_strength = 0.0;
          dp = clamp(dp, 0.1, 1.0); // no negative dot products for diffuse
 
+         // why don't I use the light source?
          vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0);
          vec4 lsd = vec4(0.6, 0.6, 0.6, 1.0);
          vec4 ambient = colour_transfer * lsa * 0.1;
