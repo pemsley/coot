@@ -153,7 +153,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 		 test-spherical glyco-torsions test-tt-morph test-coot-probe test-chem-feat \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-emma test-convolute test-segmap test-5-residue-fragments \
-		 make-cablam-like-stats
+		 make-cablam-like-stats test-cod-atom-types-from-sm-cif
 
 bin_PROGRAMS = mmrrcc
 
@@ -275,6 +275,15 @@ test_cod_atom_types_LDADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(RDKIT_LIBS)
+
+test_cod_atom_types_from_sm_cif_SOURCES = test-cod-atom-types-from-sm-cif.cc
+
+test_cod_atom_types_from_sm_cif_LDADD = \
+	libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(RDKIT_LIBS)
 
 cod_db_access_SOURCES = cod-db-access.cc
 

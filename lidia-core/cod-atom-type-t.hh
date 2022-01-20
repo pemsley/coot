@@ -49,14 +49,14 @@ namespace cod {
       };
       std::string str;
       std::string element;
-      std::vector<atom_level_2_component_type> components;
       int n_extra_elect;
    public:
 
       atom_level_2_type() {}
-      atom_level_2_type(const std::string &s) { str = s;} // read
+      explicit atom_level_2_type(const std::string &s) : str(s) { n_extra_elect = 0; } // read
       atom_level_2_type(const RDKit::Atom *p, const RDKit::ROMol &rdkm);
 
+      std::vector<atom_level_2_component_type> components;
       std::string string() const {return str; }
       std::string extra_electron_type() const;
       int n_extra_electrons() const;

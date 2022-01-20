@@ -79,6 +79,13 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
       nbrIdx++;
    }
 
+   if (false) { // debug
+      std::string atom_name;
+      base_atom_p->getProp("name", atom_name);
+      std::cout << "--- about to sort components for atom " << atom_name << std::endl;
+   }
+
+
    std::sort(components.begin(), components.end(), level_2_component_sorter);
 
    if (false) { // debug
@@ -123,7 +130,7 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
       if (components[i].neighb_degrees.size()) {
 	 l2 += "-";
 	 int n_size = components[i].neighb_degrees.size(); // int for comparison below
-	 for (int j=0; j<n_size; j++) { 
+	 for (int j=0; j<n_size; j++) {
 	    if (j != 0)
 	       l2 += "_";
 	    l2 += coot::util::int_to_string(components[i].neighb_degrees[j]);
@@ -196,8 +203,12 @@ std::ostream &
 cod::operator<<(std::ostream &s,
 		const atom_level_2_type::atom_level_2_component_type &c) {
 
-   s << "{" << c.element << " " << c.number_of_rings << " "
-     << c.ring_info_string << " ";
+   s << "{" << c.element << " n-rings: " << c.number_of_rings << " ";
+   if (! c.ring_info_string.empty())
+       s << "ring-info: " << c.ring_info_string << " ";
+   // neighb_degrees is a vector of ints
+   if (! c.neighb_degrees.empty())
+      s << "neighb-degrees ";
    for (unsigned int i=0; i<c.neighb_degrees.size(); i++)
       s << c.neighb_degrees[i] << " ";
    s << "}";
@@ -283,6 +294,19 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 
    // std::cout << "comparing l2 components: " << la << " " << lb << std::endl;
 
+   auto are_different_vectors = [] (const std::vector<int> &nd_1, const std::vector<int> &nd_2) {
+                                   if (nd_1.size() != nd_2.size()) return false;
+                                   if (nd_1.empty()) return true;
+                                   bool all_same = true;
+                                   for (unsigned int i=0; i<nd_1.size(); i++) {
+                                      if (nd_1[i] != nd_2[i]) {
+                                         all_same = false;
+                                         break;
+                                      }
+                                   }
+                                   return ! all_same;
+                                };
+
    bool extra_electron_sort = true; // 20170613: inner sort by extra electrons, not hybridization
 
    bool status = false;
@@ -343,38 +367,53 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 					     return false;
 					  } else {
 
-					     if (extra_electron_sort) {
+                                             // so la.neighb_degrees is the same length as lb.neighb_degrees
 
-						unsigned int n = la.neighb_degrees.size();
-						for (unsigned int i=0; i<n; i++) {
-						   if (la.neighb_extra_elect[i] < lb.neighb_extra_elect[i]) {
-						      return true;
-						   } else {
-						      if (la.neighb_extra_elect[i] > lb.neighb_extra_elect[i]) {
-							 return false;
-						      }
-						   }
-						}
-						return false; // or something.
+                                             if (are_different_vectors(la.neighb_degrees, lb.neighb_degrees)) {
 
-					     } else {
+                                                const auto &nd_1 = la.neighb_degrees;
+                                                const auto &nd_2 = lb.neighb_degrees;
 
-						// old style hybridizations
+                                                for (unsigned int i=0; i<nd_1.size(); i++) {
+                                                   if (nd_1[i] > nd_2[i]) return true;
+                                                   if (nd_1[i] < nd_2[i]) return false;
+                                                }
 
-						// so la.neighb_degrees should be the same
-						// size as lb.neighb_degrees.
+                                             } else {
 
-						unsigned int n_h_a = la.neighb_degrees.size();
-						for (unsigned int i=0; i<n_h_a; i++) { 
-						   if (la.neighb_degrees[i] < lb.neighb_degrees[i])
-						      return true;
-						   if (la.neighb_degrees[i] > lb.neighb_degrees[i])
-						      return false;
-						}
+                                                if (extra_electron_sort) {
 
-						return false; // or something.
-					     }
-					  }
+                                                   unsigned int n = la.neighb_degrees.size();
+                                                   for (unsigned int i=0; i<n; i++) {
+                                                      if (la.neighb_extra_elect[i] < lb.neighb_extra_elect[i]) {
+                                                         return true;
+                                                      } else {
+                                                         if (la.neighb_extra_elect[i] > lb.neighb_extra_elect[i]) {
+                                                            return false;
+                                                         }
+                                                      }
+                                                   }
+                                                   return false; // or something.
+
+                                                } else {
+
+                                                   // old style hybridizations
+
+                                                   // so la.neighb_degrees should be the same
+                                                   // size as lb.neighb_degrees.
+
+                                                   unsigned int n_h_a = la.neighb_degrees.size();
+                                                   for (unsigned int i=0; i<n_h_a; i++) {
+                                                      if (la.neighb_degrees[i] < lb.neighb_degrees[i])
+                                                         return true;
+                                                      if (la.neighb_degrees[i] > lb.neighb_degrees[i])
+                                                         return false;
+                                                   }
+
+                                                   return false; // or something.
+                                                }
+                                             }
+                                          }
 				       }
 				    }
 				 }
@@ -388,7 +427,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
    }
    return status;
 }
-   
+
 
 // return number_of_ring,atom_ring_string
 std::pair<int, std::string>

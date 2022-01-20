@@ -9891,3 +9891,9 @@ Wed  5 Jan 18:57:11 GMT 2022
 5rdh rupp presentation
 
 
+---
+Tue 18 Jan 17:29:37 GMT 2022
+
+   the function to generate a dictionary from a residue (the Roberto function) is
+   dictionary_residue_restraints_t(mmdb::Residue *residue_p);
+   search protein-geometry.hh for "fake up some bond"

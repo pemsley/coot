@@ -2113,7 +2113,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string annw = util::remove_whitespace(ai.atom_id).c_str();
 	       std::string qan = quoted_atom_name(annw);
 	       mmCIFLoop->PutString(annw.c_str(), "atom_id", i);
-	       std::string up_type_symbol = util::upcase(atom_info[i].type_symbol);
+	       std::string up_type_symbol = util::upcase(util::remove_whitespace(atom_info[i].type_symbol));
 	       ss = up_type_symbol.c_str();
 	       mmCIFLoop->PutString(ss, "type_symbol", i);
 	       // std::cout << "up_type_symbol: " << up_type_symbol << std::endl;

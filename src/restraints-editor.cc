@@ -1337,7 +1337,7 @@ void save_monomer_restraints_by_widget(GtkDialog *chooser) {
    coot::dictionary_residue_restraints_t *t =
       (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");
    t->write_cif(filename);
-} 
+}
 
 
 void restraints_editor_delete_restraint_by_widget(GtkWidget *w) {
