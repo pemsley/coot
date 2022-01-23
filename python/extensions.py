@@ -1729,7 +1729,7 @@ if (have_coot_python):
          lambda func: add_module_cryo_em())
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "User-defined Restraints...",
+       submenu_modules, "Restraints...",
        lambda func: add_module_restraints())
 
      add_simple_coot_menu_menuitem(

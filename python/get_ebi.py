@@ -55,8 +55,9 @@ def coot_urlretrieve(url, file_name, reporthook=None):
     """Helper function to avoid downloading empty files
     returns download filename upon success or False when fail."""
 
-    import urllib
+    import urllib, ssl
     local_filename = False
+    ssl_context = ssl._create_unverified_context()
     class CootURLopener(urllib.FancyURLopener):
         def http_error_default(self, url, fp, errcode, errmsg, headers):
             # handle errors the way you'd like to
@@ -286,7 +287,7 @@ def get_eds_pdb_and_mtz(id):
             print "INFO:: read pdb model status: ",s1
             print "INFO:: read mtz data  status: ",s2
 
-            if os.path.isfile(s1):
+            if (s1 and os.path.isfile(s1)):
                 r_imol = handle_read_draw_molecule(dir_target_pdb_file)
                 if not valid_model_molecule_qm(r_imol):
                     s1_cif = coot_urlretrieve(model_cif_url, dir_target_cif_file)
@@ -299,7 +300,7 @@ def get_eds_pdb_and_mtz(id):
                             return r_imol
                     else:
                         return False
-            if os.path.isfile(s2):
+            if s2 and os.path.isfile(s2):
                 map_1 = make_and_draw_map(dir_target_mtz_file, "FWT", "PHWT","",0,0)
                 map_2 = make_and_draw_map(dir_target_mtz_file, "DELFWT", "PHDELWT",
                               "", 0, 1)

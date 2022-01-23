@@ -57,7 +57,7 @@ def generate_molecule_from_mmcif_by_dict_gen(comp_id, mmcif_file_name):
         #
         working_dir = get_directory("coot-acedrg")
         args = ["-M", "-r", comp_id, "-c", mmcif_file_name]
-        # BL says:: different args tp above?! Wonder why!? Need to check.
+        # BL says:: different args to above?! Wonder why!? Need to check.
         dict_gen("acedrg", args, working_dir)
                 
             

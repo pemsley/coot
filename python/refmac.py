@@ -146,6 +146,8 @@ def run_loggraph(logfile):
 #
 # BL says: I believe in python we have everything handled already correctly,
 # so this is just a different name for now with not invoked functions.
+# Not sure why we want to block the graphics? Maybe needs a new keywd arg
+# to run in thread or not!?
 #
 def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                            mtz_in_filename, mtz_out_filename,
@@ -640,6 +642,9 @@ def refmac_sad_params():
             ret_ls.append(sad_string)
 
     return ret_ls
+# This is not run as a sub-thread now
+#
+# @return the output mtz file name or False
 #
 def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
 
@@ -664,7 +669,7 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
                 set_refmac_use_ncs(0)
                 set_refmac_use_tls(0)
                 run_refmac_by_filename(pdb_in, pdb_out,
-                        mtz_file_name, mtz_out, 
+                        mtz_file_name, mtz_out,
                         cif_lib_filename, 0, 0, -1,
                         1, 0, [], 0, 1, "",
                         f_col, sig_f_col, "")
@@ -674,11 +679,18 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
                 set_refmac_use_ncs(ncs_state)
                 set_refmac_use_tls(tls_state)
                 #print "BL DEBUG:: reset states", ncs_state, tls_state
+                # check for success???? Just check for availability of mtz outfile
+                # since we return this
+                if os.path.isfile(mtz_out):
+                    return mtz_out
 
         else:
             print "BL WARNING:: no valid model molecule!"
     else:
         print "BL WARNING:: mtzfile %s not found" %mtz_file_name
+
+    # something went wrong somewhere...
+    return False
 
 
 def refmac_for_phases_and_make_map(mtz_file_name, f_col, sig_f_col):

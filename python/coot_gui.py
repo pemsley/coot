@@ -2170,6 +2170,25 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
    window.show_all()
    return [inside_vbox, window]
 
+def dialog_box_of_buttons_from_specs(window_name, geometry,
+                                     imol, specs):
+
+   # not needed, why here Paul?
+   #func = [cmd2str(set_go_to_atom_molecule, imol),
+   #        cmd2str(set_go_to_atom_chain_residue_atom_name,
+   #                chain_id, res_no, atom_name)]
+
+   buttons = []
+   for spec in specs:
+      label = residue_spec_to_string(spec)
+      cbf = [cmd2str(set_go_to_atom_molecule, imol),
+             cmd2str(set_go_to_atom_chain_residue_atom_name,
+                     residue_spec_to_chain_id(spec),
+                     residue_spec_to_res_no(spec), " C  ")]
+      buttons.append([label, cbf])
+
+   return dialog_box_of_buttons(window_name, geometry, buttons, " Close ")
+
 # This is exported outside of the box-of-buttons gui because the
 # clear_and_add_back function (e.g. from using the check button)
 # needs to add buttons - let's not duplicate that code.
@@ -4318,10 +4337,12 @@ def alignment_mismatches_gui(imol):
          buttons  = delete_buttons()
          buttons += mutate_buttons()
          buttons += insert_buttons()
-         alignments_as_text_list = am[3]
-
-         for alignment_text in alignments_as_text_list:
-            info_dialog_with_markup(alignment_text)
+         if (len(am) > 3):
+            # we have alignment text for info box
+            # protected for compatibiity reasons
+            alignments_as_text_list = am[3]
+            for alignment_text in alignments_as_text_list:
+               info_dialog_with_markup(alignment_text)
 
          dialog_box_of_buttons("Residue mismatches", [300, 300],
                                buttons, "  Close  ")
@@ -5558,7 +5579,7 @@ def add_module_ccp4_gui():
       add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
                                     lambda func: acedrg_link_generation_control_window())
 
-def add_pdbe_gui():
+def add_module_pdbe_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("PDBe")
 
@@ -5567,7 +5588,7 @@ def add_pdbe_gui():
       # ---------------------------------------------------------------------
       #
       add_simple_coot_menu_menuitem(
-         submenu_pdbe, "PDBe recent structures...",
+         menu, "PDBe recent structures...",
          lambda func: pdbe_latest_releases_gui())
 
       # we do test for refmac at startup not runtime (for simplicity)
@@ -5577,12 +5598,12 @@ def add_pdbe_gui():
          mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
 
       add_simple_coot_menu_menuitem(
-         submenu_pdbe, "Get from PDBe...",
+         menu, "Get from PDBe...",
          lambda func: generic_single_entry("Get PDBe accession code",
                                            "", " Get it ",
                                            lambda text:
-                                           pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
-
+                                           pdbe_get_pdb_and_sfs_cif(
+                                              "include-sfs", text.rstrip().lstrip())))
 
 
 #### BL stuff

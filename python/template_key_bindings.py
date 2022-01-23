@@ -12,7 +12,7 @@ def add_water_in_blob():
     blob_under_pointer_to_screen_centre()
     place_typed_atom_at_pointer("Water")
     refine_active_residue()
-add_key_binding("Add Water +", "W", lambda: add_water_in_blob())
+add_key_binding("Add Water + (centre+refine)", "W", lambda: add_water_in_blob())
 
 def key_binding_func_1():
     active_atom = active_residue()
@@ -118,7 +118,7 @@ add_key_binding("Edit Chi Angles", "X", lambda: edit_chi_angles_key_func())
 
 # BL says:: I like to keep edit chi, so use "Y" for something potentially
 # more useful (according to Paule)
-add_key_binding("Just One or Next Map", "Y", lambda: just_one_or_next_map())
+add_key_binding("Just One or Next Map", "Y", lambda: display_cycle_through_maps())
 
 def jiggle_fit_residue_key():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,

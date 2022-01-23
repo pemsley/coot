@@ -413,6 +413,10 @@ def molecule_number_list():
 def model_molecule_number_list():
     return filter(valid_model_molecule_qm, molecule_number_list())
 
+def display_all_maps():
+    map_list = map_molecule_list()
+    map(lambda imol: set_map_displayed(imol, 1), map_list)
+
 # c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
 def undisplay_all_maps_except(imol_map):
 
@@ -424,8 +428,7 @@ def undisplay_all_maps_except(imol_map):
             set_map_displayed(imol, 0)
     set_map_displayed(imol_map, 1)
 
-#
-def just_one_or_next_map():
+def display_cycle_through_maps():
 
     def next_map(current_map_number, map_number_list):
         try:
@@ -455,10 +458,19 @@ def just_one_or_next_map():
             undisplay_all_maps_except(map_list[0])
     elif n_displayed == 1:
         if len(map_list) > 1:
-            undisplay_all_maps_except(next_map(current_displayed_maps[0],
-                                               map_list))
+            nm = next_map(current_displayed_maps[0], map_list)
+            currently_displayed_map = current_displayed_maps[0]
+            if nm > currently_displayed_map:
+                undisplay_all_maps_except(nm)
+            else:
+                display_all_maps()
     else:
-        undisplay_all_maps_except(current_displayed_maps[-1])
+        undisplay_all_maps_except(current_displayed_maps[0])
+
+# is isn't quite because one of the options is "all"
+# legacy for installed key bindings:
+def just_one_or_next_map():
+    return display_cycle_through_maps()
 
 
 # Test for prefix-dir (1) being a string (2) existing (3) being a

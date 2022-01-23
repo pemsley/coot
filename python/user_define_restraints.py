@@ -120,7 +120,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
 def a_u_restraints(spec_1, spec_2):
 
   imol = spec_1[1]
-  print "BL DEBUG:: add_base_restraint a u",imol, spec_1, spec_2, " N6 ", " O4 ", 3.12
+#  print "BL DEBUG:: add_base_restraint a u",imol, spec_1, spec_2, " N6 ", " O4 ", 3.12
   add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 3.05)
   add_base_restraint(imol, spec_1, spec_2, " C2 ", " O2 ", 3.90)
@@ -131,7 +131,7 @@ def a_u_restraints(spec_1, spec_2):
 def g_c_restraints(spec_1, spec_2):
 
   imol = spec_1[1]
-  print "BL DEBUG:: add_base_restraint gc", imol, spec_1, spec_2, " O6 ", " N4 ", 3.08
+#  print "BL DEBUG:: add_base_restraint gc", imol, spec_1, spec_2, " O6 ", " N4 ", 3.08
   add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 3.04)
   add_base_restraint(imol, spec_1, spec_2, " N2 ", " O2 ", 3.14)

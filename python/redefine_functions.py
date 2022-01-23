@@ -88,6 +88,7 @@ overlap_ligands        = overlap_ligands_py
 analyse_ligand_differences = analyse_ligand_differences_py
 # compare_ligand_atom_types = compare_ligand_atom_types_py # comment out hack to load this smoothly.
 additional_representation_info = additional_representation_info_py
+pepflip_using_difference_map = pepflip_using_difference_map_py
 rigid_body_refine_by_residue_ranges = rigid_body_refine_by_residue_ranges_py
 find_terminal_residue_type = find_terminal_residue_type_py
 delete_residues        = delete_residues_py
@@ -132,6 +133,7 @@ add_linked_residue     = add_linked_residue_py
 all_molecule_rotamer_score = all_molecule_rotamer_score_py
 all_molecule_ramachandran_score = all_molecule_ramachandran_score_py
 all_molecule_ramachandran_region = all_molecule_ramachandran_region_py
+add_cablam_markup      = add_cablam_markup_py
 user_defined_click     = user_defined_click_py
 
 # graphics_info.h:
