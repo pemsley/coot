@@ -6340,7 +6340,11 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
 
    if (!file_name.empty()) {
 
+#ifndef WINDOWS_MINGW
       std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#else
+       std::string url_prefix = "https://bernhardcl.github.io/coot/";
+#endif
       url_prefix += "extensions";
       url_prefix += "/";
       url_prefix += file_name;
@@ -6368,7 +6372,13 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                   std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
                   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                   std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
+                  // BL: on windows (non POSIX) rename wont overwrite, so
+                  // need to remove first.
+#ifndef WINDOWS_MINGW
                   int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+#else
+                  int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+#endif
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
                      std::cout << "WARNING:: rename error: " << strerror(errno) << std::endl;
@@ -6411,7 +6421,11 @@ curlew_uninstall_extension_file(const std::string &file_name) {
       std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
       std::string renamed_file_name = preferences_file_name + "_uninstalled";
       if (coot::file_exists(preferences_file_name)) {
+#ifndef WINDOWS_MINGW
          int status = rename(preferences_file_name.c_str(), renamed_file_name.c_str());
+#else
+          int status = coot::rename_win(preferences_file_name.c_str(), renamed_file_name.c_str());
+#endif
          if (status != 0) {
             std::cout << "WARNING:: rename status " << status << " failed to uninstall " << file_name << std::endl;
          } else {
@@ -6463,7 +6477,11 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 
 		  if (!file_name.empty()) {
 
-		     std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#ifndef WINDOWS_MINGW
+              std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#else
+              std::string url_prefix = "https://bernhardcl.github.io/coot/";
+#endif
 		     url_prefix += "extensions";
 		     url_prefix += "/";
 		     url_prefix += file_name;
@@ -6491,7 +6509,11 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
 				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
+#ifndef WINDOWS_MINGW
 				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+#else
+                 int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+#endif
 				 if (status != 0) {
 				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
 				 } else {
