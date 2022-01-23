@@ -247,7 +247,23 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
                // label -> 4c atom name conversion? 
                at->SetAtomName(label);
                std::pair<std::string, int> ele = symbol_to_element(symbol);
-               
+
+               int charge = 0;
+               if (ele.first == "NA") charge = 1;
+               if (ele.first == "K")  charge = 1;
+               if (ele.first == "LI") charge = 1;
+               if (ele.first == "RU") charge = 1;
+               if (ele.first == "CS") charge = 1;
+               if (ele.first == "MG") charge = 2;
+               if (ele.first == "CA") charge = 2;
+               if (ele.first == "SR") charge = 2;
+               if (ele.first == "F")  charge = -1;
+               if (ele.first == "CL") charge = -1;
+               if (ele.first == "BR") charge = -1;
+               if (ele.first == "I")  charge = -1;
+
+               at->charge = charge;
+
                if (alt_loc.length())
                   strncpy(at->altLoc, alt_loc.c_str(), (alt_loc.size()+1)); // shove.
 

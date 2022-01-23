@@ -220,8 +220,8 @@ cod::operator<<(std::ostream &s,
 
 //
 // maybe this is the wrong file for this function
-// 
-// static 
+//
+// static
 std::string
 cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
 
@@ -232,10 +232,10 @@ cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
       // s.back() is C++-11
       //
       if (*(s.rbegin()) == '}') {
-	 // trim off {xxxxx} from s
-	 std::string::size_type ii = s.find_last_of('{');
-	 if (ii != std::string::npos)
-	    s = s.substr(0,ii);
+         // trim off {xxxxx} from s
+         std::string::size_type ii = s.find_last_of('{');
+         if (ii != std::string::npos)
+            s = s.substr(0,ii);
       }
    }
    return s;

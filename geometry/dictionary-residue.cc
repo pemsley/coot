@@ -863,6 +863,7 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
    }
    return r;
 }
+
 bool
 coot::dictionary_residue_restraints_t::is_hydrogen(unsigned int idx) const {
 

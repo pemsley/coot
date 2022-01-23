@@ -95,8 +95,7 @@ namespace cod {
 	 level_4 = s2;
 	 hash_value = -1;
       }
-      atom_type_t(const std::vector<unsigned int> &degrees) {
-	 neighb_degrees = degrees;
+      explicit atom_type_t(const std::vector<unsigned int> &degrees) : neighb_degrees(degrees) {
 	 set_neighb_degrees_string();
       }
       std::string level_4;
