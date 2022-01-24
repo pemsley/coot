@@ -959,6 +959,12 @@ def fill_option_menu_with_mol_options(menu, filter_function):
 def fill_option_menu_with_map_mol_options(menu):
     return fill_option_menu_with_mol_options(menu, valid_map_molecule_qm)
 
+def fill_option_menu_with_map_mol_with_associated_data_options(menu):
+    return fill_option_menu_with_mol_options(menu, valid_map_with_associated_data_molecule_qm)
+
+def fill_option_menu_with_difference_map_mol_options(menu):
+    return fill_option_menu_with_mol_options(menu, is_difference_map_qm)
+
 # Helper function for molecule chooser.  Not really for users.
 # 
 # Return a list of models, corresponding to the menu items of the
@@ -1005,7 +1011,27 @@ def get_option_menu_active_molecule(option_menu, model_mol_list):
           print "INFO:: could not get active_item"
           return False
     else:
-       print "Failed children length test : ",children, model_mol_list
+       print "get_option_menu_active_molecule(): Failed children length test : ",children, model_mol_list
+       return False
+
+def get_combobox_active_molecule(combobox, model_mol_list):
+
+    model = combobox.get_model()
+    active_item = combobox.get_active()
+    # combobox has no children as such, so we just count the rows
+    children = len(model)
+
+    if (children == len(model_mol_list)):
+       try:
+          all_model = model[active_item][0]
+          imol_model, junk = all_model.split(' ', 1)
+       
+          return int(imol_model)
+       except:
+          print "INFO:: could not get active_item"
+          return False
+    else:
+       print "get_combobox_active_molecule(): Failed children length test : ", children, model_mol_list
        return False
 
 # BL says:: we do it for gtk_combobox instead! option_menu is deprecated
@@ -1028,7 +1054,7 @@ def get_option_menu_active_item(option_menu, item_list):
           print "INFO:: could not get active_item"
           return False
    else:
-       print "Failed children length test : ",children, item_list
+       print "get_option_menu_active_item(): Failed children length test : ", children, item_list
        return False
 
 # Typically option_menu_fill_function is
@@ -5914,7 +5940,7 @@ def yes_no_dialog(label_text, title_text=None):
    else:
       ret = False
    dialog.destroy()
-   
+
    return ret
 
 # A gui to list Ramachandran outliers etc.
@@ -5975,11 +6001,113 @@ def rama_outlier_gui():
           clear_and_add_back(vbox, outlier_buttons, allowed_buttons, False),
           False)
 
-   molecule_chooser_gui(
-     "List Rama outliers for which molecule?",
-          lambda imol: list_rama_outliers(imol))
-   
-   
+   molecule_chooser_gui("List Rama outliers for which molecule?", lambda imol: list_rama_outliers(imol))
+
+def model_map_diff_map_molecule_chooser_gui(callback_function):
+
+    def delete_event(*args):
+       window.destroy()
+       return False
+
+    def on_ok_clicked(*args):
+        active_mol_no_model    = get_combobox_active_molecule(combobox_model, model_mol_list)
+        active_mol_no_map      = get_combobox_active_molecule(combobox_map,   map_mol_list)
+        active_mol_no_diff_map = get_combobox_active_molecule(combobox_diff_map, diff_map_mol_list)
+        try:
+           active_mol_no_model    = int(active_mol_no_model)
+           active_mol_no_map      = int(active_mol_no_map)
+           active_mol_no_diff_map = int(active_mol_no_diff_map)
+           print("INFO: operating on molecule numbers ", active_mol_no_model, active_mol_no_map, active_mol_no_diff_map)
+           try:
+               auto_button_state = auto_update_checkbutton.get_active()
+               callback_function(active_mol_no_model, active_mol_no_map, active_mol_no_diff_map, auto_button_state)
+           except TypeError as e:
+               print(e)
+               print("BL INFO:: problem in callback_function", callback_function.func_name)
+           delete_event()
+        except TypeError as e:
+            print(e)
+            print( "Failed to get a (molecule) number")
+
+    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_title("Coot: Choose Model and Map for Updating")
+    model_chooser_label = "Model"
+    map_chooser_label   = "Map (with data info attached)"
+    diff_map_chooser_label   = "Difference Map"
+    label_for_map      = gtk.Label(map_chooser_label)
+    label_for_diff_map = gtk.Label(diff_map_chooser_label)
+    label_for_model    = gtk.Label(model_chooser_label)
+    vbox = gtk.VBox(False,6)
+    hbox_buttons = gtk.HBox(False,5)
+
+    combobox_model    = gtk.combo_box_new_text()
+    combobox_diff_map = gtk.combo_box_new_text()
+    combobox_map      = gtk.combo_box_new_text()
+    ok_button = gtk.Button("  OK  ")
+    cancel_button = gtk.Button(" Cancel ")
+    h_sep = gtk.HSeparator()
+    # these are comboboxes
+    model_mol_list    = fill_option_menu_with_coordinates_mol_options(combobox_model)
+    map_mol_list      = fill_option_menu_with_map_mol_options(combobox_map)
+    diff_map_mol_list = fill_option_menu_with_difference_map_mol_options(combobox_diff_map)
+
+    # "auto" button
+    auto_update_checkbutton = gtk.CheckButton("Auto Update")
+
+    window.set_default_size(370,100)
+    window.add(vbox)
+    vbox.pack_start(label_for_model,False,False,5)
+    vbox.pack_start(combobox_model, True, True, 2)
+    vbox.pack_start(label_for_map, False,False,5)
+    vbox.pack_start(combobox_map,   True, True, 2)
+    vbox.pack_start(label_for_diff_map, False,False,5)
+    vbox.pack_start(combobox_diff_map,   True, True, 2)
+    vbox.pack_start(auto_update_checkbutton, False, False, 2)
+    vbox.pack_start(h_sep,True,False, 2)
+    vbox.pack_start(hbox_buttons,False, False,5)
+    hbox_buttons.pack_start(ok_button, True,False,5)
+    hbox_buttons.pack_start(cancel_button, True, False,5)
+
+    # button callbacks:
+    ok_button.connect("clicked", on_ok_clicked, combobox_model, model_mol_list, combobox_map, map_mol_list, auto_update_checkbutton)
+    cancel_button.connect("clicked", delete_event)
+
+    window.show_all()
+
+
+
+def show_updating_maps_chooser():
+
+    def update_maps_func(toolbutton):
+        # the R-factor is added to the status bar
+        stats_result = calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
+
+    def generator_update_maps_func_wrap_for_capture(imol, imol_map, imol_diff_map):
+        func = lambda imol_c=imol, imol_map_c=imol_map, imol_diff_map_c=imol_diff_map : calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
+        def action(arg):
+           func(imol, imol_map, imol_diff_map)
+        return action
+
+    # this needs  the same generator work-around but I've run out of energy.
+    def shiftfield_func():
+        imol = 0
+        shiftfield_b_factor_refinement(imol)
+
+    def ok_button_function(imol, imol_map, imol_diff_map, use_auto_update_mode):
+        # print("imol for coords", imol, "imol_for_map", imol_map, "use_auto_update_mode", use_auto_update_mode)
+        if is_valid_map_molecule(imol_map):
+            if use_auto_update_mode:
+                set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map)
+            else:
+                print("================================= calculate_maps_and_stats_py()", imol, imol_map, imol_diff_map)
+                calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
+            menu_bar_callback_func = generator_update_maps_func_wrap_for_capture(imol, imol_map, imol_diff_map)
+            coot_toolbar_button("Update Maps", menu_bar_callback_func, use_button=True)
+            coot_toolbar_button("Shiftfield B", shiftfield_func)
+
+    model_map_diff_map_molecule_chooser_gui(ok_button_function)
+
+
 # let the c++ part of mapview know that this file was loaded:
 
 # print "From coot_gui.py calling set_found_coot_python_gui()" - called from rcrane loader

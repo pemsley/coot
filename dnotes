@@ -3988,7 +3988,7 @@ INFO::
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
      rm src/coot_wrap*.cc
-     configure iwth configure-it-for-release
+     configure with configure-it-for-release
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
         all the files before commit: cd ../build-test-dist and untar it there, copy into

@@ -1650,7 +1650,18 @@ def valid_model_molecule_qm(imol):
 # return True or False
 #
 def valid_map_molecule_qm(imol):
-    if (is_valid_map_molecule(imol)==1): return True
+    if is_valid_map_molecule(imol) == 1:
+        return True
+    else: return False
+
+# python (schemeyish) interface to eponymous scripting interface function.
+# return True or False
+#
+def valid_map_with_associated_data_molecule_qm(imol):
+    if is_valid_map_molecule(imol) == 1:
+        p = refmac_parameters_py(imol)
+        if p:
+            return True
     else: return False
 
 # convenience function (slightly less typing).  
@@ -1673,7 +1684,7 @@ def shelx_molecule_qm(imol):
 # Return True or False.
 #
 def is_difference_map_qm(imol_map):
-    if (not valid_map_molecule_qm(imol_map)):
+    if not valid_map_molecule_qm(imol_map):
         return False
     else:
         return map_is_difference_map(imol_map) == 1

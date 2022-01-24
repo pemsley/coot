@@ -1,11 +1,17 @@
 
-  Pre-Release 0.9.6.2
+  Release 0.9.7
 
   o FEATURE: Add angles in coot-ligand-validation
+
+  o FEATURE: "Updating Maps" added to the API and GUI
+
+  o FEATURE: Stereo style can now be switched back to how it used to be in 2010 [Dirk Kostrewa]
 
   o CHANGE:  Better B-factors for added waters
 
   o CHANGE:  Windows build script updates
+
+  o CHANGE:  RSR GM restraints now filtered by distance difference
 
   o BUG-FIX: Python GUI and updates to match scheme version - now pyrogen work on Windows
 
@@ -13,7 +19,7 @@
 
   o BUG-FIX: add a null function (no-coot-tips) for those that have this in their startup scripts
 
-  o BUG-FIX: Fix crash when coot tries to exit while the program is still refining [James Holton]
+  o BUG-FIX: Fix crash when coot tries to exit while the refinement is still refining [James Holton]
 
 ----
 

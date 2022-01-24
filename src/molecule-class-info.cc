@@ -9559,8 +9559,9 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
             // Do we need to update the map?
             // We don't want to update the map the first time around
             int backup_index_for_molecule = g.molecules[imol_coords].get_history_index();
-            std::cout << "DEBUG:: watch_coordinates_updates() backup_index_current " << backup_index_current
-                      << " backup_index_for_molecule " << backup_index_for_molecule << std::endl;
+            if (false)
+               std::cout << "DEBUG:: watch_coordinates_updates() backup_index_current " << backup_index_current
+                         << " backup_index_for_molecule " << backup_index_for_molecule << std::endl;
             if (backup_index_current != backup_index_for_molecule) {
                if (backup_index_current == -1) {
                   std::cout << "DEBUG:: watch_coordinates_updates() First time, do nothing " << std::endl;

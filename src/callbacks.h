@@ -4873,3 +4873,7 @@ void
 on_accept_reject_reverse_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_calculate_updating_maps1_activate   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

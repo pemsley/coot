@@ -283,10 +283,10 @@ class LigandTestFunctions(unittest.TestCase):
         coot_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
         prefix_dir = os.path.normpath(os.path.join(coot_dir, ".."))
         pyrogen_exe = "pyrogen"
+        pyrogen_bin = pyrogen_exe # test installed pyrogen
         if is_windows():
             pyrogen_exe = "pyrogen.bat"
-        pyrogen_bin = os.path.normpath(os.path.join(prefix_dir, "bin",
-                                                    pyrogen_exe))
+            pyrogen_bin = os.path.normpath(os.path.join(prefix_dir, "bin", pyrogen_exe))
 
         smiles = "C1CNC1"
         tlc_text = "XXX"
@@ -298,16 +298,8 @@ class LigandTestFunctions(unittest.TestCase):
             # not needed any more. Tested above.
             return
         else:
-            global use_mogul
 
-            if use_mogul:
-                arg_list = ["--residue-type", tlc_text, smiles]
-            else:
-                if command_in_path_qm("mogul"):
-                    arg_list = ["--residue-type", tlc_text, smiles]
-                else:
-                    arg_list = ["--no-mogul", "--residue-type", tlc_text, smiles]
-                    # arg_list = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles]
+            arg_list = ["--no-mogul", "--residue-type", tlc_text, smiles] # --no-mogul is the default now
             popen_status = popen_command(pyrogen_bin, arg_list, [], log_file_name, True)
             # self.assertTrue(popen_status == 0)
             self.assertEqual(popen_status, 0,

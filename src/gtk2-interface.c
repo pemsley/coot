@@ -40,87 +40,87 @@ create_window1 (void)
   GtkWidget *file1;
   GtkWidget *file1_menu;
   GtkWidget *open_coordinates1;
-  GtkWidget *image14251;
+  GtkWidget *image14327;
   GtkWidget *auto_open_mtz;
-  GtkWidget *image14252;
+  GtkWidget *image14328;
   GtkWidget *open_dataset1;
-  GtkWidget *image14253;
+  GtkWidget *image14329;
   GtkWidget *open_map1;
-  GtkWidget *image14254;
+  GtkWidget *image14330;
   GtkWidget *import_cif_dictionary1;
-  GtkWidget *image14255;
+  GtkWidget *image14331;
   GtkWidget *separator2;
   GtkWidget *get_monomer1;
-  GtkWidget *image14256;
+  GtkWidget *image14332;
   GtkWidget *search_monomer_library1;
-  GtkWidget *image14257;
+  GtkWidget *image14333;
   GtkWidget *get_pdb_using_code1;
-  GtkWidget *image14258;
+  GtkWidget *image14334;
   GtkWidget *get_pdb_and_map_using_eds1;
-  GtkWidget *image14259;
+  GtkWidget *image14335;
   GtkWidget *fetch_pdb_and_map_using_pdbredo1;
   GtkWidget *separator3;
   GtkWidget *save_coordinates1;
-  GtkWidget *image14260;
+  GtkWidget *image14336;
   GtkWidget *save_symmetry_coordinates1;
-  GtkWidget *image14261;
+  GtkWidget *image14337;
   GtkWidget *save_state1;
-  GtkWidget *image14262;
+  GtkWidget *image14338;
   GtkWidget *recover_session1;
-  GtkWidget *image14263;
+  GtkWidget *image14339;
   GtkWidget *separator4;
   GtkWidget *export_map1;
   GtkWidget *export_map_fragment1;
   GtkWidget *separator7;
   GtkWidget *close_molecule1;
-  GtkWidget *image14264;
+  GtkWidget *image14340;
   GtkWidget *separator6;
   GtkWidget *curlew1;
   GtkWidget *separator9;
   GtkWidget *exit1;
-  GtkWidget *image14265;
+  GtkWidget *image14341;
   GtkWidget *edit1;
   GtkWidget *edit1_menu;
   GtkWidget *bond_colours1;
-  GtkWidget *image14266;
+  GtkWidget *image14342;
   GtkWidget *bond_parameters1;
-  GtkWidget *image14267;
+  GtkWidget *image14343;
   GtkWidget *edit_change_chain_ids1;
-  GtkWidget *image14268;
+  GtkWidget *image14344;
   GtkWidget *edit_copy_molecule1;
-  GtkWidget *image14269;
+  GtkWidget *image14345;
   GtkWidget *edit_copy_fragment1;
-  GtkWidget *image14270;
+  GtkWidget *image14346;
   GtkWidget *map_colour1;
-  GtkWidget *image14271;
+  GtkWidget *image14347;
   GtkWidget *density_size1;
-  GtkWidget *image14272;
+  GtkWidget *image14348;
   GtkWidget *edit_merge_molecules1;
-  GtkWidget *image14273;
+  GtkWidget *image14349;
   GtkWidget *edit_replace_residue1;
-  GtkWidget *image14274;
+  GtkWidget *image14350;
   GtkWidget *edit_replace_fragment1;
-  GtkWidget *image14275;
+  GtkWidget *image14351;
   GtkWidget *edit_renumber_residues1;
-  GtkWidget *image14276;
+  GtkWidget *image14352;
   GtkWidget *restraints1;
-  GtkWidget *image14277;
+  GtkWidget *image14353;
   GtkWidget *skeleton_parameters1;
-  GtkWidget *image14278;
+  GtkWidget *image14354;
   GtkWidget *skeleton_parameters1_menu;
   GtkWidget *skeleton_colour1;
-  GtkWidget *image14279;
+  GtkWidget *image14355;
   GtkWidget *skeleton_box_radius1;
   GtkWidget *skeletonization_level1;
   GtkWidget *separator5;
   GtkWidget *residue_info2;
-  GtkWidget *image14280;
+  GtkWidget *image14356;
   GtkWidget *font_size1;
-  GtkWidget *image14281;
+  GtkWidget *image14357;
   GtkWidget *pink_pointer_size1;
-  GtkWidget *image14282;
+  GtkWidget *image14358;
   GtkWidget *background_colour1;
-  GtkWidget *image14283;
+  GtkWidget *image14359;
   GtkWidget *background_colour1_menu;
   GSList *background_black1_group = NULL;
   GtkWidget *background_black1;
@@ -128,7 +128,7 @@ create_window1 (void)
   GtkWidget *separator8;
   GtkWidget *edit_settings;
   GtkWidget *preferences1;
-  GtkWidget *image14284;
+  GtkWidget *image14360;
   GtkWidget *calculate1;
   GtkWidget *calculate1_menu;
   GtkWidget *align_and_mutate1;
@@ -138,130 +138,131 @@ create_window1 (void)
   GtkWidget *fit_loop_by_database_search1;
   GtkWidget *fit_loop_by_rama_search1;
   GtkWidget *frames_sec1;
-  GtkWidget *image14285;
+  GtkWidget *image14361;
   GtkWidget *calculate_load_tutorial_model_and_data1;
   GtkWidget *ligand_builder1;
-  GtkWidget *image14286;
+  GtkWidget *image14362;
   GtkWidget *lsq_superpose1;
   GtkWidget *calculate_map_tools;
   GtkWidget *map_sharpening1;
   GtkWidget *cowtan_foadi_skeleton1;
   GtkWidget *modelling;
   GtkWidget *regularize1;
-  GtkWidget *image14287;
+  GtkWidget *image14363;
   GtkWidget *calculate_modules;
   GtkWidget *move_molecule_here1;
   GtkWidget *mutate_molecule1;
   GtkWidget *ncs_maps1;
-  GtkWidget *image14288;
+  GtkWidget *image14364;
   GtkWidget *calculate_ncs_tools;
   GtkWidget *other_modelling_tools1;
-  GtkWidget *image14289;
+  GtkWidget *image14365;
   GtkWidget *calculate_pisa;
   GtkWidget *run_script1;
-  GtkWidget *image14290;
+  GtkWidget *image14366;
   GtkWidget *ssm_superposition1;
   GtkWidget *scripting_testing1;
-  GtkWidget *image14291;
+  GtkWidget *image14367;
   GtkWidget *scripting_testing1_menu;
   GtkWidget *scripting_python1;
   GtkWidget *scripting_scheme1;
+  GtkWidget *calculate_updating_maps1;
   GtkWidget *draw1;
   GtkWidget *draw1_menu;
   GtkWidget *additional_representation1;
   GtkWidget *anisotropic_atoms1;
-  GtkWidget *image14292;
+  GtkWidget *image14368;
   GtkWidget *show_symmetry1;
-  GtkWidget *image14293;
+  GtkWidget *image14369;
   GtkWidget *centre_atom_label1;
-  GtkWidget *image14294;
+  GtkWidget *image14370;
   GtkWidget *clipping1;
   GtkWidget *coordinates_recentring1;
   GtkWidget *crosshairs1;
-  GtkWidget *image14295;
+  GtkWidget *image14371;
   GtkWidget *map_and_mol_control1;
-  GtkWidget *image14296;
+  GtkWidget *image14372;
   GtkWidget *display_only_active1;
   GtkWidget *dragged_map1;
   GtkWidget *generic_display_objects1;
-  GtkWidget *image14297;
+  GtkWidget *image14373;
   GtkWidget *go_to_atom1;
-  GtkWidget *image14298;
+  GtkWidget *image14374;
   GtkWidget *label_atoms_in_residue1;
   GtkWidget *label_neighbours1;
   GtkWidget *ncs_ghost_control1;
-  GtkWidget *image14299;
+  GtkWidget *image14375;
   GtkWidget *draw_representation_tools;
   GtkWidget *rock_view_on_off1;
   GtkWidget *spin_view_on_off1;
-  GtkWidget *image14300;
+  GtkWidget *image14376;
   GtkWidget *sequence_view1;
-  GtkWidget *image14301;
+  GtkWidget *image14377;
   GtkWidget *screenshot1;
-  GtkWidget *image14302;
+  GtkWidget *image14378;
   GtkWidget *screenshot1_menu;
   GtkWidget *simple1;
   GtkWidget *povray1;
   GtkWidget *raster3d1;
   GtkWidget *recentring1;
   GtkWidget *stereo1;
-  GtkWidget *image14303;
+  GtkWidget *image14379;
   GtkWidget *undo_last_navigation1;
-  GtkWidget *image14304;
+  GtkWidget *image14380;
   GtkWidget *antialiasing1;
-  GtkWidget *image14305;
+  GtkWidget *image14381;
   GtkWidget *main_menu_info;
   GtkWidget *main_menu_info_menu;
   GtkWidget *residue_info1;
-  GtkWidget *image14306;
+  GtkWidget *image14382;
   GtkWidget *distances___angles1;
-  GtkWidget *image14307;
+  GtkWidget *image14383;
   GtkWidget *environment_distances1;
-  GtkWidget *image14308;
+  GtkWidget *image14384;
   GtkWidget *plane_distances1;
-  GtkWidget *image14309;
+  GtkWidget *image14385;
   GtkWidget *pointer_distances1;
-  GtkWidget *image14310;
+  GtkWidget *image14386;
   GtkWidget *clear_atom_labels1;
-  GtkWidget *image14311;
+  GtkWidget *image14387;
   GtkWidget *validate1;
   GtkWidget *validate1_menu;
   GtkWidget *ramachandran_plot1;
-  GtkWidget *image14312;
+  GtkWidget *image14388;
   GtkWidget *ramachandran_differences_plot1;
-  GtkWidget *image14313;
+  GtkWidget *image14389;
   GtkWidget *incorrect_chiral_volumes1;
-  GtkWidget *image14314;
+  GtkWidget *image14390;
   GtkWidget *unmodelled_blobs1;
-  GtkWidget *image14315;
+  GtkWidget *image14391;
   GtkWidget *difference_map_peaks1;
-  GtkWidget *image14316;
+  GtkWidget *image14392;
   GtkWidget *check_waters1;
-  GtkWidget *image14317;
+  GtkWidget *image14393;
   GtkWidget *geometry_analysis1;
-  GtkWidget *image14318;
+  GtkWidget *image14394;
   GtkWidget *peptide_omega_analysis1;
-  GtkWidget *image14319;
+  GtkWidget *image14395;
   GtkWidget *temp_fact_variance_analysis1;
-  GtkWidget *image14320;
+  GtkWidget *image14396;
   GtkWidget *temp_fact_analysis1;
-  GtkWidget *image14321;
+  GtkWidget *image14397;
   GtkWidget *gln_and_asn_b_factor_outliers1;
-  GtkWidget *image14322;
+  GtkWidget *image14398;
   GtkWidget *rotamer_analysis1;
-  GtkWidget *image14323;
+  GtkWidget *image14399;
   GtkWidget *density_fit_analysis1;
-  GtkWidget *image14324;
+  GtkWidget *image14400;
   GtkWidget *probe_clashes1;
-  GtkWidget *image14325;
+  GtkWidget *image14401;
   GtkWidget *ncs_differences1;
   GtkWidget *help1;
   GtkWidget *help1_menu;
   GtkWidget *remarks_browser1;
   GtkWidget *hints1;
-  GtkWidget *image14326;
+  GtkWidget *image14402;
   GtkWidget *about1;
-  GtkWidget *image14327;
+  GtkWidget *image14403;
   GtkWidget *main_toolbar;
   GtkIconSize tmp_toolbar_icon_size;
   GtkWidget *tmp_image;
@@ -436,43 +437,43 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), open_coordinates1);
   gtk_tooltips_set_tip (tooltips, open_coordinates1, "pdb, cif or shelx res format", NULL);
 
-  image14251 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14251);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_coordinates1), image14251);
+  image14327 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14327);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_coordinates1), image14327);
 
   auto_open_mtz = gtk_image_menu_item_new_with_mnemonic ("Auto Open MTZ...");
   gtk_widget_show (auto_open_mtz);
   gtk_container_add (GTK_CONTAINER (file1_menu), auto_open_mtz);
 
-  image14252 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14252);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (auto_open_mtz), image14252);
+  image14328 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14328);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (auto_open_mtz), image14328);
 
   open_dataset1 = gtk_image_menu_item_new_with_mnemonic ("Open MTZ, mmCIF, fcf or phs...");
   gtk_widget_show (open_dataset1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_dataset1);
   gtk_tooltips_set_tip (tooltips, open_dataset1, "Create a map \"on the fly\" from mtz, phs or mmCIF data", NULL);
 
-  image14253 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14253);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_dataset1), image14253);
+  image14329 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14329);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_dataset1), image14329);
 
   open_map1 = gtk_image_menu_item_new_with_mnemonic ("Open Map...");
   gtk_widget_show (open_map1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_map1);
   gtk_tooltips_set_tip (tooltips, open_map1, "Open a pre-calculated CCP4 map", NULL);
 
-  image14254 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14254);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_map1), image14254);
+  image14330 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14330);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_map1), image14330);
 
   import_cif_dictionary1 = gtk_image_menu_item_new_with_mnemonic ("Import CIF dictionary...");
   gtk_widget_show (import_cif_dictionary1);
   gtk_container_add (GTK_CONTAINER (file1_menu), import_cif_dictionary1);
 
-  image14255 = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14255);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (import_cif_dictionary1), image14255);
+  image14331 = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14331);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (import_cif_dictionary1), image14331);
 
   separator2 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator2);
@@ -484,36 +485,36 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_monomer1);
   gtk_tooltips_set_tip (tooltips, get_monomer1, "Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library", NULL);
 
-  image14256 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14256);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_monomer1), image14256);
+  image14332 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14332);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_monomer1), image14332);
 
   search_monomer_library1 = gtk_image_menu_item_new_with_mnemonic ("Search Monomer Library...");
   gtk_widget_show (search_monomer_library1);
   gtk_container_add (GTK_CONTAINER (file1_menu), search_monomer_library1);
   gtk_tooltips_set_tip (tooltips, search_monomer_library1, "Search monomer names to find 3-letter code", NULL);
 
-  image14257 = gtk_image_new_from_stock ("gtk-index", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14257);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (search_monomer_library1), image14257);
+  image14333 = gtk_image_new_from_stock ("gtk-index", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14333);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (search_monomer_library1), image14333);
 
   get_pdb_using_code1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB using Accession Code...");
   gtk_widget_show (get_pdb_using_code1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
   gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, "Get PDB Coordinates file from server using accession code", NULL);
 
-  image14258 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14258);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image14258);
+  image14334 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14334);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image14334);
 
   get_pdb_and_map_using_eds1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB & Map using EDS...");
   gtk_widget_show (get_pdb_and_map_using_eds1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
   gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)", NULL);
 
-  image14259 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14259);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image14259);
+  image14335 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14335);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image14335);
 
   fetch_pdb_and_map_using_pdbredo1 = gtk_menu_item_new_with_mnemonic ("Fetch PDB & Map using PDB-REDO...");
   gtk_widget_show (fetch_pdb_and_map_using_pdbredo1);
@@ -528,33 +529,33 @@ create_window1 (void)
   gtk_widget_show (save_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_coordinates1);
 
-  image14260 = gtk_image_new_from_stock ("gtk-save", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14260);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_coordinates1), image14260);
+  image14336 = gtk_image_new_from_stock ("gtk-save", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14336);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_coordinates1), image14336);
 
   save_symmetry_coordinates1 = gtk_image_menu_item_new_with_mnemonic ("Save Symmetry Coordinates...");
   gtk_widget_show (save_symmetry_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_symmetry_coordinates1);
 
-  image14261 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14261);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_symmetry_coordinates1), image14261);
+  image14337 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14337);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_symmetry_coordinates1), image14337);
 
   save_state1 = gtk_image_menu_item_new_with_mnemonic ("Save State...");
   gtk_widget_show (save_state1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_state1);
 
-  image14262 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14262);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_state1), image14262);
+  image14338 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14338);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_state1), image14338);
 
   recover_session1 = gtk_image_menu_item_new_with_mnemonic ("Recover Session...");
   gtk_widget_show (recover_session1);
   gtk_container_add (GTK_CONTAINER (file1_menu), recover_session1);
 
-  image14263 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14263);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (recover_session1), image14263);
+  image14339 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14339);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (recover_session1), image14339);
 
   separator4 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator4);
@@ -578,9 +579,9 @@ create_window1 (void)
   gtk_widget_show (close_molecule1);
   gtk_container_add (GTK_CONTAINER (file1_menu), close_molecule1);
 
-  image14264 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14264);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close_molecule1), image14264);
+  image14340 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14340);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close_molecule1), image14340);
 
   separator6 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator6);
@@ -602,9 +603,9 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), exit1);
   gtk_tooltips_set_tip (tooltips, exit1, "bye", NULL);
 
-  image14265 = gtk_image_new_from_stock ("gtk-quit", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14265);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (exit1), image14265);
+  image14341 = gtk_image_new_from_stock ("gtk-quit", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14341);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (exit1), image14341);
 
   edit1 = gtk_menu_item_new_with_mnemonic ("_Edit");
   gtk_widget_show (edit1);
@@ -617,105 +618,105 @@ create_window1 (void)
   gtk_widget_show (bond_colours1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), bond_colours1);
 
-  image14266 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14266);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_colours1), image14266);
+  image14342 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14342);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_colours1), image14342);
 
   bond_parameters1 = gtk_image_menu_item_new_with_mnemonic ("Bond Parameters...");
   gtk_widget_show (bond_parameters1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), bond_parameters1);
 
-  image14267 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14267);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_parameters1), image14267);
+  image14343 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14343);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_parameters1), image14343);
 
   edit_change_chain_ids1 = gtk_image_menu_item_new_with_mnemonic ("Change Chain IDs...");
   gtk_widget_show (edit_change_chain_ids1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_change_chain_ids1);
 
-  image14268 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14268);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_change_chain_ids1), image14268);
+  image14344 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14344);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_change_chain_ids1), image14344);
 
   edit_copy_molecule1 = gtk_image_menu_item_new_with_mnemonic ("Copy Molecule...");
   gtk_widget_show (edit_copy_molecule1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_copy_molecule1);
 
-  image14269 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14269);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_molecule1), image14269);
+  image14345 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14345);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_molecule1), image14345);
 
   edit_copy_fragment1 = gtk_image_menu_item_new_with_mnemonic ("Copy Fragment...");
   gtk_widget_show (edit_copy_fragment1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_copy_fragment1);
 
-  image14270 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14270);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_fragment1), image14270);
+  image14346 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14346);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_fragment1), image14346);
 
   map_colour1 = gtk_image_menu_item_new_with_mnemonic ("Map Colour...");
   gtk_widget_show (map_colour1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), map_colour1);
 
-  image14271 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14271);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_colour1), image14271);
+  image14347 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14347);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_colour1), image14347);
 
   density_size1 = gtk_image_menu_item_new_with_mnemonic ("Map Parameters...");
   gtk_widget_show (density_size1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), density_size1);
 
-  image14272 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14272);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_size1), image14272);
+  image14348 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14348);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_size1), image14348);
 
   edit_merge_molecules1 = gtk_image_menu_item_new_with_mnemonic ("Merge Molecules...");
   gtk_widget_show (edit_merge_molecules1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_merge_molecules1);
 
-  image14273 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14273);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_merge_molecules1), image14273);
+  image14349 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14349);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_merge_molecules1), image14349);
 
   edit_replace_residue1 = gtk_image_menu_item_new_with_mnemonic ("Replace Residue...");
   gtk_widget_show (edit_replace_residue1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_replace_residue1);
 
-  image14274 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14274);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_residue1), image14274);
+  image14350 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14350);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_residue1), image14350);
 
   edit_replace_fragment1 = gtk_image_menu_item_new_with_mnemonic ("Replace Fragment...");
   gtk_widget_show (edit_replace_fragment1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_replace_fragment1);
 
-  image14275 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14275);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_fragment1), image14275);
+  image14351 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14351);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_fragment1), image14351);
 
   edit_renumber_residues1 = gtk_image_menu_item_new_with_mnemonic ("Renumber Residues...");
   gtk_widget_show (edit_renumber_residues1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_renumber_residues1);
 
-  image14276 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14276);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_renumber_residues1), image14276);
+  image14352 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14352);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_renumber_residues1), image14352);
 
   restraints1 = gtk_image_menu_item_new_with_mnemonic ("Restraints...");
   gtk_widget_show (restraints1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), restraints1);
 
-  image14277 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14277);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (restraints1), image14277);
+  image14353 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14353);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (restraints1), image14353);
 
   skeleton_parameters1 = gtk_image_menu_item_new_with_mnemonic ("Skeleton Parameters");
   gtk_widget_show (skeleton_parameters1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), skeleton_parameters1);
 
-  image14278 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14278);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_parameters1), image14278);
+  image14354 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14354);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_parameters1), image14354);
 
   skeleton_parameters1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (skeleton_parameters1), skeleton_parameters1_menu);
@@ -724,9 +725,9 @@ create_window1 (void)
   gtk_widget_show (skeleton_colour1);
   gtk_container_add (GTK_CONTAINER (skeleton_parameters1_menu), skeleton_colour1);
 
-  image14279 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14279);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_colour1), image14279);
+  image14355 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14355);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_colour1), image14355);
 
   skeleton_box_radius1 = gtk_menu_item_new_with_mnemonic ("Skeleton Box Radius...");
   gtk_widget_show (skeleton_box_radius1);
@@ -745,31 +746,31 @@ create_window1 (void)
   gtk_widget_show (residue_info2);
   gtk_container_add (GTK_CONTAINER (edit1_menu), residue_info2);
 
-  image14280 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14280);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info2), image14280);
+  image14356 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14356);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info2), image14356);
 
   font_size1 = gtk_image_menu_item_new_with_mnemonic ("Font Size...");
   gtk_container_add (GTK_CONTAINER (edit1_menu), font_size1);
 
-  image14281 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14281);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (font_size1), image14281);
+  image14357 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14357);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (font_size1), image14357);
 
   pink_pointer_size1 = gtk_image_menu_item_new_with_mnemonic ("Pink Pointer Size...");
   gtk_container_add (GTK_CONTAINER (edit1_menu), pink_pointer_size1);
 
-  image14282 = gtk_image_new_from_stock ("pink-pointer.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14282);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pink_pointer_size1), image14282);
+  image14358 = gtk_image_new_from_stock ("pink-pointer.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14358);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pink_pointer_size1), image14358);
 
   background_colour1 = gtk_image_menu_item_new_with_mnemonic ("Background Colour...");
   gtk_widget_show (background_colour1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), background_colour1);
 
-  image14283 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14283);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (background_colour1), image14283);
+  image14359 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14359);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (background_colour1), image14359);
 
   background_colour1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (background_colour1), background_colour1_menu);
@@ -799,9 +800,9 @@ create_window1 (void)
   gtk_widget_show (preferences1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), preferences1);
 
-  image14284 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14284);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (preferences1), image14284);
+  image14360 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14360);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (preferences1), image14360);
 
   calculate1 = gtk_menu_item_new_with_mnemonic ("_Calculate");
   gtk_widget_show (calculate1);
@@ -837,9 +838,9 @@ create_window1 (void)
   gtk_widget_show (frames_sec1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), frames_sec1);
 
-  image14285 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14285);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (frames_sec1), image14285);
+  image14361 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14361);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (frames_sec1), image14361);
 
   calculate_load_tutorial_model_and_data1 = gtk_menu_item_new_with_mnemonic ("Load Tutorial Model and Data");
   gtk_widget_show (calculate_load_tutorial_model_and_data1);
@@ -849,9 +850,9 @@ create_window1 (void)
   gtk_widget_show (ligand_builder1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ligand_builder1);
 
-  image14286 = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14286);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ligand_builder1), image14286);
+  image14362 = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14362);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ligand_builder1), image14362);
 
   lsq_superpose1 = gtk_menu_item_new_with_mnemonic ("LSQ Superpose...");
   gtk_widget_show (lsq_superpose1);
@@ -878,9 +879,9 @@ create_window1 (void)
   gtk_widget_show (regularize1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), regularize1);
 
-  image14287 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14287);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (regularize1), image14287);
+  image14363 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14363);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (regularize1), image14363);
 
   calculate_modules = gtk_menu_item_new_with_mnemonic ("Modules...");
   gtk_widget_show (calculate_modules);
@@ -898,9 +899,9 @@ create_window1 (void)
   gtk_widget_show (ncs_maps1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ncs_maps1);
 
-  image14288 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14288);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_maps1), image14288);
+  image14364 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14364);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_maps1), image14364);
 
   calculate_ncs_tools = gtk_menu_item_new_with_mnemonic ("NCS Tools...");
   gtk_widget_show (calculate_ncs_tools);
@@ -910,9 +911,9 @@ create_window1 (void)
   gtk_widget_show (other_modelling_tools1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), other_modelling_tools1);
 
-  image14289 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14289);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (other_modelling_tools1), image14289);
+  image14365 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14365);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (other_modelling_tools1), image14365);
 
   calculate_pisa = gtk_menu_item_new_with_mnemonic ("PISA...");
   gtk_widget_show (calculate_pisa);
@@ -922,9 +923,9 @@ create_window1 (void)
   gtk_widget_show (run_script1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), run_script1);
 
-  image14290 = gtk_image_new_from_stock ("gtk-execute", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14290);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (run_script1), image14290);
+  image14366 = gtk_image_new_from_stock ("gtk-execute", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14366);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (run_script1), image14366);
 
   ssm_superposition1 = gtk_menu_item_new_with_mnemonic ("SSM Superpose...");
   gtk_widget_show (ssm_superposition1);
@@ -935,9 +936,9 @@ create_window1 (void)
   gtk_widget_show (scripting_testing1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), scripting_testing1);
 
-  image14291 = gtk_image_new_from_stock ("gtk-justify-left", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14291);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (scripting_testing1), image14291);
+  image14367 = gtk_image_new_from_stock ("gtk-justify-left", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14367);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (scripting_testing1), image14367);
 
   scripting_testing1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (scripting_testing1), scripting_testing1_menu);
@@ -949,6 +950,10 @@ create_window1 (void)
   scripting_scheme1 = gtk_menu_item_new_with_mnemonic ("Scheme...");
   gtk_widget_show (scripting_scheme1);
   gtk_container_add (GTK_CONTAINER (scripting_testing1_menu), scripting_scheme1);
+
+  calculate_updating_maps1 = gtk_menu_item_new_with_mnemonic ("Updating Maps...");
+  gtk_widget_show (calculate_updating_maps1);
+  gtk_container_add (GTK_CONTAINER (calculate1_menu), calculate_updating_maps1);
 
   draw1 = gtk_menu_item_new_with_mnemonic ("_Draw");
   gtk_widget_show (draw1);
@@ -965,25 +970,25 @@ create_window1 (void)
   gtk_widget_show (anisotropic_atoms1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), anisotropic_atoms1);
 
-  image14292 = gtk_image_new_from_stock ("aniso-atom.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14292);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (anisotropic_atoms1), image14292);
+  image14368 = gtk_image_new_from_stock ("aniso-atom.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14368);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (anisotropic_atoms1), image14368);
 
   show_symmetry1 = gtk_image_menu_item_new_with_mnemonic ("Cell & Symmetry...");
   gtk_widget_show (show_symmetry1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), show_symmetry1);
 
-  image14293 = gtk_image_new_from_stock ("cell+symm.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14293);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (show_symmetry1), image14293);
+  image14369 = gtk_image_new_from_stock ("cell+symm.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14369);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (show_symmetry1), image14369);
 
   centre_atom_label1 = gtk_image_menu_item_new_with_mnemonic ("Centre Atom Label...");
   gtk_widget_show (centre_atom_label1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), centre_atom_label1);
 
-  image14294 = gtk_image_new_from_stock ("gtk-justify-center", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14294);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (centre_atom_label1), image14294);
+  image14370 = gtk_image_new_from_stock ("gtk-justify-center", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14370);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (centre_atom_label1), image14370);
 
   clipping1 = gtk_menu_item_new_with_mnemonic ("Clipping...");
   gtk_widget_show (clipping1);
@@ -996,9 +1001,9 @@ create_window1 (void)
   gtk_widget_show (crosshairs1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), crosshairs1);
 
-  image14295 = gtk_image_new_from_stock ("crosshairs.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14295);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (crosshairs1), image14295);
+  image14371 = gtk_image_new_from_stock ("crosshairs.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14371);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (crosshairs1), image14371);
 
   map_and_mol_control1 = gtk_image_menu_item_new_with_mnemonic ("Display Manager...");
   gtk_widget_show (map_and_mol_control1);
@@ -1008,9 +1013,9 @@ create_window1 (void)
                               GDK_F7, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image14296 = gtk_image_new_from_stock ("display-manager.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14296);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_and_mol_control1), image14296);
+  image14372 = gtk_image_new_from_stock ("display-manager.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14372);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_and_mol_control1), image14372);
 
   display_only_active1 = gtk_menu_item_new_with_mnemonic ("Display only Active");
   gtk_widget_show (display_only_active1);
@@ -1026,9 +1031,9 @@ create_window1 (void)
   gtk_widget_show (generic_display_objects1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), generic_display_objects1);
 
-  image14297 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14297);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (generic_display_objects1), image14297);
+  image14373 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14373);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (generic_display_objects1), image14373);
 
   go_to_atom1 = gtk_image_menu_item_new_with_mnemonic ("Go To Atom...");
   gtk_widget_show (go_to_atom1);
@@ -1037,9 +1042,9 @@ create_window1 (void)
                               GDK_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image14298 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14298);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (go_to_atom1), image14298);
+  image14374 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14374);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (go_to_atom1), image14374);
 
   label_atoms_in_residue1 = gtk_menu_item_new_with_mnemonic ("Label Atoms in Residue");
   gtk_widget_show (label_atoms_in_residue1);
@@ -1054,9 +1059,9 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (draw1_menu), ncs_ghost_control1);
   gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, "Non-crystallographic Ghost Controller", NULL);
 
-  image14299 = gtk_image_new_from_stock ("ghosts.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14299);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_ghost_control1), image14299);
+  image14375 = gtk_image_new_from_stock ("ghosts.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14375);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_ghost_control1), image14375);
 
   draw_representation_tools = gtk_menu_item_new_with_mnemonic ("Representation Tools...");
   gtk_widget_show (draw_representation_tools);
@@ -1070,25 +1075,25 @@ create_window1 (void)
   gtk_widget_show (spin_view_on_off1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), spin_view_on_off1);
 
-  image14300 = gtk_image_new_from_stock ("spin-view.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14300);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (spin_view_on_off1), image14300);
+  image14376 = gtk_image_new_from_stock ("spin-view.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14376);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (spin_view_on_off1), image14376);
 
   sequence_view1 = gtk_image_menu_item_new_with_mnemonic ("Sequence View");
   gtk_widget_show (sequence_view1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), sequence_view1);
 
-  image14301 = gtk_image_new_from_stock ("sequence-view.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14301);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sequence_view1), image14301);
+  image14377 = gtk_image_new_from_stock ("sequence-view.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14377);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sequence_view1), image14377);
 
   screenshot1 = gtk_image_menu_item_new_with_mnemonic ("Screenshot");
   gtk_widget_show (screenshot1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), screenshot1);
 
-  image14302 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14302);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (screenshot1), image14302);
+  image14378 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14378);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (screenshot1), image14378);
 
   screenshot1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (screenshot1), screenshot1_menu);
@@ -1112,9 +1117,9 @@ create_window1 (void)
   gtk_widget_show (stereo1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), stereo1);
 
-  image14303 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14303);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (stereo1), image14303);
+  image14379 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14379);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (stereo1), image14379);
 
   undo_last_navigation1 = gtk_image_menu_item_new_with_mnemonic ("Undo Last Navigation");
   gtk_widget_show (undo_last_navigation1);
@@ -1123,16 +1128,16 @@ create_window1 (void)
                               GDK_U, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image14304 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14304);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (undo_last_navigation1), image14304);
+  image14380 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14380);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (undo_last_navigation1), image14380);
 
   antialiasing1 = gtk_image_menu_item_new_with_mnemonic ("Antialiasing...");
   gtk_container_add (GTK_CONTAINER (draw1_menu), antialiasing1);
 
-  image14305 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14305);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (antialiasing1), image14305);
+  image14381 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14381);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (antialiasing1), image14381);
 
   main_menu_info = gtk_menu_item_new_with_mnemonic ("_Measures");
   gtk_widget_show (main_menu_info);
@@ -1146,49 +1151,49 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), residue_info1);
   gtk_tooltips_set_tip (tooltips, residue_info1, "Display atom names, temperature factors and occupances of all atoms in the residue", NULL);
 
-  image14306 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14306);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info1), image14306);
+  image14382 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14382);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info1), image14382);
 
   distances___angles1 = gtk_image_menu_item_new_with_mnemonic ("Distances & Angles...");
   gtk_widget_show (distances___angles1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), distances___angles1);
 
-  image14307 = gtk_image_new_from_stock ("gtk-unindent", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14307);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (distances___angles1), image14307);
+  image14383 = gtk_image_new_from_stock ("gtk-unindent", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14383);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (distances___angles1), image14383);
 
   environment_distances1 = gtk_image_menu_item_new_with_mnemonic ("Environment Distances...");
   gtk_widget_show (environment_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), environment_distances1);
 
-  image14308 = gtk_image_new_from_stock ("env-distances.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14308);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (environment_distances1), image14308);
+  image14384 = gtk_image_new_from_stock ("env-distances.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14384);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (environment_distances1), image14384);
 
   plane_distances1 = gtk_image_menu_item_new_with_mnemonic ("Plane Distances...");
   gtk_widget_show (plane_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), plane_distances1);
 
-  image14309 = gtk_image_new_from_stock ("plane-distances.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14309);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (plane_distances1), image14309);
+  image14385 = gtk_image_new_from_stock ("plane-distances.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14385);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (plane_distances1), image14385);
 
   pointer_distances1 = gtk_image_menu_item_new_with_mnemonic ("Pointer Distances...");
   gtk_widget_show (pointer_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), pointer_distances1);
 
-  image14310 = gtk_image_new_from_stock ("pointer-distances.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14310);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pointer_distances1), image14310);
+  image14386 = gtk_image_new_from_stock ("pointer-distances.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14386);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pointer_distances1), image14386);
 
   clear_atom_labels1 = gtk_image_menu_item_new_with_mnemonic ("Clear Atom Labels");
   gtk_widget_show (clear_atom_labels1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), clear_atom_labels1);
 
-  image14311 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14311);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (clear_atom_labels1), image14311);
+  image14387 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14387);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (clear_atom_labels1), image14387);
 
   validate1 = gtk_menu_item_new_with_mnemonic ("_Validate");
   gtk_widget_show (validate1);
@@ -1201,120 +1206,120 @@ create_window1 (void)
   gtk_widget_show (ramachandran_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_plot1);
 
-  image14312 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14312);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_plot1), image14312);
+  image14388 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14388);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_plot1), image14388);
 
   ramachandran_differences_plot1 = gtk_image_menu_item_new_with_mnemonic ("Kleywegt Plot...");
   gtk_widget_show (ramachandran_differences_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_differences_plot1);
   gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, "Ramachandran Difference Plot", NULL);
 
-  image14313 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14313);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_differences_plot1), image14313);
+  image14389 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14389);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_differences_plot1), image14389);
 
   incorrect_chiral_volumes1 = gtk_image_menu_item_new_with_mnemonic ("Incorrect Chiral Volumes...");
   gtk_widget_show (incorrect_chiral_volumes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), incorrect_chiral_volumes1);
 
-  image14314 = gtk_image_new_from_stock ("chiral.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14314);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (incorrect_chiral_volumes1), image14314);
+  image14390 = gtk_image_new_from_stock ("chiral.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14390);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (incorrect_chiral_volumes1), image14390);
 
   unmodelled_blobs1 = gtk_image_menu_item_new_with_mnemonic ("Unmodelled blobs...");
   gtk_widget_show (unmodelled_blobs1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), unmodelled_blobs1);
 
-  image14315 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14315);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (unmodelled_blobs1), image14315);
+  image14391 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14391);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (unmodelled_blobs1), image14391);
 
   difference_map_peaks1 = gtk_image_menu_item_new_with_mnemonic ("Difference Map Peaks...");
   gtk_widget_show (difference_map_peaks1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), difference_map_peaks1);
 
-  image14316 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14316);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (difference_map_peaks1), image14316);
+  image14392 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14392);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (difference_map_peaks1), image14392);
 
   check_waters1 = gtk_image_menu_item_new_with_mnemonic ("Check/Delete Waters...");
   gtk_widget_show (check_waters1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters1);
 
-  image14317 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14317);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters1), image14317);
+  image14393 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14393);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters1), image14393);
 
   geometry_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Geometry analysis");
   gtk_widget_show (geometry_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), geometry_analysis1);
   gtk_tooltips_set_tip (tooltips, geometry_analysis1, "Flags distortions in Bond, Angles and Planes", NULL);
 
-  image14318 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14318);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (geometry_analysis1), image14318);
+  image14394 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14394);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (geometry_analysis1), image14394);
 
   peptide_omega_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Peptide omega analysis");
   gtk_widget_show (peptide_omega_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), peptide_omega_analysis1);
   gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, "Flags deviations from Trans Peptide", NULL);
 
-  image14319 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14319);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (peptide_omega_analysis1), image14319);
+  image14395 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14395);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (peptide_omega_analysis1), image14395);
 
   temp_fact_variance_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Temp. fact. variance analysis");
   gtk_widget_show (temp_fact_variance_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_variance_analysis1);
   gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, "Flags Residues with Large Variance in Atom B factors", NULL);
 
-  image14320 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14320);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_variance_analysis1), image14320);
+  image14396 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14396);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_variance_analysis1), image14396);
 
   temp_fact_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Average Temp. fact. analysis");
   gtk_widget_show (temp_fact_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_analysis1);
   gtk_tooltips_set_tip (tooltips, temp_fact_analysis1, "Flags Residues with severe discontinuities in Atom B factors", NULL);
 
-  image14321 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14321);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_analysis1), image14321);
+  image14397 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14397);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_analysis1), image14397);
 
   gln_and_asn_b_factor_outliers1 = gtk_image_menu_item_new_with_mnemonic ("GLN and ASN B-factor Outliers");
   gtk_widget_show (gln_and_asn_b_factor_outliers1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), gln_and_asn_b_factor_outliers1);
   gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, "Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)", NULL);
 
-  image14322 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14322);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (gln_and_asn_b_factor_outliers1), image14322);
+  image14398 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14398);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (gln_and_asn_b_factor_outliers1), image14398);
 
   rotamer_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Rotamer analysis");
   gtk_widget_show (rotamer_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), rotamer_analysis1);
   gtk_tooltips_set_tip (tooltips, rotamer_analysis1, "Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors", NULL);
 
-  image14323 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14323);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (rotamer_analysis1), image14323);
+  image14399 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14399);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (rotamer_analysis1), image14399);
 
   density_fit_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Density fit analysis");
   gtk_widget_show (density_fit_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), density_fit_analysis1);
 
-  image14324 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14324);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_fit_analysis1), image14324);
+  image14400 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14400);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_fit_analysis1), image14400);
 
   probe_clashes1 = gtk_image_menu_item_new_with_mnemonic ("Probe clashes");
   gtk_widget_show (probe_clashes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), probe_clashes1);
 
-  image14325 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14325);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (probe_clashes1), image14325);
+  image14401 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14401);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (probe_clashes1), image14401);
 
   ncs_differences1 = gtk_menu_item_new_with_mnemonic ("NCS Differences");
   gtk_widget_show (ncs_differences1);
@@ -1336,17 +1341,17 @@ create_window1 (void)
   gtk_widget_show (hints1);
   gtk_container_add (GTK_CONTAINER (help1_menu), hints1);
 
-  image14326 = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14326);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (hints1), image14326);
+  image14402 = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14402);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (hints1), image14402);
 
   about1 = gtk_image_menu_item_new_with_mnemonic ("About...");
   gtk_widget_show (about1);
   gtk_container_add (GTK_CONTAINER (help1_menu), about1);
 
-  image14327 = gtk_image_new_from_stock ("gtk-about", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14327);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (about1), image14327);
+  image14403 = gtk_image_new_from_stock ("gtk-about", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14403);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (about1), image14403);
 
   main_toolbar = gtk_toolbar_new ();
   gtk_widget_show (main_toolbar);
@@ -2273,6 +2278,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) scripting_scheme1, "activate",
                     G_CALLBACK (on_scripting_scheme1_activate),
                     NULL);
+  g_signal_connect ((gpointer) calculate_updating_maps1, "activate",
+                    G_CALLBACK (on_calculate_updating_maps1_activate),
+                    NULL);
   g_signal_connect ((gpointer) additional_representation1, "activate",
                     G_CALLBACK (on_additional_representation1_activate),
                     NULL);
@@ -2588,94 +2596,94 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, file1, "file1");
   GLADE_HOOKUP_OBJECT (window1, file1_menu, "file1_menu");
   GLADE_HOOKUP_OBJECT (window1, open_coordinates1, "open_coordinates1");
-  GLADE_HOOKUP_OBJECT (window1, image14251, "image14251");
+  GLADE_HOOKUP_OBJECT (window1, image14327, "image14327");
   GLADE_HOOKUP_OBJECT (window1, auto_open_mtz, "auto_open_mtz");
-  GLADE_HOOKUP_OBJECT (window1, image14252, "image14252");
+  GLADE_HOOKUP_OBJECT (window1, image14328, "image14328");
   GLADE_HOOKUP_OBJECT (window1, open_dataset1, "open_dataset1");
-  GLADE_HOOKUP_OBJECT (window1, image14253, "image14253");
+  GLADE_HOOKUP_OBJECT (window1, image14329, "image14329");
   GLADE_HOOKUP_OBJECT (window1, open_map1, "open_map1");
-  GLADE_HOOKUP_OBJECT (window1, image14254, "image14254");
+  GLADE_HOOKUP_OBJECT (window1, image14330, "image14330");
   GLADE_HOOKUP_OBJECT (window1, import_cif_dictionary1, "import_cif_dictionary1");
-  GLADE_HOOKUP_OBJECT (window1, image14255, "image14255");
+  GLADE_HOOKUP_OBJECT (window1, image14331, "image14331");
   GLADE_HOOKUP_OBJECT (window1, separator2, "separator2");
   GLADE_HOOKUP_OBJECT (window1, get_monomer1, "get_monomer1");
-  GLADE_HOOKUP_OBJECT (window1, image14256, "image14256");
+  GLADE_HOOKUP_OBJECT (window1, image14332, "image14332");
   GLADE_HOOKUP_OBJECT (window1, search_monomer_library1, "search_monomer_library1");
-  GLADE_HOOKUP_OBJECT (window1, image14257, "image14257");
+  GLADE_HOOKUP_OBJECT (window1, image14333, "image14333");
   GLADE_HOOKUP_OBJECT (window1, get_pdb_using_code1, "get_pdb_using_code1");
-  GLADE_HOOKUP_OBJECT (window1, image14258, "image14258");
+  GLADE_HOOKUP_OBJECT (window1, image14334, "image14334");
   GLADE_HOOKUP_OBJECT (window1, get_pdb_and_map_using_eds1, "get_pdb_and_map_using_eds1");
-  GLADE_HOOKUP_OBJECT (window1, image14259, "image14259");
+  GLADE_HOOKUP_OBJECT (window1, image14335, "image14335");
   GLADE_HOOKUP_OBJECT (window1, fetch_pdb_and_map_using_pdbredo1, "fetch_pdb_and_map_using_pdbredo1");
   GLADE_HOOKUP_OBJECT (window1, separator3, "separator3");
   GLADE_HOOKUP_OBJECT (window1, save_coordinates1, "save_coordinates1");
-  GLADE_HOOKUP_OBJECT (window1, image14260, "image14260");
+  GLADE_HOOKUP_OBJECT (window1, image14336, "image14336");
   GLADE_HOOKUP_OBJECT (window1, save_symmetry_coordinates1, "save_symmetry_coordinates1");
-  GLADE_HOOKUP_OBJECT (window1, image14261, "image14261");
+  GLADE_HOOKUP_OBJECT (window1, image14337, "image14337");
   GLADE_HOOKUP_OBJECT (window1, save_state1, "save_state1");
-  GLADE_HOOKUP_OBJECT (window1, image14262, "image14262");
+  GLADE_HOOKUP_OBJECT (window1, image14338, "image14338");
   GLADE_HOOKUP_OBJECT (window1, recover_session1, "recover_session1");
-  GLADE_HOOKUP_OBJECT (window1, image14263, "image14263");
+  GLADE_HOOKUP_OBJECT (window1, image14339, "image14339");
   GLADE_HOOKUP_OBJECT (window1, separator4, "separator4");
   GLADE_HOOKUP_OBJECT (window1, export_map1, "export_map1");
   GLADE_HOOKUP_OBJECT (window1, export_map_fragment1, "export_map_fragment1");
   GLADE_HOOKUP_OBJECT (window1, separator7, "separator7");
   GLADE_HOOKUP_OBJECT (window1, close_molecule1, "close_molecule1");
-  GLADE_HOOKUP_OBJECT (window1, image14264, "image14264");
+  GLADE_HOOKUP_OBJECT (window1, image14340, "image14340");
   GLADE_HOOKUP_OBJECT (window1, separator6, "separator6");
   GLADE_HOOKUP_OBJECT (window1, curlew1, "curlew1");
   GLADE_HOOKUP_OBJECT (window1, separator9, "separator9");
   GLADE_HOOKUP_OBJECT (window1, exit1, "exit1");
-  GLADE_HOOKUP_OBJECT (window1, image14265, "image14265");
+  GLADE_HOOKUP_OBJECT (window1, image14341, "image14341");
   GLADE_HOOKUP_OBJECT (window1, edit1, "edit1");
   GLADE_HOOKUP_OBJECT (window1, edit1_menu, "edit1_menu");
   GLADE_HOOKUP_OBJECT (window1, bond_colours1, "bond_colours1");
-  GLADE_HOOKUP_OBJECT (window1, image14266, "image14266");
+  GLADE_HOOKUP_OBJECT (window1, image14342, "image14342");
   GLADE_HOOKUP_OBJECT (window1, bond_parameters1, "bond_parameters1");
-  GLADE_HOOKUP_OBJECT (window1, image14267, "image14267");
+  GLADE_HOOKUP_OBJECT (window1, image14343, "image14343");
   GLADE_HOOKUP_OBJECT (window1, edit_change_chain_ids1, "edit_change_chain_ids1");
-  GLADE_HOOKUP_OBJECT (window1, image14268, "image14268");
+  GLADE_HOOKUP_OBJECT (window1, image14344, "image14344");
   GLADE_HOOKUP_OBJECT (window1, edit_copy_molecule1, "edit_copy_molecule1");
-  GLADE_HOOKUP_OBJECT (window1, image14269, "image14269");
+  GLADE_HOOKUP_OBJECT (window1, image14345, "image14345");
   GLADE_HOOKUP_OBJECT (window1, edit_copy_fragment1, "edit_copy_fragment1");
-  GLADE_HOOKUP_OBJECT (window1, image14270, "image14270");
+  GLADE_HOOKUP_OBJECT (window1, image14346, "image14346");
   GLADE_HOOKUP_OBJECT (window1, map_colour1, "map_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image14271, "image14271");
+  GLADE_HOOKUP_OBJECT (window1, image14347, "image14347");
   GLADE_HOOKUP_OBJECT (window1, density_size1, "density_size1");
-  GLADE_HOOKUP_OBJECT (window1, image14272, "image14272");
+  GLADE_HOOKUP_OBJECT (window1, image14348, "image14348");
   GLADE_HOOKUP_OBJECT (window1, edit_merge_molecules1, "edit_merge_molecules1");
-  GLADE_HOOKUP_OBJECT (window1, image14273, "image14273");
+  GLADE_HOOKUP_OBJECT (window1, image14349, "image14349");
   GLADE_HOOKUP_OBJECT (window1, edit_replace_residue1, "edit_replace_residue1");
-  GLADE_HOOKUP_OBJECT (window1, image14274, "image14274");
+  GLADE_HOOKUP_OBJECT (window1, image14350, "image14350");
   GLADE_HOOKUP_OBJECT (window1, edit_replace_fragment1, "edit_replace_fragment1");
-  GLADE_HOOKUP_OBJECT (window1, image14275, "image14275");
+  GLADE_HOOKUP_OBJECT (window1, image14351, "image14351");
   GLADE_HOOKUP_OBJECT (window1, edit_renumber_residues1, "edit_renumber_residues1");
-  GLADE_HOOKUP_OBJECT (window1, image14276, "image14276");
+  GLADE_HOOKUP_OBJECT (window1, image14352, "image14352");
   GLADE_HOOKUP_OBJECT (window1, restraints1, "restraints1");
-  GLADE_HOOKUP_OBJECT (window1, image14277, "image14277");
+  GLADE_HOOKUP_OBJECT (window1, image14353, "image14353");
   GLADE_HOOKUP_OBJECT (window1, skeleton_parameters1, "skeleton_parameters1");
-  GLADE_HOOKUP_OBJECT (window1, image14278, "image14278");
+  GLADE_HOOKUP_OBJECT (window1, image14354, "image14354");
   GLADE_HOOKUP_OBJECT (window1, skeleton_parameters1_menu, "skeleton_parameters1_menu");
   GLADE_HOOKUP_OBJECT (window1, skeleton_colour1, "skeleton_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image14279, "image14279");
+  GLADE_HOOKUP_OBJECT (window1, image14355, "image14355");
   GLADE_HOOKUP_OBJECT (window1, skeleton_box_radius1, "skeleton_box_radius1");
   GLADE_HOOKUP_OBJECT (window1, skeletonization_level1, "skeletonization_level1");
   GLADE_HOOKUP_OBJECT (window1, separator5, "separator5");
   GLADE_HOOKUP_OBJECT (window1, residue_info2, "residue_info2");
-  GLADE_HOOKUP_OBJECT (window1, image14280, "image14280");
+  GLADE_HOOKUP_OBJECT (window1, image14356, "image14356");
   GLADE_HOOKUP_OBJECT (window1, font_size1, "font_size1");
-  GLADE_HOOKUP_OBJECT (window1, image14281, "image14281");
+  GLADE_HOOKUP_OBJECT (window1, image14357, "image14357");
   GLADE_HOOKUP_OBJECT (window1, pink_pointer_size1, "pink_pointer_size1");
-  GLADE_HOOKUP_OBJECT (window1, image14282, "image14282");
+  GLADE_HOOKUP_OBJECT (window1, image14358, "image14358");
   GLADE_HOOKUP_OBJECT (window1, background_colour1, "background_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image14283, "image14283");
+  GLADE_HOOKUP_OBJECT (window1, image14359, "image14359");
   GLADE_HOOKUP_OBJECT (window1, background_colour1_menu, "background_colour1_menu");
   GLADE_HOOKUP_OBJECT (window1, background_black1, "background_black1");
   GLADE_HOOKUP_OBJECT (window1, background_white1, "background_white1");
   GLADE_HOOKUP_OBJECT (window1, separator8, "separator8");
   GLADE_HOOKUP_OBJECT (window1, edit_settings, "edit_settings");
   GLADE_HOOKUP_OBJECT (window1, preferences1, "preferences1");
-  GLADE_HOOKUP_OBJECT (window1, image14284, "image14284");
+  GLADE_HOOKUP_OBJECT (window1, image14360, "image14360");
   GLADE_HOOKUP_OBJECT (window1, calculate1, "calculate1");
   GLADE_HOOKUP_OBJECT (window1, calculate1_menu, "calculate1_menu");
   GLADE_HOOKUP_OBJECT (window1, align_and_mutate1, "align_and_mutate1");
@@ -2685,130 +2693,131 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, fit_loop_by_database_search1, "fit_loop_by_database_search1");
   GLADE_HOOKUP_OBJECT (window1, fit_loop_by_rama_search1, "fit_loop_by_rama_search1");
   GLADE_HOOKUP_OBJECT (window1, frames_sec1, "frames_sec1");
-  GLADE_HOOKUP_OBJECT (window1, image14285, "image14285");
+  GLADE_HOOKUP_OBJECT (window1, image14361, "image14361");
   GLADE_HOOKUP_OBJECT (window1, calculate_load_tutorial_model_and_data1, "calculate_load_tutorial_model_and_data1");
   GLADE_HOOKUP_OBJECT (window1, ligand_builder1, "ligand_builder1");
-  GLADE_HOOKUP_OBJECT (window1, image14286, "image14286");
+  GLADE_HOOKUP_OBJECT (window1, image14362, "image14362");
   GLADE_HOOKUP_OBJECT (window1, lsq_superpose1, "lsq_superpose1");
   GLADE_HOOKUP_OBJECT (window1, calculate_map_tools, "calculate_map_tools");
   GLADE_HOOKUP_OBJECT (window1, map_sharpening1, "map_sharpening1");
   GLADE_HOOKUP_OBJECT (window1, cowtan_foadi_skeleton1, "cowtan_foadi_skeleton1");
   GLADE_HOOKUP_OBJECT (window1, modelling, "modelling");
   GLADE_HOOKUP_OBJECT (window1, regularize1, "regularize1");
-  GLADE_HOOKUP_OBJECT (window1, image14287, "image14287");
+  GLADE_HOOKUP_OBJECT (window1, image14363, "image14363");
   GLADE_HOOKUP_OBJECT (window1, calculate_modules, "calculate_modules");
   GLADE_HOOKUP_OBJECT (window1, move_molecule_here1, "move_molecule_here1");
   GLADE_HOOKUP_OBJECT (window1, mutate_molecule1, "mutate_molecule1");
   GLADE_HOOKUP_OBJECT (window1, ncs_maps1, "ncs_maps1");
-  GLADE_HOOKUP_OBJECT (window1, image14288, "image14288");
+  GLADE_HOOKUP_OBJECT (window1, image14364, "image14364");
   GLADE_HOOKUP_OBJECT (window1, calculate_ncs_tools, "calculate_ncs_tools");
   GLADE_HOOKUP_OBJECT (window1, other_modelling_tools1, "other_modelling_tools1");
-  GLADE_HOOKUP_OBJECT (window1, image14289, "image14289");
+  GLADE_HOOKUP_OBJECT (window1, image14365, "image14365");
   GLADE_HOOKUP_OBJECT (window1, calculate_pisa, "calculate_pisa");
   GLADE_HOOKUP_OBJECT (window1, run_script1, "run_script1");
-  GLADE_HOOKUP_OBJECT (window1, image14290, "image14290");
+  GLADE_HOOKUP_OBJECT (window1, image14366, "image14366");
   GLADE_HOOKUP_OBJECT (window1, ssm_superposition1, "ssm_superposition1");
   GLADE_HOOKUP_OBJECT (window1, scripting_testing1, "scripting_testing1");
-  GLADE_HOOKUP_OBJECT (window1, image14291, "image14291");
+  GLADE_HOOKUP_OBJECT (window1, image14367, "image14367");
   GLADE_HOOKUP_OBJECT (window1, scripting_testing1_menu, "scripting_testing1_menu");
   GLADE_HOOKUP_OBJECT (window1, scripting_python1, "scripting_python1");
   GLADE_HOOKUP_OBJECT (window1, scripting_scheme1, "scripting_scheme1");
+  GLADE_HOOKUP_OBJECT (window1, calculate_updating_maps1, "calculate_updating_maps1");
   GLADE_HOOKUP_OBJECT (window1, draw1, "draw1");
   GLADE_HOOKUP_OBJECT (window1, draw1_menu, "draw1_menu");
   GLADE_HOOKUP_OBJECT (window1, additional_representation1, "additional_representation1");
   GLADE_HOOKUP_OBJECT (window1, anisotropic_atoms1, "anisotropic_atoms1");
-  GLADE_HOOKUP_OBJECT (window1, image14292, "image14292");
+  GLADE_HOOKUP_OBJECT (window1, image14368, "image14368");
   GLADE_HOOKUP_OBJECT (window1, show_symmetry1, "show_symmetry1");
-  GLADE_HOOKUP_OBJECT (window1, image14293, "image14293");
+  GLADE_HOOKUP_OBJECT (window1, image14369, "image14369");
   GLADE_HOOKUP_OBJECT (window1, centre_atom_label1, "centre_atom_label1");
-  GLADE_HOOKUP_OBJECT (window1, image14294, "image14294");
+  GLADE_HOOKUP_OBJECT (window1, image14370, "image14370");
   GLADE_HOOKUP_OBJECT (window1, clipping1, "clipping1");
   GLADE_HOOKUP_OBJECT (window1, coordinates_recentring1, "coordinates_recentring1");
   GLADE_HOOKUP_OBJECT (window1, crosshairs1, "crosshairs1");
-  GLADE_HOOKUP_OBJECT (window1, image14295, "image14295");
+  GLADE_HOOKUP_OBJECT (window1, image14371, "image14371");
   GLADE_HOOKUP_OBJECT (window1, map_and_mol_control1, "map_and_mol_control1");
-  GLADE_HOOKUP_OBJECT (window1, image14296, "image14296");
+  GLADE_HOOKUP_OBJECT (window1, image14372, "image14372");
   GLADE_HOOKUP_OBJECT (window1, display_only_active1, "display_only_active1");
   GLADE_HOOKUP_OBJECT (window1, dragged_map1, "dragged_map1");
   GLADE_HOOKUP_OBJECT (window1, generic_display_objects1, "generic_display_objects1");
-  GLADE_HOOKUP_OBJECT (window1, image14297, "image14297");
+  GLADE_HOOKUP_OBJECT (window1, image14373, "image14373");
   GLADE_HOOKUP_OBJECT (window1, go_to_atom1, "go_to_atom1");
-  GLADE_HOOKUP_OBJECT (window1, image14298, "image14298");
+  GLADE_HOOKUP_OBJECT (window1, image14374, "image14374");
   GLADE_HOOKUP_OBJECT (window1, label_atoms_in_residue1, "label_atoms_in_residue1");
   GLADE_HOOKUP_OBJECT (window1, label_neighbours1, "label_neighbours1");
   GLADE_HOOKUP_OBJECT (window1, ncs_ghost_control1, "ncs_ghost_control1");
-  GLADE_HOOKUP_OBJECT (window1, image14299, "image14299");
+  GLADE_HOOKUP_OBJECT (window1, image14375, "image14375");
   GLADE_HOOKUP_OBJECT (window1, draw_representation_tools, "draw_representation_tools");
   GLADE_HOOKUP_OBJECT (window1, rock_view_on_off1, "rock_view_on_off1");
   GLADE_HOOKUP_OBJECT (window1, spin_view_on_off1, "spin_view_on_off1");
-  GLADE_HOOKUP_OBJECT (window1, image14300, "image14300");
+  GLADE_HOOKUP_OBJECT (window1, image14376, "image14376");
   GLADE_HOOKUP_OBJECT (window1, sequence_view1, "sequence_view1");
-  GLADE_HOOKUP_OBJECT (window1, image14301, "image14301");
+  GLADE_HOOKUP_OBJECT (window1, image14377, "image14377");
   GLADE_HOOKUP_OBJECT (window1, screenshot1, "screenshot1");
-  GLADE_HOOKUP_OBJECT (window1, image14302, "image14302");
+  GLADE_HOOKUP_OBJECT (window1, image14378, "image14378");
   GLADE_HOOKUP_OBJECT (window1, screenshot1_menu, "screenshot1_menu");
   GLADE_HOOKUP_OBJECT (window1, simple1, "simple1");
   GLADE_HOOKUP_OBJECT (window1, povray1, "povray1");
   GLADE_HOOKUP_OBJECT (window1, raster3d1, "raster3d1");
   GLADE_HOOKUP_OBJECT (window1, recentring1, "recentring1");
   GLADE_HOOKUP_OBJECT (window1, stereo1, "stereo1");
-  GLADE_HOOKUP_OBJECT (window1, image14303, "image14303");
+  GLADE_HOOKUP_OBJECT (window1, image14379, "image14379");
   GLADE_HOOKUP_OBJECT (window1, undo_last_navigation1, "undo_last_navigation1");
-  GLADE_HOOKUP_OBJECT (window1, image14304, "image14304");
+  GLADE_HOOKUP_OBJECT (window1, image14380, "image14380");
   GLADE_HOOKUP_OBJECT (window1, antialiasing1, "antialiasing1");
-  GLADE_HOOKUP_OBJECT (window1, image14305, "image14305");
+  GLADE_HOOKUP_OBJECT (window1, image14381, "image14381");
   GLADE_HOOKUP_OBJECT (window1, main_menu_info, "main_menu_info");
   GLADE_HOOKUP_OBJECT (window1, main_menu_info_menu, "main_menu_info_menu");
   GLADE_HOOKUP_OBJECT (window1, residue_info1, "residue_info1");
-  GLADE_HOOKUP_OBJECT (window1, image14306, "image14306");
+  GLADE_HOOKUP_OBJECT (window1, image14382, "image14382");
   GLADE_HOOKUP_OBJECT (window1, distances___angles1, "distances___angles1");
-  GLADE_HOOKUP_OBJECT (window1, image14307, "image14307");
+  GLADE_HOOKUP_OBJECT (window1, image14383, "image14383");
   GLADE_HOOKUP_OBJECT (window1, environment_distances1, "environment_distances1");
-  GLADE_HOOKUP_OBJECT (window1, image14308, "image14308");
+  GLADE_HOOKUP_OBJECT (window1, image14384, "image14384");
   GLADE_HOOKUP_OBJECT (window1, plane_distances1, "plane_distances1");
-  GLADE_HOOKUP_OBJECT (window1, image14309, "image14309");
+  GLADE_HOOKUP_OBJECT (window1, image14385, "image14385");
   GLADE_HOOKUP_OBJECT (window1, pointer_distances1, "pointer_distances1");
-  GLADE_HOOKUP_OBJECT (window1, image14310, "image14310");
+  GLADE_HOOKUP_OBJECT (window1, image14386, "image14386");
   GLADE_HOOKUP_OBJECT (window1, clear_atom_labels1, "clear_atom_labels1");
-  GLADE_HOOKUP_OBJECT (window1, image14311, "image14311");
+  GLADE_HOOKUP_OBJECT (window1, image14387, "image14387");
   GLADE_HOOKUP_OBJECT (window1, validate1, "validate1");
   GLADE_HOOKUP_OBJECT (window1, validate1_menu, "validate1_menu");
   GLADE_HOOKUP_OBJECT (window1, ramachandran_plot1, "ramachandran_plot1");
-  GLADE_HOOKUP_OBJECT (window1, image14312, "image14312");
+  GLADE_HOOKUP_OBJECT (window1, image14388, "image14388");
   GLADE_HOOKUP_OBJECT (window1, ramachandran_differences_plot1, "ramachandran_differences_plot1");
-  GLADE_HOOKUP_OBJECT (window1, image14313, "image14313");
+  GLADE_HOOKUP_OBJECT (window1, image14389, "image14389");
   GLADE_HOOKUP_OBJECT (window1, incorrect_chiral_volumes1, "incorrect_chiral_volumes1");
-  GLADE_HOOKUP_OBJECT (window1, image14314, "image14314");
+  GLADE_HOOKUP_OBJECT (window1, image14390, "image14390");
   GLADE_HOOKUP_OBJECT (window1, unmodelled_blobs1, "unmodelled_blobs1");
-  GLADE_HOOKUP_OBJECT (window1, image14315, "image14315");
+  GLADE_HOOKUP_OBJECT (window1, image14391, "image14391");
   GLADE_HOOKUP_OBJECT (window1, difference_map_peaks1, "difference_map_peaks1");
-  GLADE_HOOKUP_OBJECT (window1, image14316, "image14316");
+  GLADE_HOOKUP_OBJECT (window1, image14392, "image14392");
   GLADE_HOOKUP_OBJECT (window1, check_waters1, "check_waters1");
-  GLADE_HOOKUP_OBJECT (window1, image14317, "image14317");
+  GLADE_HOOKUP_OBJECT (window1, image14393, "image14393");
   GLADE_HOOKUP_OBJECT (window1, geometry_analysis1, "geometry_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14318, "image14318");
+  GLADE_HOOKUP_OBJECT (window1, image14394, "image14394");
   GLADE_HOOKUP_OBJECT (window1, peptide_omega_analysis1, "peptide_omega_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14319, "image14319");
+  GLADE_HOOKUP_OBJECT (window1, image14395, "image14395");
   GLADE_HOOKUP_OBJECT (window1, temp_fact_variance_analysis1, "temp_fact_variance_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14320, "image14320");
+  GLADE_HOOKUP_OBJECT (window1, image14396, "image14396");
   GLADE_HOOKUP_OBJECT (window1, temp_fact_analysis1, "temp_fact_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14321, "image14321");
+  GLADE_HOOKUP_OBJECT (window1, image14397, "image14397");
   GLADE_HOOKUP_OBJECT (window1, gln_and_asn_b_factor_outliers1, "gln_and_asn_b_factor_outliers1");
-  GLADE_HOOKUP_OBJECT (window1, image14322, "image14322");
+  GLADE_HOOKUP_OBJECT (window1, image14398, "image14398");
   GLADE_HOOKUP_OBJECT (window1, rotamer_analysis1, "rotamer_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14323, "image14323");
+  GLADE_HOOKUP_OBJECT (window1, image14399, "image14399");
   GLADE_HOOKUP_OBJECT (window1, density_fit_analysis1, "density_fit_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14324, "image14324");
+  GLADE_HOOKUP_OBJECT (window1, image14400, "image14400");
   GLADE_HOOKUP_OBJECT (window1, probe_clashes1, "probe_clashes1");
-  GLADE_HOOKUP_OBJECT (window1, image14325, "image14325");
+  GLADE_HOOKUP_OBJECT (window1, image14401, "image14401");
   GLADE_HOOKUP_OBJECT (window1, ncs_differences1, "ncs_differences1");
   GLADE_HOOKUP_OBJECT (window1, help1, "help1");
   GLADE_HOOKUP_OBJECT (window1, help1_menu, "help1_menu");
   GLADE_HOOKUP_OBJECT (window1, remarks_browser1, "remarks_browser1");
   GLADE_HOOKUP_OBJECT (window1, hints1, "hints1");
-  GLADE_HOOKUP_OBJECT (window1, image14326, "image14326");
+  GLADE_HOOKUP_OBJECT (window1, image14402, "image14402");
   GLADE_HOOKUP_OBJECT (window1, about1, "about1");
-  GLADE_HOOKUP_OBJECT (window1, image14327, "image14327");
+  GLADE_HOOKUP_OBJECT (window1, image14403, "image14403");
   GLADE_HOOKUP_OBJECT (window1, main_toolbar, "main_toolbar");
   GLADE_HOOKUP_OBJECT (window1, coords_toolbutton, "coords_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, reset_view_toolbutton, "reset_view_toolbutton");
@@ -13286,7 +13295,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.9.6.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.9.7.png");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 

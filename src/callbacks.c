@@ -12717,6 +12717,15 @@ on_calculate_views_activate            (GtkMenuItem     *menuitem,
 
 
 void
+on_calculate_updating_maps1_activate   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  show_calculate_updating_maps_gui();
+}
+
+
+
+void
 on_calculate_load_tutorial_model_and_data1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)

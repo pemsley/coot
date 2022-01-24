@@ -2439,7 +2439,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         self.failUnless(len(chids_2) == 4)
 
-        self.failUnless(chids_2[3] == "AAA_2")
+        self.failUnless(chids_2[3] == "AAA2")
         
 
     def test53_0(self):

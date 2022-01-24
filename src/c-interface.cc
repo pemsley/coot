@@ -485,6 +485,16 @@ int make_updating_model_molecule(const char *filename) {
    return status;
 }
 
+void show_calculate_updating_maps_gui() {
+
+#ifdef USE_PYTHON
+   std::string cmd = "show_updating_maps_chooser()";
+   safe_python_command(cmd);
+#endif
+
+}
+
+
 // do we need to return the imol for the model and the map? If so, this
 // needs to be in cc-interface.hh
 //

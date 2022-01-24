@@ -194,8 +194,10 @@ int main(int argc, char **argv) {
 
             float rmsd_cuffoff = 2.3;
 
+            int imol = 0;
+            watch_res_tracer_data_t tracer_data(working_mol, imol);
             std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
-                          weight, n_phi_psi_trials, with_ncs, working_mol, &update_count);
+                          weight, n_phi_psi_trials, with_ncs, &tracer_data);
             while (true) {
                unsigned int count_start = update_count;
                std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -225,8 +227,10 @@ int main(int argc, char **argv) {
                file.import_xmap(xmap);
                mmdb::Manager *working_mol = new mmdb::Manager;
                unsigned int update_count = 0;
+               int imol = 0;
+               watch_res_tracer_data_t tracer_data(working_mol, imol);
                res_tracer_proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials,
-                               with_ncs, working_mol, &update_count);
+                               with_ncs, &tracer_data); // working_mol, &update_count
             } else {
                std::cout << "No such file " << map_file_name << std::endl;
             }

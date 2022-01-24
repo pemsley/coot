@@ -82,7 +82,7 @@
 			      <signal name="activate" handler="on_open_coordinates1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14251">
+				<widget class="GtkImage" id="image14327">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-open</property>
 				  <property name="icon_size">1</property>
@@ -103,7 +103,7 @@
 			      <signal name="activate" handler="on_auto_open_mtz_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14252">
+				<widget class="GtkImage" id="image14328">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-open</property>
 				  <property name="icon_size">1</property>
@@ -125,7 +125,7 @@
 			      <signal name="activate" handler="on_open_dataset1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14253">
+				<widget class="GtkImage" id="image14329">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-open</property>
 				  <property name="icon_size">1</property>
@@ -147,7 +147,7 @@
 			      <signal name="activate" handler="on_open_map1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14254">
+				<widget class="GtkImage" id="image14330">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-open</property>
 				  <property name="icon_size">1</property>
@@ -168,7 +168,7 @@
 			      <signal name="activate" handler="on_import_cif_dictionary1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14255">
+				<widget class="GtkImage" id="image14331">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-add</property>
 				  <property name="icon_size">1</property>
@@ -196,7 +196,7 @@
 			      <signal name="activate" handler="on_get_monomer1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14256">
+				<widget class="GtkImage" id="image14332">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">connect-to-ccp4.svg</property>
 				  <property name="xalign">0.5</property>
@@ -217,7 +217,7 @@
 			      <signal name="activate" handler="on_search_monomer_library1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14257">
+				<widget class="GtkImage" id="image14333">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-index</property>
 				  <property name="icon_size">1</property>
@@ -239,7 +239,7 @@
 			      <signal name="activate" handler="on_get_pdb_using_code1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14258">
+				<widget class="GtkImage" id="image14334">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">connect-to-oca.svg</property>
 				  <property name="xalign">0.5</property>
@@ -260,7 +260,7 @@
 			      <signal name="activate" handler="on_get_pdb_and_map_using_eds1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14259">
+				<widget class="GtkImage" id="image14335">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">connect-to-usf.svg</property>
 				  <property name="xalign">0.5</property>
@@ -295,7 +295,7 @@
 			      <signal name="activate" handler="on_save_coordinates1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14260">
+				<widget class="GtkImage" id="image14336">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-save</property>
 				  <property name="icon_size">1</property>
@@ -316,7 +316,7 @@
 			      <signal name="activate" handler="on_save_symmetry_coordinates1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14261">
+				<widget class="GtkImage" id="image14337">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">coot-save-symm.png</property>
 				  <property name="xalign">0.5</property>
@@ -336,7 +336,7 @@
 			      <signal name="activate" handler="on_save_state1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14262">
+				<widget class="GtkImage" id="image14338">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">coot-save.png</property>
 				  <property name="xalign">0.5</property>
@@ -356,7 +356,7 @@
 			      <signal name="activate" handler="on_recover_session1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14263">
+				<widget class="GtkImage" id="image14339">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-find-and-replace</property>
 				  <property name="icon_size">1</property>
@@ -407,7 +407,7 @@
 			      <signal name="activate" handler="on_close_molecule1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14264">
+				<widget class="GtkImage" id="image14340">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-close</property>
 				  <property name="icon_size">1</property>
@@ -451,7 +451,7 @@
 			      <signal name="activate" handler="on_exit1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14265">
+				<widget class="GtkImage" id="image14341">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-quit</property>
 				  <property name="icon_size">1</property>
@@ -485,7 +485,7 @@
 			      <signal name="activate" handler="on_bond_colours1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14266">
+				<widget class="GtkImage" id="image14342">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-select-color</property>
 				  <property name="icon_size">1</property>
@@ -506,7 +506,7 @@
 			      <signal name="activate" handler="on_bond_parameters1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14267">
+				<widget class="GtkImage" id="image14343">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-preferences</property>
 				  <property name="icon_size">1</property>
@@ -527,7 +527,7 @@
 			      <signal name="activate" handler="on_edit_change_chain_ids1_activate" last_modification_time="Thu, 30 Nov 2017 20:33:55 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14268">
+				<widget class="GtkImage" id="image14344">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">change-chain-id.svg</property>
 				  <property name="xalign">0.5</property>
@@ -547,7 +547,7 @@
 			      <signal name="activate" handler="on_edit_copy_molecule1_activate" last_modification_time="Thu, 30 Nov 2017 20:30:02 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14269">
+				<widget class="GtkImage" id="image14345">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-copy</property>
 				  <property name="icon_size">1</property>
@@ -568,7 +568,7 @@
 			      <signal name="activate" handler="on_edit_copy_fragment1_activate" last_modification_time="Thu, 30 Nov 2017 20:31:04 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14270">
+				<widget class="GtkImage" id="image14346">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-copy</property>
 				  <property name="icon_size">1</property>
@@ -589,7 +589,7 @@
 			      <signal name="activate" handler="on_map_colour1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14271">
+				<widget class="GtkImage" id="image14347">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-select-color</property>
 				  <property name="icon_size">1</property>
@@ -610,7 +610,7 @@
 			      <signal name="activate" handler="on_density_size1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14272">
+				<widget class="GtkImage" id="image14348">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-preferences</property>
 				  <property name="icon_size">1</property>
@@ -631,7 +631,7 @@
 			      <signal name="activate" handler="on_edit_merge_molecules1_activate" last_modification_time="Thu, 30 Nov 2017 20:42:11 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14273">
+				<widget class="GtkImage" id="image14349">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">merge-molecules.svg</property>
 				  <property name="xalign">0.5</property>
@@ -651,7 +651,7 @@
 			      <signal name="activate" handler="on_edit_replace_residue1_activate" last_modification_time="Thu, 30 Nov 2017 20:32:26 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14274">
+				<widget class="GtkImage" id="image14350">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-refresh</property>
 				  <property name="icon_size">1</property>
@@ -672,7 +672,7 @@
 			      <signal name="activate" handler="on_edit_replace_fragment1_activate" last_modification_time="Thu, 30 Nov 2017 20:32:26 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14275">
+				<widget class="GtkImage" id="image14351">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-refresh</property>
 				  <property name="icon_size">1</property>
@@ -693,7 +693,7 @@
 			      <signal name="activate" handler="on_edit_renumber_residues1_activate" last_modification_time="Thu, 30 Nov 2017 20:33:15 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14276">
+				<widget class="GtkImage" id="image14352">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">renumber-residues.svg</property>
 				  <property name="xalign">0.5</property>
@@ -713,7 +713,7 @@
 			      <signal name="activate" handler="on_restraints1_activate" last_modification_time="Sun, 20 Apr 2008 08:14:40 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14277">
+				<widget class="GtkImage" id="image14353">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">radacina_handcuffs-small.svg</property>
 				  <property name="xalign">0.5</property>
@@ -732,7 +732,7 @@
 			      <property name="use_underline">True</property>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14278">
+				<widget class="GtkImage" id="image14354">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-preferences</property>
 				  <property name="icon_size">1</property>
@@ -754,7 +754,7 @@
 				      <signal name="activate" handler="on_skeleton_colour1_activate"/>
 
 				      <child internal-child="image">
-					<widget class="GtkImage" id="image14279">
+					<widget class="GtkImage" id="image14355">
 					  <property name="visible">True</property>
 					  <property name="stock">gtk-select-color</property>
 					  <property name="icon_size">1</property>
@@ -803,7 +803,7 @@
 			      <signal name="activate" handler="on_residue_info2_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14280">
+				<widget class="GtkImage" id="image14356">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">residue-info.svg</property>
 				  <property name="xalign">0.5</property>
@@ -822,7 +822,7 @@
 			      <signal name="activate" handler="on_font_size1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14281">
+				<widget class="GtkImage" id="image14357">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">gtk-font.png</property>
 				  <property name="xalign">0.5</property>
@@ -841,7 +841,7 @@
 			      <signal name="activate" handler="on_pink_pointer_size1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14282">
+				<widget class="GtkImage" id="image14358">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">pink-pointer.svg</property>
 				  <property name="xalign">0.5</property>
@@ -861,7 +861,7 @@
 			      <signal name="activate" handler="on_background_colour1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14283">
+				<widget class="GtkImage" id="image14359">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-select-color</property>
 				  <property name="icon_size">1</property>
@@ -923,7 +923,7 @@
 			      <signal name="activate" handler="on_preferences1_activate" last_modification_time="Wed, 13 Feb 2008 13:39:23 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14284">
+				<widget class="GtkImage" id="image14360">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-preferences</property>
 				  <property name="icon_size">1</property>
@@ -1007,7 +1007,7 @@
 			      <signal name="activate" handler="on_fps1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14285">
+				<widget class="GtkImage" id="image14361">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">appointment-new.png</property>
 				  <property name="xalign">0.5</property>
@@ -1036,7 +1036,7 @@
 			      <signal name="activate" handler="on_ligand_builder1_activate" last_modification_time="Wed, 27 Jul 2011 15:15:37 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14286">
+				<widget class="GtkImage" id="image14362">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">go-to-ligand.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1102,7 +1102,7 @@
 			      <signal name="activate" handler="on_model_refine_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14287">
+				<widget class="GtkImage" id="image14363">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-find-and-replace</property>
 				  <property name="icon_size">1</property>
@@ -1150,7 +1150,7 @@
 			      <signal name="activate" handler="on_ncs_maps1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14288">
+				<widget class="GtkImage" id="image14364">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">calculate-ghosts.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1179,7 +1179,7 @@
 			      <signal name="activate" handler="on_other_modelling_tools1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14289">
+				<widget class="GtkImage" id="image14365">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">gnome-run.png</property>
 				  <property name="xalign">0.5</property>
@@ -1208,7 +1208,7 @@
 			      <signal name="activate" handler="on_run_script1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14290">
+				<widget class="GtkImage" id="image14366">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-execute</property>
 				  <property name="icon_size">1</property>
@@ -1239,7 +1239,7 @@
 			      <signal name="activate" handler="on_scripting_window_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14291">
+				<widget class="GtkImage" id="image14367">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-justify-left</property>
 				  <property name="icon_size">1</property>
@@ -1274,6 +1274,15 @@
 			      </child>
 			    </widget>
 			  </child>
+
+			  <child>
+			    <widget class="GtkMenuItem" id="calculate_updating_maps1">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">Updating Maps...</property>
+			      <property name="use_underline">True</property>
+			      <signal name="activate" handler="on_calculate_updating_maps1_activate" last_modification_time="Mon, 24 Jan 2022 07:54:34 GMT"/>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 		    </widget>
@@ -1305,7 +1314,7 @@
 			      <signal name="activate" handler="on_anisotropic_atoms1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14292">
+				<widget class="GtkImage" id="image14368">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">aniso-atom.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1325,7 +1334,7 @@
 			      <signal name="activate" handler="on_show_symmetry1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14293">
+				<widget class="GtkImage" id="image14369">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">cell+symm.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1345,7 +1354,7 @@
 			      <signal name="activate" handler="on_centre_atom_label1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14294">
+				<widget class="GtkImage" id="image14370">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-justify-center</property>
 				  <property name="icon_size">1</property>
@@ -1383,7 +1392,7 @@
 			      <signal name="activate" handler="on_crosshairs1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14295">
+				<widget class="GtkImage" id="image14371">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">crosshairs.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1405,7 +1414,7 @@
 			      <accelerator key="F7" modifiers="0" signal="activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14296">
+				<widget class="GtkImage" id="image14372">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">display-manager.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1443,7 +1452,7 @@
 			      <signal name="activate" handler="on_generic_display_objects1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14297">
+				<widget class="GtkImage" id="image14373">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">generic-display-objects.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1464,7 +1473,7 @@
 			      <accelerator key="F6" modifiers="0" signal="activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14298">
+				<widget class="GtkImage" id="image14374">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">go-to-atom.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1503,7 +1512,7 @@
 			      <signal name="activate" handler="on_ncs_ghost_control1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14299">
+				<widget class="GtkImage" id="image14375">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">ghosts.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1541,7 +1550,7 @@
 			      <signal name="activate" handler="on_spin_view_on/off1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14300">
+				<widget class="GtkImage" id="image14376">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">spin-view.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1561,7 +1570,7 @@
 			      <signal name="activate" handler="on_sequence_view1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14301">
+				<widget class="GtkImage" id="image14377">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">sequence-view.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1580,7 +1589,7 @@
 			      <property name="use_underline">True</property>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14302">
+				<widget class="GtkImage" id="image14378">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">panel-screenshot.png</property>
 				  <property name="xalign">0.5</property>
@@ -1640,7 +1649,7 @@
 			      <signal name="activate" handler="on_stereo1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14303">
+				<widget class="GtkImage" id="image14379">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">stereo-view.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1661,7 +1670,7 @@
 			      <accelerator key="U" modifiers="0" signal="activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14304">
+				<widget class="GtkImage" id="image14380">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-undo</property>
 				  <property name="icon_size">1</property>
@@ -1681,7 +1690,7 @@
 			      <signal name="activate" handler="on_antialiasing1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14305">
+				<widget class="GtkImage" id="image14381">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">add-peptide-1.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1715,7 +1724,7 @@
 			      <signal name="activate" handler="on_residue_info1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14306">
+				<widget class="GtkImage" id="image14382">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">residue-info.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1735,7 +1744,7 @@
 			      <signal name="activate" handler="on_distances_and_angles1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14307">
+				<widget class="GtkImage" id="image14383">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-unindent</property>
 				  <property name="icon_size">1</property>
@@ -1756,7 +1765,7 @@
 			      <signal name="activate" handler="on_environment_distances1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14308">
+				<widget class="GtkImage" id="image14384">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">env-distances.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1776,7 +1785,7 @@
 			      <signal name="activate" handler="on_plane_distances1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14309">
+				<widget class="GtkImage" id="image14385">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">plane-distances.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1796,7 +1805,7 @@
 			      <signal name="activate" handler="on_pointer_distances1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14310">
+				<widget class="GtkImage" id="image14386">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">pointer-distances.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1816,7 +1825,7 @@
 			      <signal name="activate" handler="on_clear_atom_labels1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14311">
+				<widget class="GtkImage" id="image14387">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-clear</property>
 				  <property name="icon_size">1</property>
@@ -1851,7 +1860,7 @@
 			      <signal name="activate" handler="on_ramachandran_plot1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14312">
+				<widget class="GtkImage" id="image14388">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">ramachandran.png</property>
 				  <property name="xalign">0.5</property>
@@ -1872,7 +1881,7 @@
 			      <signal name="activate" handler="on_ramachandran_differences_plot1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14313">
+				<widget class="GtkImage" id="image14389">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">kleywegt.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1892,7 +1901,7 @@
 			      <signal name="activate" handler="on_incorrect_chiral_volumes1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14314">
+				<widget class="GtkImage" id="image14390">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">chiral.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1912,7 +1921,7 @@
 			      <signal name="activate" handler="on_unmodelled_blobs1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14315">
+				<widget class="GtkImage" id="image14391">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">unknown-blob.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1932,7 +1941,7 @@
 			      <signal name="activate" handler="on_difference_map_peaks1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14316">
+				<widget class="GtkImage" id="image14392">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">diff-map.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1952,7 +1961,7 @@
 			      <signal name="activate" handler="on_check_waters1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14317">
+				<widget class="GtkImage" id="image14393">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">water-drop.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1973,7 +1982,7 @@
 			      <signal name="activate" handler="on_geometry_analysis1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14318">
+				<widget class="GtkImage" id="image14394">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">geom.svg</property>
 				  <property name="xalign">0.5</property>
@@ -1994,7 +2003,7 @@
 			      <signal name="activate" handler="on_peptide_omega_analysis1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14319">
+				<widget class="GtkImage" id="image14395">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">peptide-omega.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2015,7 +2024,7 @@
 			      <signal name="activate" handler="on_temp_fact_variance_analysis1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14320">
+				<widget class="GtkImage" id="image14396">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">temperature.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2036,7 +2045,7 @@
 			      <signal name="activate" handler="on_temp_fact_analysis1_activate" last_modification_time="Thu, 28 May 2015 15:13:30 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14321">
+				<widget class="GtkImage" id="image14397">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">temperature.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2057,7 +2066,7 @@
 			      <signal name="activate" handler="on_gln_and_asn_b_factor_outliers1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14322">
+				<widget class="GtkImage" id="image14398">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">gln-asn-b-factors.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2078,7 +2087,7 @@
 			      <signal name="activate" handler="on_rotamer_analysis1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14323">
+				<widget class="GtkImage" id="image14399">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">rotamers.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2098,7 +2107,7 @@
 			      <signal name="activate" handler="on_density_fit_analysis1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14324">
+				<widget class="GtkImage" id="image14400">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">density-fit.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2118,7 +2127,7 @@
 			      <signal name="activate" handler="on_probe_clashes1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14325">
+				<widget class="GtkImage" id="image14401">
 				  <property name="visible">True</property>
 				  <property name="pixbuf">probe-clash.svg</property>
 				  <property name="xalign">0.5</property>
@@ -2170,7 +2179,7 @@
 			      <signal name="activate" handler="on_hints1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14326">
+				<widget class="GtkImage" id="image14402">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-dialog-info</property>
 				  <property name="icon_size">1</property>
@@ -2191,7 +2200,7 @@
 			      <signal name="activate" handler="on_about1_activate"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image14327">
+				<widget class="GtkImage" id="image14403">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-about</property>
 				  <property name="icon_size">1</property>
@@ -26650,7 +26659,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.9.6.png</property>
+      <property name="pixbuf">coot-0.9.7.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
