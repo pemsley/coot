@@ -109,31 +109,16 @@ glarea_tick_func(GtkWidget *widget,
       // don't change anything - I just want to remind you (well myself, I suppose) that it's here
    }
 
+   if (graphics_info_t::do_tick_hydrogen_bonds_mesh) {
+      // 20211210-PE  the rotation is done in instanced-object.shader now
+   }
+
    if (graphics_info_t::do_tick_boids) {
       graphics_info_t::boids.update();
       std::vector<glm::mat4> mats(graphics_info_t::boids.size());
       for (unsigned int ii=0; ii<graphics_info_t::boids.size(); ii++)
          mats[ii] = graphics_info_t::boids[ii].make_mat();
       graphics_info_t::mesh_for_boids.update_instancing_buffer_data_standard(mats);
-   }
-
-   if (graphics_info_t::do_tick_hydrogen_bonds_mesh) {
-      if (graphics_info_t::mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
-         std::chrono::time_point<std::chrono::high_resolution_clock> tp_now =
-            std::chrono::high_resolution_clock::now();
-         std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev =
-            graphics_info_t::tick_hydrogen_bond_mesh_t_previous;
-         auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_prev);
-         float theta = 0.002 * delta.count();
-         // std::cout << "delta from time " << delta.count() << " theta " << theta << std::endl;
-         std::vector<glm::mat4> mats;
-         for (unsigned int i=0; i<graphics_info_t::hydrogen_bonds_atom_position_pairs.size(); i++) {
-            const std::pair<glm::vec3, glm::vec3> &p = graphics_info_t::hydrogen_bonds_atom_position_pairs[i];
-            mats.push_back(Mesh::make_hydrogen_bond_cylinder_orientation(p.first, p.second, theta));
-         }
-         gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // Needed? Yes! Vital
-         graphics_info_t::mesh_for_hydrogen_bonds.update_instancing_buffer_data_standard(mats);
-      }
    }
 
    if (false)
@@ -333,6 +318,8 @@ on_glarea_realize(GtkGLArea *glarea) {
                                          // and allow it to be set in the API
 
       g.setup_draw_for_happy_face_residue_markers_init();
+
+      g.setup_draw_for_anchored_atom_markers_init();
 
       g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
 

@@ -3483,6 +3483,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 #include <time.h>
 #include "glarea_tick_function.hh"
 
+
 void
 coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec) {
 
@@ -3511,84 +3512,6 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
 #endif
                                    };
 
-
-      auto setup_cylinder_clashes = [] (const coot::atom_overlaps_dots_container_t &c,
-                                       int imol, bool extra_annotation) {
-
-                                       // clashes - 20211008-PE this should be in a lambda for clarity
-                                      //
-                                      //             We can't do cylinders with this shader! So make a ball instead.
-                                      // 20210910-PE Let's try to make another separate instancing mesh for clashes.
-                                      //
-                                      if (c.clashes.size() > 0) {
-                                         graphics_info_t g;
-                                         std::string clashes_name = "  Molecule " + coot::util::int_to_string(imol) + ":";
-                                         clashes_name += " clashes insta-mesh";
-                                         int clashes_obj_index = g.generic_object_index(clashes_name);
-                                         if (clashes_obj_index == -1)
-                                            clashes_obj_index = new_generic_object_number_for_molecule(clashes_name, imol);
-                                         else
-                                            g.generic_display_objects[clashes_obj_index].clear();
-
-                                         float dimmer = 0.66;
-                                         float z_scale = 0.37;
-                                         float unstubby_cap_factor = 1.1/z_scale; // see below
-                                         if (extra_annotation) {
-                                            dimmer = 0.95;
-                                            unstubby_cap_factor = 2.1;
-                                            z_scale = 0.7;
-                                         }
-                                         coot::colour_holder clash_col = colour_values_from_colour_name("#ff59c9");
-                                         clash_col.scale_intensity(dimmer);
-                                         glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.blue, 1.0);
-
-                                         // instancing for capped cylinders
-                                         meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
-                                         float line_radius = 0.062f;
-                                         const unsigned int n_slices = 16;
-                                         std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
-                                         obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
-                                                          meshed_generic_display_object::ROUNDED_CAP,
-                                                          meshed_generic_display_object::ROUNDED_CAP, extra_annotation, unstubby_cap_factor); // does obj.mesh.import()
-                                         // now I need to init the buffers of obj.mesh.
-                                         Material material;
-                                         if (extra_annotation) {
-                                            material.shininess = 199.9;
-                                            material.specular_strength = 0.9;
-                                         }
-                                         obj.mesh.setup(material); // calls setup_buffers()
-                                         //
-                                         // now accumulate the instancing matrices (the colours will stay the same)
-                                         std::vector<glm::mat4> mats;
-                                         for (unsigned int i=0; i<c.clashes.size(); i++) {
-                                            std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
-                                                                                     glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
-                                            const glm::vec3 &start  = pos_pair.first;
-                                            const glm::vec3 &finish = pos_pair.second;
-                                            glm::vec3 b = finish - start;
-                                            glm::vec3 normalized_bond_orientation(glm::normalize(b));
-                                            glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
-                                            glm::vec3 sc(1.1, 1.1, z_scale);
-                                            glm::mat4 unit(1.0);
-                                            glm::mat4 mt_1 = glm::translate(unit, start);
-                                            glm::mat4 mt_2 = mt_1 * ori;
-                                            glm::mat4 mt_3 = glm::scale(mt_2, sc);
-                                            mats.push_back(mt_3);
-                                            // std::cout << "debug " << i << " mt " << glm::to_string(mt) << std::endl;
-                                         }
-
-                                         // mats.resize(1);
-                                         std::vector<glm::vec4> cols(c.clashes.size(), clash_col_glm);
-                                         unsigned int n_instances = mats.size();
-                                         obj.mesh.setup_rtsc_instancing(nullptr, mats, cols, n_instances, material); // also does setup_buffers()
-                                         obj.mesh.update_instancing_buffer_data(mats, cols); // is this needed?
-                                         set_display_generic_object_simple(clashes_obj_index, 1);
-
-                                         // add continuous updating
-                                         g.do_tick_constant_draw = true;
-                                         gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0); // turn off by turn off FPS monitor
-                                      }
-                                    };
 
    graphics_info_t g;
    unsigned int octasphere_subdivisions = 3; // make a member of graphics_info_t with an API
@@ -3630,25 +3553,13 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Molecule " + coot::util::int_to_string(imol) + ": Ligand Contact Dots ";
 
-      bool extra_annotation = false;
-      {
-         time_t times = time(NULL);
-         struct tm result;
-         localtime_r(&times, &result);
-         if (result.tm_mday == 1) {
-            if ((result.tm_mon+1)%4==1) { // 1 to 12
-               extra_annotation = true;
-            }
-         }
-         if (result.tm_mon == 9)
-            if (result.tm_mday > 15)
-               if (result.tm_sec%5==0)
-                  extra_annotation = true;
-      }
-
-      setup_cylinder_clashes(c, imol, extra_annotation);
+      bool extra_annotation = graphics_info_t::get_exta_annotation_state();
 
       float ball_size = 0.07; // about the right size
+      ball_size = 0.06; // 20211129-PE try this
+      float tube_radius = ball_size;
+      g.setup_cylinder_clashes(c, imol, tube_radius, extra_annotation);
+
       std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
          float specular_strength = 0.5; //  default
@@ -3657,7 +3568,8 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          // if (type != "big-overlap") continue;
          const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          float point_size = ball_size;
-         if (type == "vdw-surface") point_size = 0.05;
+         // if (type == "vdw-surface") point_size = 0.05;
+         if (type == "vdw-surface") point_size = 0.03;
          if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
          std::string mesh_name = molecule_name_stub + type;
          Instanced_Markup_Mesh im_in(mesh_name);
@@ -3843,6 +3755,13 @@ void set_all_atom_contact_dots_ignore_water(short int state) {
 
 }
 
+//! \brief set if all atom contact should make the vdw surface (default off/false)
+void set_all_atom_contact_dots_do_vdw_surface(short int state) {
+
+   graphics_info_t::all_atom_contact_dots_do_vdw_surface = state; // short int to bool conversion
+}
+
+
 
 // all-atom contact dots.  This is not the place for this definition (not a ligand function)
 //
@@ -3948,6 +3867,13 @@ void set_contact_dots_density(float density) {
 
    graphics_info_t::contact_dots_density = density;
 }
+
+//! \brief set the number of subdivisions of contact dot density sphere (1=low (default), 3=high)
+void set_contact_dot_sphere_n_subdivisions(unsigned int n_subdivisions) {
+
+   graphics_info_t::contact_dot_sphere_subdivisions = n_subdivisions;
+}
+
 
 
 void coot_all_atom_contact_dots_instanced(int imol) {

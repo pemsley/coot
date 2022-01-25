@@ -1141,8 +1141,11 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
 
 GtkWidget *wrapped_create_fixed_atom_dialog() {
 
-   GtkWidget *w = create_fixed_atom_dialog();
-   graphics_info_t::fixed_atom_dialog = w;
+   // GtkWidget *w = create_fixed_atom_dialog();
+   // graphics_info_t::fixed_atom_dialog = w;
+
+   GtkWidget *w = widget_from_builder("fixed_atom_dialog");
+   gtk_widget_show(w);
    return w;
 }
 

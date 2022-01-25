@@ -202,7 +202,7 @@ void calculate_hydrogen_bonds(int imol) {
                glm::vec3 p_2 = mmdb_to_glm(at_2);
                graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p_2, p_1));
             }
-            
+
          } else {
             mmdb::Atom *at_1 = hb.donor;
             mmdb::Atom *at_2 = hb.acceptor;
@@ -223,8 +223,22 @@ void calculate_hydrogen_bonds(int imol) {
       graphics_info_t::mesh_for_hydrogen_bonds = mesh;
       Shader &shader = graphics_info_t::shader_for_instanced_objects;
       graphics_info_t::mesh_for_hydrogen_bonds.setup_hydrogen_bond_cyclinders(&shader, material);
+
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev = graphics_info_t::tick_hydrogen_bond_mesh_t_previous;
+      auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_prev);
+      float theta = 0.002 * delta.count();
+      // std::cout << "delta from time " << delta.count() << " theta " << theta << std::endl;
+      std::vector<glm::mat4> mats;
+      for (unsigned int i=0; i<graphics_info_t::hydrogen_bonds_atom_position_pairs.size(); i++) {
+         const std::pair<glm::vec3, glm::vec3> &p = graphics_info_t::hydrogen_bonds_atom_position_pairs[i];
+         mats.push_back(Mesh::make_hydrogen_bond_cylinder_orientation(p.first, p.second, theta));
+      }
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // Needed? Yes! Vital
+      graphics_info_t::mesh_for_hydrogen_bonds.update_instancing_buffer_data_standard(mats);
+      
+      graphics_info_t::add_a_tick();
       graphics_info_t::do_tick_hydrogen_bonds_mesh = true;
-      int new_tick_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
       
    }
 }

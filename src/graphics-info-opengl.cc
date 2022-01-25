@@ -350,7 +350,122 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 }
 
 
-#include "coot-utils/atom-overlaps.hh"
+
+#include "glarea_tick_function.hh"
+
+// static
+// extra_annotation is a default argument, default false;
+void
+graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
+                                        int imol, float tube_radius, bool extra_annotation) {
+
+   // clashes - 20211008-PE this should be in a lambda for clarity
+   //
+   //             We can't do cylinders with this shader! So make a ball instead.
+   // 20210910-PE Let's try to make another separate instancing mesh for clashes.
+   //
+   if (c.clashes.size() > 0) {
+      graphics_info_t g;
+      std::string clashes_name = "  Molecule " + coot::util::int_to_string(imol) + ":";
+      clashes_name += " clashes insta-mesh";
+      int clashes_obj_index = generic_object_index(clashes_name);
+      if (clashes_obj_index == -1)
+         clashes_obj_index = g.new_generic_object_number_for_molecule(clashes_name, imol); // make static?
+      else
+         g.generic_display_objects[clashes_obj_index].clear();
+
+      float dimmer = 0.66;
+      float z_scale = 0.37;
+      float unstubby_cap_factor = 1.1/z_scale; // see below
+      if (extra_annotation) {
+         dimmer = 0.95;
+         unstubby_cap_factor = 2.1;
+         z_scale = 0.7;
+      }
+      coot::colour_holder clash_col = colour_values_from_colour_name("#ff59c9");
+      clash_col.scale_intensity(dimmer);
+      glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.blue, 1.0);
+
+      // instancing for capped cylinders
+      meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
+      float line_radius = 0.062f;
+      line_radius = tube_radius;
+      const unsigned int n_slices = 16;
+      std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
+      obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
+                       meshed_generic_display_object::ROUNDED_CAP,
+                       meshed_generic_display_object::ROUNDED_CAP, extra_annotation, unstubby_cap_factor); // does obj.mesh.import()
+      // now I need to init the buffers of obj.mesh.
+      Material material;
+      if (extra_annotation) {
+         material.shininess = 199.9;
+         material.specular_strength = 0.9;
+      }
+      obj.mesh.setup(material); // calls setup_buffers()
+      //
+      // now accumulate the instancing matrices (the colours will stay the same)
+      std::vector<glm::mat4> mats;
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+         std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
+                                                  glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
+         const glm::vec3 &start  = pos_pair.first;
+         const glm::vec3 &finish = pos_pair.second;
+         glm::vec3 b = finish - start;
+         glm::vec3 normalized_bond_orientation(glm::normalize(b));
+         glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
+         glm::vec3 sc(1.1, 1.1, z_scale);
+         glm::mat4 unit(1.0);
+         glm::mat4 mt_1 = glm::translate(unit, start);
+         glm::mat4 mt_2 = mt_1 * ori;
+         glm::mat4 mt_3 = glm::scale(mt_2, sc);
+         mats.push_back(mt_3);
+      }
+
+      auto set_display_generic_object_simple = [] (int object_number, short int istate) {
+                                                  if (object_number >=0  && object_number < int(generic_display_objects.size())) {
+                                                     generic_display_objects[object_number].mesh.set_draw_this_mesh(istate);
+                                                  } else {
+                                                     std::cout << "ERROR:: object_number in to_generic_object_add_point: "
+                                                               << object_number << std::endl;
+                                                  }
+                                               };
+
+      // mats.resize(1);
+      std::vector<glm::vec4> cols(c.clashes.size(), clash_col_glm);
+      unsigned int n_instances = mats.size();
+      obj.mesh.setup_rtsc_instancing(nullptr, mats, cols, n_instances, material); // also does setup_buffers()
+      obj.mesh.update_instancing_buffer_data(mats, cols); // is this needed?
+      set_display_generic_object_simple(clashes_obj_index, 1);
+
+      // add continuous updating
+      if (! tick_function_is_active()) {
+         tick_function_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0); // turn off by turn off FPS monitor
+      }
+      g.do_tick_constant_draw = true;
+   }
+};
+
+
+//static
+bool
+graphics_info_t::get_exta_annotation_state() {
+
+   bool extra_annotation = false;
+   time_t times = time(NULL);
+   struct tm result;
+   localtime_r(&times, &result);
+
+   if (result.tm_mday == 1)
+      if (result.tm_mon == 3)
+         if (result.tm_sec%5==0)
+            extra_annotation = true;
+   if (result.tm_mon == 9)
+      if (result.tm_mday > 15)
+         if (result.tm_sec%5==0)
+            extra_annotation = true;
+   return extra_annotation;
+}
+
 
 
 // probably not the right place for this function
@@ -359,6 +474,7 @@ void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
    unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
+   octasphere_subdivisions = contact_dot_sphere_subdivisions; // 20211129-PE done
 
    if (true) {
       bool ignore_waters = true;
@@ -404,22 +520,24 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
 
       // more sensible
       coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
-      c = overlaps.all_atom_contact_dots(contact_dots_density, true);
+      bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
+      c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Contact Dots for Molecule ";
       molecule_name_stub += coot::util::int_to_string(imol);
       molecule_name_stub += ": ";
 
+      float point_size = 0.05f;
       std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
+         float point_size_inner = point_size;
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          // std::cout << "dots type " << type << " count " << v.size() << std::endl;
-         float point_size = 0.10;
          float specular_strength = 0.5; // default
          if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
-         if (type == "vdw-surface") point_size = 0.03;
+         if (type == "vdw-surface") point_size_inner = 0.03;
          std::string mesh_name = molecule_name_stub + type;
 
          Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
@@ -434,14 +552,17 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
          for (unsigned int i=0; i<v.size(); i++) {
             glm::vec3 position(v[i].pos.x(), v[i].pos.y(), v[i].pos.z());
             const std::string &colour_string = v[i].col;
+            if (false) // debugging
+               if (type != "vdw-surface")
+                  std::cout << " type " << type << " " << i << " colour_string: " << colour_string << std::endl;
             if (colour_string == previous_colour_string) {
-               Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size);
+               Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size_inner);
                attribs.specular_strength = specular_strength;
                balls[i] = attribs;
             } else {
                coot::colour_holder ch = colour_string_to_colour_holder(colour_string);
                glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
-               Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size);
+               Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size_inner);
                attribs.specular_strength = specular_strength;
                balls[i] = attribs;
                previous_colour_string = colour_string;
@@ -451,26 +572,9 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
          im.update_instancing_buffers(balls);
       }
 
-      // now clashes.................
+      float tube_size = point_size * 1.1f;
+      setup_cylinder_clashes(c, imol, tube_size, get_exta_annotation_state());
 
-      // we can't do cylinders with this shader! So make a ball instead
-
-      coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
-      glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.red, 1.0);
-      std::vector<Instanced_Markup_Mesh_attrib_t> balls;
-      balls.resize(c.clashes.size());
-      std::string mesh_name = molecule_name_stub + "clashes";
-      Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
-      im.clear();
-      im.setup_octasphere(octasphere_subdivisions);
-      im.setup_instancing_buffers(c.clashes.size());
-      const float point_size = 0.13;
-      for (unsigned int i=0; i<c.clashes.size(); i++) {
-         glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
-         Instanced_Markup_Mesh_attrib_t attribs(clash_col_glm, position, point_size);
-         balls[i] = attribs;
-      }
-      im.update_instancing_buffers(balls);
    }
 
 }

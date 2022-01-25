@@ -661,7 +661,7 @@ int graphics_info_t::db_main_atom_index_2 = -1;
 coot::db_main graphics_info_t::main_chain;
 
 coot::fixed_atom_pick_state_t graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
-GtkWidget *graphics_info_t::fixed_atom_dialog = 0;
+// GtkWidget *graphics_info_t::fixed_atom_dialog = 0; old style. Now we look it up each time
 
 std::vector<coot::simple_distance_object_t> graphics_info_t::measure_distance_object_vec;
 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > graphics_info_t::pointer_distances_object_vec;
@@ -1415,6 +1415,7 @@ Shader graphics_info_t::shader_for_blur;  // old
 Shader graphics_info_t::shader_for_dof_blur_by_texture_combination;
 Shader graphics_info_t::shader_for_hud_lines;
 Shader graphics_info_t::shader_for_lines;
+Shader graphics_info_t::shader_for_anchored_atom_markers;
 Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_ligand_view;
@@ -1502,13 +1503,13 @@ graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) 
 #endif
 }
 
-float graphics_info_t::contact_dots_density = 1.0;
 
 bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
 
+int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_rock = false;
@@ -1559,6 +1560,10 @@ TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers = TextureMesh
 Texture graphics_info_t::texture_for_happy_face_residue_marker;
 std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_positions;
 
+TextureMesh graphics_info_t::tmesh_for_anchored_atom_markers = TextureMesh("tmesh-for-anchored-atoms");
+Texture graphics_info_t::texture_for_anchored_atom_markers;
+std::vector<glm::vec3> graphics_info_t::anchored_atom_marker_texture_positions;
+
 HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label = HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("tmesh-for-hud-refinement-dialog-arrow");
@@ -1600,7 +1605,10 @@ bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 
 std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
 
+float graphics_info_t::contact_dots_density = 1.0;
+float graphics_info_t::contact_dot_sphere_subdivisions = 1;
 bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;
+bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
 
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 

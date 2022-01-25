@@ -1254,7 +1254,13 @@ Mesh::draw_instanced(Shader *shader_p,
                      const std::map<unsigned int, lights_info_t> &lights,
                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                      const glm::vec4 &background_colour,
-                     bool do_depth_fog) {
+                     bool do_depth_fog,
+                     bool do_pulse,
+                     bool do_rotate_z,
+                     float pulsing_amplitude,
+                     float pulsing_frequency,
+                     float pulsing_phase_distribution,
+                     float z_rotation_angle) {
 
    // std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name << std::endl;
 
@@ -1320,16 +1326,23 @@ Mesh::draw_instanced(Shader *shader_p,
    if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: You forgot to setup this Mesh " << name << " " << shader_p->name << std::endl;
 
-   // std::cout << "Mesh::draw_instanced() using vao " << vao << std::endl;
    glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw_instanced() " << shader_name << " " << name
                       << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
 
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() v " << err << std::endl;
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() i " << err << std::endl;
+   shader_p->set_bool_for_uniform("do_pulse", do_pulse);
+   shader_p->set_bool_for_uniform("do_rotate_z", do_rotate_z);
+   shader_p->set_float_for_uniform("pulsing_amplitude", pulsing_amplitude);
+   shader_p->set_float_for_uniform("pulsing_frequency", pulsing_frequency);
+   shader_p->set_float_for_uniform("pulsing_phase_distribution", pulsing_phase_distribution);
+   shader_p->set_float_for_uniform("z_rotation_angle", z_rotation_angle);
+
+   // fix these                                       
+   // glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   // err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() v " << err << std::endl;
+   // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+   // err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() i " << err << std::endl;
 
    glEnableVertexAttribArray(0);  // vec3 position
    glEnableVertexAttribArray(1);  // vec3 normal
@@ -1340,8 +1353,8 @@ Mesh::draw_instanced(Shader *shader_p,
    glEnableVertexAttribArray(6);  // instanced mat-row-3
    glEnableVertexAttribArray(7);  // instanced colour
 
-   glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?
-   err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() inst_rts_buffer_id" << std::endl;
+   // glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?
+   // err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() inst_rts_buffer_id" << std::endl;
 
    if (false)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " drawing n_verts " << n_verts << " n_instances " << n_instances
@@ -1445,7 +1458,7 @@ Mesh::draw(Shader *shader_p,
                 << " is_instanced_colours " <<  is_instanced_colours
                 << " is_instanced_with_rts_matrix " <<  is_instanced_with_rts_matrix
                 << std::endl;
-
+ 
    if (! draw_this_mesh) return;
 
    unsigned int n_triangles = triangles.size();
@@ -1511,6 +1524,7 @@ Mesh::draw(Shader *shader_p,
       std::cout << name << " " << shader_p->name << " sent material.specular_strength "
                 << material.specular_strength << std::endl;
    }
+
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: draw() " << shader_name << " pre-set eye position "
@@ -2152,7 +2166,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    glm::vec3 end_pos(1, 0, 0);
    std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
    float height = glm::distance(start_pos, end_pos);
-   float radius = 0.05;
+   float radius = 0.03;
    cylinder_with_rotation_translation c(pp, radius, radius, height, n_slices, n_stacks);
    c.add_spiral(); // take 2 colours
 
@@ -2171,9 +2185,9 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++)
       triangles[ii].rebase(idx_base);
 
-   std::cout << ":::::::::::::::: setup_hydrogen_bond_cyclinders() calls setup_buffers()" << std::endl;
+   // std::cout << ":::::::::::::::: setup_hydrogen_bond_cyclinders() calls setup_buffers()" << std::endl;
    setup_buffers();
-   std::cout << ":::::::::::::::: setup_hydrogen_bond_cyclinders() returns from setup_buffers()" << std::endl;
+   // std::cout << ":::::::::::::::: setup_hydrogen_bond_cyclinders() returns from setup_buffers()" << std::endl;
 
    std::vector<glm::mat4> mats(1000, glm::mat4(1.0f));
    std::vector<glm::vec4> colours; //dummy

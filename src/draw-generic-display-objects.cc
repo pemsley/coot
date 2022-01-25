@@ -98,7 +98,7 @@ void
 graphics_info_t::draw_generic_objects() {
 
    // This is the function that draws clash spike capped cylinders
-
+   
    if (! generic_display_objects.empty()) {
 
       bool draw_meshes = true;
@@ -128,11 +128,12 @@ graphics_info_t::draw_generic_objects() {
             }
             if (draw_it) {
                if (obj.mesh.is_instanced) {
-                  // std::cout << "draw_generic_objects() draw_instanced()" << std::endl;
+                  // std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name << std::endl;
                   obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, view_rotation,
-                                          lights, eye_position, bg_col, do_depth_fog);
+                                          lights, eye_position, bg_col, do_depth_fog,
+                                          true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                } else {
-                  // std::cout << "draw_generic_objects() draw()" << std::endl;
+                  // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
                   obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
                                 bg_col, do_depth_fog);
                }

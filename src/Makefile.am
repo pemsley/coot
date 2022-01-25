@@ -644,24 +644,24 @@ libcootsumo_la_SOURCES = \
 	screen-utils.cc		 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
-        sound.cc                 \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
+	select-atom-info.hh      \
 	sequence-view.hh         \
 	sequence-view.cc         \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
 	Shader.cc Shader.hh      \
         simple-distance-object.hh \
-	startup-scripts.hh       \
-	support.c support.h      \
-	select-atom-info.hh      \
+        sound.cc                 \
 	sound.hh                 \
 	startup-scripts.hh       \
-	tiny_glhf.h              \
+	support.c support.h      \
 	stb_image.h              \
 	stb_image_write.h        \
+	startup-scripts.hh       \
+	tiny_glhf.h              \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \

@@ -3632,13 +3632,14 @@ new_close_molecules(GtkWidget *window) {
 // 			 << imol << "] is "
 // 			 << graphics_info_t::sequence_view_is_displayed[imol] << std::endl;
 
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
 	       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 	       if (w) {
 		  // gtk_widget_destroy(graphics_info_t::sequence_view_is_displayed[imol]);
 		  //
 		  // use undisplay().  But how do we get to the object?
 		  graphics_info_t g;
+#if 0 // 20211201-PE sequence-view.cc doesn't compile ATM
 		  coot::sequence_view *seq_view = g.get_sequence_view(imol);
 		  if (seq_view) {
 		     seq_view->undisplay(imol);
@@ -3646,6 +3647,7 @@ new_close_molecules(GtkWidget *window) {
 		     std::cout << "ERROR:! missing seq_view for molecule number : "
 			       << imol << std::endl;
 		  }
+#endif
 		  GtkWidget *window = lookup_widget(w, "sequence_view_dialog");
 		  if (window) {
 		     gtk_widget_destroy(window);
@@ -3655,7 +3657,6 @@ new_close_molecules(GtkWidget *window) {
 			gtk_widget_destroy(window);
 		  }
 	       }
-#endif
 	       //graphics_info_t::molecules[imol].close_yourself();
 	       close_molecule(imol);
 	       closed_something_flag = 1;
@@ -5153,12 +5154,11 @@ void store_geometry_dialog(GtkWidget *w) {
 }
 
 
-
+#if 0 // 20211202-PE we no longer want to do this
 void store_fixed_atom_dialog(GtkWidget *w) {
-
    graphics_info_t::fixed_atom_dialog = w;
-
 }
+#endif
 
 
 /* not for user consumption, this finds (from itself) the residue type
@@ -6023,7 +6023,7 @@ on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled(GtkToggleB
 
    int combo_ints = GPOINTER_TO_INT(user_data);
    int imol = combo_ints/1000;
-   int obj_no = combo_ints - imol;
+   int obj_no = combo_ints - 1000 * imol;
    bool state = false;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
       state = 1;
@@ -6091,6 +6091,7 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
    if (! imm.is_closed()) {
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = imm.get_name();
+      // label_str = "NMO: "  + label_str;
       GtkWidget *label = gtk_label_new(label_str.c_str());
 
       int i_row = grid_row_offset;

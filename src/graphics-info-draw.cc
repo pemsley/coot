@@ -1578,6 +1578,20 @@ graphics_info_t::draw_happy_face_residue_markers() {
    }
 }
 
+// static
+void
+graphics_info_t::draw_anchored_atom_markers()  {
+
+   if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
+      if (tmesh_for_anchored_atom_markers.have_instances()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 view_rotation = get_view_rotation();
+         texture_for_anchored_atom_markers.Bind(0);
+         tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, view_rotation);
+      }
+   }
+}
+
 void
 graphics_info_t::draw_texture_meshes() {
 
@@ -1728,6 +1742,8 @@ graphics_info_t::draw_molecules() {
 
    draw_happy_face_residue_markers();
 
+   draw_anchored_atom_markers();
+
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
    // might be better.
@@ -1857,6 +1873,16 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes() {
 
+   // This function doesn't draw these
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots wide-contact
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots close-contact
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots small-overlap
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
+   // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
+
+   // std::cout << "------------- draw_meshed_generic_display_object_meshes() " << std::endl;
+
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
 
@@ -1871,7 +1897,6 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
    // << mvp[0][0] << " " << mvp[1][1] << " " << mvp[2][2] << std::endl;
 
    glm::mat3 vrm(glm::toMat4(graphics_info_t::glm_quat));
-   glm::mat3 vrmt = glm::transpose(vrm);
 
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
@@ -1886,14 +1911,16 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
       }
 
       if (have_meshes_to_draw) {
+         // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
          glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
+            // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
                // std::cout << "mesh jj " << jj << " of " << m.meshes.size()
                // << " instanced" << m.meshes[jj].is_instanced << std::endl;
                if (m.meshes[jj].is_instanced) {
-                  // std::cout << "drawing instanced " << jj << std::endl;
+                  // std::cout << "   drawing instanced " << jj << std::endl;
                   // what a mess
                   m.meshes[jj].draw_instanced(&shader_for_moleculestotriangles, mvp,
                                               view_rotation, lights, eye_position,
@@ -1946,6 +1973,7 @@ graphics_info_t::draw_instanced_meshes() {
          molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
          if (molecules[ii].draw_it) {
             for (unsigned int jj=0; jj<m.instanced_meshes.size(); jj++) {
+               // std::cout << "   graphics_info_t::draw_instanced_meshes() A " << m.instanced_meshes[jj].get_name() << std::endl;
                m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
                                            view_rotation, lights, eye_position, bg_col, do_depth_fog);
             }
@@ -1956,7 +1984,8 @@ graphics_info_t::draw_instanced_meshes() {
 
       if (! instanced_meshes.empty()) {
          for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
-            std::cout << "draw own mesh " << jj << std::endl;
+            // std::cout << "   graphics_info_t::draw_instanced_meshes() our own " << jj << " "
+            // << instanced_meshes[jj].get_name() << std::endl;
             instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
                                       view_rotation, lights, eye_position, bg_col, do_depth_fog);
          }
@@ -1967,10 +1996,15 @@ graphics_info_t::draw_instanced_meshes() {
 void
 graphics_info_t::draw_meshes() {
 
+   // I don't think that this function is called - which is good because draw_meshed_generic_display_object_meshes()
+   // and draw_instanced_meshes() are called from elsewhere.
+
    // presumes only opaques
 
-   draw_meshed_generic_display_object_meshes();
-   draw_instanced_meshes();
+   // std::cout << "------------------- draw_meshes() " << std::endl;
+
+   // draw_meshed_generic_display_object_meshes();
+   // draw_instanced_meshes();
 }
 
 void
@@ -3328,11 +3362,16 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 
       glEnable(GL_DEPTH_TEST);
       glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-      texture_for_hud_tooltip_background.Bind(0);
-      mesh_for_hud_tooltip_background.set_scales(glm::vec2(0.163, 0.05)); // hud-tooltip.png is 103x50
-      mesh_for_hud_tooltip_background.draw(&shader_for_hud_geometry_labels);
+      bool draw_background = false; // 20211124-PE backgrounds are not correctly scaled at the moment
+
+      if (draw_background) {
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+         texture_for_hud_tooltip_background.Bind(0);
+         mesh_for_hud_tooltip_background.set_scales(glm::vec2(0.163, 0.05)); // hud-tooltip.png is 103x50
+         mesh_for_hud_tooltip_background.draw(&shader_for_hud_geometry_labels);
+      }
 
       // now the text that goes into (on top of) the background
 
@@ -3352,7 +3391,6 @@ graphics_info_t::draw_hud_geometry_tooltip() {
       // this is now done in setup_hud_geometry_bars() which is called by resize()
       // glm::vec2 label_scale(0.00015, 0.00015); // fixed.
       // tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
-
 
       bool use_label_highlight = true;
       mmdb::Residue *residue_p = 0;
@@ -3634,7 +3672,7 @@ graphics_info_t::render_scene_with_y_blur() {
    glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_colour());
    glActiveTexture(GL_TEXTURE0 + 1);
    glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_depth());
-   shader_for_x_blur.set_int_for_uniform("screenTexture", 0);
+   shader_for_y_blur.set_int_for_uniform("screenTexture", 0);
    GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: render_scene_with_x_blur() D err " << err << std::endl;
 
    glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -3885,6 +3923,29 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
 }
 
 void
+graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
+
+   // run this once - call from realize()
+
+   const unsigned int max_anchored_atoms = 200; // surely enough?
+   
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   GLenum err = glGetError();
+   if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
+                      << "Post attach buffers err is " << err << std::endl;
+
+   // If not found in this directory, then try default directory.
+   texture_for_anchored_atom_markers.set_default_directory(coot::package_data_dir());
+   texture_for_anchored_atom_markers.init("anchor-for-fixed-atoms.png");
+
+   shader_for_anchored_atom_markers.Use();
+   tmesh_for_anchored_atom_markers.setup_camera_facing_quad(&shader_for_happy_face_residue_markers, 1.0, 1.0);
+   tmesh_for_anchored_atom_markers.setup_instancing_buffers(max_anchored_atoms);
+   tmesh_for_anchored_atom_markers.draw_this_mesh = false;
+
+}
+
+void
 graphics_info_t::setup_draw_for_happy_face_residue_markers() {
 
    // run this at the start of a "show animated happy faces"
@@ -3904,10 +3965,60 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers() {
    tmesh_for_happy_face_residues_markers.draw_this_mesh = true;
    draw_count_for_happy_face_residue_markers = 0;
    if (! tick_function_is_active()) {
-      gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+      tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
    }
    do_tick_happy_face_residue_markers = true;
 
+}
+
+void
+graphics_info_t::setup_draw_for_anchored_atom_markers() {
+
+   // these move frame by frame (on moving atoms coordinates updates)
+   // 
+   auto get_intermediate_atoms_anchored_atoms_positions = [] () {
+                                          std::vector<glm::vec3> positions;
+                                          if (moving_atoms_asc) {
+                                             if (moving_atoms_asc->n_selected_atoms > 0) {
+                                                for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+                                                   std::vector<coot::atom_spec_t> fixed = molecules[imol_moving_atoms].get_fixed_atoms();
+                                                   for (unsigned int ifixed=0; ifixed<fixed.size(); ifixed++) {
+                                                   }
+                                                }
+                                             }
+                                          }
+                                          return positions;
+                                       };
+
+   // these are fixed on the molecule
+   //
+   auto get_anchored_atoms_positions = [] (int imol, const glm::vec3 up_uv) {
+                                          std::vector<glm::vec3> positions;
+                                          const auto &m = molecules[imol];
+                                          std::vector<coot::Cartesian> fap = m.fixed_atom_positions;
+                                          for (unsigned int i=0; i<fap.size(); i++) {
+                                             glm::vec3 p(fap[i].x(), fap[i].y(), fap[i].z());
+                                             p += up_uv * 0.3f;
+                                             positions.push_back(p);
+                                          }
+                                          return positions;
+                                       };
+
+   std::pair<int, mmdb::Atom *> aa = get_active_atom();
+   if (aa.second) {
+      int imol = aa.first;
+      glm::vec3 up_uv = get_screen_y_uv();
+      std::vector<glm::vec3> positions = get_anchored_atoms_positions(imol, up_uv);
+
+      if (positions.empty()) {
+         tmesh_for_anchored_atom_markers.draw_this_mesh = false;
+      } else {
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+         tmesh_for_anchored_atom_markers.draw_this_mesh = true;
+         tmesh_for_anchored_atom_markers.update_instancing_buffer_data(positions);
+      }
+   }
+   
 }
 
 #include "coot-utils/fib-sphere.hh"
@@ -4143,9 +4254,11 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
-      mesh_for_hydrogen_bonds.draw(&shader_for_instanced_objects,
-                                   mvp, view_rotation_matrix, lights, eye_position, bg_col,
-                                   shader_do_depth_fog_flag);
+      // 20211210-PE  note that we are not calling the draw_instanced() - that seems perverse to me.
+      // Hmm.
+      mesh_for_hydrogen_bonds.draw_instanced(&shader_for_instanced_objects,
+                                             mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                             shader_do_depth_fog_flag, false, true, 0, 0, 0, 0.2);
    }
 }
 

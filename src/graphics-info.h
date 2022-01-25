@@ -92,6 +92,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/atom-overlaps.hh"
 
 #include "positioned-widgets.h"
 
@@ -167,6 +168,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "simple-distance-object.hh"
 
 #include "gl-rama-plot.hh"
+
+#include "glarea_tick_function.hh"
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -1844,7 +1847,7 @@ public:
    static int add_reps_molecule_combobox_molecule;
 
    static coot::fixed_atom_pick_state_t in_fixed_atom_define;
-   static GtkWidget *fixed_atom_dialog;
+   // static GtkWidget *fixed_atom_dialog; 20211202-PE extract this from glade each time.
 
    static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
@@ -2088,6 +2091,8 @@ public:
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
    void update_geometry_graphs(int imol_moving_atoms); // convenience function
    void update_validation_graphs(int imol);  // and ramachandran
+   // 20211201-PE currently upadte_geometry
+   void update_ramachandran_plot(int imol);
 
 
    // Display the graphical object of the regularization
@@ -3106,8 +3111,6 @@ public:
 								      const atom_selection_container_t &asc,
 								      short int is_regular_residue_flag) const;
 
-   static bool all_atom_contact_dots_ignore_water_flag; // false by default
-
    // Do 180 degree sidechain flip stuff
    //
    static short int in_180_degree_flip_define;
@@ -3151,6 +3154,7 @@ public:
    static void draw_particles();
    static void draw_boids();
    static void draw_happy_face_residue_markers();
+   static void draw_anchored_atom_markers();
    static void draw_hydrogen_bonds_mesh(); // like boids
    void setup_draw_for_particles();
    void clear_measure_distances();
@@ -3174,6 +3178,16 @@ public:
    void setup_draw_for_happy_face_residue_markers(); // run this every time we want to see faces,
                                                      // it sets the start position of the faces.
    static Texture texture_for_happy_face_residue_marker;
+   // likewise
+   static std::vector<glm::vec3> anchored_atom_marker_texture_positions; // based on residues
+                                                                         // and filled by
+                                                                         // setup_draw_for_anchored_atom_markers()
+                                                                          // which is called once per refinement.
+   void setup_draw_for_anchored_atom_markers_init(); // run this once to setup instancing buffer
+   void setup_draw_for_anchored_atom_markers();     // run this every time we want to anchored atoms
+                                                    // it sets the start position of the textures
+   static Texture texture_for_anchored_atom_markers;
+   static TextureMesh tmesh_for_anchored_atom_markers;
 
    static bool find_hydrogen_torsions_flag;
 
@@ -3204,8 +3218,8 @@ public:
    static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
    static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
    // static std::vector<mmdb::Atom *> fixed_intermediate_atoms;
-   static bool fixed_atom_for_refinement_p(mmdb::Atom *);  // examines the imol_moving_atoms molecule
-                                                      // for correspondence
+   static bool fixed_atom_for_refinement_p(mmdb::Atom *); // examines the imol_moving_atoms molecule
+                                                          // for correspondence
 
    // mol is new (not from molecules[imol]) molecule for the moving atoms.
    //
@@ -3739,6 +3753,11 @@ public:
       generic_display_objects.push_back(meshed);
       return generic_display_objects.size() - 1;
    }
+   int new_generic_object_number_for_molecule(const std::string &name, int imol) {
+      int idx = new_generic_object_number(name);
+      generic_display_objects.at(idx).imol = imol;
+      return idx;
+   }
    static int generic_object_index(const std::string &name) {
       int index = -1;
       int nobjs = generic_display_objects.size();
@@ -4114,9 +4133,17 @@ string   static std::string sessionid;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
 
+   static bool all_atom_contact_dots_ignore_water_flag; // false by default
+   static bool all_atom_contact_dots_do_vdw_surface; // false by default
    static float contact_dots_density; // 1 by default
+   static void setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
+                                      int imol, float tube_radius, bool extra_annotation=false);
+   
+
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
+   static float contact_dot_sphere_subdivisions;
+   static bool get_exta_annotation_state();
 
    static void fill_rotamer_probability_tables() {
 
@@ -4251,6 +4278,7 @@ string   static std::string sessionid;
    static Shader shader_for_lines_pulse; // "you are here" pulse
    static Shader shader_for_ligand_view;
    static Shader shader_for_happy_face_residue_markers;
+   static Shader shader_for_anchored_atom_markers;
    static Shader shader_for_rama_plot_axes_and_ticks;
    static Shader shader_for_rama_plot_phi_phis_markers;
    static Shader shader_for_hud_lines; // actally in 3D because it uses LinesMesh class
@@ -4543,6 +4571,13 @@ string   static std::string sessionid;
 
    static std::chrono::time_point<std::chrono::high_resolution_clock> tick_hydrogen_bond_mesh_t_previous;
 
+   static void add_a_tick() {
+      // needs glarea-tick-func.hh
+      if (! tick_function_is_active())
+         tick_function_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
+   }
+
+   static int tick_function_id; // store the return value from gtk_widget_add_tick_callback()
    static bool do_tick_particles;
    static bool do_tick_spin;
    static bool do_tick_rock;

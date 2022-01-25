@@ -76,6 +76,7 @@ void create_dynamic_menus(GtkWidget *window1) {
 							 "gln_and_asn_b_factor_outliers_submenu");
 	 create_initial_validation_graph_submenu_generic(window1, "temp_fact_variance_analysis1",
 							 "temp_factor_variance_submenu");
+         create_initial_validation_graph_submenu_generic(window1, "pukka_puckers_1", "pucker_submenu");
 }
 
 
@@ -116,6 +117,20 @@ void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
 
    graphics_info_t g;
    g.omega_graphs(imol);
+
+}
+
+#include "cc-interface-scripting.hh"
+
+void pukka_puckers_mol_selector_activate (GtkMenuItem     *menuitem,
+                                          gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+   // 20211211-PE bleugh
+   std::string imol_str = std::to_string(imol);
+   std::string ss = "coot_gui.pukka_puckers_qm(" + imol_str + ")";
+   safe_python_command("import coot_gui");
+   safe_python_command(ss);
 
 }
 
@@ -233,6 +248,11 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
       callback = G_CALLBACK(validation_graph_omega_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "omega_submenu";
+   }
+   if (validation_type == "puckers") {
+      callback = G_CALLBACK(pukka_puckers_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "pucker_submenu";
    }
    if (validation_type == "rotamer") {
       callback = G_CALLBACK(validation_graph_rotamer_mol_selector_activate);

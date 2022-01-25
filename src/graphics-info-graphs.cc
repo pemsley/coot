@@ -191,7 +191,6 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 void
 graphics_info_t::update_geometry_graphs(int imol) {
 
-   std::cout << "------------------- update_geometry_graphs " << imol << std::endl;
    update_geometry_graphs(molecules[imol].atom_sel, imol);
 }
 
@@ -201,8 +200,6 @@ graphics_info_t::update_geometry_graphs(int imol) {
 // pass -1 for the map in that case.
 void
 graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs? Check the next function also
-
-   std::cout << "------------------- update_geometry_graphs selresidues " << std::endl;
 
    GtkWidget *graph = coot::get_validation_graph(imol, coot::GEOMETRY_GRAPH_ROTAMER);
    if (graph) {
@@ -225,8 +222,6 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
-
-   std::cout << "------------------- update_geometry_graphs asc " << std::endl;
 
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
@@ -345,6 +340,26 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 
    // and now ramachandran also
 
+   // 20211201-PE Hmm... this is blank - I wonder why...
+   // Let's add an explicit function to update the rama plot (taking an imol)
+
+   // update_ramachandran_plot(imol_moving_atoms);
+
+}
+
+void
+graphics_info_t::update_ramachandran_plot(int imol) {
+
+   std::cout << "--------------------------- update_ramachandran_plot() " << imol << std::endl;
+   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+   if (w) {
+      // this ojbect get data has been changed - the set needs to changed too - whereever that is.
+      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
+      std::cout << "doing handle_rama_plot_update() " << std::endl;
+      handle_rama_plot_update(plot);
+   } else {
+      std::cout << "debug:: in update_ramachandran_plot() failed to find plot widget" << std::endl;
+   }
 
 }
 
@@ -352,13 +367,7 @@ void
 graphics_info_t::update_validation_graphs(int imol) {
 
    std::cout << "--------------------------- update_validation_graphs() " << imol << std::endl;
-   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
-   if (w) {
-      // this ojbect get data has been changed - the set needs to changed too - whereever that is.
-      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
-      std::cout << "doing handle_rama_plot_update() " << std::endl;
-      handle_rama_plot_update(plot);
-   }
+   update_ramachandran_plot(imol);
    // now update the geometry graphs, so get the asc
    atom_selection_container_t u_asc = molecules[imol].atom_sel;
    update_geometry_graphs(u_asc, imol);

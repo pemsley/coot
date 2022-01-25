@@ -11004,12 +11004,12 @@ on_fixed_atom_close_button_clicked     (GtkButton       *button,
   gtk_widget_destroy(dialog);
 }
 
-
+// this function is not a thing now.
 void
 on_fixed_atom_dialog_destroy           (GtkWidget       *object,
                                         gpointer         user_data)
 {
-  store_fixed_atom_dialog(0);
+  // store_fixed_atom_dialog(0);
 }
 
 void

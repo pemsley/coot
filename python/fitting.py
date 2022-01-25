@@ -60,7 +60,7 @@ def fit_protein(imol, rotamer_only=False, animate=True):
                 res_name = coot.resname_from_serial_number(imol, chain_id, serial_number)
                 res_no = coot.seqnum_from_serial_number(imol, chain_id, serial_number)
                 ins_code = coot.insertion_code_from_serial_number(imol, chain_id, serial_number)
-                res_atoms = coot.residue_info(imol, chain_id, res_no, ins_code)
+                res_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
                 
                 if (ins_code is not None):
                     if (len(res_atoms) > 3):
@@ -159,7 +159,7 @@ def fit_protein_fit_function(res_spec, imol_map):
                 print("centering on", chain_id, res_no, "CA")
                 coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
                 coot.rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)        
-                res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+                res_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
                 if (len(res_atoms) > 3):
                     # if (not res_name == "HOH"):
                     # not needed as we only refine more than 3 atom res
@@ -335,7 +335,7 @@ def fit_chain(imol, chain_id):
            res_no = coot.seqnum_from_serial_number(imol,chain_id,serial_number)
            ins_code = coot.insertion_code_from_serial_number(imol,chain_id,serial_number)
            if ins_code is not None:
-               res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+               res_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
                if (len(res_atoms) > 3):  # actually then we dont need the water check any more?!
                    #if (not res_name == "HOH"):
                        print("centering on ", chain_id, res_no, " CA")
@@ -371,7 +371,7 @@ def fit_residue_range(imol, chain_id, resno_start, resno_end):
        for res_no in coot_utils.number_list(resno_start, resno_end):
            print("centering on ", chain_id, res_no, " CA")
            coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
-           res_atoms = residue_info(imol, chain_id, res_no, ins_code)
+           res_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
            if (len(res_atoms) > 3):
                coot.auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id,
                                           imol, imol_map, 1, 0.1)
@@ -416,7 +416,7 @@ def fit_waters(imol, animate_qm = False):
                 for serial_number in range(n_residues):
                     res_no = coot.seqnum_from_serial_number(imol,chain_id,serial_number)
                     if do_animate_qm:
-                        res_info = residue_info(imol, chain_id, res_no, "")
+                        res_info = coot.residue_info_py(imol, chain_id, res_no, "")
                         if not res_info == []:
                             atom = res_info[0]
                             atom_name = atom[0]
@@ -864,10 +864,10 @@ def add_extra_restraints_to_other_molecule(imol, chain_id,
 
 def add_extra_start_pos_restraints(imol, residue_spec, esd):
 
-    ri = residue_info(imol,
-                      res_spec_utils.residue_spec_to_chain_id(residue_spec),
-                      res_spec_utils.residue_spec_to_res_no(residue_spec),
-                      coot_utils.residue_spec_to_ins_code(residue_spec))
+    ri = coot.residue_info_py(imol,
+                              res_spec_utils.residue_spec_to_chain_id(residue_spec),
+                              res_spec_utils.residue_spec_to_res_no(residue_spec),
+                              coot_utils.residue_spec_to_ins_code(residue_spec))
     for atom_info in ri:
         atom_name = coot_utils.residue_atom2atom_name(atom_info)
         alt_conf  = coot_utils.residue_atom2alt_conf(atom_info)

@@ -1,6 +1,6 @@
 
-
 #include <iostream>
+#include <chrono>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
@@ -221,12 +221,12 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
    // really we want a version of make_octasphere that only returns
    // vectors (glm::vec3) and triangles - radius 1.
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    glm::vec3 position(0,0,0);
    glm::vec4 colour(0, 0, 0, 1);
    float radius = 1.0;
 
-   // num_subdivisions = 3;
-   //
    bool remove_redundant_vertices_flag = false; // seems not to fully work.
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
@@ -254,7 +254,10 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
    }
    triangles = v2;
 
-   std::cout << "debug:: in setup_octasphere() calling setup_buffers" << std::endl;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "debug:: in Instanced_Markup_Mesh::setup_octasphere() " << name << " calling setup_buffers()"
+             << " time " << d10 << " milliseconds" << std::endl;
    setup_buffers();
 
 }

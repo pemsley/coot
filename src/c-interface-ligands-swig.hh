@@ -158,6 +158,9 @@ void coot_all_atom_contact_dots(int imol);
 //! \brief set if all atom contact should ignore water-water interactions (default off)
 void set_all_atom_contact_dots_ignore_water(short int state);
 
+//! \brief set if all atom contact should make the vdw surface (default off/false)
+void set_all_atom_contact_dots_do_vdw_surface(short int state);
+
 #ifdef USE_PYTHON
 void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
 // change HE2 to HD1 and vice versa
@@ -178,7 +181,11 @@ void coot_contact_dots_for_ligand_scm(int imol, SCM residue_spec_scm);
 void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 #endif
 
+//! \brief set the contact dot density
 void set_contact_dots_density(float density);
+
+//! \brief set the number of subdivisions of contact dot density sphere (1=low (default), 3=high)
+void set_contact_dot_sphere_n_subdivisions(unsigned int n_subdivisions);
 
 // we want to read in the built-in database to convert these scores to percentiles
 // return -1 (test for negative) on failure
