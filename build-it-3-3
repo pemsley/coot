@@ -1236,12 +1236,12 @@ fi
 if [ -n "$CC" ] ; then
 
         # CC was set
-        echo \$HOST is is $HOST
+        echo \$HOST is $HOST
         echo \$OS is is $OS
         gcctest=`$CC --version | awk 'NR==1 {print $2}'`
         echo debugging \$CC was $CC
         echo debugging gcctest is $gcctest and "(GCC)" is "(GCC)"
-        if [ "$gcctest" != "(GCC)" ] ; then
+        if [ "$gcctest" != '(GCC)' ] ; then
            # but not gcc
            v=$CC-`$CC -v`
               if [ $? -ne 0 ] ; then
@@ -3837,6 +3837,12 @@ else
     echo guile-lib needs to be installed
 fi
 
+echo some test here " "
+if guile-config --version ; then
+  echo guile-config found
+else
+  echo no guile-config
+fi
 guile_version=$(guile-config --version |& cut -f5 -d" ") # 2.2.7
 guile_major_minor=2.2
 guile_lib_version=0.2.7
