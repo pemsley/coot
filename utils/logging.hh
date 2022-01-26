@@ -31,7 +31,12 @@ class logging {
    friend std::ostream& operator<<(std::ostream &o, const log_item &li);
 };
 
-class logging2 : public std::ostream {
+
+// removing this inheritance means that Coot does not crash on exit
+// on the mac
+// class logging2 : public std::ostream {
+//
+class logging2 {
 public:
    std::vector<std::string> history;
    logging2() {}

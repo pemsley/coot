@@ -479,11 +479,10 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 # Suggested value: comment out this line
 specs=${specs:=$HOME/autobuild/build-scripts/${HOST}-specials}
 
-
 # where has gtk been installed if this is Mac OS?
 if test "$OS" = "Darwin" ; then
    if test -n "$gtk" ; then
-      if test -d $gtk" ; then
+      if test -d "$gtk" ; then
          : # pass, good
       else
          echo gtk variable must point to the directory where gtk has been installed
@@ -501,6 +500,7 @@ if test "$OS" = "Darwin" ; then
       fi
    fi
 fi
+
 
 # Make nightly binary tarballs?
 # You probably don't want to do this, so recommended is do_nightlies=0
@@ -939,7 +939,6 @@ fi
 # now make the build logs directory
 mkdir -p $LOGS
 
-
 shared_static_flag="--disable-shared" # huh?
 shared_static_flag="--disable-static"
 shared_lib_ext=so
@@ -973,6 +972,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
+
 echo INFO:: redirecting std output to $LOGS/build.log
 exec > $LOGS/build.log
 
@@ -1022,6 +1022,7 @@ if test "$OS" = "Linux" ; then
        echo this is not a 64 bit machine
    fi
 fi
+
 
 if test $OS = Linux ; then
 
@@ -1235,8 +1236,12 @@ fi
 if [ -n "$CC" ] ; then
 
         # CC was set
+        echo \$HOST is $HOST
+        echo \$OS is is $OS
         gcctest=`$CC --version | awk 'NR==1 {print $2}'`
-        if [ "$gcctest" != "(GCC)" ] ; then
+        echo debugging \$CC was $CC
+        echo debugging gcctest is $gcctest and "(GCC)" is "(GCC)"
+        if [ "$gcctest" != '(GCC)' ] ; then
            # but not gcc
            v=$CC-`$CC -v`
               if [ $? -ne 0 ] ; then
@@ -1730,6 +1735,7 @@ case "$architecture" in
      STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
      ;;
 esac
+
 if [ -z "$PKG_CONFIG_PATH" ] ; then
   # I think that the standard dir is not needed.
   # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
@@ -1742,7 +1748,7 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig
   else
      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
-  endif
+  fi
 else
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
    if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
@@ -1750,7 +1756,7 @@ else
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       else
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
-      endif
+      fi
    else
       if test -n "$gtk" ; then
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
@@ -3831,6 +3837,12 @@ else
     echo guile-lib needs to be installed
 fi
 
+echo some test here " "
+if guile-config --version ; then
+  echo guile-config found
+else
+  echo no guile-config
+fi
 guile_version=$(guile-config --version |& cut -f5 -d" ") # 2.2.7
 guile_major_minor=2.2
 guile_lib_version=0.2.7
