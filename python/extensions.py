@@ -121,7 +121,7 @@ if (have_coot_python):
        menu = coot_menubar_menu(menubar_menu_label)
        for menu_child in menu.get_children():
          if not isinstance(menu_child, gtk.SeparatorMenuItem):
-           label = menu_child.get_label()
+           label = menu_child.get_property('label') # changed
            if label == menuitem_label:
              # found it, return it
              return menu_child
@@ -132,6 +132,8 @@ if (have_coot_python):
      # return True on success or the newly created menuitem
      #
      def coot_menu_add_submenu(menubar_menu_label, menuitem_label, submenu):
+       # Now AttributeError: 'gtk.MenuItem' object has no attribute 'get_label'
+       # now we use get_property('label')
        menuitem = get_coot_menu_from_item(menubar_menu_label, menuitem_label)
        if menuitem:
          menuitem.set_submenu(submenu)
@@ -148,38 +150,29 @@ if (have_coot_python):
 
      # make submenus:
      submenu_all_molecule = gtk.Menu()
-     menuitem_2 = coot_menu_add_submenu("Calculate", "All Molecule...",
-                                        submenu_all_molecule)
-     # if isinstance(menuitem_2, gtk.MenuItem):
-     #   show_extensions = True
+     menuitem_2 = coot_menu_add_submenu("Calculate", "All Molecule...", submenu_all_molecule)
+     print("debug menuitem_2", menuitem_2)
 
      submenu_maps = gtk.Menu()
-     menuitem_3 = coot_menu_add_submenu("Calculate", "Map Tools...",
-                                        submenu_maps)
+     menuitem_3 = coot_menu_add_submenu("Calculate", "Map Tools...", submenu_maps)
 
      submenu_models = gtk.Menu()
-     menuitem_4 = coot_menu_add_submenu("Calculate", "Modelling...",
-                                        submenu_models)
+     menuitem_4 = coot_menu_add_submenu("Calculate", "Modelling...", submenu_models)
 
      submenu_pisa = gtk.Menu()
-     menuitem_pisa = coot_menu_add_submenu("Calculate", "PISA...",
-                                           submenu_pisa)
+     menuitem_pisa = coot_menu_add_submenu("Calculate", "PISA...", submenu_pisa)
 
      submenu_modules = gtk.Menu()
-     menuitem_modules = coot_menu_add_submenu("Calculate", "Modules...",
-                                              submenu_modules)
+     menuitem_modules = coot_menu_add_submenu("Calculate", "Modules...", submenu_modules)
 
      submenu_ncs = gtk.Menu()
-     menuitem_ncs = coot_menu_add_submenu("Calculate", "NCS Tools...",
-                                          submenu_ncs)
+     menuitem_ncs = coot_menu_add_submenu("Calculate", "NCS Tools...", submenu_ncs)
 
      submenu_representation = gtk.Menu()
-     menuitem_6 = coot_menu_add_submenu("Draw", "Representation Tools...",
-                                        submenu_representation)
+     menuitem_6 = coot_menu_add_submenu("Draw", "Representation Tools...", submenu_representation)
 
      submenu_settings = gtk.Menu()
-     menuitem_7 = coot_menu_add_submenu("Edit", "Settings...",
-                                        submenu_settings)
+     menuitem_7 = coot_menu_add_submenu("Edit", "Settings...", submenu_settings)
 
      #menuitem_pdbe.set_submenu(submenu_pdbe)
      #menu.append(menuitem_pdbe)
