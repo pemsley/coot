@@ -5511,18 +5511,6 @@ def add_module_cryo_em_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("Cryo-EM")
 
-      add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle",
-                                    lambda func: go_to_map_molecule_centre())
-
-      add_simple_coot_menu_menuitem(menu, "Go To Box Middle",
-                                    lambda func: go_to_box_middle())
-
-      add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                    lambda func: sharpen_blur_map_gui())
-
-      add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
-                                    lambda func: refmac_multi_sharpen_gui())
-
       def interactive_nudge_func():
          with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                         aa_ins_code, aa_atom_name,
@@ -5549,20 +5537,17 @@ def add_module_cryo_em_gui():
       def ass_seq_assoc_seq():
          assign_sequence_to_active_fragment()
 
-      add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                    lambda func: sharpen_blur_map_gui())
-
-      add_simple_coot_menu_menuitem(menu, "Multi-sharpen using Refmac...",
-                                    lambda func: refmac_multi_sharpen_gui())
-
-      add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
-                                    lambda func: interactive_nudge_func())
-
       add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle",
                                     lambda func: go_to_map_molecule_centre(imol_refinement_map()))
 
       add_simple_coot_menu_menuitem(menu, "Go To Box Middle",
                                     lambda func: go_to_box_middle())
+
+      add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
+                                    lambda func: sharpen_blur_map_gui())
+
+      add_simple_coot_menu_menuitem(menu, "Multi-sharpen using Refmac...",
+                                    lambda func: refmac_multi_sharpen_gui())
 
       add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
                                     lambda func: flip_hand_local_func())
