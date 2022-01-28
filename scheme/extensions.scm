@@ -157,25 +157,25 @@
 	;; (gtk-menu-append menu menuitem-modules)
 	;; (gtk-widget-show menuitem-modules)
 
-	(let ((get-coot-menu-from-item
-	       (lambda (top-label sub-menu-label)
-		 (let ((top-menu (coot-menubar-menu top-label)))
-		   (if top-menu
-		       (let ((menu-bar-label-list
-			      (map
-			       (lambda (menu-child)
-				 (let* ((ac-lab-ls (gtk-container-children menu-child))
-					;; ac-lab-ls is a GtkAccelLabel in a list
-					;; (nov (format #t "##### ac-lab-ls: ~s~%" ac-lab-ls))
-					(ac-lab (if (null? ac-lab-ls) ;; e.g. a separator
-						    #f
-						    (car ac-lab-ls)))
-					;; ac-lab is a simple GtkAccelLabel
-					(label-text (if (not ac-lab)
-							"" ;; a non-matching/fake string
-							(gtk-label-get ac-lab))))
-				   (list menu-child label-text (gtk-menu-item-submenu menu-child))))
-			       (gtk-container-children top-menu))))
+        (let ((get-coot-menu-from-item
+               (lambda (top-label sub-menu-label)
+                 (let ((top-menu (coot-menubar-menu top-label)))
+                   (if top-menu
+                       (let ((menu-bar-label-list
+                              (map
+                               (lambda (menu-child)
+                                 (let* ((ac-lab-ls (gtk-container-children menu-child))
+                                        ;; ac-lab-ls is a GtkAccelLabel in a list
+                                        ;; (nov (format #t "##### ac-lab-ls: ~s~%" ac-lab-ls))
+                                        (ac-lab (if (null? ac-lab-ls) ;; e.g. a separator
+                                                    #f
+                                                    (car ac-lab-ls)))
+                                        ;; ac-lab is a simple GtkAccelLabel
+                                        (label-text (if (not ac-lab)
+                                                        "" ;; a non-matching/fake string
+                                                        (gtk-label-get ac-lab))))
+                                   (list menu-child label-text (gtk-menu-item-submenu menu-child))))
+                               (gtk-container-children top-menu))))
 
 			 (let f ((ls menu-bar-label-list))
 			   (cond
