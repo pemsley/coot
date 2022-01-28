@@ -3974,6 +3974,7 @@ INFO::
 
    o make check
    o Run the damn tests - don't be lazy
+   o try the build on the virtual machines - ubuntu at work, debian at home.
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
@@ -9897,3 +9898,9 @@ Tue 18 Jan 17:29:37 GMT 2022
    the function to generate a dictionary from a residue (the Roberto function) is
    dictionary_residue_restraints_t(mmdb::Residue *residue_p);
    search protein-geometry.hh for "fake up some bond"
+
+---
+Fri 28 Jan 12:58:25 GMT 2022
+
+   anom map only # get anom maps from refmac
+
