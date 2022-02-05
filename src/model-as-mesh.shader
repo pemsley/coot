@@ -2,6 +2,8 @@
 
 #version 330 core
 
+// this is for an instanced Mesh.
+
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec4 colour; // instanced. For instanced objects, the colour is set

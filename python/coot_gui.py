@@ -5795,7 +5795,7 @@ def pukka_puckers_qm(imol):
     import types
 
     residue_list = []
-    crit_d = 3.0  # Richardson's grup value to partition C2'-endo from C3'-endo
+    crit_d = 3.0  # Richardson's group value to partition C2'-endo from C3'-endo
 
     def add_questionable(r):
         residue_list.append(r)

@@ -25,6 +25,8 @@
 
 // We need this high so that dcgettext() so we don't get expected unqualified-id before 'const'
 // errors when we read libintl from rdkit-interface.hh
+#define ENABLE_NLS // 20220126-PE Charles says this is needed to fix dcgettext() problems
+                   // when including libintl.h - hmm!
 #include "graphics-info.h"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <libintl.h>
@@ -33,10 +35,6 @@
 #include "compat/coot-sysdep.h"
 
 #include <cstring>
-
-#define ENABLE_NLS // fix dcgettext() header problems on including
-		   // libintl.h (via RDKitBase.h etc (including boost
-		   // stuff).
 
 #include <iostream> // for istream?
 #include <istream> // for istream?

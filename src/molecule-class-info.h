@@ -3425,9 +3425,7 @@ public:        //                      public
 
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
    std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
-#endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
    // return the index in the molrepinsts vector (can be negative for failure)

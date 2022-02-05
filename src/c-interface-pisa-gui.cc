@@ -40,7 +40,6 @@
 void
 coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = create_pisa_interfaces_dialog();
       gtk_widget_show(w);
@@ -95,10 +94,8 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 		       gui_info_copy);
    }
    
-#endif   
 }
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 coot::add_pisa_interfaces_cell_renderer(GtkTreeView *tree_view,
 					const std::string &column_title,
@@ -114,11 +111,9 @@ coot::add_pisa_interfaces_cell_renderer(GtkTreeView *tree_view,
    gtk_tree_view_column_set_sort_column_id(column, pos);   
    g_object_set_data (G_OBJECT (cell_renderer), "column", GINT_TO_POINTER (pos));
 }
-#endif
 
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 coot::on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,
 					 gpointer          user_data) {
@@ -167,4 +162,3 @@ coot::on_pisa_interfaces_seletion_changed(GtkTreeSelection *treeselection,
 
    }
 }
-#endif

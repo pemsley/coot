@@ -3222,7 +3222,6 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
 void
 update_model_fit_refine_dialog_menu(GtkWidget *dialog) {
 
-#if (GTK_MAJOR_VERSION > 1)
    GtkWidget *menu_item;
    // update the menu for the rot/trans menu
    if (graphics_info_t::rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) {
@@ -3237,7 +3236,6 @@ update_model_fit_refine_dialog_menu(GtkWidget *dialog) {
        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
      }
    }
-#endif
 }
 
 // function to update button labels (currently rot/trans only)

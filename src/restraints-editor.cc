@@ -36,8 +36,6 @@
 #include <string.h>  // strcpy
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
 #include "interface.h"
 #include "support.h"
 
@@ -228,8 +226,8 @@ coot::restraints_editor::get_column_type(int tree_type, int column_number, int m
 	 break;
       default:
 	 r = G_TYPE_STRING;
-      } 
-   } 
+      }
+   }
    if (tree_type == coot::restraints_editor::TREE_TYPE_CHIRALS) {
       switch(column_number) {
       case(5):
@@ -1470,4 +1468,3 @@ coot::restraints_editor::get_tree_view_by_notebook_page(gint current_page_index)
    return tree_view;
 }
 
-#endif // (GTK_MAJOR_VERSION > 1)

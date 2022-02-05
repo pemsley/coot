@@ -147,11 +147,7 @@ graphics_info_t::model_fit_refine_button_name_list() {
    std::vector<std::string> names;
    names.push_back("model_refine_dialog_refine_params_button");
    names.push_back("model_refine_dialog_map_select_button");
-#if (GTK_MAJOR_VERSION >1)
    names.push_back("model_refine_dialog_fixed_atoms_button");
-#else
-   names.push_back("model_refine_dialog_fix_atoms_button");
-#endif
 //   names.push_back("model_refine_dialog_find_waters_button");
    names.push_back("model_refine_dialog_add_alt_conf_button");
    names.push_back("model_refine_dialog_pointer_atom_button");
