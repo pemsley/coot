@@ -3526,6 +3526,10 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
    bool make_image_for_screen = ! to_screendump_framebuffer_flag;
 
+#ifdef __APPLE__
+   use_framebuffers = false;
+#endif
+
    if (use_framebuffers) { // static class variable
 
       glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
@@ -3587,9 +3591,12 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       }
    } else {
-      //  simple/direct - for debugging framebuffers
+
+      // simple/direct - for debugging framebuffers
       gtk_gl_area_attach_buffers(gl_area);
       render_3d_scene(gl_area);
+      draw_hud_elements();
+
    }
 
    // 20211112-PE
@@ -3723,8 +3730,11 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
    if (use_framebuffers) {
       unsigned int sf = framebuffer_scale;
       unsigned int index_offset = 0;
-      // std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
-      // << width << " x " << height << std::endl;
+
+      // width  = width;
+      // height = height;
+      std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
+                << width << " x " << height << std::endl;
       screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
       GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
@@ -3736,6 +3746,8 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
 
       combine_textures_using_depth_framebuffer.init(sf * width, sf * height, index_offset, "combine");
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
+
+      std::cout << "reset_frame_buffers w " << sf * width << " h " << sf * height << std::endl;
 
       // index_offset = 0;
       // g.blur_framebuffer.init(width, height, index_offset, "blur");
