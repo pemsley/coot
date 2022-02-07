@@ -9904,3 +9904,20 @@ Fri 28 Jan 12:58:25 GMT 2022
 
    anom map only # get anom maps from refmac
 
+----
+Sat 29 Jan 00:00:13 GMT 2022
+
+    Cory Bloyd says look at this: https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/
+    Do a literature search for Bloyd to find articles about improved contouring.
+
+
+---
+Mon  7 Feb 17:14:06 GMT 2022
+
+   To make widget warnings such as:
+
+   (coot-bin:66652): Gtk-CRITICAL **: 17:13:54.340: gtk_widget_unref: assertion 'GTK_IS_WIDGET (widget)' failed
+
+   into crashes, use --g-fatal-warnings on the command line
+
+   but it might not help much (because it seems that the gtk_widget_unref() happens after the callback finishes.
