@@ -130,7 +130,9 @@ libcoot_map_utils_la_LIBADD = \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
-libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_map_utils_la_LDFLAGS = \
+   $(top_builddir)/analysis/libcoot-analysis.la \
+   $(SHARED_LDFLAGS) -lpthread
 
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc segmap.cc
