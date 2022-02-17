@@ -1173,6 +1173,7 @@ case $dist_name in
       dep_list='
        patch
        unzip
+       rsync
        m4
        g++
        libxext-dev
@@ -1218,7 +1219,7 @@ case $dist_name in
       # cmake libncurses5-dev libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev
       # libgnomecanvas2-dev libxt-dev libjpeg-dev
       # 20211019-PE also texinfo (for makeinfo for guile-lib)
-      dep_list='libncurses5-dev g++ libxext-dev libxt-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip texinfo cmake libjpeg-dev'
+      dep_list='rsync m4 unzip patch libncurses5-dev g++ libxext-dev libxt-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip texinfo cmake libjpeg-dev'
       for dep in $dep_list 
       do 
          echo $dep
@@ -3752,7 +3753,7 @@ if test -n "$build_libtool" ; then
     ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
 else
     echo not building libtool:
-fi 
+fi
 
 
 # $ guile

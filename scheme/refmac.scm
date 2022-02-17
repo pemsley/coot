@@ -110,6 +110,7 @@
 
   (format #t "run-refmac-by-filename: swap-map-colours-post-refmac? ~s~%~!" swap-map-colours-post-refmac?)
   (format #t "run-refmac-by-filename: imol-mtz-molecule ~s~%~!" imol-mtz-molecule)
+  (format #t "run-refmac-by-filename: extra-cif-lib-filename ~s~%~!" extra-cif-lib-filename)
   (format #t "run-refmac-by-filename: show-diff-map-flag ~s~%~!" show-diff-map-flag)
   (format #t "run-refmac-by-filename: force-n-cycles ~s~%~!" force-n-cycles)
   (format #t "run-refmac-by-filename: phase-combine-flag ~s~%~!" phase-combine-flag)
@@ -474,7 +475,8 @@
 			   (pdb-in  (string-append stub ".pdb"))
 			   (pdb-out (string-append stub "-tmp.pdb"))
 			   (mtz-out (string-append stub ".mtz"))
-			   (cif-lib-filename "")
+                           (dr (dictionaries-read))
+			   (cif-lib-filename (if (null? dr) "" (car dr))) ;; first one is better than nothing?
 			   ; preserve the ncs and tls state
 			   (ncs-state (refmac-use-ncs-state))
 			   (tls-state (refmac-use-tls-state)))
@@ -504,7 +506,10 @@
 	 "  Choose a molecule from which to calculate Structure factors:  "
 	 ; a lambda function that accepts the choose imol as its arg:
 	 (lambda (imol)
-	   (run-refmac-for-phases imol mtz-file-name f-col sig-f-col))))))
+           (let ((mtz-out (run-refmac-for-phases imol mtz-file-name f-col sig-f-col)))
+             (if (string? mtz-out)
+                 (if (file-exists? mtz-out)
+                     (auto-read-make-and-draw-maps-from-mtz mtz-out)))))))))
 
 
 (define get-refmac-version

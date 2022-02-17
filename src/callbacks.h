@@ -4877,3 +4877,8 @@ on_accept_reject_reverse_button_clicked
 void
 on_calculate_updating_maps1_activate   (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_generic_objects_dialog_response     (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);

@@ -39,6 +39,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "geometry/main-chain.hh"
+#include "analysis/exp-fit.hh"
 
 
 bool
@@ -4269,11 +4270,31 @@ coot::util::flip_hand(clipper::Xmap<float> *xmap_p) {
 // return the map of the density gradients
 //
 clipper::Xmap<float>
-coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps) {
+coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps,
+                                    const clipper::Xmap<float> &xmap_mask) {
 
    auto all_maps_have_the_same_grid = [xmaps] () {
-                                         return true;
+                                         return true; // teehee
                                       };
+
+   auto debug_the_mask_map = [] (const clipper::Xmap<float> &xmap_mask) {
+                                     clipper::Xmap_base::Map_reference_index ix;
+                                     for (ix = xmap_mask.first(); !ix.last(); ix.next()) {
+                                        clipper::Coord_grid cg = ix.coord();
+                                        float dv = xmap_mask[ix];
+                                        std::cout << "   " << cg.format() << " " << dv << std::endl;
+                                     }
+                                  };
+
+   // returns a modified version of the input xmap
+   auto apply_mask_to_map = [&xmap_mask] (const clipper::Xmap<float> &xmap) {
+      clipper::Xmap<float> r = xmap;
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = xmap.first(); !ix.last(); ix.next() )  { // iterator index.
+          r[ix] *= xmap_mask[ix];
+      }
+      return r;
+   };
 
    class exponential_fit {
       double linear_m;
@@ -4330,7 +4351,6 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
 
    std::cout << "DEBUG:: starting zero dose extrapolation" << std::endl;
    clipper::Xmap<float> xmap_result(*xmaps[0].first);
-   std::vector<clipper::HKL_data< clipper::datatypes::F_phi<float> > > fphis_vec;
 
    const clipper::Xmap<float> &xmap_0 = *xmaps[0].first;
    clipper::Cell cell = xmap_0.cell();
@@ -4357,12 +4377,13 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
    }
    std::cout << "debug:: resized " << count << " accumulation-reflections" << std::endl;
 
-   auto accum_f_phi_data = [xmaps, &xmap_0, cell, reso] (const std::pair<unsigned int, unsigned int> main_index_range_pair,
+   auto accum_f_phi_data = [xmaps, &xmap_0, cell, reso, apply_mask_to_map] (const std::pair<unsigned int, unsigned int> main_index_range_pair,
                                                 std::map<coot_hkl, std::vector<std::pair<float, float> > > *f_data_hkl_accum_p // results go here
                                                 ) {
 
                               for (unsigned int imap=main_index_range_pair.first; imap<main_index_range_pair.second; imap++) {
-                                 const clipper::Xmap<float> &xmap = *xmaps[imap].first;
+                                 const clipper::Xmap<float> &xmap_in = *xmaps[imap].first;
+                                 clipper::Xmap<float> xmap = apply_mask_to_map(xmap_in);
                                  clipper::HKL_info myhkl(xmap_0.spacegroup(), xmap_0.cell(), reso, true);
                                  clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
                                  xmap.fft_to(fphis);
@@ -4408,6 +4429,8 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
 
 
    std::cout << "Generating extrapolated structure factors" << std::endl;
+   float f_max = 0.0;
+   float av_devi_min = 999999999999.9;
    count = 0; // reset
    for (hri=fphis_for_result_map.first(); !hri.last(); hri.next()) {
       coot_hkl refl(hri.hkl(), cell);
@@ -4422,12 +4445,39 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
             f_data[ii]   = std::make_pair(ii+1, f_phi_data[ii].first);
             phi_data[ii] = std::make_pair(ii+1, f_phi_data[ii].second);
          }
-         exponential_fit exp_fit(f_data);
+         // exponential_fit exp_fit(f_data);
+         coot::exponential_fit_with_offset exp_fit(f_data);
          float f = exp_fit.at(0.0);
-         least_squares_fit lsq_f_fit(f_data);
-         f = lsq_f_fit.at(0);
+         if (f > f_max) {
+            coot_hkl chkl(hri.hkl(), cell);
+            float f_frame_1 = f_data_hkl_accum[chkl][0].first;
+            std::cout << "f_max updated " << f << " f-Frame-1 " << f_frame_1 << " for " << hri.hkl().format() << " reso " << refl.invresolsq << " a b c "
+                      << exp_fit.a << " " <<  exp_fit.b << " " << exp_fit.c << " f_data_hkl_accum for-hkl size " << f_data_hkl_accum[chkl].size() << "\n";
+            f_max = f;
+            for (unsigned int ii=0; ii<f_data_hkl_accum[chkl].size(); ii++) {
+               std::cout << "   debug:: " << ii << " " << f_data_hkl_accum[chkl][ii].first << std::endl;
+            }
+         }
+
+         double av_devi = exp_fit.average_deviation(f_data);
+         // std::cout << "av_devi " << av_devi << std::endl;
+         if (av_devi < av_devi_min) {
+            coot_hkl chkl(hri.hkl(), cell);
+            float f_frame_1 = f_data_hkl_accum[chkl][0].first;
+            std::cout << "av_devi_min updated " << av_devi << " f-Frame-1 " << f_frame_1 << " for " << hri.hkl().format() << " reso " << refl.invresolsq << " a b c "
+                      << exp_fit.a << " " <<  exp_fit.b << " " << exp_fit.c << " f_data_hkl_accum for-hkl size " << f_data_hkl_accum[chkl].size() << "\n";
+            f_max = f;
+            for (unsigned int ii=0; ii<f_data.size(); ii++) {
+               double x = f_data[ii].first;
+               double y = f_data[ii].second;
+               std::cout << "   debug:: " << ii << " " << x << " " << y << " " << exp_fit.at(x) << std::endl;
+            }
+            av_devi_min = av_devi;
+         }
+         // least_squares_fit lsq_f_fit(f_data);
+         // f = lsq_f_fit.at(0);
          if (refl.invresolsq > 0.96) f = 0.0;
-         f = f_data[0].second;
+         // f = f_data[0].second;
          least_squares_fit lsq_phi_fit(phi_data);
          float phi_base = lsq_phi_fit.at(0.0);
          std::vector<std::pair<double, double> > zoned_data = phi_data;
@@ -4440,7 +4490,7 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
          // phi = phi_data[0].second;
          fphis_for_result_map[hri].f()   = f;
          fphis_for_result_map[hri].phi() = phi;
-         if (count%1000==0) {
+         if (count%10000==0) {
             std::cout << "phase-compare reso " << refl.invresolsq << " first-phi " << phi_data[0].second << " extrap: " << phi << "\n";
          }
       }
@@ -4460,7 +4510,8 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
 // return the map of the density gradients
 //
 clipper::Xmap<float>
-coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps) {
+coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps,
+                                             const clipper::Xmap<float> &xmap_for_mask) {
 
    // the caller guarantees that the map files are in the correct order in the vector
 

@@ -4,26 +4,33 @@
 #include "utils/coot-utils.hh"
 #include "read-sm-cif.hh"
 #include "coot-coord-utils.hh"
+#include "atom-selection-container.hh"
 
-mmdb::math::Graph make_mmdb_graph_for_search_fragment() {
+mmdb::Residue *get_search_fragment_residue(const std::string &file_name) {
 
-   mmdb::math::Graph graph;
+   mmdb::Residue *residue_p = 0;
+   atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
+   if (asc.read_success) {
+      residue_p = coot::util::get_first_residue(asc.mol);
+   }
+   return residue_p;
+}
 
-   mmdb::math::Vertex **V;
-   mmdb::math::Edge   **E;
 
-   mmdb::Atom *at_1 = new::mmdb::Atom;
-   mmdb::Atom *at_2 = new::mmdb::Atom;
-   mmdb::Atom *at_3 = new::mmdb::Atom;
-   mmdb::Atom *at_4 = new::mmdb::Atom;
-   mmdb::Atom *at_5 = new::mmdb::Atom;
+std::pair<bool, mmdb::math::Graph> make_mmdb_graph_for_search_fragment() {
 
-   return graph;
+   // 20220126-PE get the search fragment from a PDB file for now.
+   // Use the first residue
+
+   bool status = false;
+   mmdb::math::Graph    graph;
+   return std::pair<bool, mmdb::math::Graph>(status, graph);
 }
 
 void find_the_ribose(const std::string &cif_file_name,
                      const coot::dictionary_residue_restraints_t &restraints,
-                     const RDKit::RWMol &rdkm, const std::vector<cod::atom_type_t> &atom_types) {
+                     const RDKit::RWMol &rdkm,
+                     const std::vector<cod::atom_type_t> &atom_types) {
 
    unsigned int n_Hydrogen_atoms = 0;
    for (unsigned int i=0; i<rdkm.getNumAtoms(); i++) {
@@ -51,14 +58,25 @@ void find_the_ribose(const std::string &cif_file_name,
 
    // Ring carbon is 474, oxygen is 358
    std::vector<int> hashes_for_fragment = { 474, 474, 474, 474, 358};
-   std::vector<std::pair<unsigned int, unsigned int> > fragment_atom_index_for_bond;
-   fragment_atom_index_for_bond.push_back(std::make_pair(0, 1));
-   fragment_atom_index_for_bond.push_back(std::make_pair(1, 2));
-   fragment_atom_index_for_bond.push_back(std::make_pair(2, 3));
-   fragment_atom_index_for_bond.push_back(std::make_pair(3, 4));
-   fragment_atom_index_for_bond.push_back(std::make_pair(4, 0));
-   
-   mmdb::math::Graph graph = make_mmdb_graph_for_search_fragment();
+
+   std::string search_fragment_pdb_file_name = "search-fragment.pdb";
+   mmdb::Residue *residue_for_search_fragment = get_search_fragment_residue(search_fragment_pdb_file_name);
+
+   if (residue_for_search_fragment) {
+
+      // and now get the residue to be search from the cif_file_name
+      coot::smcif smcif;
+      mmdb::Manager *mol = smcif.read_sm_cif(cif_file_name);
+      mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+
+      if (residue_p) {
+         coot::graph_match_info_t gmi = coot::graph_match(residue_p, residue_for_search_fragment, false, false);
+      } else {
+         std::cout << "No residue from this cif file " << cif_file_name << std::endl;
+      }
+   } else {
+      std::cout << "No search residue from search fragment pdb file " << search_fragment_pdb_file_name << std::endl;
+   }
 }
 
 int main(int argc, char **argv) {
