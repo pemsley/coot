@@ -79,6 +79,7 @@ glarea_tick_func(GtkWidget *widget,
 
    if (graphics_info_t::do_tick_spin) {
          float delta = 0.002;
+         delta *= 10.0;
          glm::vec3 EulerAngles(0, delta, 0);
          glm::quat quat_delta(EulerAngles);
          glm::quat normalized_quat_delta(glm::normalize(quat_delta));
@@ -816,10 +817,21 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       }
    }
 
-   if (event->state & GDK_BUTTON3_MASK) {
+   int mouse_action_button_mask = GDK_BUTTON3_MASK;
+   int mouse_other_button = GDK_BUTTON1_MASK;
+
+   // test for being a mac laptop? - or a user setting
+#ifdef __APPLE__  // this needs improvement
+   if (true) {
+      mouse_action_button_mask = GDK_BUTTON1_MASK;
+      mouse_other_button = GDK_BUTTON3_MASK;
+   }
+#endif
+
+   if (event->state & mouse_action_button_mask) {
       double delta_x = event->x - g.GetMouseBeginX();
       double delta_y = event->y - g.GetMouseBeginY();
-      if (event->state & GDK_BUTTON1_MASK) {
+      if (event->state & mouse_other_button) {
          // chording
          g.mouse_zoom(delta_x, delta_y);
       } else {
