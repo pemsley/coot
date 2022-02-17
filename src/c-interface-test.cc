@@ -1157,6 +1157,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    }
 
    if (true) {
+#ifdef USE_MOLECULES_TO_TRIANGLES
       Mesh mesh;
       // mesh.load_from_glTF("blue-eyelashes-1.glb");
       // mesh.load_from_glTF("augmented-box.glb");
@@ -1217,6 +1218,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       // top right
       gtk_widget_set_halign(label, GTK_ALIGN_END);
       gtk_widget_set_valign(label, GTK_ALIGN_START);
+#endif
    }
 
 

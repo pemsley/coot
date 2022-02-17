@@ -66,6 +66,7 @@ void remove_molecular_representation(int imol, int rep_no) {
 }
 
 extern "C" void add_molecular_representation_test() {
+#ifdef USE_MOLECULES_TO_TRIANGLES
    int status = -1;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
    if (active_atom.first) {
@@ -79,6 +80,7 @@ extern "C" void add_molecular_representation_test() {
          graphics_info_t::graphics_draw();
       }
    }
+#endif
 }
 
 #else
