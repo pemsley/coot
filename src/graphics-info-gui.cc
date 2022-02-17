@@ -3619,7 +3619,7 @@ graphics_info_t::check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpo
 // imol can be -1 (for no molecules available)
 //
 void
-graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
+graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol_active) {
 
    graphics_info_t g;
 
@@ -3672,10 +3672,11 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
    // Now the combobox version of that:
 
    int current_bond_width = 3;
-   if (is_valid_model_molecule(imol))
-      current_bond_width = molecules[imol].bond_thickness();
+   if (is_valid_model_molecule(imol_active))
+      current_bond_width = molecules[imol_active].bond_thickness();
 
-   std::cout << "debug current_bond_width " << current_bond_width << std::endl;
+   std::cout << "debug:: for imol_active " << imol_active
+             << " current_bond_width " << current_bond_width << std::endl;
 
    GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(bond_width_combobox));
    GtkListStore *store_from_model = GTK_LIST_STORE(model_from_combobox);
@@ -3686,7 +3687,7 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
    int idx_active = -1;
    for (int i=1; i<21; i++) {
 
-      std::string ss = int_to_string(imol);
+      std::string ss = int_to_string(imol_active);
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, i, -1);
 
@@ -3706,17 +3707,17 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
    gtk_combo_box_set_model(GTK_COMBO_BOX(bond_width_combobox), model);
 
    if (idx_active >= 0)
-      gtk_combo_box_set_active(GTK_COMBO_BOX(bond_width_combobox), 4);
+      gtk_combo_box_set_active(GTK_COMBO_BOX(bond_width_combobox), idx_active);
 
    GCallback combobox_changed_func = G_CALLBACK(bond_parameters_bond_width_combobox_changed);
    g_signal_connect(bond_width_combobox, "changed", combobox_changed_func, NULL);
 
 
    // Draw Hydrogens?
-   if (imol >= 0 ) {
-      if (imol < n_molecules()) {
-         if (molecules[imol].has_model()) {
-            if (molecules[imol].draw_hydrogens()) {
+   if (imol_active >= 0 ) {
+      if (imol_active < n_molecules()) {
+         if (molecules[imol_active].has_model()) {
+            if (molecules[imol_active].draw_hydrogens()) {
                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_yes_radiobutton), TRUE);
             } else {
                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_no_radiobutton), TRUE);
@@ -3727,11 +3728,11 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
 
 
    // Draw NCS ghosts?
-   if (imol >= 0 ) {
-      if (imol < n_molecules()) {
-         if (molecules[imol].has_model()) {
-            if (molecules[imol].draw_ncs_ghosts_p()) {
-               if (molecules[imol].ncs_ghosts_have_rtops_p()) {
+   if (imol_active >= 0 ) {
+      if (imol_active < n_molecules()) {
+         if (molecules[imol_active].has_model()) {
+            if (molecules[imol_active].draw_ncs_ghosts_p()) {
+               if (molecules[imol_active].ncs_ghosts_have_rtops_p()) {
                   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_yes_radiobutton), TRUE);
                } else {
                   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
@@ -3745,24 +3746,24 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
    // Make the frame be insensitive if there is no NCS.
    GtkWidget *frame = lookup_widget(w, "ncs_frame");
    short int make_insensitive = 1;
-   if (imol >= 0 ) {
-      if (imol < n_molecules()) {
-         if (molecules[imol].has_model()) {
-            if (molecules[imol].has_ncs_p()) {
+   if (imol_active >= 0 ) {
+      if (imol_active < n_molecules()) {
+         if (molecules[imol_active].has_model()) {
+            if (molecules[imol_active].has_ncs_p()) {
                make_insensitive = 0;
             } else {
                std::cout << "INFO:: in fill_bond_parameters_internals no NCS for  "
-                         << imol << "\n";
+                         << imol_active << "\n";
             }
          } else {
             std::cout << "ERROR:: bad imol in fill_bond_parameters_internals no model "
-                      << imol << "\n";
+                      << imol_active << "\n";
          }
       } else {
-         std::cout << "ERROR:: bad imol in fill_bond_parameters_internals i " << imol << "\n";
+         std::cout << "ERROR:: bad imol in fill_bond_parameters_internals i " << imol_active << "\n";
       }
    } else {
-      std::cout << "ERROR:: bad imol in fill_bond_parameters_internals " << imol << "\n";
+      std::cout << "ERROR:: bad imol in fill_bond_parameters_internals " << imol_active << "\n";
    }
    if (make_insensitive)
       gtk_widget_set_sensitive(frame, FALSE);

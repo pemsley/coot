@@ -6097,6 +6097,9 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
 // static
 void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
+   std::cout << "-------------------- bond_parameters_molecule_combobox_changed() "
+             << combobox << std::endl;
+
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
    g.bond_parameters_molecule = imol;
