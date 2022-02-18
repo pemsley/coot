@@ -127,6 +127,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/analysis/libcoot-analysis.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
