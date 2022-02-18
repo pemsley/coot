@@ -39,7 +39,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh exp-fit.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh pepflip-using-difference-map.hh polar-atoms.hh \
 	fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh
 
@@ -120,7 +120,7 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
-	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc
+	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)

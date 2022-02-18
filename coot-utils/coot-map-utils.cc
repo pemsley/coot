@@ -39,7 +39,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "geometry/main-chain.hh"
-#include "analysis/exp-fit.hh"
+#include "exp-fit.hh"
 
 
 bool
