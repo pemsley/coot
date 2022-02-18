@@ -4003,6 +4003,8 @@ string   static std::string sessionid;
 
    static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
 
+   static bool ignore_pseudo_zeros_for_map_stats;
+
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement

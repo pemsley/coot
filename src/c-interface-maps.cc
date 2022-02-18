@@ -209,8 +209,8 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
             clipper::Xmap<float> &xmap_fofc  = g.molecules[imol_map_fofc].xmap;
             coot::util::sfcalc_genmap_stats_t stats =
                g.sfcalc_genmaps_using_bulk_solvent(imol_model, imol_map_2fofc, &xmap_2fofc, &xmap_fofc);
-            g.molecules[imol_map_2fofc].set_mean_and_sigma(false, true);
-            g.molecules[imol_map_fofc ].set_mean_and_sigma(false, true);
+            g.molecules[imol_map_2fofc].set_mean_and_sigma(false, g.ignore_pseudo_zeros_for_map_stats);
+            g.molecules[imol_map_fofc ].set_mean_and_sigma(false, g.ignore_pseudo_zeros_for_map_stats);
             float cls_2fofc = g.molecules[imol_map_2fofc].get_contour_level_by_sigma();
             float cls_fofc  = g.molecules[imol_map_fofc].get_contour_level_by_sigma();
             g.molecules[imol_map_2fofc].set_contour_level_by_sigma(cls_2fofc); // does an update
@@ -1552,6 +1552,13 @@ int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, f
    return rv;
 }
 
+void set_ignore_pseudo_zeros_for_map_stats(short int state) {
+
+   graphics_info_t::ignore_pseudo_zeros_for_map_stats = state;
+
+}
+
+
 void map_histogram(int imol_map) {
 
 #if HAVE_GOOCANVAS
@@ -1726,7 +1733,8 @@ int transform_map_raw(int imol,
       const coot::ghost_molecule_display_t ghost_info;
       // int is_diff_map_flag = graphics_info_t::molecules[imol].is_difference_map_p();
       // int swap_colours_flag = graphics_info_t::swap_difference_map_colours;
-      mean_and_variance<float> mv = map_density_distribution(new_map, 40, 0);
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      mean_and_variance<float> mv = map_density_distribution(new_map, 40, false, ipz);
       std::string name = "Transformed map";
       imol_new = graphics_info_t::create_molecule();
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();

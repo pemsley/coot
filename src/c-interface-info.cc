@@ -2992,7 +2992,8 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
       // set_and_get_histogram_values(); surely?
 
       unsigned int n_bins = 1000;
-      mean_and_variance<float> mv = graphics_info_t::molecules[imol].set_and_get_histogram_values(n_bins);
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      mean_and_variance<float> mv = graphics_info_t::molecules[imol].set_and_get_histogram_values(n_bins, ipz);
 
       unsigned int n = mv.size();
 

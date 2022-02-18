@@ -43,3 +43,4 @@ bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update
 
 bool graphics_info_t::stereo_style_2010 = false;
 
+bool graphics_info_t::ignore_pseudo_zeros_for_map_stats = true;

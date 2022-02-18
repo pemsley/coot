@@ -6703,7 +6703,7 @@ graphics_info_t::sfcalc_genmap(int imol_model,
                            molecules[imol_map_with_data_attached].get_original_rfree_flags();
                         if (fobs_data && free_flag) {
                            molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
-                           molecules[imol_updating_difference_map].set_mean_and_sigma();
+                           molecules[imol_updating_difference_map].set_mean_and_sigma(false, ignore_pseudo_zeros_for_map_stats);
                            molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
                         }
                         on_going_updating_map_lock = false;

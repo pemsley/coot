@@ -3480,7 +3480,7 @@ public:        //                      public
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(const std::vector<mmdb::Residue *> &residues) const;
 
    mean_and_variance<float> map_histogram_values;
-   mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
+   mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins, bool ignore_pseudo_zeroes); // fill above
 
    void resolve_clashing_sidechains_by_deletion(const coot::protein_geometry *geom_p);
    void resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,

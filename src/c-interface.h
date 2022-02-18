@@ -6756,7 +6756,11 @@ void segment_map(int imol_map, float low_level);
 
 void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds);
 
+/*! \brief make a map histogram */
 void map_histogram(int imol_map);
+
+/*! \brief ignore pseudo-zeros when calculationg maps stats (default 1 = true) */
+void set_ignore_pseudo_zeros_for_map_stats(short int state);
 
 /* \} */
 

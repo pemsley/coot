@@ -235,7 +235,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       xmap.fft_from(fphis);
 
       float old_sigma = map_sigma_;
-      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, false); // sharpen()
       map_mean_  = mv.mean;
       map_sigma_ = sqrt(mv.variance);
       map_max_   = mv.max_density;
@@ -1394,7 +1394,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 //   map_mean_ = stats.mean();
 	 //   map_sigma_ = stats.std_dev();
 
-	 mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, false);
+         bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+	 mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, ipz);
 
 	 save_mtz_file_name = mtz_file_name;
 	 save_f_col = f_col;
@@ -1589,7 +1590,8 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       //   map_mean_ = stats.mean();
       //   map_sigma_ = stats.std_dev();
 
-      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, ipz);
 
       save_mtz_file_name = cns_file_name;
       save_f_col = f_col;
@@ -2101,7 +2103,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      mean_and_variance<float> mv = map_density_distribution(xmap, 20, true, true);
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      mean_and_variance<float> mv = map_density_distribution(xmap, 20, true, ipz);
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
@@ -2217,7 +2220,8 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    // sets name_ to name_in:
    initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
-   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true);
+   bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, ipz);
 
    float mean = mv.mean;
    float var = mv.variance;
@@ -2338,6 +2342,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   xmap.fft_from(fphidata);                  // generate map
   std::cout << "done." << std::endl;
 
+  bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 
   std::cout << "Mean and sigma of map from PHS file: " << mv.mean
@@ -2728,7 +2733,8 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    xmap.fft_from( map_fphidata ); // generate map
    std::cout << "done." << std::endl;
 
-   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+   float ipz = false; // ignore pseudo zeros
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, ipz);
 
    std::cout << "Mean and sigma of map " << mol_name << " " << mv.mean
              << " and " << sqrt(mv.variance) << std::endl;
@@ -2920,7 +2926,8 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    else
 	       xmap_is_diff_map = 0;
 
-	    mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+            bool ipz = false;
+	    mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, ipz);
 
             std::cout << "Mean and sigma of map from CIF file (make_map_from_cif): "
                       << mv.mean << " and " << sqrt(mv.variance) << std::endl;
@@ -3077,7 +3084,8 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 xmap.fft_from( fphidata );                  // generate map
 	 std::cout << "done." << std::endl;
 
-	 mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+         bool ipz = false; // ignore pseudo zeros
+	 mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, ipz);
 
 	 std::cout << "Mean and sigma of map from CIF file (make_map_from_cif_nfofc): "
 		   << mv.mean << " and " << sqrt(mv.variance) << std::endl;
@@ -3271,7 +3279,8 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
       xmap.fft_from( fphidata );                  // generate map
       std::cout << "done." << std::endl;
 
-      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+      bool ipz = false;
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, ipz);
 
       std::cout << "Mean and sigma of map from PHS file: " << mv.mean
                 << " and " << sqrt(mv.variance) << std::endl;
