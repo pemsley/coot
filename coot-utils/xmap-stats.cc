@@ -32,8 +32,6 @@ map_density_distribution(const clipper::Xmap<T> &map,
                          bool ignore_pseudo_zeros // default false
                          ) {
 
-   std::cout << "debug:: map_density_distribution() ############# called with ignore_pseudo_zeros " << ignore_pseudo_zeros << std::endl;
-
    mean_and_variance<T> mv;  // returned object
 
    double density_min = 1e10, density_max = -1e10, sum = 0.0, sum_sq = 0;
