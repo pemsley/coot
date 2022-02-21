@@ -1748,6 +1748,8 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig
   else
      PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
+     # glib-2.0.pc is found in $install_top_dir/lib64
+     PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
   fi
 else
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
@@ -1761,7 +1763,9 @@ else
       if test -n "$gtk" ; then
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       else
-         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+         #PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+         # glib-2.0.pc is found in $install_top_dir/lib64
+         PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       fi
    fi
 fi
@@ -1791,14 +1795,16 @@ else
 fi
 
 # building PyGObject 3.36.1 requires glib 2.58.0 or later.
+# 2022-23-17-PE gobject-introspection-1.68 needs glib 2.58 or later
 
-if pkg-config --atleast-version=2.14.5 glib ; then
+needed_glib_version=2.58
+if pkg-config --atleast-version=$needed_glib_version glib ; then
    # have glib
    echo glib is up to date
    build_glib=
 else
    echo glib is not up to date, rebuild glib - maybe.
-   build_glib=1
+   build_glib=true
 fi
 
 
@@ -2524,6 +2530,9 @@ if test -n "$build_python" ; then
    # /Users/pemsley/ccp4/devtools/install
    # this should be configured
    openssl_prefix=$HOME/ccp4/devtools/install
+   openssl_prefix=/usr
+   # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
+   # (or I could include it in this build script) (I don't know if ctypes is important)
    echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix $python_lib_flags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
@@ -2547,15 +2556,13 @@ else
     echo not building python:
 fi
 
-
 ###############################################################################
-##########         gobject-introspection before python            #############
+##########         meson before gobject-introspection             #############
 ###############################################################################
 # this needs to be reconsidered because gobject-intropsection needs python3
 # to build.
 
 test_for_already_installed_dependencies=true
-
 
 build_gobject_introspection=true
 
@@ -2568,7 +2575,8 @@ fi
 #
 ## --------------- meson ---------------------------------
 ##
-pip3 install meson
+# this version of meson is too old to compile gobject-introspection (20220221)
+# pip3 install meson
 
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
@@ -2576,14 +2584,74 @@ pip3 install meson
 if meson --version ; then
    echo we have meson
    v=$(meson --version)
-   if [[ $v < 0.46 ]] ; then
+   if [[ $v < 0.61 ]] ; then
       echo meson is too old, current version is $v
-      exit 2
+      build_meson=true
+   else
+      build_meson=false
    fi
 else
-   echo we need meson
-   exit 2
+   build_meson=true
 fi
+
+if $build_meson = true ; then
+   meson_version=0.61.2
+   echo BUILDING meson $meson_version:
+   (
+   wget https://github.com/mesonbuild/meson/releases/download/0.61.2/meson-0.61.2.tar.gz
+   tar xf ${AUTOBUILD_SOURCES}/meson-$meson_version.tar.gz
+   cd $meson-$meson_version
+   python3 setup.py build
+   python3 setup.py install
+   cd -
+   ) > $HOSTLOGDIR/07e-meson.txt 2>&1
+else
+   echo not building meson
+fi
+
+###############################################################################
+##########         glib before gobject-introspection              #############
+###############################################################################
+
+if [ -e $install_top_dir/include/glib-2.0 ] ; then
+    build_glib=false
+else
+    build_glib=true
+fi
+
+if [ "$build_glib" = true ] ; then
+    echo BUILDING glib:
+    (
+    which ninja
+    which meson
+    echo ninja --version
+    ninja --version
+    echo meson --version
+    meson --version
+    glib_version=2.64.3
+    ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.64.3/glib-$glib_version.tar.gz
+    tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
+    cd glib-$glib_version
+    # note to future self, when I build glib in the script then it uses a referenece to /usr/lib/libz.so
+    # (which is the 32 bit version). When I build it by hand (as it were) outside the script, using the same
+    # ninja and meson then it finds the *right* libz.so (/usr/lib64/libz.so). I don't have the time to
+    # find out why now, so I installed ninja from the "hand-built" build.
+    #
+    if meson -Dprefix=$HOME/autobuild/Linux-charybdis-gtk3 build ; then
+       cd build
+       ninja
+       ninja install
+       cd -
+    fi
+    cd ..
+    ) > $HOSTLOGDIR/07b-glib.txt 2>&1
+else
+    echo not building glib:
+fi
+
+###############################################################################
+##########         gobject-introspection before python            #############
+###############################################################################
 
 if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
@@ -2605,15 +2673,19 @@ if test "$build_gobject_introspection" = true ; then
    # if $MAKE ; then
    #   $MAKE install
    # fi
+   echo PKG_CONFIG_PATH is...
+   echo $PKG_CONFIG_PATH
 
    if meson -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
       ninja install
+      cd -
    else
       echo meson failed
    fi
+   cd ..
    ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
 fi
 
