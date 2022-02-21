@@ -127,12 +127,10 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
-   $(top_builddir)/analysis/libcoot-analysis.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
 libcoot_map_utils_la_LDFLAGS = \
-   $(top_builddir)/analysis/libcoot-analysis.la \
    $(SHARED_LDFLAGS) -lpthread
 
 # for map things that need mmdb, clipper, gsl and other things
@@ -183,7 +181,6 @@ make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc
 make_cablam_like_stats_LDADD = ./libcoot-coord-utils.la \
 	./libcoot-map-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
-	$(top_builddir)/analysis/libcoot-analysis.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS)	$(MMDB_LIBS)
 
@@ -226,7 +223,6 @@ test_coot_utils_LDADD = \
 	./libcoot-coord-extras.la \
 	./libcoot-coord-utils.la  \
 	$(top_builddir)/coords/libcoot-coords.la \
-	$(top_builddir)/analysis/libcoot-analysis.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread

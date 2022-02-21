@@ -3957,7 +3957,7 @@ coot::util::soi_variance::apply_variance_values(clipper::Xmap<float> &variance_m
          float fv = xmap.get_data(cg_soi_gp);
          data[j] = fv;
       }
-      stats::single s(data);
+      stats::single s(data); // Note: header only (we can't link libcoot-analysis from here)
       variance_map[ix] = s.variance();
    }
 }
