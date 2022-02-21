@@ -2029,9 +2029,13 @@ python_version_extension=3.9 # extract this
 
 
 # for compatibility with gtk build system
-python_version=3.9
-pvers=3.9.12
-python_version_extension=3.8
+# use_python_version_3_8 is not yet set anywhere.
+# future self: set use_python_version_3_8 when needed so that this block gets executed
+if [ "$use_python_version_3_8" = true ] ;then
+   python_version=3.9
+   pvers=3.9.12
+   python_version_extension=3.8
+fi
 
 
 #
@@ -2661,8 +2665,10 @@ if test "$build_gobject_introspection" = true ; then
 
    gobject_introspection_version=1.50.0
    gobject_introspection_version=1.68.0
+   gobject_introspection_version=1.71.0
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
 
    ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
    tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
@@ -2826,7 +2832,14 @@ fi
 ##########         build guile and friends                        #############
 ###############################################################################
 
-if test -n "$build_gmp" ; then
+
+if [ -e $install_top_dir/include/gmp.h ] ; then
+    build_gmp=false
+else
+    build_gmp=true
+fi
+
+if "$build_gmp" = true ; then
     echo BUILDING gmp:
     # gmp_version=4.2.4
     # gmp_version=5.1.2
@@ -3386,7 +3399,6 @@ if [ "$build_rdkit" = true ] ; then
    if [ $skip_this = false ] ;  then
 
       echo building rdkit $rdkit_version
-      echo building rdkit $rdkit_version 2>&1
       (
       echo building ========================= rdkit ==============================
 
@@ -3539,6 +3551,9 @@ if [ "$build_rdkit" = true ] ; then
       echo will configure with cmake like this:
 
       # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
+      # probblem: $install_top_dir/include/boost/python/detail/wrap_python.hpp:57:23: fatal error: pyconfig.h: No such file or directory
+      # solution: https://github.com/rdkit/rdkit/issues/3884
+      # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
 
       echo cmake -DBoost_NO_BOOST_CMAKE=ON \
                -DBoost_INCLUDE_DIR=$install_top_dir/include \
@@ -3683,13 +3698,15 @@ if [ "$build_unistring" = true ] ; then
    echo libunistring skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING libunistring:
       (
       echo ========================= build unistring =================================
       if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
       else
          echo missing file $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
-         exit
+         ${WGET} http://mirrorservice.org/sites/ftp.gnu.org/gnu/libunistring/libunistring-$unistring_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
       fi
       cd libunistring-$unistring_version
       echo ./configure --prefix=$install_top_dir
@@ -3699,7 +3716,9 @@ if [ "$build_unistring" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/20-lubunistring.txt 2>&1
+      ) > $HOSTLOGDIR/20-libubunistring.txt 2>&1
+   else
+      echo not building libunistring
    fi
 fi
 
@@ -3717,15 +3736,19 @@ if [ "$build_gc" = true ] ; then
    echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING gc
       (
+      gc_version=7.2g
+      gc_version_dir=7.2
       echo ========================= build gc =================================
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
-         exit
+         ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       fi
-      cd gc-$gc_version
+      cd gc-$gc_version_dir
       echo ./configure --prefix=$install_top_dir
       if ./configure --prefix=$install_top_dir  ; then
          if $MAKE ; then
@@ -3734,6 +3757,8 @@ if [ "$build_gc" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/21-gc.txt 2>&1
+   else
+      echo not building gc
    fi
 fi
 
@@ -3748,6 +3773,7 @@ if [ "$build_gmp" = true ] ; then
    echo gmp skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING gmp
       (
       echo ========================= build gmp =================================
       if [ -e $AUTOBUILD_SOURCES/gmp-$gmp_version.tar.xz ] ; then
@@ -3764,6 +3790,8 @@ if [ "$build_gmp" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/22-gmp.txt 2>&1
+   else
+      echo not building gmp
    fi
 fi
 
@@ -3780,11 +3808,12 @@ if [ "$build_guile" = true ] ; then
    if [ $skip_this = false ] ; then
       (
       echo ========================= build guile =================================
-      if [ -e $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
+      if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
       else
-         echo no file $AUTOBUILD_SOURCES/guile-$guile_version.tar.z
-         exit
+         echo no file $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
+         ${WGET} ftp://ftp.gnu.org/pub/gnu/guile/guile-$guile_version.tar.xz
+         tar xf ${AUTOBUILD_SOURCES}/guile-$guile_version.tar.xz
       fi
       cd guile-$guile_version
       # LIBFFI_LIBS=-L$install_top_dir/lib
