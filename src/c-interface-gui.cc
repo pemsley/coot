@@ -6377,7 +6377,8 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
 #ifndef WINDOWS_MINGW
                   int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
 #else
-                  int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+                  // int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+                  int status = coot::copy_file(dl_fn, preferences_file_name); // it returns a bool actually
 #endif
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
@@ -6385,13 +6386,12 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                      std::cout << "WARNING:: fall-back: run the script from download-dir: " << dl_fn << std::endl;
                      run_script(dl_fn.c_str());
                   } else {
-                     std::cout << "debug:: BB renaming successful" << std::endl;
-                     std::cout << "debug:: BB run_script() called on " << preferences_file_name << std::endl;
+                     std::cout << "debug:: renaming successful" << std::endl;
+                     std::cout << "debug:: run_script() called on " << preferences_file_name << std::endl;
                      run_script(preferences_file_name.c_str());
-
-                     std::cout << "hiding install_button " << install_button << std::endl;
+                     //  std::cout << "hiding install_button " << install_button << std::endl;
                      gtk_widget_hide(install_button);
-                     std::cout << "show uninstall_button  " << uninstall_button << std::endl;
+                     //  std::cout << "show uninstall_button  " << uninstall_button << std::endl;
                      gtk_widget_show(uninstall_button);
                      
                   }
