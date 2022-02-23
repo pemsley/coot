@@ -296,7 +296,7 @@ int       graphics_info_t::symmetry_shift_search_size = 1; // which_boxes search
 
 // short int graphics_info_t::symmetry_as_calphas = 0; // moved to per molecule basis
 // short int graphics_info_t::symmetry_rotate_colour_map_flag = 0; // moved to per molecule basis
-float     graphics_info_t::symmetry_operator_rotate_colour_map = 37; //degrees
+float     graphics_info_t::symmetry_operator_rotate_colour_map = 60.0; //degrees
 // int       graphics_info_t::symmetry_colour_by_symop_flag = 1; // moved to per molecule basis
 // int       graphics_info_t::symmetry_whole_chain_flag = 0;  // moved to per molecule basis
 

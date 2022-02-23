@@ -1908,9 +1908,9 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
       }
    } else {
       std::vector<float> orig_colours(3); // convert this to using GdkRGBA
-      orig_colours[0] =  0.2;
-      orig_colours[1] =  0.5;
-      orig_colours[2] =  0.7;
+      orig_colours[0] =  0.3;
+      orig_colours[1] =  0.62;
+      orig_colours[2] =  0.8;
       float rotation_size = float(imol_no) * graphics_info_t::rotate_colour_map_for_map/360.0;
       // std::cout << "rotating map colour by " << rotation_size * 360.0 << std::endl;
       std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
@@ -3339,7 +3339,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
             g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
                                                &g.shader_for_atom_labels, mvp, view_rotation,
                                                glm::vec4(g.background_colour, 1.0),
-                                               g.shader_do_depth_blur_flag,
+                                               g.shader_do_depth_fog_flag,
                                                g.perspective_projection_flag);
 
          }
@@ -3375,7 +3375,7 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
             g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
                                                &g.shader_for_atom_labels, mvp, view_rotation,
                                                glm::vec4(g.background_colour, 1.0),
-                                               g.shader_do_depth_blur_flag,
+                                               g.shader_do_depth_fog_flag,
                                                g.perspective_projection_flag);
 
          }

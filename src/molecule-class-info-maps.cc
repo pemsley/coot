@@ -1321,62 +1321,7 @@ molecule_class_info_t::display_solid_surface_triangles(const coot::density_conto
 void
 molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opacity, bool is_neg) {
 
-   if (solid_mode) {
-
-      // normal solid
-
-      GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-      GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-      GLfloat specularLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-
-      // Assign created components to GL_LIGHT2
-      glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-      glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-      glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
-
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100); // makes a difference.
-      glDisable(GL_COLOR_MATERIAL);
-
-      // narrowing from doubles to floats (there is no glMaterialdv).
-
-      GLfloat  mat_specular[]  = {0.6f,  0.6f,  0.6f,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {float(0.3*map_colour.red),
-				                      float(0.3*map_colour.green),
-				                      float(0.3*map_colour.blue), opacity};
-      GLfloat  mat_diffuse[]   = {float(map_colour.red),
-				                      float(map_colour.green),
-				                      float(map_colour.blue), opacity};
-      GLfloat  mat_shininess[] = {100}; // makes a difference
-
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-      if (is_neg) {
-	      // override
-         GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
-         GLfloat  mat_ambient[]   = {float(0.3*map_colour_negative_level.red),
-                                     float(0.3*map_colour_negative_level.green),
-				                         float(0.3*map_colour_negative_level.blue), opacity};
-	      GLfloat  mat_diffuse[]   = {float(map_colour.red),
-				                         float(map_colour.green),
-				                         float(map_colour.blue), opacity};
-	      GLfloat  mat_shininess[] = {100};
-
-// 	 std::cout << " is_neg with map_colour: "
-// 		   << map_colour[1][0] << " "
-// 		   << map_colour[1][1] << " "
-// 		   << map_colour[1][2] << " "
-// 		   << std::endl;
-
-         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-      }
-   }
+   // delete this
 }
 
 

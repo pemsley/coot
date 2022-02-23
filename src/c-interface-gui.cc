@@ -4296,9 +4296,18 @@ void set_map_colour(int imol, float red, float green, float blue) {
 
    if (is_valid_map_molecule(imol)) {
       GdkRGBA colour;
-      colour.red   = red   * 65535.0;
-      colour.green = green * 65535.0;
-      colour.blue   = blue * 65535.0;
+
+      // why were these multipliers here - what were they doing?
+      // 0.0 to 1.0 is the range.
+
+      // colour.red   = red   * 65535.0;
+      // colour.green = green * 65535.0;
+      // colour.blue   = blue * 65535.0;
+
+      colour.red   = red;
+      colour.green = green;
+      colour.blue  = blue;
+
       short int swap_col = graphics_info_t::swap_difference_map_colours;
       graphics_info_t::molecules[imol].handle_map_colour_change(colour, swap_col,
                                                                 graphics_info_t::GL_CONTEXT_MAIN,
@@ -4313,6 +4322,8 @@ void set_map_colour(int imol, float red, float green, float blue) {
                                                                    graphics_info_t::box_radius_xray);
          g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
       }
+
+      graphics_draw();
    }
 }
 

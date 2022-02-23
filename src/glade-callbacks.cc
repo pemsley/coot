@@ -6859,7 +6859,7 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    if (g.shadow_texture_multiplier == 5) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_5), TRUE);
    if (g.shadow_texture_multiplier == 6) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_6), TRUE);
 
-   if (g.shader_do_depth_blur_flag)
+   if (g.shader_do_depth_of_field_blur_flag) // not shader_do_depth_blur_flag (what's that used for? - delete it)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), TRUE);
    else
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), FALSE);
