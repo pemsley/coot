@@ -5081,8 +5081,6 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       }
    }
 
-   }
-
    if (!status) {
 
       // If we have failed so far, try again with lidia.fetch.
