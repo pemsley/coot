@@ -1363,6 +1363,7 @@ namespace coot {
       // non-looping (single) chir
       void chem_comp_chir_structure(mmdb::mmcif::PStruct structure, int imol_enc);
 
+      void parse_lib_info(mmdb::mmcif::PStruct structure);
 
       void mon_lib_add_chem_comp(const std::string &comp_id,
                                  int imol_enc,
