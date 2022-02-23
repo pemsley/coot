@@ -137,7 +137,7 @@ int graphics_info_t::refmac_molecule = -1;
 short int graphics_info_t::active_map_drag_flag = 1; // true
 long int graphics_info_t::Frames = 0;  // These 2 are to measure graphics speed.
 long int graphics_info_t::T0 = 0;
-int    graphics_info_t::show_fps_flag = 0;
+bool    graphics_info_t::show_fps_flag = false;
 int    graphics_info_t::control_is_pressed = 0 ; // false
 short int graphics_info_t::control_key_for_rotate_flag = 1;
 short int graphics_info_t::pick_pending_flag = 0;
@@ -1413,6 +1413,7 @@ Shader graphics_info_t::shader_for_x_blur;
 Shader graphics_info_t::shader_for_y_blur;
 Shader graphics_info_t::shader_for_blur;  // old
 Shader graphics_info_t::shader_for_dof_blur_by_texture_combination;
+Shader graphics_info_t::shader_for_effects;
 Shader graphics_info_t::shader_for_hud_lines;
 Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_anchored_atom_markers;
@@ -1616,4 +1617,62 @@ gl_rama_plot_t graphics_info_t::gl_rama_plot;
 
 float graphics_info_t::focus_blur_z_depth = 0.4;
 float graphics_info_t::focus_blur_strength = 2.0;
+
+// 20220129-PE crows
+
+std::vector<Model> graphics_info_t::models;
+
+unsigned int graphics_info_t::noiseTexture = 0;
+unsigned int graphics_info_t::ssaoColorBuffer = 0;
+unsigned int graphics_info_t::ssaoColorBufferBlur = 0;
+std::vector<glm::vec3> graphics_info_t::ssaoKernel;
+unsigned int graphics_info_t::ssao_blur_size = 1;
+
+Shader graphics_info_t::shader_for_meshes;
+Shader graphics_info_t::shader_for_tmeshes;
+Shader graphics_info_t::shader_for_meshes_shadow_map;
+Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
+Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
+
+float graphics_info_t::SSAO_bias = 0.1;
+float graphics_info_t::SSAO_radius = 8.0;
+float graphics_info_t::ssao_strength = 0.4;
+bool graphics_info_t::use_ssao  = true;  // in the effects filter, adds (or not) the SSAO effects
+bool graphics_info_t::show_just_ssao = false; // in the effects filter, shows *just* the SSAO effects
+unsigned int graphics_info_t::effects_shader_output_type(EFFECTS_SHADER_STANDARD);
+
+Shader graphics_info_t::shader_for_tmeshes_for_ssao;
+Shader graphics_info_t::shader_for_meshes_for_ssao;
+
+unsigned int graphics_info_t::rboDepth = 0;
+unsigned int graphics_info_t::ssaoFBO = 0;
+unsigned int graphics_info_t::ssaoBlurFBO = 0;
+
+framebuffer graphics_info_t::framebuffer_for_ssao_gbuffer;
+framebuffer graphics_info_t::framebuffer_for_ssao;
+framebuffer graphics_info_t::framebuffer_for_ssao_blur;
+
+unsigned int graphics_info_t::n_ssao_kernel_samples = 64;
+Shader graphics_info_t::shaderGeometryPass;
+Shader graphics_info_t::shaderSSAO;
+Shader graphics_info_t::shaderSSAOBlur;
+
+framebuffer graphics_info_t::framebuffer_for_effects;
+
+unsigned int graphics_info_t::shadow_depthMap_framebuffer = 0;
+unsigned int graphics_info_t::shadow_depthMap_texture = 0; // the texture
+float graphics_info_t::shadow_strength = 0.2; // 0 to 1 (strong shadows don't look good)
+unsigned int graphics_info_t::shadow_softness = 2; // 1, 2 or 3
+unsigned int graphics_info_t::shadow_texture_multiplier = 2;
+unsigned int graphics_info_t::shadow_texture_width  = graphics_info_t::shadow_texture_multiplier * 1024;
+unsigned int graphics_info_t::shadow_texture_height = graphics_info_t::shadow_texture_multiplier * 1024;
+bool graphics_info_t::show_just_shadows = false; // show *just* the shadows in the texture-mesh-with-shadows shader
+unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_AO_SCENE;
+
+GLuint graphics_info_t::screen_AO_quad_vertex_array_id = 0;
+GLuint graphics_info_t::screen_AO_quad_VBO = 0;
+
+Shader graphics_info_t::shader_for_tmeshes_with_shadows;
+Shader graphics_info_t::shader_for_meshes_with_shadows;
+HUDTextureMesh graphics_info_t::tmesh_for_shadow_map = HUDTextureMesh("tmesh-for-shadow-map");
 

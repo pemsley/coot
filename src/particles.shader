@@ -16,16 +16,23 @@ out vec4 colour_transfer;
 
 void main() {
 
-   vec3 p1 = position;
+   float scale = 0.3;
+   float sc_inst_trans = 1.0;
+   // scale = 0.3 // for crows
+   // sc_inst_trans = 0.1 // for crows
+
+   vec3 p1 = position * scale;
    float a = -rotation_angle; // negative so that they spin clockwise
    vec4 p2 = vec4(p1.x * cos(a) - p1.y * sin(a),
                   p1.x * sin(a) + p1.y * cos(a), 0.0, 1.0);
    mat4 trans = transpose(view_rotation);
-   vec4 p3 = trans * p2;
-   vec4 p4 = p3 + vec4(instance_translation, 0.0);
+   vec4 p3 = 0.1 * trans * p2;
+   vec4 p4 = p3 + vec4(sc_inst_trans * instance_translation, 0.0);
    gl_Position = mvp * p4;
-   colour_transfer = instance_colour; // * instance_colour;
+   // gl_Position = mvp * vec4(p1, 1.0);
 
+   colour_transfer = instance_colour; // * instance_colour;
+   // if (instance_translation.x != 0) colour_transfer = vec4(0,0,1,1);
 }
 
 

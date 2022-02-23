@@ -3,6 +3,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <epoxy/gl.h>
+
 // #include <GL/glu.h> OpenGLv1
 
 #include "utils/coot-utils.hh"
@@ -106,7 +108,7 @@ graphics_info_t::draw_generic_objects() {
 
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation = get_view_rotation();
+      glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_moleculestotriangles;
 
@@ -129,13 +131,16 @@ graphics_info_t::draw_generic_objects() {
             if (draw_it) {
                if (obj.mesh.is_instanced) {
                   // std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name << std::endl;
-                  obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, view_rotation,
+                  obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, model_rotation,
                                           lights, eye_position, bg_col, do_depth_fog,
                                           true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                } else {
                   // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
-                  obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
-                                bg_col, do_depth_fog);
+                  bool show_just_shadows = false;
+                  bool wireframe_mode = false;
+                  float opacity = 1.0f;
+                  obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity,
+                                bg_col, wireframe_mode, do_depth_fog, show_just_shadows);
                }
             }
          }

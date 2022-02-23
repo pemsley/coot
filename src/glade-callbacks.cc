@@ -6803,6 +6803,95 @@ on_preferences1_activate_gtkbuilder_callback               (GtkMenuItem     *men
   preferences();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                    gpointer         user_data) {
+
+   GtkWidget *w  = widget_from_builder("shader_settings_dialog");
+   GtkWidget *r1 = widget_from_builder("shader_settings_ssao_strength_scale");
+   GtkWidget *r2 = widget_from_builder("shader_settings_ssao_radius_scale");
+   GtkWidget *r3 = widget_from_builder("shader_settings_ssao_n_kernel_samples_scale");
+   GtkWidget *r4 = widget_from_builder("shader_settings_shadow_strength_scale");
+   GtkWidget *r5 = widget_from_builder("shader_settings_depth_blur_focus_depth_scale");
+   GtkWidget *r6 = widget_from_builder("shader_settings_depth_blur_strength_scale");
+   GtkWidget *r7 = widget_from_builder("shader_settings_ssao_bias_scale");
+
+   GtkWidget *sssb_0 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_0_radiobutton");
+   GtkWidget *sssb_1 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_1_radiobutton");
+   GtkWidget *sssb_2 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_2_radiobutton");
+
+   GtkWidget *sss_1 = widget_from_builder("shader_settings_shadow_softness_1_radiobutton");
+   GtkWidget *sss_2 = widget_from_builder("shader_settings_shadow_softness_2_radiobutton");
+   GtkWidget *sss_3 = widget_from_builder("shader_settings_shadow_softness_3_radiobutton");
+
+   GtkWidget *strm_1 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_1_radiobutton");
+   GtkWidget *strm_2 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_2_radiobutton");
+   GtkWidget *strm_3 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_3_radiobutton");
+   GtkWidget *strm_4 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_4_radiobutton");
+   GtkWidget *strm_5 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_5_radiobutton");
+   GtkWidget *strm_6 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_6_radiobutton");
+
+   GtkWidget *do_blur_checkbutton = widget_from_builder("shader_settings_do_depth_blur_checkbutton");
+
+   GtkWidget    *basic_mode_checkbutton = widget_from_builder("shader_settings_basic_mode_radiobutton");
+   GtkWidget    *fancy_mode_checkbutton = widget_from_builder("shader_settings_fancy_mode_radiobutton");
+   GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_radiobutton");
+
+   graphics_info_t g;
+
+   // oh dear... labels and variables inconsistent
+   if (g.displayed_image_type == g.SHOW_AO_SCENE)    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fancy_mode_checkbutton), TRUE);
+   if (g.displayed_image_type == g.SHOW_BASIC_SCENE) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton), TRUE);
+
+   if (g.ssao_blur_size == 0) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sssb_0), TRUE);
+   if (g.ssao_blur_size == 1) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sssb_1), TRUE);
+   if (g.ssao_blur_size == 2) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sssb_2), TRUE);
+
+   if (g.shadow_softness == 1) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sss_1), TRUE);
+   if (g.shadow_softness == 2) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sss_2), TRUE);
+   if (g.shadow_softness == 3) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sss_3), TRUE);
+
+   if (g.shadow_texture_multiplier == 1) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_1), TRUE);
+   if (g.shadow_texture_multiplier == 2) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_2), TRUE);
+   if (g.shadow_texture_multiplier == 3) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_3), TRUE);
+   if (g.shadow_texture_multiplier == 4) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_4), TRUE);
+   if (g.shadow_texture_multiplier == 5) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_5), TRUE);
+   if (g.shadow_texture_multiplier == 6) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_6), TRUE);
+
+   if (g.shader_do_depth_blur_flag)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), TRUE);
+   else
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), FALSE);
+
+   double v1 = graphics_info_t::ssao_strength;
+   double v2 = graphics_info_t::SSAO_radius;
+   double v3 = graphics_info_t::n_ssao_kernel_samples;
+   double v4 = graphics_info_t::shadow_strength;
+   double v5 = graphics_info_t::focus_blur_z_depth;
+   double v6 = graphics_info_t::focus_blur_strength;
+   double v7 = graphics_info_t::SSAO_bias;
+
+   gtk_range_set_range(GTK_RANGE(r1), 0.0, 2.0);
+   gtk_range_set_value(GTK_RANGE(r1), v1);
+   gtk_range_set_range(GTK_RANGE(r2), 0.0, 100.0);
+   gtk_range_set_value(GTK_RANGE(r2), v2);
+   gtk_range_set_range(GTK_RANGE(r3), 0.0, 256.0);
+   gtk_range_set_value(GTK_RANGE(r3), v3);
+   gtk_range_set_range(GTK_RANGE(r4), 0.0, 1.0);
+   gtk_range_set_value(GTK_RANGE(r4), v4);
+   gtk_range_set_range(GTK_RANGE(r5), 0.0, 1.0);
+   gtk_range_set_value(GTK_RANGE(r5), v5);
+   gtk_range_set_range(GTK_RANGE(r6), 0.0, 6.0);
+   gtk_range_set_value(GTK_RANGE(r6), v6);
+   gtk_range_set_range(GTK_RANGE(r7), 0.0, 0.4);
+   gtk_range_set_value(GTK_RANGE(r7), v7);
+
+   gtk_widget_show(w);
+}
+
+
+
 
 
 /* end preferences */

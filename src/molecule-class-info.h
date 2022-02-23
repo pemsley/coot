@@ -739,10 +739,13 @@ public:        //                      public
    void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
 
    // return the colour, don't call glColor3f();
-   coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background);
+   coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
    // return the colour, don't call glColor3f();
-   coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background);
+   // make this static? so that get_glm_colour_func() works from Mesh::make_from_graphical_bonds()?
+   coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
 
+   // 20220214-PE modern colour
+   glm::vec4 get_bond_colour_by_colour_wheel_position(int i, int bonds_box_type) const;
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
    bool use_bespoke_grey_colour_for_carbon_atoms;
    coot::colour_t bespoke_carbon_atoms_colour;
@@ -813,6 +816,8 @@ public:        //                      public
    //
    int draw_it; // used by Molecule Display control, toggled using
 	                  // toggle fuctions.
+   bool draw_model_molecule_as_lines; // default false
+   void set_draw_model_molecule_as_lines(bool state); // redo the bonding if state is different
    bool draw_it_for_map;
    bool draw_it_for_map_standard_lines; // was draw_it_for_map
    int pickable_atom_selection;  // ditto (toggling).
@@ -1962,7 +1967,7 @@ public:        //                      public
 
    void set_map_colour(GdkRGBA col) { map_colour = col; update_map(true); /* for now */ }
    std::vector<std::string> set_map_colour_strings() const;
-   std::pair<GdkRGBA, GdkRGBA> map_colours() const;
+   std::pair<GdkRGBA, GdkRGBA> get_map_colours() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
    void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
                              const std::vector<coot::colour_t> &colours);
@@ -3053,8 +3058,13 @@ public:        //                      public
    GLuint m_VertexBufferID;
    GLuint m_IndexBuffer_for_map_lines_ID;
    GLuint m_IndexBuffer_for_map_triangles_ID; // solid and transparent surfaces
-   GLuint m_NormalBufferID; // is this map or model - or something else? Be clear!
-   GLuint m_ColourBufferID; // Likewise.
+
+   // 20220211-PE pre map-as-mesh rewrite.
+   // GLuint m_NormalBufferID; // is this map or model - or something else? Be clear!
+   // GLuint m_ColourBufferID; // Likewise.
+
+   Mesh map_as_mesh;
+   Mesh map_as_mesh_gl_lines_version;
 
    GLuint m_VertexArray_for_model_ID;
    GLuint n_vertices_for_model_VertexArray;
@@ -3078,6 +3088,20 @@ public:        //                      public
 
    Material material_for_maps;
    Material material_for_models;
+
+
+   void draw_map_molecule(bool draw_transparent_maps,
+                          Shader &shader, // unusual reference.. .change to pointer for consistency?
+                          const glm::mat4 &mvp,
+                          const glm::mat4 &view_rotation,
+                          const glm::vec3 &eye_position,
+                          const glm::vec4 &ep,
+                          const std::map<unsigned int, lights_info_t> &lights,
+                          const glm::vec3 &background_colour,
+                          bool perspective_projection_flag);
+
+   // A map is not a Mesh at the moment, so this needs a new function
+   void draw_map_molecule_for_ssao(Shader *shader_p, const glm::mat4 &model_matrix, const glm::mat4 &view_matrix, const glm::mat4 &proj_matrix);
 
    // using current contour level,
    // return world coordinates and normals
@@ -3552,6 +3576,9 @@ public:        //                      public
    bool export_molecule_as_obj(const std::string &file_name);
    bool export_map_molecule_as_obj(const std::string &file_name) const;
    bool export_model_molecule_as_obj(const std::string &file_name);
+   bool export_molecule_as_gltf(const std::string &file_name) const;
+   bool export_map_molecule_as_gltf(const std::string &file_name) const;
+   bool export_model_molecule_as_gltf(const std::string &file_name) const;
 
    void export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
                                   const std::vector<g_triangle> &triangles);
@@ -3577,10 +3604,13 @@ public:        //                      public
 
    // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
    // instances of cylinders and spheres and hemispheres. Put them in a Model at some stage.
-   void make_meshes_from_bonds_box(); // fills the below meshes.
-   Mesh molecule_as_mesh_atoms_1;
-   Mesh molecule_as_mesh_atoms_2;
-   Mesh molecule_as_mesh_bonds;
+   std::vector<glm::vec4> make_colour_table() const;
+   void make_mesh_from_bonds_box();
+   void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
+   Mesh molecule_as_mesh; // non-instancing
+   Mesh molecule_as_mesh_atoms_1; // for instancing
+   Mesh molecule_as_mesh_atoms_2; // for instancing
+   Mesh molecule_as_mesh_bonds;   // for instancing
    Mesh molecule_as_mesh_rama_balls;
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours

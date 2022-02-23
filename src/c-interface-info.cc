@@ -2879,7 +2879,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
                         // std::pair<GdkRGBA, GdkRGBA> map_colours() const;
                         std::pair<GdkRGBA, GdkRGBA> map_colours =
-                           graphics_info_t::molecules[imol].map_colours();
+                           graphics_info_t::molecules[imol].get_map_colours();
 
 #if 0
                         if (true) { // this test is needed?

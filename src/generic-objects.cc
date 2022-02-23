@@ -25,6 +25,8 @@
 #include "python-3-interface.hh"
 #endif
 
+#include <epoxy/gl.h>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 

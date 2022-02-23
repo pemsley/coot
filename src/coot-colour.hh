@@ -5,6 +5,13 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
+
 #include "utils/colour-holder.hh"  // funny old thing. Consolidate the colour class one day.
 
 namespace coot { 

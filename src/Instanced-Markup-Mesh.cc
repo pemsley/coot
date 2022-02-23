@@ -300,11 +300,11 @@ Instanced_Markup_Mesh::draw(Shader *shader_p,
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
    light_idx = 1;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
 
    // add material properties, use class built-ins this time.
 

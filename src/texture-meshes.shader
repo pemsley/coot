@@ -7,12 +7,13 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec4 colour;
-layout(location = 3) in vec2 texCoord;
+layout(location = 2) in vec3 tangent;
+layout(location = 3) in vec3 bitangent;
+layout(location = 4) in vec4 colour;
+layout(location = 5) in vec2 texCoord;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
-// uniform sampler2D roughness_map; // i.e. displacement map
 
 out vec3 frag_pos_transfer;
 out vec4 colour_transfer;
@@ -22,14 +23,14 @@ out vec2 texCoord_transfer;
 void main() {
 
    gl_Position = mvp * vec4(position, 1.0);
-   // bool do_displacement_mapping = false; // meh
-   // if (do_displacement_mapping) {
-      // vec4 rm_sampled = texture(roughness_map, texCoord);
-      // vec4 displacement = 0.5 * rm_sampled.r * vec4(normal, 0.0) * view_rotation;
-   // gl_Position += displacement;
-   // }
+
+   // gl_Position = vec4(2 * position - vec3(1.0, 1.0, 0.0), 1.0);
+
+   mat3 normal_matrix = mat3(view_rotation);
+   mat3 transpose_normal_matrix = transpose(normal_matrix);
+
    colour_transfer = colour;
-   normal_transfer = normal;
+   normal_transfer = normal * transpose_normal_matrix;
    texCoord_transfer = texCoord;
    frag_pos_transfer = position;
 
@@ -43,6 +44,7 @@ struct LightSource {
    bool is_on;
    bool directional;
    vec3 position;
+   vec3 direction;
    vec3 direction_in_molecule_coordinates_space;
    vec4 ambient;
    vec4 diffuse;
@@ -60,18 +62,15 @@ struct LightSource {
 uniform LightSource light_sources[2];
 
 uniform sampler2D base_texture;  // diffuse_map
-uniform sampler2D normal_map;
 
-// uniform sampler2D occlusion_map; // ambient occlusion
-// uniform sampler2D roughness_map; // i.e. displacement map
-// uniform sampler2D specular_map;
 uniform vec3 eye_position;
+uniform vec3 eye_position_in_molecule_coordinates_space;
 uniform mat4 view_rotation;
 uniform bool do_depth_fog;
 
 in vec3 frag_pos_transfer;
-in vec3 normal_transfer;
 in vec4 colour_transfer;
+in vec3 normal_transfer;
 in vec2 texCoord_transfer;
 
 out vec4 output_colour;
@@ -86,81 +85,45 @@ void main() {
    bool use_normal_map = false;
    bool invert_normal_map = true;
 
+   float scale_factor_n_lights = 0.95;
+
+   vec4 sampled = texture(base_texture, texCoord_transfer);
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
 
-         if (use_normal_map) {
+         float shininess = 128;
+         float specular_strength = 0.5;
 
-            vec4 ambient  = 0.1 * colour_transfer * light_sources[i].ambient;
+         vec4 ambient  = 0.3 * sampled * light_sources[i].ambient;
+         // vec3 light_dir = (vec4(light_sources[i].direction, 1.0) * view_rotation).xyz;
+         mat4 ivr = transpose(view_rotation);
+         vec3 light_dir = (vec4(light_sources[i].direction_in_molecule_coordinates_space, 1.0) * ivr).xyz;
+         // light_dir = light_sources[i].direction;
+         float dp = dot(normal_transfer, light_dir);
+         if (dp < 0)
+            specular_strength = 0.0; // no shiny insides
+         dp = clamp(dp, 0.0, 1.0);
 
-            // vec3 lightdir = normalize(vec3(-2,-5,0)); // different monkey
-            vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
+         // by hand "Material" information.
+         // in future we could either pass a Material (which would have to be be added
+         // in the TextureMesh constructor)
+         // or
+         // get "Material" information (shininess) from other textures (sampler2Ds)
 
-            vec4 nm_sampled = texture(normal_map, texCoord_transfer); // why is this a vec4? is this right?
-            vec4 normal_map_normal_tmp = 2.0 * nm_sampled;
-            vec4 normal_map_normal = vec4(normal_map_normal_tmp.x -1.0,
-                                          normal_map_normal_tmp.y -1.0,
-                                          normal_map_normal_tmp.z -1.0, 1.0);
+         vec3 view_dir = normalize(eye_position_in_molecule_coordinates_space - frag_pos_transfer);
+         vec3 reflect_dir = reflect(-light_dir, normal);
+         reflect_dir = normalize(reflect_dir); // belt and braces
+         float dp_view_reflect = dot(view_dir, reflect_dir);
+         dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
+         float spec = pow(dp_view_reflect, shininess);
+         vec4 specular = specular_strength * spec * vec4(0.8, 0.8, 0.8, 1.0);
 
-            // if (invert_normal_map)
-            // normal_map_normal = vec4(-normal_map_normal.xyz, 1.0);
-
-            vec3 normal_map_normal_rotated = normalize(normal_map_normal * view_rotation).xyz;
-            float normal_factor = 0.4;
-            vec3 normal_combined = normal_factor * normal_view_rotated + normal_factor * normal_map_normal_rotated;
-            float dp = dot(normal_combined, light_dir);
-            dp = clamp(dp, 0.0, 1.0);
-            float dp_nm = dot(normal, normal_map_normal_rotated); // testing
-
-            // specular
-            float shininess = 128;
-            float specular_strength = 0.04;
-
-            if (dp == 0.0) specular_strength = 0.0;
-            vec3 eye_pos = eye_position;
-            vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
-            vec3 reflect_dir = reflect(-light_dir, normal_combined);
-            reflect_dir = normalize(reflect_dir); // belt and braces
-            float dp_view_reflect = dot(view_dir, reflect_dir);
-            dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
-            float spec = pow(dp_view_reflect, shininess);
-            vec4 specular = specular_strength * spec * dp * dp_view_reflect * light_sources[i].specular;
-
-            vec4 sampled = texture(base_texture, texCoord_transfer);
-
-            // output_colour += ambient + sampled * dp * 2.0 + specular;
-
-            output_colour += ambient + sampled * dp_nm * 2.0 + specular;
-
-            // output_colour = vec4(1,1,0,1);
-         } else {
-
-            // smooth surface
-
-            vec4 ambient  = 0.01 * colour_transfer * light_sources[i].ambient;
-
-            vec3 light_dir = normalize(vec3(1, 0, 4));
-            light_dir = (vec4(light_dir, 1.0) * view_rotation).xyz;
-            float dp = dot(normal_transfer, light_dir);
-            dp = 0.5 * clamp(dp, 0.0, 1.0);
-
-            // specular
-            float shininess = 64;
-            float specular_strength = 0.02;
-            vec3 eye_pos = eye_position;
-            vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
-            vec3 reflect_dir = reflect(-light_dir, normal);
-            reflect_dir = normalize(reflect_dir); // belt and braces
-            float dp_view_reflect = dot(view_dir, reflect_dir);
-            dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
-            float spec = pow(dp_view_reflect, shininess);
-            vec4 specular = specular_strength * spec * vec4(0.8, 0.8, 0.8, 1.0);
-
-            vec4 sampled = texture(base_texture, texCoord_transfer);
-            output_colour += ambient + sampled * dp + specular;
-            // output_colour = vec4(0,1,0,1);
-         }
+         output_colour += scale_factor_n_lights * ambient;
+         output_colour += scale_factor_n_lights * sampled * dp;
+         output_colour += scale_factor_n_lights * specular;
       }
    }
+
+   // output_colour = vec4(0.95, 0.95, 0.95, 1.0);
 
 }

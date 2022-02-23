@@ -42,6 +42,8 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
                const glm::vec4 &basic_colour,
                unsigned int n_slices_in, unsigned int n_stacks) {
 
+   if (n_stacks < 2) n_stacks = 2;
+
       // n_stacks*n_slices = 12
       // cylinder_vertex vertices[12];
       // n_triangles = n_stacks * n_slices * 2;

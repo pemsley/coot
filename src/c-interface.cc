@@ -2605,6 +2605,16 @@ bool export_molecule_as_obj(int imol, const std::string &fn)  {
    return status;
 }
 
+bool export_molecule_as_gltf(int imol, const std::string &file_name) {
+
+   bool status = false;
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      status = graphics_info_t::molecules[imol].export_molecule_as_gltf(file_name);
+   }
+   return status;
+}
+
+
 
 
 // -------------------------------------------------------------------

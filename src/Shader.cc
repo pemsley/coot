@@ -13,6 +13,7 @@
 
 Shader::Shader() {
    program_id = 0; // unset
+   name = "---Unset---";
 }
 
 Shader::Shader(const std::string &file_name, Shader::Entity_t e) {
@@ -36,7 +37,7 @@ Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name)
          glLinkProgram(program_id);
          glValidateProgram(program_id);
       } else {
-        std::cout << "Oops - empty Fragment shader" << std::endl;
+         std::cout << "Oops - empty Fragment shader" << fs_file_name << std::endl;
       }
    }
 }
@@ -66,16 +67,16 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
             set_attribute_locations();
          }
       } else {
-         std::cout << "Empty Fragment Shader source\n";
+         std::cout << "Empty Fragment Shader source " << file_name << std::endl;
          success_status = false;
       }
    } else {
-      std::cout << "Empty Vertex Shader source\n";
+      std::cout << "Empty Vertex Shader source " << file_name << "\n";
       success_status = false;
    }
    std::string fn = file_name;
    std::stringstream ss;
-   ss << std::setw(33) << fn;
+   ss << std::setw(34) << fn;
    fn = ss.str();
 
    std::cout << "Shader compile " << fn << " " << message << std::endl;
@@ -94,15 +95,33 @@ Shader::close() {
 }
 
 void
+Shader::set_unsigned_int_for_uniform(const std::string &uniform_name, unsigned int value) {
+
+   GLuint err = glGetError();
+   if (err) std::cout << "GL ERROR:: Shader::set_unsigned_int_for_uniform() \"" << name << "\""
+                      << " start err " << err << std::endl;
+   GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Shader::set_int_for_uniform() \"" << name << "\""
+                                          << " A err " << err << std::endl;
+   glUniform1ui(loc,value);
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Shader::set_unsigned_int_for_uniform() \"" << name << "\""
+                                          << " B glUniform1i for uniform " << uniform_name
+                                          << " loc: " << loc << " value: " << value
+                                          << " err " << err << std::endl;
+}
+
+
+void
 Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
 
    GLuint err = glGetError();
-   if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name << " start err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: Shader::set_int_for_uniform() \"" << name << "\""
+                      << " start err " << err << std::endl;
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
-   err = glGetError(); if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Shader::set_int_for_uniform() \"" << name << "\""
                                           << " A err " << err << std::endl;
    glUniform1i(loc,value);
-   err = glGetError(); if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Shader::set_int_for_uniform() \"" << name << "\""
                                           << " B glUniform1i for uniform " << uniform_name
                                           << " loc: " << loc << " value: " << value
                                           << " err " << err << std::endl;
@@ -113,31 +132,59 @@ Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
 
    GLuint err = glGetError();
    if (err)
-      std::cout << "error:: Shader::set_bool_for_uniform() " << name << " "
+      std::cout << "GL ERROR:: Shader::set_bool_for_uniform() \"" << name << "\" "
                 << uniform_name << " start err " << err << std::endl;
 
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
    // std::cout << "set_bool_for_uniform() got loc " << loc << std::endl;
    err = glGetError();
    if (err)
-      std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " A err "
-                << err << std::endl;
+      std::cout << "GL ERROR:: \"" << name << "\" Shader::set_bool_for_uniform() "
+                << "\"" << uniform_name << "\" A err " << err << std::endl;
    glUniform1i(loc, value);
    err = glGetError();
    if (err)
-      std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " B err "
-                << err << std::endl;
+      std::cout << "GL ERROR:: Shader::set_bool_for_uniform() \"" << name << "\" "
+                << "\"" << uniform_name << "\" B err " << err << std::endl;
 }
+
+void
+Shader::set_mat4_for_uniform(const std::string &uniform_name, const glm::mat4 &m) {
+
+   GLuint err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: Shader::set_mat4_for_uniform() \"" << name << "\" "
+                << uniform_name << " start err " << err << std::endl;
+
+   GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: \"" << name << "\" Shader::set_mat4_for_uniform() "
+                << uniform_name << " A err " << err << std::endl;
+
+   glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m));
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: " << " Shader::set_bool_for_uniform() \"" << name << "\" "
+                << uniform_name << " B err " << err << std::endl;
+}
+
 
 
 
 void
 Shader::Use() {
+
+   if (name == "---Unset---") {
+      std::cout << "GL ERROR:: --------------------------------- ooops Use() called for unset Shader " << std::endl;
+   }
+
    GLuint err = glGetError();
-   if (err) std::cout << "Shader::Use() " << name << " pre glUseProgram() err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: Shader::Use() \"" << name << "\" pre glUseProgram() "
+                      << "err " << err << std::endl;
    glUseProgram(program_id);
    err = glGetError();
-   if (err) std::cout << "Shader::Use() " << name << " err " << err
+   if (err) std::cout << "GL ERROR:: Shader::Use() \"" << name << "\" err " << err
                       << " for program_id " << program_id << std::endl;
 }
 
@@ -210,16 +257,15 @@ void Shader::set_uniform_locations() {
        entity_type == Entity_t::MOLECULAR_TRIANGLES ||
        entity_type == Entity_t::INSTANCED_DISPLAY_OBJECT ||
        entity_type == Entity_t::GENERIC_DISPLAY_OBJECT) {
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 0: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 0: " << err << std::endl;
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
-
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 1: " << err << std::endl;
       view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 2: " << err << std::endl;
       background_colour_uniform_location = glGetUniformLocation_internal("background_colour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 3: " << err << std::endl;
       eye_position_uniform_location = glGetUniformLocation_internal("eye_position");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 4: " << err << std::endl;
 
       // the compiler can "throw these away" 4294967295 if they are not used in the fragment shader (it optimizes)
       if (false)
@@ -234,21 +280,21 @@ void Shader::set_uniform_locations() {
    }
    if (entity_type == Entity_t::INFRASTRUCTURE) {
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1c: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 1c: " << err << std::endl;
       view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2c: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 2c: " << err << std::endl;
       line_colour_uniform_location = glGetUniformLocation_internal("line_colour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3c: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 3c: " << err << std::endl;
       background_colour_uniform_location = glGetUniformLocation_internal("background_colour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4c: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 4c: " << err << std::endl;
    }
    if (entity_type == Entity_t::HUD_TEXT) {
       hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5d: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 5d: " << err << std::endl;
    }
    if (entity_type == Entity_t::TEXT_3D) {
       atom_label_projection_uniform_location = glGetUniformLocation_internal("projection");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6a: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: set_uniform_locations() error 6a: " << err << std::endl;
    }
 }
 
@@ -257,11 +303,12 @@ void
 Shader::set_float_for_uniform(const std::string &u_name, float f) {
 
    GLuint idx = glGetUniformLocation_internal(u_name);
-   GLenum err = glGetError(); if (err) std::cout << "error:: set_float_for_uniform() error 1a: "
-                                                 << err << std::endl;
+   GLenum err = glGetError();
+   if (err) std::cout << "error:: set_float_for_uniform() " << name << " " << u_name << " error 1a: " << err << std::endl;
    glUniform1f(idx, f);
-   err = glGetError(); if (err) std::cout << "error:: set_float_for_uniform() error 1b: "
-                                          << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error:: set_float_for_uniform() " << name << " " << u_name << " error 1b: " << err << std::endl;
+
 }
 
 void
@@ -284,7 +331,13 @@ void
 Shader::set_vec3_for_uniform(const std::string &u_name, const glm::vec3 &v) {
 
    GLuint idx = glGetUniformLocation_internal(u_name);
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: set_vec3_for_uniform() glGetUniformLocation_internal() " << u_name << " " << glm::to_string(v) << std::endl;
    glUniform3fv(idx, 1, glm::value_ptr(v));
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: set_vec3_for_uniform() glUniform3fv() " << u_name << " " << glm::to_string(v) << std::endl;
 }
 
 void
@@ -423,7 +476,10 @@ Shader::create() const {
 
 void
 Shader::setup_light(unsigned int light_index, const lights_info_t &light,
-                    const glm::mat4 &vrm) {
+                    const glm::mat4 &vrm,
+                    const glm::vec3 &eye_position) {
+
+   bool debug = false;
 
    GLenum err = glGetError();
    if (err) std::cout << "error setup_light() " << name << " -- start -- " << err << std::endl;
@@ -433,12 +489,16 @@ Shader::setup_light(unsigned int light_index, const lights_info_t &light,
 
    a = s + ".is_on";
    set_bool_for_uniform(a, light.is_on);
+   if (debug) std::cout << "setup_light() " << a << " " << light.is_on << std::endl;
    a = s + ".ambient";
    set_vec4_for_uniform(a, light.ambient);
+   if (debug) std::cout << "setup_light() " << a << " " << glm::to_string(light.ambient) << std::endl;
    a = s + ".diffuse";
    set_vec4_for_uniform(a, light.diffuse);
+   if (debug) std::cout << "setup_light() " << a << " " << glm::to_string(light.diffuse) << std::endl;
    a = s + ".specular";
    set_vec4_for_uniform(a, light.specular);
+   if (debug) std::cout << "setup_light() " << a << " " << glm::to_string(light.specular) << std::endl;
 
    // the lights are in view coordinates (1,1,2) say, they need to move as the
    // world is rotated by the mouse (analogous to the eye position, which also
@@ -450,8 +510,8 @@ Shader::setup_light(unsigned int light_index, const lights_info_t &light,
    glm::vec4 p4_wc(glm::vec3(p4_i / p4_i.w), 1.0);
 
    err = glGetError();
-   if (err) std::cout << "error setup_light() " << light_index << " "
-                      << name << " A " << err << std::endl;
+   if (err)
+      std::cout << "error setup_light() " << light_index << " " << name << " A " << err << std::endl;
 
    if (false)
       std::cout << "sending light direction_in_molecule_coordinates_space orig: "
@@ -467,7 +527,14 @@ Shader::setup_light(unsigned int light_index, const lights_info_t &light,
    a = s + ".direction_in_molecule_coordinates_space";
    set_vec3_for_uniform(a, glm::vec3(p4));
    err = glGetError();
-   if (err) std::cout << "error setup_light() " << light_index << " "
-                      << name << " -- end -- " << err << std::endl;
+   if (err)
+      std::cout << "error setup_light() " << light_index << " " << name << " -- end -- " << err << std::endl;
+
+   // similarly we need to move the eye_position in the same way:
+   {
+      glm::vec4 p4_eye = glm::vec4(eye_position, 1.0) * vrm;
+      glm::vec3 ep_mcs = glm::vec3(p4_eye);
+      set_vec3_for_uniform("eye_position_in_molecule_coordinates_space", ep_mcs);
+   }
 
 }

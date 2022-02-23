@@ -93,8 +93,8 @@ void swap_map_colours(int imol1, int imol2) {
    if (is_valid_map_molecule(imol1)) {
       if (is_valid_map_molecule(imol2)) {
          graphics_info_t g;
-         std::pair<GdkRGBA, GdkRGBA> map_1_colours = g.molecules[imol1].map_colours();
-         std::pair<GdkRGBA, GdkRGBA> map_2_colours = g.molecules[imol2].map_colours();
+         std::pair<GdkRGBA, GdkRGBA> map_1_colours = g.molecules[imol1].get_map_colours();
+         std::pair<GdkRGBA, GdkRGBA> map_2_colours = g.molecules[imol2].get_map_colours();
          short int main_or_secondary = 0; // main
          g.molecules[imol1].handle_map_colour_change(map_2_colours.first,
                                                      g.swap_difference_map_colours,
@@ -1212,7 +1212,7 @@ SCM get_map_colour_scm(int imol) {
    if (is_valid_map_molecule(imol)) {
       // std::pair<GdkRGBA, GdkRGBA> colours map_colours();
       // std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
-      std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
+      std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].get_map_colours();
 
       std::cout << "get_map_colour_scm() needs fixing " << std::endl; // FIXME
 #if 0
@@ -1232,7 +1232,7 @@ PyObject *get_map_colour_py(int imol) {
 
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol)) {
-      std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
+      std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].get_map_colours();
       r = PyList_New(2);
       PyObject *col_1 = PyList_New(3);
       PyObject *col_2 = PyList_New(3);
@@ -1259,18 +1259,18 @@ void check_for_dark_blue_density() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       for (int i=0; i<graphics_info_t::n_molecules(); i++) {
-    if (graphics_info_t::molecules[i].has_xmap()) {
-       if (graphics_info_t::molecules[i].is_displayed_p()) {
-          if (background_is_black_p()) {
-     if (graphics_info_t::molecules[i].map_is_too_blue_p()) {
-        std::string s = "I suggest that you increase the brightness of the map\n";
-        s += " if this is for a presentation (blue projects badly).";
-        info_dialog(s.c_str());
-        break; // only make the dialog once
-     }
-          }
-       }
-    }
+         if (graphics_info_t::molecules[i].has_xmap()) {
+            if (graphics_info_t::molecules[i].is_displayed_p()) {
+               if (background_is_black_p()) {
+                  if (graphics_info_t::molecules[i].map_is_too_blue_p()) {
+                     std::string s = "I suggest that you increase the brightness of the map\n";
+                     s += " if this is for a presentation (blue projects badly).";
+                     info_dialog(s.c_str());
+                     break; // only make the dialog once
+                  }
+               }
+            }
+         }
       }
    }
 }
@@ -1298,10 +1298,10 @@ void set_contour_by_sigma_step_by_mol(float f, short int state, int imol) {
 
    if (imol < graphics_info_t::n_molecules()) {
       if (imol >= 0) {
-    if (graphics_info_t::molecules[imol].has_xmap()) {
-       // NXMAP-FIXME
-       graphics_info_t::molecules[imol].set_contour_by_sigma_step(f, state);
-    }
+         if (graphics_info_t::molecules[imol].has_xmap()) {
+            // NXMAP-FIXME
+            graphics_info_t::molecules[imol].set_contour_by_sigma_step(f, state);
+         }
       }
    }
 }
@@ -1312,14 +1312,14 @@ int export_map(int imol, const char *filename) {
    if (is_valid_map_molecule(imol)) {
 
       try {
-    clipper::CCP4MAPfile mapout;
-    mapout.open_write(std::string(filename));
-    mapout.export_xmap(graphics_info_t::molecules[imol].xmap);
-    mapout.close_write();
-    rv = 1;
+         clipper::CCP4MAPfile mapout;
+         mapout.open_write(std::string(filename));
+         mapout.export_xmap(graphics_info_t::molecules[imol].xmap);
+         mapout.close_write();
+         rv = 1;
       }
       catch (...) {
-    std::cout << "CCP4 map writing error for " << filename << std::endl;
+         std::cout << "CCP4 map writing error for " << filename << std::endl;
       }
 
    } else {

@@ -238,7 +238,6 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
 	 else
 	    std::cout << "INFO:: " << file_name << " was not a coordinates file" << std::endl;
       } else { 
-	 std::string ext = coot::util::file_name_extension(file_name);
 	 if (ext == ".mtz") {
 	    std::vector<int> imol_map = auto_read_make_and_draw_maps(file_name.c_str());
 	    if (is_valid_map_molecule(imol_map.front()))

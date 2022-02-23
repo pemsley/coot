@@ -9,18 +9,17 @@
 
 class lights_info_t {
 public:
-   lights_info_t() {
+   lights_info_t() : position(glm::vec4(0,0,1,1)), direction(glm::vec3(0,0,1)),
+                     ambient(glm::vec4(1,1,1,1)), diffuse(glm::vec4(1,1,1,1)), specular(glm::vec4(1,1,1,1)) {
       is_on = true;
       directional = true;
-      position = glm::vec4(0,0,1,1);
-      direction = glm::vec3(0,0,1);
-      ambient  = glm::vec4(1,1,1,1);
-      diffuse  = glm::vec4(1,1,1,1);
-      specular = glm::vec4(1,1,1,1);
       shininess = 10.0;
       constant_attenuation  = 1.0;
       linear_attenuation    = 1.0;
       quadratic_attenuation = 1.0;
+      spot_exponent = 2.0;   // a guess
+      spot_cutoff = 2.0;     // a guess
+      spot_cos_cutoff = 2.0; // a guess
    }
    bool is_on;
    bool directional;
@@ -33,7 +32,7 @@ public:
    glm::vec4 half_vector;
    float spot_exponent;
    float spot_cutoff;
-   float speot_cos_cutoff;
+   float spot_cos_cutoff;
    float shininess;
    float constant_attenuation;
    float linear_attenuation;

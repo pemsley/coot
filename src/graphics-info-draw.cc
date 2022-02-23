@@ -375,102 +375,177 @@ graphics_info_t::scroll_zoom(int direction) {
    graphics_draw(); // or should this be called by the function that calls this function?
 }
 
+// static
+glm::mat4
+graphics_info_t::get_model_matrix() {
 
+   // rework this so that the view rotation matrix becomes part of the *model* matrix
+   // for both orthograph and perspective
 
+   glm::mat4 m(1.0f);
+   glm::vec3 rc = get_rotation_centre();
+   glm::mat4 model_translation_matrix = glm::translate(m, -rc);
+   glm::mat4 model_rotation_matrix = get_model_rotation();
+   glm::mat4 model_matrix = model_rotation_matrix * model_translation_matrix;
+   return model_matrix;
+}
 
 // static
 glm::mat4
-graphics_info_t::get_model_view_matrix() {
+graphics_info_t::get_view_matrix() { // the lookAt() matrix
 
-   // where is this used?
+   // make this static
 
-   if (! perspective_projection_flag) {
-      return glm::toMat4(glm_quat);
+   // this function reworked this so that the view rotation matrix became part of the *model* matrix
+   // for both orthograph and perspective
+
+      glm::vec3 ep = eye_position; // in view space i.e. (0,0,z) (z = 40, say)
+
+      glm::vec3 ep_ws = get_world_space_eye_position();
+      glm::vec3 rc = get_rotation_centre();
+      glm::vec3 t_ep_ws = ep_ws - rc;
+      // glm::vec3 rc = glm::vec3(0,0,0);
+      rc = glm::vec3(0,0,0);
+      glm::vec3 up(0,1,0);
+      glm::mat4 view_matrix = glm::lookAt(ep, rc, up);
+      // std::cout << "debug:: get_view_matrix() t_ep_ws " << glm::to_string(t_ep_ws) << " rc " << glm::to_string(rc) << std::endl;
+      return view_matrix;
+}
+
+// static
+glm::mat4
+graphics_info_t::get_projection_matrix(bool do_orthographic_projection,
+                                       int graphics_x_size, int graphics_y_size) {
+
+   float w = static_cast<float>(graphics_x_size);
+   float h = static_cast<float>(graphics_y_size);
+   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
+   if (do_orthographic_projection) {
+      float sr = screen_ratio;
+      GLfloat near =  -0.1 * zoom * clipping_front + eye_position.z;
+      GLfloat far  =   0.3 * zoom * clipping_back  + eye_position.z;
+
+      if (false)
+         std::cout << "debug:: get_projection_matrix() near " << near << " far " << far
+                   << " clipping-front: " << clipping_front << " clipping_back: " << clipping_back << " "
+                   << "eye_position " << glm::to_string(eye_position)
+                   << " zoom " << zoom << std::endl;
+
+      glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
+                                               -0.3f*zoom,    0.3f*zoom,
+                                               near, far);
+      // std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
+      return projection_matrix;
    } else {
-      return glm::mat4(1.0);
+      float fov = 30.0;
+      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
+                                                           screen_ratio,
+                                                           screen_z_near_perspective,
+                                                           screen_z_far_perspective);
+      // std::cout << "projection matrix persp " << glm::to_string(projection_matrix_persp)
+      // << " " << graphics_x_size << " " << graphics_y_size << std::endl;
+      return projection_matrix_persp;
    }
 }
+
+glm::mat4
+graphics_info_t::get_mvp_for_shadow_map(const glm::vec3 &light_direction_eye_space) const {
+
+   // In draw(), the light direction is converted to molecular space in the shader (setup_light())
+   //    glm::vec4 p4   = glm::vec4(light.direction,1.0) * view_rotation_matrix;
+   //    glm::vec3 direction_in_molecule_coordinates_space = glm::vec3(p4);
+   // 20211116-PE I think this is wrong. which is why, in texture-meshes.shader we (need to) do:
+   //          mat4 ivr = transpose(view_rotation);
+   //          vec3 light_dir = (vec4(light_sources[i].direction_in_molecule_coordinates_space, 1.0) * ivr).xyz;
+   // i.e. the rotation matrix inversion could and should happen in setup_light().
+   //      Let's come back to that later.
+
+   // 20220217-PE how long does this function take to run? It is called many times per frame.
+
+   // conversion from crows
+   glm::vec3 rotation_centre = get_rotation_centre();
+
+   glm::mat4 model_rotation = get_model_rotation();
+   glm::mat3 model_rotation_mat3 = glm::mat3(model_rotation);
+   glm::mat3 inv_model_rotation_mat3 = glm::transpose(model_rotation_mat3);
+
+   // glm::vec4 light_position_world_space = glm::vec4(light_position_eye_space, 1.0) * view_rotation;
+
+   glm::vec3 light_direction_world_space = inv_model_rotation_mat3 * (light_direction_eye_space);
+
+   glm::mat4 model_matrix = glm::mat4(1.0);
+
+   float box_size = 11.0;
+   box_size = 50.0; // should depend on zoom or something.
+   glm::mat4 projection_matrix = glm::ortho(-box_size, box_size, -box_size, box_size, -box_size, box_size);
+
+   glm::vec3 rc = get_rotation_centre();
+   glm::vec3 light_position = 1.0f * light_direction_world_space + rc;
+
+   glm::vec3 y_screen = get_screen_y_uv();
+   glm::mat4 light_position_matrix = glm::lookAt(light_position, rotation_centre, y_screen);
+
+   glm::vec3 eye_position_ws = get_world_space_eye_position();
+
+   if (false)
+      std::cout << "debug:: get_mvp_for_shadow_map() rotation-centre: " << glm::to_string(rc)
+                << " light_position: " << glm::to_string(light_position)
+                << " eye_position: "   << glm::to_string(eye_position_ws)
+                << std::endl;
+
+   glm::mat4 mvp = projection_matrix * light_position_matrix * model_matrix;
+   return mvp;
+
+}
+
+// static
+glm::mat4
+graphics_info_t::get_light_space_mvp(int light_index) {
+
+   glm::mat4 m(1.0f);
+   std::map<unsigned int, lights_info_t>::const_iterator it;
+   it = lights.find(light_index);
+   if (it != lights.end()) {
+      graphics_info_t g;
+      glm::vec3 dir = it->second.direction;
+      m = g.get_mvp_for_shadow_map(dir); // make this static?
+   } else {
+      std::cout << "ERROR:: get_light_space_mvp() bad light index " << light_index << std::endl;
+   }
+   return m;
+}
+
+
+
 
 // static
 glm::mat4
 graphics_info_t::get_molecule_mvp(bool debug_matrices) {
 
-   // presumes that we are in the correct programID
+   int w = graphics_x_size;
+   int h = graphics_y_size;
 
-   float w = static_cast<float>(graphics_info_t::graphics_x_size);
-   float h = static_cast<float>(graphics_info_t::graphics_y_size);
-   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
-
-   // I don't think that the quaternion belongs to the model matrix, it should be
-   // part of the view matrix I think.
-   // Yes. That's right.
-   glm::mat4 model_matrix = glm::mat4(1.0);
-
-   float z = graphics_info_t::zoom * 0.04;
-   glm::vec3 sc(z,z,z);
-
-   GLfloat near = -0.1 * zoom * clipping_front;
-   GLfloat far  =  0.3 * zoom * clipping_back;
-
-   if (false)
-      std::cout << "near " << near << " far " << far << " clipping front "
-                << clipping_front << " back " << clipping_back << std::endl;
-
-   float sr = screen_ratio;
-   glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
-                                            -0.3f*zoom,    0.3f*zoom,
-                                            near, far);
-
-
-   glm::vec3 rc = graphics_info_t::get_rotation_centre();
-   // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
-   glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
-
-   view_matrix = glm::translate(view_matrix, -rc);
-   // view_matrix = glm::scale(view_matrix, reverse_z); causes weirdness - not sure about handedness
-   glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
-
-   if (graphics_info_t::perspective_projection_flag) {
-
-      // for fun/testing
-      // turn off view scaling when tinkering with this?
-      // there should not be a concept of "zoom" with perspective view, just translation
-      // along screen-Z.
-
-      glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
-
-      glm::vec3 ep = eye_position; // in view space i.e. (0,0,z) (z = 40, say)
-      glm::vec3 up(0,1,0);
-      glm::vec3 origin(0,0,0);
-
-      model_matrix = glm::mat4(1.0);
-      model_matrix = glm::translate(model_matrix, -rc);
-      model_matrix = trackball_matrix * model_matrix;
-
-      view_matrix = glm::lookAt(ep, origin, up);
-
-      float fov = 50.0/zoom; // degrees
-      if (fov > 50.0) fov = 50.0;
-      fov = 35.0;
-      fov = 30.0;
-
-      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
-                                                           screen_ratio,
-                                                           screen_z_near_perspective,
-                                                           screen_z_far_perspective);
-      projection_matrix = projection_matrix_persp; // for debugging below
-      mvp = projection_matrix_persp * view_matrix * model_matrix;
+   if (true) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything                    
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+      w = allocation.width;
+      h = allocation.height;
    }
 
-   // bool debug_matrices = false;
-   if (debug_matrices) {
-      std::cout << "model, view, projection, mvp" << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(model_matrix) << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(view_matrix) << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(projection_matrix) << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(mvp) << std::endl;
+   bool do_orthographic_projection = ! perspective_projection_flag; // weird
+   glm::mat4  view_matrix =       get_view_matrix();
+   glm::mat4 model_matrix =      get_model_matrix();
+   glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+   glm::mat4 mvp = proj_matrix * view_matrix * model_matrix;
+
+   if (false) {
+      std::cout << "debug:: in get_molecule_mvp() model " << glm::to_string(model_matrix) << std::endl;
+      std::cout << "debug:: in get_molecule_mvp() view  " << glm::to_string(view_matrix)  << std::endl;
+      std::cout << "debug:: in get_molecule_mvp() proj  " << glm::to_string(proj_matrix)  << std::endl;
+      std::cout << "debug:: in get_molecule_mvp() mvp   " << glm::to_string(mvp)          << std::endl;
    }
    return mvp;
+
 }
 
 // can we work out the eye position without needing to unproject? (because that depends
@@ -489,9 +564,9 @@ graphics_info_t::get_world_space_eye_position() {
       glm::vec3 test_vector_1(0.0, 0.0, 1.0);
       glm::vec3 test_vector_2(1.0, 1.0, 0.0);
 
-      glm::mat4 vr = get_view_rotation();
-      glm::vec4 rot_test_vector_1 = glm::vec4(test_vector_1, 1.0) * vr;
-      glm::vec4 rot_test_vector_2 = glm::vec4(test_vector_2, 1.0) * vr;
+      glm::mat4 mr = get_model_rotation();
+      glm::vec4 rot_test_vector_1 = glm::vec4(test_vector_1, 1.0) * mr;
+      glm::vec4 rot_test_vector_2 = glm::vec4(test_vector_2, 1.0) * mr;
 
       glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
       glm::vec3 rc = graphics_info_t::get_rotation_centre();
@@ -565,45 +640,13 @@ graphics_info_t::unproject(float z) {
 }
 
 
+// the mouse-based quaternion now rotates the model, not the view!
 glm::mat4
-graphics_info_t::get_view_rotation() {
+graphics_info_t::get_model_rotation() {
 
    // need to be in the correct program (well, the model-drawing part)
 
    return glm::toMat4(graphics_info_t::glm_quat);
-
-}
-
-
-void
-graphics_info_t::setup_map_uniforms(Shader *shader_p,
-                                    const glm::mat4 &mvp,
-                                    const glm::mat4 &view_rotation,
-                                    float density_surface_opacity) {
-
-   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-   GLenum err = glGetError();
-   if (err) std::cout << "   setup_map_uniforms() glUniformMatrix4fv() mvp " << err << std::endl;
-   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-   err = glGetError();
-   if (err) std::cout << "   setup_map_uniforms() glUniformMatrix4fv() vr  " << err << std::endl;
-
-   GLuint background_colour_uniform_location = shader_p->background_colour_uniform_location;
-   glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
-   glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-   err = glGetError();
-   if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for bg  " << err << std::endl;
-
-   // GLuint opacity_uniform_location = shader.map_opacity_uniform_location;
-   shader_p->set_float_for_uniform("map_opacity", density_surface_opacity);
-   err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniformf() for opacity "
-                                          << err << std::endl;
-
-   GLuint eye_position_uniform_location = shader_p->eye_position_uniform_location;
-   glm::vec4 ep = glm::vec4(get_world_space_eye_position(), 1.0);
-   glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-   err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for eye position "
-                                          << err << std::endl;
 
 }
 
@@ -642,8 +685,6 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    //
 
-   bool cosine_dependent_map_opacity = true;
-
    unsigned int n_transparent_maps = 0;
    unsigned int n_maps_to_draw = 0;
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
@@ -671,6 +712,8 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    }
 
+   bool cosine_dependent_map_opacity = true;
+
    if (cosine_dependent_map_opacity) {
       needs_blend_reset = true;
       glEnable(GL_BLEND);
@@ -686,186 +729,28 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
-      shader_for_maps.Use();
+
+      Shader &shader = shader_for_meshes;
+      shader.Use(); // needed? I think not.
 
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation = get_view_rotation();
+      glm::mat4 model_rotation = get_model_rotation();
 
       glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
       glDepthFunc(GL_LESS);
-
-      Shader &shader = shader_for_maps;
-
+      glDisable(GL_BLEND); // 20220211-PE testing (where has the previous map gone?)
+                           // Hmm.. - seems not to be it.
       glm::vec4 ep(get_world_space_eye_position(), 1.0);
       glm::vec3 ep3 = ep/ep.w;
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
-         molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
-         if (! m.draw_it_for_map) continue;
-         if (draw_transparent_maps) {
-            if (m.is_an_opaque_map())
-               continue; // not this round
-         } else {
-            // only draw (completely) opaque (that's what the question means)
-            if (! m.is_an_opaque_map())
-               continue;
-         }
-
-         if (m.n_vertices_for_map_VertexArray > 0) {
-
-            err = glGetError();
-            if (err) std::cout << "draw_map_molecules() --- draw map loop start --- error "
-                               << std::endl;
-
-            bool draw_with_lines = true;
-            if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
-
-            //glUniform1i(shader.is_perspective_projection_uniform_location,
-            // graphics_info_t::perspective_projection_flag);
-            shader.set_bool_for_uniform("is_perspective_projection", perspective_projection_flag);
-            err = glGetError(); if (err) std::cout << "   draw_map_molecules() error B " << std::endl;
-
-            shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::shader_do_depth_fog_flag);
-            shader.set_bool_for_uniform("do_diffuse_lighting", true);
-            shader.set_float_for_uniform("shininess", m.shader_shininess);
-            shader.set_float_for_uniform("specular_strength", m.shader_specular_strength);
-
-            // --- lights ----
-
-            std::map<unsigned int, lights_info_t>::const_iterator it; // iterate over the lights map
-            for (it=lights.begin(); it!=lights.end(); it++) {
-               unsigned int light_idx = it->first;
-               const lights_info_t &light = it->second;
-               shader.setup_light(light_idx, light, view_rotation);
-            }
-
-            // --- material ---
-
-            Material &material = m.material_for_maps;
-            shader.set_bool_for_uniform("do_specular",         material.do_specularity);
-            shader.set_vec4_for_uniform( "material.ambient",   material.ambient);
-            shader.set_vec4_for_uniform( "material.diffuse",   material.diffuse);
-            shader.set_vec4_for_uniform( "material.specular",  material.specular * material.do_specularity); // binary multiply
-            shader.set_float_for_uniform("material.shininess", material.shininess);
-            shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
-
-            if (false)
-               std::cout << "draw_map_molecules(): do_specular " << material.do_specularity
-                         << " strength " << material.specular_strength
-                         << " shiny " << material.shininess << std::endl;
-
-            // --- background ---
-
-            GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-            glm::vec4 bgc(background_colour, 1.0);
-            glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
-
-            // --- fresnel ---
-
-            if (false)
-               std::cout << "debug fresnel settings state: " << m.fresnel_settings.state
-                         << " bias " << m.fresnel_settings.bias << " scale "
-                         << m.fresnel_settings.scale << " power " << m.fresnel_settings.power << std::endl;
-
-            shader.set_bool_for_uniform("do_fresnel",     m.fresnel_settings.state);
-            shader.set_float_for_uniform("fresnel_bias",  m.fresnel_settings.bias);
-            shader.set_float_for_uniform("fresnel_scale", m.fresnel_settings.scale);
-            shader.set_float_for_uniform("fresnel_power", m.fresnel_settings.power);
-            shader.set_vec4_for_uniform("fresnel_colour", m.fresnel_settings.colour);
-
-            // --- draw ---
-
-            if (draw_with_lines) {
-               // I don't see why this is needed - but it is.
-               if (! m.is_an_opaque_map())
-                  glEnable(GL_BLEND);
-
-               glBindVertexArray(m.m_VertexArrayID_for_map);
-               err = glGetError();
-               if (err) std::cout << "ERROR:: draw_map_molecules() glBindVertexArray() "
-                                  << m.m_VertexArrayID_for_map
-                                  << " with GL err " << err << std::endl;
-               if (err) {
-                  // no point in continuing
-                  std::cout << "### Catastrophic failure in draw_map_molecules() returning now " << std::endl;
-                  return;
-               }
-
-               glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
-
-               setup_map_uniforms(&shader, mvp, view_rotation, m.density_surface_opacity);
-               glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
-                              GL_UNSIGNED_INT, nullptr);
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glDrawElements() n_vertices: "
-                                  << m.n_vertices_for_map_VertexArray
-                                  << " with GL err " << err << std::endl;
-            }
-
-            if (!draw_with_lines) { // draw as a solid object
-               if (false)
-                  std::cout << "   draw_map_molecules(): imol " << ii
-                            << " array_id and n_vertices_for_VertexArray: "
-                            << m.m_VertexArrayID_for_map << " "
-                            << m.n_indices_for_triangles
-                            << std::endl;
-
-               if (! m.is_an_opaque_map()) {
-                  // sort the triangles
-                  clipper::Coord_orth eye_pos_co(ep.x, ep.y, ep.z);
-                  m.sort_map_triangles(eye_pos_co);
-               }
-
-               glBindVertexArray(m.m_VertexArrayID_for_map);
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
-                                  << m.m_VertexArrayID_for_map << " with GL err " << err << std::endl;
-               glEnable(GL_BLEND);
-               glBindBuffer(GL_ARRAY_BUFFER,         m.m_VertexBufferID);
-               glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_triangles_ID);
-
-               glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-               glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-
-               // opacity:
-               // GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
-               // float opacity = m.density_surface_opacity;
-               // glUniform1f(opacity_uniform_location, opacity);
-               shader.set_float_for_uniform("map_opacity", m.density_surface_opacity);
-               err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
-                                                      << err << std::endl;
-               // cosine_dependent_map_opacity
-               shader.set_bool_for_uniform("cosine_dependent_map_opacity", cosine_dependent_map_opacity);
-
-               GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-               glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-
-               glDrawElements(GL_TRIANGLES, m.n_indices_for_triangles, GL_UNSIGNED_INT, nullptr);
-
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glDrawElements() n_indices_for_triangles "
-                                  << graphics_info_t::molecules[ii].n_indices_for_triangles
-                                  << " with GL err " << err << std::endl;
-            }
-         }
+         molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
+         m.draw_map_molecule(draw_transparent_maps, shader, mvp, model_rotation, eye_position, ep,
+                             lights, background_colour, perspective_projection_flag);
       }
-
-
    }
-
-   // to be clean we should use
-   // glDisableVertexAttribArray(0);
-   // here.
-   // that would mean adding glEnableVertexAttribArray() for the attributes (position, normal, colour).
-   // in the above block.
 
    if (needs_blend_reset) {
       glDisable(GL_BLEND);
@@ -876,138 +761,66 @@ void
 graphics_info_t::draw_model_molecules() {
 
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation();
+
+   // std::cout << "debug:: mvp in draw_model_molecules() is     " << glm::to_string(mvp) << std::endl;
+   glm::mat4 model_rotation = get_model_rotation();
 
    glm::vec4 bgc(background_colour, 1.0);
+
    for (int ii=n_molecules()-1; ii>=0; ii--) {
       if (! is_valid_model_molecule(ii)) continue;
       molecule_class_info_t &m = molecules[ii];
       if (! m.draw_it) continue;
-      Shader &shader_p = shader_for_model_as_meshes;
-      m.draw_molecule_as_meshes(&shader_p, mvp, view_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+
+      // I think that this is for the instanced meshes.
+      // Shader &shader_p = shader_for_model_as_meshes; // is this actually instanced meshes?
+      // m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+
       if (show_symmetry) {
          Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
-         m.draw_symmetry(&symm_shader_p, mvp, view_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+         m.draw_symmetry(&symm_shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
       }
    }
 
    // this block of code should be a member function of molecule_class_info_t
+   // (20220208-PE it mostly is now - but still it should be a one-liner here in draw_model_molecules()
 
-   Shader &shader = graphics_info_t::shader_for_models;
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
       molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
       if (! m.draw_it) continue;
 
-      if (false)
-         std::cout << "imol " << ii << " n_vertices_for_model_VertexArray "
-                   << m.n_vertices_for_model_VertexArray << std::endl;
-      if (m.n_vertices_for_model_VertexArray > 0) {
+      bool show_just_shadows = false;
+      bool wireframe_mode = false;
+      float opacity = 1.0f;
+      Shader *shader_p = &shader_for_meshes;
+      if (m.draw_model_molecule_as_lines) {
+         float lw = m.get_bond_thickness(); // returns an int.
+         m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bgc, lw, shader_do_depth_fog_flag);
+      } else {
+         m.molecule_as_mesh.draw(shader_p, mvp, model_rotation, lights, eye_position, opacity, bgc,
+                                 wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+      }
 
-         // glEnable(GL_BLEND); // 20211014-PE meh
-         glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
-         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
-
-         shader.Use();
-         GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
-                                                       << err << std::endl;
-
-         // glUniform1i(shader.is_perspective_projection_uniform_location,
-         // graphics_info_t::perspective_projection_flag);
-         shader.set_bool_for_uniform("is_perspective_projection", perspective_projection_flag);
-
-         glBindVertexArray(m.m_VertexArray_for_model_ID);
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glBindVertexArray() "
-                            << m.m_VertexArray_for_model_ID
-                            << " with GL err " << err << std::endl;
-
-         glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
-         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
-         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() i " << err << std::endl;
-
-         GLuint mvp_location           = shader.mvp_uniform_location;
-         GLuint view_rotation_location = shader.view_rotation_uniform_location;
-
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() pre mvp " << err << std::endl;
-         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
-         glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation "
-                            << err << std::endl;
-
-         // std::cout << glm::to_string(mvp) << std::endl;
-         // std::cout << glm::to_string(view_rotation) << std::endl;
-
-         GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-         glm::vec4 bgc(background_colour, 1.0);
-         glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
-
-         GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec3 ep(get_world_space_eye_position());
-         glUniform3fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform3fv() for eye position " << err << std::endl;
-
-         shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
-         shader.set_bool_for_uniform("do_diffuse_lighting", true); // false for demo c.f. old style graphics
-
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() pre-lights glDrawElements() "
-                            << shader.name << " with err " << err << std::endl;
-
-         // --- lights ----
-
-         std::map<unsigned int, lights_info_t>::const_iterator it; // iterate over the lights map
-         for (it=lights.begin(); it!=lights.end(); it++) {
-            unsigned int light_idx = it->first;
-            const lights_info_t &light = it->second;
-            shader.setup_light(light_idx, light, view_rotation);
-         }
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() post-lights "
-                            << shader.name << " with err " << err << std::endl;
-
-
-         // --- material ---
-
-         const Material &material = m.material_for_models;
-         shader.set_vec4_for_uniform( "material.ambient",   material.ambient);
-         shader.set_vec4_for_uniform( "material.diffuse",   material.diffuse);
-         shader.set_vec4_for_uniform( "material.specular",  material.specular);
-         shader.set_float_for_uniform("material.shininess", material.shininess);
-         shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
-
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() post-material "
-                            << shader.name << " with err " << err << std::endl;
-
-         // draw with the vertex count, not the index count.
-         GLuint n_verts = molecules[ii].n_indices_for_model_triangles;
-
-         // std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
-         err = glGetError();
-         if (err) std::cout << "   error pre draw_model_molecules() glDrawElements() " << shader.name
-                            << " n_vertices " << n_verts << " with GL err " << err << std::endl;
-         glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glDrawElements() " << shader.name
-                            << " n_vertices " << n_verts << " with GL err " << err << std::endl;
-
-         draw_molecule_atom_labels(m, mvp, view_rotation);
-
-         m.draw_dots(&shader_for_rama_balls, mvp, view_rotation, lights, eye_position,
+      m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 
-      }
+      glEnable(GL_BLEND);
+      draw_molecule_atom_labels(m, mvp, model_rotation);
+
    }
+}
+
+void
+graphics_info_t::draw_model_molecules_with_shadows() {
+
+}
+
+void
+graphics_info_t::draw_map_molecules_with_shadows() {
+
+   // called by draw_molecules_with_shadows()
 }
 
 void
@@ -1023,13 +836,13 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
    glm::vec4 label_colour(font_colour.red, font_colour.green, font_colour.blue, 1.0);
 
    if (false) { // test label
+
       // Put atom label test at 42, 9, 13
       glm::vec3 point(42, 9, 13);
       // point = glm::vec3(0,0,0);
 
       glm::vec4 projected_point_2 = mvp * glm::vec4(point, 1.0);
-      if (true)
-         std::cout << "projected point " << glm::to_string(projected_point_2) << std::endl;
+      std::cout << "projected point " << glm::to_string(projected_point_2) << std::endl;
 
       projected_point_2.x = 0.5 * (projected_point_2.x + 1.0f);
       projected_point_2.y = 0.5 * (projected_point_2.y + 1.0f);
@@ -1057,89 +870,29 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 void
 graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
 
-   // all these draw functions should be moved int graphics_info_t.
+   // this function gets called from draw_with_shadows() - but doesn't yet
+   // use the shodows meshes shader.
 
    if (! moving_atoms_asc) return;
    if (! moving_atoms_asc->mol) return;
 
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation();
+   glm::mat4 model_rotation = get_model_rotation();
 
-   Shader &shader = graphics_info_t::shader_for_models;
-   if (true) {
-      const molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
+   Shader &shader = graphics_info_t::shader_for_meshes;
 
-      if (m.n_vertices_for_model_VertexArray > 0) {
+   molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
+   glm::vec4 bgc(background_colour, 1.0);
+   bool show_just_shadows = false; // make this a member data item.
+   if (false)
+      std::cout << "----------------- draw_intermediate_atoms() intermediate atoms mesh has "
+                << m.molecule_as_mesh.vertices.size() << " vertices and " << m.molecule_as_mesh.triangles.size()
+                << " triangles" << std::endl;
+   bool wireframe_mode = false;
+   float opacity = 1.0f;
+   m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
+                           wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-         glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
-         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
-
-         glBindVertexArray(m.m_VertexArray_for_model_ID);
-         GLenum err = glGetError();
-         if (err) std::cout << "error draw_intermediate_atoms() glBindVertexArray() "
-                            << m.m_VertexArray_for_model_ID
-                            << " with GL err " << err << std::endl;
-
-         shader.Use();
-         err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
-                            << err << std::endl;
-
-#if 0
-         // should not be needed? - the VAO contains this information.  Needs testing.
-
-         glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
-         err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() v "
-                            << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
-         err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() i "
-                            << err << std::endl;
-
-#endif
-
-         GLuint mvp_location           = shader.mvp_uniform_location;
-         GLuint view_rotation_location = shader.view_rotation_uniform_location;
-
-         err = glGetError();
-         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() pre mvp "
-                            << err << std::endl;
-         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
-         err = glGetError();
-         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() for mvp "
-                            << err << std::endl;
-         glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
-         err = glGetError();
-         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() "
-                            << "for view_rotation " << err << std::endl;
-
-         GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-         glm::vec4 bgc(background_colour, 1.0);
-         glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-         err = glGetError();
-         if (err) std::cout << "error draw_model_molecules() glUniform4fv() for background "
-                            << err << std::endl;
-
-         GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec3 ep = get_world_space_eye_position();
-         glUniform3fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-         err = glGetError();
-         if (err) std::cout << "error draw_intermediate_atoms() glUniform4fv() for eye position "
-                            << err << std::endl;
-
-         shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
-
-         // draw with the vertex count, not the index count.
-         GLuint n_verts = m.n_indices_for_model_triangles;
-         // std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
-         glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
-         err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
-                            << n_verts << " with GL err " << err << std::endl;
-
-      }
-   }
 }
 
 
@@ -1212,7 +965,7 @@ graphics_info_t::draw_intermediate_atoms_rama_balls() {
 
    glm::mat4 mvp = get_molecule_mvp();
    glm::vec3 eye_position = get_world_space_eye_position();
-   glm::mat4 view_rotation = get_view_rotation();
+   glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
    bool do_depth_fog = true;
    // this is a bit ugly
@@ -1223,7 +976,7 @@ graphics_info_t::draw_intermediate_atoms_rama_balls() {
    // std::vector<Instanced_Markup_Mesh_attrib_t> balls;
    // update_rama_balls(&balls);
    // rama_balls_mesh.update_instancing_buffers(balls);
-   rama_balls_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
+   rama_balls_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, bg_col, do_depth_fog);
 
 }
 
@@ -1439,7 +1192,14 @@ graphics_info_t::draw_atom_pull_restraints() {
       if (!moving_atoms_asc) return;
       if (moving_atoms_asc->n_selected_atoms > 0) {
 
+         // std::cout << "drawing atom pull restraints with n_atom_pulls " << n_atom_pulls << std::endl;
+
          if (n_atom_pulls > 0) { // class variable now.
+
+            if (false)
+               std::cout << "drawing atom pull restraints with n_atom_pulls " << n_atom_pulls
+                         << " and n_triangles_for_atom_pull_restraints " << n_triangles_for_atom_pull_restraints
+                         << std::endl;
 
             Shader &shader = shader_for_models;
             shader.Use();
@@ -1451,20 +1211,27 @@ graphics_info_t::draw_atom_pull_restraints() {
             err = glGetError();
             if (err) std::cout << "   error draw_atom_pull_restraints() glBindVertexArray()"
                                << " with GL err " << err << std::endl;
-            glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_pull_restraints_ID);
-            err = glGetError();
-            if (err) std::cout << "   error draw_atom_pull_restraints() glBindBuffer()"
-                               << " with GL err " << err << std::endl;
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_atom_pull_restraints_ID);
-            err = glGetError();
-            if (err) std::cout << "   error draw_atom_pull_restraints() glBindBuffer() for index"
-                               << " with GL err " << err << std::endl;
-
-            // Uniforms - how are these not used!?
             glm::mat4 mvp = get_molecule_mvp();
-            glm::mat4 view_rotation = get_view_rotation();
+            glm::mat4 model_rotation = get_model_rotation();
             GLuint mvp_location = shader.mvp_uniform_location;
+            GLuint view_rotation_location = shader.view_rotation_uniform_location;
+            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
+            glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &model_rotation[0][0]);
+
+            std::map<unsigned int, lights_info_t>::const_iterator it;
+            unsigned int light_idx = 0;
+            it = lights.find(light_idx);
+            if (it != lights.end())
+               shader.setup_light(light_idx, it->second, model_rotation, eye_position);
+            light_idx = 1;
+            it = lights.find(light_idx);
+            if (it != lights.end())
+               shader.setup_light(light_idx, it->second, model_rotation, eye_position);
+
+            glm::vec4 bg_col(background_colour, 1.0f);
+            shader.set_vec4_for_uniform("background_colour", bg_col);
+            shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
 
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
@@ -1541,8 +1308,8 @@ graphics_info_t::draw_particles() {
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
-         glm::mat4 view_rotation = get_view_rotation();
-         mesh_for_particles.draw_particles(&shader_for_particles, mvp, view_rotation);
+         glm::mat4 model_rotation = get_model_rotation();
+         mesh_for_particles.draw_particles(&shader_for_particles, mvp, model_rotation);
       }
    }
 }
@@ -1567,12 +1334,12 @@ graphics_info_t::draw_happy_face_residue_markers() {
 
          graphics_info_t g; // needed for draw_count_max_for_happy_face_residue_markers. Use a better way?
          glm::mat4 mvp = get_molecule_mvp();
-         glm::mat4 view_rotation = get_view_rotation();
+         glm::mat4 model_rotation = get_model_rotation();
          texture_for_happy_face_residue_marker.Bind(0);
          unsigned int draw_count = draw_count_for_happy_face_residue_markers;
          unsigned int draw_count_max = g.draw_count_max_for_happy_face_residue_markers;
          tmesh_for_happy_face_residues_markers.draw_instances(&shader_for_happy_face_residue_markers,
-                                                              mvp, view_rotation,
+                                                              mvp, model_rotation,
                                                               draw_count, draw_count_max);
       }
    }
@@ -1585,9 +1352,10 @@ graphics_info_t::draw_anchored_atom_markers()  {
    if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
-         glm::mat4 view_rotation = get_view_rotation();
+         glm::mat4 model_rotation = get_model_rotation();
          texture_for_anchored_atom_markers.Bind(0);
-         tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, view_rotation);
+         // tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, view_rotation);
+         std::cout << "FIXME draw_anchored_atom_markers() merged code " << std::endl;
       }
    }
 }
@@ -1600,9 +1368,8 @@ graphics_info_t::draw_texture_meshes() {
    if (! texture_meshes.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 view_rotation = get_view_rotation();
+      glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
-      bool do_depth_fog = shader_do_depth_fog_flag;
       Shader &shader = shader_for_texture_meshes;
       for (unsigned int i=0; i<texture_meshes.size(); i++) {
          TextureMesh &tm = texture_meshes[i];
@@ -1610,6 +1377,8 @@ graphics_info_t::draw_texture_meshes() {
          if (! tm.textures.empty()) {
             // std::cout << "Binding and drawing the texture mesh" << std::endl;
 
+            std::cout << "............ get crow texture drawing code" << std::endl;
+#if 0
             //
             // 20211018-PE it matters that these get called in the right order!
             //
@@ -1634,6 +1403,7 @@ graphics_info_t::draw_texture_meshes() {
                }
                tm.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
             }
+#endif
          }
       }
    }
@@ -1722,7 +1492,7 @@ graphics_info_t::draw_molecules() {
 
    draw_atom_pull_restraints();
 
-   draw_meshed_generic_display_object_meshes();
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
 
    draw_instanced_meshes();
 
@@ -1756,6 +1526,148 @@ graphics_info_t::draw_molecules() {
 
 }
 
+void
+graphics_info_t::draw_molecules_with_shadows() {
+
+   int n_mols = n_molecules();
+   bool show_just_shadows = false;
+   glm::mat4 mvp = get_molecule_mvp();
+   auto model_rotation_matrix = get_model_rotation();
+
+   int light_index = 0; // 20220215-PE for now.
+   glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
+   glm::vec4 bg_col_v4(background_colour, 1.0f);
+
+   // models
+
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i)) {
+         molecule_class_info_t &m = molecules[i];
+         if (m.draw_it) {
+
+            if (m.draw_model_molecule_as_lines) {
+
+               float lw = m.get_bond_thickness(); // returns an int.
+               m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bg_col_v4, lw, shader_do_depth_fog_flag);
+
+            } else {
+
+               float opacity = 1.0;
+               m.molecule_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                    eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                    shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+            }
+
+            // this has not been shadowified:
+            m.draw_dots(&shader_for_rama_balls, mvp, model_rotation_matrix, lights, eye_position,
+                        bg_col_v4, shader_do_depth_fog_flag);
+
+            glEnable(GL_BLEND);
+            // good idea to not use shadows on atom labels?
+            draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
+         }
+      }
+   }
+
+   // maps
+
+
+   // put this function inside molecule_class_info_t
+   //
+   auto draw_map_with_shadow = [] (molecule_class_info_t &m,
+                                   const glm::mat4 &mvp,
+                                   const glm::mat4 &model_rotation_matrix,
+                                   const glm::vec4 &bg_col_v4,
+                                   const glm::mat4 &light_view_mvp) {
+
+                                  // draw_map_molecule() (the non-shadow version) is inside molecule_class_info_t - so should this function be too
+                                  if (m.draw_it_for_map) {
+
+                                     bool show_just_shadows = false;
+
+                                     // this block should be inside draw_with_shadows(), indeed, fresnel_settings should be passed
+                                     // to Mesh::draw_with_shadows()
+                                     //
+                                     shader_for_meshes_with_shadows.Use();
+                                     shader_for_meshes_with_shadows.set_bool_for_uniform("do_fresnel",     m.fresnel_settings.state);
+                                     shader_for_meshes_with_shadows.set_float_for_uniform("fresnel_bias",  m.fresnel_settings.bias);
+                                     shader_for_meshes_with_shadows.set_float_for_uniform("fresnel_scale", m.fresnel_settings.scale);
+                                     shader_for_meshes_with_shadows.set_float_for_uniform("fresnel_power", m.fresnel_settings.power);
+                                     shader_for_meshes_with_shadows.set_vec4_for_uniform("fresnel_colour", m.fresnel_settings.colour);
+
+                                     float opacity = m.density_surface_opacity;
+
+                                     if (m.draw_it_for_map_standard_lines) {
+                                        myglLineWidth(map_line_width);
+                                        if (opacity < 1.0) m.map_as_mesh_gl_lines_version.use_blending = true;
+                                        m.map_as_mesh_gl_lines_version.set_material(m.material_for_maps);
+                                        m.map_as_mesh_gl_lines_version.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                                                         eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                                                         shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+                                     } else {
+                                        if (opacity < 1.0) m.map_as_mesh.use_blending = true;
+                                        m.map_as_mesh.set_material(m.material_for_maps);
+                                        m.map_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                                        eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                                        shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+                                     }
+                                  }
+                               };
+
+
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_map_molecule(i)) {
+         molecule_class_info_t &m = molecules[i];
+         draw_map_with_shadow(m, mvp, model_rotation_matrix, bg_col_v4, light_view_mvp);
+      }
+   }
+
+
+   // convert these to shadow versions
+
+   draw_outlined_active_residue();
+
+   draw_intermediate_atoms();
+
+   draw_intermediate_atoms_rama_balls();
+
+   draw_atom_pull_restraints();
+
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+
+   draw_instanced_meshes();
+
+   draw_map_molecules(false); // transparency
+
+   draw_unit_cells();
+
+   draw_environment_graphics_object();
+
+   draw_generic_objects();
+
+   draw_hydrogen_bonds_mesh(); // like boids
+
+   draw_boids();
+
+   draw_particles();
+
+   draw_happy_face_residue_markers();
+
+   draw_anchored_atom_markers();
+
+   // this is the last opaque thing to be drawn because the atom labels are blended.
+   // It should be easy to break out the atom label code into its own function. That
+   // might be better.
+   //
+   // draw_model_molecules();
+
+   // transparent things...
+
+   // draw_map_molecules(true);
+
+
+}
+
 
 // This does (draws) symmetry too.
 //
@@ -1780,14 +1692,17 @@ graphics_info_t::draw_environment_graphics_object() {
          if (environment_show_distances) {
             glm::mat4 mvp = get_molecule_mvp();
             glm::vec3 eye_position = get_world_space_eye_position();
-            glm::mat4 view_rotation = get_view_rotation();
+            glm::mat4 model_rotation = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0);
 
             bool do_depth_fog = shader_do_depth_fog_flag;
+            bool show_just_shadows = false;
+            bool wireframe_mode = false;
+            float opacity = 1.0f;
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
-                                                     mvp, view_rotation,
-                                                     lights, eye_position, bg_col,
-                                                     do_depth_fog);
+                                                     mvp, model_rotation,
+                                                     lights, eye_position, opacity, bg_col,
+                                                     wireframe_mode, do_depth_fog, show_just_shadows);
 
             Shader *shader_p = &shader_for_atom_labels;
 
@@ -1803,7 +1718,7 @@ graphics_info_t::draw_environment_graphics_object() {
                   // caches these textures in a map std::map<std::string, thing> where
                   // the key is the label.
                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
-                                                   mvp, view_rotation, bg_col, do_depth_fog,
+                                                   mvp, model_rotation, bg_col, do_depth_fog,
                                                    perspective_projection_flag);
                }
             }
@@ -1851,10 +1766,14 @@ graphics_info_t::draw_outlined_active_residue() {
       glm::mat4 mvp = get_molecule_mvp();
       std::map<unsigned int, lights_info_t> dummy_lights;
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 view_rotation = get_view_rotation();
+      glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_outline_of_active_residue;
-      mesh_for_outline_of_active_residue.draw(&shader, mvp, view_rotation, dummy_lights, eye_position, bg_col, false);
+      bool show_just_shadows = false;
+      bool wireframe_mode = false;
+      float opacity = 1.0f;
+      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, opacity,
+                                              bg_col, wireframe_mode, false, show_just_shadows);
    }
 };
 
@@ -1871,7 +1790,7 @@ graphics_info_t::draw_unit_cells() {
 }
 
 void
-graphics_info_t::draw_meshed_generic_display_object_meshes() {
+graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
@@ -1888,10 +1807,18 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
 
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation();
+   glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
+   glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
-
    bool do_depth_fog = true;
+
+   unsigned int light_index = 0;
+   std::map<unsigned int, lights_info_t>::const_iterator it = lights.find(light_index);
+   if (it != lights.end()) {
+      graphics_info_t g;
+      const auto &light = it->second;
+      mvp_orthogonal = g.get_mvp_for_shadow_map(light.direction);
+   }
 
    //std::cout << "mvp diag "
    // << mvp[0][0] << " " << mvp[1][1] << " " << mvp[2][2] << std::endl;
@@ -1917,17 +1844,57 @@ graphics_info_t::draw_meshed_generic_display_object_meshes() {
             // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
+               Mesh &mesh = m.meshes[jj];
                // std::cout << "mesh jj " << jj << " of " << m.meshes.size()
                // << " instanced" << m.meshes[jj].is_instanced << std::endl;
-               if (m.meshes[jj].is_instanced) {
+               if (mesh.is_instanced) {
                   // std::cout << "   drawing instanced " << jj << std::endl;
                   // what a mess
-                  m.meshes[jj].draw_instanced(&shader_for_moleculestotriangles, mvp,
-                                              view_rotation, lights, eye_position,
+                  mesh.draw_instanced(&shader_for_moleculestotriangles, mvp,
+                                              model_rotation, lights, eye_position,
                                               bg_col, do_depth_fog);
                } else {
-                  m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
-                                    view_rotation, lights, eye_position, bg_col, do_depth_fog);
+                  if (pass_type == PASS_TYPE_STANDARD) {
+                     bool show_just_shadows = false;
+                     bool wireframe_mode = false;
+                     float opacity = 1.0f;
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                                       model_rotation, lights, eye_position, opacity, bg_col,
+                                       wireframe_mode, do_depth_fog, show_just_shadows);
+                  }
+                  if (pass_type == PASS_TYPE_SSAO) {
+                     bool do_orthographic_projection = ! perspective_projection_flag;
+                     GtkAllocation allocation;
+                     gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+                     int w = allocation.width;
+                     int h = allocation.height;
+                     auto model_matrix = get_model_matrix();
+                     auto view_matrix = get_view_matrix();
+                     auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+                     m.meshes[jj].draw_for_ssao(&shader_for_meshes_for_ssao,
+                                                model_matrix,
+                                                view_matrix,
+                                                projection_matrix);
+                  }
+                  if (pass_type == PASS_TYPE_FOR_SHADOWS) { // i.e. generating the shadow map, not using it.
+
+                     glm::vec3 dummy_eye_position;
+                     bool gl_lines_mode = false;
+                     bool show_just_shadows = false;
+                     bool opacity = 1.0;
+
+                     mesh.draw(&shader_for_meshes_shadow_map,
+                               mvp_orthogonal,
+                               model_rotation,
+                               lights,
+                               dummy_eye_position,
+                               opacity,
+                               bg_col,
+                               gl_lines_mode,
+                               do_depth_fog,
+                               show_just_shadows);
+
+                  }
                }
             }
             glUseProgram(0);
@@ -1965,7 +1932,7 @@ graphics_info_t::draw_instanced_meshes() {
    if (have_meshes_to_draw) {
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation = get_view_rotation();
+      glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       bool do_depth_fog = shader_do_depth_fog_flag;
       glDisable(GL_BLEND);
@@ -1975,7 +1942,7 @@ graphics_info_t::draw_instanced_meshes() {
             for (unsigned int jj=0; jj<m.instanced_meshes.size(); jj++) {
                // std::cout << "   graphics_info_t::draw_instanced_meshes() A " << m.instanced_meshes[jj].get_name() << std::endl;
                m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
-                                           view_rotation, lights, eye_position, bg_col, do_depth_fog);
+                                           model_rotation, lights, eye_position, bg_col, do_depth_fog);
             }
          }
       }
@@ -1987,7 +1954,7 @@ graphics_info_t::draw_instanced_meshes() {
             // std::cout << "   graphics_info_t::draw_instanced_meshes() our own " << jj << " "
             // << instanced_meshes[jj].get_name() << std::endl;
             instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
-                                      view_rotation, lights, eye_position, bg_col, do_depth_fog);
+                                      model_rotation, lights, eye_position, bg_col, do_depth_fog);
          }
       }
    }
@@ -2031,7 +1998,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    // This may not be possible in GL_LINE_SMOOTH mode.
 
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
+   glm::mat4 model_rotation = get_model_rotation(); // hhmm... naming ... 20220212-PE  fixed now.
 
    glBindVertexArray(central_cube_vertexarray_id);
    err = glGetError(); if (err) std::cout << "   error::draw_central_cube() B err " << err << std::endl;
@@ -2061,7 +2028,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
       glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
       err = glGetError();
       if (err) std::cout << "error::draw_central_cube() glUniformMatrix4fv() for mvp " << err << std::endl;
-      glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
+      glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &model_rotation[0][0]);
       err = glGetError();
       if (err) std::cout << "error::draw_central_cube() glUniformMatrix4fv() for view_rotation " << err
                          << std::endl;
@@ -2113,7 +2080,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
    if (err) std::cout << "error draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
 
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation();
+   glm::mat4 model_rotation = get_model_rotation();
 
    glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
    if (err) std::cout << "error draw_rotation_centre_crosshairs() B err " << err << std::endl;
@@ -2132,7 +2099,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
    if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for mvp " << err << std::endl;
-   glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
+   glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &model_rotation[0][0]);
    err = glGetError();
    if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
                       << std::endl;
@@ -2214,20 +2181,23 @@ graphics_info_t::draw_measure_distance_and_angles() {
    if (mesh_for_measure_distance_object_vec.get_draw_this_mesh()) {
       Shader &shader = shader_for_moleculestotriangles;
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
-      mesh_for_measure_distance_object_vec.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
-                                                bg_col, shader_do_depth_fog_flag);
+      bool show_just_shadows = false;
+      bool wireframe_mode = false;
+      float opacity = 1.0f;
+      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position,
+                                                opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      mesh_for_measure_angle_object_vec.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
-                                             bg_col, shader_do_depth_fog_flag);
+      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position,
+                                             opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (! labels_for_measure_distances_and_angles.empty()) {
          Shader &shader = shader_for_atom_labels;
          for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
             const auto &label = labels_for_measure_distances_and_angles[i];
             tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
-                                             mvp, view_rotation_matrix, bg_col,
+                                             mvp, model_rotation_matrix, bg_col,
                                              shader_do_depth_fog_flag, perspective_projection_flag);
          }
       }
@@ -2299,7 +2269,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    mesh_for_hud_tooltip_background.set_scales(glm::vec2(sc_x, sc_y));
 
    tmesh_for_hud_geometry_tooltip_label.setup_quad();
-   glm::vec2 label_scale(0.000095/aspect_ratio, 0.000095);
+   glm::vec2 label_scale(0.000095, 0.000095/aspect_ratio);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
 }
@@ -2528,6 +2498,7 @@ graphics_info_t::draw_hud_fps() {
          s += coot::util::float_to_string_using_dec_pl(fps_std_dev, 2);
          s += " ms/frame";
       }
+      // attach_buffers(); // needed?
       HUDTextureMesh htm("mesh for FPS");
       htm.setup_quad(); // oops! Does this use the right framebuffer?
       Shader &shader = shader_for_hud_geometry_tooltip_text;  // change the name of this - it's for general (real) HUD text
@@ -2540,7 +2511,6 @@ graphics_info_t::draw_hud_fps() {
       htm.set_scales(munged_scales);
       htm.set_position(munged_position_offset);
       htm.draw_label(s, col, &shader, ft_characters);
-
 
       // ----------------- HUD graph (in ms/frame) ---------------------------------
 
@@ -2569,7 +2539,7 @@ graphics_info_t::draw_hud_fps() {
          float ms_to_opengl_y = 0.0025;
          unsigned int time_count = 0;
          std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
-         for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
+         for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); ++it) {
             if (it != frame_time_history_list.begin()) {
                float x = static_cast<float>(time_count);
                const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_this = *it;
@@ -2686,13 +2656,16 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                    };
 
    auto button_2_func = [] () {
+                           std::cout << "------------------- HUD button Cancel callback start " << std::endl;
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
                            g.hud_button_info.clear();
+                           g.rebond_molecule_corresponding_to_moving_atoms();
                            g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
                            g.clear_gl_rama_plot();
+                           std::cout << "------------------- HUD button Cancel callback done " << std::endl;
                            return true;
                         };
    auto button_3_func = [] () {
@@ -3400,6 +3373,18 @@ graphics_info_t::draw_hud_geometry_tooltip() {
          if (moving_atoms_visited_residues.find(residue_p) != moving_atoms_visited_residues.end())
             use_label_highlight = false;
 
+      // we don't want the residue label text to stretch when the window is wide
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
+      std::cout << "pre-set_scales() " << glm::to_string(tmesh_for_hud_geometry_tooltip_label.get_scales()) << std::endl;
+      // 20220215-PE Hmmm about 0.00006 will do.
+      glm::vec2 label_scale(0.00006, 0.00006 * aspect_ratio);
+      tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
+      std::cout << "post-set_scales() " << glm::to_string(tmesh_for_hud_geometry_tooltip_label.get_scales()) << std::endl;
+
       tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
                                                       &shader_for_hud_geometry_tooltip_text,
                                                       ft_characters);
@@ -3408,62 +3393,116 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 
 #include "analysis/stats.hh"
 
+void
+graphics_info_t::draw_hud_elements() {
+
+
+   draw_hud_ligand_view();
+
+   draw_hud_geometry_bars();
+
+   draw_hud_geometry_tooltip(); // background and text
+
+   draw_ramachandran_plot();
+
+   draw_hud_buttons();
+
+   draw_hud_fps();
+
+   draw_hud_refinement_dialog_arrow_tab();
+
+}
+
+void
+graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
+
+   // note: this function is called from render_scene_sans_depth_blur()
+
+   //  ------------------- render scene ----------------------------
+
+   glEnable(GL_DEPTH_TEST);
+
+   // const glm::vec3 &bg = graphics_info_t::background_colour;
+   // glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
+
+   GLenum err = glGetError(); if (err) std::cout << "render_3d_scene lambda B err " << err << std::endl;
+   // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   err = glGetError(); if (err) std::cout << "render_3d_scene lambda C err " << err << std::endl;
+
+   draw_origin_cube(gl_area);
+   err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
+
+   draw_rotation_centre_crosshairs(gl_area);
+
+   draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
+                     // so rename this function? Or just bring everything here?  Put this render() function
+                     // into new file graphics-info-opengl-render.cc
+
+   draw_invalid_residue_pulse();
+
+   draw_identification_pulse();
+
+   draw_delete_item_pulse();
+
+   draw_measure_distance_and_angles(); // maybe in draw_molecules()?
+
+   draw_pointer_distances_objects();
+
+   draw_texture_meshes();
+
+}
+
+void
+graphics_info_t::render_3d_scene_with_shadows() {
+
+   // note: this function is called from render_scene_sans_depth_blur()
+
+   //  ------------------- render scene ----------------------------
+
+   glEnable(GL_DEPTH_TEST);
+   GLenum err = glGetError();
+   if (err) std::cout << "render_3d_scene_with_shadows B err " << err << std::endl;
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+
+   draw_origin_cube(gl_area);
+   err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
+
+   draw_rotation_centre_crosshairs(gl_area);
+
+   draw_molecules_with_shadows(); // includes particles, happy-faces and boids (should they be there (maybe not))
+                                  // so rename this function? Or just bring everything here?  Put this render() function
+                                  // into new file graphics-info-opengl-render.cc
+
+   draw_invalid_residue_pulse();
+
+   draw_identification_pulse();
+
+   draw_delete_item_pulse();
+
+   draw_measure_distance_and_angles(); // maybe in draw_molecules()?
+
+   draw_pointer_distances_objects();
+
+   draw_texture_meshes();
+
+}
+
+
+void
+graphics_info_t::render_3d_scene_for_ssao() {
+
+}
+
+
+
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &output_file_name) {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
 
-   auto draw_hud_elements = [] () {
-
-                          draw_hud_ligand_view();
-
-                          draw_hud_geometry_bars();
-
-                          draw_hud_geometry_tooltip(); // background and text
-
-                          draw_ramachandran_plot();
-
-                          draw_hud_buttons();
-
-                          draw_hud_fps();
-
-                          draw_hud_refinement_dialog_arrow_tab();
-
-                   };
-
-   auto render_3d_scene = [] (GtkGLArea *gl_area) {
-                          
-                          //  ------------------- render scene ----------------------------
-
-                          glEnable(GL_DEPTH_TEST);
-                          const glm::vec3 &bg = graphics_info_t::background_colour;
-                          glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
-                          GLenum err = glGetError(); if (err) std::cout << "render_3d_scene lambda B err " << err << std::endl;
-                          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                          err = glGetError(); if (err) std::cout << "render_3d_scene lambda C err " << err << std::endl;
-
-                          draw_origin_cube(gl_area);
-                          err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
-
-                          draw_rotation_centre_crosshairs(gl_area);
-
-                          draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
-                                            // so rename this function? Or just bring everything here?  Put this render() function
-                                            // into new file graphics-info-opengl-render.cc
-
-                          draw_invalid_residue_pulse();
-
-                          draw_identification_pulse();
-
-                          draw_delete_item_pulse();
-
-                          draw_measure_distance_and_angles(); // maybe in draw_molecules()?
-
-                          draw_pointer_distances_objects();
-
-                          draw_texture_meshes();
-
-                       };
+   // auto draw_hud_elements = [] () { };
+   // auto render_3d_scene = [] (GtkGLArea *gl_area) { };
 
    auto do_fps_std_dev_stuff = [] {
                               if (GetFPSFlag()) {
@@ -3474,7 +3513,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                                     int n_history_count = n_fps_history - n_history_max;
                                     int count = 0;
                                     std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
-                                    for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
+                                    for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); ++it) {
                                        if (it != frame_time_history_list.begin()) {
                                           if (count > n_history_count) {
                                              const std::chrono::time_point<std::chrono::high_resolution_clock> &tp_this = *it;
@@ -3494,28 +3533,22 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                            };
 
    auto update_fps_statistics = [do_fps_std_dev_stuff] () {
-                          if (GetFPSFlag()) {
-                             frame_counter++;
-                             std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
-                             auto delta_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - previous_frame_time_for_per_second_counter);
-                             auto elapsed_seconds = 0.001 * delta_time_ms;
-                             if (elapsed_seconds.count() >= 1.0) {
-                                float num_frames_delta = frame_counter - frame_counter_at_last_display;
-                                previous_frame_time_for_per_second_counter = tp_now;
-                                frame_counter_at_last_display = frame_counter;
-                                fps = num_frames_delta/elapsed_seconds.count();
-                                do_fps_std_dev_stuff();
-                             }
-                          }
-                       };
+                                   if (GetFPSFlag()) {
+                                      frame_counter++;
+                                      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+                                      auto delta_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - previous_frame_time_for_per_second_counter);
+                                      auto elapsed_seconds = 0.001 * delta_time_ms;
+                                      if (elapsed_seconds.count() >= 1.0) {
+                                         float num_frames_delta = frame_counter - frame_counter_at_last_display;
+                                         previous_frame_time_for_per_second_counter = tp_now;
+                                         frame_counter_at_last_display = frame_counter;
+                                         fps = num_frames_delta/elapsed_seconds.count();
+                                         do_fps_std_dev_stuff();
+                                      }
+                                   }
+                                };
 
-   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
-   int w = allocation.width;
-   int h = allocation.height;
    unsigned int frame_time_history_list_max_n_elements = 500;
-
    GtkWidget *glarea = glareas[0];
    if (glarea) {
       auto tp_now = std::chrono::high_resolution_clock::now();
@@ -3523,6 +3556,24 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
          frame_time_history_list.pop_front();
    }
+
+   bool use_crow_code = true;
+
+   if (use_crow_code) {
+      gboolean state = render_scene();
+
+      draw_hud_elements();
+
+      glFlush();
+      update_fps_statistics();
+      return state;
+   }
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
 
    bool make_image_for_screen = ! to_screendump_framebuffer_flag;
 
@@ -3609,6 +3660,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
 
+   std::cout << "calling update_fps_statistics() " << std::endl;
    update_fps_statistics();
 
    return FALSE;
@@ -3709,7 +3761,8 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
    glActiveTexture(GL_TEXTURE0 + 1);
    glBindTexture(GL_TEXTURE_2D, blur_y_framebuffer.get_texture_colour());
    glActiveTexture(GL_TEXTURE0 + 2);
-   glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_depth());
+   // glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_depth()); // 20220222-PE pre-crow code
+   glBindTexture(GL_TEXTURE_2D, framebuffer_for_effects.get_texture_depth());
 
    shader_for_dof_blur_by_texture_combination.set_int_for_uniform("screenTexture1", 0);
    shader_for_dof_blur_by_texture_combination.set_int_for_uniform("screenTexture2", 1);
@@ -3755,6 +3808,41 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
 
       // index_offset = 0;
       // g.blur_framebuffer.init(width, height, index_offset, "blur");
+
+      // ------------------ crows code --------------------------
+
+      // note to self:
+      // the shadow texture doesn't need to change - it's under user control, not
+      // dependent on the window size
+
+      framebuffer_for_ssao_gbuffer.reset_test(width, height);
+
+      gint w = width;
+      gint h = height;
+
+      // cut and paste from init_joey_ssao_stuff() for now - do better later.
+
+      {
+         glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+         glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, NULL);
+         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+
+         glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+         glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, NULL);
+         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      }
+
+      // the render bufffer rboDepth does something related to the SSAO
+      {
+         glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
+      }
+
+
+      
    }
 
 }
@@ -4248,13 +4336,16 @@ graphics_info_t::draw_boids() {
    if (boids.size() > 0) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
+      bool show_just_shadows = false;
+      bool wireframe_mode = false;
+      float opacity = 1.0f;
       mesh_for_boids.draw(&shader_for_instanced_objects,
-                          mvp, view_rotation_matrix, lights, eye_position, bg_col,
-                          shader_do_depth_fog_flag);
+                          mvp, model_rotation_matrix, lights, eye_position, opacity, bg_col,
+                          wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, view_rotation_matrix);
+      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, model_rotation_matrix);
    }
 }
 
@@ -4267,13 +4358,13 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
    if (mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
       // 20211210-PE  note that we are not calling the draw_instanced() - that seems perverse to me.
       // Hmm.
       mesh_for_hydrogen_bonds.draw_instanced(&shader_for_instanced_objects,
-                                             mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                             mvp, model_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, false, true, 0, 0, 0, 0.2);
    }
 }
@@ -4423,14 +4514,14 @@ graphics_info_t::draw_invalid_residue_pulse() {
 
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(3.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
       for (auto pulse_centre : delete_item_pulse_centres)
          lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
                                                   pulse_centre, mvp,
-                                                  view_rotation_matrix, true);
+                                                  model_rotation_matrix, true);
    }
 }
 
@@ -4440,13 +4531,13 @@ graphics_info_t::draw_identification_pulse() {
 
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_identification_pulse() glLineWidth " << err << std::endl;
       lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
                                                identification_pulse_centre,
-                                               mvp, view_rotation_matrix, true);
+                                               mvp, model_rotation_matrix, true);
    }
 }
 
@@ -4455,14 +4546,14 @@ graphics_info_t::draw_delete_item_pulse() {
 
    if (! lines_mesh_for_delete_item_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_delete_item_pulse() glLineWidth " << err << std::endl;
       for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {
          lines_mesh_for_delete_item_pulse.draw(&shader_for_lines_pulse,
                                                delete_item_pulse_centres[i],
-                                               mvp, view_rotation_matrix, true);
+                                               mvp, model_rotation_matrix, true);
       }
    }
 }
@@ -4474,17 +4565,20 @@ graphics_info_t::draw_pointer_distances_objects() {
       if (! pointer_distances_object_vec.empty()) {
          Shader &shader = shader_for_moleculestotriangles;
          glm::mat4 mvp = get_molecule_mvp();
-         glm::mat4 view_rotation_matrix = get_view_rotation();
+         glm::mat4 model_rotation_matrix = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
-         mesh_for_pointer_distances.mesh.draw(&shader, mvp, view_rotation_matrix, lights, eye_position,
-                                              bg_col, shader_do_depth_fog_flag);
+         bool show_just_shadows = false;
+         bool wireframe_mode = false;
+         float opacity = 1.0f;
+         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, opacity,
+                                              bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
          if (! labels_for_pointer_distances.empty()) {
             Shader &shader = shader_for_atom_labels;
             for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
                const auto &label = labels_for_pointer_distances[i];
                tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
-                                                mvp, view_rotation_matrix, bg_col,
+                                                mvp, model_rotation_matrix, bg_col,
                                                 shader_do_depth_fog_flag, perspective_projection_flag);
             }
          }

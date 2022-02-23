@@ -29,6 +29,21 @@ public:
    s_generic_vertex() {}
 };
 
+
+// 20220222-PE
+// same as below, but below as written first and I don't want to change the class name
+// at the moment. Maybe later. This is for the simple-lines representation of the molecule.
+// Actually the vector is not stored in Mesh. The vector gets clears up when the
+// buffer construction function ends
+class simple_atoms_line_vertex {
+public:
+   glm::vec3 pos;
+   glm::vec4 colour;
+   simple_atoms_line_vertex(const glm::vec3 &pos_in,
+                            const glm::vec4 &col_in) : pos(pos_in), colour(col_in) {}
+   simple_atoms_line_vertex() {}
+};
+
 class symmetry_atoms_line_vertex {
 public:
    glm::vec3 pos;

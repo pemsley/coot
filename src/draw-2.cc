@@ -279,8 +279,10 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("HUD tmesh for refinement dialog arrow");
       g.tmesh_for_hud_refinement_dialog_arrow.setup_quad();
-      g.texture_for_hud_refinement_dialog_arrow             = Texture("refinement-dialog-arrrow.png");
-      g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png");
+      g.texture_for_hud_refinement_dialog_arrow             = Texture("refinement-dialog-arrrow.png", Texture::DIFFUSE);
+      g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png", Texture::DIFFUSE);
+
+      g.tmesh_for_shadow_map.setup_quad();
 
       gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
@@ -305,6 +307,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       float x_scale = 4.4;  // what are these numbers!?
       float y_scale = 1.2;
+      x_scale = 1.002;
+      y_scale = 1.002;
       g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels, x_scale, y_scale);
 
       g.setup_hud_geometry_bars();
@@ -327,6 +331,9 @@ on_glarea_realize(GtkGLArea *glarea) {
       if (false) { // testing how textures work
          setup_test_texture();
       }
+
+      g.init_framebuffers();
+      g.init_joey_ssao_stuff();
 
       err = glGetError();
       if (err) std::cout << "#### GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;
@@ -382,6 +389,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
    // std::cout << "INFO:: Reset frame buffers " << width << "x" << height << std::endl;
    g.reset_frame_buffers(width, height);
+
+   g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
 
    g.reset_hud_buttons_size_and_position();
 }
@@ -588,7 +597,6 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
       g.check_if_hud_button_clicked(event->x, event->y);
 
    if (event->state & GDK_BUTTON2_MASK) {
-      graphics_info_t g;
       double delta_x = g.GetMouseClickedX() - event->x;
       double delta_y = g.GetMouseClickedY() - event->y;
       if (std::abs(delta_x) < 10.0) {
@@ -753,12 +761,12 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       g.check_if_hud_button_moused_over(event->x, event->y, button_1_is_down);
    }
 
-   auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget) {
+   auto mouse_view_rotate = [control_is_pressed] (GtkWidget *w) {
                                if (control_is_pressed) {
-                                  do_drag_pan_gtk3(widget);
+                                  do_drag_pan_gtk3(w);
                                } else {
                                   GtkAllocation allocation;
-                                  gtk_widget_get_allocation(widget, &allocation);
+                                  gtk_widget_get_allocation(w, &allocation);
                                   int w = allocation.width;
                                   int h = allocation.height;
                                   graphics_info_t::update_view_quaternion(w, h);

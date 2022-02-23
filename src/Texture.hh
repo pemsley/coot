@@ -14,17 +14,19 @@ class Texture {
    int image_height;
 
 public:
+   enum type_t { DIFFUSE, NORMAL, SPECULAR, ROUGHNESS, AMBIENT_OCCLUSION, AMBIENT_OCCLUSION_ROUGHNESS_METALICITY };
    Texture() {}
-   explicit Texture(const std::string &file_name);
+   explicit Texture(const std::string &file_name, type_t t, bool reversed_normals=false);
    ~Texture(); // don't close
+   type_t type;
+   bool reversed_normals;
    GLuint m_texture_handle; // make this private after this testing              
    std::string file_name;
-   std::string type;
-
+   // std::string type; 20211121-PE now we make it a enum
    void init(const std::string &file_name);
    void init(const std::string &local_file_name, const std::string &directory);
    void set_file_name(const std::string &fn) { file_name = fn; }
-   void set_type(const std::string &t) { type = t; }
+   void set_type(type_t t) { type = t; }
    void Bind(unsigned int unit);
    void set_default_directory(const std::string &dir);
    void close();

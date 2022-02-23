@@ -1,4 +1,6 @@
 
+#include <random>
+
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -44,7 +46,23 @@ graphics_info_t::init_shaders() {
                                                            shader_for_dof_blur_by_texture_combination,
                                                            shader_for_blur, // old, 2020 version
                                                            shader_for_texture_meshes,
-                                                           camera_facing_quad_shader
+                                                           shader_for_meshes,
+                                                           // camera_facing_quad_shader,
+
+                                                           // from crows
+                                                           shader_for_meshes_with_shadows,
+                                                           shader_for_meshes_shadow_map,
+                                                           shader_for_meshes_for_ssao,
+                                                           shader_for_tmeshes_for_ssao,
+                                                           shader_for_tmeshes_with_shadows,
+                                                           shader_for_texture_meshes_shadow_map,
+                                                           shader_for_tmeshes,
+                                                           shader_for_tmeshes_for_ssao,
+                                                           shader_for_shadow_map_image_texture_mesh,
+                                                           shader_for_effects,
+                                                           shaderGeometryPass,
+                                                           shaderSSAO,
+                                                           shaderSSAOBlur
    };
 
    bool status = true;  // success
@@ -57,6 +75,19 @@ graphics_info_t::init_shaders() {
    for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
+   // crows
+   shader_for_meshes_with_shadows.init("meshes-with-shadows.shader",                Shader::Entity_t::MAP);
+   shader_for_meshes_shadow_map.init("meshes-shadow-map.shader",                    Shader::Entity_t::MAP);
+   shader_for_meshes_for_ssao.init("meshes-for-ssao.shader",                        Shader::Entity_t::MAP);
+   shader_for_tmeshes_for_ssao.init("texture-meshes-for-ssao.shader",               Shader::Entity_t::MAP);
+   shader_for_tmeshes_with_shadows.init("texture-meshes-with-shadows.shader",       Shader::Entity_t::MAP);
+   shader_for_texture_meshes_shadow_map.init("texture-meshes-shadow-map.shader",    Shader::Entity_t::MAP);
+   shader_for_tmeshes.init("texture-meshes.shader",                                 Shader::Entity_t::MAP);  // Hmm! where is this used? (duplicate)
+   shader_for_shadow_map_image_texture_mesh.init("shadow-map-image-texture.shader", Shader::Entity_t::MAP);
+   shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
+   shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
+   shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);   
+
    shader_for_outline_of_active_residue.init("outline-of-active-residue.shader", Shader::Entity_t::MODEL);
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
    shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
@@ -68,7 +99,7 @@ graphics_info_t::init_shaders() {
    shader_for_hud_geometry_labels.init("hud-labels.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_image_texture.init("hud-image-texture.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::MODEL);
-   shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::MAP);
    shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_lines_pulse.init("lines-pulse.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
@@ -83,10 +114,12 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
+   shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporay while crow code is merged.
    shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
+   shader_for_effects.init("effects.shader", Shader::Entity_t::NONE);
 
    // testing image textures
-   camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);
+   // camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
@@ -105,6 +138,73 @@ graphics_info_t::init_shaders() {
    return status;
 }
 
+
+void
+graphics_info_t::init_framebuffers() { // 20220129-PE a crows thing
+
+   unsigned int index_offset = 0;
+   GLenum err;
+
+   GtkAllocation allocation;
+   auto gl_area = glareas[0]; // conversion from crows
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   float w = allocation.width;
+   float h = allocation.height;
+
+   // di.framebuffer_for_shadows.init(1024, 1024, index_offset, "shadows"); Hmmm too tricky to integrate
+   // while I don't know what I'm doing
+
+   // ------------------ Shadow framebuffer ------------------------
+
+   // (this doesn't use the framebuffer class - it should)
+
+   glGenFramebuffers(1, &shadow_depthMap_framebuffer);
+   glGenTextures(1, &shadow_depthMap_texture);
+   glBindTexture(GL_TEXTURE_2D, shadow_depthMap_texture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_texture_width, shadow_texture_height, 0, GL_DEPTH_COMPONENT,
+                GL_FLOAT, NULL);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+   float clampColour[] = {1.0f, 1.0f, 1.0f, 1.0f};
+   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColour);
+
+   glBindFramebuffer(GL_FRAMEBUFFER, shadow_depthMap_framebuffer);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_depthMap_texture, 0);
+   glDrawBuffer(GL_NONE);
+   glReadBuffer(GL_NONE);
+
+   // glBindFramebuffer(GL_FRAMEBUFFER, 0); // standard OpenGL
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));  // GTK OpenGL
+
+   // ------------------ AO framebuffer ------------------------
+
+   unsigned int attachment_index_colour_texture = 0; // CHECKME
+
+   // ------------------ AO framebuffer ------------------------
+
+   attachment_index_colour_texture = 0; // CHECKME
+   framebuffer_for_effects.init(w, h, attachment_index_colour_texture, "effects-framebuffer");
+
+   // ------------------ DOF blur framebuffers ------------------------
+
+   // index_offset is added to GL_COLOR_ATTACHMENT0 in the call too glFramebufferTexture()
+   //
+   index_offset = 4;
+   blur_y_framebuffer.init(w, h, index_offset, "blur-y");
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: post blur_y_framebuffer init() err is " << err << std::endl;
+   index_offset = 3;
+   blur_x_framebuffer.init(w, h, index_offset, "blur-x");
+   err = glGetError();
+   if (err) std::cout << "GL ERROR::post blur_x_framebuffer init() err is " << err << std::endl;
+   index_offset = 5;
+   combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
+   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
+                                          << err << std::endl;
+
+}
 
 
 glm::vec4
@@ -219,6 +319,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 	    graphics_draw();
 	 }
 	 catch (const std::runtime_error &mess) {
+            // 20220202-PE deprecated copy constexpr coot::Cartesian... I wonder what that means.
             std::cout << "debug:: given front " << front << " and back " << back << std::endl;
 	    std::cout << mess.what() << std::endl;
 	 }
@@ -245,6 +346,8 @@ graphics_info_t::set_clipping_front(float v) {
    } else {
       clipping_front = v;
    }
+   std::cout << "debug:: in set_clipping_front() now planes: front: " << clipping_front << " back: " << clipping_back
+             << " eye-position" << glm::to_string(eye_position) << std::endl;
    graphics_draw();
 }
 
@@ -406,10 +509,10 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
       // now accumulate the instancing matrices (the colours will stay the same)
       std::vector<glm::mat4> mats;
       for (unsigned int i=0; i<c.clashes.size(); i++) {
-         std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
-                                                  glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
-         const glm::vec3 &start  = pos_pair.first;
-         const glm::vec3 &finish = pos_pair.second;
+         std::pair<glm::vec3, glm::vec3> pos_pair_clash(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
+                                                        glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
+         const glm::vec3 &start  = pos_pair_clash.first;
+         const glm::vec3 &finish = pos_pair_clash.second;
          glm::vec3 b = finish - start;
          glm::vec3 normalized_bond_orientation(glm::normalize(b));
          glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
@@ -578,3 +681,479 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
    }
 
 }
+
+void
+graphics_info_t::generate_ssao_kernel_samples() {
+
+   auto lerp = [] (float a, float b, float f) {
+                  return a + f * (b - a);
+               };
+
+   // generate sample kernel
+   // ----------------------
+   std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
+   std::default_random_engine generator;
+   ssaoKernel.clear();
+
+   std::cout << "debug:: generating " << n_ssao_kernel_samples << " SSAO kernel samples" << std::endl;
+
+   for (unsigned int i = 0; i < n_ssao_kernel_samples; ++i) {
+      glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
+      sample = glm::normalize(sample);
+      sample *= randomFloats(generator);
+      float scale = static_cast<float>(i) / static_cast<float>(n_ssao_kernel_samples); // was 64
+      // scale = static_cast<float>(i)/64.0;
+      // scale samples s.t. they're more aligned to center of kernel
+      scale = lerp(0.1f, 1.0f, scale * scale);
+      sample *= scale;
+      ssaoKernel.push_back(sample);
+   }
+
+}
+
+
+void
+graphics_info_t::init_joey_ssao_stuff() {
+
+   // need to init this stuff:
+   //
+   // static unsigned int gBuffer;
+   // static unsigned int ssaoFBO;
+   // static unsigned int ssaoBlurFBO;
+   // static Shader shaderGeometryPass;         done
+   // static Shader shaderSSAO;                 done
+   // static Shader shaderSSAOBlur;             done
+   // static Shader shaderLightingPass;         done
+   // static unsigned int gPosition;
+   // static unsigned int gNormal;
+   // static unsigned int gAlbedo;
+   // static unsigned int noiseTexture;
+   // static unsigned int ssaoColorBuffer;
+   // static unsigned int ssaoColorBufferBlur;
+
+   // static void renderQuad();
+   // static void renderCube();
+   // static std::vector<glm::vec3> ssaoKernel;
+   // // Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+   // static Camera camera;
+
+   attach_buffers();
+
+   GtkAllocation allocation;
+   auto gl_area = glareas[0];
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+
+   {
+
+         // the quad for the screen AO texture
+   //
+      {
+         float quadVertices[] = { // vertex attributes for a quad
+                                 // positions   // texCoords
+                                 -1.0f,  1.0f,  0.0f, 1.0f,
+                                 -1.0f, -1.0f,  0.0f, 0.0f,
+                                  1.0f, -1.0f,  1.0f, 0.0f,
+
+                                 -1.0f,  1.0f,  0.0f, 1.0f,
+                                  1.0f, -1.0f,  1.0f, 0.0f,
+                                  1.0f,  1.0f,  1.0f, 1.0f
+         };
+         glGenVertexArrays(1, &screen_AO_quad_vertex_array_id);  // Use a HUDTextureMesh when this is working
+         glBindVertexArray(screen_AO_quad_vertex_array_id);
+         glGenBuffers(1, &screen_AO_quad_VBO);
+         glBindBuffer(GL_ARRAY_BUFFER, screen_AO_quad_VBO);
+         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+         glEnableVertexAttribArray(0);
+         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+         glEnableVertexAttribArray(1);
+         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+         GLenum err = glGetError();
+         if (err) std::cout << "init_screen_quads() err is " << err << std::endl;
+
+         unsigned int quadVBO;  // this separate names and put it into the display_info_t as data members.
+         // (ideally). We can get away with it for the moment, if we don't use them explicitly
+         // if we bind each of the VAOs at render time.
+
+         glGenVertexArrays(1, &blur_y_quad_vertex_array_id);
+         glBindVertexArray(blur_y_quad_vertex_array_id);
+         glGenBuffers(1, &quadVBO);
+         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+         glEnableVertexAttribArray(0);
+         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+         glEnableVertexAttribArray(1);
+         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+         err = glGetError();
+         if (err) std::cout << "init_screen_quads() B err is " << err << std::endl;
+
+         glGenVertexArrays(1, &blur_x_quad_vertex_array_id);
+         glBindVertexArray(blur_x_quad_vertex_array_id);
+         glGenBuffers(1, &quadVBO);
+         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+         glEnableVertexAttribArray(0);
+         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+         glEnableVertexAttribArray(1);
+         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+         err = glGetError();
+         if (err) std::cout << "init_screen_quads() C err is " << err << std::endl;
+
+         glGenVertexArrays(1, &combine_textures_using_depth_quad_vertex_array_id);
+         glBindVertexArray(combine_textures_using_depth_quad_vertex_array_id);
+         glGenBuffers(1, &quadVBO);
+         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+         glEnableVertexAttribArray(0);
+         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+         glEnableVertexAttribArray(1);
+         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+         err = glGetError();
+         if (err) std::cout << "init_screen_quads() D err is " << err << std::endl;
+
+      
+      }
+
+
+
+   }
+
+   // std::cout << "debug:: in init_joey_ssao_stuff() window w h " << w << " " << h << std::endl;
+
+   glEnable(GL_DEPTH_TEST);
+
+   shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
+   shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
+   shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
+   // shader_for_effects is done in regular init_shaders()
+
+   // glGenFramebuffers(1, &gBufferFBO);
+   // glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
+
+   // when attachment_index_colour_texture is set to 10 there is an OpenGL error on setting
+   // up the framebuffer, but it doesn't seem to have a visual effect.
+   unsigned int attachment_index_colour_texture = 0; // CHECKME
+
+   std::cout << "---------------------------------- init_joey_ssao_stuff() here 1 " << std::endl;
+   framebuffer_for_ssao_gbuffer.init(w, h, attachment_index_colour_texture, "SSAO-gBuffer-framebuffer");
+   std::cout << "---------------------------------- init_joey_ssao_stuff() here 2 " << std::endl;
+
+   framebuffer_for_ssao_gbuffer.do_gbuffer_stuff(w, h);
+
+   if (true) {
+      // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+      unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+      glDrawBuffers(3, attachments);
+      // create and attach depth buffer (renderbuffer)
+      // unsigned int rboDepth; now a memeber of display_info_t
+      glGenRenderbuffers(1, &rboDepth);
+      glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
+      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+      // finally check if framebuffer is complete
+      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+         std::cout << "Framebuffer not complete!" << std::endl;
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+   }
+
+   // also create framebuffer to hold SSAO processing stage
+   // -----------------------------------------------------
+
+   glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
+   glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+
+   // SSAO color buffer
+   glGenTextures(1, &ssaoColorBuffer);
+   glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, NULL);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+      std::cout << "SSAO Framebuffer not complete!" << std::endl;
+   // and blur stage
+   glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+   glGenTextures(1, &ssaoColorBufferBlur);
+   glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, NULL);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+      std::cout << "SSAO Blur Framebuffer not complete!" << std::endl;
+   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+   generate_ssao_kernel_samples();
+
+   // generate noise texture
+   // ----------------------
+   std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
+   std::default_random_engine generator;
+   std::vector<glm::vec3> ssaoNoise;
+   for (unsigned int i = 0; i < 16; i++) {
+      glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
+      ssaoNoise.push_back(noise);
+   }
+
+   glGenTextures(1, &noiseTexture);
+   glBindTexture(GL_TEXTURE_2D, noiseTexture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+   // std::cout << "DEBUG:: in init_joey_ssao_stuff() gPosition gNormal gAlbedo noiseTexture "
+   // << gPosition << " " << gNormal << " " << gAlbedo << " " << noiseTexture << std::endl;
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "ERROR init_joey_ssao_stuff() end err is " << err << std::endl;
+   
+}
+
+void
+graphics_info_t::read_test_gltf_models() {
+
+   read_some_test_models();
+}
+
+
+void
+graphics_info_t::read_some_test_models() {
+
+   auto setup_tmesh_for_floor = [] () {
+                                   std::vector<TextureMeshVertex> vertices;
+                                   std::vector<g_triangle> triangles;
+                                   glm::vec4 c(0.5, 0.5, 0.5, 1.0); // colour
+                                   // top
+                                   TextureMeshVertex v0(glm::vec3(0, 0, 0), glm::vec3(0,0,1), c, glm::vec2(0,0)); vertices.push_back(v0);
+                                   TextureMeshVertex v1(glm::vec3(1, 0, 0), glm::vec3(0,0,1), c, glm::vec2(3,0)); vertices.push_back(v1);
+                                   TextureMeshVertex v2(glm::vec3(0, 1, 0), glm::vec3(0,0,1), c, glm::vec2(0,3)); vertices.push_back(v2);
+                                   TextureMeshVertex v3(glm::vec3(1, 1, 0), glm::vec3(0,0,1), c, glm::vec2(3,3)); vertices.push_back(v3);
+                                   for (auto &vert : vertices)
+                                      vert.position -= glm::vec3(0.5, 0.5, 0.0);
+                                   for (auto &vert : vertices)
+                                      vert.position *= 34.0f;
+                                   triangles.push_back(g_triangle(0,1,2));
+                                   triangles.push_back(g_triangle(1,2,3));
+                                   TextureMesh tmesh("floor-tmesh");
+                                   tmesh.import(vertices, triangles);
+                                   tmesh.setup_buffers();
+                                   Texture texture_a("wooden-floor.png", Texture::DIFFUSE);
+                                   Texture texture_n("wooden-floor-normal-mild.png", Texture::NORMAL);
+                                   tmesh.add_texture(TextureInfoType(texture_a, "wooden-floor-diffuse"));
+                                   // tmesh.add_texture(TextureInfoType(texture_n, "wooden-floor-normal"));
+                                   Model model;
+                                   model.add_tmesh(tmesh);
+                                   add_model(model);
+                                };
+
+   auto setup_tmesh_for_wall = [] () {
+                                   std::vector<TextureMeshVertex> vertices;
+                                   std::vector<g_triangle> triangles;
+                                   glm::vec4 c(0.5, 0.5, 0.5, 1.0); // colour
+                                   // top
+                                   TextureMeshVertex v0(glm::vec3(0, 0, 0), glm::vec3(0,0,1), c, glm::vec2(0,0)); vertices.push_back(v0);
+                                   TextureMeshVertex v1(glm::vec3(1, 0, 0), glm::vec3(0,0,1), c, glm::vec2(3,0)); vertices.push_back(v1);
+                                   TextureMeshVertex v2(glm::vec3(0, 1, 0), glm::vec3(0,0,1), c, glm::vec2(0,3)); vertices.push_back(v2);
+                                   TextureMeshVertex v3(glm::vec3(1, 1, 0), glm::vec3(0,0,1), c, glm::vec2(3,3)); vertices.push_back(v3);
+                                   float angle = M_PI * 0.5f;
+                                   for (auto &vert : vertices)
+                                      vert.position = glm::rotate(vert.position, angle, glm::vec3(1,0,0));
+                                   for (auto &vert : vertices)
+                                      vert.position *= 33.0f; // matches floor length
+                                   auto save_vertices = vertices;
+                                   for (auto &vert : vertices)
+                                      vert.position -= glm::vec3(16.0f, -17.0f, 0.0f);
+                                   triangles.push_back(g_triangle(0,1,2));
+                                   triangles.push_back(g_triangle(1,2,3));
+                                   TextureMesh tmesh_1("wall-1-tmesh");
+                                   // TextureMesh tmesh_3("wall-3-tmesh");
+                                   tmesh_1.import(vertices, triangles);
+                                   tmesh_1.setup_buffers();
+                                   //Texture texture("brick-wall-gareth-david-KREQ7J7nsNw-unsplash.jpg", Texture::DIFFUSE);
+                                   // ORM is
+                                   // red:   ambient occlusion
+                                   // green: roughness
+                                   // blue:  metalicity
+                                   bool reversed_normals = true;
+                                   Texture texture_a("wall-6_albedo.png", Texture::DIFFUSE);
+                                   Texture texture_n("wall-6_normal.png", Texture::NORMAL, reversed_normals);
+                                   Texture texture_o("wall-6_orm.png",    Texture::AMBIENT_OCCLUSION_ROUGHNESS_METALICITY);
+                                   tmesh_1.add_texture(TextureInfoType(texture_a, "wall-diffuse"));
+                                   tmesh_1.add_texture(TextureInfoType(texture_n, "wall-normal"));
+                                   tmesh_1.add_texture(TextureInfoType(texture_o, "wall-ambient-occlusion"));
+                                   Model model;
+                                   model.add_tmesh(tmesh_1);
+                                   add_model(model);
+                                };
+
+   auto setup_tmesh_for_grass = [] () {
+                                   std::vector<TextureMeshVertex> vertices;
+                                   std::vector<g_triangle> triangles;
+                                   glm::vec4 c(0.5, 0.5, 0.5, 1.0); // colour
+                                   // top
+                                   TextureMeshVertex v0(glm::vec3(0, 0, 0), glm::vec3(0,0,1), c, glm::vec2(0,0)); vertices.push_back(v0);
+                                   TextureMeshVertex v1(glm::vec3(1, 0, 0), glm::vec3(0,0,1), c, glm::vec2(3,0)); vertices.push_back(v1);
+                                   TextureMeshVertex v2(glm::vec3(0, 1, 0), glm::vec3(0,0,1), c, glm::vec2(0,3)); vertices.push_back(v2);
+                                   TextureMeshVertex v3(glm::vec3(1, 1, 0), glm::vec3(0,0,1), c, glm::vec2(3,3)); vertices.push_back(v3);
+
+                                   for (auto &vert : vertices)
+                                      vert.position -= glm::vec3(0.5, 0.5, 0.0);
+                                   for (auto &vert : vertices)
+                                      vert.position *= 35.0f;
+
+                                   triangles.push_back(g_triangle(0,1,2));
+                                   triangles.push_back(g_triangle(1,2,3));
+                                   TextureMesh tmesh_1("grass-tmesh");
+                                   tmesh_1.import(vertices, triangles);
+                                   tmesh_1.setup_buffers();
+                                   //Texture texture("brick-wall-gareth-david-KREQ7J7nsNw-unsplash.jpg", Texture::DIFFUSE);
+                                   // ORM is
+                                   // red:   ambient occlusion
+                                   // green: roughness
+                                   // blue:  metalicity
+                                   // (but looking at the orm images, I find this hard to believe)
+                                   //
+                                   Texture texture_a("grass_albedo.png", Texture::DIFFUSE);
+                                   Texture texture_n("grass_normal.png", Texture::NORMAL);
+                                   Texture texture_o("grass_orm.png",    Texture::AMBIENT_OCCLUSION_ROUGHNESS_METALICITY);
+                                   tmesh_1.add_texture(TextureInfoType(texture_a, "grass-diffuse"));
+                                   tmesh_1.add_texture(TextureInfoType(texture_n, "grass-normal"));
+                                   tmesh_1.add_texture(TextureInfoType(texture_o, "grass-orm"));
+                                   Model model;
+                                   model.add_tmesh(tmesh_1);
+                                   add_model(model);
+                                };
+
+   attach_buffers();
+
+   std::map<std::string, bool> show_mesh;
+   show_mesh["grass"] = true;
+   show_mesh["wall"]  = true;
+   show_mesh["boxes"] = true;
+   show_mesh["crow"]  = true;
+   show_mesh["tim"]   = true;
+   show_mesh["spike"] = false;
+   show_mesh["ribo"]  = false;
+   show_mesh["little_chestnut"] = false;
+   show_mesh["blacksmith"] = true;
+   show_mesh["dwarf_blacksmith"] = true;
+   show_mesh["teapots"] = false;
+   show_mesh["sponza"] = false;
+   show_mesh["port"] = false;
+   show_mesh["vila"] = false;
+
+   if (false) { // just one
+      show_mesh["grass"] = false;
+      show_mesh["wall"]  = false;
+      show_mesh["crow"]  = false;
+      show_mesh["tim"]   = false;
+   }
+
+   if (show_mesh["grass"])
+      setup_tmesh_for_grass();
+
+   if (show_mesh["wall"])
+      setup_tmesh_for_wall();
+
+   // --- Crow ---
+
+   if (show_mesh["crow"]) {
+      TextureMesh crow_tmesh("crow");
+      // crow_tmesh.load_from_glTF("crow-17-with-grey-surface.glb");
+      crow_tmesh.load_from_glTF("crow-21.glb");
+      // crow_tmesh.load_from_glTF("spike-protein-with-ace2-light-green-v8.glb");
+
+      Model crow_model;
+      crow_model.add_tmesh(crow_tmesh);
+      add_model(crow_model);
+   }
+
+
+   // --- 1TIM Protein ---
+
+   if (show_mesh["tim"]) {
+      Mesh tim_mesh("tim");
+      tim_mesh.load_from_glTF("1tim-A.glb");
+      // tim_mesh.debug_to_file();
+      Material mat;
+      mat.shininess = 512.0;
+      mat.specular_strength = 1.0;
+      mat.ambient  = glm::vec4(0.9, 0.9, 0.9, 1.0);
+      mat.diffuse  = glm::vec4(0.9, 0.9, 0.9, 1.0);
+      mat.turn_specularity_on(true);
+      tim_mesh.set_material(mat); // override the material extracted from the gltf
+      Model tim_model;
+      tim_model.add_mesh(tim_mesh);
+      tim_model.scale(0.05f);
+      tim_model.translate(glm::vec3(0, 0, 3));
+      add_model(tim_model);
+   }
+
+   // --- Blacksmith ---
+
+   if (show_mesh["blacksmith"]) {
+      TextureMesh blacksmith_tmesh("blacksmith");
+      blacksmith_tmesh.load_from_glTF("blacksmith.glb", false);
+      Model blacksmith_model;
+      blacksmith_model.add_tmesh(blacksmith_tmesh);
+      blacksmith_model.translate(glm::vec3(-13.0f, 0.0f, 0.0f));
+      add_model(blacksmith_model);
+   }
+
+   if (show_mesh["dwarf_blacksmith"]) {
+      TextureMesh dwarf_blacksmith_tmesh("blacksmith");
+      dwarf_blacksmith_tmesh.load_from_glTF("dwarf_blacksmith.glb", false);
+      Model dwarf_blacksmith_model;
+      dwarf_blacksmith_model.add_tmesh(dwarf_blacksmith_tmesh);
+      dwarf_blacksmith_model.translate(glm::vec3(-13.0f, 0.0f, 0.0f));
+      add_model(dwarf_blacksmith_model);
+   }
+
+
+}
+
+void
+graphics_info_t::resize_framebuffers_textures_renderbuffers(int width, int height) {
+
+
+   framebuffer_for_effects.reset(width, height);
+   blur_x_framebuffer.reset(width, height);
+   blur_y_framebuffer.reset(width, height);
+   combine_textures_using_depth_framebuffer.reset(width, height);
+
+   // note to self:
+   // the shadow texture doesn't need to change - it's under user control, not
+   // dependent on the window size
+
+   framebuffer_for_ssao_gbuffer.reset_test(width, height);
+
+   gint w = width;
+   gint h = height;
+
+   // cut and paste from init_joey_ssao_stuff() for now - do better later.
+
+   {
+      glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+      glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, NULL);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+
+      glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+      glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, NULL);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+   }
+
+   // the render bufffer rboDepth does something related to the SSAO
+   {
+      glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
+   }
+}
+

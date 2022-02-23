@@ -12,13 +12,27 @@
 #include "ft-character.hh"
 #include "TextureMesh.hh"
 
+// #define THIS_IS_HMT
+
 #ifdef THIS_IS_HMT
 #include "display-info.hh"
 #else
 #include "graphics-info.h"
 #endif
 
-#include <Texture.hh> // experimental
+#ifdef THIS_IS_HMT
+#include "coot-utils.hh" // added to compile
+#endif
+
+#include <Texture.hh>
+
+// Define these only in *one* .cc file.
+// #define TINYGLTF_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "tiny_gltf.h"
+
 
 // for the moment make the scales explict, when fixed make the scales default
 void
@@ -64,10 +78,15 @@ TextureMesh::setup_buffers() {
    glGenVertexArrays(1, &vao);
    glBindVertexArray(vao);
 
+   setup_tbn(vertices.size());
+
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+   std::cout << "DEBUG:: in TextureMesh::setup_buffers() " << name << " n_vertices is " << n_vertices
+             << " buffer_id " << buffer_id << std::endl;
+   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(TextureMeshVertex), &(vertices[0]), GL_STATIC_DRAW);
+   std::cout << "in TextureMesh::setup_buffers() " << name << " done glBufferData() " << std::endl;
 
    // position
    glEnableVertexAttribArray(0);
@@ -78,21 +97,31 @@ TextureMesh::setup_buffers() {
    glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
                           reinterpret_cast<void *>(sizeof(glm::vec3)));
 
+   // tangent
+   glEnableVertexAttribArray (2);
+   glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+
+   // bitangent
+   glEnableVertexAttribArray (3);
+   glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+                          reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
+
    // colour
-   glEnableVertexAttribArray(2);
-   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
-                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+   glEnableVertexAttribArray(4);
+   glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+                         reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
 
    // texture coordinates
-   glEnableVertexAttribArray(3);
-   glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
-                         reinterpret_cast<void *>(2 * sizeof(glm::vec3) + sizeof(glm::vec4)));
+   glEnableVertexAttribArray(5);
+   glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+                         reinterpret_cast<void *>(4 * sizeof(glm::vec3) + sizeof(glm::vec4)));
 
 
    glGenBuffers(1, &index_buffer_id);
-   GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   GLenum err = glGetError(); if (err) std::cout << "GL ERROR:: setup_simple_triangles()\n";
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL ERROR:: setup_simple_triangles()\n";
    unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
    if (false)
@@ -106,11 +135,73 @@ TextureMesh::setup_buffers() {
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
 
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glUseProgram(0);
    glBindVertexArray(0);
 
+}
+
+void
+TextureMesh::setup_tbn(unsigned int n_vertices) {
+
+   auto get_tangent_bitangent = [] (const TextureMeshVertex &vertex_1,
+                                    const TextureMeshVertex &vertex_2,
+                                    const TextureMeshVertex &vertex_3) {
+
+                                   const glm::vec3 &pos_1 = vertex_1.position;
+                                   const glm::vec3 &pos_2 = vertex_2.position;
+                                   const glm::vec3 &pos_3 = vertex_3.position;
+
+                                   const glm::vec2 &uv_1 = vertex_1.texCoord;
+                                   const glm::vec2 &uv_2 = vertex_2.texCoord;
+                                   const glm::vec2 &uv_3 = vertex_3.texCoord;
+
+                                   glm::vec3 tangent, bitangent;
+                                   glm::vec3 edge_1 = pos_2 - pos_1;
+                                   glm::vec3 edge_2 = pos_3 - pos_1;
+                                   glm::vec2 deltaUV_1 = uv_2 - uv_1;
+                                   glm::vec2 deltaUV_2 = uv_3 - uv_1;
+                                   GLfloat f = 1.0f/(deltaUV_1.x * deltaUV_2.y - deltaUV_2.x * deltaUV_1.y);
+
+                                   tangent.x = f * (deltaUV_2.y * edge_1.x - deltaUV_1.y * edge_2.x);
+                                   tangent.y = f * (deltaUV_2.y * edge_1.y - deltaUV_1.y * edge_2.y);
+                                   tangent.z = f * (deltaUV_2.y * edge_1.z - deltaUV_1.y * edge_2.z);
+                                   tangent =  glm::normalize(tangent);
+
+                                   bitangent.x = f * (-deltaUV_2.x * edge_1.x - deltaUV_1.x * edge_2.x);
+                                   bitangent.y = f * (-deltaUV_2.x * edge_1.y - deltaUV_1.x * edge_2.y);
+                                   bitangent.z = f * (-deltaUV_2.x * edge_1.z - deltaUV_1.x * edge_2.z);
+                                   bitangent =  glm::normalize(bitangent);
+
+                                   return std::make_pair(tangent, bitangent);
+                                };
+
+   for (const auto &tri : triangles) {
+      unsigned int idx_0 = tri[0];
+      unsigned int idx_1 = tri[1];
+      unsigned int idx_2 = tri[2];
+      // std::cout << "indices " << idx_0 << " " << idx_1 << " " << idx_2 << " vs "<< vertices.size() << std::endl;
+      if (idx_0 < n_vertices) {
+         if (idx_1 < n_vertices) {
+            if (idx_2 < n_vertices) {
+               TextureMeshVertex &v0 = vertices[idx_0];
+               TextureMeshVertex &v1 = vertices[idx_1];
+               TextureMeshVertex &v2 = vertices[idx_2];
+               std::pair<glm::vec3, glm::vec3> tangent_bitangent = get_tangent_bitangent(v0, v1, v2);
+
+               v0.tangent   = tangent_bitangent.first;
+               v0.bitangent = tangent_bitangent.second;
+               v1.tangent   = tangent_bitangent.first;
+               v1.bitangent = tangent_bitangent.second;
+               v2.tangent   = tangent_bitangent.first;
+               v2.bitangent = tangent_bitangent.second;
+            }
+         }
+      }
+   }
 }
 
 
@@ -133,7 +224,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    if (n_triangles == 0) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "   error draw_atom_label() " << shader_p->name << " -- start -- error "
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() " << shader_p->name << " -- start -- error "
                       << err << std::endl;
 
    glEnable(GL_BLEND);
@@ -143,59 +234,60 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    const std::string &shader_name = shader_p->name;
 
    shader_p->set_vec3_for_uniform("label_position", atom_label_position);
-
    err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
                       << " post set label_position " << err << std::endl;
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
 
    err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
                       << " post set mvp " << err << std::endl;
 
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
 
    err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
                       << " post set view rotation " << err << std::endl;
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
                       << " post background_colour " << err << std::endl;
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
    err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
                       << " post do_depth_fog " << err << std::endl;
    shader_p->set_bool_for_uniform("is_perspective_projection", is_perspective_projection);
    err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
                       << " post is_perspective_projection " << err << std::endl;
 
-   if (vao == 99999999)
+   if (vao == VAO_NOT_SET)
       std::cout << "You forget to setup this TextureMesh " << name << " " << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
    err = glGetError();
-   if (err) std::cout << "error TextureMesh::draw_atom_label()) " << shader_name << " " << name
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label()) " << shader_name << " " << name
                       << " glBindVertexArray() vao " << vao << " with GL err "
                       << err << std::endl;
 
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_atom_label() A3 " << err << std::endl;
 
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   err = glGetError(); if (err) std::cout << "error TextureMesh::draw_atom_label() glBindBuffer() v "
-                                          << err << std::endl;
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "error TextureMesh::draw_atom_label() glBindBuffer() i "
-                                          << err << std::endl;
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id); // not needed? test by removing
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() glBindBuffer() v " << err << std::endl;
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id); // needed? test by removing
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() glBindBuffer() i " << err << std::endl;
 
-   glEnableVertexAttribArray(0);
-   glEnableVertexAttribArray(1);
-   glEnableVertexAttribArray(2);
-   glEnableVertexAttribArray(3);
+   glEnableVertexAttribArray(0); // position
+   glEnableVertexAttribArray(1); // normal    // not used for atom labels
+   glEnableVertexAttribArray(2); // tangent   // ditto
+   glEnableVertexAttribArray(3); // bitangent // ditto
+   glEnableVertexAttribArray(4); // colour
+   glEnableVertexAttribArray(5); // texCoord
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: draw_atom_label() " << name << " pre-draw " << err << std::endl;
@@ -283,7 +375,8 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
       unsigned int n_draw_verts = 6;
       glDrawElements(GL_TRIANGLES, n_draw_verts, GL_UNSIGNED_INT, nullptr);
 
-      err = glGetError(); if (err) std::cout << "draw_atom_label() glDrawArrays() " << err << std::endl;
+      err = glGetError();
+      if (err) std::cout << "TextureMesh::draw_atom_label() glDrawArrays() " << err << std::endl;
 
        // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
       x += (ch.Advance >> 6) * scale * 1.0;
@@ -294,7 +387,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    // ------------------------------- done text texture code  ----------------------
 
    err = glGetError();
-   if (err) std::cout << "   error TextureMesh::draw() glDrawElements()"
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() glDrawElements()"
                       << " of Mesh \"" << name << "\""
                       << " shader: " << shader_p->name
                       << " vao " << vao
@@ -305,6 +398,8 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
 
    glUseProgram (0);
 }
@@ -318,6 +413,8 @@ TextureMesh::draw(Shader *shader_p,
                   const glm::vec4 &background_colour,
                   bool do_depth_fog) {
 
+   // std::cout << "Here in TextureMesh::draw() " << name << std::endl;
+
    if (! draw_this_mesh) return;
 
    unsigned int n_triangles = triangles.size();
@@ -326,49 +423,67 @@ TextureMesh::draw(Shader *shader_p,
    if (n_triangles == 0) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_p->name << " -- start -- " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw() " << shader_p->name << " -- start -- "
+                      << err << std::endl;
 
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
 
-   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-   err = glGetError();
-   if (err) std::cout << "   error:: " << shader_p->name << " draw() post mvp uniform " << err << std::endl;
+   // Bind the textures
+   GLuint unit = 0;
+   for (auto &texture : textures) {
+      if (false)
+         std::cout << "Mesh::draw() " << name << " binding texture " << texture.name << " to unit " << unit << std::endl;
+      texture.texture.Bind(unit);
+      unit++;
+   }
 
-   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
+   // std::cout << "mvp: " << glm::to_string(mvp) << std::endl;
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, glm::value_ptr(mvp));
    err = glGetError();
-   if (err) std::cout << "   error:: " << shader_p->name << " draw() post view rotation uniform "
-                      << err << std::endl;
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw::draw() "
+                      << shader_p->name << " post mvp uniform " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, glm::value_ptr(view_rotation_matrix));
+   err = glGetError();
+   if (err) std::cout << "GL ERROR: TextureMesh::draw(): "
+                      << shader_p->name << " post view rotation uniform " << err << std::endl;
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
 
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
 
    err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_name << " pre-set eye position "
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw() " << shader_name << " pre-set eye position"
                       << " with GL err " << err << std::endl;
    shader_p->set_vec3_for_uniform("eye_position", eye_position);
    err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_name << " post-set eye position "
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw() " << shader_name << " post-set eye position"
                       << " with GL err " << err << std::endl;
    err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
+   if (err) std::cout << "GL ERROR:: draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
+
+   // ------------------------ more texture mesh uniforms here ------------------
+
+
+   
    // this lights block can be in it's own function (same as Mesh)
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
    light_idx = 1;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
 
-   if (vao == 99999999)
-      std::cout << "You forget to setup this mesh " << name << " "
-                << shader_p->name << std::endl;
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forgot to setup this mesh (or setup with empty vertices or triangles) "
+                << name << " " << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
    err = glGetError();
@@ -376,25 +491,19 @@ TextureMesh::draw(Shader *shader_p,
                       << " glBindVertexArray() vao " << vao << " with GL err "
                       << err << std::endl;
 
+   shader_p->set_int_for_uniform("base_texture", 0);
+
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw() A3 " << err << std::endl;
    glActiveTexture(GL_TEXTURE1);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw() A4 " << err << std::endl;
 
-   shader_p->set_int_for_uniform("base_texture", 0);
-   shader_p->set_int_for_uniform("normal_map",   1);
-
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id); // 20211017-PE  needed?
-   err = glGetError();
-   if (err) std::cout << "   error draw() glBindBuffer() v " << err << std::endl;
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError();
-   if (err) std::cout << "   error draw() glBindBuffer() i " << err << std::endl;
-
    glEnableVertexAttribArray(0);  // position
    glEnableVertexAttribArray(1);  // normal
    glEnableVertexAttribArray(2);  // colour (not used)
    glEnableVertexAttribArray(3);  // texture coordinates
+   glEnableVertexAttribArray(4);
+   glEnableVertexAttribArray(5);
 
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
@@ -429,10 +538,268 @@ TextureMesh::draw(Shader *shader_p,
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
 
    glUseProgram (0);
 
 }
+
+
+void
+TextureMesh::draw_with_shadows(Shader *shader_p,
+                               const glm::mat4 &mvp,
+                               const glm::mat4 &view_rotation_matrix,
+                               const std::map<unsigned int, lights_info_t> &lights,
+                               const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                               const glm::vec4 &background_colour,
+                               bool do_depth_fog,
+                               const glm::mat4 &light_space_mvp,
+                               unsigned int shadow_depthMap,
+                               float shadow_strength,
+                               unsigned int shadow_softness,
+                               bool show_just_shadows) {
+
+   if (! draw_this_mesh) return;
+
+   unsigned int n_triangles = triangles.size();
+   GLuint n_verts = 3 * n_triangles;
+
+   if (n_triangles == 0) return;
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() " << shader_p->name << " -- start -- "
+                      << err << std::endl;
+
+   shader_p->Use();
+   const std::string &shader_name = shader_p->name;
+
+   // Bind the textures
+   bool specular_map_included = false;
+   bool normal_map_included   = false;
+   bool reversed_normals      = false;
+   GLuint unit = 0;
+   GLuint specular_map_unit = 99999;
+   GLuint   normal_map_unit = 99999;
+   for (auto &texture : textures) {
+      texture.texture.Bind(unit);
+      if (texture.texture.type == Texture::SPECULAR) {
+         specular_map_included = true;
+         specular_map_unit = unit;
+      }
+      if (texture.texture.type == Texture::NORMAL) {
+         normal_map_included = true;
+         normal_map_unit = unit;
+         if (texture.texture.reversed_normals)
+            reversed_normals = true;
+      }
+
+      if (false)
+         std::cout << "Mesh::draw_with_shadows() " << name << " binding texture " << texture.name
+                   << " type " << texture.texture.type
+                   << " to unit " << unit << " texture-handle: " << texture.texture.m_texture_handle << std::endl;
+
+      unit++;
+   }
+
+   // std::cout << "mvp: " << glm::to_string(mvp) << std::endl;
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, glm::value_ptr(mvp));
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw::draw_with_shadows() "
+                      << shader_p->name << " post mvp uniform " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, glm::value_ptr(view_rotation_matrix));
+   err = glGetError();
+   if (err) std::cout << "GL ERROR: TextureMesh::draw_with_shadows(): "
+                      << shader_p->name << " post view rotation uniform " << err << std::endl;
+
+   shader_p->set_mat4_for_uniform("light_space_mvp", light_space_mvp);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR: TextureMesh::draw_with_shadows(): "
+                      << shader_p->name << " post light-space-mvp " << err << std::endl;
+
+   shader_p->set_vec4_for_uniform("background_colour", background_colour);
+
+   shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+
+   shader_p->set_bool_for_uniform("reversed_normals", reversed_normals);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() " << shader_name << " pre-set eye position"
+                      << " with GL err " << err << std::endl;
+   shader_p->set_vec3_for_uniform("eye_position", eye_position);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() " << shader_name << " post-set eye position"
+                      << " with GL err " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: draw_with_shadows() " << shader_name << " pre-glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   // this lights block can be in its own function (same as Mesh)
+   std::map<unsigned int, lights_info_t>::const_iterator it;
+   unsigned int light_idx = 0;
+   it = lights.find(light_idx);
+   if (it != lights.end())
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+   light_idx = 1;
+   it = lights.find(light_idx);
+   if (it != lights.end())
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: TextureMess::draw_with_shadows() You forgot to setup this mesh"
+                << " (or setup with empty vertices or triangles) " << name << " " << shader_p->name
+                << std::endl;
+
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: draw_with_shadows() " << shader_name << " " << name
+                      << " glBindVertexArray() vao " << vao << " with GL err "
+                      << err << std::endl;
+
+   shader_p->set_bool_for_uniform("specular_map_included", specular_map_included);
+   shader_p->set_bool_for_uniform("normal_map_included",     normal_map_included);
+   shader_p->set_int_for_uniform("base_texture", 0);
+   if (specular_map_included)
+      shader_p->set_int_for_uniform("specular_map", specular_map_unit);
+   if (normal_map_included)
+      shader_p->set_int_for_uniform("normal_map",     normal_map_unit);
+   shader_p->set_int_for_uniform("shadow_map",   4);
+   shader_p->set_float_for_uniform("shadow_strength", shadow_strength);
+   shader_p->set_int_for_uniform("shadow_softness", shadow_softness); // maybe unsigned int?
+
+   shader_p->set_bool_for_uniform("show_shadows", show_just_shadows);
+
+
+   // other Textures have already been bound in display_info_t::draw_models()
+   glActiveTexture(GL_TEXTURE4);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() A4 " << err << std::endl;
+
+   glBindTexture(GL_TEXTURE_2D, shadow_depthMap);
+
+   glEnableVertexAttribArray(0);  // position
+   glEnableVertexAttribArray(1);  // normal
+   glEnableVertexAttribArray(2);  // tangent
+   glEnableVertexAttribArray(3);  // bitangent
+   glEnableVertexAttribArray(4);  // colour
+   glEnableVertexAttribArray(5);  // texCoord
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: draw_with_shadows() " << name << " pre-draw " << err << std::endl;
+
+   // If you are here, did you remember to use gtk_gl_area_attach_buffers(GTK_GL_AREA(di.gl_area));
+   // before making a new VAO?
+
+   if (false)
+      std::cout << "DEBUG:: TextureMesh::draw_with_shadows() " << name << " shader " << shader_p->name
+                << " vao " << vao
+                << " drawing " << n_verts << " triangle vertices"  << std::endl;
+
+   glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() glDrawElements()"
+                      << " of Mesh \"" << name << "\""
+                      << " shader: " << shader_p->name
+                      << " vao " << vao
+                      << " n_triangle_verts " << n_verts
+                      << " with GL err " << err << std::endl;
+
+   // if (use_blending) {
+   // glDisable(GL_BLEND);
+   // }
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+
+   glUseProgram (0);
+
+}
+
+void
+TextureMesh::draw_for_ssao(Shader *shader_p,
+                           const glm::mat4 &model,
+                           const glm::mat4 &view,
+                           const glm::mat4 &projection) {
+
+   if (! draw_this_mesh) return;
+
+   unsigned int n_triangles = triangles.size();
+   GLuint n_verts = 3 * n_triangles;
+   if (n_triangles == 0) return;
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_for_ssao() " << shader_p->name << " -- start -- "
+                      << err << std::endl;
+
+   shader_p->Use();
+   const std::string &shader_name = shader_p->name;
+
+   // vertex Shader:
+   //
+   // layout(location = 0) in vec3 position;
+   // layout(location = 1) in vec3 normal;
+   // layout(location = 2) in vec3 tangent;
+   // layout(location = 3) in vec3 bitangent;
+   // layout(location = 4) in vec4 colour;
+   // layout(location = 5) in vec2 texCoord;
+
+   // uniform mat4 model; // include the view rotation and item translation
+   // uniform mat4 view; // the lookat matrix
+   // uniform mat4 projection; // projection matrix
+
+   shader_p->set_mat4_for_uniform("model",      model);
+   shader_p->set_mat4_for_uniform("view",       view);
+   shader_p->set_mat4_for_uniform("projection", projection);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_for_ssao() " << shader_name << " post uniforms" << std::endl;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "TextureMesh::draw_for_ssao() You forgot to setup this mesh (or setup with empty vertices or triangles) "
+                << "\"" << name << "\" \"" << shader_p->name << "\"" << std::endl;
+
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_for_ssao() \"" << shader_name << "\" \""
+		      << name << "\"" << " glBindVertexArray() vao " << vao << " with GL err "
+                      << err << std::endl;
+
+   glEnableVertexAttribArray(0); // position
+   glEnableVertexAttribArray(1); // normal
+   glEnableVertexAttribArray(2); // tangent
+   glEnableVertexAttribArray(3); // bitangent
+   glEnableVertexAttribArray(4); // colour (not used)
+   glEnableVertexAttribArray(5); // texture coordinates
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: draw_ao() " << name << " pre-draw " << err << std::endl;
+
+   glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw_ao() glDrawElements() of Mesh "
+                      << "\"" << name << "\""
+                      << " shader: " << shader_p->name
+                      << " vao " << vao
+                      << " n_triangle_verts " << n_verts
+                      << " with GL err " << err << std::endl;
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+
+   glUseProgram(0);
+
+}
+
 
 
 void
@@ -483,6 +850,8 @@ TextureMesh::import(const IndexedModel &ind_model, float scale) {
 
 }
 
+
+// 20220129-PE why did I delete this for crows?
 void
 TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positions) {
 
@@ -492,9 +861,10 @@ TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positio
    n_instances = n_positions;
    if (n_positions > n_instances_allocated)
       n_positions = n_instances_allocated;
-   glBufferData(GL_ARRAY_BUFFER, n_positions * sizeof(glm::vec3), &(positions[0]), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, n_positions * sizeof(glm::vec3), &(positions[0]), GL_STATIC_DRAW);
 
 }
+
 
 // for happy faces that drift up the screen
 void
@@ -571,72 +941,6 @@ TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
 }
 
 
-// for anchored atom markers
-void
-TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation) {
-
-  if (! draw_this_mesh) return;
-   // this can happen when all the particles have life 0 - and have been removed.
-   if (n_instances == 0) return;
-   if (triangles.empty()) return;
-
-   shader_p->Use();
-   glBindVertexArray(vao);
-   GLenum err = glGetError();
-   if (err) std::cout << "error draw_instances() " << shader_p->name
-                      << " glBindVertexArray() vao " << vao
-                      << " with GL err " << err << std::endl;
-
-   // this will need tangent and bitangent when lighting/crow code is merged.
-
-   glEnableVertexAttribArray(0); // vertex positions
-   glEnableVertexAttribArray(1); // vertex normal
-   glEnableVertexAttribArray(2); // vertex colours
-   glEnableVertexAttribArray(3); // texture coords
-   glEnableVertexAttribArray(4); // instanced position
-
-   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-   err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
-                      << " draw_instances() post mvp uniform " << err << std::endl;
-
-   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-   err = glGetError();
-   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
-                      << " draw_instances() post view_rotation uniform " << err << std::endl;
-
-   float opacity = 1.0f;
-   shader_p->set_float_for_uniform("opacity", opacity);
-
-   float scale = 0.3;
-   shader_p->set_float_for_uniform("canvas_scale", scale);
-
-   glActiveTexture(GL_TEXTURE0); // is this the right texture?
-   err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "
-                                          << err << std::endl;
-
-   glEnable(GL_DEPTH_TEST); // not the problem
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-   unsigned int n_verts = 6;
-   // std::cout << "TextureMesh::draw_instances() C " << n_verts << " " << n_instances << std::endl;
-   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
-
-   err = glGetError();
-   if (err) std::cout << "error draw_instances() on glDrawElementsInstanced() " << shader_p->name
-                      << " glBindVertexArray() vao " << vao
-                      << " with GL err " << err << std::endl;
-
-   glDisableVertexAttribArray(0);
-   glDisableVertexAttribArray(1);
-   glDisableVertexAttribArray(2);
-   glDisableVertexAttribArray(3);
-   glDisableVertexAttribArray(4);
-
-}
-
-// for happy faces
 void
 TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
                             unsigned int draw_count, unsigned int draw_count_max) {
@@ -662,8 +966,6 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
                       << " glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
-   // this will need tangent and bitangent when lighting/crow code is merged.
-
    glEnableVertexAttribArray(0); // vertex positions
    glEnableVertexAttribArray(1); // vertex normal
    glEnableVertexAttribArray(2); // vertex colours
@@ -681,9 +983,6 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
                       << " draw_instances() post view_rotation uniform " << err << std::endl;
 
    shader_p->set_float_for_uniform("opacity", opacity);
-
-   float scale = 0.8; // for happy faces
-   shader_p->set_float_for_uniform("canvas_scale", scale);
 
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "
@@ -710,10 +1009,40 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
    
 }
 
-// Define these only in *one* .cc file.
-// #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
-#include "tiny_gltf.h"
+void
+TextureMesh::apply_scale(const float &s) {
 
+   glm::vec3 sf(s, s, s);
+   for (unsigned int ii=0; ii<vertices.size(); ii++)
+      vertices[ii].position *= s;
+   setup_buffers(); // transfer the coordinates
+}
+
+
+void
+TextureMesh::translate(const glm::vec3 &t) {
+
+   for (auto &v : vertices) {
+      v.position += t;
+   }
+   setup_buffers();
+}
+
+
+void
+TextureMesh::apply_transformation(const glm::mat4 &m) {
+
+   for (unsigned int ii=0; ii<vertices.size(); ii++) {
+      glm::vec4 p_1(vertices[ii].position, 1.0);
+      glm::vec4 p_2 = p_1 * m;
+      glm::vec3 p_3(p_2);
+      vertices[ii].position = p_3;
+   }
+   setup_buffers(); // transfer the coordinates
+}
+
+
+// include_call_to_setup_buffers is by default true
 bool
 TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup_buffers) {
 
@@ -726,8 +1055,6 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
       std::vector<glm::vec2> texture_coords;
       std::vector<g_triangle> triangles;
       glm::vec4 base_colour;
-      int normal_map_texture_image_index; // NormalTextureInfo is part of a Material. It tells us
-                                          // which image has the normal info (if any)
    };
 
 
@@ -775,18 +1102,18 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                           return triangles;
                        };
 
-   auto proc_material = [] (const tinygltf::Material &material) {
+   auto proc_material = [] (tinygltf::Model &model, int material_index) {
+
+                           std::cout << "debug:: proc_material(): material_index " << material_index
+                                     << " materials.size() " << model.materials.size() << std::endl;
+
+                           const tinygltf::Material &material = model.materials[material_index];
 
                            std::cout << "debug:: proc_material(): material.pbrMetallicRoughness() basecolour size"
                                      << material.pbrMetallicRoughness.baseColorFactor.size() << std::endl;
-                           std::cout << "debug:: proc_material(): material.normalTexture:"
-                                     << " index    " << material.normalTexture.index
-                                     << " texCoord " << material.normalTexture.texCoord
-                                     << " scale    " << material.normalTexture.scale
-                                     << std::endl;
 
                            if (false)
-                              std::cout << "Material name: \"" << material.name << "\""
+                              std::cout << "Material " << material_index << " name: \"" << material.name << "\""
                                         << " alphaMode" << material.alphaMode
                                         << " pbr-metallicroughness colour "
                                         << material.pbrMetallicRoughness.baseColorFactor[0] << " "
@@ -813,13 +1140,8 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
 
                             std::cout << indent(3) << "primitive material " << primitive.material << std::endl;
                             if (primitive.material >= 0) {
-                               int material_index = primitive.material;
-                               std::cout << "debug:: proc_primitive(): material_index " << material_index << " of "
-                                         << " materials.size() " << model.materials.size() << std::endl;
-                               const tinygltf::Material &material = model.materials[material_index];
-                               ebi.base_colour = proc_material(material);
-                               ebi.normal_map_texture_image_index = material.normalTexture.index;
-                               // other maps are available, emissive, roughness, occlussion
+                               glm::vec4 colour = proc_material(model, primitive.material);
+                               ebi.base_colour = colour;
                             } else {
                                std::cout << "Ooops skipping proc_material()" << std::endl;
                             }
@@ -853,21 +1175,21 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                                             << " accessor type " << accessor.type << std::endl;
 
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
-                                  std::cout << indent(3) <<"component type byte " << std::endl;
+                                  std::cout << "      component type byte " << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-                                  std::cout << indent(3) <<"component type unsigned byte " << std::endl;
+                                  std::cout << "      component type unsigned byte " << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
-                                  std::cout << indent(3) <<"component type short" << std::endl;
+                                  std::cout << "      component type short" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-                                  std::cout << indent(3) <<"component type unsigned short" << std::endl;
+                                  std::cout << "      component type unsigned short" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_INT)
-                                  std::cout << indent(3) <<"component type int" << std::endl;
+                                  std::cout << "      component type int" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
-                                  std::cout << indent(3) <<"component type unsigned int" << std::endl;
+                                  std::cout << "      component type unsigned int" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
-                                  std::cout << indent(3) <<"component type float" << std::endl;
+                                  std::cout << "      component type float" << std::endl;
                                if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
-                                  std::cout << indent(3) <<"component type double" << std::endl;
+                                  std::cout << "      component type double" << std::endl;
 
                                if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
                                   if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
@@ -966,25 +1288,21 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                        return r;
                    };
 
-   auto proc_image = [indent] (const tinygltf::Image &image) {
+   auto proc_images = [indent] (const tinygltf::Image &image) {
+                         std::cout << indent(1) << "Image name: "   << image.name   << std::endl;
+                         std::cout << indent(1) << "Image bits: "   << image.bits   << std::endl;
+                         std::cout << indent(1) << "Image width: "  << image.width  << std::endl;
+                         std::cout << indent(1) << "Image height: " << image.height << std::endl;
+                         std::cout << indent(1) << "Image component: " << image.component << std::endl;
+                         std::cout << indent(1) << "Image data buffer size:" << image.image.size() << std::endl;
 
-                        std::cout << "Image:" << std::endl;
-                        std::cout << indent(1) << "Image name: "   << image.name   << std::endl;
-                        std::cout << indent(1) << "Image bits: "   << image.bits   << std::endl;
-                        std::cout << indent(1) << "Image width: "  << image.width  << std::endl;
-                        std::cout << indent(1) << "Image height: " << image.height << std::endl;
-                        std::cout << indent(1) << "Image component: " << image.component << std::endl;
-                        std::cout << indent(1) << "Image data buffer size:" << image.image.size() << std::endl;
-                        std::cout << indent(1) << "Image.bufferView:" << image.bufferView << std::endl;
+                         Texture texture;
+                         texture.handle_raw_image_data(image.name, image.image, image.width, image.height);
 
-                        Texture texture;
-                        texture.handle_raw_image_data(image.name, image.image, image.width, image.height);
-                        std::cout << "debug:: made a texture with m_texture_handle " << texture.m_texture_handle << std::endl;
-
-                        return texture;
+                         return texture;
                    };
 
-   auto proc_model_v2 = [proc_node, proc_image] (tinygltf::Model &model) {
+   auto proc_model_v2 = [proc_node, proc_images] (tinygltf::Model &model) {
 
                            std::vector<extracted_buffer_info_t> r;
                            std::vector<Texture> textures;
@@ -1035,7 +1353,7 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
 
                            std::cout << "This model contains " << model.images.size() << " images" << std::endl;
                            for (unsigned int i=0; i<model.images.size(); i++) {
-                              Texture texture = proc_image(model.images[i]);
+                              Texture texture = proc_images(model.images[i]);
                               textures.push_back(texture);
                            }
 
@@ -1059,7 +1377,6 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
 
    bool use_binary = false;
    std::string ext = coot::util::file_name_extension(file_name_in);
-   std::cout << "debug:: ext is " << ext << std::endl;
    if (ext == ".glb") use_binary = true;
 
    // std::cout << "debug:: TextureMesh::load_from_glTF(): " << file_name_in << " use_binary: " << use_binary << std::endl;
@@ -1093,24 +1410,12 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
       std::vector<extracted_buffer_info_t> &r = r_pair.first;
       std::vector<Texture> &extracted_textures = r_pair.second;
 
-      if (! extracted_textures.empty()) {
-         for (unsigned int idx_texture=0; idx_texture<extracted_textures.size(); idx_texture++) {
-            const auto &texture = extracted_textures[idx_texture];
-            int idx_texture_as_int = idx_texture; // sigh
-            TextureInfoType ti(texture, "something", "base_texture", 0);
-            // now, was this marked as a normal map by any of the buffer infos?
-            for (unsigned int i=0; i<r.size(); i++) {
-               const extracted_buffer_info_t &ebi = r[i];
-               if (ebi.normal_map_texture_image_index == idx_texture_as_int) {
-                  ti.texture_type = TextureInfoType::NORMAL_MAP;
-                  ti.unit = 1; // for rendering using textures-meshes.shader
-                  ti.sampler_name = "normal_map";
-               }
-            }
-            std::cout << "load_from_glTF() pushing back a textureinfo " << ti.name << " " << ti.sampler_name << " unit "
-                      << ti.unit << " texture_type_t " << ti.texture_type << " filename " << ti.texture.file_name << std::endl;
-            textures.push_back(ti);
-         }
+      for (const auto &texture : extracted_textures) {
+         std::string texture_name("texture-name-here");
+         if (!texture.file_name.empty())
+            texture_name = texture.file_name;
+         TextureInfoType ti(texture, texture_name);
+         textures.push_back(ti);
       }
 
       // std::cout << "load_from_glTF(): found " << r.size() << " mesh primitives" << std::endl;
@@ -1122,8 +1427,9 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
                if (max_vertex_index < ebi.normals.size()) {
                   unsigned int idx_vert_base = vertices.size();
                   unsigned int idx_tri_base = triangles.size();
-                  std::cout << "debug ebi sizes " << ebi.positions.size() << " " << ebi.normals.size() << " " << ebi.texture_coords.size()
-                            << std::endl;
+                  if (false)
+                     std::cout << "debug ebi sizes " << ebi.positions.size() << " "
+                               << ebi.normals.size() << " " << ebi.texture_coords.size() << std::endl;
                   if (ebi.texture_coords.size() == ebi.positions.size()) {
                      for (unsigned int j=0; j<ebi.normals.size(); j++) {
                         // s_generic_vertex g(ebi.positions[j], ebi.normals[j], ebi.base_colour);
@@ -1156,7 +1462,9 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
       status = false; // boo
    }
 
-   std::cout << "load_from_glTF() returns status " << status << std::endl;
+   std::cout << "debug:: load_from_glTF() " << file_name_in << " " << vertices.size() << " vertices "
+             << triangles.size() << " triangles "  << std::endl;
+   std::cout << "debug:: load_from_glTF() returns status " << status << std::endl;
    return status;
 }
 

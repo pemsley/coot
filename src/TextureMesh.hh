@@ -12,29 +12,28 @@
 
 #include "Shader.hh"
 #include "Texture.hh" // now TextureMesh contains a vector of Textures - I am not sure this is a good
-                      // arrangement.
+                      // arrangement (it is a result of load_from_glTF() which also fill/creates textures)
 
 class TextureMeshVertex {
 public:
    glm::vec3 position;
    glm::vec3 normal;
+   glm::vec3 tangent;   // calculated later, using triangles
+   glm::vec3 bitangent; // (same)
    glm::vec4 color;
    glm::vec2 texCoord;
    TextureMeshVertex(const glm::vec3 &p, const glm::vec3 &n, const glm::vec4 &col, const glm::vec2 &tc) :
-      position(p), normal(n), color(col), texCoord(tc) { }
+      position(p), normal(n), color(col), texCoord(tc) {}
 };
 
 class TextureInfoType {
 public:
-   enum texture_type_t { BASE_TEXTURE, NORMAL_MAP }; // and others at some stage.
    Texture texture;
    std::string name;
-   // Hmm. Maybe sampler_name and texture_type are denoting the same thing.
-   std::string sampler_name; // e.g. "base_texture"
-   GLuint unit;  // 0 for base colour, 1 for normal map, say.
-   texture_type_t texture_type;
-   TextureInfoType(const Texture &t, const std::string &n, const std::string &s, GLuint unit_in) :
-      texture(t), name(n), sampler_name(s), unit(unit_in) { texture_type = BASE_TEXTURE; }
+   // std::string sampler_name; // e.g. "base_texture", sampler is now in Texture::type
+   GLuint unit;
+   TextureInfoType(const Texture &t, const std::string &n) :
+      texture(t), name(n) {}
 };
 
 class TextureMesh {
@@ -47,7 +46,7 @@ class TextureMesh {
    std::string name;
    std::string file_name;
 
-   int n_instances; // instances to be drawn
+   int n_instances; // number of instances to be _drawn_
    int n_instances_allocated; // that we made space for in glBufferData()
    bool is_instanced;
    // note: the instanced data for happy-face-residue-markers is just the position
@@ -78,16 +77,22 @@ public:
    void import(const IndexedModel &ind_model, float scale);
    void import(const std::vector<TextureMeshVertex> &vertices, const std::vector<g_triangle> &triangles_in);
    bool have_instances() const { return is_instanced; }
+   void setup_tbn(unsigned int n_vertices); // tangent bitangent normal, pass the n_vertices for validation of indices.
    void setup_camera_facing_quad(Shader *shader_p, float scale_x, float scale_y);
    void setup_buffers();
    void set_colour(const glm::vec4 &col_in);
    void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data
-   void update_instancing_buffer_data(const std::vector<glm::vec3> &positions);
+   std::string get_name() const { return name; }
    // this is for an ephemeral instanced texturemesh
    void update_instancing_buffer_data_for_happy_faces(const std::vector<glm::vec3> &positions, // in 3D space (of the CAs)
                                                       unsigned int draw_count_in,
                                                       unsigned int draw_count_max,
                                                       const glm::vec3 &screen_y_uv);
+   void update_instancing_buffer_data(const std::vector<glm::vec3> &positions);
+   void add_texture(const TextureInfoType &ti) { textures.push_back(ti); }
+   void translate(const glm::vec3 &t); // include call to setup_buffers();
+   void apply_scale(const float &sf); // include call to setup_buffers();
+   void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices
    void draw(Shader *shader,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
@@ -95,6 +100,22 @@ public:
              const glm::vec3 &eye_position, // eye position in view space (not molecule space)
              const glm::vec4 &background_colour,
              bool do_depth_fog);
+   void draw_with_shadows(Shader *shader,
+                          const glm::mat4 &mvp,
+                          const glm::mat4 &view_rotation_matrix,
+                          const std::map<unsigned int, lights_info_t> &lights,
+                          const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                          const glm::vec4 &background_colour,
+                          bool do_depth_fog,
+                          const glm::mat4 &light_space_mvp,
+                          unsigned int depthMap,
+                          float shadow_strength,
+                          unsigned int shadow_softness,
+                          bool show_just_shadows);
+   void draw_for_ssao(Shader *shader_for_tmeshes_p,
+                      const glm::mat4 &model,
+                      const glm::mat4 &view,
+                      const glm::mat4 &projection);
    void draw_atom_label(const std::string &atom_label,
                         const glm::vec3 &atom_label_position,
                         const glm::vec4 &text_colour, // set using subbufferdata
@@ -104,9 +125,6 @@ public:
                         const glm::vec4 &background_colour,
                         bool do_depth_fog,
                         bool is_perspective_projection);
-
-   void draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation);
-
    // draw an ephemeral instanced opacity-varying texturemesh.
    // Other draw_instances() functions may be needed in future, if so change the name of this one.
    void draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,

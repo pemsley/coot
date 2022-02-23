@@ -295,6 +295,7 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *frame = gtk_frame_new(compound_label.c_str());
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
       gtk_widget_show(frame);
+      // this doesn't look right - needs checking.
       std::string s;
       for (std::size_t i=0; i<compound_lines.size(); i++) {
 	 s += compound_lines[i];
@@ -322,9 +323,9 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkTextIter end_iter;
       for (unsigned int itext=0; itext<compound_lines.size(); itext++) {
 	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
-	 std::string s = compound_lines[itext];
-	 s += "\n";
-	 gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+	 std::string ss = compound_lines[itext];
+	 ss += "\n";
+	 gtk_text_buffer_insert(text_buffer, &end_iter, ss.c_str(), -1);
       }
    }
 }

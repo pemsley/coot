@@ -23,6 +23,7 @@ LinesMesh::init() {
    first_time = true;
 }
 
+#ifdef COMPILED_WITH_CLIPPER
 LinesMesh::LinesMesh(const clipper::Cell &cell) {
 
    index_buffer_id = 999999;
@@ -64,6 +65,7 @@ LinesMesh::LinesMesh(const clipper::Cell &cell) {
    indices.push_back(3); indices.push_back(7);
 
 }
+#endif
 
 void
 LinesMesh::setup_vertices_and_indices(const std::vector<s_generic_vertex> &vertices_in,

@@ -238,6 +238,7 @@ HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position
    if (window_resize_scales_correction_set)
       shader_p->set_vec2_for_uniform("window_resize_scales_correction", window_resize_scales_correction);
 
+   // std::cout << "debug:: HUDTextureMesh::draw() glDrawElements()" << std::endl;
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: HUDMesh::draw() glDrawElementsInstanced()"
@@ -354,8 +355,6 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
    unsigned int n_vertices = vertices.size();
    if (n_triangles == 0) return;
 
-   // std::cout << "we didn't return early" << std::endl;
-
    GLenum err = glGetError();
    if (err) std::cout << "error draw_label() " << shader_p->name << " -- start -- " << err << std::endl;
 
@@ -374,6 +373,10 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
                       << " glBindVertexArray() vao " << vao << " with GL err "
                       << err << std::endl;
 
+   if (false) {
+      std::cout << "sending scales " << glm::to_string(scales) << std::endl;
+      std::cout << "sending position " << glm::to_string(position) << std::endl;
+   }
    shader_p->set_vec2_for_uniform("position", position);
    shader_p->set_vec2_for_uniform("scales", scales);
    shader_p->set_vec4_for_uniform("text_colour", text_colour);
@@ -399,8 +402,17 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
    float x = 0;
    float y = 0;
    GLfloat scale = 10.1; // guess
+   scale = 9.0; // testing
    std::string::const_iterator it_c;
    for (it_c = label.begin(); it_c != label.end(); ++it_c) {
+
+      char cc = *it_c;
+
+      err = glGetError();
+      if (err)
+         std::cout << "error HUDTextureMesh::draw_label() glDrawElements() 0 loop start " << err <<
+            " when drawing char for " << cc << std::endl;
+      
       std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*it_c);
       if (it == ft_characters.end()) {
          std::cout << "ERROR:: HUDTextureMesh::draw_label() Failed to lookup glyph for " << *it_c << std::endl;
@@ -445,14 +457,28 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
          std::cout << "post texture_mesh_vertices 3 " << glm::to_string(texture_mesh_vertices[3].position) << std::endl;
       }
 
+      err = glGetError();
+      if (err)
+         std::cout << "error HUDTextureMesh::draw_label() glDrawElements() --pre-bind texture " << err << " when drawing char for " << cc << std::endl;
       glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+      err = glGetError();
+      if (err)
+         std::cout << "error HUDTextureMesh::draw_label() glDrawElements() --post-bind texture " << err << " when drawing char for " << cc
+                   << " with ch.TextureID " << ch.TextureID << std::endl;
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+      err = glGetError();
+      if (err)
+         std::cout << "error HUDTextureMesh::draw_label() glDrawElements() B " << err << " when drawing char for " << cc << std::endl;
       glBufferSubData(GL_ARRAY_BUFFER, 0, n_vertices * sizeof(HUDTextureMesh_attribs_t), &texture_mesh_vertices[0]);
-
+      err = glGetError();
+      if (err)
+         std::cout << "error HUDTextureMesh::draw_label() glDrawElements() C " << err << " when drawing char for " << cc << std::endl;
       unsigned int n_draw_verts = 6;
       glDrawElements(GL_TRIANGLES, n_draw_verts, GL_UNSIGNED_INT, nullptr);
-
-      err = glGetError(); if (err) std::cout << "error HUDTextureMesh::draw_label() glDrawElements() " << err << std::endl;
+      err = glGetError();
+      if (err) {
+         std::cout << "error HUDTextureMesh::draw_label() glDrawElements() D " << err << " when drawing char for " << cc << std::endl;
+      }
 
        // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
       x += (ch.Advance >> 6) * scale * 1.0;
@@ -472,6 +498,7 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
 
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
+   glDisable(GL_BLEND);
    glUseProgram (0);
 
 }

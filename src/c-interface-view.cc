@@ -262,6 +262,7 @@ void reload_map_shader() {
    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));
    std::cout << "reload map shader" << std::endl;
    g.shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   g.shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP);
    graphics_draw();
 }
 
@@ -301,7 +302,112 @@ void set_focus_blur_strength(float st) {
    graphics_draw();
 }
 
+//! \brief set the shadow strength (0.0 to 1.0)
+void set_shadow_strength(float strength) {
+   graphics_info_t::shadow_strength = strength;
+   graphics_draw();
+}
 
+//! \brief set the shadow softness (1, 2 or 3)
+void set_shadow_texture_resolution_multiplier(unsigned int m) {
+   graphics_info_t g;
+   g.set_shadow_texture_resolution_multiplier(m);
+
+   graphics_draw();
+}
+
+
+//! \brief
+void set_ssao_kernel_n_samples(unsigned int n_samples) {
+
+   graphics_info_t::n_ssao_kernel_samples = n_samples;
+   graphics_info_t::generate_ssao_kernel_samples();
+   graphics_draw();
+}
+
+//! \brief set SSAO strength
+void set_ssao_strength(float strength) {
+   graphics_info_t::ssao_strength = strength;
+   graphics_draw();
+}
+
+//! \brief set SSAO strength
+void set_ssao_radius(float radius) {
+   graphics_info_t::SSAO_radius = radius;
+   graphics_draw();
+}
+
+//! \brief set SSAO bias
+void set_ssao_bias(float bias) {
+   graphics_info_t::SSAO_bias = bias;
+   graphics_draw();
+}
+
+//! \brief set SSAO blur size (0, 1, or 2)
+void set_ssao_blur_size(unsigned int blur_size) {
+   graphics_info_t::ssao_blur_size = blur_size;
+   graphics_draw();
+}
+
+//! \brief adjust the effects shader output type (for debugging effects)
+void set_effects_shader_output_type(unsigned int type) {
+   graphics_info_t::effects_shader_output_type = type;
+   graphics_draw();
+}
+
+
+//! \brief set the shadow softness (1, 2 or 3)
+void set_shadow_softness(unsigned int softness) {
+   graphics_info_t::shadow_softness = softness;
+   graphics_draw();
+}
+
+
+//! \brief set the shadow resolution (1,2,3,4)
+void set_shadow_resolution(int reso_multiplier) {
+   graphics_info_t g;
+   g.set_shadow_texture_resolution_multiplier(reso_multiplier);
+   graphics_draw();
+
+}
+
+
+//! \brief set use fancy lighting (default 1 = true);
+void set_use_fancy_lighting(short int state) {
+
+   graphics_info_t g;
+   if (state) {
+      // default (this means - and shadow also)
+      g.displayed_image_type = graphics_info_t::SHOW_AO_SCENE;
+   } else {
+      g.displayed_image_type = graphics_info_t::SHOW_BASIC_SCENE;
+   }
+   graphics_draw();
+
+}
+
+//! \brief set use simple lines for model molecule
+void set_use_simple_lines_for_model_molecules(short int state) {
+
+   for (int i=0; i<graphics_n_molecules(); i++) {
+      if (is_valid_model_molecule(i)) {
+         graphics_info_t::molecules[i].set_draw_model_molecule_as_lines(state);
+      }
+   }
+
+   // and we need to have a setting in graphics_info_t so that new molecules
+   // are draw as lines also. Another time.
+
+   graphics_draw();
+}
+
+
+
+// testing function
+void read_test_gltf_models() {
+   graphics_info_t g;
+   g.read_test_gltf_models();
+}
 
 
 /*  ----------------------------------------------------------------------- */

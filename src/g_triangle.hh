@@ -26,6 +26,5 @@ public:
 };
 std::ostream& operator <<(std::ostream &s, const g_triangle &t);
 
-
 #endif // G_TRIANGLE_HH
 

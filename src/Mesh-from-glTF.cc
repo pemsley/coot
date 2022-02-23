@@ -1,8 +1,11 @@
 
 // Define these only in *one* .cc file.
+
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
+
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "tiny_gltf.h"
 
@@ -22,6 +25,7 @@ std::ostream& operator <<(std::ostream &s, const g_triangle &t) {
    return s;
 }
 
+// include_call_to_setup_buffers is by default true
 bool
 Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup_buffers) {
 
@@ -31,6 +35,7 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
       int buffer_view_index;
       std::vector<glm::vec3> positions;
       std::vector<glm::vec3> normals;
+      std::vector<glm::vec4> vertex_colours;
       std::vector<glm::vec2> texture_coords;
       std::vector<g_triangle> triangles;
       glm::vec4 base_colour;
@@ -122,7 +127,7 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
                                glm::vec4 colour = proc_material(model, primitive.material);
                                ebi.base_colour = colour;
                             } else {
-                               std::cout << "Ooops skipping proc_material()" << std::endl;
+			      std::cout << indent(3) << "info;: skipping proc_material()" << std::endl;
                             }
 
                             // ------------------- primitive attributes -------------------
@@ -196,6 +201,79 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
                                   }
                                }
 
+			       std::cout << "Here A " << key << std::endl;
+			       if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
+				  std::cout << "Here B " << key << " " << accessor.componentType << std::endl;
+				  if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+				     std::cout << "Here C1 " << key << std::endl;
+				     if (key =="COLOR_0") {
+					std::cout << "Here D1 " << std::endl;
+                                        if (accessor.type == TINYGLTF_TYPE_VEC4) {
+                                           const float *cols = reinterpret_cast<const float *>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+                                           for (size_t ii=0; ii<accessor.count; ii++) {
+                                              float r = cols[ii*4 + 0];
+                                              float g = cols[ii*4 + 1];
+                                              float b = cols[ii*4 + 2];
+                                              float a = cols[ii*4 + 3];
+					      // std::cout << "Found col " << r << " " << g << " " << b << std::endl;
+					      glm::vec4 col(r,g,b,a);
+					      ebi.vertex_colours.push_back(col);
+					   }
+					}
+				     }
+				  }
+				  if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+				     std::cout << "Here C2 " << key <<  " type unsigned short with type "
+					       << accessor.type << std::endl;
+				     if (accessor.type == TINYGLTF_TYPE_VEC4) {
+					if (key == "COLOR_0") {
+                                           const unsigned short *cols = reinterpret_cast<const unsigned short *>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+					   const size_t s = sizeof(unsigned short);
+                                           for (size_t ii=0; ii<accessor.count; ii++) {
+                                              int r = cols[ii*4 + 0];
+                                              int g = cols[ii*4 + 1];
+                                              int b = cols[ii*4 + 2];
+                                              int a = cols[ii*4 + 3];
+					      int max = 256 * 256 -1;
+					      float rr = static_cast<float>(r)/static_cast<float>(max);
+					      float gg = static_cast<float>(g)/static_cast<float>(max);
+					      float bb = static_cast<float>(b)/static_cast<float>(max);
+					      float aa = static_cast<float>(a)/static_cast<float>(max);
+					      //std::cout << "Found col from 'unsigned short' "
+                                              // << rr << " " << gg << " " << bb << " " << aa << std::endl;
+					      glm::vec4 col(rr,gg,bb,aa);
+					      ebi.vertex_colours.push_back(col);
+					   }
+					}
+				     }
+				  }
+				  if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+				     std::cout << "Here C2 " << key <<  " type unsigned byte with type "
+					       << accessor.type << std::endl;
+				     if (accessor.type == TINYGLTF_TYPE_VEC4) {
+					if (key == "COLOR_0") {
+                                           const unsigned char *cols = reinterpret_cast<const unsigned char *>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+					   const size_t s = sizeof(unsigned char);
+                                           for (size_t ii=0; ii<accessor.count; ii++) {
+                                              int r = cols[ii*4 + 0];
+                                              int g = cols[ii*4 + 1];
+                                              int b = cols[ii*4 + 2];
+                                              int a = cols[ii*4 + 3];
+					      int max = 256 -1;
+					      float rr = static_cast<float>(r)/static_cast<float>(max);
+					      float gg = static_cast<float>(g)/static_cast<float>(max);
+					      float bb = static_cast<float>(b)/static_cast<float>(max);
+					      float aa = static_cast<float>(a)/static_cast<float>(max);
+					      // std::cout << "Found col from 'unsigned byte' "
+                                              // << rr << " " << gg << " " << bb << " " << aa << std::endl;
+					      glm::vec4 col(rr,gg,bb,aa);
+					      ebi.vertex_colours.push_back(col);
+					   }
+					}
+				     }
+				  }
+			       }
+
                                if (buffer_view.target == TINYGLTF_TARGET_ARRAY_BUFFER) {
                                   if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
                                      if (key == "TEXCOORD_0") {
@@ -246,7 +324,7 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
 
                        std::vector<extracted_buffer_info_t> r;
 
-                       std::cout << "Node " << i_node_index << " info:" << std::endl;
+                       std::cout << "debug:: proc_node() Node " << i_node_index << " info:" << std::endl;
                        std::cout << "   Node name: " << node.name << std::endl;
                        std::cout << "   Node mesh index: " << node.mesh << std::endl;
                        std::cout << "   Node rotation vec elements count: " << node.rotation.size() << std::endl;
@@ -355,34 +433,56 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
 
    if (err.empty() && read_success) { // OK, good, let's go!
 
-      std::cout << "load_from_glTF(): ::::::::::::: success path" << std::endl;
+      std::cout << "load_from_glTF() A ::::::::::::: success path, calling proc_model_v2()" << std::endl;
       std::vector<extracted_buffer_info_t> r = proc_model_v2(model);
-      std::cout << "load_from_glTF(): found " << r.size() << " mesh primitives" << std::endl;
+      std::cout << "load_from_glTF(): B ::::::::::: found " << r.size() << " mesh primitives" << std::endl;
       for (unsigned int i=0; i<r.size(); i++) {
          const extracted_buffer_info_t &ebi = r[i];
          if (ebi.normals.size() > 0) {
+	    std::cout << "debug ebi.normals size  " << ebi.normals.size() << " ebi positions size " << ebi.positions.size() << " "
+		      << "ebi vertex colours size " << ebi.vertex_colours.size() << std::endl;
             if (ebi.normals.size() == ebi.positions.size()) {
-               unsigned int max_vertex_index = 0; // set this
-               if (max_vertex_index < ebi.normals.size()) {
-                  unsigned int idx_vert_base = vertices.size();
-                  unsigned int idx_tri_base = triangles.size();
-                  for (unsigned int j=0; j<ebi.normals.size(); j++) {
-                     s_generic_vertex g(ebi.positions[j], ebi.normals[j], ebi.base_colour);
-                     vertices.push_back(g);
-                  }
-                  triangles.insert(triangles.end(), ebi.triangles.begin(), ebi.triangles.end());
-                  if (idx_vert_base != 0) {
-                     for (unsigned int i=idx_tri_base; i<triangles.size(); i++) {
-                        triangles[i].rebase(idx_vert_base);
-                     }
-                  }
-               }
+	       if (ebi.normals.size() == ebi.vertex_colours.size()) {
+		  unsigned int max_vertex_index = 0; // set this
+		  if (max_vertex_index < ebi.normals.size()) {
+		     unsigned int idx_vert_base = vertices.size();
+		     unsigned int idx_tri_base = triangles.size();
+		     for (unsigned int j=0; j<ebi.normals.size(); j++) {
+			s_generic_vertex g(ebi.positions[j], ebi.normals[j], ebi.vertex_colours[j]);
+			// std::cout << "s_generic_vertex colour " << glm::to_string(g.color) << std::endl;
+			vertices.push_back(g);
+		     }
+		     triangles.insert(triangles.end(), ebi.triangles.begin(), ebi.triangles.end());
+		     if (idx_vert_base != 0) {
+			for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++) {
+			   triangles[ii].rebase(idx_vert_base);
+			}
+		     }
+		  }
+	       } else {
+		  unsigned int max_vertex_index = 0; // set this
+		  if (max_vertex_index < ebi.normals.size()) {
+		     unsigned int idx_vert_base = vertices.size();
+		     unsigned int idx_tri_base = triangles.size();
+		     for (unsigned int j=0; j<ebi.normals.size(); j++) {
+			s_generic_vertex g(ebi.positions[j], ebi.normals[j], ebi.base_colour);
+			vertices.push_back(g);
+		     }
+		     triangles.insert(triangles.end(), ebi.triangles.begin(), ebi.triangles.end());
+		     if (idx_vert_base != 0) {
+			for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++) {
+			   triangles[ii].rebase(idx_vert_base);
+			}
+		     }
+		  }
+	       }
             }
          }
       }
 
       if (include_call_to_setup_buffers) {
-         std::cout << "pre-setup_buffer() " << vertices.size() << " vertices "  << triangles.size() << " triangles "  << std::endl;
+         std::cout << "pre-setup_buffer() " << vertices.size() << " vertices "
+		   << triangles.size() << " triangles "  << std::endl;
          setup_buffers();
       }
    } else {
@@ -395,8 +495,10 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
 }
 
 
+// pass the name (that should be visible in blender?)
+// pass one of "SHINY_PLASTIC, CLAY or METALLIC" as a hint for how to consstruct the glTF material.
 void
-Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
+Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) const {
 
    // make a tinygltf::Model and use that for export
 
@@ -406,6 +508,7 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
       int buffer_view_index;
       std::vector<glm::vec3> positions;
       std::vector<glm::vec3> normals;
+      std::vector<glm::vec4> vertex_colours;
       std::vector<glm::vec2> texture_coords;
       std::vector<g_triangle> triangles;
       glm::vec4 base_colour;
@@ -418,18 +521,21 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
 
                               ebi.positions.resize(vertices.size());
                               ebi.normals.resize(vertices.size());
+                              ebi.vertex_colours.resize(vertices.size());
                               for (unsigned int i=0; i<vertices.size(); i++)
                                  ebi.positions[i] = vertices[i].pos;
                               for (unsigned int i=0; i<vertices.size(); i++)
                                  ebi.normals[i] = vertices[i].normal;
+                              for (unsigned int i=0; i<vertices.size(); i++)
+                                 ebi.vertex_colours[i] = vertices[i].color;
                               ebi.triangles = triangles;
                            };
 
    extracted_buffer_info_t ebi;
-   fill_buffer_info(ebi, vertices, triangles);
+   fill_buffer_info(ebi, vertices, triangles); // fills ebi
 
    tinygltf::Model model;
-   model.asset.generator = "Coot 1.0 20210928";
+   model.asset.generator = "Coot 1.0-pre 20220205";
    model.defaultScene = 0;
 
    // --- Materials ---
@@ -442,11 +548,13 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
    mat.emissiveFactor = std::vector<double>(3,0.0);
    mat.alphaMode = "OPAQUE";
    mat.alphaCutoff = 0.5;
-   mat.doubleSided = false;
+   mat.doubleSided = true;
    mat.pbrMetallicRoughness = tinygltf::PbrMetallicRoughness();
    mat.normalTexture        = tinygltf::NormalTextureInfo();
    mat.occlusionTexture     = tinygltf::OcclusionTextureInfo();
    mat.emissiveTexture      = tinygltf::TextureInfo();
+   mat.pbrMetallicRoughness.metallicFactor = 0.0;  // shiny plastic
+   mat.pbrMetallicRoughness.roughnessFactor = 0.2;
 
    model.materials.push_back(mat); // index 0
    int material_index = 0;
@@ -454,7 +562,7 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
    // --- Vertices and Indices ---
 
    tinygltf::Scene scene;
-   scene.name = "A Scene from Coot";
+   scene.name = "A Molecular Scene from Coot";
    tinygltf::Node node;
 
    int mesh_index = 0;
@@ -484,8 +592,9 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
       accessor_for_positions.byteOffset = 0;
       accessor_for_positions.normalized = false;
       accessor_for_positions.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
-      size_t n_bytes = ebi.positions.size();
-      accessor_for_positions.count = n_bytes; // not bytes, probably
+      size_t n_items = ebi.positions.size();
+      size_t n_bytes = n_items * sizeof(glm::vec3);
+      accessor_for_positions.count = n_items; // not bytes, probably
       accessor_for_positions.type = TINYGLTF_TYPE_VEC3;
 
       tinygltf::BufferView buffer_view;
@@ -506,21 +615,36 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
 
       model.bufferViews.push_back(buffer_view);
 
+      // min and max values for postions
+      double big = 9e9;
+      std::vector<double> min_values = { big,  big,  big};
+      std::vector<double> max_values = {-big, -big, -big};
+
+      for (const auto &v : ebi.positions) {
+	 for(unsigned int i=0; i<3; i++) {
+	    if (v[i] > max_values[i]) max_values[i] = v[i];
+	    if (v[i] < min_values[i]) min_values[i] = v[i];
+	 }
+      }
+      accessor_for_positions.minValues = min_values;
+      accessor_for_positions.maxValues = max_values;
       model.accessors.push_back(accessor_for_positions);
+
    }
    std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
 
    {  // ---- normals ----
 
       tinygltf::Accessor accessor_for_normals;
-      int buffer_view_index = 0; // the index of the buffer - I only have 1 at the moment
+      int buffer_view_index = 1;
       accessor_for_normals.bufferView = buffer_view_index;
       accessor_for_normals.name = name;
       accessor_for_normals.byteOffset = 0;
       accessor_for_normals.normalized = false;
       accessor_for_normals.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
-      size_t n_bytes = ebi.normals.size();
-      accessor_for_normals.count = n_bytes;
+      size_t n_items = ebi.positions.size();
+      size_t n_bytes = n_items * sizeof(glm::vec3);
+      accessor_for_normals.count = n_items;
       accessor_for_normals.type = TINYGLTF_TYPE_VEC3;
 
       // now add to buffer.data (std::vector<unsigned char>)
@@ -541,23 +665,55 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
    }
    std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
 
+   {  // ---- colours ----
+
+      tinygltf::Accessor accessor_for_colours;
+      int buffer_view_index = 2;
+      accessor_for_colours.bufferView = buffer_view_index;
+      accessor_for_colours.name = name;
+      accessor_for_colours.byteOffset = 0;
+      accessor_for_colours.normalized = false;
+      accessor_for_colours.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+      size_t n_items = ebi.positions.size();
+      size_t n_bytes = n_items * sizeof(glm::vec4);
+      accessor_for_colours.count = n_items;
+      accessor_for_colours.type = TINYGLTF_TYPE_VEC4;
+
+      // now add to buffer.data (std::vector<unsigned char>)
+
+      tinygltf::BufferView buffer_view;
+      buffer_view.name = name;
+      buffer_view.buffer = buffer_index;
+      buffer_view.byteOffset = buffer.data.size();
+      buffer_view.byteLength = n_bytes;
+      buffer_view.byteStride = 0; // tightly packed.
+      buffer_view.target = TINYGLTF_TARGET_ARRAY_BUFFER;
+
+      model.bufferViews.push_back(buffer_view);
+      std::vector<glm::vec4> *vec4_data = &ebi.vertex_colours;
+      std::vector<unsigned char> *uchar_data = reinterpret_cast<std::vector<unsigned char> *> (vec4_data);
+      buffer.data.insert(buffer.data.end(), uchar_data->begin(), uchar_data->end());
+      model.accessors.push_back(accessor_for_colours);
+   }
+   std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
+
    int accessor_index_for_indices = -1;
    { // ---------- indices/triangles --------------
 
       tinygltf::Accessor accessor_for_indices;
-      int buffer_view_index = 0; // index of the buffer
+      int buffer_view_index = 3; // index of the buffer
       accessor_for_indices.bufferView = buffer_view_index;
       accessor_for_indices.name = name;
       accessor_for_indices.byteOffset = 0;
       accessor_for_indices.normalized = false;  // not that this means much.
       accessor_for_indices.componentType = TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT;
-      size_t n_bytes = ebi.triangles.size();
-      accessor_for_indices.count = n_bytes;
+      size_t n_bytes = ebi.triangles.size() * 3 * sizeof(unsigned int);
+      accessor_for_indices.count = ebi.triangles.size() * 3;
       accessor_for_indices.type = TINYGLTF_TYPE_SCALAR;
 
       tinygltf::BufferView buffer_view;
       buffer_view.name = name;
-      buffer_view.buffer = buffer_view_index;
+      buffer_view.buffer = buffer_index;
       buffer_view.byteOffset = buffer.data.size();
       buffer_view.byteLength = n_bytes;
       buffer_view.byteStride = 0; // tightly packed
@@ -565,6 +721,11 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
       std::vector<g_triangle> *index_data = &ebi.triangles;
       std::vector<unsigned char> *uchar_data = reinterpret_cast<std::vector<unsigned char> *> (index_data);
       buffer.data.insert(buffer.data.end(), uchar_data->begin(), uchar_data->end());
+
+      std::cout << "DEBUG:: buffer_view for triangles triangles.size " << triangles.size() << std::endl;
+      std::cout << "DEBUG:: buffer_view for triangles: n_bytes " << n_bytes << std::endl;
+      std::cout << "DEBUG:: buffer_view for triangles: accessor_for_indices.count "
+		<< accessor_for_indices.count << std::endl;
 
       model.accessors.push_back(accessor_for_indices);
       accessor_index_for_indices = model.accessors.size() - 1;
@@ -576,8 +737,10 @@ Mesh::export_to_glTF(const std::string &file_name, bool use_binary_format) {
    tinygltf::Primitive prim;
    int position_idx = 0;
    int normal_idx = 1;
+   int colour_idx = 2;
    prim.attributes["POSITION"] = position_idx;
-   prim.attributes["NORMAL"]   = normal_idx;
+   prim.attributes["NORMAL"]   =   normal_idx;
+   prim.attributes["COLOR_0"]  =   colour_idx;
    prim.material = material_index;
    prim.indices = indices_index;
    prim.mode = TINYGLTF_MODE_TRIANGLES; // this will need some thought for a map as lines.

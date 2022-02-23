@@ -72,14 +72,14 @@ Mesh::setup_instancing_buffer_data(Shader *shader_p,
 
 
 void
-Mesh::make_graphical_bonds_spherical_atoms(Shader *shader_p,
-                                           const Material &material,
-                                           const graphical_bonds_container &gbc,
-                                           int udd_handle_bonded_type,
-                                           float atom_radius,
-                                           float bond_radius,
-                                           unsigned int num_subdivisions,
-                                           glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
+Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
+                                                             const Material &material,
+                                                             const graphical_bonds_container &gbc,
+                                                             int udd_handle_bonded_type,
+                                                             float atom_radius,
+                                                             float bond_radius,
+                                                             unsigned int num_subdivisions,
+                                                             glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
 
    // udd_handle_bonded_type can be NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_BOND_TO_HYDROGEN
    // BONDED_WITH_HETATM_BOND.
@@ -185,13 +185,13 @@ Mesh::make_graphical_bonds_spherical_atoms(Shader *shader_p,
 }
 
 void
-Mesh::make_graphical_bonds_hemispherical_atoms(Shader *shader_p,
-                                             const Material &material,
-                                             const graphical_bonds_container &gbc, int udd_handle_bonded_type,
-                                             float atom_radius,
-                                             float bond_radius,
-                                             unsigned int num_subdivisions,
-                                             glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
+Mesh::make_graphical_bonds_hemispherical_atoms_instanced_version(Shader *shader_p,
+                                                                 const Material &material,
+                                                                 const graphical_bonds_container &gbc, int udd_handle_bonded_type,
+                                                                 float atom_radius,
+                                                                 float bond_radius,
+                                                                 unsigned int num_subdivisions,
+                                                                 glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
 
    // udd_handle_bonded_type can be NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_BOND_TO_HYDROGEN
    // BONDED_WITH_HETATM_BOND.
@@ -341,13 +341,13 @@ Mesh::make_graphical_bonds_hemispherical_atoms(Shader *shader_p,
 
 
 void
-Mesh::make_graphical_bonds_bonds(Shader *shader_p,
-                                 const Material &material,
-                                 const graphical_bonds_container &gbc,
-                                 float bond_radius,
-                                 unsigned int n_slices,
-                                 unsigned int n_stacks,
-                                 glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
+Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
+                                                   const Material &material,
+                                                   const graphical_bonds_container &gbc,
+                                                   float bond_radius,
+                                                   unsigned int n_slices,
+                                                   unsigned int n_stacks,
+                                                   glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
 
    bool is_intermediate_atoms_molecule = false;  // pass this (but why do I need it?)
 
@@ -420,12 +420,11 @@ Mesh::make_graphical_bonds_bonds(Shader *shader_p,
 
 }
 
-
+// this is not instanced and should not be in this file
 void
-Mesh::make_symmetry_atoms_bond_lines(Shader *shader_p,
-                                     const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symm_boxes) {
+Mesh::make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symm_boxes) {
 
-   // this function doesn't use setup_buffers() becuase all it is making is unindexed lines
+   // this function doesn't use setup_buffers() because all it is making is unindexed lines
 
    auto get_colour = [] (int icol, int isymop) {
                         glm::vec4 c(0.5, 0.5, 0.5, 1.0);

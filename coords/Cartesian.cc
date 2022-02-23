@@ -201,7 +201,15 @@ std::ofstream& coot::operator<<(std::ofstream& s, coot::CartesianPair pair) {
 
    return s; 
 
-} 
+}
+
+float
+coot::CartesianPair::amplitude() const {
+
+   Cartesian d = start - finish;
+   return d.amplitude();
+}
+
 
 
 // not a member function

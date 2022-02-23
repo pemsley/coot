@@ -5,8 +5,10 @@
 
 layout(location = 0) in vec3 position;  // quad position (around the origin)
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec4 colour;
-layout(location = 3) in vec2 texCoord;
+layout(location = 2) in vec3 tangent;
+layout(location = 3) in vec3 bitangent;
+layout(location = 4) in vec4 colour;
+layout(location = 5) in vec2 texCoord;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
@@ -20,6 +22,7 @@ void main() {
    // float scale = 0.00016;
    // float scale = 0.0001;
    float scale = 0.00008;
+   scale = 0.0001;
    mat4 t = transpose(view_rotation);
    vec4 pos_down = scale * vec4(position, 1.0);
    vec4 p = pos_down + vec4(label_position, 1.0) * t;
@@ -48,7 +51,7 @@ float get_fog_amount(float depth_in) {
 
    // text is a bit wispy already.
    // Do don't fade it out with depth too heavily
-   
+
    if (! is_perspective_projection) {
       return 0.6 * depth_in;
    } else {
@@ -65,12 +68,17 @@ void main() {
    // This is for text in an image
    // vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
 
-   vec4 sampled = texture(text, texCoord_transfer);
-   sampled = vec4(1.0, 1.0, 1.0, sampled.r);
+   vec4 sampled_raw = texture(text, texCoord_transfer);
+   vec4 sampled = vec4(1.0, 1.0, 1.0, sampled_raw.r);
+
    float fog_amount = 0.0;
    if (do_depth_fog)
       fog_amount = get_fog_amount(gl_FragCoord.z);
    vec4 col = colour_transfer * sampled;
-   outputColor = (1.0 - fog_amount) * col;
+
+   // outputColor = (1.0 - fog_amount) * col;
+   // outputColor = vec4(fog_amount,0,1,1);
+   float r = 1.0 - fog_amount;
+   outputColor = r * col;
 
 }

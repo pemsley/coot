@@ -22,6 +22,8 @@
 #include <string.h>
 #include <string>
 
+#include <epoxy/gl.h>
+
 // #include <GL/glut.h>
 
 #include <mmdb2/mmdb_manager.h>

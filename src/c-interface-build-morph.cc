@@ -318,7 +318,6 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
          int n_atoms = 0;
 
          // select only main-chain or nucleotide atoms
-         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          int SelHnd = mol->NewSelection(); // d
          mol->SelectAtoms(SelHnd, 0, "*",
                           mmdb::ANY_RES, "*",

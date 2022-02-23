@@ -8,6 +8,8 @@
 #include "generic-vertex.hh"
 #include "Shader.hh"
 
+#define COMPILED_WITH_CLIPPER
+
 // Currently only ambient-lit - e.g. unit cell
 
 class LinesMesh {
@@ -36,7 +38,9 @@ public:
              const std::vector<unsigned int> &indices_in) : vertices(vertices_in), indices(indices_in) {
       init();
    }
+#ifdef COMPILED_WITH_CLIPPER
    explicit LinesMesh(const clipper::Cell &cell);
+#endif
    std::vector<s_generic_vertex> vertices;
    std::vector<unsigned int> indices;
    void set_name(const std::string &n) { name = n; }

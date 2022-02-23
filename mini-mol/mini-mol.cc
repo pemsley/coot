@@ -720,22 +720,21 @@ coot::minimol::residue::lsq_overlay_rmsd(const residue &r) const {
 
    unsigned int n_in = r.atoms.size();
    std::vector<clipper::Coord_orth> pos_in(n_in);
-   for (unsigned int iat=0; iat<r.n_atoms(); iat++) { 
+   for (unsigned int iat=0; iat<r.n_atoms(); iat++)
       pos_in[iat] = r[iat].pos;
-      unsigned int n_ref = atoms.size();
-      if (n_in == n_ref) {
-	 std::vector<clipper::Coord_orth> pos_ref(n_ref);
-	 for (unsigned int iat=0; iat<atoms.size(); iat++)
-	    pos_ref[iat] = atoms[iat].pos;
-	 // args: (source, target) i.e. apply to source to match to target
-	 clipper::RTop_orth rtop(pos_in, pos_ref);
-	 double sum = 0;
-	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	    double d_sq = (pos_ref[iat]-pos_in[iat].transform(rtop)).lengthsq();
-	    sum += d_sq;
-	 }
-	 rmsd = sqrt(sum/double(n_in));
+   unsigned int n_ref = atoms.size();
+   if (n_in == n_ref) {
+      std::vector<clipper::Coord_orth> pos_ref(n_ref);
+      for (unsigned int jat=0; jat<atoms.size(); jat++)
+         pos_ref[jat] = atoms[jat].pos;
+      // args: (source, target) i.e. apply to source to match to target
+      clipper::RTop_orth rtop(pos_in, pos_ref);
+      double sum = 0;
+      for (unsigned int jat=0; jat<atoms.size(); jat++) {
+         double d_sq = (pos_ref[jat]-pos_in[jat].transform(rtop)).lengthsq();
+         sum += d_sq;
       }
+      rmsd = sqrt(sum/double(n_in));
    }
    // std::cout << "returning rmsd: " << rmsd << std::endl;
    return rmsd;

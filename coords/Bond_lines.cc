@@ -430,8 +430,24 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	       mmdb::Atom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
 
 	       // let's try UDD atom index
+               int atom_index_1_save = atom_index_1;
+               int atom_index_2_save = atom_index_2;
 	       int ierr_1 = atom_p_1->GetUDData(asc.UDDAtomIndexHandle, atom_index_1);
 	       int ierr_2 = atom_p_2->GetUDData(asc.UDDAtomIndexHandle, atom_index_2);
+
+               // 20220209-PE why does GetUDData fail for intermediate atoms?
+
+	       if (true) {
+		  // This happens for all intermediate atoms
+		  if (ierr_1 != mmdb::UDDATA_Ok) {
+		     // std::cout << "           Fail udd " << coot::atom_spec_t(atom_p_1) << std::endl;
+                     atom_index_1 = atom_index_1_save;
+                  }
+		  if (ierr_2 != mmdb::UDDATA_Ok) {
+		     // std::cout << "           Fail udd " << coot::atom_spec_t(atom_p_2) << std::endl;
+                     atom_index_2 = atom_index_2_save;
+                  }
+	       }
 
 	       if (false) {
 		  // This happens for all intermediate atoms

@@ -30,7 +30,7 @@ class HUDTextureMesh {
    std::vector<HUDTextureMesh_attribs_t> vertices;
    std::vector<g_triangle> triangles;
    std::string name;
-   void init();
+   void init(); // does not call setup_quad()
    void setup_buffers();
    bool draw_this_mesh;
    GLuint inst_positions_id;
@@ -53,6 +53,7 @@ public:
    // when the mouse moves.
    void set_position(const glm::vec2 &pos);
    void set_scales(const glm::vec2 &scales);
+   glm::vec2 get_scales() const { return scales; }
    void set_position_and_scales(const glm::vec2 &pos, const glm::vec2 &scales);
    void setup_texture_coords_for_nbcs_only();
    void setup_texture_coords_for_nbcs_and_rama();

@@ -120,6 +120,7 @@
 #include "HUDMesh.hh"
 #include "HUDTextureMesh.hh"
 #include "Instanced-Markup-Mesh.hh"
+#include "Model.hh"
 
 #include "boids.hh"
 
@@ -498,7 +499,6 @@ class graphics_info_t {
    static long int T0;
    static long int Frames;
    //
-   static int show_fps_flag;
    static short int active_map_drag_flag;
 
 
@@ -4306,6 +4306,7 @@ string   static std::string sessionid;
 
    // ---------------------------------------------
    bool init_shaders(); // return status (true = OK)
+   void init_framebuffers();// 20220129-PE a crows thing
 
    // draw-2 functions
    void init_screen_quads();
@@ -4318,6 +4319,8 @@ string   static std::string sessionid;
    static bool draw_hud_tooltip_flag;
    static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
    static glm::mat4 get_model_view_matrix();
+   glm::mat4 get_mvp_for_shadow_map(const glm::vec3 &light_position) const;
+   static glm::mat4 get_light_space_mvp(int light_index);
    static glm::vec3 get_world_space_eye_position();
    static glm::vec4 unproject(float z);
    static glm::vec4 unproject(float x, float y, float z);
@@ -4325,18 +4328,22 @@ string   static std::string sessionid;
    static glm::vec3 get_screen_y_uv();
    static glm::vec3 get_screen_x_uv();
 
-   static glm::mat4 get_view_rotation();
+   static glm::mat4 get_model_rotation(); // the quaterion from the mouse now rotates the model (not the view)
    static void setup_map_uniforms(Shader *shader_p, // in the draw loop
                                   const glm::mat4 &mvp,
                                   const glm::mat4 &view_rotation,
                                   float density_surface_opacity);
    static gboolean render(bool render_to_screendump_framebuffer_flag=false, const std::string &output_file_name="coot-screendump.tga");
+   static gboolean render_scene(); // like crows
+   enum { PASS_TYPE_STANDARD, PASS_TYPE_FOR_SHADOWS, PASS_TYPE_SSAO};
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
    static void render_scene_with_screen_ao_shader();
    static void render_scene_with_texture_combination_for_depth_blur();
    static void draw_map_molecules(bool draw_transparent_maps);
+   static void draw_map_molecules_with_shadows();
    static void draw_model_molecules();
+   static void draw_model_molecules_with_shadows();
    static void draw_intermediate_atoms();
    static void draw_intermediate_atoms_rama_balls();
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
@@ -4346,7 +4353,7 @@ string   static std::string sessionid;
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
-   static void draw_meshed_generic_display_object_meshes();
+   static void draw_meshed_generic_display_object_meshes(unsigned int pass_type);
    static void draw_instanced_meshes();
    static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
@@ -4590,6 +4597,179 @@ string   static std::string sessionid;
 
    static void fullscreen();
    static void unfullscreen();
+
+   // 20220129-PE integrating crows
+
+   static void render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
+                                     Shader *shader_for_tmeshes_with_shadows_p,
+                                     Shader *shader_for_meshes_with_shadows_p,
+                                     int width, int height);
+
+   static void render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
+                                            Shader *shader_for_tmeshes_with_shadows_p,
+                                            Shader *shader_for_meshes_with_shadows_p,
+                                            int width, int height);
+
+   static Shader shader_for_meshes; // 20220208-PE temporary shader for molecules-as-meshes while I merge the crow code. No shadows.
+   static Shader shader_for_tmeshes;
+   static Shader shader_for_tmeshes_with_shadows;
+   static Shader shader_for_meshes_with_shadows;
+   static Shader shader_for_tmeshes_for_ssao; // render to white, don't use texture (like ssao_geometry)
+   static Shader shader_for_meshes_for_ssao;  // render to white
+   static Shader shader_for_texture_meshes_shadow_map;
+   static Shader shader_for_meshes_shadow_map;
+   static Shader shader_for_shadow_map_image_texture_mesh;
+   static Shader shader_for_effects; // colour balance or gamma ramp, say.
+   // static bool show_shadow_map;
+   enum { SHOW_SHADOW_MAP, SHOW_BASIC_SCENE, SHOW_SHADOWED_SCENE, SHOW_DEPTH_BLUR_SCENE, SHOW_AO_SCENE };
+   static unsigned short int displayed_image_type;
+   static HUDTextureMesh tmesh_for_shadow_map;
+   static bool show_just_shadows; // show *just* the shadows in the texture-mesh-with-shadows shader
+
+   void draw_models(Shader *shader_for_tmeshes_p,
+                    Shader *shader_for_meshes_p,
+                    Shader *shader_for_tmeshes_with_shadows_p,
+                    Shader *shader_for_meshes_with_shadows_p,
+                    int graphics_x_size,
+                    int graphics_y_size,
+                    bool draw_shadows=false,
+                    float shadow_strength = 0.4,
+                    bool show_just_shadows = false);
+
+   void draw_models_with_shadows(Shader *shader_for_tmeshes_with_shadows_p,
+				 Shader *shader_for_meshes_with_shadows_p,
+				 int graphics_x_size,
+				 int graphics_y_size,
+				 bool draw_shadows=false,
+				 float shadow_strength = 0.4,
+				 bool show_just_shadows = false);
+
+   void draw_Models_for_shadow_map(unsigned int light_index); // Models with a capital M (Models, not molecular models)
+                                                              // Maybe use a better name?
+   void draw_molecules_for_shadow_map(unsigned int light_index);
+
+   static void draw_models_for_ssao();
+   static void draw_molecules_for_ssao();
+   static void draw_molecules_with_shadows(); // use the above created shadow map to colour the pixels
+
+   // DOF blur
+
+   // static bool use_depth_blur_state;
+
+   // void render_scene_with_texture_combination_for_depth_blur();
+   // void render_scene_with_x_blur();
+   // void render_scene_with_y_blur();
+
+   static GtkAdjustment *focus_blur_z_depth_adjustment;
+   // static float focus_blur_z_depth;
+   // static float focus_blur_strength;
+   // static GLuint blur_x_quad_vertex_array_id;
+   //    static GLuint blur_y_quad_vertex_array_id;
+   // static GLuint combine_textures_using_depth_quad_vertex_array_id;
+   // static Shader shader_for_x_blur;
+   // static Shader shader_for_y_blur;
+   // static Shader shader_for_dof_blur_by_texture_combination;
+   // static framebuffer combine_textures_using_depth_framebuffer;
+   // static framebuffer blur_x_framebuffer;
+
+   static GLuint screen_AO_quad_vertex_array_id;
+   static GLuint screen_AO_quad_VBO;
+
+   static unsigned int shadow_texture_multiplier; 
+   static unsigned int shadow_texture_width;  //  = 4 * 1024; // too big?      // derived from the above (n x 1024)
+   static unsigned int shadow_texture_height; //  = 4 * 1024;
+   void set_shadow_texture_resolution_multiplier(unsigned int m) {
+      if (m != 0) {
+         if (m < 8) {
+            if (shadow_texture_multiplier != m) {
+               shadow_texture_multiplier = m;
+               shadow_texture_width  = 1024 * m;
+               shadow_texture_height = 1024 * m;
+               // rengerate the framebuffer texture
+               glBindTexture(GL_TEXTURE_2D, shadow_depthMap_texture);
+               glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_texture_width, shadow_texture_height,
+                            0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+            }
+         }
+      }
+   }
+   static float shadow_strength;
+   static unsigned int shadow_softness; // 1, 2 or 3
+   static unsigned int shadow_depthMap_framebuffer; // change this to a real framebuffer
+                                             // when things are working
+   static unsigned int shadow_depthMap_texture; // for the framebuffer texture
+
+   static unsigned int rboDepth;
+   static unsigned int n_ssao_kernel_samples;
+   static void generate_ssao_kernel_samples();
+   // static framebuffer blur_y_framebuffer;
+   static framebuffer framebuffer_for_ssao_gbuffer;
+   static framebuffer framebuffer_for_ssao;
+   static framebuffer framebuffer_for_ssao_blur;
+   static framebuffer framebuffer_for_effects;
+   enum { EFFECTS_SHADER_STANDARD, EFFECTS_SHADER_INPUT_TEXTURE, EFFECTS_SHADER_SSAO, EFFECTS_SHADER_DEPTH};
+   static unsigned int effects_shader_output_type;
+
+   // AO new try (dec-2021)
+
+   static void draw_hud_elements();
+   static void render_3d_scene(GtkGLArea *gl_area);
+   static void render_3d_scene_for_ssao(); // c.f. above, this one doesn't pass the gl_area.
+                                           // I don't know which is best.
+   static void render_3d_scene_with_shadows(); // change the shader from meshes.shader to meshes-with-shadows.shader
+   void init_joey_ssao_stuff();
+   void read_some_test_models();
+
+   static std::vector<Model> models; // from crows 20220129-PE
+   static void add_model(const Model &model) {
+      models.push_back(model);
+   }
+
+
+   // static unsigned int gBufferFBO;
+   static unsigned int ssaoFBO;
+   static unsigned int ssaoBlurFBO;
+   static Shader shaderGeometryPass;
+   static Shader shaderSSAO;
+   static Shader shaderSSAOBlur;
+
+   // now in the framebuffer
+   // static unsigned int gPosition;
+   // static unsigned int gNormal;
+   // static unsigned int gAlbedo;
+   static unsigned int noiseTexture;
+   static unsigned int ssaoColorBuffer;
+   static unsigned int ssaoColorBufferBlur;
+   static unsigned int ssao_blur_size; // in the blur shader, how big should the box be
+                                       // 0,1,2.
+
+   // now uniforms
+   static float SSAO_radius;
+   static float SSAO_bias;
+   static bool use_ssao;
+   static float ssao_strength;
+   static bool show_just_ssao; // show *just* the SSAO colour in the effects shader
+
+   static void renderQuad();
+   static std::vector<glm::vec3> ssaoKernel;
+   // Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+   // static Camera camera;
+
+   static bool show_fps_flag;
+   static glm::mat4 get_projection_matrix(bool do_orthographic_projection,
+                                          int graphics_x_size, int graphics_y_size);
+
+   static glm::mat4 get_view_matrix(); // the lookAt() matrix
+   static glm::mat4 get_model_matrix();
+
+   void resize_framebuffers_textures_renderbuffers(int width, int height);
+
+   void read_test_gltf_models();
+
+   static void attach_buffers() {
+      auto gl_area = glareas[0];
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
+   }
 
 };
 

@@ -1129,6 +1129,7 @@ case $dist_name in
        m4
        g++
        git
+       openssl-dev
        libxext-dev
        libxmu-dev
        libxt-dev
@@ -3040,14 +3041,17 @@ if [ "$build_boost" = true ] ; then
 
    if [ $skip_this = false ] ;  then
       boost_version=1_71_0
-      boost_version=1_72_0 # not tested yet
+      boost_version=1_72_0
+      boost_version=1_74_0
       boost_server_dir=1.72.0
+      boost_server_dir=1.72.0
+      boost_server_dir=1.74.0
       echo building boost $boost_version
       (
       echo building ========================= boost $boost_version =========================
 
       boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
-      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 

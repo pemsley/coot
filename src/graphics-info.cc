@@ -1555,7 +1555,8 @@ graphics_info_t::accept_moving_atoms() {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
    }
 
-   if (false) {
+   bool debug = false;
+   if (debug) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
                 << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
@@ -1633,6 +1634,10 @@ graphics_info_t::accept_moving_atoms() {
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
+
+   if (debug) {
+      std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms finishes " << std::endl;
+   }
 
    return rr;
 }
@@ -1920,7 +1925,8 @@ graphics_info_t::clear_up_moving_atoms() {
    moving_atoms_lock  = false;
 
    // std::cout << "calling rebond_molecule_corresponding_to_moving_atoms() " << std::endl;
-   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
+   // 20220220-PE I will comment this out (because I think the answer to the below question is "yes"
+   // graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
 
 }
 
@@ -2152,12 +2158,19 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       moving_atoms_bonds_lock = 0; // unlocked
    }
 
+   // 20220209-PE adding an atom selection to moving_atoms_molecule. Is this safe?
+   // It's needed because I use
+   //       int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+   // for the sphere vs hemisphere test
+   //
+   moving_atoms_molecule.atom_sel = asc;
+
    moving_atoms_molecule.bonds_box = regularize_object_bonds_box; // needed? or does
                                                                   // make_glsl_bonds_type_checked()
                                                                   // update this?
    float bond_width = molecules[imol].get_bond_thickness();
-   moving_atoms_molecule.set_bond_thickness(0.56f * bond_width); // why scaled like this is needed!?. At some
-                                                                 // state remove this and intermediate atom
+   moving_atoms_molecule.set_bond_thickness(0.7f * bond_width); // why scaled like this is needed!?. At some
+                                                                 // stage remove this and intermediate atom
                                                                  // radius adjustment in make_glsl_bonds_type_checked()
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
 

@@ -314,7 +314,7 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc
+coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc
 
 coot_bin_LDADD =  \
         libcootsumo.la \
@@ -510,6 +510,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
 	graphics-info-draw.cc    \
+	graphics-info-draw-models.cc \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
@@ -526,8 +527,9 @@ libcootsumo_la_SOURCES = \
 	graphics-info-pick.cc	 \
 	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
-	graphics-info-residues.cc	\
-	graphics-info-refine.cc	\
+	graphics-info-render-scene.cc \
+	graphics-info-residues.cc     \
+	graphics-info-refine.cc	 \
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \
@@ -575,6 +577,7 @@ libcootsumo_la_SOURCES = \
 	Mesh.cc Mesh.hh          \
 	Mesh-from-glTF.cc        \
 	Mesh-from-graphical-bonds-instanced.cc     \
+	Mesh-from-graphical-bonds.cc     \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	merge-molecule-results-info-t.hh \

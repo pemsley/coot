@@ -19,13 +19,15 @@ void main() {
 
 in vec2 TexCoords;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colourTexture;
+uniform sampler2D  depthTexture;
 
 layout(location = 0) out vec4 out_colour;
 
 void main() {
 
-   vec3 result = texture(screenTexture, TexCoords).rgb;
+   vec3  sampled       = texture(colourTexture, TexCoords).rgb;
+   float depth_sampled = texture( depthTexture, TexCoords).r;
    float kern[11];
    kern[ 0] = 1.0;
    kern[ 1] = 0.9607894391523232;
@@ -38,21 +40,41 @@ void main() {
    kern[ 8] = 0.07730474044329971;
    kern[ 9] = 0.039163895098987066;
    kern[10] = 0.01831563888873418;
-   vec2 tex_scale = 1.0/textureSize(screenTexture, 0); // the size of single texel
+   vec2 tex_scale = 1.0/textureSize(colourTexture, 0); // the size of single texel
 
    int n_pixels_max = 10;
    vec3 sum = vec3(0.0, 0.0, 0.0);
-   float nf = 0.11; // normalizing factor
+   float weight_sum = 0.0;
    for (int ix=-n_pixels_max; ix<=n_pixels_max; ix++) {
       float k = kern[abs(ix)];
-      vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, 0.0);
-      vec3 t = texture(screenTexture, offset_coords).rgb;
-      sum += t * vec3(k,k,k) * vec3(nf);
+      float weight = 1.0;
+      vec2 offset_coords = TexCoords + vec2(1.0 * tex_scale.x * ix, 0.0);
+      vec3 t = texture(colourTexture, offset_coords).rgb;
+      sum += t * vec3(k,k,k) * weight;
+      weight_sum += weight;
    }
-   result = sum;
+   vec3 result = 2.0 * sum/weight_sum;
 
-   // result = texture(screenTexture, TexCoords).rgb;
+   gl_FragDepth = depth_sampled;
+
+   // result = texture(colourTexture, TexCoords).rgb;
    out_colour = vec4(result, 1.0);
+
+   // out_colour = vec4(1,0,1,1);
+
+   // if (depth_sampled > 0.49)
+   // out_colour = vec4(1,0,0,1);
+   // else
+   // out_colour = vec4(0,0,1,1);
+
+   // out_colour = vec4(sampled, 1.0);
+   float ds = depth_sampled;
+   // out_colour = vec4(ds, ds, ds, 1.0);
+   // if (ds < 0.8 ) out_colour = vec4( 0, ds, ds,  1.0);
+   // if (ds > 0.99) out_colour = vec4(ds, ds, 1.0, 1.0);
+
+   // testing, does the blur-y shader do anything? Let's by-pass the x-shader for now.
+   // out_colour = vec4(sampled, 1.0);
 
 }
 

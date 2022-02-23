@@ -50,18 +50,25 @@ public:
    // unsigned int atom_label_textColour_uniform_location;
 
    // general purpose, not class member uniform locations
+   void set_unsigned_int_for_uniform(const std::string &uniform_name, unsigned int value);
    void set_int_for_uniform(const std::string &uniform_name, int value);
    void set_bool_for_uniform(const std::string &uniform_name, bool value);
    void set_float_for_uniform(const std::string &uniform_name, float v);
+   void set_vec2_for_uniform(const std::string &uniform_name, const glm::vec2 &v);
+   void set_vec3_for_uniform(const std::string &uniform_name, const glm::vec3 &v);
    void set_vec4_for_uniform(const std::string &uniform_name, float f0, float f1, float f2, float f3);
    void set_vec4_for_uniform(const std::string &uniform_name, const glm::vec4 &v);
-   void set_vec3_for_uniform(const std::string &uniform_name, const glm::vec3 &v);
-   void set_vec2_for_uniform(const std::string &uniform_name, const glm::vec2 &v);
+   void set_mat4_for_uniform(const std::string &uniform_name, const glm::mat4 &m);
    void setup_light(unsigned int light_index,
                     const lights_info_t &light,
-                    const glm::mat4 &view_rotation_matrix); // mouse trackball rotation
+                    const glm::mat4 &view_rotation_matrix, // mouse trackball rotation
+                    const glm::vec3 &eye_position); // input eye_position in view space (e.g. (0,0,40))
+                                                    // it gets converted by the using the view rotation matrix.
+                                                    // Use uniform vec3 eye_position_in_molecule_coordinates_space
+                                                    // in the shader.
    void close();
    bool get_success_status() const { return success_status; }
+   bool unset_p() const { return name == "---Unset---"; }
 };
 
 #endif // SHADER_HH

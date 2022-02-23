@@ -9,8 +9,10 @@
 #include "utils/coot-utils.hh"
 #endif
 
-Texture::Texture(const std::string &file_name) {
+Texture::Texture(const std::string &file_name, type_t t, bool reversed_normals_in) {
+   type = t;
    init(file_name);
+   reversed_normals = reversed_normals_in;
 }
 
 void
@@ -60,7 +62,9 @@ Texture::init(const std::string &file_name_in) {
 }
 
 void
-Texture::handle_raw_image_data(const std::string &image_name, const std::vector<unsigned char> &image_data, int width, int height) {
+Texture::handle_raw_image_data(const std::string &image_name,
+                               const std::vector<unsigned char> &image_data,
+                               int width, int height) {
 
    file_name = image_name;
    glGenTextures(1, &m_texture_handle);
@@ -73,6 +77,7 @@ Texture::handle_raw_image_data(const std::string &image_name, const std::vector<
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data.data());
+
 }
 
 std::pair<int, int>
@@ -112,11 +117,14 @@ void
 Texture::Bind(unsigned int unit) {
 
    // unit should be less than 32
-   // std::cout << "   Texture::Bind(); unit " << unit << " m_texture_handle " << m_texture_handle << std::endl;
+   if (false) // debug
+      std::cout << "   Texture::Bind() " << file_name << " " << type << " unit " << unit
+                << " m_texture_handle " << m_texture_handle << std::endl;
+
    glActiveTexture(GL_TEXTURE0 + unit);
    glBindTexture(GL_TEXTURE_2D, m_texture_handle);
    GLenum err = glGetError();
    if (err)
-      std::cout << "GL Error:: in Texture::Bind() image from file " << file_name
+      std::cout << "GL Error:: in Texture::Bind() image from file \"" << file_name << "\""
                 << " unit " << unit << " err " << err << std::endl;
 }

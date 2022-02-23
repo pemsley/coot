@@ -11777,6 +11777,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="shader_preferences">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Shader Preferences...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_shader_preferences_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkMenuItem" id="edit_settings">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -24205,6 +24214,877 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
     <action-widgets>
       <action-widget response="-6">cancelbutton1</action-widget>
       <action-widget response="-5">okbutton1</action-widget>
+    </action-widgets>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkDialog" id="shader_settings_dialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Coot Shader Settings</property>
+    <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_shader_settings_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="margin_start">8</property>
+        <property name="margin_end">8</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="button2">
+                <property name="label" translatable="yes">  Close  </property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="margin_start">8</property>
+            <property name="margin_end">8</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkRadioButton" id="shader_settings_basic_mode_radiobutton">
+                            <property name="label" translatable="yes">Basic</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_shader_settings_basic_mode_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="shader_settings_standard_mode_radiobutton">
+                            <property name="label" translatable="yes">Standard</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">shader_settings_basic_mode_radiobutton</property>
+                            <signal name="toggled" handler="on_shader_settings_standard_mode_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="shader_settings_fancy_mode_radiobutton">
+                            <property name="label" translatable="yes">Fancy</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">shader_settings_basic_mode_radiobutton</property>
+                            <signal name="toggled" handler="on_shader_settings_fancy_mode_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Shader/Lighting Mode</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">4</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_ssao_strength_scale">
+                                    <property name="name">shader_settings_ssao_strength_scale</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="show_fill_level">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">2</property>
+                                    <property name="round_digits">2</property>
+                                    <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_strength_scale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">SSAO Strength</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_ssao_radius_scale">
+                                    <property name="name">shader_settings_ssao_radius_scale</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="show_fill_level">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">0</property>
+                                    <property name="round_digits">1</property>
+                                    <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_radius_scale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">SSAO Radius</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_ssao_bias_scale">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">0</property>
+                                    <property name="round_digits">2</property>
+                                    <property name="digits">2</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">SSAO Bias</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_ssao_n_kernel_samples_scale">
+                                    <property name="name">shader_settings_ssao_n_kernel_samples_scale</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="show_fill_level">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">256</property>
+                                    <property name="round_digits">0</property>
+                                    <property name="digits">0</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_n_kernel_samples_scale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">SSAO N Kernel  Samples</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_ssao_smoothing_blur_size_0_radiobutton">
+                                        <property name="label" translatable="yes">0</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_0_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_ssao_smoothing_blur_size_1_radiobutton">
+                                        <property name="label" translatable="yes">1</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_ssao_smoothing_blur_size_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_1_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_ssao_smoothing_blur_size_2_radiobutton">
+                                        <property name="label" translatable="yes">2</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_ssao_smoothing_blur_size_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_2_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">SSAO Smoothing Blur Size</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Screen-Space Ambient Occlusion</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">4</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_shadow_strength_scale">
+                                    <property name="name">shader_settings_shadow_strength_scale</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="show_fill_level">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">1</property>
+                                    <property name="round_digits">2</property>
+                                    <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_shadow_strength_scale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Shadow Strength</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_softness_0_radiobutton">
+                                        <property name="label" translatable="yes">0</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_0_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_softness_1_radiobutton">
+                                        <property name="label" translatable="yes">1</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_1_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_softness_2_radiobutton">
+                                        <property name="label" translatable="yes">2</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_2_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_softness_3_radiobutton">
+                                        <property name="label" translatable="yes">3</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_3_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Shadow Softness</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_texture_resolution_multiplier_1_radiobutton">
+                                        <property name="label" translatable="yes">1 </property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_1_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_texture_resolution_multiplier_2_radiobutton">
+                                        <property name="label" translatable="yes">2 </property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_2_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_texture_resolution_multiplier_3_radiobutton">
+                                        <property name="label" translatable="yes">3 </property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_3_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_texture_resolution_multiplier_4_radiobutton">
+                                        <property name="label" translatable="yes">4 </property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_4_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_texture_resolution_multiplier_5_radiobutton">
+                                        <property name="label" translatable="yes">5 </property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_5_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="shader_settings_shadow_texture_resolution_multiplier_6_radiobutton">
+                                        <property name="label" translatable="yes">6 </property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_6_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">5</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Shadow Texture Resolution Multiplier</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Shadows</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">4</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkCheckButton" id="shader_settings_do_depth_blur_checkbutton">
+                            <property name="label" translatable="yes">Do Depth Blur</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_shader_settings_do_depth_blur_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_depth_blur_focus_depth_scale">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="show_fill_level">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">1</property>
+                                    <property name="round_digits">2</property>
+                                    <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_depth_blur_focus_depth_scale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Blur Focus Depth</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">none</property>
+                            <child>
+                              <object class="GtkAlignment">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkScale" id="shader_settings_depth_blur_strength_scale">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="show_fill_level">True</property>
+                                    <property name="restrict_to_fill_level">False</property>
+                                    <property name="fill_level">10</property>
+                                    <property name="round_digits">1</property>
+                                    <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_depth_blur_strength_scale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Blur Strength</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Depth Blur</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">4</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-7">button2</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>

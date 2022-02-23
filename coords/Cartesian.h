@@ -199,6 +199,7 @@ namespace coot {
       // 
       const Cartesian &getStart()  const { return start; }
       const Cartesian &getFinish() const { return finish;}
+      float amplitude() const;
    };
    std::ostream&  operator<<(std::ostream&,  CartesianPair);
    std::ofstream& operator<<(std::ofstream&, CartesianPair);

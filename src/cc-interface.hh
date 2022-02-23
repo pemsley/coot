@@ -357,6 +357,9 @@ PyObject *export_molecule_as_x3d(int imol);
 
 bool export_molecule_as_obj(int imol, const std::string &file_name);
 
+// later this will need a handle as extra arg.
+bool export_molecule_as_gltf(int imol, const std::string &file_name);
+
 //! \brief  turn of colour map by other map
 void colour_map_by_other_map_turn_off(int imol_map);
 
@@ -1489,14 +1492,57 @@ void reload_model_shader();
 //! \brief
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
+//! \brief set use fancy lighting (default 1 = true);
+void set_use_fancy_lighting(short int state);
+
+//! \brief set use simple lines for model molecule
+void set_use_simple_lines_for_model_molecules(short int state);
+
 //! \brief
 void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
 
 //! \brief
 void set_focus_blur_z_depth(float z);
 
-//! \brief
+//! \brief set use depth blur
+void set_use_depth_blur(short int state);
+
+//! \brief set focus blur strength
 void set_focus_blur_strength(float st);
+
+//! \brief set shadow stren
+void set_shadow_strength(float s);
+
+//! \brief set the shadow resolution (1,2,3,4)
+void set_shadow_resolution(int reso_multiplier);
+
+//! \brief set SSAO kernel n samples
+void set_ssao_kernel_n_samples(unsigned int n_samples);
+
+//! \brief set SSAO strength
+void set_ssao_strength(float strength);
+
+//! \brief set SSAO strength
+void set_ssao_radius(float radius);
+
+//! \brief set SSAO bias
+void set_ssao_bias(float bias);
+
+//! \brief set SSAO blur size (0, 1, or 2)
+void set_ssao_blur_size(unsigned int blur_size);
+
+//! \brief set the shadow softness (1, 2 or 3)
+void set_shadow_softness(unsigned int softness);
+
+//! \brief set the shadow softness (1, 2 or 3)
+void set_shadow_texture_resolution_multiplier(unsigned int m);
+
+//! \brief adjust the effects shader output type (for debugging effects)
+void set_effects_shader_output_type(unsigned int type);
+
+// testing function
+void read_test_gltf_models();
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
