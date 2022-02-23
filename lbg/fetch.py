@@ -58,6 +58,7 @@ def parse_wiki_drug_xml(tree, was_redirected=False):
                         return db_dict
                     else:
                         inn = unbracket(line)
+                        print "DEBUG inn from unbracket: ", inn
                         db_dict['REDIRECT'] = inn
                         return db_dict
             print("returning db_dict: {}".format(db_dict))

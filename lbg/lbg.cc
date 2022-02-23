@@ -5067,23 +5067,19 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
    if (get_drug_mdl_file_function_pointer) {
 
-      try {
-         if (get_drug_mdl_file_function_pointer) {
-            std::cout << "DEBUG:: Using get_drug_mdl_file_function_pointer" << std::endl;
-            // this could fail for SSL reasons. Try to dig out the libcurl error
-            std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
-            if (file_name.empty()) {
-               std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
-            } else {
-               status = true;
-               import_mol_from_file(file_name);
-               save_molecule();
-            }
-         }
+      std::cout << "DEBUG:: Using get_drug_mdl_file_function_pointer" << std::endl;
+      // this could fail for SSL reasons. Try to dig out the libcurl error
+      std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
+
+      std::cout << "####################### in get_drug() " << drug_name << " we got file_name " << file_name << std::endl;
+      if (file_name.empty()) {
+         std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
+      } else {
+         status = true;
+         import_mol_from_file(file_name);
+         save_molecule();
       }
-      catch (const std::runtime_error &rte) {
-         std::cout << "WARNING:: " << rte.what() << std::endl;
-      }
+   }
 
    }
 
