@@ -3968,7 +3968,6 @@
                           (let ((new-string (unbracket line)))
                             (if (string? new-string)
                                 (let ((mol-file-name (get-drug-via-wikipedia new-string)))
-                                  (format #t "################ after REDIRECT mol-file-name: ~s~%" mol-file-name)
                                   (if (string? mol-file-name)
                                       (set! db-id-list (cons (cons "redirect" mol-file-name)) db-id-list))))))
 		      )
