@@ -1268,6 +1268,11 @@ public:
          return clipping_back;
    }
 
+   void increase_clipping_front();
+   void increase_clipping_back();
+   void decrease_clipping_front();
+   void decrease_clipping_back();
+
    // This is for the display object
    static short int display_lists_for_maps_flag;
 

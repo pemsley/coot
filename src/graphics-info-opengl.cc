@@ -346,8 +346,8 @@ graphics_info_t::set_clipping_front(float v) {
    } else {
       clipping_front = v;
    }
-   std::cout << "debug:: in set_clipping_front() now planes: front: " << clipping_front << " back: " << clipping_back
-             << " eye-position" << glm::to_string(eye_position) << std::endl;
+   std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front << " back: " << clipping_back
+             << " eye-position " << glm::to_string(eye_position) << std::endl;
    graphics_draw();
 }
 
@@ -371,7 +371,7 @@ graphics_info_t::set_clipping_back(float v) {
 void
 graphics_info_t::adjust_clipping(float d) {
 
-   if (! graphics_info_t::perspective_projection_flag) {
+   if (! perspective_projection_flag) {
 
       clipping_front = clipping_front * (1.0 + d);
       clipping_back  = clipping_back  * (1.0 + d);
@@ -419,6 +419,91 @@ graphics_info_t::adjust_clipping(float d) {
                 << screen_z_far_perspective << std::endl;
    }
 }
+
+void
+graphics_info_t::increase_clipping_front() {
+
+   if (perspective_projection_flag) {
+      double l = eye_position.z;
+      float screen_z_near_perspective_limit = l * 0.99;
+      float v = screen_z_near_perspective * 1.05263;
+      if (v < screen_z_near_perspective_limit) {
+         if (v > 2.0)
+            screen_z_near_perspective = v;
+      } else {
+         std::cout << "Not moving screen_z_near_perspective to " << v << " eye_position.z " << eye_position.z << std::endl;
+      }
+   } else {
+      float d = 0.05;
+      clipping_front = clipping_front * (1.0 - d);
+   }
+
+   graphics_draw();
+}
+
+void
+graphics_info_t::increase_clipping_back() {
+
+   if (perspective_projection_flag) {
+      double l = eye_position.z;
+      float screen_z_far_perspective_limit = l * 1.01;
+      float v = screen_z_far_perspective * 1.05;
+      if (v < screen_z_far_perspective_limit) {
+         if (v > 2.0) {
+            screen_z_near_perspective = v;
+         }
+      } else {
+         std::cout << "Not moving screen_z_near_perspective to " << v << " eye_position.z " << eye_position.z << std::endl;
+      }
+   } else {
+      float d = 0.05;
+      clipping_back = clipping_back * (1.0 + d);
+   }
+   graphics_draw();
+}
+
+void
+graphics_info_t::decrease_clipping_front() {
+
+   if (perspective_projection_flag) {
+      double l = eye_position.z;
+      float screen_z_near_perspective_limit = l * 0.99;
+      float v = screen_z_near_perspective * 0.95;
+      if (v < screen_z_near_perspective_limit) {
+         if (v > 2.0) {
+            screen_z_near_perspective = v;
+         }
+      } else {
+         std::cout << "Not moving screen_z_near_perspective to " << v << " eye_position.z " << eye_position.z << std::endl;
+      }
+   } else {
+      float d = 0.05;
+      clipping_front = clipping_front * (1.0 + d);
+   }
+   graphics_draw();
+}
+
+void
+graphics_info_t::decrease_clipping_back() {
+
+   if (perspective_projection_flag) {
+      double l = eye_position.z;
+      float screen_z_far_perspective_limit = l * 1.01;
+      float v = screen_z_far_perspective * 0.95;
+      if (v < screen_z_far_perspective_limit) {
+         if (v > 2.0) {
+            screen_z_near_perspective = v;
+         }
+      } else {
+         std::cout << "Not moving screen_z_near_perspective to " << v << " eye_position.z " << eye_position.z << std::endl;
+      }
+   } else {
+      float d = 0.05;
+      clipping_back = clipping_back * (1.0 - d);
+   }
+   graphics_draw();
+}
+
 
 void
 graphics_info_t::set_view_quaternion(float i, float j, float k, float l) {

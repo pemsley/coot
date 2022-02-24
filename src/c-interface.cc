@@ -2790,6 +2790,30 @@ float get_clipping_plane_back() {
 }
 
 
+/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+void increase_clipping_front() {
+   graphics_info_t g;
+   g.increase_clipping_front();
+}
+
+/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+void increase_clipping_back() {
+   graphics_info_t g;
+   g.increase_clipping_back();
+
+}
+
+/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+void decrease_clipping_front() {
+   graphics_info_t g;
+   g.decrease_clipping_front();
+}
+
+/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+void decrease_clipping_back() {
+   graphics_info_t g;
+   g.decrease_clipping_back();
+}
 
 
 /*  ----------------------------------------------------------------------- */

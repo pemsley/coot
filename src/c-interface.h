@@ -2154,9 +2154,21 @@ int  vt_surface_status();
 /*! \name  Clipping Functions */
 /* \{ */
 
-/*! \brief set clipping plane back */
+/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+void increase_clipping_front();
+
+/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+void increase_clipping_back();
+
+/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+void decrease_clipping_front();
+
+/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+void decrease_clipping_back();
+
+/*! \brief set clipping plane back  - this goes in differnent directions for orthographics vs perspective */
 void set_clipping_back( float v);
-/*! \brief set clipping plane front */
+/*! \brief set clipping plane front - this goes in differnent directions for orthographics vs perspective  */
 void set_clipping_front(float v);
 
 /*! \brief get clipping plane front */

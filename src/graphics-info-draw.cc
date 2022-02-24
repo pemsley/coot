@@ -437,7 +437,7 @@ graphics_info_t::get_projection_matrix(bool do_orthographic_projection,
       // std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
       return projection_matrix;
    } else {
-      float fov = 30.0;
+      float fov = 30.0; // put this in graphics_info_t and add setters and getters to the API.
       glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
                                                            screen_ratio,
                                                            screen_z_near_perspective,
@@ -921,8 +921,6 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
 
    // std::cout << "update rama ball for " << rr.all_ramas.size() << " balls " << std::endl;
    for (unsigned int i=0; i<rr.all_ramas.size(); i++) {
-
-      float rama_score = rr.all_ramas[i].distortion;
 
       const coot::atom_spec_t &spec_CA = rr.all_ramas[i].atom_spec_CA;
       mmdb::Atom *at = spec_CA.get_atom(moving_atoms_asc->mol);
