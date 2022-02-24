@@ -238,6 +238,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
                      if (structure) {
                         parse_lib_info(structure);
+                        handle = true; // hack for now - so that we don't get the warning message
                      }
                   }
 
