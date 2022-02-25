@@ -124,7 +124,11 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     depth-of-field.shader blur-x.shader blur-y.shader texture-meshes.shader \
 		     camera-facing-quad-shader-for-testing.shader outline-of-active-residue.shader \
                      meshes.shader meshes-shadow-map.shader meshes-with-shadows.shader \
-                     meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader
+                     meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader \
+		     texture-meshes-for-ssao.shader texture-meshes-with-shadows.shader \
+		     texture-meshes-shadow-map.shader shadow-map-image-texture.shader
+
+
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
