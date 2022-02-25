@@ -146,7 +146,6 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
    if (err) std::cout << "--- start generate_framebuffer_object() " << name
                       << " err is " << err << std::endl;
 
-   std::cout << "debug:: in generate_framebuffer_object() fbo is now " << fbo << " for " << name << std::endl;
    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
    err = glGetError();
    if (err) std::cout << "--- generate_framebuffer_object() A post glBindFramebuffer() "
@@ -223,7 +222,6 @@ framebuffer::generate_framebuffer_object_test(unsigned int width, unsigned int h
    if (err) std::cout << "--- start generate_framebuffer_object() " << name
                       << " err is " << err << std::endl;
 
-   std::cout << "debug:: in generate_framebuffer_object() fbo is now " << fbo << " for " << name << std::endl;
    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
    err = glGetError();
    if (err) std::cout << "--- generate_framebuffer_object() A post glBindFramebuffer() "
