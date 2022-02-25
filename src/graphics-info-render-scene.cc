@@ -37,6 +37,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                                                     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
                            };
                            // setup plane VAO
+                           GLenum err = glGetError();
+                           if (err)
+                              std::cout << "GL ERROR:: lambda renderQuad() quadVAO == 0 --- start --- " << err << std::endl;
                            glGenVertexArrays(1, &quadVAO);
                            glGenBuffers(1, &quadVBO);
                            glBindVertexArray(quadVAO);
@@ -46,27 +49,59 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
                            glEnableVertexAttribArray(1);
                            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+                           err = glGetError();
+                           if (err)
+                              std::cout << "GL ERROR:: render_scene_sans_depth_blur() renderQuad() quadVAO == 0 --- end setup --- " << err << std::endl;
                         }
-                        glEnableVertexAttribArray(0);
-                        glEnableVertexAttribArray(1);
+                        GLenum err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() A " << err << std::endl;
                         glBindVertexArray(quadVAO);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() B " << err << std::endl;
+                        glEnableVertexAttribArray(0);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() C1 " << err << std::endl;
+                        glEnableVertexAttribArray(1);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() C2 " << err << std::endl;
+                        glBindVertexArray(quadVAO);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() D " << err << std::endl;
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() E " << err << std::endl;
                         glBindVertexArray(0);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_sans_depth_blur() lambda renderQuad() F " << err << std::endl;
                      };
 
    auto render_to_shadow_map = [] () {
+                                 GLenum err = glGetError();
+                                 if (err)
+                                    std::cout << "GL ERROR:: lambda render_to_shadow_map() --- start --- " << err << std::endl;
 
-                                  graphics_info_t di;
+                                  graphics_info_t g;
                                   glViewport(0, 0, shadow_texture_width, shadow_texture_height);
                                   glBindFramebuffer(GL_FRAMEBUFFER, shadow_depthMap_framebuffer);
 
                                   glClear(GL_DEPTH_BUFFER_BIT);
                                   unsigned int light_index = 0;
                                   // make these static at some stage
-                                  di.draw_Models_for_shadow_map(light_index);
-                                  di.draw_molecules_for_shadow_map(light_index); // for coot non-Model objects
+                                  g.draw_Models_for_shadow_map(light_index);
+                                  g.draw_molecules_for_shadow_map(light_index); // for coot non-Model objects
 
                                };
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: render_scene_sans_depth_blur() --- start --- " << err << std::endl;
 
    graphics_info_t di;
    GtkWidget *gl_area = graphics_info_t::glareas[0];
@@ -187,6 +222,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          // std::cout << "debug gPosition gNormal noiseTexture " << di.gPosition << " "
          //           << di.gNormal << " " << di.noiseTexture << std::endl;
 
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: render_scene_sans_depth_blur() post noisetexture " << err << std::endl;
 
          // 3. blur SSAO texture to remove noise
          // ------------------------------------
@@ -199,9 +237,19 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          di.shaderSSAOBlur.set_int_for_uniform("blur_size", ssao_blur_size);
          glActiveTexture(GL_TEXTURE0);
          glBindTexture(GL_TEXTURE_2D, di.ssaoColorBuffer);
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: render_scene_sans_depth_blur() post bind ssaoColorBuffer " << err << std::endl;
          renderQuad();
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: render_scene_sans_depth_blur() post SSAO renderQuad() " << err << std::endl;
          glBindFramebuffer(GL_FRAMEBUFFER, 0);
          // std::cout << "render_scene_sans_depth_blur() here 4 " << std::endl;
+
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: render_scene_sans_depth_blur() post ssaoColorBuffer " << err << std::endl;
 
          bool show_shadow_map = false;
 
@@ -336,6 +384,13 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                            glEnableVertexAttribArray(1);
                            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
                         }
+                        GLenum err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_with_depth_blur() lambda renderQuad() A " << err << std::endl;
+                        glBindVertexArray(quadVAO);
+                        err = glGetError();
+                        if (err)
+                           std::cout << "GL ERROR:: render_scene_with_depth_blur() lambda renderQuad() B " << err << std::endl;
                         glEnableVertexAttribArray(0);
                         glEnableVertexAttribArray(1);
                         glBindVertexArray(quadVAO);

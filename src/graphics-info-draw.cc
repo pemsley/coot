@@ -965,7 +965,7 @@ graphics_info_t::draw_intermediate_atoms_rama_balls() {
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
-   bool do_depth_fog = true;
+   bool do_depth_fog = shader_do_depth_fog_flag;
    // this is a bit ugly
 
    // the balls are updated after a refinement cycle has finished -
@@ -974,6 +974,8 @@ graphics_info_t::draw_intermediate_atoms_rama_balls() {
    // std::vector<Instanced_Markup_Mesh_attrib_t> balls;
    // update_rama_balls(&balls);
    // rama_balls_mesh.update_instancing_buffers(balls);
+
+   // note: from graphics-info.h: static Instanced_Markup_Mesh rama_balls_mesh;
    rama_balls_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, bg_col, do_depth_fog);
 
 }
