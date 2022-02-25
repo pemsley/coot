@@ -455,11 +455,14 @@ Shader::create() const {
    if (err) std::cout << "GL ERROR:: Shader::create() " << name << " D " << err << std::endl;
    GLint status;
    glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Shader::create() " << name << " post validate " << err
+                      << " status " << status << std::endl;
    if (status == GL_TRUE) {
       // good
       message = "success";
    } else {
-      std::cout << "WARNING:: failed to link shader " << name << std::endl;
+      std::cout << "WARNING:: validate failed " << name << std::endl;
       message = "fail";
    }
    err = glGetError();
