@@ -221,6 +221,14 @@ on_shader_settings_ssao_radius_scale_value_changed_gtkbuilder_callback(GtkRange 
    set_ssao_radius(f);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_shader_settings_ssao_bias_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+                                                                     gpointer         user_data) {
+   gdouble f = gtk_range_get_value(range);
+   set_ssao_bias(f);
+}
+
 
 extern "C" G_MODULE_EXPORT
 void

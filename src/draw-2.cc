@@ -78,8 +78,8 @@ glarea_tick_func(GtkWidget *widget,
    }
 
    if (graphics_info_t::do_tick_spin) {
-         float delta = 0.002;
-         delta *= 10.0;
+         float delta = 0.004;
+         // delta *= 10.0;
          glm::vec3 EulerAngles(0, delta, 0);
          glm::quat quat_delta(EulerAngles);
          glm::quat normalized_quat_delta(glm::normalize(quat_delta));

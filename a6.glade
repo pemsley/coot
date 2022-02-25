@@ -24468,6 +24468,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                                     <property name="fill_level">0</property>
                                     <property name="round_digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_bias_scale_value_changed_gtkbuilder_callback" swapped="no"/>
                                   </object>
                                 </child>
                               </object>

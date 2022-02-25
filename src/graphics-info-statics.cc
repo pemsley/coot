@@ -1615,8 +1615,8 @@ bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update
 
 gl_rama_plot_t graphics_info_t::gl_rama_plot;
 
-float graphics_info_t::focus_blur_z_depth = 0.4;
-float graphics_info_t::focus_blur_strength = 2.0;
+float graphics_info_t::focus_blur_z_depth = 0.15;
+float graphics_info_t::focus_blur_strength = 1.0;
 
 // 20220129-PE crows
 
@@ -1635,7 +1635,7 @@ Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
 
 float graphics_info_t::SSAO_bias = 0.1;
-float graphics_info_t::SSAO_radius = 8.0;
+float graphics_info_t::SSAO_radius = 30.0;
 float graphics_info_t::ssao_strength = 0.4;
 bool graphics_info_t::use_ssao  = true;  // in the effects filter, adds (or not) the SSAO effects
 bool graphics_info_t::show_just_ssao = false; // in the effects filter, shows *just* the SSAO effects
