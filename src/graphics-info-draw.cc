@@ -747,6 +747,12 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
+
+         if (false)
+            std::cout << "--------- in draw_map_molecules() calling m.draw_map_molecule() imol " << ii
+                      << " shader " << shader.name << std::endl;
+
+         m.map_as_mesh_gl_lines_version.set_material(m.material_for_maps); // how/why is this needed? (seems that it is)
          m.draw_map_molecule(draw_transparent_maps, shader, mvp, model_rotation, eye_position, ep,
                              lights, background_colour, perspective_projection_flag);
       }

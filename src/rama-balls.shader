@@ -27,6 +27,12 @@ void main() {
    // I think that the configuration/placement of "displacement" is wrong at the moment.
    // displacement is a small number around 0, that gets multiplied by a displacement_scale
    // which is big for big baddies.
+   //
+   // To generate the displacements, use 3d perlin noise sampled at the spherical surface.
+   // No... this approach doesn't make sense because the normals need to change too
+   // and that needs to happen before the shader/OpenGL gets used.
+   // Hmm. Specificly displaced model(s), perhaps 2 or 3 of them, each with their own draw call.
+   // Use (subdivided) icospheres, not octaballs.
 
    vec4 p3 = vec4(size * (1.0 + displacement) * vertex_position + position, 1.0);
    gl_Position = mvp * p3;

@@ -185,6 +185,10 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
 
       map_as_mesh.set_material(material_for_maps);
 
+      if (false)
+         std::cout << "::::::::::: map_as_mesh.set_material with material_for_maps with do_specularity "
+                   << material_for_maps.do_specularity << std::endl;
+
       // --- background ---
 
       GLuint background_colour_uniform_location = shader.background_colour_uniform_location;

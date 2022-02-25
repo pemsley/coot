@@ -11,6 +11,10 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec4 colour;
 
+// rama-balls material change would need a float here for the shininess manipulater - hmm!
+// maybe it needs its own layout and shader. Oh. They do! rama-balls.shader. Hmm!
+// So how do we use that for a Mesh for intermediate atoms?
+
 out vec3 frag_pos_transfer;
 out vec3 normal_transfer;
 out vec4 colour_transfer;

@@ -110,7 +110,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    if (di.displayed_image_type == graphics_info_t::SHOW_AO_SCENE) {
 
-      std::cout << "DEBUG:: render_scene() ------------------------------- " << std::endl;
+      std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
 
       // bind SSAO gbuffer framebuffer
       // draw_models_for_ssao()
@@ -168,7 +168,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             std::cout << "sending projection " << glm::to_string(projection_matrix) << std::endl;
          }
 
-         di.shaderGeometryPass.set_int_for_uniform("invertedNormals", 0);
+         shaderGeometryPass.set_int_for_uniform("invertedNormals", 0);
 
          model_matrix = di.get_model_matrix();
          model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.5f, 0.0));
@@ -691,6 +691,8 @@ gboolean
 graphics_info_t::render_scene() {
 
    auto render_scene_basic = [] () {
+
+                                std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
 
                               GtkAllocation allocation;
                               auto gl_area = graphics_info_t::glareas[0];
