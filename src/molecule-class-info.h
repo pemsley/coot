@@ -3602,6 +3602,10 @@ public:        //                      public
    bool this_molecule_has_crystallographic_symmetry;
    Mesh mesh_for_symmetry_atoms;
 
+   // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
+   enum { BALL_AND_STICK, BALLS_NOT_BONDS };
+   unsigned int model_representation_mode;
+
    // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
    // instances of cylinders and spheres and hemispheres. Put them in a Model at some stage.
    std::vector<glm::vec4> make_colour_table() const;

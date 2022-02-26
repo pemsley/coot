@@ -7365,7 +7365,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
                                            bool do_spheres_flag, gl_context_info_t gl_info,
                                            const coot::protein_geometry *geom) {
 
-   // std::cout << "molecule make_ball_and_stick(A) called ..." << std::endl;
+   std::cout << "molecule make_ball_and_stick(A) called ..." << std::endl;
 
    coot::display_list_object_info dloi;
    // modify a copy of dloi and return it
