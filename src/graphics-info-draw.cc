@@ -1570,7 +1570,9 @@ graphics_info_t::draw_molecules_with_shadows() {
 
             glEnable(GL_BLEND);
             // good idea to not use shadows on atom labels?
-            draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
+
+            // 20220226-PE not here.
+            // draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
          }
       }
    }
@@ -1670,6 +1672,29 @@ graphics_info_t::draw_molecules_with_shadows() {
    // transparent things...
 
    // draw_map_molecules(true);
+
+
+}
+
+void
+graphics_info_t::draw_molecules_atom_labels() {
+
+
+   // calls draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
+
+   int n_mols = n_molecules();
+   glm::mat4 mvp = get_molecule_mvp();
+   auto model_rotation_matrix = get_model_rotation();
+
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i)) {
+         // glEnable(GL_BLEND); // surely this is called inside draw_labels()?
+         molecule_class_info_t &m = molecules[i];
+         if (m.draw_it) {
+            draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
+         }
+      }
+   }
 
 
 }

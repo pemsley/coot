@@ -2444,6 +2444,8 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 					      int atom_colour_type,
 					      coot::my_atom_colour_map_t *atom_colour_map_p) {
 
+   std::cout << "Here in handle_long_bonded_atom() " << coot::atom_spec_t(atom) << std::endl;
+
    float bond_limit = 2.16; // A S-S bonds are 2.05A.  So we've added
 			    // some wiggle room (2.1 was too short for
 			    // some dictionary S-S).
@@ -6488,9 +6490,16 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds(const atom_sele
                                                                  bool draw_missing_loops_flag,
                                                                  short int change_c_only_flag,
                                                                  bool do_goodsell_colour_mode) {
-   do_colour_by_dictionary_and_by_chain_bonds_carbons_only(asc, imol,
-                                                           draw_hydrogens_flag, draw_missing_loops_flag,
-                                                           do_goodsell_colour_mode);
+
+   if (change_c_only_flag) {
+      do_colour_by_dictionary_and_by_chain_bonds_carbons_only(asc, imol,
+                                                              draw_hydrogens_flag, draw_missing_loops_flag,
+                                                              do_goodsell_colour_mode);
+   } else {
+      bool use_asc_atom_selection_flag = true; // 20220226-PE I don't know
+      do_colour_by_chain_bonds(asc, use_asc_atom_selection_flag, imol, draw_hydrogens_flag, draw_missing_loops_flag,
+                               false, false);
+   }
 }
 
 // I add Colour by Segment at last (28 Oct 2003)
@@ -6515,7 +6524,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
    coot::my_atom_colour_map_t atom_colour_map;
 
-   if (true) { // testing new bonding mode
+   if (change_c_only_flag) {
       do_colour_by_dictionary_and_by_chain_bonds(asc,
                                                  imol,
                                                  draw_hydrogens_flag,
@@ -6528,11 +6537,12 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
    if (change_c_only_flag) {
-      int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
-      if (do_goodsell_colour_mode)
-	 atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-      do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
-      return;
+      // old code path
+      //int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
+      //if (do_goodsell_colour_mode)
+      // atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
+      // do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
+      // return;
    } else {
       if (do_goodsell_colour_mode) {
 	 int atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
@@ -6540,6 +6550,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 return;
       }
    }
+
+   // OK, now we are on the "single-colour per chain" path
 
    mmdb::Contact *contact = NULL;
    int ncontacts;
@@ -6722,7 +6734,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		     std::string resname = atom_selection[i]->GetResName();
 		     if (resname == "MSE" || resname == "MET"
 			 || resname == "MSO" || resname == "CYS") {
-			handle_MET_or_MSE_case(atom_selection[i], uddHnd, udd_atom_index_handle, col);
+			// handle_MET_or_MSE_case(atom_selection[i], uddHnd, udd_atom_index_handle, col);
 		     } else {
 			std::string ele = atom_selection[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"

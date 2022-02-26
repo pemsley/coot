@@ -262,6 +262,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             glViewport(0, 0, graphics_x_size, graphics_y_size);
             float gamma_pe = 1.2f;
             glClearColor(pow(0.07f, gamma_pe), pow(0.13f, gamma_pe), pow(0.17f, gamma_pe), 1.0f);
+            std::cout << "clearing with gamma colour" << std::endl;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glActiveTexture(GL_TEXTURE0 + 0);
@@ -314,8 +315,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
 
             {
-               glClearColor(0.5, 0.6, 0.7, 1.0); // needed?
+
+               glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // needed?
+
                glBindVertexArray(di.screen_AO_quad_vertex_array_id); // maybe make this a HUDTexture?
                glm::vec4 bg_col(background_colour, 1.0f);
 
@@ -335,7 +338,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
                shader_for_effects.set_vec4_for_uniform("background_colour", bg_col);
                shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
-               GLenum err = glGetError();
+               err = glGetError();
                if (err)
                   std::cout << "GL ERROR:: render_scene_sans_depth_blur() D err " << err << std::endl;
 
@@ -349,6 +352,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             }
 
             di.draw_particles();
+
+            draw_molecules_atom_labels();
 
             if (show_fps_flag)
                draw_hud_fps();
@@ -557,6 +562,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
             di.attach_buffers(); // switch back to the defaut framebuffer
             glViewport(0, 0, graphics_x_size, graphics_y_size);
             float gamma_pe = 1.2f;
+            std::cout << "clearing with gamma colour" << std::endl;
             glClearColor(pow(0.07f, gamma_pe), pow(0.13f, gamma_pe), pow(0.17f, gamma_pe), 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -611,8 +617,8 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
 
             {
-               glClearColor(0.5, 0.6, 0.7, 1.0); // needed?
-               glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // needed?
+               glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
+               glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                glBindVertexArray(di.screen_AO_quad_vertex_array_id); // maybe make this a HUDTexture?
                glm::vec4 bg_col(background_colour, 1.0f);
 

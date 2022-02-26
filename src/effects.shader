@@ -70,7 +70,7 @@ void main() {
    // only the pixels of the object (not the background).
    //
 
-   // gl_FragDepth = depth; // needed for depth for next shader // test remove
+   gl_FragDepth = depth; // needed for depth for next shader // test remove
 
    float ao_mapped = 1.0;
    out_color = vec4(0,0,0,1);

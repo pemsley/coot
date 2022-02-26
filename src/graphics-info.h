@@ -3157,6 +3157,7 @@ public:
    static void draw_generic_objects_solid();
    static void draw_generic_text();
    static void draw_particles();
+   static void draw_molecules_atom_labels();
    static void draw_boids();
    static void draw_happy_face_residue_markers();
    static void draw_anchored_atom_markers();
