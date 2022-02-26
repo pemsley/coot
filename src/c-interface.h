@@ -4846,19 +4846,22 @@ int make_ball_and_stick(int imol,
 /*! \brief clear ball and stick representation of molecule number imol */
 int clear_ball_and_stick(int imol);
 
+/*! \brief set the model molecule representation stye 0 for ball-and-stick/licorice (default) and 1 for ball */
+void set_model_molecule_representation_style(int imol, unsigned int mode);
+
 /* \brief display/undisplay the given additional representation  */
 void set_show_additional_representation(int imol, int representation_number, int on_off_flag);
 
-/* \brief display/undisplay all the additional representations for the given molecule  */
+/*! \brief display/undisplay all the additional representations for the given molecule  */
 void set_show_all_additional_representations(int imol, int on_off_flag);
 
-/* \brief undisplay all the additional representations for the given
+/*! \brief undisplay all the additional representations for the given
    molecule, except the given representation number (if it is off, leave it off)  */
 void all_additional_representations_off_except(int imol, int representation_number,
 					       short int ball_and_sticks_off_too_flag);
 
 
-/* delete a given additional representation */
+/*! delete a given additional representation */
 void delete_additional_representation(int imol, int representation_number);
 
 /*! \brief return the index of the additional representation.  Return -1 on error */

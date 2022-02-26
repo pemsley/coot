@@ -55,6 +55,7 @@ class Mesh {
 #endif
 
 public:
+   enum { BALL_AND_STICK, BALLS_NOT_BONDS };
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
@@ -216,6 +217,7 @@ public:
    // a wrapper for the following functions
    void make_graphical_bonds(const graphical_bonds_container &gbc,
                              int bonds_box_type,
+                             unsigned int representation_type, // BALL_AND_STICK or BALLS_NOT_BONDS
                              int udd_handle_bonded_type,
                              bool draw_cis_peptides,
                              float atom_radius,

@@ -3279,6 +3279,19 @@ clear_ball_and_stick(int imol) {
     return 0;
 }
 
+/*! \brief set the model molecule representation stye 0 for ball-and-stick/licorice (default) and 1 for ball */
+void set_model_molecule_representation_style(int imol, unsigned int mode) {
+
+   // modes defined in Mesh.hh as an enum
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_model_molecule_representation_style(mode);
+   }
+   graphics_draw();
+}
+
+
+
 /* clear the given additional representation  */
 void
 set_show_additional_representation(int imol, int representation_number, int on_off_flag) {

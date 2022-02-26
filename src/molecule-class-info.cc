@@ -144,7 +144,7 @@ molecule_class_info_t::setup_internal() {
    bonds_box_type = coot::UNSET_TYPE;
    bonds_rotate_colour_map_flag = 0;
 
-   model_representation_mode = BALL_AND_STICK;
+   model_representation_mode = Mesh::BALL_AND_STICK;
    save_time_string = "";
 
    pickable_atom_selection = 1;
@@ -3672,7 +3672,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
       bool goodsell_mode = false;
       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL)
          goodsell_mode = true;
-      make_colour_by_chain_bonds(s, graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode);
+      make_colour_by_chain_bonds(s, g.rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode);
    }
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
       make_colour_by_molecule_bonds();
@@ -3781,9 +3781,15 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {
+         std::cout << "in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
          bool draw_cis_peptide_markups = true; //
          int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
-         molecule_as_mesh.make_graphical_bonds(bonds_box, bonds_box_type, udd_handle_bonded_type,
+         if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
+            atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
+                                // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
+                                // That's for another day.
+         molecule_as_mesh.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
+                                               udd_handle_bonded_type,
                                                draw_cis_peptide_markups, atom_radius, bond_radius,
                                                num_subdivisions, n_slices, n_stacks, colour_table);
          molecule_as_mesh.set_name(name_);
@@ -3857,7 +3863,7 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
@@ -3865,7 +3871,7 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() -- start A --\n";
 
-   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0])); // is this needed?
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0])); // is this needed? 20220226-PE yes it is.
 
    // make_meshes_from_bonds_box(); // instanced meshes, that is. Not today.
 
@@ -3886,6 +3892,32 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
    graphics_info_t::attach_buffers();
    mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box); // boxes
 }
+
+// either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
+//enum { BALL_AND_STICK, BALLS_NOT_BONDS };
+void
+molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode) {
+
+   std::cout << "Here in set_model_molecule_representation_style() " << mode << std::endl;
+
+   // we should use goodsell colouring by default here
+
+   if (mode == Mesh::BALL_AND_STICK) {
+      if (model_representation_mode != Mesh::BALL_AND_STICK) {
+         model_representation_mode = mode;
+         make_glsl_bonds_type_checked(__FUNCTION__);
+      }
+   }
+   if (mode == Mesh::BALLS_NOT_BONDS) {
+      if (model_representation_mode != Mesh::BALLS_NOT_BONDS) {
+         model_representation_mode = mode;
+         make_glsl_bonds_type_checked(__FUNCTION__);
+      }
+   }
+
+}
+
+
 
 
 

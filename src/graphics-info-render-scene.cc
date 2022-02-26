@@ -724,17 +724,15 @@ graphics_info_t::render_scene() {
 
    bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 
-   if (shader_do_depth_of_field_blur_flag) {
-      render_scene_with_depth_blur(shader_for_tmeshes_p,
-                                   shader_for_meshes_p,
-                                   shader_for_tmeshes_with_shadows_p,
-                                   shader_for_meshes_with_shadows_p,
-                                   graphics_x_size, graphics_y_size);
+   if (show_basic_scene_state) {
+      render_scene_basic();
    } else {
-      if (show_basic_scene_state) {
-
-         render_scene_basic();
-
+      if (shader_do_depth_of_field_blur_flag) {
+         render_scene_with_depth_blur(shader_for_tmeshes_p,
+                                      shader_for_meshes_p,
+                                      shader_for_tmeshes_with_shadows_p,
+                                      shader_for_meshes_with_shadows_p,
+                                      graphics_x_size, graphics_y_size);
       } else {
          render_scene_sans_depth_blur(shader_for_tmeshes_p,
                                       shader_for_meshes_p,
