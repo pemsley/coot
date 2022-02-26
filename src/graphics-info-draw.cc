@@ -210,10 +210,10 @@ graphics_info_t::init_central_cube() {
 void
 graphics_info_t::init_hud_text() {
 
-   std::cout << ":::::::::::: init_hud_text() " << std::endl;
+   // std::cout << ":::::::::::: init_hud_text() " << std::endl;
 
    graphics_info_t g;
-   g.load_freetype_font_textures();
+   // g.load_freetype_font_textures(); 20220226-PE already done by now.
    glUseProgram(g.shader_for_hud_text.get_program_id());
    GLenum err = glGetError();
    if (err) std::cout << "init_hud_text() glUseProgram() err is " << err << std::endl;

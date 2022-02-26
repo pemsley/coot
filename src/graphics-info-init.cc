@@ -48,7 +48,7 @@ graphics_info_t::load_freetype_font_textures() {
          glGenTextures(1, &texture);
          GLenum err = glGetError();
          if (err) std::cout << "Loading characture textures glGenTextures err " << err << std::endl;
-         if (!err) std::cout << "OK loading texture " << texture << " for ic " << ic << std::endl;
+         // if (!err) std::cout << "OK loading texture " << texture << " for ic " << ic << std::endl;
          glBindTexture(GL_TEXTURE_2D, texture);
          err = glGetError(); if (err) std::cout << "Loading characture textures glBindTexture err " << err << std::endl;
          glTexImage2D( GL_TEXTURE_2D,
