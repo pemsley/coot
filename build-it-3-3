@@ -1193,6 +1193,8 @@ case $dist_name in
 
       ;;
 
+   # centos7 needs package gtk3-devel to be installed(!)
+
 esac
 
 
@@ -2603,7 +2605,7 @@ if $build_meson = true ; then
    meson_version=0.61.2
    echo BUILDING meson $meson_version:
    (
-   wget https://github.com/mesonbuild/meson/releases/download/0.61.2/meson-0.61.2.tar.gz
+   ${WGET} https://github.com/mesonbuild/meson/releases/download/0.61.2/meson-0.61.2.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/meson-$meson_version.tar.gz
    cd $meson-$meson_version
    python3 setup.py build
@@ -2693,7 +2695,7 @@ if test "$build_gobject_introspection" = true ; then
       echo meson failed
    fi
    cd ..
-   ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
+   ) > $HOSTLOGDIR/07c-gobject-introspection.txt 2>&1
 fi
 
 
@@ -2780,8 +2782,7 @@ if [ true ] ; then
 
    if [ $skip_build = false ] ; then
 
-      echo building pygobject $pygobject_version
-      echo building pygobject $pygobject_version 2>& 1
+      echo BUILDING pygobject $pygobject_version :
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
@@ -3046,7 +3047,7 @@ if [ "$build_boost" = true ] ; then
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
-      echo building boost $boost_version
+      echo BUILDING boost $boost_version :
       (
       echo building ========================= boost $boost_version =========================
 
@@ -3112,11 +3113,10 @@ fi
 # https://download-fallback.gnome.org/sources/goocanvas/2.0/
 
 if [ "$build_goocanvas" != "no" ] ; then
-    echo BUILDING goocanvas
-    echo BUILDING goocanvas 2>& 1
+    goocanvas_version=2.0.4
+    echo BUILDING goocanvas $goocanvas_version :
     goocanvas_dir=https://download-fallback.gnome.org/sources/goocanvas/2.0
     # or maybe http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0
-    goocanvas_version=2.0.4
     ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-$goocanvas_version.tar.xz
     (date
      echo building in: $PWD
@@ -3740,7 +3740,7 @@ if [ "$build_gc" = true ] ; then
    echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING gc
+      echo BUILDING gc:
       (
       gc_version=7.2g
       gc_version_dir=7.2
@@ -3807,9 +3807,10 @@ if [ "$build_guile" = true ] ; then
       fi
    fi
 
-   echo guile skip_this $skip_this
+   # echo guile skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING guile:
       (
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
@@ -3844,7 +3845,7 @@ if [ "$build_template_thing" = true ] ; then
       fi
    fi
 
-   echo template skip_this $skip_this
+   # echo template skip_this $skip_this
 
    if [ $skip_this = false ] ; then
       echo ========================= build template =================================
@@ -3875,9 +3876,10 @@ if [ "$build_g_wrap" = true ] ; then
       fi
    fi
 
-   echo g-wrap skip_this $skip_this
+   # echo g-wrap skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING g-wrap:
       (
       echo ========================= build g-wrap =================================
       if [ -e $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz ] ; then
@@ -3911,6 +3913,7 @@ if [ "$build_guile_cairo" = true ] ; then
    fi
 
    if [ $skip_this = false ] ; then
+      echo BUILDING guile-cairo
       (
       echo ========================= build guile-cairo =================================
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
@@ -4159,7 +4162,7 @@ echo bash ../coot/configure $coot_prefix \
       PYTHON=python3 \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
-      $guile_scripting    \
+      --with-guile \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4173,7 +4176,7 @@ echo bash ../coot/configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
-      $guile_scripting    \
+      --with-guile \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
