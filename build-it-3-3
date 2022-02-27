@@ -2516,26 +2516,27 @@ export PATH=$install_top_dir/bin:$PATH
 # gobject-introspection needs libffi
 # meson needs libffi to be intalled before python, so that meson can find ctypes modules
 
-echo BUILDING libffi:
 libffi_version=3.2.1
 skip_build=false
 if [ $test_for_already_installed_dependencies = true ] ; then
       echo ffi build - testing existance $install_top_dir/lib/libffi-$libffi_version/include/fffi.h
       if [ -e $install_top_dir/lib/libffi-$libffi_version/include/ffi.h ] ; then
          skip_build=true
+         echo installation has libffi
       else
          echo $install_top_dir/lib/libffi-$libffi_version/include does not exist
       fi
-   fi
+fi
 
-   if [ $skip_build = false ] ; then
+if [ $skip_build = false ] ; then
+      echo BUILDING libffi $libffi_version:
       (
       ${WGET} ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
       ./configure $generic_prefix
       if $MAKE ; then
-         $MAKE install
+         make install
       fi
       ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
 fi
