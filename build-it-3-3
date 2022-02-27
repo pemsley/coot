@@ -2666,8 +2666,7 @@ fi
 build_ninja=true
 if [ -e $install_top_dir/bin/ninja ] ; then
    build_ninja=false
-if
-
+fi
 
 if [ $build_ninja = true ] ; then
    echo BUILDING ninja
