@@ -2506,11 +2506,41 @@ fi
 ##########         build python and friends                       #############
 ###############################################################################
 
+
 # So that python is found when it is installed:
 #
-
 #this should not be needed
 export PATH=$install_top_dir/bin:$PATH
+
+
+# gobject-introspection needs libffi
+# meson needs libffi to be intalled before python, so that meson can find ctypes modules
+
+echo BUILDING libffi:
+libffi_version=3.2.1
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
+      echo ffi build - testing existance $install_top_dir/lib/libffi-$libffi_version/include/fffi.h
+      if [ -e $install_top_dir/lib/libffi-$libffi_version/include/ffi.h ] ; then
+         skip_build=true
+      else
+         echo $install_top_dir/lib/libffi-$libffi_version/include does not exist
+      fi
+   fi
+
+   if [ $skip_build = false ] ; then
+      (
+      ${WGET} ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
+      cd libffi-$libffi_version
+      ./configure $generic_prefix
+      if $MAKE ; then
+         $MAKE install
+      fi
+      ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
+fi
+
+
 
 # python
 #
@@ -2540,6 +2570,7 @@ if test -n "$build_python" ; then
    openssl_prefix=/usr
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
+   # 20220227-PE ctypes is crucial for meson
    echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix $python_lib_flags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
@@ -2702,35 +2733,6 @@ fi
 sources_dir=${AUTOBUILD_SOURCES}
 
 
-# gobject-introspection needs libffi:
-
-echo BUILDING libffi:
-libffi_version=3.2.1
-skip_build=false
-if [ $test_for_already_installed_dependencies = true ] ; then
-      echo ffi build - testing existance $install_top_dir/lib/libffi-$libffi_version/include/fffi.h
-      if [ -e $install_top_dir/lib/libffi-$libffi_version/include/ffi.h ] ; then
-         skip_build=true
-         echo skip build
-      else
-         echo $install_top_dir/lib/libffi-$libffi_version/include does not exist
-      fi
-   fi
-
-   if [ $skip_build = false ] ; then
-      (
-      ${WGET} ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
-      cd libffi-$libffi_version
-      ./configure $generic_prefix
-      if $MAKE ; then
-         $MAKE install
-      fi
-      ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
-fi
-
-
-
 # pycairo is a dependency of pygobject.  Is this gtk2 stuff?
 pycairo_version=1.17.0 #  check for a more recent version.
 skip_build=true
@@ -2761,7 +2763,6 @@ if [ true ] ; then
    fi
 
    echo BUILDING pygobject:
-   echo BUILDING pygobject: 2>&1
    #
    pygobject_major_minor_version=3.29
    pygobject_major_minor_version=3.30
@@ -3277,12 +3278,10 @@ fi
 ###############################################################################
 # this needs to find gobject-introspection-1.0 >= 1.46.0 (now 1.56.0 apparently)
 # and it does if PKG_CONFIG_PATH is set correctly
-if [ -e $install/include/pygobject-3.0/pygobject.h ] ; then
-    echo pygobject is installed
-    echo pygobject is installed 2>&1
+if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+    echo installation has pygobject
 else
     echo installing pygobject with pip3
-    echo installing pygobject with pip3 2>&1
     (
     echo installing pygobject
     echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
