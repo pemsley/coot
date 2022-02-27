@@ -2557,7 +2557,7 @@ if test -n "$build_python" ; then
    pip3 install --upgrade pip
    # pip3 install pycairo
    # pip3 install pygobject
-   ) >  $HOSTLOGDIR/07aa-pip-upgrade.txt 2>&1
+   ) >  $HOSTLOGDIR/07a-pip-upgrade.txt 2>&1
 
 else
     echo not building python:
@@ -2611,7 +2611,7 @@ if $build_meson = true ; then
    python3 setup.py build
    python3 setup.py install
    cd -
-   ) > $HOSTLOGDIR/07e-meson.txt 2>&1
+   ) > $HOSTLOGDIR/07b-meson.txt 2>&1
 else
    echo not building meson
 fi
@@ -2651,7 +2651,7 @@ if [ "$build_glib" = true ] ; then
        cd -
     fi
     cd ..
-    ) > $HOSTLOGDIR/07b-glib.txt 2>&1
+    ) > $HOSTLOGDIR/07c-glib.txt 2>&1
 else
     echo not building glib:
 fi
@@ -2695,7 +2695,7 @@ if test "$build_gobject_introspection" = true ; then
       echo meson failed
    fi
    cd ..
-   ) > $HOSTLOGDIR/07c-gobject-introspection.txt 2>&1
+   ) > $HOSTLOGDIR/07d-gobject-introspection.txt 2>&1
 fi
 
 
@@ -2726,7 +2726,7 @@ if [ $test_for_already_installed_dependencies = true ] ; then
       if $MAKE ; then
          $MAKE install
       fi
-      ) > $HOSTLOGDIR/07a-libffi.txt 2>&1
+      ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
 fi
 
 
@@ -2755,7 +2755,7 @@ if [ true ] ; then
          python3 setup.py install
          cd -
       fi
-      ) > $HOSTLOGDIR/07c-pycairo.txt 2>&1
+      ) > $HOSTLOGDIR/07f-pycairo.txt 2>&1
    else
       echo installation has pycairo
    fi
@@ -2812,7 +2812,7 @@ if [ true ] ; then
          export LD_LIBRARY_PATH=$x
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
-      fi ) > $HOSTLOGDIR/07d-pygobject.txt 2>&1
+      fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
    else
       echo skip build of gobject
    fi
