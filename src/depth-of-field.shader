@@ -30,8 +30,8 @@ layout(location = 0) out vec4 out_colour;
 
 void main() {
 
-   vec3 t1 = texture(screenTexture1, TexCoords).rgb; // blurred
-   vec3 t2 = texture(screenTexture2, TexCoords).rgb; // starting
+   vec3 t1 = texture(screenTexture2, TexCoords).rgb; // starting
+   vec3 t2 = texture(screenTexture1, TexCoords).rgb; // blurred
    float d = texture(screenDepth, TexCoords).r;
 
    vec4 t1a = vec4(t1, 1.0); // make these dependent on d
@@ -52,7 +52,7 @@ void main() {
    float mf = abs(focus_blur_strength * dd);
    mf = clamp(mf, 0.0, 1.0);
 
-   out_colour = vec4(mix(t2a, t1a, mf));
+   out_colour = vec4(mix(t1a, t2a, mf));
 
    // out_colour = t1a;
 

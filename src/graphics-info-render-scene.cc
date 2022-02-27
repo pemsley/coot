@@ -562,7 +562,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
             di.attach_buffers(); // switch back to the defaut framebuffer
             glViewport(0, 0, graphics_x_size, graphics_y_size);
             float gamma_pe = 1.2f;
-            std::cout << "clearing with gamma colour" << std::endl;
+            std::cout << "debug:: clearing with gamma colour" << std::endl;
             glClearColor(pow(0.07f, gamma_pe), pow(0.13f, gamma_pe), pow(0.17f, gamma_pe), 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -653,27 +653,12 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
             di.draw_particles();
 
-#if 0
-           glEnable(GL_DEPTH_TEST);
-           di.blur_x_framebuffer.bind();
-           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-           di.render_scene_with_y_blur();
-
-           di.combine_textures_using_depth_framebuffer.bind();
-           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-           di.render_scene_with_x_blur();
-
-           di.attach_buffers();
-           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-           di.render_scene_with_texture_combination_for_depth_blur();
-#endif
-
            GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+
            blur_x_framebuffer.bind();
            render_scene_with_y_blur();
 
            combine_textures_using_depth_framebuffer.bind();
-
            render_scene_with_x_blur();
 
            gtk_gl_area_attach_buffers(gl_area);
