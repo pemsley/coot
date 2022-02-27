@@ -2605,9 +2605,9 @@ if $build_meson = true ; then
    meson_version=0.61.2
    echo BUILDING meson $meson_version:
    (
-   ${WGET} https://github.com/mesonbuild/meson/releases/download/0.61.2/meson-0.61.2.tar.gz
+   ${WGET} https://github.com/mesonbuild/meson/releases/download/$meson_version/meson-$meson_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/meson-$meson_version.tar.gz
-   cd $meson-$meson_version
+   cd meson-$meson_version
    python3 setup.py build
    python3 setup.py install
    cd -
@@ -2778,11 +2778,10 @@ if [ true ] ; then
          skip_build=true
       fi
    fi
-   echo :::: skip_build for pygobject is $skip_build
 
    if [ $skip_build = false ] ; then
 
-      echo BUILDING pygobject $pygobject_version :
+      echo BUILDING pygobject $pygobject_version:
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
@@ -3737,7 +3736,7 @@ if [ "$build_gc" = true ] ; then
       fi
    fi
 
-   echo gc skip_this $skip_this
+   # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
       echo BUILDING gc:
@@ -3774,7 +3773,7 @@ if [ "$build_gmp" = true ] ; then
       fi
    fi
 
-   echo gmp skip_this $skip_this
+   # echo gmp skip_this $skip_this
 
    if [ $skip_this = false ] ; then
       echo BUILDING gmp
@@ -3885,7 +3884,9 @@ if [ "$build_g_wrap" = true ] ; then
       if [ -e $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
       else
-         exit
+         g_wrap_version=1.9.15
+         ${WGET} http://savannah.nongnu.org/download/g-wrap/g-wrap-$g_wrap_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then
          echo no guile
