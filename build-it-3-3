@@ -1941,7 +1941,7 @@ build_python=
 build_pygobject=
 build_guile_gtk=
 build_glib=
-build_readline=
+# build_readline=
 build_curl=
 build_libidn=
 
@@ -2466,7 +2466,16 @@ else
 fi
 
 
-if test -n "$build_readline" ; then
+#######################################################################
+# readline is a dependency of python and guile
+#######################################################################
+
+build_readline=true
+if [ -e $install_top_dir/include/readline/readline.h ] ; then
+   build_readline=false
+fi
+
+if test "$build_readline" = true ; then
     echo BUILDING readline:
     readline_version=6.2
     readline_version=6.3
@@ -2506,6 +2515,8 @@ fi
 ##########         build python and friends                       #############
 ###############################################################################
 
+
+test_for_already_installed_dependencies=true
 
 # So that python is found when it is installed:
 #
@@ -2572,10 +2583,10 @@ if test -n "$build_python" ; then
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix $python_lib_flags $python_spec_flags
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include LDFLAGS=-L$install_top_dir/lib64 $python_lib_flags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include LDFLAGS=-L$install_top_dir/lib64 $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -2600,8 +2611,6 @@ fi
 ###############################################################################
 # this needs to be reconsidered because gobject-intropsection needs python3
 # to build.
-
-test_for_already_installed_dependencies=true
 
 build_gobject_introspection=true
 
@@ -2648,6 +2657,34 @@ else
    echo not building meson
 fi
 
+
+
+###############################################################################
+##########         ninja before glib                              #############
+###############################################################################
+
+build_ninja=true
+if [ -e $install_top_dir/bin/ninja ] ; then
+   build_ninja=false
+if
+
+
+if [ $build_ninja = true ] ; then
+   echo BUILDING ninja
+   (
+   # see https://github.com/ninja-build/ninja/releases
+   ninja_version=1.10.2
+   ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
+   tar xf ninja-$ninja_version
+   ./configure.py --bootstrap # builds ninja
+   if [ -e ninja ] ; then
+      cp ninja $install_top_dir/bin
+   else
+      echo configure/boostrap of ninja failed - what a surprise.
+   fi
+   ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
+fi
+
 ###############################################################################
 ##########         glib before gobject-introspection              #############
 ###############################################################################
@@ -2683,7 +2720,7 @@ if [ "$build_glib" = true ] ; then
        cd -
     fi
     cd ..
-    ) > $HOSTLOGDIR/07c-glib.txt 2>&1
+    ) > $HOSTLOGDIR/07c2-glib.txt 2>&1
 else
     echo not building glib:
 fi
@@ -3658,7 +3695,7 @@ build_g_wrap=true
 build_gmp=true
 build_unistring=true
 build_guile_gnome_platform=true
-build_readline=true
+# build_readline=true
 build_guile_cairo=true
 build_guile_lib=true
 
