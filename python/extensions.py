@@ -1714,19 +1714,23 @@ if (have_coot_python):
          lambda func: add_module_carbohydrate_gui())
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "CCP4...",
+       submenu_modules, "CCP4",
        lambda func: add_module_ccp4())
 
      add_simple_coot_menu_menuitem(
          submenu_modules, "Cryo-EM",
-         lambda func: add_module_cryo_em())
+         lambda func: add_module_cryo_em()) # where are the jiggle-fit functions?
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "Restraints...",
+       submenu_modules, "Restraints",
        lambda func: add_module_restraints())
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "PDBe...",
+       submenu_modules, "Refine",
+       lambda func: add_module_refine()) # where is this now? Is it in curlew?
+
+     add_simple_coot_menu_menuitem(
+       submenu_modules, "PDBe",
        lambda func: add_module_pdbe())
 
      add_simple_coot_menu_menuitem(
@@ -1734,7 +1738,7 @@ if (have_coot_python):
          lambda func: add_module_prosmart())
 
      add_simple_coot_menu_menuitem(
-       submenu_modules, "SHELX...",
+       submenu_modules, "SHELX",
        lambda func: add_module_shelx())
 
 
