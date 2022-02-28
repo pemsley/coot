@@ -794,9 +794,10 @@ class Bond_lines_container {
    // the atoms have been added in order 0 is bonded to 1, 1 is bonded to 2, 2 is bonded to 3 etc.
    // and there is a double bond between 0 and 1, 2 and 3, and 4 to 5. Or maybe we could explicitly
    // add that to the the ring_atoms data.
-   void draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
-                         int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                         int udd_atom_index_handle);
+   void draw_6_membered_ring(const std::string &residue_name,
+                             const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                             int udd_atom_index_handle);
    // this calls the above function
    void draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model_number,
                                int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
@@ -813,9 +814,9 @@ class Bond_lines_container {
    void draw_GA_rings_outer(mmdb::Residue *residue_p, int model_number,
                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                             int udd_atom_index_handle);
-   void draw_CUT_ring_outer(mmdb::Residue *residue_p, int model_number,
-                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                            int udd_atom_index_handle);
+   void draw_CUT_ring(mmdb::Residue *residue_p, int model_number,
+                      int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                      int udd_atom_index_handle);
    void draw_het_group_rings(mmdb::Residue *residue_p,
                              const std::vector<bonded_quad_atom_names> &bonded_quad_atom_names,
                              int model_number, int atom_colour_type,

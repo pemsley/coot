@@ -1025,9 +1025,10 @@ Bond_lines_container::draw_GA_rings(const std::vector<mmdb::Atom *> &ring_atoms,
 // add that to the the ring_atoms data.
 //
 void
-Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
-                                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                                       int udd_atom_index_handle) {
+Bond_lines_container::draw_6_membered_ring(const std::string &residue_name,
+                                           const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                                           int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                                           int udd_atom_index_handle) {
 
    // We will make a representation with single bonds around the outside and double bonds
 
@@ -1055,16 +1056,36 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
       }
    }
 
-   for (int i=0; i<3; i++) {
+   std::vector<coot::atom_index_quad> inner_doubles;
 
-      // inside bond between 1 and 2, use 0 and 3 to find the "inside" of the ring
+   if (residue_name == "T" || residue_name == "DT" || residue_name == "U") {
+      inner_doubles.push_back(coot::atom_index_quad(3,4,5,0));
+   } else {
+      if (residue_name == "C" || residue_name == "DC") {
+         inner_doubles.push_back(coot::atom_index_quad(1,2,3,4));
+         inner_doubles.push_back(coot::atom_index_quad(3,4,5,0));
+      } else {
+         // inside bond between 1 and 2, use 0 and 3 to find the "inside" of the ring
+         // old code for i=0, i<3; i++
+         // int iat_1 = 2*i;
+         // int iat_2 = iat_1+1;
+         // int iat_3 = iat_1+2;
+         // int iat_0 = iat_1-1;
+         // if (iat_0  < 0) iat_0 = 5;
+         // if (iat_3 == 6) iat_3 = 0;
 
-      int iat_1 = 2*i;
-      int iat_2 = iat_1+1;
-      int iat_3 = iat_1+2;
-      int iat_0 = iat_1-1;
-      if (iat_0  < 0) iat_0 = 5;
-      if (iat_3 == 6) iat_3 = 0;
+         inner_doubles.push_back(coot::atom_index_quad(0,1,2,3));
+         inner_doubles.push_back(coot::atom_index_quad(2,3,4,5));
+         inner_doubles.push_back(coot::atom_index_quad(4,5,0,1));
+      }
+   }
+
+   for (unsigned int i=0; i<inner_doubles.size(); i++) {
+
+      int iat_0 = inner_doubles[i].index1;
+      int iat_1 = inner_doubles[i].index2;
+      int iat_2 = inner_doubles[i].index3;
+      int iat_3 = inner_doubles[i].index4;
 
       // find the mid point of atom 0 and 3. the innner bond ends will be on the vector from thre to
       // atoms 1 and 2.
@@ -5777,11 +5798,14 @@ Bond_lines_container::draw_trp_ring_outer(mmdb::Residue *residue_p, int model_nu
 }
 
 void
-Bond_lines_container::draw_CUT_ring_outer(mmdb::Residue *residue_p, int model_number,
-                                          int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                                          int udd_atom_index_handle) {
+Bond_lines_container::draw_CUT_ring(mmdb::Residue *residue_p, int model_number,
+                                    int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                                    int udd_atom_index_handle) {
+
 
    std::vector<std::string> ring_atom_names = {" N1 ", " C2 ", " N3 ", " C4 ", " C5 ", " C6 "};
+
+   std::string rn = residue_p->GetResName();
 
    // we need a ring atom vector for each of the alt confs
    std::set<std::string> residue_alt_confs;
@@ -5823,7 +5847,7 @@ Bond_lines_container::draw_CUT_ring_outer(mmdb::Residue *residue_p, int model_nu
          }
       }
       if (n_found == 6)
-         draw_phenyl_ring(ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+         draw_6_membered_ring(rn, ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
       else
          if (n_found > 0)
             std::cout << "partial CUT atoms (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
@@ -5835,6 +5859,7 @@ Bond_lines_container::draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model
                                              int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                                              int udd_atom_index_handle) {
 
+   std::string rn = residue_p->GetResName();
    std::vector<std::string> ring_atom_names = {" CG ", " CD1", " CE1", " CZ ", " CE2", " CD2"};
    std::vector<mmdb::Atom *> ring_atoms(6, 0);
    unsigned int n_found = 0;
@@ -5855,7 +5880,7 @@ Bond_lines_container::draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model
       }
    }
    if (n_found == 6)
-      draw_phenyl_ring(ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+      draw_6_membered_ring(rn, ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
    else
       if (n_found > 0)
          std::cout << "partial ring sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
@@ -5995,7 +6020,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
 
             if (CUT_exception)
                for (unsigned int i=0; i<rv.size(); i++)
-                  draw_CUT_ring_outer(rv[i], model_number, atom_colour_type, atom_colour_map, udd_atom_index_handle);
+                  draw_CUT_ring(rv[i], model_number, atom_colour_type, atom_colour_map, udd_atom_index_handle);
 
             std::vector<std::vector<std::string> > rings;
             std::vector<bonded_quad_atom_names> rings_as_bonded_quads_atom_names;
