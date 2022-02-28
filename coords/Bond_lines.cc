@@ -886,7 +886,110 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       int iat_3 = inner_doubles[i].index4;
       int iat_0 = inner_doubles[i].index1;
 
-      // find the mid point of atom 0 and 3. the innner bond ends will be on the vector from thre to
+      // find the mid point of atom 0 and 3. the innner bond ends will be on the vector from there to
+      // atoms 1 and 2.
+      coot::Cartesian pt_0(ring_atoms[iat_0]->x, ring_atoms[iat_0]->y, ring_atoms[iat_0]->z);
+      coot::Cartesian pt_1(ring_atoms[iat_1]->x, ring_atoms[iat_1]->y, ring_atoms[iat_1]->z);
+      coot::Cartesian pt_2(ring_atoms[iat_2]->x, ring_atoms[iat_2]->y, ring_atoms[iat_2]->z);
+      coot::Cartesian pt_3(ring_atoms[iat_3]->x, ring_atoms[iat_3]->y, ring_atoms[iat_3]->z);
+      coot::Cartesian mp = pt_0.mid_point(pt_3);
+
+      coot::Cartesian v1 = pt_1 - mp;
+      coot::Cartesian v2 = pt_2 - mp;
+      coot::Cartesian ip1 = mp + v1 * 0.8;
+      coot::Cartesian ip2 = mp + v2 * 0.8;
+      mmdb::Atom *at_1 = ring_atoms[iat_1];
+      mmdb::Atom *at_2 = ring_atoms[iat_2];
+      int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
+      int atom_1_index = -1;
+      int atom_2_index = -1;
+      ring_atoms[iat_1]->GetUDData(udd_atom_index_handle, atom_1_index);
+      ring_atoms[iat_2]->GetUDData(udd_atom_index_handle, atom_2_index);
+      std::string ele_1(at_1->element);
+      std::string ele_2(at_2->element);
+      if (ele_1 == ele_2) {
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+      } else {
+         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+      }
+   }
+
+}
+
+void
+Bond_lines_container::draw_GA_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                                    int atom_colour_type,
+                                    coot::my_atom_colour_map_t *atom_colour_map_p,
+                                    int udd_atom_index_handle) {
+
+   // the atoms in ring_atoms are in this order:
+   // std::vector<std::string> rings_atom_names = {" CG ", " CD1", " NE1", " CE2", " CD2", " CE3", " CZ3", " CH2", " CZ2"};
+
+   if (ring_atoms.size() != 9) return;
+
+   // I can't call draw_GA_rings_outer() here - I don't have the right parameters/arguments.
+
+   // debug
+   if (false)
+      for (unsigned int i=0; i<ring_atoms.size(); i++)
+         std::cout << "  " << i << " " << coot::atom_spec_t(ring_atoms[i]) << std::endl;
+
+   std::string rt = ring_atoms[0]->residue->GetResName();
+
+   // single bonds
+   std::vector<std::pair<int, int> > vp_single;
+   vp_single.push_back(std::pair<int, int> (0, 1));
+   vp_single.push_back(std::pair<int, int> (1, 2));
+   vp_single.push_back(std::pair<int, int> (2, 3));
+   vp_single.push_back(std::pair<int, int> (3, 4));
+   vp_single.push_back(std::pair<int, int> (4, 0));
+
+   vp_single.push_back(std::pair<int, int> (3, 8));
+   vp_single.push_back(std::pair<int, int> (8, 7));
+   vp_single.push_back(std::pair<int, int> (7, 6));
+   vp_single.push_back(std::pair<int, int> (6, 5));
+   vp_single.push_back(std::pair<int, int> (5, 4));
+
+   // inner doubles
+   std::vector<coot::atom_index_quad> inner_doubles;
+   inner_doubles.push_back(coot::atom_index_quad(0,1,2,3));
+   inner_doubles.push_back(coot::atom_index_quad(8,3,4,5));
+   inner_doubles.push_back(coot::atom_index_quad(7,6,5,4));
+   // inner_doubles.push_back(coot::atom_index_quad(3,8,7,6)); // not in a G, because O6 bond is double
+
+   if (rt == "A" || rt == "DA")
+      inner_doubles.push_back(coot::atom_index_quad(3,8,7,6));
+
+   for (unsigned int i=0; i<vp_single.size(); i++) {
+      int iat = vp_single[i].first;
+      int jat = vp_single[i].second;
+      mmdb::Atom *at_1 = ring_atoms[iat];
+      mmdb::Atom *at_2 = ring_atoms[jat];
+      int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
+      int atom_1_index = -1;
+      int atom_2_index = -1;
+      coot::Cartesian p1(ring_atoms[iat]->x, ring_atoms[iat]->y, ring_atoms[iat]->z);
+      coot::Cartesian p2(ring_atoms[jat]->x, ring_atoms[jat]->y, ring_atoms[jat]->z);
+      std::string ele_1(at_1->element);
+      std::string ele_2(at_2->element);
+      if (ele_1 == ele_2) {
+         ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
+         ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+      } else {
+         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+      }
+   }
+
+   for (unsigned int i=0; i<inner_doubles.size(); i++) {
+      int iat_1 = inner_doubles[i].index2;
+      int iat_2 = inner_doubles[i].index3;
+      int iat_3 = inner_doubles[i].index4;
+      int iat_0 = inner_doubles[i].index1;
+
+      // find the mid point of atom 0 and 3. the innner bond ends will be on the vector from there to
       // atoms 1 and 2.
       coot::Cartesian pt_0(ring_atoms[iat_0]->x, ring_atoms[iat_0]->y, ring_atoms[iat_0]->z);
       coot::Cartesian pt_1(ring_atoms[iat_1]->x, ring_atoms[iat_1]->y, ring_atoms[iat_1]->z);
@@ -5608,11 +5711,12 @@ Bond_lines_container::draw_GA_rings_outer(mmdb::Residue *residue_p, int model_nu
             }
          }
       }
-      if (n_found == 9)
-         draw_trp_rings(G_rings_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
-      else
+      if (n_found == 9) {
+         draw_GA_rings(G_rings_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+      } else{
          if (n_found > 0)
             std::cout << "partial trp sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
+      }
    }
 }
 
@@ -5860,9 +5964,9 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
       bool CUT_exception = false;
       if (res_name == "TRP") trp_exception = true;
       if (res_name == "PHE" || res_name == "TYR") phenyl_exception = true;
-      if (res_name == "G" || res_name == "A") GA_exception = true;
-      if (res_name == "DG" || res_name == "DA") GA_exception = true;
-      if (res_name == "C" || res_name == "U" || res_name == "DT") CUT_exception = true;
+      if (res_name == "G"   || res_name == "A"  ) GA_exception = true;
+      if (res_name == "DG"  || res_name == "DA" ) GA_exception = true;
+      if (res_name == "C"   || res_name == "U" || res_name == "DT") CUT_exception = true;
 
       if (geom->have_at_least_minimal_dictionary_for_residue_type(monomer_name, imol)) {
 
@@ -5883,9 +5987,11 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                for (unsigned int i=0; i<rv.size(); i++)
                   draw_trp_ring_outer(rv[i], model_number, atom_colour_type, atom_colour_map, udd_atom_index_handle);
 
-            if (GA_exception)
+            if (GA_exception) {
+               // std::cout << "------------------ got a GA_exception" << std::endl;
                for (unsigned int i=0; i<rv.size(); i++)
                   draw_GA_rings_outer(rv[i], model_number, atom_colour_type, atom_colour_map, udd_atom_index_handle);
+            }
 
             if (CUT_exception)
                for (unsigned int i=0; i<rv.size(); i++)

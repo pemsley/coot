@@ -804,6 +804,9 @@ class Bond_lines_container {
    void draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
                        int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                        int udd_atom_index_handle);
+   void draw_GA_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                      int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                      int udd_atom_index_handle);
    void draw_trp_ring_outer(mmdb::Residue *residue_p, int model_number,
                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                             int udd_atom_index_handle);
