@@ -1653,11 +1653,11 @@ echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_
 
 
 
-echo coot_version_pre is $coot_version_pre
-echo build_coot_prerelease: $build_coot_prerelease
-echo release_server_dir $release_server_dir
-echo coot_version $coot_version
-echo build_type $build_type
+echo INFO:: coot_version_pre is $coot_version_pre
+echo INFO:: build_coot_prerelease is $build_coot_prerelease
+echo INFO:: release_server_dir is $release_server_dir
+echo INFO:: coot_version is $coot_version
+echo INFO:: build_type is $build_type
 
 
 
@@ -1708,6 +1708,12 @@ else
    coot_prefix="$generic_prefix"
    if [ $(uname) != Darwin ] ; then
       python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+      python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+      python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
+      python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
+      python_libs="LIBS=-L$install_top_dir/lib64"
+      echo python_libs is $python_libs
+
    else
       pv=$(sw_vers -productVersion)
       # e.g. 10.10
@@ -2584,10 +2590,10 @@ if test -n "$build_python" ; then
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_lib_flags $python_spec_flags
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
