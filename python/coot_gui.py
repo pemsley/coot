@@ -5665,7 +5665,7 @@ def add_module_refine():
 
       add_simple_coot_menu_menuitem(menu, "Chain Refine", chain_refine_active_atom)
 
-      # they get turns on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+      # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
       add_simple_coot_menu_menuitem(menu, "Contact Dots On",  lambda widget: set_do_coot_probe_dots_during_refine(1))
       add_simple_coot_menu_menuitem(menu, "Contact Dots Off", lambda widget: set_do_coot_probe_dots_during_refine(0))
 

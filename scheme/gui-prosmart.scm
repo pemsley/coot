@@ -162,6 +162,12 @@
 	    (generate-self-restraints aa-imol 5.0))))
 
 	(add-simple-coot-menu-menuitem
+	 menu "Generate All-Molecule Self Restraints 6.0"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-self-restraints aa-imol 6.0))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "Generate Local Self Restraints 6"
 	 (lambda ()
 	   (using-active-atom

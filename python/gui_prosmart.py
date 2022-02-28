@@ -170,6 +170,10 @@ def add_module_restraints():
                 lambda func: generate_all_molecule_self_restraints(5.0))
 
             add_simple_coot_menu_menuitem(
+                menu, "Generate All-molecule Self Restraints 6.0",
+                lambda func: generate_all_molecule_self_restraints(6.0))
+
+            add_simple_coot_menu_menuitem(
                 menu, "Generate Local Self Restraints 6",
                 lambda func: generate_self_restraint_in_sphere_func())
 
