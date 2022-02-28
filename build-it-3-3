@@ -1684,7 +1684,8 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-${build_type}
       # python seems to link OK on Darwin, so no need for this jiggery pokery
       if [ $(uname) != Darwin ] ; then
-         python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         # 20220228-PE also -L$install_top_dir/lib64
+         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
       else
          pv=$(sw_vers -productVersion)
          # e.g. 10.10
@@ -1697,7 +1698,7 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       coot_prefix="$generic_prefix"
       install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
       if [ $(uname) != Darwin ] ; then
-         python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
       fi
     fi
 else
@@ -1706,7 +1707,7 @@ else
    install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
    coot_prefix="$generic_prefix"
    if [ $(uname) != Darwin ] ; then
-      python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+      python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
    else
       pv=$(sw_vers -productVersion)
       # e.g. 10.10
@@ -2140,12 +2141,12 @@ if [ -z "$build_mmdb" ] ; then
        echo INFO:: shall we build clipper: fftw not to be built
        # test for new ccp4-based clipper (for mtz and maps)
        if [ -e $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h ] ; then
-          echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h exist
+          # echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h exist
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
-             echo $install_top_dir/include/clipper/contrib/sfscale.h exist
+             # echo $install_top_dir/include/clipper/contrib/sfscale.h exist
 	     build_clipper=
           else
-            echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
+             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
   	     build_clipper=1
           fi
        else
@@ -2583,10 +2584,10 @@ if test -n "$build_python" ; then
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include LDFLAGS=-L$install_top_dir/lib64 $python_lib_flags $python_spec_flags
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_lib_flags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include LDFLAGS=-L$install_top_dir/lib64 $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -2674,13 +2675,15 @@ if [ $build_ninja = true ] ; then
    # see https://github.com/ninja-build/ninja/releases
    ninja_version=1.10.2
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
-   tar xf ninja-$ninja_version
+   tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
+   cd ninja-$ninja_version
    ./configure.py --bootstrap # builds ninja
    if [ -e ninja ] ; then
       cp ninja $install_top_dir/bin
    else
       echo configure/boostrap of ninja failed - what a surprise.
    fi
+   cd -
    ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
 fi
 
