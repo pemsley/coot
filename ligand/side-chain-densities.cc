@@ -495,7 +495,8 @@ coot::side_chain_densities::setup_likelihood_of_each_rotamer_at_every_residue(co
 void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
                                                const clipper::Xmap<float> &xmap,
                                                const std::string &sequence_name,
-                                               const std::string &sequence) {
+                                               const std::string &sequence,
+                                               bool print_slider_results) {
 
    auto make_pdb_reference_sequence = [] (const std::vector<mmdb::Residue *> &a_run_of_residues) {
                                          std::string true_sequence;
@@ -559,23 +560,21 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
             std::pair<mmdb::Residue *, std::map<std::string, double> >(residue_p, likelihood_of_each_rotamer_at_this_residue(residue_p, xmap));
       }
       
-      auto tp_0 = std::chrono::high_resolution_clock::now();
-
       // insta-fail when the protein sequence for test is shorter than the model.
       if (sequence.length() < a_run_of_residues.size()) return;
 
       std::string sequence_from_pdb_model = make_pdb_reference_sequence(a_run_of_residues);
 
-      // slide
-      // std::cout << "----------------- slide ------------ " << std::endl;
+      if (print_slider_results)
+         std::cout << "----------------- slider ------------ " << std::endl;
 
       int sequence_length = sequence.length();
       int offset_max = sequence.length() - n_residues; // n_residues is the size of a run of residues
 
-      if (false) {
-         std::cout << "debug:: testing sequence " << sequence << std::endl;
-         std::cout << "debug::   model sequence " << sequence_from_pdb_model << std::endl;
-         std::cout << "debug:: offset_max " << offset_max << std::endl;
+      if (print_slider_results) {
+         std::cout << "INFO:: testing sequence " << sequence << std::endl;
+         std::cout << "INFO::   model sequence " << sequence_from_pdb_model << std::endl;
+         std::cout << "INFO:: offset_max " << offset_max << std::endl;
       }
 
       for (int offset=0; offset<=offset_max; offset++) {
@@ -655,13 +654,13 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
 
          if (n_scored_residues == n_residues) {
             results.push_back(results_t(offset, sum_score, n_scored_residues, running_sequence, sequence_name, sequence_from_pdb_model));
-            if (false)
+            if (print_slider_results)
                std::cout << "INFO:: offset " << offset << " sum_score " << std::setw(10) << sum_score
                          << " n_scored_residues " << n_scored_residues << " " << running_sequence
                          << " gene-name " << gene_name
                          << " model-sequence " << sequence_from_pdb_model << std::endl;
          } else {
-            if (false) // happens a lot due to Xs in sequence
+            if (print_slider_results) // happens a lot due to Xs in sequence
                std::cout << "INFO:: Failed to push back a result because " << n_scored_residues << " != " << n_residues << std::endl;
          }
       }
@@ -678,7 +677,37 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
 #include "analysis/stats.hh"
 
 coot::side_chain_densities::results_t
-coot::side_chain_densities::get_result(bool only_probable) const {
+coot::side_chain_densities::get_result(bool only_probable, bool print_sequencing_solutions_flag) const {
+
+   std::cout << "------ Here in get_result() " << only_probable << " " << print_sequencing_solutions_flag << std::endl;
+
+   auto print_sequencing_solutions = [] (const std::map<std::string, std::vector<results_t> > &results_container) {
+                                        unsigned int n_top = 20;
+
+                                        if (results_container.empty()) return;
+
+                                        std::cout << "INFO:: print_sequencing_solutions() given " << results_container.begin()->second.size()
+                                                  << " results for the first sequence" << std::endl;
+
+                                        std::vector<results_t> all_results;
+                                        std::map<std::string, std::vector<results_t> >::const_iterator it;
+                                        for (it=results_container.begin(); it!=results_container.end(); ++it) {
+                                           const auto &results = it->second;
+                                           for (unsigned int i=0; i<results.size(); i++) {
+                                              auto &result(results[i]);
+                                              all_results.push_back(result);
+                                           }
+                                        }
+                                        auto results_sorter = [] (const results_t &r1, const results_t &r2) {
+                                                                 return (r2.sum_score < r1.sum_score);
+                                                              };
+                                        std::sort(all_results.begin(), all_results.end(), results_sorter);
+                                        if (all_results.size() < n_top) n_top = all_results.size();
+                                        for (unsigned int i=0; i<n_top; i++) {
+                                           std::cout << std::setw(2) << i << " " << std::setw(10) << all_results[i].sum_score << " "
+                                                     << all_results[i].sequence << std::endl;
+                                        }
+                                     };
 
    double best_score = -9e10;
    results_t best_results;
@@ -705,29 +734,40 @@ coot::side_chain_densities::get_result(bool only_probable) const {
          }
       }
       if (scores.size() > 2) {
-         // do we have a clear solution? If not, clear best_results
+         // do we have a clear solution? If not, clear the returned sequence
          std::sort(scores.begin(), scores.end());
          std::reverse(scores.begin(), scores.end());
          double top_score = scores[0];
-         double next_best_scores = scores[1];
-         double top_solution_delta = top_score - next_best_scores;
+         double next_best_score = scores[1];
+         double top_solution_delta = top_score - next_best_score;
          unsigned int n_data = 21;
          if (scores.size() < n_data) n_data = scores.size();
          stats::single data;
-         for (unsigned int i=1; i<n_data; i++) {
+         for (unsigned int i=1; i<n_data; i++)
             data.add(scores[i]);
-         }
          double var = data.variance();
          double sd = std::sqrt(var);
-         std::cout << "debug:: get_result(): top_solution_delta: " << top_solution_delta << std::endl;
-         std::cout << "debug:: get_result(): ratio of top score delta to std dev others: " << top_solution_delta/sd << std::endl;
+         std::cout << "INFO:: get_result(): top_solution_delta: " << top_solution_delta << " vs s.d. others: " << sd << std::endl;
+         std::cout << "INFO:: get_result(): ratio of top score delta to std dev others: " << top_solution_delta/sd;
          if (top_solution_delta > 3.0 * sd) {
+            std::cout << " ###" << std::endl; // give us a hash marker to let us know it's a good one
             // happy path
          } else {
+            std::cout << std::endl;
             // clear the solution
-            best_results = coot::side_chain_densities::results_t();
+            std::cout << "No clear solution found" << std::endl;
+            best_results.sequence.clear();
          }
+
+         if (print_sequencing_solutions_flag) {
+            print_sequencing_solutions(results_container);
+         }
+      } else {
+         std::cout << "WARNING:: in get_result() only found " << scores.size() << " scored results" << std::endl;
       }
+   } else {
+      if (print_sequencing_solutions)
+         print_sequencing_solutions(results_container);
    }
 
    return best_results;

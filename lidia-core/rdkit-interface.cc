@@ -1131,9 +1131,9 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 at->setProp("name", atom_name);
 
 	 if (false)
-	    std::cout << iat << " " << atom_name << " "
-		      << r.atom_info[iat].formal_charge.first << " "
-		      << r.atom_info[iat].formal_charge.second << std::endl;
+	    std::cout << "debug:: in rdkit_mol(restraints) iat " << iat << " name: " << atom_name
+                      << " formal charge set "   << r.atom_info[iat].formal_charge.first
+		      << " formal charge value " << r.atom_info[iat].formal_charge.second << std::endl;
 
 	 // formal charge
 	 if (r.atom_info[iat].formal_charge.first)
@@ -1142,7 +1142,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 // set the chirality (if this atom is a chiral centre of a chiral restraint).
 	 //
 	 bool done_chiral = false;
-	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) { 
+	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) {
 	    if (r.chiral_restraint[ichi].atom_id_c_4c() == r.atom_info[iat].atom_id_4c) {
 	       if (!r.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
 		  if (!r.chiral_restraint[ichi].is_a_both_restraint()) {
@@ -1185,7 +1185,10 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    // 20160702 add atoms to a conformer
    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
-   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+      if (false)
+         std::cout << "atom info loop iat " << iat << " " << r.atom_info[iat].pdbx_model_Cartn_ideal.first
+                   << " " << r.atom_info[iat].model_Cartn.first << std::endl;
       try {
 	 if (r.atom_info[iat].pdbx_model_Cartn_ideal.first) {
 	    RDGeom::Point3D pos(r.atom_info[iat].pdbx_model_Cartn_ideal.second.x(),
@@ -1210,14 +1213,23 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    
    // ------------------------------------ Bonds -----------------------------
 
+   if (false) { // for checking spaces in atom names
+      // the check in the below loop uses atom names with whitespace stripped.
+      for (const auto &item : added_atoms) {
+         std::cout << "debug added_atom \"" << item.first << "\" " << item.second << std::endl;
+      }
+   }
+
    int n_atoms = m.getNumAtoms();
    std::map<std::string, int>::const_iterator it_1;
    std::map<std::string, int>::const_iterator it_2;
    int idx_1, idx_2;
    for (unsigned int ib=0; ib<r.bond_restraint.size(); ib++) {
       const dict_bond_restraint_t &br = r.bond_restraint[ib];
-      it_1 = added_atoms.find(br.atom_id_1_4c());
-      it_2 = added_atoms.find(br.atom_id_2_4c());
+      std::string at_1 = coot::util::remove_whitespace(br.atom_id_1());
+      std::string at_2 = coot::util::remove_whitespace(br.atom_id_2());
+      it_1 = added_atoms.find(at_1);
+      it_2 = added_atoms.find(at_2);
       if (it_1 != added_atoms.end()) { 
 	 if (it_2 != added_atoms.end()) {
 	    idx_1 = it_1->second;
@@ -1238,7 +1250,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		     // use the atoms rdkit chiral status
 		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
 		  }
-		  if (! swap_order) {  // normal
+		  if (! swap_order) { // normal
 		     bond->setBeginAtomIdx(idx_1);
 		     bond->setEndAtomIdx(  idx_2);
 		  } else {
@@ -1263,6 +1275,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
       }
    }
 
+   std::cout << "##### numbonds " << m.getNumBonds() << std::endl;
    set_3d_conformer_state(&m);
 
    bool debug = false;

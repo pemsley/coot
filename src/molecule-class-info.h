@@ -33,6 +33,8 @@
 
 #include <deque>
 
+#include "compat/coot-sysdep.h"
+
 enum {CONTOUR_UP, CONTOUR_DOWN};
 
 // needs:
@@ -106,6 +108,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "ligand/dipole.hh"
 #include "density-contour/density-contour-triangles.hh"
+
+#include "coot-utils/sfcalc-genmap.hh"
 
 #include "gl-bits.hh"
 #include "pli/flev-annotations.hh" // animated ligand interactions
@@ -580,9 +584,9 @@ class molecule_class_info_t {
    bool original_fphis_filled;
    bool original_fobs_sigfobs_filled;
    bool original_fobs_sigfobs_fill_tried_and_failed;
-   clipper::HKL_data< clipper::datatypes::F_phi<float> >  original_fphis;
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
-   clipper::HKL_data< clipper::data32::Flag> original_r_free_flags;
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >  *original_fphis_p;
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> > *original_fobs_sigfobs_p;
+   clipper::HKL_data< clipper::data32::Flag> *original_r_free_flags_p;
 
 
    // is the CCP4 map a EM map? (this is so that we can fill the
@@ -775,7 +779,8 @@ public:        //                      public
 			  std::string weight_col,
 			  int use_weights,
 			  int is_diff_map,
-			  float map_sampling_rate);
+			  float map_sampling_rate,
+                          bool updating_existing_map_flag=false);
 
    void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
 
@@ -790,7 +795,8 @@ public:        //                      public
 					   short int use_reso_flag,
 					   float low_reso_limit,
 					   float high_reso_limit,
-					   float map_sampling_rate);
+					   float map_sampling_rate,
+                                           bool updating_existing_map_flag=false);
 
    // return succes status, if mtz file is broken or empty, or
    // non-existant, return 0.
@@ -975,6 +981,8 @@ public:        //                      public
    mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
 
    mmdb::Atom *get_atom(int idx) const;
+
+   mmdb::Atom *get_atom(const pick_info &pi) const;
 
    bool have_atom_close_to_position(const coot::Cartesian &pos) const;
 
@@ -1466,7 +1474,12 @@ public:        //                      public
    int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
-   void fill_fobs_sigfobs(); // caches
+   coot::util::sfcalc_genmap_stats_t
+   sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                                     clipper::Xmap<float> *xmap_2fofc_p,
+                                     clipper::Xmap<float> *xmap_fofc_p);
+   void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
    bool sanity_check_atoms(mmdb::Manager *mol); // sfcalc_genmap crashes after merge of ligand.
                                                 // Why? Something wrong with the atoms after merge?
                                                 // Let's diagnose.... Return false on non-sane.
@@ -1608,20 +1621,25 @@ public:        //                      public
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;
 
-   const clipper::HKL_data<clipper::data32::F_sigF> &get_original_fobs_sigfobs() {
+   // used to be a const ref. Now return the whole thing!. Caller must call
+   // fill_fobs_sigfobs() directly before using this function - meh, not a good API.
+   // Return a *pointer* to the data so that we don't get this hideous non-reproducable
+   // crash when we access this data item after the moelcule vector has been resized
+   // 20210816-PE.
+   clipper::HKL_data<clipper::data32::F_sigF> *get_original_fobs_sigfobs() const {
       if (!original_fobs_sigfobs_filled) {
          std::string m("Original Fobs/sigFobs is not filled");
          throw(std::runtime_error(m));
       }
-      return original_fobs_sigfobs;
+      return original_fobs_sigfobs_p;
    }
 
-      const clipper::HKL_data<clipper::data32::Flag> &get_original_rfree_flags() {
+   clipper::HKL_data<clipper::data32::Flag> *get_original_rfree_flags() const {
       if (!original_fobs_sigfobs_filled) {
          std::string m("Original Fobs/sigFobs is not filled - so no RFree flags");
          throw(std::runtime_error(m));
       }
-      return original_r_free_flags;
+      return original_r_free_flags_p;
    }
 
 
@@ -2353,13 +2371,18 @@ public:        //                      public
    bool is_fasta_aa(const std::string &a) const;
    bool is_pir_aa  (const std::string &a) const;
 
+   // add the sequence the file (read depending on file name) to input_sequence vector (chain-id is blank
+   // as it could apply to any chain)
+   void associate_sequence_from_file(const std::string &seq_file_name);
+
    // sequence [a -other function]
-   void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
+   void assign_fasta_sequence(const std::string &chain_id, const std::string &seq); // add to input_sequence vector
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
    std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
+   // this does an alignment! How confusing
    void assign_sequence_from_file(const std::string &filename);
 
    // Apply to NCS-related chains too, if present
@@ -3490,7 +3513,7 @@ public:        //                      public
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(const std::vector<mmdb::Residue *> &residues) const;
 
    mean_and_variance<float> map_histogram_values;
-   mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
+   mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins, bool ignore_pseudo_zeroes); // fill above
 
    void resolve_clashing_sidechains_by_deletion(const coot::protein_geometry *geom_p);
    void resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,
@@ -3511,12 +3534,19 @@ public:        //                      public
    // watch for changes in the model of a different molecule (denoted by change of backup index)
    // and act on it (by updating this difference map). This needs to be static because its
    // called by g_timeout.
-   static int watch_coordinates_updates(gpointer);
+   static int watch_coordinates_updates(gpointer);  // for just the difference map
+
+   int previous_backup_index;
+   static int updating_coordinates_updates_genmaps(gpointer); // oh dear, the triggers for this work the other way.
+                                                              // i.e. a change in the coordinates forces
+                                                              // a change in the maps, not (as above) where a
+                                                              // map molecule looks for a change in the model.
+                                                              // In this case, both maps are calculated together.
    int other_molecule_backup_index;
    int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
 
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
-   void set_mean_and_sigma();
+   void set_mean_and_sigma(bool show_terminal=true, bool ignore_pseudo_zeroes=false);
 
    std::string pdb_string() const;
 

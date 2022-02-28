@@ -238,6 +238,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
                      if (structure) {
                         parse_lib_info(structure);
+                        handled = true; // hack for now - so that we don't get the warning message
                      }
                   }
 
@@ -1407,25 +1408,20 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	 ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
 	 ierr_tot += ierr;
 
-         mmdb::realtype value_dist_nucleus     = -1.0;
-         mmdb::realtype value_dist_nucleus_esd = -1.0;
-         int ierr_nuc     = mmCIFLoop->GetReal(value_dist_nucleus,     "value_dist_nucleus",     j);
-         int ierr_nuc_esd = mmCIFLoop->GetReal(value_dist_nucleus_esd, "value_dist_nucleus_esd", j);
-
-         // for now, instead of sending both to the dict_bond, let's preferentially send
-         // value_dist_nucleus if we can:
-         //
-         if (ierr_nuc == 0) {
-            if (ierr_nuc_esd == 0) {
-               value_dist     = value_dist_nucleus;
-               value_dist_esd = value_dist_nucleus_esd;
-            }
-         }
+         mmdb::realtype value_dist_nuclear     = -1.0;
+         mmdb::realtype value_dist_nuclear_esd = -1.0;
+         int ierr_nuc     = mmCIFLoop->GetReal(value_dist_nuclear,     "value_dist_nucleus",     j);
+         int ierr_nuc_esd = mmCIFLoop->GetReal(value_dist_nuclear_esd, "value_dist_nucleus_esd", j);
 
 	 if (ierr_tot == 0) {
 
+            // if value_dist_nucleus_esd is negative, it's treated as unset
+            //
 	    mon_lib_add_bond(comp_id, imol_enc, atom_id_1, atom_id_2,
-			     type, value_dist, value_dist_esd, aromaticity, blt);
+			     type,
+                             value_dist, value_dist_esd,
+                             value_dist_nuclear, value_dist_nuclear_esd,
+                             aromaticity, blt);
 	    nbond++;
 	 } else {
 
@@ -2141,7 +2137,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string annw = util::remove_whitespace(ai.atom_id).c_str();
 	       std::string qan = quoted_atom_name(annw);
 	       mmCIFLoop->PutString(annw.c_str(), "atom_id", i);
-	       std::string up_type_symbol = util::upcase(atom_info[i].type_symbol);
+	       std::string up_type_symbol = util::upcase(util::remove_whitespace(atom_info[i].type_symbol));
 	       ss = up_type_symbol.c_str();
 	       mmCIFLoop->PutString(ss, "type_symbol", i);
 	       // std::cout << "up_type_symbol: " << up_type_symbol << std::endl;

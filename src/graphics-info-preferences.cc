@@ -1012,19 +1012,13 @@ graphics_info_t::update_main_toolbar_icons(GtkTreeModel *model) {
 std::string
 graphics_info_t::get_preferences_directory() const {
 
-   const char *home = getenv("HOME");
-   const char *coot_home = getenv("COOT_HOME");
+   std::string home = coot::get_home_dir();
    std::string pkgdatadir = coot::package_data_dir();
 
    std::string fn;
 
-   if (coot_home) {
-      fn = coot::util::append_dir_file(coot_home, ".coot-preferences");
-   }
-   if (fn.empty()) {
-      if (home) {
-         fn = coot::util::append_dir_file(home, ".coot-preferences");
-      }
+   if (!home.empty()) {
+      fn = coot::util::append_dir_file(home, ".coot-preferences");
    }
    if (fn.empty()) {
       fn = coot::util::append_dir_file(pkgdatadir, ".coot-preferences");

@@ -447,7 +447,7 @@ coot::merge_C_and_N_terminii(mmdb::Manager *mol,
                         if (ct.first) {
                            // should I also check that the density between the C and the N is sensible?
                            bool status = mergeable_with_0_residues_insertion(i_chain_p, j_chain_p, ct.second);
-                           if (true)
+                           if (status)
                               std::cout << "DEBUG:: merge_C_and_N_terminii(): chain " << i_chain_p->GetChainID() << " "
                                         << j_chain_p->GetChainID() << " merge status for 0 residue insertion "
                                         << status << std::endl;

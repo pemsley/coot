@@ -1,4 +1,5 @@
 
+#include "utils/split-indices.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "rama-rsr-extend-fragments.hh"
@@ -376,23 +377,25 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                         }
                                      }
                                      if (ref_residues.size() == 4) {
-                                        auto tp_0 = std::chrono::high_resolution_clock::now();
-                                        std::vector<mmdb::Link> links;
-                                        std::vector<coot::atom_spec_t> fixed_atom_specs;
-                                        coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-                                        coot::restraints_container_t restraints(ref_residues, links, geom, refmol, fixed_atom_specs, &xmap);
-                                        restraints.thread_pool(thread_pool_p, n_threads);
-                                        restraints.set_quiet_reporting();
-                                        coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-                                        bool do_internal_torsions = false;
-                                        restraints.add_map(weight);
-                                        int imol = 0;
-                                        restraints.make_restraints(imol, geom, flags, do_internal_torsions, false, 0, 0, true, true, false, pseudos);
-                                        restraints.minimize(flags, 500); // default 1000 steps
-                                        auto tp_1 = std::chrono::high_resolution_clock::now();
-                                        auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-                                        // std::cout << "Timings: refine_isolated_quad(): " << chain_id << " " << seqnum << " " << d10 << " milliseconds" << std::endl;
-                                        // std::cout << "INFO:: in refine_isolated_quad() refinement finished for " << ref_residues.size() << " residues " << std::endl;
+                                        if (true) {
+                                           auto tp_0 = std::chrono::high_resolution_clock::now();
+                                           std::vector<mmdb::Link> links;
+                                           std::vector<coot::atom_spec_t> fixed_atom_specs;
+                                           coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+                                           coot::restraints_container_t restraints(ref_residues, links, geom, refmol, fixed_atom_specs, &xmap);
+                                           restraints.thread_pool(thread_pool_p, n_threads);
+                                           restraints.set_quiet_reporting();
+                                           coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+                                           bool do_internal_torsions = false;
+                                           restraints.add_map(weight);
+                                           int imol = 0;
+                                           restraints.make_restraints(imol, geom, flags, do_internal_torsions, false, 0, 0, true, true, false, pseudos);
+                                           restraints.minimize(flags, 50); // default 1000 steps
+                                           // auto tp_1 = std::chrono::high_resolution_clock::now();
+                                           // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+                                           // std::cout << "Timings: refine_isolated_quad(): " << chain_id << " " << seqnum << " " << d10 << " milliseconds" << std::endl;
+                                           // std::cout << "INFO:: in refine_isolated_quad() refinement finished for " << ref_residues.size() << " residues " << std::endl;
+                                        }
 
                                         // copy atoms back into original chain
                                         for (unsigned int i=0; i<4; i++) {
@@ -744,7 +747,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                }
                                mmdb::Residue *residue_p  = chain_p->GetResidue(residue_index);
                                mmdb::Residue *res_prev_p = chain_p->GetResidue(residue_index-1);
-                               if (false)
+                               if (true)
                                   std::cout << "DEBUG:: in build_3_keep_1(): for chain-id " << chain_id << " terminus type " << terminus_type
                                             << " current n_residues_in_chain " << n_residues_in_chain <<  " residue_p with index : "
                                             << residue_index << " " << coot::residue_spec_t(residue_p) << std::endl;
@@ -756,7 +759,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                   // happy path
                                   int residue_seqnum = residue_p->GetSeqNum();
 
-                                  coot::new_residue_by_3_phi_psi nr3phipsi(terminus_type, residue_p, chain_id);
+                                  coot::new_residue_by_3_phi_psi nr3phipsi(terminus_type, residue_p, chain_p);
                                   if (terminus_type == "C")
                                      nr3phipsi.set_upstream_neighbour(res_prev_p);
                                   if (terminus_type == "N") {
@@ -764,12 +767,12 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                      nr3phipsi.set_downstream_neighbour(res_next_p);
                                   }
                                   nr3phipsi.add_thread_pool(thread_pool_p, n_threads);
-                                  // auto tp_0 = std::chrono::high_resolution_clock::now();
+                                  auto tp_0 = std::chrono::high_resolution_clock::now();
                                   float min_density_level_for_connecting_atom = 0.5 * average_density_per_atom_for_molecule;
                                   coot::minimol::fragment frag = nr3phipsi.best_fit_phi_psi(n_phi_psi_trials, xmap, min_density_level_for_connecting_atom);
                                   // auto tp_1 = std::chrono::high_resolution_clock::now();
-                                  //auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-                                  // std::cout << "Timings: from build_3_keep_1(): best_fit_phi_psi() " << d10 << " milliseconds" << std::endl;
+                                  // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+                                  //std::cout << "Timings: from build_3_keep_1(): best_fit_phi_psi() " << d10 << " milliseconds" << std::endl;
 
                                   if (false) {
                                      std::string file_name = "rama-trial-b3k1-" + terminus_type + "-" + chain_id + ".pdb";
@@ -779,7 +782,9 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                   auto density_score_for_new_residues = get_density_score_for_new_residues_frag(frag);
                                   unsigned int n_atoms_in_new_residues = density_score_for_new_residues.second;
                                   if (n_atoms_in_new_residues < 4) {
-                                     std::cout << "ERROR:: build_3_keep_1(): too few atoms in residue: " << n_atoms_in_new_residues << std::endl;
+                                     std::cout << "ERROR:: build_3_keep_1(): terminus_type " << terminus_type
+                                               << " based on " << coot::residue_spec_t(residue_p)
+                                               << " too few atoms in new residue: " << n_atoms_in_new_residues << std::endl;
                                   } else {
                                      float av = density_score_for_new_residues.first;
                                      coot::minimol::molecule m(frag); // because I don't want to rewrite add_CB_to_residue_maybe() and add_residues_to_chain()
@@ -893,7 +898,6 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                       
                                bool status = false;
                                std::vector<std::string> terminus_types = {"N", "C"};
-
                                std::pair<mmdb::Chain *, mmdb::Manager *> chain_mol_pair = coot::util::copy_chain(chain_p); // add it into a molecule hierarchy
 
                                for (auto it = terminus_types.begin(); it != terminus_types.end(); ++it) {
@@ -904,8 +908,12 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                      if (status) (*update_count)++;
                                   } while (status);
                                }
-                               // now copy the atoms (including any new residues and atoms) of chain_mol.first into chain_p
-                               coot::util::replace_chain_contents_with_atoms_from_chain(chain_p, mol, chain_mol_pair.first); // (to_chain, from_chain)
+                               // now copy the atoms (including any new residues and atoms) of chain_mol.first into chain_p.
+                               // Using mol to do a FinishStructEdit() here looks dangerous. Perhaps do it at the end of this function (not this lambda)
+                               // 20210808-PE It was dangerous! When I removed the output of the fingerprints, then the chain tracing
+                               // went a lot faster and crashed here.
+                               bool do_finishstructedit = false;
+                               coot::util::replace_chain_contents_with_atoms_from_chain(chain_p, mol, chain_mol_pair.first, do_finishstructedit); // (to_chain, from_chain)
                             };
 
    if (model_p) {
@@ -913,13 +921,30 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
       float average_density_per_atom_for_molecule = get_average_density_per_atom(mol, xmap);
       int n_chains = model_p->GetNumberOfChains();
 #if 1 // threaded.
-      std::vector<std::thread> threads;
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         threads.push_back(std::thread(extend_chain_func, chain_p, mol, average_density_per_atom_for_molecule, weight, n_phi_psi_trials, std::cref(geom), update_count));
+      unsigned int n_rounds = 50;
+      std::vector<std::pair<unsigned int, unsigned int> > cir = coot::atom_index_ranges(n_chains, n_rounds);
+
+      for (unsigned int i=0; i<cir.size(); i++) {
+         const auto &chain_index_pair = cir[i];
+         if (false) { // this (index splitting) needs to be fixed.
+            std::cout << "New chain batch: (chain index range " << chain_index_pair.first << " " << chain_index_pair.second << ")" << std::endl;
+            for (unsigned int ich=chain_index_pair.first; ich<chain_index_pair.second; ich++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ich);
+               std::cout << " " << chain_p->GetChainID();
+            }
+            std::cout << std::endl;
+         }
+
+         std::vector<std::thread> threads;
+         for (unsigned int ichain=cir[i].first; ichain<cir[i].second; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            threads.push_back(std::thread(extend_chain_func, chain_p, mol, average_density_per_atom_for_molecule, weight, n_phi_psi_trials,
+                                          std::cref(geom), update_count));
+         }
+         for (unsigned int ithr=0; ithr<threads.size(); ithr++)
+            threads[ithr].join();
+         mol->FinishStructEdit();
       }
-      for (int ichain=0; ichain<n_chains; ichain++)
-         threads[ichain].join();
 #endif
 #if 0
       for (int ichain=0; ichain<n_chains; ichain++) {

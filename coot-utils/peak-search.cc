@@ -502,66 +502,114 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    return rf;
 }
 
-
+#include "coot-coord-utils.hh"
 
 std::vector<std::pair<clipper::Coord_orth, float> >
 coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
                              mmdb::Manager *mol, 
                              float n_sigma,
                              int do_positive_levels_flag,
-                             int also_negative_levels_flag) {
+                             int also_negative_levels_flag,
+                             int only_around_protein_flag) {
+
+   auto sample_all_atoms = [mol] () {
+                              int imod = 1;
+                              mmdb::Model *model_p = mol->GetModel(imod);
+                              std::vector<clipper::Coord_orth> coords;
+                              if (model_p) {
+                                 int n_chains = model_p->GetNumberOfChains();
+                                 for (int ichain=0; ichain<n_chains; ichain++) {
+                                    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                                    int n_res = chain_p->GetNumberOfResidues();
+                                    for (int ires=0; ires<n_res; ires++) {
+                                       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                       if (residue_p) {
+                                          int n_atoms = residue_p->GetNumberOfAtoms();
+                                          for (int iat=0; iat<n_atoms; iat++) {
+                                             mmdb::Atom *at = residue_p->GetAtom(iat);
+                                             if (! at->isTer()) {
+                                                coords.push_back(co(at));
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                              return coords;
+                           };
 
    std::vector<std::pair<clipper::Coord_orth, float> > peaks =
       get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
    std::vector<std::pair<clipper::Coord_orth, float> > r;
 
-   std::vector<clipper::Coord_orth> sampled_protein_coords =
-      make_sample_protein_coords(mol);
+   std::vector<clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords(mol);
 
-   // The protein could be somewhere away from the origin.  In that
-   // case, (indeed, the general case) we should find what the
-   // translation operation is to move the centre of the protein
-   // coords as closs to the origin it can get (by translation only).
-   //
-   // We will then move sampled protein coords by this translation
-   // vector - so that all tests for distance to new waters are to a
-   // protein that is centred round the origin.
-   //
-   // When we come to actually define the position of the water
-   // though, it must apply the reverse translation operator to bring
-   // the water point back to where the protein actually is.
+   if (only_around_protein_flag) {
 
-   // The unit cell translations to move the centre of the protein as
-   // closs to the origin as possible.
-   // 
-   std::vector<int> iprotein_trans =
-      find_protein_to_origin_translations(sampled_protein_coords, xmap);
+      sampled_protein_coords = sample_all_atoms();
+      double max_dist = 4.0; // maybe a bit too much, actually!
+      double max_dist_sqrd = max_dist * max_dist;
+      for (const auto &peak : peaks) {
+         bool within_dist = false;
+         for (const auto &atom_pos : sampled_protein_coords) {
+            double dd = (atom_pos-peak.first).lengthsq();
+            if (dd < max_dist_sqrd) {
+               within_dist = true;
+               break;
+            }
+         }
+         if (within_dist) {
+            r.push_back(peak);
+         }
+      }
 
-   //
-   if (0) 
-      std::cout << "DEBUG:: iprotein_trans: "
-                << iprotein_trans[0] << " "
-                << iprotein_trans[1] << " "
-                << iprotein_trans[2] << std::endl;
+   } else {
 
-   // move sampled protein by this translation then:
-   //
-   clipper::Mat33<double> m_identity(1, 0, 0, 0, 1, 0, 0, 0, 1);
-   for (unsigned int i=0; i<sampled_protein_coords.size(); i++) { 
-      clipper::Coord_frac cell_shift(iprotein_trans[0],
-                                     iprotein_trans[1],
-                                     iprotein_trans[2]);
-      clipper::RTop_frac rtf(m_identity, cell_shift);
-      clipper::RTop_orth orthop = rtf.rtop_orth(xmap.cell());
-      sampled_protein_coords[i] = sampled_protein_coords[i].transform(orthop);
-   }
+      // The protein could be somewhere away from the origin.  In that
+      // case, (indeed, the general case) we should find what the
+      // translation operation is to move the centre of the protein
+      // coords as closs to the origin it can get (by translation only).
+      //
+      // We will then move sampled protein coords by this translation
+      // vector - so that all tests for distance to new waters are to a
+      // protein that is centred round the origin.
+      //
+      // When we come to actually define the position of the water
+      // though, it must apply the reverse translation operator to bring
+      // the water point back to where the protein actually is.
 
-   for (unsigned int i=0; i<peaks.size(); i++) {
-      clipper::Coord_orth pt = move_point_close_to_protein(peaks[i].first,
-                                                           sampled_protein_coords,
-                                                           iprotein_trans,
-                                                           xmap);
-      r.push_back(std::pair<clipper::Coord_orth, float> (pt, peaks[i].second));
+      // The unit cell translations to move the centre of the protein as
+      // closs to the origin as possible.
+      // 
+      std::vector<int> iprotein_trans =
+         find_protein_to_origin_translations(sampled_protein_coords, xmap);
+
+      //
+      if (false)
+         std::cout << "DEBUG:: iprotein_trans: "
+                   << iprotein_trans[0] << " "
+                   << iprotein_trans[1] << " "
+                   << iprotein_trans[2] << std::endl;
+
+      // move sampled protein by this translation then:
+      //
+      clipper::Mat33<double> m_identity(1, 0, 0, 0, 1, 0, 0, 0, 1);
+      for (unsigned int i=0; i<sampled_protein_coords.size(); i++) { 
+         clipper::Coord_frac cell_shift(iprotein_trans[0],
+                                        iprotein_trans[1],
+                                        iprotein_trans[2]);
+         clipper::RTop_frac rtf(m_identity, cell_shift);
+         clipper::RTop_orth orthop = rtf.rtop_orth(xmap.cell());
+         sampled_protein_coords[i] = sampled_protein_coords[i].transform(orthop);
+      }
+
+      for (unsigned int i=0; i<peaks.size(); i++) {
+         clipper::Coord_orth pt = move_point_close_to_protein(peaks[i].first,
+                                                              sampled_protein_coords,
+                                                              iprotein_trans,
+                                                              xmap);
+         r.push_back(std::pair<clipper::Coord_orth, float> (pt, peaks[i].second));
+      }
    }
 
    return r;

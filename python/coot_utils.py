@@ -350,6 +350,14 @@ def get_directory(dir_name):
                 else:
                     return False
 
+# 20220228-PE accepted on merge - maybe wrong.
+def get_active_molecule():
+    active_atom = closest_atom_simple()
+    if active_atom:
+        return active_atom[0]
+    else:
+        return -1
+
 
 # Pythonize function: return a python boolean.
 #
@@ -384,9 +392,11 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
                            ['MAKE HOUT YES', 'NCYCLE 0', 'END'],
                            'refmac-H-addition.log', 0)
     try:
-        if (status == 0):
+        if status == 0:
             # all good
             return coot.add_hydrogens_from_file(imol, in_file_name)
+        else:
+            return False
     except:
         return False
 
@@ -416,6 +426,9 @@ post_manipulation_script = False
 #
 global post_set_rotation_centre_script
 post_set_rotation_centre_script = False
+
+global post_read_model_hook
+post_read_model_hook = False
 
 # return a boolean
 #
@@ -450,6 +463,10 @@ def molecule_number_list():
 def model_molecule_number_list():
     return list(filter(valid_model_molecule_qm, molecule_number_list()))
 
+def display_all_maps():
+    map_list = map_molecule_list()
+    map(lambda imol: set_map_displayed(imol, 1), map_list)
+
 # c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
 
 
@@ -463,10 +480,8 @@ def undisplay_all_maps_except(imol_map):
             coot.set_map_displayed(imol, 0)
     coot.set_map_displayed(imol_map, 1)
 
-#
-
-
-def just_one_or_next_map():
+# 20220228-PE was called "just_one_or_next" I think
+def display_cycle_through_maps():
 
     def next_map(current_map_number, map_number_list):
         try:
@@ -496,10 +511,19 @@ def just_one_or_next_map():
             undisplay_all_maps_except(map_list[0])
     elif n_displayed == 1:
         if len(map_list) > 1:
-            undisplay_all_maps_except(next_map(current_displayed_maps[0],
-                                               map_list))
+            nm = next_map(current_displayed_maps[0], map_list)
+            currently_displayed_map = current_displayed_maps[0]
+            if nm > currently_displayed_map:
+                undisplay_all_maps_except(nm)
+            else:
+                display_all_maps()
     else:
-        undisplay_all_maps_except(current_displayed_maps[-1])
+        undisplay_all_maps_except(current_displayed_maps[0])
+
+# is isn't quite because one of the options is "all"
+# legacy for installed key bindings:
+def just_one_or_next_map():
+    return display_cycle_through_maps()
 
 
 # Test for prefix-dir (1) being a string (2) existing (3) being a
@@ -575,8 +599,7 @@ def residue_atom_to_atom_name(ra):
     else:
         return ra[0][0]
 
-
-def residue_atom_to_postion(ra):
+def residue_atom_to_position(ra):
     if not isinstance(ra, list):
         return False
     else:
@@ -1829,6 +1852,19 @@ def valid_map_molecule_qm(imol):
     else:
         return False
 
+# python (schemeyish) interface to eponymous scripting interface function.
+# return True or False
+#
+def valid_map_with_associated_data_molecule_qm(imol):
+    if coot.is_valid_map_molecule(imol) == 1:
+        p = coot.refmac_parameters_py(imol)
+        if p:
+            return True
+        else:
+            return False
+    else:
+        return False
+
 # convenience function (slightly less typing).
 #
 # Return True or False
@@ -1855,7 +1891,7 @@ def shelx_molecule_qm(imol):
 
 
 def is_difference_map_qm(imol_map):
-    if (not valid_map_molecule_qm(imol_map)):
+    if not valid_map_molecule_qm(imol_map):
         return False
     else:
         return coot.map_is_difference_map(imol_map) == 1
@@ -4497,25 +4533,26 @@ def setup_ccp4():
             CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
             # not all required I guess!? They should be set anyway
             ccp4_env_vars = {
-                "CCP4_SCR": ["C:\ccp4temp"],
-                "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84\bin"],
-                "CBIN": [CCP4, "\bin"],
-                "CLIB": [CCP4, "\lib"],
-                "CLIBD": [CCP4, "\lib\data"],
-                "CEXAM": [CCP4, "\examples"],
-                "CHTML": [CCP4, "\html"],
-                "CINCL": [CCP4, "\include"],
-                "CCP4I_TOP": [CCP4, "\share\ccp4i"],
-                "CLIBD_MON": [CCP4, "\lib\data\monomers\\"],
-                "MMCIFDIC": [CCP4, "\lib\ccp4\cif_mmdic.lib"],
-                "CRANK": [CCP4, "\share\ccp4i\crank"],
+                "CCP4_SCR": ["C:\\ccp4temp"],
+                "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84", "bin"],
+                "CBIN": [CCP4, "bin"],
+                "CLIB": [CCP4, "lib"],
+                "CLIBD": [CCP4, "lib", "data"],
+                "CEXAM": [CCP4, "examples"],
+                "CHTML": [CCP4, "html"],
+                "CINCL": [CCP4, "include"],
+                "CCP4I_TOP": [CCP4, "share", "ccp4i"],
+                "CLIBD_MON": [CCP4, "lib", "data", "monomers"],
+                "MMCIFDIC": [CCP4, "lib", "ccp4", "cif_mmdic.lib"],
+                "CRANK": [CCP4, "share", "ccp4i", "crank"],
                 "CCP4_OPEN": ["unknown"],
                 "GFORTRAN_UNBUFFERED_PRECONNECTED": ["Y"]
             }
             for env_var in ccp4_env_vars:
                 env_dir = os.getenv(env_var)
                 if not env_dir:
-                    # variable not set, so let do so if exists
+                    # variable not set or empty, so let do so if exists
+                    key = ccp4_env_vars[env_var]
                     if len(key) > 1:
                         if os.path.isdir(env_dir):
                             # have dir so set variable
@@ -4661,6 +4698,56 @@ def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
     coot.associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
     coot.apply_pir_alignment(imol, ch_id)
     coot.simple_fill_partial_residues(imol)
+
+
+# Util function to pipe Coot C stdout to a file (Note: python stdout doesnt
+# touch C stdout, therefore this is needed. Of course could just tee out
+# all output, but that may not always be required).
+#
+# based on https://stackoverflow.com/questions/4675728/redirect-stdout-to-a-file-in-python
+#
+# use either e.g. with open file fn (fn= open(...)):
+#
+# with stdout_redirected(fn):
+#   do some coot things
+#
+# or:
+# with open('output.txt', 'w') as f, stdout_redirected(f):
+#  some coot commands
+#
+
+import os
+import sys
+from contextlib import contextmanager
+
+def fileno(file_or_fd):
+    fd = getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
+    if not isinstance(fd, int):
+        raise ValueError("Expected a file (`.fileno()`) or a file descriptor")
+    return fd
+
+# @contextmanager - what's this directive?
+def stdout_redirected(to=os.devnull, stdout=None):
+    if stdout is None:
+       stdout = sys.stdout
+
+    stdout_fd = fileno(stdout)
+    # copy stdout_fd before it is overwritten
+    #NOTE: `copied` is inheritable on Windows when duplicating a standard stream
+    with os.fdopen(os.dup(stdout_fd), 'wb') as copied: 
+        stdout.flush()  # flush library buffers that dup2 knows nothing about
+        try:
+            os.dup2(fileno(to), stdout_fd)  # $ exec >&to
+        except ValueError:  # filename
+            with open(to, 'wb') as to_file:
+                os.dup2(to_file.fileno(), stdout_fd)  # $ exec > to
+        try:
+            yield stdout # allow code to be run with the redirected stdout
+        finally:
+            # restore stdout to its previous value
+            #NOTE: dup2 makes stdout_fd inheritable unconditionally
+            stdout.flush()
+            os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
 
 # Back to Paul's scripting.

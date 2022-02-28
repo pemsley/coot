@@ -1,4 +1,7 @@
 
+#include <string>
+#include <vector>
+#include "geometry/residue-and-atom-specs.hh"
 
 /*! \file
   \brief Coot Scripting Interface - Refinement utilities

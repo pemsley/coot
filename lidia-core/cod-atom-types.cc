@@ -1072,7 +1072,7 @@ cod::atom_types_t::make_hash_index(const RDKit::Atom *at, const cod::primes &pri
    std::pair<unsigned int, unsigned int> pg = get_period_group(at);
 
    unsigned int deg = at->getDegree();
-   
+
    // what is the smallest ring of which this atom is part (0 is possible, 7 is max)?
    //
    unsigned int smallest_ring = get_smallest_ring_info(at);

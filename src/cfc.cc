@@ -26,6 +26,7 @@
 
 #include "Python.h" // _XOPEN_SOURCE definition - python one before /usr/include/features.h
 
+#include "compat/coot-sysdep.h"
 #include <cstddef>
 
 #include <epoxy/gl.h>

@@ -2546,11 +2546,13 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 
 	    int im = nearest_atom_index_info.imol;
-	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
-	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
-	    info.setup_graphics_ligand_view(im, r, alt_conf);
-	    info.graphics_draw();
+            if (is_valid_model_molecule(im)) {
+               info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+               mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+               std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
+               info.setup_graphics_ligand_view(im, r, alt_conf);
+               info.graphics_draw();
+            }
 
 	 } else {
 
@@ -2655,8 +2657,9 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 		  int im = nearest_atom_index_info.imol;
                   if (is_valid_model_molecule(nearest_atom_index_info.imol)) {
                      std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
-                     g.setRotationCentre(nearest_atom_index_info.atom_index,
-                                         nearest_atom_index_info.imol);
+                     mmdb::Atom *at = g.molecules[im].get_atom(nearest_atom_index_info);
+                     g.setRotationCentre(nearest_atom_index_info.atom_index, nearest_atom_index_info.imol);
+                     g.sequence_view_highlight_residue_maybe(at, g.get_sequence_view_is_displayed(im));
                   } else {
                      mmdb::Atom *at = g.get_moving_atom(nearest_atom_index_info);
                      if (at) {

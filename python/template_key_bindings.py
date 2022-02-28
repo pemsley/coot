@@ -12,7 +12,7 @@ def add_water_in_blob():
     coot.blob_under_pointer_to_screen_centre()
     coot.place_typed_atom_at_pointer("Water")
     fitting.refine_active_residue()
-add_key_binding("Add Water +", "W", lambda: add_water_in_blob())
+add_key_binding("Add Water + (centre+refine)", "W", lambda: add_water_in_blob())
 
 def key_binding_func_1():
     active_atom = active_residue()

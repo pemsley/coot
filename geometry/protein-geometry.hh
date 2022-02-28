@@ -190,6 +190,9 @@ namespace coot {
       double dist_;
       double dist_esd_;
       bool have_target_values;
+      double dist_nuclear_;
+      double dist_nuclear_esd_;
+      bool dist_nuclear_was_set;
 
    public:
       enum bond_length_type_t { UNKNOWN, NUCLEAR_POSITION, ELECTONS_POSITION };
@@ -202,6 +205,9 @@ namespace coot {
                             const std::string &type,
                             double dist_in,
                             double dist_esd_in,
+                            double dist_nuclear_in,
+                            double dist_nuclear_esd_in,
+                            bool dist_nuclear_was_set_in,
                             aromaticity_t arom_in=UNASSIGNED,
                             bond_length_type_t blt=UNKNOWN) :
          basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type) {
@@ -211,6 +217,13 @@ namespace coot {
          have_target_values = 1;
          aromaticity = arom_in;
          bond_length_type_ = blt;
+         dist_nuclear_ = -1.0;
+         dist_nuclear_esd_ = -1.0;
+         dist_nuclear_was_set = dist_nuclear_was_set_in;
+         if (dist_nuclear_was_set_in) {
+            dist_nuclear_     = dist_nuclear_in;
+            dist_nuclear_esd_ = dist_nuclear_esd_in;
+         }
       }
 
       dict_bond_restraint_t(const std::string &atom_id_1_in,
@@ -221,6 +234,9 @@ namespace coot {
          have_target_values = 0;
          aromaticity = arom_in;
          bond_length_type_ = UNKNOWN;
+         dist_nuclear_ = -1.0;
+         dist_nuclear_esd_ = -1.0;
+         dist_nuclear_was_set = false;
       }
       dict_bond_restraint_t() {} // boost::python needs this
 
@@ -1399,12 +1415,15 @@ namespace coot {
                             std::string atom_back,
                             std::string atom_forward,
                             std::string connect_type);
-   
+
+      // If value_dist_nuclear_esd is 0 or less than 0, the don't use
+      // the value_dist_nuclear or value_dist_nuclear_esd
       void mon_lib_add_bond(std::string comp_id,
                             int imol_enc,
                             std::string atom_id_1, std::string atom_id_2,
                             std::string type,
                             mmdb::realtype value_dist, mmdb::realtype value_dist_esd,
+                            mmdb::realtype value_dist_nuclear, mmdb::realtype value_dist_nuclear_esd,
                             dict_bond_restraint_t::aromaticity_t arom_in,
                             dict_bond_restraint_t::bond_length_type_t lbt_in);
 

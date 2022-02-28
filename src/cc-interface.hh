@@ -298,6 +298,15 @@ SCM amplitude_vs_resolution_scm(int mol_map);
 //! @return the molecule number of the flipped map.
 int flip_hand(int imol_map);
 
+#ifndef SWIG
+//! \brief test function for analysis of multiple map
+int analyse_map_point_density_change(const std::vector<int> &map_number_list, int imol_map_mask);
+#endif
+
+#ifdef USE_PYTHON
+int analyse_map_point_density_change_py(PyObject *map_number_list, int imol_map_mask);
+#endif
+
 //! \brief Go to the centre of the molecule - for Cryo-EM Molecules
 //!
 //!        and recontour at a sensible value.

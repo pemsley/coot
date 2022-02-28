@@ -586,6 +586,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
                                                         dist_min = 2.41;
                                                      }
                                                   }
+
+                                                  // Another 1-4:
+                                                  // N-terminal hydrogens should not have NBCs to C of next residue
+                                                  if (atom_name_2 == " C  ") {
+                                                     if (atom_name_1 == " H1 " || atom_name_1 == " H2 " || atom_name_1 == " H3 ") {
+                                                        dist_min = 2.15;
+                                                     }
+                                                  }
+
                                                   if (atom_name_1 == " N  ") {
                                                      if (atom_name_2 == " H  ") {
                                                         strange_exception = true;

@@ -133,7 +133,7 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
 
 
 mean_and_variance<float>
-molecule_class_info_t::set_and_get_histogram_values(unsigned int n_bins) {
+molecule_class_info_t::set_and_get_histogram_values(unsigned int n_bins, bool ignore_pseudo_zeros) {
 
    // fill map_histogram_values and return it.
 
@@ -144,7 +144,6 @@ molecule_class_info_t::set_and_get_histogram_values(unsigned int n_bins) {
           // use the cache
       } else {
          // uncached
-         bool ignore_pseudo_zeros = false;
          mean_and_variance<float> mv =
             map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
          if (mv.size() == 0) {

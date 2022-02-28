@@ -96,6 +96,7 @@
 // since the follwing two include python graphics-info.h is moved up
 //
 #if defined (WINDOWS_MINGW)
+#include <locale.h>
 #ifdef DATADIR
 #undef DATADIR
 #endif // DATADIR

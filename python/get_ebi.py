@@ -49,7 +49,7 @@ pdbe_file_name_tail = "ent"
 # 'coordinates rather than 'pdb in the future.
 # 
 # The optional argument imol-coords-arg-list is necessary for
-# ouptutting sfs, because we need coordinates from which we can
+# outputting sfs, because we need coordinates from which we can
 # calculate phases.
 #
 
@@ -294,7 +294,7 @@ def get_eds_pdb_and_mtz(id):
             print("INFO:: read pdb model status: ",s1)
             print("INFO:: read mtz data  status: ",s2)
 
-            if os.path.isfile(s1):
+            if s1 and os.path.isfile(s1):
                 r_imol = coot.handle_read_draw_molecule(dir_target_pdb_file)
                 if not coot_utils.valid_model_molecule_qm(r_imol):
                     s1_cif = coot_urlretrieve(model_cif_url, dir_target_cif_file)
@@ -307,7 +307,7 @@ def get_eds_pdb_and_mtz(id):
                             return r_imol
                     else:
                         return False
-            if os.path.isfile(s2):
+            if s2 and os.path.isfile(s2):
                 map_1 = coot.make_and_draw_map(dir_target_mtz_file, "FWT", "PHWT","",0,0)
                 map_2 = coot.make_and_draw_map(dir_target_mtz_file, "DELFWT", "PHDELWT",
                               "", 0, 1)

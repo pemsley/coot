@@ -72,6 +72,9 @@ coot::atom_index_ranges(unsigned int n_atoms, unsigned int n_threads) {
 	 } else {
 
 	    // the final thread picks up the scraps (if any) (consider 25 atoms, 6 threads)
+            // 20210812-PE  also consider 10 atoms 8 threads
+            // Also  what about 4 atoms and 10 threds?
+            // I need a test function for this.
 
 	    npt = n_atoms/(n_threads-1);
 

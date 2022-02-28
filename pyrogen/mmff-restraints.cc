@@ -165,7 +165,7 @@ coot::make_mmff_restraints(RDKit::ROMol &mol) {
 	 dict_bond_restraint_t br(name_1, name_2,
 				  mm_info->bonds[ibond].get_type(),
 				  mm_info->bonds[ibond].get_resting_bond_length(),
-				  mm_info->bonds[ibond].get_sigma());
+				  mm_info->bonds[ibond].get_sigma(), 0.0, 0.0, false);
 	 r.bond_restraint.push_back(br);
       }
       catch (const KeyErrorException &kee) {

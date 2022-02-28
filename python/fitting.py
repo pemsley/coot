@@ -850,6 +850,33 @@ def auto_fit_rotamer_active_residue():
        else:
           coot.auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol, imol_map, 1, 0.1)
 
+
+# Backrub rotamers for chain. After alignment mutation we should run this.
+#
+def backrub_rotamers_for_chain(imol, ch_id):
+
+    """Backrub rotamers for chain. After alignment mutation we should run this."""
+
+    set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+    make_backup(imol)
+
+    with NoBackups(imol):
+        n_times = 2
+        imol_map = imol_refinement_map()
+        if valid_map_molecule_qm(imol_map):
+            n_res = chain_n_residues(ch_id, imol)
+            for i_round in range(n_times):
+                for serial_number in range(n_res):
+                    res_name = resname_from_serial_number(imol, ch_id, serial_number)
+                    res_no = seqnum_from_serial_number(imol, ch_id, serial_number)
+                    ins_code = insertion_code_from_serial_number(imol, ch_id, serial_number)
+                    if isinstance(ins_code, str):   # valid residue check :-)
+                        if not res_name == "HOH":
+                            auto_fit_best_rotamer(res_no, "", ins_code,
+                                                  ch_id, imol, imol_map,
+                                                  1, 0.1)
+
+
 # Restrain the atoms in imol (in give range selection) to
 # corresponding atoms in imol_ref.
 # 

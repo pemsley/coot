@@ -4,6 +4,7 @@
 #endif
 
 #include <epoxy/gl.h>
+#include "compat/coot-sysdep.h"
 
 // #include <GL/glu.h> OpenGLv1
 

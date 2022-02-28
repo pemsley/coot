@@ -16,6 +16,13 @@ coot::cablam_markup_t::cablam_markup_t(mmdb::Atom *O_prev_at,
                                        mmdb::Atom *CA_this_at,
                                        mmdb::Atom *CA_next_at,
                                        mmdb::Atom *CA_next_next_at) {
+   residue = 0;
+   if (! O_prev_at)  return;
+   if (! O_this_at)  return;
+   if (! O_next_at)  return;
+   if (! CA_prev_at) return;
+   if (! CA_this_at) return;
+   if (! CA_next_at) return;
    score = -1;
    residue = O_this_at->residue;
    O_prev_pos = co(O_prev_at);
@@ -58,13 +65,124 @@ coot::cablam_markup_t::cablam_markup_t(mmdb::Atom *O_prev_at,
 }
 
 
+coot::cablam_markup_t
+coot::calc_cablam(mmdb::Chain *chain_p, mmdb::Residue *residue_this_p,
+                  int ires, double score) {
+
+   cablam_markup_t cm; // null residue in this constructor
+   mmdb::Residue *residue_prev_p = chain_p->GetResidue(ires-1);
+   mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
+   mmdb::Residue *residue_next_next_p = chain_p->GetResidue(ires+2);
+
+   if (residue_prev_p->GetSeqNum() + 1 == residue_this_p->GetSeqNum()) {
+   } else {
+      return cm; // fail on tandem residues test
+   }
+   if (residue_next_p->GetSeqNum() - 1 == residue_this_p->GetSeqNum()) {
+   } else {
+      return cm; // fail on tandem residues test
+   }
+#if 0
+   // I am not yet that I want this test.
+   if (residue_next_next_p->GetSeqNum() - 2 == residue_this_p->GetSeqNum()) {
+   } else {
+      return cm; // fail on tandem residues test
+   }
+#endif
+   mmdb::Atom *O_this = 0;
+   mmdb::Atom *O_prev = 0;
+   mmdb::Atom *O_next = 0;
+   mmdb::Atom *CA_this = 0;
+   mmdb::Atom *CA_prev = 0;
+   mmdb::Atom *CA_next = 0;
+   mmdb::Atom *CA_next_next = 0;
+   int n_atoms_prev = residue_prev_p->GetNumberOfAtoms();
+   int n_atoms_this = residue_this_p->GetNumberOfAtoms();
+   int n_atoms_next = residue_next_p->GetNumberOfAtoms();
+   int n_atoms_next_next = residue_next_next_p->GetNumberOfAtoms();
+   for (int iat=0; iat<n_atoms_prev; iat++) {
+      mmdb::Atom *at = residue_prev_p->GetAtom(iat);
+      std::string alt_loc(at->altLoc);
+      if (alt_loc.empty()) { // no cablams for altconfed atoms
+         std::string atom_name(at->GetAtomName());
+         if (atom_name == " O  ") {
+            O_prev = at;
+            continue;
+         }
+         if (atom_name == " CA ") {
+            CA_prev = at;
+            continue;
+         }
+      }
+   }
+   for (int iat=0; iat<n_atoms_this; iat++) {
+      mmdb::Atom *at = residue_this_p->GetAtom(iat);
+      std::string alt_loc(at->altLoc);
+      if (alt_loc.empty()) { // no cablams for altconfed atoms
+         std::string atom_name(at->GetAtomName());
+         if (atom_name == " O  ") {
+            O_this = at;
+            continue;
+         }
+         if (atom_name == " CA ") {
+            CA_this = at;
+            continue;
+         }
+      }
+   }
+   for (int iat=0; iat<n_atoms_next; iat++) {
+      mmdb::Atom *at = residue_next_p->GetAtom(iat);
+      std::string alt_loc(at->altLoc);
+      if (alt_loc.empty()) { // no cablams for altconfed atoms
+         std::string atom_name(at->GetAtomName());
+         if (atom_name == " O  ") {
+            O_next = at;
+            continue;
+         }
+         if (atom_name == " CA ") {
+            CA_next = at;
+            continue;
+         }
+      }
+   }
+   for (int iat=0; iat<n_atoms_next_next; iat++) {
+      mmdb::Atom *at = residue_next_next_p->GetAtom(iat);
+      std::string alt_loc(at->altLoc);
+      if (alt_loc.empty()) { // no cablams for altconfed atoms
+         std::string atom_name(at->GetAtomName());
+         if (atom_name == " CA ") {
+            CA_next_next = at;
+            continue;
+         }
+      }
+   }
+   if (O_prev && O_this && O_next) {
+      if (CA_prev && CA_this && CA_next && CA_next_next) {
+         clipper::Coord_orth p1 = co(CA_prev);
+         clipper::Coord_orth p2 = co(CA_this);
+         clipper::Coord_orth p3 = co(CA_next);
+         double v1_sqrd = (p2 - p1).lengthsq();
+         double v2_sqrd = (p2 - p3).lengthsq();
+         double v1 = std::sqrt(v1_sqrd);
+         double v2 = std::sqrt(v2_sqrd);
+         if (v1 < 3.9 && v2 < 3.9) {
+            cablam_markup_t cm_local(O_prev, O_this, O_next, CA_prev, CA_this, CA_next, CA_next_next);
+            cm_local.score = score;
+            cm = cm_local;
+         }
+      }
+   }
+   return cm;
+}
+
+
 std::vector<coot::cablam_markup_t>
 coot::make_cablam_markups(const std::vector<std::pair<residue_spec_t, double> > &residues,
                           mmdb::Manager *mol) {
 
    std::vector<cablam_markup_t> v;
    std::vector<std::pair<residue_spec_t, double> >::const_iterator it;
-   for (it=residues.begin(); it!=residues.end(); it++) {
+   for (it=residues.begin(); it!=residues.end(); ++it) {
       const residue_spec_t &cablam_res_spec(it->first);
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
@@ -78,86 +196,8 @@ coot::make_cablam_markups(const std::vector<std::pair<residue_spec_t, double> > 
                mmdb::Residue *residue_this_p = chain_p->GetResidue(ires);
                residue_spec_t spec(residue_this_p);
                if (cablam_res_spec == spec) {
-
-                  mmdb::Residue *residue_prev_p = chain_p->GetResidue(ires-1);
-                  mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
-                  mmdb::Residue *residue_next_next_p = chain_p->GetResidue(ires+2);
-                  mmdb::Atom *O_this = 0;
-                  mmdb::Atom *O_prev = 0;
-                  mmdb::Atom *O_next = 0;
-                  mmdb::Atom *CA_this = 0;
-                  mmdb::Atom *CA_prev = 0;
-                  mmdb::Atom *CA_next = 0;
-                  mmdb::Atom *CA_next_next = 0;
-                  int n_atoms_prev = residue_prev_p->GetNumberOfAtoms();
-                  int n_atoms_this = residue_this_p->GetNumberOfAtoms();
-                  int n_atoms_next = residue_next_p->GetNumberOfAtoms();
-                  int n_atoms_next_next = residue_next_next_p->GetNumberOfAtoms();
-                  for (int iat=0; iat<n_atoms_prev; iat++) {
-                     mmdb::Atom *at = residue_prev_p->GetAtom(iat);
-                     std::string alt_loc(at->altLoc);
-                     if (alt_loc.empty()) { // no cablams for altconfed atoms
-                        std::string atom_name(at->GetAtomName());
-                        if (atom_name == " O  ") {
-                           O_prev = at;
-                           continue;
-                        }
-                        if (atom_name == " CA ") {
-                           CA_prev = at;
-                           continue;
-                        }
-                     }
-                  }
-                  for (int iat=0; iat<n_atoms_this; iat++) {
-                     mmdb::Atom *at = residue_this_p->GetAtom(iat);
-                     std::string alt_loc(at->altLoc);
-                     if (alt_loc.empty()) { // no cablams for altconfed atoms
-                        std::string atom_name(at->GetAtomName());
-                        if (atom_name == " O  ") {
-                           O_this = at;
-                           continue;
-                        }
-                        if (atom_name == " CA ") {
-                           CA_this = at;
-                           continue;
-                        }
-                     }
-                  }
-                  for (int iat=0; iat<n_atoms_next; iat++) {
-                     mmdb::Atom *at = residue_next_p->GetAtom(iat);
-                     std::string alt_loc(at->altLoc);
-                     if (alt_loc.empty()) { // no cablams for altconfed atoms
-                        std::string atom_name(at->GetAtomName());
-                        if (atom_name == " O  ") {
-                           O_next = at;
-                           continue;
-                        }
-                        if (atom_name == " CA ") {
-                           CA_next = at;
-                           continue;
-                        }
-                     }
-                  }
-                  for (int iat=0; iat<n_atoms_next_next; iat++) {
-                     mmdb::Atom *at = residue_next_next_p->GetAtom(iat);
-                     std::string alt_loc(at->altLoc);
-                     if (alt_loc.empty()) { // no cablams for altconfed atoms
-                        std::string atom_name(at->GetAtomName());
-                        if (atom_name == " CA ") {
-                           CA_next_next = at;
-                           continue;
-                        }
-                     }
-                  }
-                  if (O_prev && O_this && O_next) {
-                     if (CA_prev && CA_this && CA_next) {
-                        if (CA_next_next) {
-                           cablam_markup_t cm(O_prev, O_this, O_next, CA_prev, CA_this, CA_next, CA_next_next);
-                           cm.score = it->second;
-                           v.push_back(cm);
-                        }
-                     }
-                  }
+                  auto cm = calc_cablam(chain_p, residue_this_p, ires, it->second);
+                  v.push_back(cm);
                }
             }
          }
@@ -216,5 +256,52 @@ coot::make_cablam_markups(mmdb::Manager *mol, const std::string &cablam_output_f
       std::cout << "WARNING:: file not found " << cablam_output_file_name << std::endl;
    }
    v = make_cablam_markups(scored_baddie_specs, mol);
+   return v;
+}
+
+
+coot::cablam_like_geometry_stats_t::cablam_like_geometry_stats_t(const coot::cablam_markup_t &cm) {
+
+   auto v_prev = cm.O_prev_pos - cm.CA_proj_point_prev;
+   auto v_this = cm.O_this_pos - cm.CA_proj_point_this;
+   auto v_next = cm.O_next_pos - cm.CA_proj_point_next;
+
+   double dd = (cm.CA_proj_point_next - cm.CA_proj_point_prev).lengthsq();
+   double d = std::sqrt(dd);
+   double a1 = clipper::Coord_orth::dot(v_prev, v_this);
+   double a2 = clipper::Coord_orth::dot(v_next, v_this);
+
+   residue = cm.residue;
+   dp_prev_to_mid = a1;
+   dp_next_to_mid = a2;
+   dist_proj_point_prev_to_next = d;
+
+}
+
+std::vector<coot::cablam_like_geometry_stats_t>
+coot::get_cablam_like_geometry_stats(mmdb::Manager *mol) {
+
+   std::vector<cablam_like_geometry_stats_t> v;
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         int n_res_max = n_res - 2;
+         for (int ires=1; ires<n_res_max; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               auto cm = calc_cablam(chain_p, residue_p, ires);
+               if (cm.residue) {
+                  v.push_back(cablam_like_geometry_stats_t(cm));
+               }
+            }
+         }
+      }
+   }
+
    return v;
 }

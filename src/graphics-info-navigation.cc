@@ -1280,3 +1280,20 @@ void graphics_info_t::register_user_defined_interesting_positions(const std::vec
    user_defined_interesting_positions = udip;
    user_defined_interesting_positions_idx = 0;
 }
+
+
+void
+graphics_info_t::sequence_view_highlight_residue_maybe(mmdb::Atom *atom, GtkWidget *svc) {
+
+   if (svc) {
+      if (atom) {
+         mmdb::Residue *residue_p = atom->residue;
+         if (residue_p) {
+            exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+            if (nsv) {
+               nsv->highlight_residue(residue_p);
+            }
+         }
+      }
+   }
+}

@@ -54,7 +54,7 @@ namespace coot {
 	    v.push_back(a);
 	    // have_cached_kurtosis = false;
 	 }
-	 
+
 	 double mean() const {
 	    double m = 0;
 	    if (v.size() ) { 

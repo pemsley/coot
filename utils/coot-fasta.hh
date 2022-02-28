@@ -23,11 +23,11 @@
 #define COOT_FASTA_HH
 
 #ifndef HAVE_STRING
-#include<string>
+#include <string>
 #define HAVE_STRING
 #endif
 #ifndef HAVE_VECTOR
-#include<vector>
+#include <vector>
 #define HAVE_VECTOR
 #endif
 

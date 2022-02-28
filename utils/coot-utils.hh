@@ -58,6 +58,9 @@ namespace coot {
    // if not, return the empty string
    std::string get_directory(const std::string &dir);
 
+   // return true for success - Use to copy text files with new lines.
+   bool copy_file(const std::string &from_file, const std::string &to_file);
+
    namespace sequence {
 
       class fasta {
@@ -121,7 +124,7 @@ namespace coot {
       // return 0 on success, something else on failure
       int create_directory(const std::string &dir_name);
       std::string file_name_directory(const std::string &file_name);
-      std::string file_name_extension(const std::string &file_name);
+      std::string file_name_extension(const std::string &file_name); // including the "."
       std::string file_name_non_directory(const std::string &file_name);
       bool extension_is_for_shelx_coords(const std::string &ext);
       bool extension_is_for_mdl_mol_or_mol2_coords(const std::string &ext);

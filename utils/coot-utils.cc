@@ -1609,3 +1609,44 @@ coot::util::round_up_by_hundreds(int num) {
 
    return ii;
 }
+
+#include <fstream>
+
+// return true for success
+bool
+coot::copy_file(const std::string &from_file, const std::string &to_file) {
+
+   auto file_to_string = [] (const std::string &file_name) {
+                            std::string s;
+                            std::string line;
+                            std::ifstream f(file_name.c_str());
+                            if (!f) {
+                               std::cout << "ERROR:: copy_file() failed to open " << file_name << std::endl;
+                            } else {
+                               while (std::getline(f, line)) { 
+                                  s += line;
+                                  s += "\n"; // may be different for windows.
+                               }
+                            }
+                            return s;
+                         };
+
+   auto string_to_file = [] (const std::string &s, const std::string &to_file) {
+                            bool success = false;
+                            std::ofstream f(to_file);
+                            if (f) {
+                               f << s;
+                               f.close();
+                               success = true;
+                            }
+                            return success;
+                   };
+
+   bool success = false;
+   if (file_exists(from_file)) {
+      std::string s = file_to_string(from_file);
+      success = string_to_file(s, to_file);
+   }
+
+   return success;
+}

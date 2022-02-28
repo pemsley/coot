@@ -803,7 +803,8 @@ difference_map_peaks(int imol, int imol_coords,
 		     float n_sigma,
 		     float max_closeness,
 		     int do_positive_level_flag,
-		     int do_negative_levels_flag) {
+		     int do_negative_levels_flag,
+                     int around_model_only_flag) {
 
    // Notice that we make wrapped_create_check_waters_dialog be part
    // of graphics_info_t, because it uses clipper data in the
@@ -825,7 +826,8 @@ difference_map_peaks(int imol, int imol_coords,
 	    centres =
 	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
 			    graphics_info_t::molecules[imol_coords].atom_sel.mol,
-			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
+			    n_sigma, do_positive_level_flag, do_negative_levels_flag,
+                            around_model_only_flag);
 	    for (unsigned int ii=0; ii<centres.size(); ii++)
 	       std::cout << centres[ii].second << " " << centres[ii].first.format()
 			 << std::endl;
@@ -1007,12 +1009,19 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_positive)))
       do_positive_level = 1;
 
+   GtkWidget *around_model_checkbutton = lookup_widget(dialog, "generate_diff_map_peaks_around_model_only_checkbutton");
+
+   bool around_model_only = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(around_model_checkbutton))) {
+      around_model_only = true;
+   }
+
    if (found_active_button_for_map) {
       if (good_sigma)
 	 // if imol_coords is -1 it is ignored in difference_map_peaks
 	 difference_map_peaks(imol_diff_map, imol_coords, v,
 			      graphics_info_t::difference_map_peaks_max_closeness,
-			      do_positive_level, do_negative_level);
+			      do_positive_level, do_negative_level, around_model_only);
    } else {
       std::cout << "WARNING:: failed to find a difference map "
 		<< "Can't do peak search" << std::endl;
@@ -1036,10 +1045,12 @@ PyObject *map_peaks_around_molecule_py(int imol_map, float n_sigma, int do_negat
 	 int do_positive_level_flag = 1;
 	 std::cout << "getting centres with negative-flag " << do_negative_also_flag
 		   << std::endl;
+         int around_model_only_flag = false;
 	 std::vector<std::pair<clipper::Coord_orth, float> > centres =
 	    ps.get_peaks(graphics_info_t::molecules[imol_map].xmap,
 			 graphics_info_t::molecules[imol_coords].atom_sel.mol,
-			 n_sigma, do_positive_level_flag, do_negative_also_flag);
+			 n_sigma, do_positive_level_flag, do_negative_also_flag,
+                         around_model_only_flag);
 	 r = PyList_New(centres.size());
 	 for (unsigned int i=0; i<centres.size(); i++) {
 	    PyObject *coords = PyList_New(3);
@@ -1111,8 +1122,9 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
+      int around_model_only_flag = 0;
       std::vector<std::pair<clipper::Coord_orth, float> > peaks =
-	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag, around_model_only_flag);
       clipper::Coord_orth ref_pt(x,y,z);
       std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
       for (unsigned int i=0; i<peaks.size(); i++) {
@@ -1191,8 +1203,9 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
+      int around_model_only_flag = 0;
       std::vector<std::pair<clipper::Coord_orth, float> > peaks =
-	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag, around_model_only_flag);
       clipper::Coord_orth ref_pt(x,y,z);
       r = SCM_EOL;
       std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
@@ -1808,7 +1821,10 @@ SCM alignment_mismatches_scm(int imol) {
 
 Return a list of mutations deletions insetions.
 Return  False on failure to align (e.g. not assigned sequence)
-and the empty list on no alignment mismatches.*/
+and the empty list on no alignment mismatches.
+
+Returns a list of alignment as text as 4th element
+*/
 #ifdef USE_PYTHON
 PyObject *alignment_mismatches_py(int imol) {
 
@@ -1823,7 +1839,7 @@ PyObject *alignment_mismatches_py(int imol) {
       	 graphics_info_t::molecules[imol].residue_mismatches(graphics_info_t::alignment_wgap,
 							     graphics_info_t::alignment_wspace);
       if (ar.first)
-	r = PyList_New(0);
+         r = PyList_New(0);
       for (unsigned int ir=0; ir<ar.second.size(); ir++) {
 	 for (unsigned int im=0; im<ar.second[ir].mutations.size(); im++) {
 	    mutations.push_back(ar.second[ir].mutations[im]);
@@ -1867,16 +1883,36 @@ PyObject *alignment_mismatches_py(int imol) {
 	 Py_XDECREF(str);
 	 Py_XDECREF(rs_py);
       }
-      r = PyList_New(3);
+
+      // 20220228-PE merge resolution - I think I want this block but it uses old style python API
+      // fix it later.
+#if 0
+      r = PyList_New(4);
       // These are reversed so that the residue numbers come out in
       // numerical order (not backwards) and the returned list is
       // [mutations, deletions, insertions].
       PyList_SetItem(r, 0, mutations_py);
       PyList_SetItem(r, 1, deletions_py);
       PyList_SetItem(r, 2, insertions_py);
+      
+      PyObject *list_of_alignments_as_text = PyList_New(0);
+      for (std::size_t i=0; i<ar.second.size(); i++) {
+         
+         // and the dialog text
+         
+         const coot::chain_mutation_info_container_t &mic = ar.second[i];
+         
+         PyObject *alignment_as_text_py = PyString_FromString(mic.alignment_string.c_str());
+         PyList_Append(list_of_alignments_as_text, alignment_as_text_py);
+      }
+      
+      // Put list_of_alignments_as_text at the end of r
+      PyList_SetItem(r, 3, list_of_alignments_as_text);
+#endif
+
    }
    if (PyBool_Check(r)) {
-     Py_INCREF(r);
+      Py_INCREF(r);
    }
    return r;
 }

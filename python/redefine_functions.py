@@ -89,6 +89,7 @@ overlap_ligands        = coot.overlap_ligands_py
 analyse_ligand_differences = coot.analyse_ligand_differences_py
 # compare_ligand_atom_types = coot.compare_ligand_atom_types_py # comment out hack to load this smoothly.
 additional_representation_info = coot.additional_representation_info_py
+pepflip_using_difference_map = coot.pepflip_using_difference_map_py
 rigid_body_refine_by_residue_ranges = coot.rigid_body_refine_by_residue_ranges_py
 find_terminal_residue_type = coot.find_terminal_residue_type_py
 delete_residues        = coot.delete_residues_py
@@ -133,6 +134,7 @@ add_linked_residue     = coot.add_linked_residue_py
 all_molecule_rotamer_score = coot.all_molecule_rotamer_score_py
 all_molecule_ramachandran_score = coot.all_molecule_ramachandran_score_py
 all_molecule_ramachandran_region = coot.all_molecule_ramachandran_region_py
+add_cablam_markup      = coot.add_cablam_markup_py
 user_defined_click     = coot.user_defined_click_py
 
 # graphics_info.h:

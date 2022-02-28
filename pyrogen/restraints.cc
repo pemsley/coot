@@ -558,7 +558,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << " with permissive search " << std::endl;
 	       std::string bond_type = bond.type;
-	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd);
+	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd, 0.0, 0.0, false);
 	       restraints->bond_restraint.push_back(bondr);
 	    }
 	    catch (const std::runtime_error &rte) {

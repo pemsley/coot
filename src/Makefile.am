@@ -68,6 +68,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
+	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/goograph/libcoot-goograph.la      	\
@@ -550,7 +551,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
-	gtk-widget-conversion-utils.h \
+	gtk-widget-conversion-utils.h  \
 	gtk-widget-conversion-utils.cc \
 	gtk2-interface.c	 \
 	gtk-manual.hh		 \
@@ -571,9 +572,9 @@ libcootsumo_la_SOURCES = \
 	LigandViewMesh.cc        \
 	LigandViewMesh.hh        \
 	lsq-dialog-values.hh     \
-	lbg-interface.hh 	 \
-	lbg-callbacks-outer.cc 	 \
-	lbg-interface.cc 	 \
+	lbg-interface.hh         \
+	lbg-callbacks-outer.cc   \
+	lbg-interface.cc         \
 	ligand-check.hh          \
 	Model.cc Model.hh        \
 	make-a-dodec.cc make-a-dodec.hh \
@@ -586,6 +587,7 @@ libcootsumo_la_SOURCES = \
 	Mesh-from-graphical-bonds.cc     \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
+	map-statistics.hh        \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
@@ -604,7 +606,7 @@ libcootsumo_la_SOURCES = \
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-residues.cc \
 	molecule-class-info-refine.cc   \
-        molecule-class-info-kk.cc       \
+	molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-string.cc 	\
 	molecule-class-info-patterson.cc   \
@@ -653,6 +655,7 @@ libcootsumo_la_SOURCES = \
 	screen-utils.cc		 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
+	sound.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -697,7 +700,7 @@ libcootsumo_la_SOURCES = \
 	atom-attribute.hh 	 \
 	animated-ligand.hh 	 \
 	atom-selection.hh 	 \
-	ncs.hh 		         \
+	ncs.hh 		 \
 	model-view.hh 		 \
 	validation.hh            \
 	validation.cc            \
@@ -710,6 +713,9 @@ libcootsumo_la_SOURCES = \
 	widget-from-builder.cc   \
         json.hpp
 
+
+# 20220228-PE this appeared in a merge - not sure if it's needed (or should be included directly)
+# coot_bin_SOURCES += coot_wrap_python.cc
 
 EXTRA_DIST += coot_wrap_python_pre.cc
 dist_python_PYTHON = coot.py coot.pth

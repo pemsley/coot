@@ -84,6 +84,7 @@ def add_module_prosmart_old():
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
+            # Generate self restraints for residues around sphere
             def generate_self_restraint_in_sphere_func():
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -99,7 +100,7 @@ def add_module_prosmart_old():
                                                                   local_dist_max)
 
             add_simple_coot_menu_menuitem(
-                menu, "Generate Chain Self Restraints 3.7 for Chain",
+                menu, "Generate Self Restraints 3.7 for Chain",
                 lambda func: generate_self_restraint_func(3.7))
 
             coot_gui.add_simple_coot_menu_menuitem(
@@ -121,6 +122,10 @@ def add_module_prosmart_old():
             add_simple_coot_menu_menuitem(
                 menu, "Generate All-molecule Self Restraints 5.0",
                 lambda func: generate_all_molecule_self_restraints(5.0))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Generate Local Self Restraints 6",
+                lambda func: generate_self_restraint_in_sphere_func())
 
             def display_extra_restraints_func(state):
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,

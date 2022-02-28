@@ -83,6 +83,7 @@
 #include "clipper/core/clipper_instance.h"
 
 #include "c-interface-gui.hh"
+#include "utils/win-compat.hh"
 
 // I think this test is wrong. New gtk doesn't have get active text.
 // Use a gtkcomboboxtext for that.
@@ -451,42 +452,42 @@ GtkWidget *get_refmac_mtz_file_label() {
 // we want to have an interface to save refmac parameters in map objects,
 // so that we can save the original mtz file and labels in a map file
 void save_refmac_params_to_map(int imol_map,
-			       const char *mtz_filename,
-			       const char *fobs_col,
-			       const char *sigfobs_col,
-			       const char *r_free_col,
-			       int r_free_flag_sensible) {
+                               const char *mtz_filename,
+                               const char *fobs_col,
+                               const char *sigfobs_col,
+                               const char *r_free_col,
+                               int r_free_flag_sensible) {
 
-  if (is_valid_map_molecule(imol_map)) {
-    graphics_info_t::molecules[imol_map].store_refmac_params(std::string(mtz_filename),
-							     std::string(fobs_col),
-							     std::string(sigfobs_col),
-							     std::string(r_free_col),
-							     r_free_flag_sensible);
-  } else {
-    std::cout << "WARNGING:: invalid map molecule!" <<std::endl;
-  }
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t::molecules[imol_map].store_refmac_params(std::string(mtz_filename),
+                                                               std::string(fobs_col),
+                                                               std::string(sigfobs_col),
+                                                               std::string(r_free_col),
+                                                               r_free_flag_sensible);
+   } else {
+      std::cout << "WARNGING:: invalid map molecule!" <<std::endl;
+   }
 
 }
 
 void save_refmac_phase_params_to_map(int imol_map,
-				     const char *phi,
-				     const char *fom,
-				     const char *hla,
-				     const char *hlb,
-				     const char *hlc,
-				     const char *hld) {
+                                     const char *phi,
+                                     const char *fom,
+                                     const char *hla,
+                                     const char *hlb,
+                                     const char *hlc,
+                                     const char *hld) {
 
-  if (is_valid_map_molecule(imol_map)) {
-    graphics_info_t::molecules[imol_map].store_refmac_phase_params(std::string(phi),
-								   std::string(fom),
-								   std::string(hla),
-								   std::string(hlb),
-								   std::string(hlc),
-								   std::string(hld));
-  } else {
-    std::cout << "WARNGING:: invalid map molecule!" <<std::endl;
-  }
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t::molecules[imol_map].store_refmac_phase_params(std::string(phi),
+                                                                     std::string(fom),
+                                                                     std::string(hla),
+                                                                     std::string(hlb),
+                                                                     std::string(hlc),
+                                                                     std::string(hld));
+   } else {
+      std::cout << "WARNGING:: invalid map molecule!" <<std::endl;
+   }
 
 }
 
@@ -508,7 +509,6 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
    bool limit_reso_flag = false;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(weights_checkbutton))) use_weights_flag = true;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(reso_limit_checkbutton))) limit_reso_flag = true;
    GtkWidget *amplitudes_combobox = lookup_widget(column_label_window, "column_selector_amplitudes_combobox");
    GtkWidget *phases_combobox     = lookup_widget(column_label_window, "column_selector_phases_combobox");
    GtkWidget *weights_combobox    = lookup_widget(column_label_window, "column_selector_weights_combobox");
@@ -525,6 +525,56 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
    bool is_anomalous_flag = false;
    float low_res_limit  = -1.0;
    float high_res_limit = -1.0;
+
+   /* --------- Resolution limits --------- */
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(reso_limit_checkbutton))) {
+
+      GtkEntry  *low_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window), "column_labels_reso_low_entry"));
+      GtkEntry *high_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window), "column_labels_reso_high_entry"));
+
+      std::string l = gtk_entry_get_text(low_entry);
+      std::string h = gtk_entry_get_text(high_entry);
+      bool low_OK = true;
+      bool high_OK = true;
+
+      // It's OK not to set a low resolution limit, but not OK to not to set a high resolution limit
+      // (if that is the case, act as if no resolution limit was enabled)
+
+      if (! l.empty()) {
+         try {
+            float ll = coot::util::string_to_float(l);
+            low_res_limit = ll;
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "WARNING:: " << rte.what() << std::endl;
+            low_OK = false;
+         }
+      } else {
+         low_res_limit = 9999.9;
+      }
+
+      if (! h.empty()) {
+         try {
+            float hh = coot::util::string_to_float(h);
+            high_res_limit = hh;
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "WARNING:: " << rte.what() << std::endl;
+         }
+      } else {
+         high_OK = false;
+      }
+
+      if (low_OK && high_OK)
+         limit_reso_flag = true;
+
+      if (false) {// debugging, force non-sane limits
+         low_res_limit  = 999.9;
+         high_res_limit = 999.9;
+         limit_reso_flag = true;
+      }
+   }
 
 
    /* --------- Refmac label stuff --------- */
@@ -559,18 +609,18 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
              << std::endl;
 
    make_and_draw_map_with_reso_with_refmac_params(mtz_filename.c_str(),
-						  f_label.c_str(),
-						  phi_label.c_str(),
-						  w_label.c_str(),
-						  use_weights_flag, is_difference_map_flag,
-						  have_refmac_params,
-						  fobs_col.c_str(),
-						  sigfobs_col.c_str(),
-						  r_free_col.c_str(),
-						  sensible_r_free_col,
-						  is_anomalous_flag,
-						  limit_reso_flag,
-						  low_res_limit, high_res_limit);
+                                                  f_label.c_str(),
+                                                  phi_label.c_str(),
+                                                  w_label.c_str(),
+                                                  use_weights_flag, is_difference_map_flag,
+                                                  have_refmac_params,
+                                                  fobs_col.c_str(),
+                                                  sigfobs_col.c_str(),
+                                                  r_free_col.c_str(),
+                                                  sensible_r_free_col,
+                                                  is_anomalous_flag,
+                                                  limit_reso_flag,
+                                                  low_res_limit, high_res_limit);
 
    /* We can destroy the column_label_window top level widget now. */
    gtk_widget_destroy(column_label_window);
@@ -1288,8 +1338,8 @@ store_window_position(int window_type, GtkWidget *widget) {
 void graphics_window_size_and_position_to_preferences() {
 
    // Note to self: is there a "get preferences dir" function?
-   char *h = getenv("HOME");
-   if (h) {
+   std::string h = coot::get_home_dir();
+   if (!h.empty()) {
       std::string pref_dir = coot::util::append_dir_dir(h, ".coot-preferences");
       if (! coot::is_directory_p(pref_dir)) {
          // make it
@@ -6236,7 +6286,11 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
 
    if (!file_name.empty()) {
 
+#ifndef WINDOWS_MINGW
       std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#else
+       std::string url_prefix = "https://bernhardcl.github.io/coot/";
+#endif
       url_prefix += "extensions";
       url_prefix += "/";
       url_prefix += file_name;
@@ -6259,26 +6313,31 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
             std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
             if (checksum_result.first) {
                // I want a function that returns preferences_dir
-               char *home = getenv("HOME");
-               if (home) {
-                  std::string home_directory(home);
+               std::string home_directory = coot::get_home_dir();
+               if (!home_directory.empty()) {
                   std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
                   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                   std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
+                  // BL: on windows (non POSIX) rename wont overwrite, so
+                  // need to remove first.
+#ifndef WINDOWS_MINGW
                   int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+#else
+                  // int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+                  int status = coot::copy_file(dl_fn, preferences_file_name); // it returns a bool actually
+#endif
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
                      std::cout << "WARNING:: rename error: " << strerror(errno) << std::endl;
                      std::cout << "WARNING:: fall-back: run the script from download-dir: " << dl_fn << std::endl;
                      run_script(dl_fn.c_str());
                   } else {
-                     std::cout << "debug:: BB renaming successful" << std::endl;
-                     std::cout << "debug:: BB run_script() called on " << preferences_file_name << std::endl;
+                     std::cout << "debug:: renaming successful" << std::endl;
+                     std::cout << "debug:: run_script() called on " << preferences_file_name << std::endl;
                      run_script(preferences_file_name.c_str());
-
-                     std::cout << "hiding install_button " << install_button << std::endl;
+                     //  std::cout << "hiding install_button " << install_button << std::endl;
                      gtk_widget_hide(install_button);
-                     std::cout << "show uninstall_button  " << uninstall_button << std::endl;
+                     //  std::cout << "show uninstall_button  " << uninstall_button << std::endl;
                      gtk_widget_show(uninstall_button);
                      
                   }
@@ -6301,14 +6360,18 @@ curlew_uninstall_extension_file(const std::string &file_name) {
    bool r_status = false;
 
    // I want a function that returns preferences_dir
-   char *home = getenv("HOME");
-   if (home) {
+   std::string home = coot::get_home_dir();
+   if (!home.empty()) {
       std::string home_directory(home);
       std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
       std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
       std::string renamed_file_name = preferences_file_name + "_uninstalled";
       if (coot::file_exists(preferences_file_name)) {
+#ifndef WINDOWS_MINGW
          int status = rename(preferences_file_name.c_str(), renamed_file_name.c_str());
+#else
+          int status = coot::rename_win(preferences_file_name.c_str(), renamed_file_name.c_str());
+#endif
          if (status != 0) {
             std::cout << "WARNING:: rename status " << status << " failed to uninstall " << file_name << std::endl;
          } else {
@@ -6360,7 +6423,11 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 
 		  if (!file_name.empty()) {
 
-		     std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#ifndef WINDOWS_MINGW
+              std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#else
+              std::string url_prefix = "https://bernhardcl.github.io/coot/";
+#endif
 		     url_prefix += "extensions";
 		     url_prefix += "/";
 		     url_prefix += file_name;
@@ -6383,13 +6450,16 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
                            std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
                            if (checksum_result.first) {
 			      // I want a function that returns preferences_dir
-			      char *home = getenv("HOME");
-			      if (home) {
-				 std::string home_directory(home);
+                              std::string home_directory = coot::get_home_dir();
+                              if (!home_directory.empty()) {
 				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
 				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
+#ifndef WINDOWS_MINGW
 				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+#else
+                 int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+#endif
 				 if (status != 0) {
 				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
 				 } else {
@@ -6401,7 +6471,6 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
                                     gtk_widget_hide(check_button);
                                     std::cout << "show uninstall_button  " << uninstall_button << std::endl;
                                     gtk_widget_show(uninstall_button);
-                                    
 				    // make the hbox insensitive
 				    if (hbox) {
 				       gtk_widget_set_sensitive(hbox, FALSE);

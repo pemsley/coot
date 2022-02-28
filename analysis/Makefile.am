@@ -1,7 +1,7 @@
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
-pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh
+pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh daca.hh
 pkgincludedir = $(includedir)/coot/analysis
 
 # CXXFLAGS =	$(COOT_GSL_FLAGS)
@@ -14,7 +14,7 @@ AM_CPPFLAGS = \
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \
 	cablam.hh cablam.cc typed-distances.cc typed-distances.hh \
-	b-factor-histogram.cc b-factor-histogram.hh daca.cc daca.hh
+	b-factor-histogram.cc b-factor-histogram.hh daca.cc
 
 # note to self: does RDKIT_LIBS belong here or should it be added to the LDADD of
 # one of these libraries?
@@ -52,6 +52,8 @@ test_cablam_SOURCES = test-cablam.cc
 test_stats_SOURCES = test-stats.cc
 
 test_align_SOURCES = test-align.cc
+
+test_stats_LDADD = libcoot-analysis.la
 
 test_cablam_LDADD = \
 	libcoot-analysis.la \

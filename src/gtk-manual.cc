@@ -556,7 +556,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox32", hbox32,
                             NULL);
   gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, FALSE, 0);
 
   widget_name = "display_mol_button_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
@@ -870,7 +870,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_widget_show (display_map_frame_1);
   /* setting to true means that the buttons etc in the box can expand
      vertically to fill the box  */
-  gtk_box_pack_start (GTK_BOX (display_map_vbox), display_map_frame_1, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (display_map_vbox), display_map_frame_1, FALSE, FALSE, 2); // box child expand fill padding
 
   hbox31 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox31);
@@ -919,7 +919,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox32", hbox32,
 			  NULL);
   gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, FALSE, 0);
 
 /* -- */
 

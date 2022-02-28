@@ -133,7 +133,12 @@ void curlew() {
       // (probably a curl configuration thing)
       // 2019-07-31 https is the only way now
       //
+      // BL says:: cheap way, just use my extensions for Windows
+#ifndef WINDOWS_MINGW
       std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#else
+      std::string url_prefix = "https://bernhardcl.github.io/coot/";
+#endif
       url_prefix += "extensions";
 
       std::string url_curlew_prefix = url_prefix + "/curlew";

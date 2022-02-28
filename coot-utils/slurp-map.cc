@@ -221,6 +221,8 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    clipper::Spacegroup space_group(sgd);
    clipper::Grid_sampling grid_sampling(index_axis_order[0], index_axis_order[1], index_axis_order[2]);
    clipper::Grid grid(mx, my, mz);
+   std::cout << "DEBUG:: init xmap with " << space_group.symbol_hm() << " " << cell.format() << " " << grid_sampling.format()
+             << std::endl;
    xmap_p->init(space_group, cell, grid_sampling);
    clipper::Coord_grid coord_grid_min(nx_start,ny_start,nz_start);
    clipper::Coord_grid coord_grid_max(index_axis_order[0]-1, index_axis_order[1]-1, index_axis_order[2]-1);

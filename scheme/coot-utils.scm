@@ -151,7 +151,7 @@
 			(if (= status 0)
 			    new-dir
 			    #f))))))))))
-      
+
 
 ;; schemify function
 ;; 
@@ -222,6 +222,9 @@
 
 ;; do something based on the active residue (presumably)
 (define post-set-rotation-centre-hook #f)
+
+;; a function that takes one argument (the model molecule number)
+(define post-read-model-hook #f)
 
 ;; Return a boolean
 ;; 
@@ -2054,7 +2057,7 @@
 (define (associate-pir-file imol chain-id pir-file-name)
   (let ((seq-text (pir-file-name->pir-sequence pir-file-name)))
     (if seq-text
-	(assign-pir-sequence imol chain-id seq-text)
+	(assign-pir-sequence imol chain-id seq-text) ;; it isn't assigning sequence!
 	(format #t "WARNING:: associate-pir-file: bad text for ~s~%" pir-file-name))))
 
 
@@ -3885,6 +3888,19 @@
 	       (stat-size (stat:size stat-result)))
 	  (> stat-size 20))))
 
+  (define (unbracket line)
+    (let ((m-open  (string-match "[[[]" line))
+          (m-close (string-match "[]]]" line)))
+      (if m-open
+          (if m-close
+              (let ((substring-1 (substring line
+                                            (+ (cdr (vector-ref m-open  1)) 1)
+                                            (car (vector-ref m-close 1)))))
+                (format #t "extracted REDIRECT substring ~s~%" substring-1)
+                substring-1)
+              #f)
+          #f)))
+
   ;; return a mol file name
   (define (handle-rev-string-2016 rev-string)
 
@@ -3898,9 +3914,9 @@
 	      (let ((close-match (string-match "\\]\\]" line)))
 		(if close-match
 		    (begin
-; 				  (format #t "-----------:  open-match ~%" open-match)
-; 				  (format #t "-----------: close-match ~%" close-match)
-; 				  (format #t "-----------: line ~%" line)
+                                        ; 				  (format #t "-----------:  open-match ~%" open-match)
+                                        ; 				  (format #t "-----------: close-match ~%" close-match)
+                                        ; 				  (format #t "-----------: line ~%" line)
 		      (let ((s (substring line 12 (car (vector-ref close-match 1)))))
 			(get-drug-via-wikipedia s)))))))) ;; returns a file anme
 
@@ -3912,33 +3928,40 @@
 		      ;; we don't want to hit xxx_Ref - hence the trailing space
 
 		      (if (string-match "DrugBank[ \t]" line)
-                (let ((parts (string->list-of-strings line)))
-                  (format #t "   debug:: drugbank parts: ~s~%" parts)
-                  (let ((id-string (last-element parts)))
-                    (if (number? (string->number id-string))
-                        (set! db-id-list (cons (cons "DrugBank" id-string) db-id-list))))))
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: drugbank parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (number? (string->number id-string))
+                                  (set! db-id-list (cons (cons "DrugBank" id-string) db-id-list))))))
 
 		      (if (string-match "ChemSpiderID[ \t]" line)
-                (let ((parts (string->list-of-strings line)))
-                  (format #t "   debug:: ChemSpiderID parts: ~s~%" parts)
-                  (let ((id-string (last-element parts)))
-                    (if (not (string-match "correct" id-string))
-                        (if (number? (string->number id-string))
-                            (set! db-id-list (cons (cons "ChemSpider" id-string) db-id-list)))))))
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: ChemSpiderID parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (not (string-match "correct" id-string))
+                                  (if (number? (string->number id-string))
+                                      (set! db-id-list (cons (cons "ChemSpider" id-string) db-id-list)))))))
 
 		      (if (string-match "PubChem[ \t]" line)
-                (let ((parts (string->list-of-strings line)))
-                  (format #t "   debug:: PubChem parts: ~s~%" parts)
-                  (let ((id-string (last-element parts)))
-                    (if (not (string-match "correct" id-string))
-                        (set! db-id-list (cons (cons "PubChem" id-string) db-id-list))))))
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: PubChem parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (not (string-match "correct" id-string))
+                                  (set! db-id-list (cons (cons "PubChem" id-string) db-id-list))))))
 
 		      (if (string-match "ChEMBL[ \t]" line)
-                (let ((parts (string->list-of-strings line)))
-                  (format #t "   debug:: ChEMBL parts: ~s~%" parts)
-                  (let ((id-string (last-element parts)))
-                    (if (number? (string->number id-string))
-                        (set! db-id-list (cons (cons "ChEMBL" id-string) db-id-list))))))
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: ChEMBL parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (number? (string->number id-string))
+                                  (set! db-id-list (cons (cons "ChEMBL" id-string) db-id-list))))))
+
+                      (if (string-match "#REDIRECT " line)
+                          (let ((new-string (unbracket line)))
+                            (if (string? new-string)
+                                (let ((mol-file-name (get-drug-via-wikipedia new-string)))
+                                  (if (string? mol-file-name)
+                                      (set! db-id-list (cons (cons "redirect" mol-file-name)) db-id-list))))))
 		      )
 		    lines)
 
@@ -3951,6 +3974,13 @@
 
 	    (cond
 	     ((null? db-id-list) "Failed-to-find-a-molecule-file-name")
+
+             ((string=? (car (car db-id-list)) "redirect")
+              (let ((fn (cdr (car db-id-list))))
+                (if (file-seems-good? fn)
+                    fn
+                    (loop (car db-id-list)))))
+
 	     ((string=? (car (car db-id-list)) "DrugBank")
 
 	       (let ((db-id (car db-id-list)))
@@ -4165,7 +4195,7 @@
 		       ))
 		 (xml (coot-get-url-as-string url)))
 
-	    (format #t "INFO:: get-drug-via-wikipedia: url: ~s~%" url)
+	    (format #t "INFO:: get-drug-via-wikipedia: drug-name-in: ~s url: ~s~%" drug-name-in url)
 	    (let ((l (string-length xml)))
 
 	      (if (= l 0)

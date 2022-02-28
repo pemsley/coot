@@ -410,7 +410,10 @@
 # 5.53 20210706 use jfrog.io for boost
 # 5.54 20210706 build sqllite3
 # 5.55 20210727 shared-static flag --enable-shared - what *was* I thinking? Modern clipper test
-script_version=5.55
+# 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
+# 5.57 20211019 add another make for guile-lib. Add texinfo to the dependencies for debian
+# 5.58 20211019 Add a sort to the awk result when determining the tar file for the stable release
+script_version=5.58
 
 
 
@@ -1036,7 +1039,15 @@ if test "$OS" = "Linux" ; then
    fi
 fi
 
-if test $OS = Linux ; then
+
+# From Christoph Buhlheller:
+# Guide for CentOS8 to install Coot:
+# yum install libXt-devel
+# yum install gtk2-devel
+# yum install mesa-*
+# yum install gcc-gfortran
+
+if test $OS = Linux ; then 
 
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
@@ -1162,6 +1173,7 @@ case $dist_name in
       dep_list='
        patch
        unzip
+       rsync
        m4
        g++
        libxext-dev
@@ -1202,8 +1214,18 @@ case $dist_name in
       ;;
 
     debian)
+<<<<<<< HEAD
       dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
       for dep in $dep_list
+=======
+      # note from Dirk Kostrewa 20211018-PE:
+      #
+      # cmake libncurses5-dev libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev
+      # libgnomecanvas2-dev libxt-dev libjpeg-dev
+      # 20211019-PE also texinfo (for makeinfo for guile-lib)
+      dep_list='rsync m4 unzip patch libncurses5-dev g++ libxext-dev libxt-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip texinfo cmake libjpeg-dev'
+      for dep in $dep_list 
+>>>>>>> refinement
       do 
          echo $dep
          if dpkg-query --status $dep > /dev/null ; then
@@ -1399,10 +1421,14 @@ if make --version ; then
       memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
       if [ "$memory_kb" -gt 2000512 ] ; then
          if [ -e /proc/cpuinfo ] ; then
-            if np=$(grep processor /proc/cpuinfo | wc -l) ; then
+            if np_raw=$(grep processor /proc/cpuinfo | wc -l) ; then
                # limit to 8 processors
+               np=$np_raw # cooked
                if [ "$np" -gt 8 ] ; then
                   np=8
+               fi
+               if [ "$np_raw" = 224 ] ; then
+                  np=64 # teehee!
                fi
                echo using $np processors in compilation
                MAKE="make -j$np"
@@ -1613,14 +1639,23 @@ else
     echo ========== awk results:
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html
+    echo ==== sorted awk results ==========
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | sort
     echo ==== with tail ==========
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+<<<<<<< HEAD
        ${AUTOBUILD_SOURCES}/index.html | tail -1
     echo =========== from ${AUTOBUILD_SOURCES}/index.html
     cat ${AUTOBUILD_SOURCES}/index.html
+=======
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1
+    echo =========== from ${AUTOBUILD_SOURCES}/index.html 
+    cat ${AUTOBUILD_SOURCES}/index.html 
+>>>>>>> refinement
     echo ==============
     coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
-       ${AUTOBUILD_SOURCES}/index.html | tail -1)
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
@@ -1635,17 +1670,12 @@ fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
 
-####################################################
-# exit
-####################################################
-
-
-
 echo coot_version_pre is $coot_version_pre
 echo build_coot_prerelease: $build_coot_prerelease
 echo release_server_dir $release_server_dir
 echo coot_version $coot_version
 
+# exit # for testing release version extraction
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
@@ -2781,7 +2811,11 @@ fi
 if [ -e $install_top_dir/lib/libsqlite3.so ] ; then
     echo libsqlite3 is installed
 else
+    echo building libsqlite3
     ${WGET} https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+    (
+    date
+    pwd
     gzip -dc ${AUTOBUILD_SOURCES}/sqlite-autoconf-3360000.tar.gz | tar xf -
     cd sqlite-autoconf-3360000
     if ./configure --prefix=$install_top_dir ; then
@@ -2789,6 +2823,7 @@ else
         make install
     fi
     cd -
+    ) > $HOSTLOGDIR/05a-libsqlite3.txt 2>&1
 fi
 
 
@@ -3331,6 +3366,7 @@ if [ "$test_for_already_installed_dependencies" = true ] ; then
 fi
 
 if [ "$build_boost" = true ] ; then
+   boost_version=1_72_0
    echo building boost $boost_version # to build.log
    echo building boost $boost_version 1>&2 # to the terminal
    (
@@ -3340,9 +3376,8 @@ if [ "$build_boost" = true ] ; then
       address_model=64
       python_version_extention=2.7 # extract this
 
-      boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
-      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source
-      boost_version=1_71_0
+      boost_home_url=https://dl.bintray.com/boostorg/release/1.72.0/source
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
 
@@ -3424,16 +3459,27 @@ fi
 # https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
 
 if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2.dist-info ] ; then
+   build_pillow=no
+else
+   build_pillow=yes
+fi
+if [ -e $install_top_dir/lib/python2.7/site-packages/Pillow-6.2.2-py2.7-linux-x86_64.egg ] ; then
+   build_pillow=no
+fi
+
+if [ "$build_pillow" = no ] ; then
    echo not building Pillow:
 else
     pillow_url=https://files.pythonhosted.org/packages/b3/d0/a20d8440b71adfbf133452d4f6e0fe80de2df7c2578c9b498fb812083383/Pillow-6.2.2.tar.gz
-    ${WGET} $pillow_url
+    ${WGET} --no-if-modified-since $pillow_url
     if [ -e ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz ] ; then
+        (
         tar xf ${AUTOBUILD_SOURCES}/Pillow-6.2.2.tar.gz
         cd Pillow-6.2.2
         python setup.py build
         python setup.py install
         cd -
+        ) > $HOSTLOGDIR/17-pillow.txt 2>&1
     fi
 fi
 
@@ -3720,6 +3766,7 @@ if test -n "$build_libtool" ; then
 else
     echo not building libtool:
 fi
+<<<<<<< HEAD
 
 
 if test -n "$build_readline" ; then
@@ -3756,6 +3803,8 @@ if test -n "$build_readline" ; then
 else
     echo not building readline:
 fi
+=======
+>>>>>>> refinement
 
 
 # $ guile
@@ -3809,6 +3858,8 @@ fi
 ${WGET} $extras_place/guile-${guile_version}.tar.gz
 ${WGET} $extras_place/guile-1.8.7-updated.patch
 ${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
+${WGET} $extras_place/guile-fink.patch
+${WGET} $extras_place/guile-configure.patch
 
 
 # if debian, unset LD_LIBRARY_PATH and set it back again when done.
@@ -3862,6 +3913,8 @@ fi
 # gcc 6.1.1 - harmless for others
 #
 patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.8-gc-segment.c.patch
+# patch -p0 < ${AUTOBUILD_SOURCES}/guile-fink.patch
+# patch -p0 < ${AUTOBUILD_SOURCES}/guile-configure.patch
 
 echo =========== make ====================
 $MAKE
@@ -4030,8 +4083,11 @@ gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
 cd guile-lib-$guile_lib_version
 # the prefix for guile-lib must be the prefix of guile, or else the sxml and
 # other library files will not be found
+# 20211019-PE strangely the second make seems to pass after the first one has failed
+# (in the doc directory)
 ./configure $generic_prefix
 $MAKE
+make
 $MAKE install
 ) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
 else
@@ -4207,8 +4263,10 @@ if [ -e $install_top_dir/bin/render ] ; then
 else
 
    raster3d_version=3.0-3
+   raster3d_version=3.0-7
    # raster3d depends on libgd to make png images
-   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+   # ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+   ${WGET} http://www.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
 
    if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
 
@@ -4662,10 +4720,18 @@ if [ "$build_coot_prerelease" = 1 ] ; then
 fi
 
 clear_up_type=
-if [ $shared_static_flag != "--disable-static" ] ; then
+if [ $shared_static_flag = "--enable-shared" ] ; then
     clear_up_type=clear-static
+fi   
+if [ $shared_static_flag = "--disable-static" ] ; then
+    clear_up_type=clear-static
+<<<<<<< HEAD
 fi
 if [ $shared_static_flag != "--disable-shared" ] ; then
+=======
+fi   
+if [ $shared_static_flag = "--disable-shared" ] ; then
+>>>>>>> refinement
     clear_up_type=clear-dynamic
 fi
 
@@ -4675,8 +4741,13 @@ if [ $clear_up_type != "" ] ; then
    else
       slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk2
    fi
+<<<<<<< HEAD
    echo post-install slim... >&2
    post_install_slim $install_top_dir $slim_dir $clear_up_type
+=======
+   echo post-install slim... with clear-up type $clear_up_type >&2
+   post_install_slim $install_top_dir $slim_dir $clear_up_type 
+>>>>>>> refinement
 fi
 
 # clean up old status:

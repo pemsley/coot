@@ -803,8 +803,8 @@ namespace coot {
 				      int n_atoms,
 				      float low_cutoff,
 				      float high_cutoff,
-				      short int apply_low_cutoff,
-				      short int apply_high_cuttoff);
+				      bool apply_low_cutoff,
+				      bool apply_high_cuttoff);
       float average_temperature_factor(mmdb::PPAtom atom_selection,
 				       int n_atoms,
 				       float low_cutoff,
@@ -1056,7 +1056,7 @@ namespace coot {
       void copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain);
 
       // add or delete residues and atoms as needed.
-      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain, mmdb::Manager *from_mol_orig, mmdb::Chain *to_chain);
+      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain, mmdb::Manager *from_mol_orig, mmdb::Chain *to_chain, bool do_finishstructedit);
 
       // utility function for above:
       mmdb::Residue* deep_copy_this_residue_add_chain(mmdb::Residue *residue,

@@ -487,6 +487,16 @@ int make_updating_model_molecule(const char *filename) {
    return status;
 }
 
+void show_calculate_updating_maps_gui() {
+
+#ifdef USE_PYTHON
+   std::string cmd = "show_updating_maps_chooser()";
+   safe_python_command(cmd);
+#endif
+
+}
+
+
 // do we need to return the imol for the model and the map? If so, this
 // needs to be in cc-interface.hh
 //
@@ -1186,6 +1196,24 @@ int stereo_mode_state() {
    add_to_history_simple("stereo-mode-state");
    return graphics_info_t::display_mode;
 }
+
+
+/*! \brief set the stereo mode (the relative view of the eyes)
+
+0 is 2010-mode
+1 is modern mode
+*/
+void set_stereo_style(int mode) {
+
+   if (mode == 0)
+      graphics_info_t::stereo_style_2010 = true;
+   else 
+      graphics_info_t::stereo_style_2010 = false;
+
+   graphics_draw();
+}
+   
+
 
 void set_hardware_stereo_angle_factor(float f) {
    graphics_info_t::hardware_stereo_angle_factor = f;
@@ -3882,20 +3910,16 @@ float median_temperature_factor(int imol) {
 
    float low_cut = 2.0;
    float high_cut = 100.0;
-   short int low_cut_flag = 0;
-   short int high_cut_flag = 0;
+   bool low_cut_flag = false;
+   bool high_cut_flag = false;
 
    float median = -1.0;
-   if (imol < graphics_info_t::n_molecules()) {
-      if (graphics_info_t::molecules[imol].has_model()) {
-	 median = coot::util::median_temperature_factor(graphics_info_t::molecules[imol].atom_sel.atom_selection,
-							graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
-							low_cut, high_cut,
-							low_cut_flag,
-							high_cut_flag);
-      } else {
-	 std::cout << "WARNING:: molecule " << imol << " has no model\n";
-      }
+   if (is_valid_model_molecule(imol)) {
+      median = coot::util::median_temperature_factor(graphics_info_t::molecules[imol].atom_sel.atom_selection,
+                                                     graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
+                                                     low_cut, high_cut,
+                                                     low_cut_flag,
+                                                     high_cut_flag);
    } else {
       std::cout << "WARNING:: no such molecule as " << imol << "\n";
    }
@@ -6955,16 +6979,29 @@ void post_python_scripting_window() {
 void
 run_command_line_scripts() {
 
-   if (graphics_info_t::command_line_scripts->size()) {
-      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts->size()
+   if (graphics_info_t::command_line_scripts.size()) {
+      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
 		<< " command line scripts to run\n";
-      for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
-	 std::cout << "    " << (*graphics_info_t::command_line_scripts)[i].c_str()
+      for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++)
+	 std::cout << "    " << graphics_info_t::command_line_scripts[i].c_str()
 		   << std::endl;
    }
 
-    for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
-       run_script((*graphics_info_t::command_line_scripts)[i].c_str());
+   // --------- scripts ------------
+
+   for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++) {
+      std::string fn = graphics_info_t::command_line_scripts[i];
+      std::cout << "calling run_script() for file " << fn << std::endl;
+      run_script(fn.c_str());
+   }
+
+   // --------- commands ------------
+   
+   for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
+      if (graphics_info_t::command_line_commands.is_python)
+         safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
+      else
+         safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
 
     for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
        if (graphics_info_t::command_line_commands.is_python)
@@ -6972,24 +7009,24 @@ run_command_line_scripts() {
        else
 	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
 
-    graphics_info_t g;
-    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
-       std::cout << "get accession code " << graphics_info_t::command_line_accession_codes[i]
-		 << std::endl;
-       std::vector<std::string> c;
-       c.push_back("get-eds-pdb-and-mtz");
-       c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
+   graphics_info_t g;
+   for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
+      std::cout << "get accession code " << graphics_info_t::command_line_accession_codes[i]
+                << std::endl;
+      std::vector<std::string> c;
+      c.push_back("get-eds-pdb-and-mtz");
+      c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
 
 #ifdef USE_GUILE
        std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
        safe_scheme_command(sc.c_str());
 #else
 #ifdef USE_PYTHON
-       std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
-       safe_python_command(pc.c_str());
+      std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
+      safe_python_command(pc.c_str());
 #endif
 #endif
-    }
+   }
 }
 
 void run_update_self_maybe() { // called when --update-self given at command line
@@ -7265,6 +7302,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
 void
 run_guile_script(const char *filename) {
 
+   std::cout << "debug:: run_guile_script() A on " << filename << std::endl;
 #ifdef USE_GUILE
    std::string thunk("(lambda() ");
    thunk += "(load ";
@@ -7272,6 +7310,7 @@ run_guile_script(const char *filename) {
    thunk += filename;
    thunk += "\"))";
 
+   std::cout << "debug:: run_guile_script() B on " << filename << std::endl;
    SCM handler = scm_c_eval_string ("(lambda (key . args) "
      "(display (list \"Error in proc:\" key \" args: \" args)) (newline))");
 

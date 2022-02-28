@@ -114,8 +114,8 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-	 
-      if (0) { //debug
+
+      if (false) { //debug
 	 for (int iv=0; iv<nV; iv++) { 
 	    std::cout << "vertex " << iv << " of " << nV << " " << V[iv] << std::endl;
 	 }
@@ -168,13 +168,14 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 	    n_non_H++;
       }
 	    
-      residue_info = dict_chem_comp_t(comp_id, comp_id, comp_id, group,
-				      n_all, n_non_H, desc_level);
+      residue_info = dict_chem_comp_t(comp_id, comp_id, comp_id, group, n_all, n_non_H, desc_level);
       // also fill atom_info with dict_atom objects
       for (int iat=0; iat<nResidueAtoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string ele(residue_atoms[iat]->element);
 	 dict_atom da(at->name, at->name, ele, "", std::pair<bool, float> (false, 0));
+         clipper::Coord_orth pos(at->x, at->y, at->z);
+         da.model_Cartn = std::make_pair(true, pos);
 	 atom_info.push_back(da);
       }
 
@@ -201,7 +202,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
 		     double dist = sqrt((pt_1-pt_2).lengthsq());
 		     double dist_esd = 0.02;
-		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd);
+		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd, 0, 0, false);
 		     bond_restraint.push_back(br);
 		     bond_pairs.push_back(atom_pair_t(at_1, at_2));
 		  }
@@ -862,6 +863,7 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
    }
    return r;
 }
+
 bool
 coot::dictionary_residue_restraints_t::is_hydrogen(unsigned int idx) const {
 

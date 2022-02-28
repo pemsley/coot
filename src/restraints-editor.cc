@@ -847,7 +847,7 @@ coot::restraints_editor::get_bond_restraints() const {
  	  (type.length() > 0)  &&
  	  (dist > 0.0)         &&
  	  (esd > 0.0)) { 
- 	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd);
+ 	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd, 0.0, 0.0, false);
 // 	 std::cout << "added a bond restraint ";
 // 	 std::cout << ":" << atom1 << ": :" << atom2 << ": :" << type << ": " << dist << " " << esd << std::endl;
 
@@ -1335,7 +1335,7 @@ void save_monomer_restraints_by_widget(GtkDialog *chooser) {
    coot::dictionary_residue_restraints_t *t =
       (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");
    t->write_cif(filename);
-} 
+}
 
 
 void restraints_editor_delete_restraint_by_widget(GtkWidget *w) {

@@ -41,7 +41,7 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
-std::vector<std::string> *graphics_info_t::command_line_scripts = 0;
+std::vector<std::string> graphics_info_t::command_line_scripts;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
@@ -1676,3 +1676,6 @@ Shader graphics_info_t::shader_for_tmeshes_with_shadows;
 Shader graphics_info_t::shader_for_meshes_with_shadows;
 HUDTextureMesh graphics_info_t::tmesh_for_shadow_map = HUDTextureMesh("tmesh-for-shadow-map");
 
+bool graphics_info_t::stereo_style_2010 = false;
+
+bool graphics_info_t::ignore_pseudo_zeros_for_map_stats = true;

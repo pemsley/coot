@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 current_exe_dir=$(dirname $0)
 

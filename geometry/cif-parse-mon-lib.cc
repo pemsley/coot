@@ -251,6 +251,8 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 					 std::string type,
 					 mmdb::realtype value_dist,
 					 mmdb::realtype value_dist_esd,
+					 mmdb::realtype value_dist_nuclear,
+					 mmdb::realtype value_dist_nuclear_esd,
 					 dict_bond_restraint_t::aromaticity_t arom_in,
                                          dict_bond_restraint_t::bond_length_type_t type_in) {
 
@@ -262,11 +264,18 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
    // add a bond restraint to the list for comp_id.
    // The list container for comp_id is a dictionary_residue_restraints_t
 
+   bool value_dist_nuclear_was_set = false;
+   if (value_dist_nuclear_esd > 0.0)
+      value_dist_nuclear_was_set = true;
+
    add_restraint(comp_id, imol_enc, dict_bond_restraint_t(atom_id_1,
 							  atom_id_2,
 							  type,
 							  value_dist,
 							  value_dist_esd,
+							  value_dist_nuclear,
+							  value_dist_nuclear_esd,
+                                                          value_dist_nuclear_was_set,
 							  arom_in,
                                                           type_in));
 }

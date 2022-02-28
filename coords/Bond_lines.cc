@@ -613,6 +613,10 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				 // Bonded to an atom of the same element.
 				 //
 
+                                 // std::cout << "Bonding here with "
+                                 // << coot::atom_spec_t(atom_selection_1[atom_index_1]) << " and "
+                                 // << coot::atom_spec_t(atom_selection_2[atom_index_2]) << std::endl;
+
 				 if (is_hydrogen(element_1)) { // both are hydrogen
 				    float len2 = (atom_1_pos - atom_2_pos).amplitude_squared();
 				    if (len2 < 1.3) { // protection for weirdness, // was 1.0
@@ -622,16 +626,15 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				    }
 				 } else {
                                     // should this test be here or further up?
-                                    // Don't bond water Oxygens to each other
+                                    // Don't bond water Oxygens to each other... 20210817-PE - or anything else.
                                     bool do_it = true;
                                     if (atom_p_1->residue != atom_p_2->residue) {
                                        std::string res_name_1(atom_p_1->residue->GetResName());
-                                       if (res_name_1 == "HOH") {
-                                          std::string res_name_2(atom_p_2->residue->GetResName());
-                                          if (res_name_2 == "HOH") {
-                                             do_it = false;
-                                          }
-                                       }
+                                       if (res_name_1 == "HOH")
+                                          do_it = false;
+                                       std::string res_name_2(atom_p_2->residue->GetResName());
+                                       if (res_name_2 == "HOH")
+                                          do_it = false;
                                     }
 
                                     if (do_it) {

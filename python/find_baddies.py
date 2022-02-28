@@ -81,7 +81,7 @@ def validation_outliers_dialog(imol, imol_map):
                 pass
             else:
                 # if spec is a het-group then no rotamers for that (return False)
-                is_het = any(map(lambda item: residue_spec_match_qm(item, spec),
+                is_het = any(map(lambda item: residue_specs_match_qm(item, spec),
                                  het_groups_in_mol))
                 if is_het:
                     pass
@@ -95,10 +95,17 @@ def validation_outliers_dialog(imol, imol_map):
         return ret
 
     def molecule_atom_overlap_baddies():
+        l = molecule_atom_overlaps(imol)
+        if isinstance(l, list):
+            return l
+        else:
+            info_dialog(l)
+            return []
+
         return molecule_atom_overlaps(imol)
 
     def filter_molecule_atom_overlap_baddies(mao_baddies):
-        baddie_limit = 2.2  # more than this is marked as a baddie
+        baddie_limit = 2.0  # more than this is marked as a baddie, was 2.2. Is 2.0 good?
         return filter(lambda mao_item: mao_item['overlap-volume'] > baddie_limit, mao_baddies)
 
     def non_pro_cis_peptide_baddies():  # do the filter here - just for consistency
@@ -270,7 +277,8 @@ def validation_outliers_dialog(imol, imol_map):
 
             # Paul is not sure that he likes a score of
             # 0.0 meaning "Missing sidechain"
-            # we have lost some information on the way
+            # we have lost some information on the way.
+            # 20200511-PE Yeah, like the fact that the residue was RNA!
             #
             score_string = '{:6.2f} %'.format(score)
             ms_string = "Missing Sidechain" if score == 0.0 else "Rotamer Outlier"

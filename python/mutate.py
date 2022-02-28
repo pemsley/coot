@@ -294,10 +294,11 @@ def poly_ala(imol, res_type=False):
 
 def delete_sidechain_range(imol, chain_id, resno_start, resno_end):
 
-    coot.make_backup(imol)
-    backup_mode = coot.backup_state(imol)
-    coot.turn_off_backup(imol)
-    for resno in coot_utils.number_list(resno_start, resno_end):
-        coot.delete_residue_sidechain(imol, chain_id, resno, "", 0)
-    if (backup_mode == 1):
-        coot.turn_on_backup(imol)
+    if coot_utils.valid_model_molecule_qm(imol):
+        coot.make_backup(imol)
+        backup_mode = coot.backup_state(imol)
+        coot.turn_off_backup(imol)
+        for resno in coot_utils.number_list(resno_start, resno_end):
+            coot.delete_residue_sidechain(imol, chain_id, resno, "", 0)
+        if (backup_mode == 1):
+            coot.turn_on_backup(imol)

@@ -190,7 +190,6 @@ int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc) {
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
 	       mmdb::Residue *residue_p;
-	       mmdb::Atom *at;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  name = residue_p->GetResName();

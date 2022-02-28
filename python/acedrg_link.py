@@ -202,6 +202,7 @@ def click_select_residues_for_acedrg(window, combobox_bond_order, delete_atom_en
                 else:
                     if not imol_click_1 == imol_click_2:
                         coot.add_status_bar_text("These residues are not in the same molecule")
+                        return False
                     else:
                         print("got here A")
                         imol = imol_click_1

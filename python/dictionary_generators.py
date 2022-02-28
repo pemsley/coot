@@ -5,7 +5,7 @@
 def generate_molecule_from_mmcif(comp_id, mmcif_file_name):
 
    coot.read_cif_dictionary(mmcif_file_name)
-   coot.get_monomer(comp_id)
+   return coot.get_monomer(comp_id)
 
 # return a molecule number. Return -1 on fail.
 #
@@ -57,7 +57,7 @@ def generate_molecule_from_mmcif_by_dict_gen(comp_id, mmcif_file_name):
         #
         working_dir = coot_utils.get_directory("coot-acedrg")
         args = ["-M", "-r", comp_id, "-c", mmcif_file_name]
-        # BL says:: different args tp above?! Wonder why!? Need to check.
+        # BL says:: different args to above?! Wonder why!? Need to check.
         dict_gen("acedrg", args, working_dir)
                 
             

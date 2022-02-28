@@ -705,6 +705,12 @@ def fill_option_menu_with_mol_options(menu, filter_function):
 def fill_option_menu_with_map_mol_options(menu):
     return fill_option_menu_with_mol_options(menu, coot_utils.valid_map_molecule_qm)
 
+def fill_option_menu_with_map_mol_with_associated_data_options(menu):
+    return fill_option_menu_with_mol_options(menu, valid_map_with_associated_data_molecule_qm)
+
+def fill_option_menu_with_difference_map_mol_options(menu):
+    return fill_option_menu_with_mol_options(menu, is_difference_map_qm)
+
 # Helper function for molecule chooser.  Not really for users.
 #
 # Return a list of models, corresponding to the menu items of the
@@ -763,25 +769,49 @@ def fill_combobox_with_number_options(combobox, number_list, active_value):
 #
 # Get rid of this. Search for references and replace them
 #
-def get_option_menu_active_molecule(option_menu, model_mol_list):
 
-    model = option_menu.get_model()
-    active_item = option_menu.get_active()
+# 20220228-PE commented out on merge - let's usee get_combobox_active_molecule() now
+# def get_option_menu_active_molecule(option_menu, model_mol_list):
+
+#     model = option_menu.get_model()
+#     active_item = option_menu.get_active()
+#     # combobox has no children as such, so we just count the rows
+#     children = len(model)
+
+#     if (children == len(model_mol_list)):
+#         try:
+#             all_model = model[active_item][0]
+#             imol_model, junk = all_model.split(' ', 1)
+
+#             return int(imol_model)
+#         except:
+#             print("INFO:: could not get active_item")
+#             return False
+#     else:
+#         print("Failed children length test : ", children, model_mol_list)
+#         return False
+#        print "get_option_menu_active_molecule(): Failed children length test : ",children, model_mol_list
+#        return False
+
+def get_combobox_active_molecule(combobox, model_mol_list):
+
+    model = combobox.get_model()
+    active_item = combobox.get_active()
     # combobox has no children as such, so we just count the rows
     children = len(model)
 
     if (children == len(model_mol_list)):
-        try:
-            all_model = model[active_item][0]
-            imol_model, junk = all_model.split(' ', 1)
-
-            return int(imol_model)
-        except:
-            print("INFO:: could not get active_item")
-            return False
+       try:
+          all_model = model[active_item][0]
+          imol_model, junk = all_model.split(' ', 1)
+       
+          return int(imol_model)
+       except:
+          print("WARNING:: could not get active_item", combobox)
+          return False
     else:
-        print("Failed children length test : ", children, model_mol_list)
-        return False
+       print("WARNING:: get_combobox_active_molecule(): Failed children length test : ", children, model_mol_list)
+       return False
 
 
 # Get rid of this also
@@ -2073,6 +2103,25 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
     window.show_all()
     return [inside_vbox, window]
+
+def dialog_box_of_buttons_from_specs(window_name, geometry,
+                                     imol, specs):
+
+   # not needed, why here Paul?
+   #func = [cmd2str(set_go_to_atom_molecule, imol),
+   #        cmd2str(set_go_to_atom_chain_residue_atom_name,
+   #                chain_id, res_no, atom_name)]
+
+   buttons = []
+   for spec in specs:
+      label = residue_spec_to_string(spec)
+      cbf = [cmd2str(set_go_to_atom_molecule, imol),
+             cmd2str(set_go_to_atom_chain_residue_atom_name,
+                     residue_spec_to_chain_id(spec),
+                     residue_spec_to_res_no(spec), " C  ")]
+      buttons.append([label, cbf])
+
+   return dialog_box_of_buttons(window_name, geometry, buttons, " Close ")
 
 # This is exported outside of the box-of-buttons gui because the
 # clear_and_add_back function (e.g. from using the check button)
@@ -3941,125 +3990,106 @@ def associate_sequence_with_chain_gui(sequence_format="FASTA", do_alignment=Fals
 #
 def alignment_mismatches_gui(imol):
 
-    # Return CA if there is such an atom in the residue, else return
-    # the first atom in the residue.
-    #
-    def get_sensible_atom_name(res_info):
-        chain_id = res_info[2]
-        res_no = res_info[3]
-        ins_code = res_info[4]
-        residue_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
-        if not residue_atoms:
-            return " CA "  # wont work of course
-        else:
-            for atoms in residue_atoms:
-                if (atoms[0][0] == " CA "):
-                    return " CA "
-            return residue_atoms[0][0][0]
+   # Return CA if there is such an atom in the residue, else return
+   # the first atom in the residue.
+   #
+   def get_sensible_atom_name(res_info):
+      chain_id = res_info[2]
+      res_no   = res_info[3]
+      ins_code = res_info[4]
+      residue_atoms = residue_info(imol, chain_id, res_no, ins_code)
+      if not residue_atoms:
+         return " CA "  # wont work of course
+      else:
+         for atoms in residue_atoms:
+            if (atoms[0][0] == " CA "):
+               return " CA "
+         return residue_atoms[0][0][0]
+      
+   # main line
+   am = alignment_mismatches(imol)
 
-    # main line
-    am = coot.alignment_mismatches_py(imol)
+   if (am == []):
+      info_dialog("No sequence mismatches")
+   else:
+      if not am:
+         info_dialog("Sequence not associated - no alignment")
+      else:
+         #print "mutations", am[0]
+         #print "deletions", am[1]
+         #print "insertions", am[2]
 
-    if (am == []):
-        coot.info_dialog("No sequence mismatches")
-    else:
-        if not am:
-            coot.info_dialog("Sequence not associated - no alignment")
-        else:
-            # print "mutations", am[0]
-            # print "deletions", am[1]
-            # print "insertions", am[2]
+         # a button is a list [button_label, button_action]
+         def mutate_buttons():
+            ret_buttons = []
+            for res_info in am[0]:
+               chain_id = res_info[2]
+               res_no   = res_info[3]
+               ins_code = res_info[4]
+               button_1_label = "Mutate " + chain_id + \
+                                " " + str(res_no) + \
+                                " " + residue_name(imol, chain_id, res_no, ins_code) + \
+                                " to " + res_info[0]
+               button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  str(res_no) + ", " + \
+                                  "\'" + get_sensible_atom_name(res_info) + "\')"]
+               ret_buttons.append([button_1_label, button_1_action])
+            return ret_buttons
 
-            # a button is a list [button_label, button_action]
-            def mutate_buttons():
-                ret_buttons = []
-                for res_info in am[0]:
-                    chain_id = res_info[2]
-                    res_no = res_info[3]
-                    ins_code = res_info[4]
-                    res_name = coot.residue_name(imol, chain_id, res_no, ins_code)
-                    button_1_label = "Mutate " + chain_id + " " + str(res_no) + " " + res_name + " to " + res_info[0]
+         def delete_buttons():
+            ret_buttons = []
+            for res_info in am[1]:
+               chain_id = res_info[2]
+               res_no   = res_info[3]
+               ins_code = res_info[4]
+               button_1_label = "Delete " + chain_id + \
+                                " " + str(res_no)
+               button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  str(res_no) + ", " + \
+                                  "\'" + get_sensible_atom_name(res_info) + "\')"]
+               ret_buttons.append([button_1_label, button_1_action])
+            return ret_buttons
 
-                    def generator(imol, chain_id, res_no):
-                        func = lambda imol_c=imol, chain_id_c=chain_id, res_no_c=res_no: button_1_action(imol_c, chain_id_c, res_no_c)
-                        def button_1_action(imol, chain_id, res_no):
-                            print("debug:: button_1_action(): res_no:", res_no)
-                            nrbs_spec = coot.nearest_residue_by_sequence_py(imol, chain_id, res_no, ins_code)
-                            coot.set_go_to_atom_chain_residue_atom_name(chain_id, coot_utils.residue_spec_to_res_no(nrbs_spec), " CA ")
-                        def action(button):
-                            func(imol, chain_id, res_no)
-                        return action
+         def insert_buttons():
+            ret_buttons = []
+            for res_info in am[2]:
+               chain_id = res_info[2]
+               res_no   = res_info[3]
+               ins_code = res_info[4]
+               button_1_label = "Insert " + chain_id + \
+                                " " + str(res_no)
+               #button_1_action = "info_dialog(" + button_1_label + ")"
+               # oh dear, will that work? I dont think I can pass asignments
+               # here. Need to rethink this! FIXME
+               # messy but should work (without too much hazzle)
+               button_1_action = ["info_dialog(\'" + button_1_label + "\')",
+                                  "set_go_to_atom_chain_residue_atom_name(\'" + \
+                                  chain_id + "\', " + \
+                                  "nearest_residue_by_sequence(" + \
+                                  str(imol) + ", \'" + \
+                                  chain_id + "\', " + \
+                                  str(res_no) + ", " + \
+                                  "\'" + ins_code + "\')[2], " + \
+                                  "\' CA \')"]
+               ret_buttons.append([button_1_label, button_1_action])
+            return ret_buttons
 
-                    ret_buttons.append([button_1_label, generator(imol, chain_id, res_no)])
-                return ret_buttons
+         buttons  = delete_buttons()
+         buttons += mutate_buttons()
+         buttons += insert_buttons()
+         if (len(am) > 3):
+            # we have alignment text for info box
+            # protected for compatibiity reasons
+            alignments_as_text_list = am[3]
+            for alignment_text in alignments_as_text_list:
+               info_dialog_with_markup(alignment_text)
 
-            def delete_buttons():
-                ret_buttons = []
-                for res_info in am[1]:
-                    chain_id = res_info[2]
-                    res_no = res_info[3]
-                    ins_code = res_info[4]
-                    button_1_label = "Delete " + chain_id + " " + str(res_no)
-                    # button_1_action = ["coot.set_go_to_atom_molecule(" + str(imol) + ")",
-                    #                    "coot.set_go_to_atom_chain_residue_atom_name(\'" +
-                    #                    chain_id + "\', " +
-                    #                    str(res_no) + ", " +
-                    #                    "\'" + get_sensible_atom_name(res_info) + "\')"]
-
-                    def button_1_action(imol, chain_id, res_no, res_info):
-                        atom_name = get_sensible_atom_name(res_info)
-                        coot.set_go_to_atom_molecule(imol)
-                        coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
-
-                    def generator(imol, chain_id, res_no, res_info):
-                        func = lambda imol_c=imol, chain_id_c=chain_id, res_no_c=res_no, res_info_c=res_info: button_1_action(imol_c, chain_id_c, res_no_c, res_info_c)
-                        def button_1_action(imol, chain_id, res_no, res_info):
-                            atom_name = get_sensible_atom_name(res_info)
-                            coot.set_go_to_atom_molecule(imol)
-                            coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
-                        def action(button):
-                            func(imol, chain_id, res_no, res_info)
-                        return action
-
-                    ret_buttons.append([button_1_label, generator(imol, chain_id, res_no, res_info)])
-                return ret_buttons
-
-            def insert_buttons():
-                ret_buttons = []
-                for res_info in am[2]:
-                    chain_id = res_info[2]
-                    res_no = res_info[3]
-                    ins_code = res_info[4]
-                    button_label = "Insert " + chain_id + " " + str(res_no)
-                    #button_1_action = "info_dialog(" + button_1_label + ")"
-                    # oh dear, will that work? I dont think I can pass asignments
-                    # here. Need to rethink this! FIXME
-                    # messy but should work (without too much hazzle)
-                    # button_1_action = ["info_dialog(\'" + button_1_label + "\')",
-                    #                    "set_go_to_atom_chain_residue_atom_name(\'" +
-                    #                    chain_id + "\', " +
-                    #                    "nearest_residue_by_sequence(" +
-                    #                    str(imol) + ", \'" +
-                    #                    chain_id + "\', " +
-                    #                    str(res_no) + ", " +
-                    #                    "\'" + ins_code + "\')[2], " +
-                    #                    "\' CA \')"]
-
-                    def button_action(button):
-                        print("button action arg button:", button)
-                        # coot.info_dialog(button_label) wretched python. How do I capture button_label?
-                        # by using lambda arg_copy=arg: something(arg_copy)
-                        rnbs_spec = coot.nearest_residue_by_sequence_py(imol, chain_id, res_no, ins_code)
-                        coot.set_go_to_atom_chain_residue_atom_name(chain_id, coot_utils.residue_spec_to_res_no(rnbs_spec), " CA ")
-
-                    ret_buttons.append([button_label, button_action])
-                return ret_buttons
-
-            buttons = delete_buttons()
-            buttons += mutate_buttons()
-            buttons += insert_buttons()
-
-            dialog_box_of_buttons("Residue mismatches", [300, 300], buttons, "  Close  ")
+         dialog_box_of_buttons("Residue mismatches", [300, 300],
+                               buttons, "  Close  ")
 
 # Wrapper in that we test if there have been sequence(s) assigned to
 # imol before we look for the sequence mismatches
@@ -5364,6 +5394,10 @@ def add_module_ccp4():
     if coot_gui_api.main_menubar():
         add_module_ccp4_gui()
 
+
+def add_module_pdbe():
+   if coot_python.main_menubar():
+      add_module_pdbe_gui()
 
 def add_module_cryo_em_gui():
 

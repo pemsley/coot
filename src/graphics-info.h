@@ -28,6 +28,7 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
+#include "compat/coot-sysdep.h"
 // need gtk things
 #include <gtk/gtk.h>
 
@@ -740,6 +741,8 @@ class graphics_info_t {
    void run_post_manipulation_hook_py(int imol, int mode);
 #endif
 
+   // void run_post_read_model_hook(int imol); // now public as it is called from handle_read_draw_molecule()
+
    void run_post_set_rotation_centre_hook();
    // which uses the following...
 #ifdef USE_GUILE
@@ -1081,6 +1084,7 @@ public:
    enum stereo_eye_t { FRONT_EYE, LEFT_EYE, RIGHT_EYE };
    static stereo_eye_t which_eye;
    static glm::vec3 eye_position; // useful in projection (testing)
+   static bool stereo_style_2010;
 
    // return a vector of the current valid map molecules
    std::vector<int> valid_map_molecules() const;
@@ -1382,6 +1386,8 @@ public:
 
    static void set_rotation_centre(const clipper::Coord_orth &pt);
    void run_post_manipulation_hook(int imol, int mode);
+
+   void run_post_read_model_hook(int imol); // conditional compilation handled internally
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
@@ -2094,7 +2100,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
-   void update_geometry_graphs(int imol_moving_atoms); // convenience function
+   void update_geometry_graphs(int imol_moving_atoms); // convenience function - includes sequence view too!
    void update_validation_graphs(int imol);  // and ramachandran
    // 20211201-PE currently upadte_geometry
    void update_ramachandran_plot(int imol);
@@ -2131,7 +2137,7 @@ public:
    // scripting
    static short int guile_gui_loaded_flag;
    static short int python_gui_loaded_flag;
-   static std::vector<std::string> *command_line_scripts;
+   static std::vector<std::string> command_line_scripts;
    static coot::command_line_commands_t command_line_commands;
    static std::vector<std::string> command_line_accession_codes;
 
@@ -2151,6 +2157,7 @@ public:
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
    GtkWidget * get_sequence_view_is_displayed(int imol) const;
    static int nsv_canvas_pixel_limit;
+   void sequence_view_highlight_residue_maybe(mmdb::Atom *next_atom, GtkWidget *svc);
 
    // Geometry Graphs:
 
@@ -4401,7 +4408,16 @@ string   static std::string sessionid;
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
 
+   // this has a different API!
+   coot::util::sfcalc_genmap_stats_t
+   sfcalc_genmaps_using_bulk_solvent(int imol_model,
+                                     int imol_map_with_data_attached,
+                                     clipper::Xmap<float> *xmap_2fofc_p,
+                                     clipper::Xmap<float> *xmap_fofc_p);
+
    static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
+
+   static bool ignore_pseudo_zeros_for_map_stats;
 
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;

@@ -25,12 +25,12 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+// for timeval; needs to be moved before windows.h nowadays...
+#include <winsock2.h>
+
 #define HKL HKL_RENAMED
 #include <windows.h>
 #undef HKL
-
-// for timeval
-#include <winsock2.h>
 
 #define AddAtomA AddAtom
 #define GetAtomNameA GetAtomName

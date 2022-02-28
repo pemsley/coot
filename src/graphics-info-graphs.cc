@@ -398,11 +398,21 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spe
 	 }
       }
    }
+
+   // and the sequence view!
+   //
+   GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
+   if (graph) {
+      exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
+      if (sequence_view) {
+	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
+	 sequence_view->regenerate(mol);
+      }
+   }
 }
 
 void
-graphics_info_t::delete_residues_from_geometry_graphs(int imol,
-						      const std::vector<coot::residue_spec_t> &res_specs) {
+graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
 
 
    std::vector<coot::geometry_graph_type> graph_types;
@@ -1547,6 +1557,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 	 double occ_sum = coot::util::occupancy_sum(residue_atoms, n_residue_atoms);
 	 if (occ_sum > 0) {
             float distortion_max_abs = 132.0;
+            distortion_max_abs = 140; // 20220115-PE let's say
             float distortion_max = distortion_max_abs;
 	    residue_density_score /= occ_sum;
 	    std::string str = int_to_string(this_resno);
@@ -1561,7 +1572,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 
 	    // std::cout << "DEBUG::          max_grid_factor " << max_grid_factor
 	    // << " score " << residue_density_score << std::endl;
-	    double sf = residue_density_fit_scale_factor * 1.25;
+	    double sf = residue_density_fit_scale_factor * 0.72; // 20220115-PE  was 1.25;
 	    // high resolution maps have high grid factors (say 0.5) and high
 	    // residue_density_ scores (say 2.0)
 	    double distortion =  sf/(pow(max_grid_factor,3) * residue_density_score);

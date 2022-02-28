@@ -60,11 +60,43 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
 				atom_list[i].z(), std::string(""),
 				1.0,
 				30.0); // pass this? 20090201
+   }
+   have_cell = 0;
+   have_spacegroup = 0;
+}
+
+// ele is an optiona arg (default " O")
+coot::minimol::molecule::molecule(const std::vector<std::pair<clipper::Coord_orth, float>> &atom_list_with_estimated_b_factors,
+				  const std::string& residue_type,
+				  std::string atom_name,
+				  std::string chain_id,
+                                  const std::string &ele) {
+
+   // Constructing a fragment from a chain_id sets residues_offset to 0
+   // but doesn't add any residues
+   fragments.push_back(fragment(chain_id));
+   std::string element = ele;
+
+   // Each atom goes in its own residue (residue number offset by one
+   // c.f. the atom vector index)
+   //
+   for (unsigned int i=0; i<atom_list_with_estimated_b_factors.size(); i++) {
+      auto b_est = atom_list_with_estimated_b_factors[i].second;
+      fragments[0][i+1] = coot::minimol::residue(i+1); // atoms start at 0, residues at 1.
+      fragments[0][i+1].name = residue_type;  // not "WAT" says EJD - 030624
+      fragments[0][i+1].addatom(atom_name,
+				element,
+				atom_list_with_estimated_b_factors[i].first.x(),
+				atom_list_with_estimated_b_factors[i].first.y(),
+				atom_list_with_estimated_b_factors[i].first.z(), std::string(""),
+				1.0,
+				b_est); // pass this? 20090201
 				
    }
    have_cell = 0;
    have_spacegroup = 0;
 }
+
 
 coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
 

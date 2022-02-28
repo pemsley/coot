@@ -73,6 +73,10 @@ p  So we need to have this function external for c++ linking.
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include <gtk/gtk.h>
 
 #ifndef BEGIN_C_DECLS
@@ -376,9 +380,9 @@ return -1 if this is a map or closed.
  */
 int n_residues(int imol);
 
-/*! \brief return the atoms of residues in the molecule,
+/*! \brief return the ATOMs of residues in the molecule,
 
-return -1 if this is a map or closed.
+return -1 if this is a map or closed. HETATMs are not counted.
  */
 int n_atoms(int imol);
 
@@ -671,6 +675,12 @@ int make_updating_model_molecule(const char *filename);
 /* used by above, no API for this - also, not yet */
 /* int updating_refmac_refinement_json_timeout_function(gpointer data); */
 
+
+/*! \brief show the updating maps gui
+
+this function is called from callbacks.c and calls a python gui function
+*/
+void show_calculate_updating_maps_gui();
 
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();
@@ -1196,6 +1206,16 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 				const char *sigf_col,
 				int imol_coords);
 
+#ifdef USE_PYTHON
+/*! \brief Calculate structure factors and make a 2FoFC map and a Fo-Fc map updating the given
+   molecule numbers for those maps - if thase molecule ids are not valid maps, them generate
+   new maps (return the model number information in the returned object) */
+PyObject *calculate_maps_and_stats_py(int imol_model,
+                                      int imol_map_with_data_attached,
+                                      int imol_map_2fofc,
+                                      int imol_map_fofc);
+#endif
+
 /*! \brief Calculate structure factors from the model and update the given difference
            map accordingly */
 void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
@@ -1205,7 +1225,13 @@ void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_upd
            the imol_model molecule */
 void set_auto_updating_sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
 
-// gdouble* get_map_colour(int imol);
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but the 2fofc and difference map get updated automatically on modification of
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmaps(int imol_model, int imol_map_with_data_attached, int imol_updating_2fofc_map, int imol_updating_difference_map);
+
+
+/* gdouble* get_map_colour(int imol); delete on merge 20220228-PE */
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -2326,6 +2352,15 @@ void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 void zalman_stereo_mode();
 /*! \brief try to turn on stereo mode  */
 void hardware_stereo_mode();
+
+
+/*! \brief set the stereo mode (the relative view of the eyes)
+
+0 is 2010-mode
+1 is modern mode
+*/
+void set_stereo_style(int mode);
+
 /*! \brief what is the stero state?
 
   @return 1 for in hardware stereo, 2 for side by side stereo, else return 0. */
@@ -3924,11 +3959,12 @@ int  show_pointer_distances_state();
 /*! \brief scale the view by f
 
    external (scripting) interface (with redraw)
-    @param f the smaller f, the bigger the zoom, typical value 1.3*/
+    @param f the smaller f, the bigger the zoom, typical value 1.3.
+    Values outside the range 0.5 to 1.8 are filtered out */
 void scale_zoom(float f);
 /* internal interface */
 void scale_zoom_internal(float f);
-/*! \brief return the current zoom factor */
+/*! \brief return the current zoom factor i.e. get_zoom_factor() */
 float zoom_factor();
 
 /*! \brief set smooth scroll with zoom
@@ -3939,6 +3975,8 @@ void set_smooth_scroll_do_zoom(int i);
 int      smooth_scroll_do_zoom();
 float    smooth_scroll_zoom_limit();
 void set_smooth_scroll_zoom_limit(float f);
+
+/*! \brief set the zoom factor (absolute value) - maybe should be called set_zoom_factor() */
 void set_zoom(float f);
 
 /* \} */
@@ -4071,8 +4109,12 @@ short int is_valid_map_molecule(int imol);
 
 peaks within max_closeness (2.0 A typically) of a larger peak are not
 listed.
+
+the flag around_model_only_flag limits the peak list to those only within 4A
+of the selected model (useful for maps with molecular symmetry).
+
 */
-void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag);
+void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag, int around_model_only_flag);
 
 /* \brief set the max closeness (i.e. no smaller peaks can be within
    max_closeness of a larger peak)
@@ -6390,10 +6432,10 @@ void setup_base_pairing(int state);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                  sequence (assignment)                                   */
+/*                  sequence file (assignment)                              */
 /*  ----------------------------------------------------------------------- */
-/* section Sequence (Assignment) */
-/*! \name Sequence (Assignment) */
+/* section Sequence File (Assignment/Association) */
+/*! \name Sequence File (Assignment/Association) */
 /* \{ */
 
 /*! \brief Print the sequence to the console of the given molecule */
@@ -6415,7 +6457,7 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);
 /*! \brief Assign a sequence to a given molecule from (whatever) sequence
-  file. */
+  file by alignment. */
 void assign_sequence_from_file(int imol, const char *file);
 /*! \brief Assign a sequence to a given molecule from a simple string */
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq);
@@ -6423,6 +6465,9 @@ void assign_sequence_from_string(int imol, const char *chain_id_in, const char *
 void delete_all_sequences_from_molecule(int imol);
 /*! \brief Delete the sequence for a given chain_id from a given molecule */
 void delete_sequence_by_chain_id(int imol, const char *chain_id_in);
+
+/*! \brief Associate the sequence to the molecule - to be used later for sequence assignment (.c.f assign_pir_sequence)   */
+void associate_sequence_from_file(int imol, const char *file_name);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
@@ -6740,7 +6785,11 @@ void segment_map(int imol_map, float low_level);
 
 void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds);
 
+/*! \brief make a map histogram */
 void map_histogram(int imol_map);
+
+/*! \brief ignore pseudo-zeros when calculationg maps stats (default 1 = true) */
+void set_ignore_pseudo_zeros_for_map_stats(short int state);
 
 /* \} */
 

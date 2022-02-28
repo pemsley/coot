@@ -29,12 +29,12 @@
 global probe_command
 global reduce_command
 
-#probe_command = find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
-#if not probe_command:
-#    probe_command = "probe" # useless (?) fallback
+probe_command = find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
+if not probe_command:
+    probe_command = "probe" # useless (?) fallback
 
-#reduce_command = find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
-#if not reduce_command:
-#    reduce_command = "reduce" # useless (?) fallback
+reduce_command = find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
+if not reduce_command:
+    reduce_command = "reduce" # useless (?) fallback
 
     
