@@ -4308,6 +4308,98 @@
                                      ;; doesn't return a useful value.
                                      (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))))))
 
+(define (residues-in-chain imol chain-id-in)
+  (residues-matching-criteria imol (lambda (chain-id res-no ins-code serial-no) (string=? chain-id chain-id-in))))
+
+(define (chain-refine imol chain-id)
+  (let ((ls (residues-in-chain imol chain-id)))
+	(refine-residues imol ls)))
+
+(define (regularize-active-chain)
+   (using-active-atom
+      (let ((ls (residues-in-chain aa-imol aa-chain-id)))
+         (regularize-residues aa-imol ls))))
+
+(define (refine-active-fragment)
+  (using-active-atom
+   ;; needs a "don't count Hydrogen atom" mode
+   (let ((residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+     (if (list? residues)
+         (refine-residues aa-imol residues)
+	 (format #t "residues not a list!~%")))))
+
+(define (regularize-active-fragment)
+
+  (using-active-atom
+   ;; needs a "don't count Hydrogen atom" mode
+   (let ((residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+     (if (list? residues)
+         (regularize-residues aa-imol residues)
+	 (format #t "residues not a list!~%")))))
+
+(define (add-module-refine)
+
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "Refine")))
+
+        (add-simple-coot-menu-menuitem
+         menu "All-atom Refine"
+         (lambda ()
+           (using-active-atom
+            (let ((ls (all-residues aa-imol)))
+              (refine-residues aa-imol ls)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Chain Refine"
+         (lambda ()
+           (using-active-atom (chain-refine aa-imol aa-chain-id))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Contact Dots On"
+         (lambda ()
+           (set-do-coot-probe-dots-during-refine 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Contact Dots Off"
+         (lambda ()
+           (set-do-coot-probe-dots-during-refine 0)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Intermediate Atom Restraints On"
+         (lambda ()
+           (set-draw-moving-atoms-restraints 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Intermediate Atom Restraints Off"
+         (lambda ()
+           (set-draw-moving-atoms-restraints 0)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Refine Fragment"
+         refine-active-fragment)
+
+        (add-simple-coot-menu-menuitem
+         menu "Regularize Fragment"
+         regularize-active-fragment)
+
+        (add-simple-coot-menu-menuitem
+         menu "Regularize Chain"
+         regularize-active-chain)
+
+        (add-simple-coot-menu-menuitem
+         menu "Rotamer Goodness Dodecs On"
+         (lambda ()
+           (set-show-intermediate-atoms-rota-markup 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Rotamer Goodness Dodecs Off"
+         (lambda ()
+           (set-show-intermediate-atoms-rota-markup 0)))
+
+        )))
+
+
+
 
 ;; let the c++ part of coot know that this file was loaded:
 (set-found-coot-gui)

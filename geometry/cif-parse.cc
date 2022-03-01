@@ -656,7 +656,7 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
    coot::dictionary_residue_restraints_t blank_res_rest;
    blank_res_rest.residue_info = ri; // now mostly blank
    simple_monomer_descriptions[comp_id] = blank_res_rest;
-   
+
 //    std::cout << "Added [residue info :"
 // 	     << ri.comp_id << ": :"
 // 	     << ri.three_letter_code << ": " 

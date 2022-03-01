@@ -1499,35 +1499,21 @@ if True:
      #     Modules
      # ---------------------------------------------------------------------
 
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "CCP4",
-         lambda func: coot_gui.add_module_ccp4())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "Carbohydrate",
-         lambda func: gui_add_linked_cho.add_module_carbohydrate_gui())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "Cryo-EM",
-         lambda func: coot_gui.add_module_cryo_em())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "ProSMART",
-         lambda func: gui_prosmart.add_module_prosmart())
-
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "SHELX",
-         lambda func: shelx_extensions.add_module_shelx())
-
      import refine
 
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "Refine",
-         lambda func: refine.add_module_refine())
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "CCP4", lambda func: coot_gui.add_module_ccp4())
 
-     coot_gui.add_simple_coot_menu_menuitem(
-         submenu_modules, "User-defined Restraints...",
-         lambda func: add_module_user_defined_restraints())
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Carbohydrate", lambda func: gui_add_linked_cho.add_module_carbohydrate_gui())
+
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Cryo-EM", lambda func: coot_gui.add_module_cryo_em())
+
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "ProSMART", lambda func: gui_prosmart.add_module_prosmart())
+
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "SHELX", lambda func: shelx_extensions.add_module_shelx())
+
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Refine", lambda func: refine.add_module_refine())
+
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Restraints", lambda func: add_module_user_defined_restraints())
 
      # ---------------------------------------------------------------------
      #     Settings

@@ -1560,6 +1560,11 @@
 	   (add-module-cryo-em)))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-modules "Refine"
+	 (lambda ()
+	   (add-module-refine)))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-modules "Restraints"
 	 (lambda ()
 	   (add-module-restraints)))

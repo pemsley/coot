@@ -5514,7 +5514,71 @@ def add_module_ccp4_gui():
                                       lambda func: acedrg_link.acedrg_link_generation_control_window())
 
 
-# BL stuff
+def add_module_refine():
+
+   def chain_refine_active_atom(widget):
+      active_atom = active_residue()
+      if active_atom:
+         aa_imol     = active_atom[0]
+         aa_chain_id = active_atom[1]
+         all_residues = residues_in_chain(aa_imol, aa_chain_id)
+         refine_residues(aa_imol, all_residues);
+
+   def all_atom_refine_active_atom(widget):
+      active_atom = active_residue()
+      if active_atom:
+         aa_imol = active_atom[0]
+         all_residues_in_mol = all_residues(aa_imol)
+         refine_residues(aa_imol, all_residues_in_mol);
+
+   def refine_fragment_active_atom(w):
+      active_atom = active_residue()
+      print("###### active_atom", active_atom)
+      if active_atom:
+         aa_imol = active_atom[0]
+         aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue 
+         res_list = linked_residues_py(aa_res_spec, aa_imol, 1.7)
+         refine_residues(aa_imol, res_list);
+
+   def regularize_fragment_active_atom(w):
+      active_atom = active_residue()
+      if active_atom:
+         aa_imol = active_atom[0]
+         aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue 
+         res_list = linked_residues_py(aa_res_spec, aa_imol, 1.7)
+         regularize_residues(aa_imol, res_list);
+
+   def regularize_chain_active_atom(w):
+      active_atom = active_residue()
+      if active_atom:
+         aa_imol = active_atom[0]
+         aa_chain_id = active_atom[1]
+         all_residues = residues_in_chain(aa_imol, aa_chain_id)
+         regularize_residues(aa_imol, all_residues);
+      
+   if coot_python.main_menubar():
+      menu = coot_menubar_menu("Refine")
+
+      add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)
+
+      add_simple_coot_menu_menuitem(menu, "Chain Refine", chain_refine_active_atom)
+
+      # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+      add_simple_coot_menu_menuitem(menu, "Contact Dots On",  lambda widget: set_do_coot_probe_dots_during_refine(1))
+      add_simple_coot_menu_menuitem(menu, "Contact Dots Off", lambda widget: set_do_coot_probe_dots_during_refine(0))
+
+      add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints On",  lambda widget: set_draw_moving_atoms_restraints(1))
+      add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints Off", lambda widget: set_draw_moving_atoms_restraints(0))
+
+      add_simple_coot_menu_menuitem(menu, "Refine Fragment", refine_fragment_active_atom)
+
+      add_simple_coot_menu_menuitem(menu, "Regularize Fragment", regularize_fragment_active_atom)
+
+      add_simple_coot_menu_menuitem(menu, "Regularize Chain", regularize_chain_active_atom)
+
+      add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs On",  lambda w: set_show_intermediate_atoms_rota_markup(1))
+      add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs Off", lambda w: set_show_intermediate_atoms_rota_markup(0))
+
 
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
 
