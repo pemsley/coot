@@ -53,7 +53,8 @@ test_stats_SOURCES = test-stats.cc
 
 test_align_SOURCES = test-align.cc
 
-test_stats_LDADD = libcoot-analysis.la
+test_stats_LDADD = libcoot-analysis.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la
 
 test_cablam_LDADD = \
 	libcoot-analysis.la \
