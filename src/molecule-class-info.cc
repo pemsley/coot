@@ -201,7 +201,7 @@ molecule_class_info_t::setup_internal() {
    original_fphis_filled = 0;
    original_fobs_sigfobs_filled = false;
    original_fobs_sigfobs_fill_tried_and_failed = false;
-
+   original_r_free_flags_p = 0; // deleted on close_yourself()
 
    //  bond width (now changeable).
    bond_width = 3.0;
