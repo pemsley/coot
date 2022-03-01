@@ -1838,6 +1838,7 @@
            (imol-map-2 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0))
            (novalue-2 (set-map-sampling-rate 1.5))) ;; reset it
 
+       (set-ignore-pseudo-zeros-for-map-stats 0) ;; otherwise there are no usable grid points
        (let ((new-map (average-map (list (list imol-map-1 1)
                                          (list imol-map-2 1)))))
          (if (not (valid-map-molecule? new-map))
