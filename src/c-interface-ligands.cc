@@ -1809,8 +1809,14 @@ SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragme
 
    graphics_info_t g;
    std::vector<std::pair<std::string, std::string> > matching_comp_ids =
-      g.Geom_p()->matching_names(compound_name_fragment,
-				 allow_minimal_descriptions_flag);
+      g.Geom_p()->matching_names(compound_name_fragment, allow_minimal_descriptions_flag);
+
+   if (false) { // this was needed to see the bug in mmdb parser on long molecule names.
+      for (unsigned int i=0; i<matching_comp_ids.size(); i++) {
+         std::cout << " " << i << " " << matching_comp_ids[i].first << " " << matching_comp_ids[i].second
+                   << std::endl;
+      }
+   }
    std::vector<std::string> rv;
    for (unsigned int i=0; i<matching_comp_ids.size(); i++)
       rv.push_back(matching_comp_ids[i].first);

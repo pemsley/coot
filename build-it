@@ -2570,6 +2570,7 @@ mmdb_version=2.0.5
 mmdb_version=2.0.11
 mmdb_version=2.0.16
 mmdb_version=2.0.19
+mmdb_version=2.0.22
 # mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz

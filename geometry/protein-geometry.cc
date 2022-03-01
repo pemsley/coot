@@ -1983,6 +1983,8 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 	 std::pair<std::string, std::string> p(it->second.residue_info.comp_id,
 					       it->second.residue_info.name);
 	 v.push_back(p);
+      } else {
+         // std::cout << "No match for " << it->first << " " << it->second.residue_info.name << std::endl;
       }
    }
    return v;
