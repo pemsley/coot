@@ -112,8 +112,10 @@ install-data-local: install_side_chain_data
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql
 
-check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities \
+check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles  \
 		test-ligand test-tube-finder res-tracer
+
+# removed for now wrong build order: test-side-chain-densities
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
@@ -185,15 +187,17 @@ ligand_percentiles_LDADD = ./libcoot-ligand.la     \
 	$(top_builddir)/utils/libcoot-utils.la     \
 	$(top_builddir)/compat/libcoot-compat.la
 
-test_side_chain_densities_SOURCES = test-side-chain-densities.cc
-test_side_chain_densities_LDADD = \
-  ./libcoot-ligand.la \
-   $(top_builddir)/coot-utils/libcoot-map-utils.la \
-   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/coords/libcoot-coords.la        \
-   $(top_builddir)/geometry/libcoot-geometry.la \
-   $(top_builddir)/utils/libcoot-utils.la \
-   $(CLIPPER_LIBS) $(MMDB_LIBS)
+# wrong build order - coords depends on this directory (because it uses rotamer info)
+# solve by changing the directory for test-side-chain-densities to be in coords
+# test_side_chain_densities_SOURCES = test-side-chain-densities.cc
+# test_side_chain_densities_LDADD = \
+#   ./libcoot-ligand.la \
+#    $(top_builddir)/coot-utils/libcoot-map-utils.la \
+#    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+#    $(top_builddir)/coords/libcoot-coords.la        \
+#    $(top_builddir)/geometry/libcoot-geometry.la \
+#    $(top_builddir)/utils/libcoot-utils.la \
+#    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc
 #

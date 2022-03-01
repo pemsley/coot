@@ -1,4 +1,8 @@
 
+#ifndef MAKE_ENHANCED_LIGAND_TOOLS
+int main(int argc, char **argv) {return 0;}
+#else
+
 #include <string>
 #include "lidia-core/cod-atom-types.hh"
 #include "utils/coot-utils.hh"
@@ -124,3 +128,5 @@ int main(int argc, char **argv) {
       }
    }
 }
+
+#endif
