@@ -7,6 +7,18 @@
 
   o BUG-FIX:  Fix active item in Bond Parameters bond-width combobox
 
+  o BUG-FIX:  Now can parse cif files with long molecule names (Eugene Krissinel)
+
+  o BUG-FIX:  Fix bond orders in RNA and DNA
+
+  o BUG-FIX:  Fix crash when parsing data_lib in mmcif files
+
+  o BUG-FIX:  Fix Wikipedia redirect of molecule name
+
+  o BUG-FIX:  rename() is no longer used when installing curlew files
+
+  o BUG-FIX:  Fix crash on using the Generic Objects dialog Close button
+
 ----
 
 Release 0.9.7

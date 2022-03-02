@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include "stats.hh"
-#include "exp-fit.hh"
+#include "coot-utils/exp-fit.hh"
 
 int main(int argc, char **argv) {
 
