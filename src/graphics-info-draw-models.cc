@@ -35,8 +35,8 @@ graphics_info_t::draw_molecules_for_ssao() {
    int h = allocation.height;
 
    graphics_info_t g;
-   glm::mat4 model_mat      =     g.get_model_matrix();
-   glm::mat4 view_mat       =      g.get_view_matrix();
+   glm::mat4 model_mat      =      g.get_model_matrix();
+   glm::mat4 view_mat       =       g.get_view_matrix();
    glm::mat4 projection_mat = g.get_projection_matrix(do_orthographic_projection, w, h);
 
    for (int i=0; i<n_molecules(); i++) {
@@ -52,8 +52,10 @@ graphics_info_t::draw_molecules_for_ssao() {
       }
    }
 
+   draw_intermediate_atoms(PASS_TYPE_SSAO);
+   draw_intermediate_atoms_rama_balls(PASS_TYPE_SSAO);
+
 #if 0 // Nice things to have, but they need to work with shader_for_meshes_for_ssao.
-   draw_intermediate_atoms_rama_balls();
    draw_atom_pull_restraints();
    draw_instanced_meshes();
    draw_environment_graphics_object();
@@ -64,6 +66,7 @@ graphics_info_t::draw_molecules_for_ssao() {
 
 }
 
+// Models with a captial M.
 void
 graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
                             Shader *shader_for_meshes_p,

@@ -4346,7 +4346,8 @@ string   static std::string sessionid;
                                   const glm::mat4 &mvp,
                                   const glm::mat4 &view_rotation,
                                   float density_surface_opacity);
-   static gboolean render(bool render_to_screendump_framebuffer_flag=false, const std::string &output_file_name="coot-screendump.tga");
+   static gboolean render(bool render_to_screendump_framebuffer_flag=false,
+                          const std::string &output_file_name="coot-screendump.tga");
    static gboolean render_scene(); // like crows
    enum { PASS_TYPE_STANDARD, PASS_TYPE_FOR_SHADOWS, PASS_TYPE_SSAO};
    static void render_scene_with_x_blur();
@@ -4357,8 +4358,8 @@ string   static std::string sessionid;
    static void draw_map_molecules_with_shadows();
    static void draw_model_molecules();
    static void draw_model_molecules_with_shadows();
-   static void draw_intermediate_atoms();
-   static void draw_intermediate_atoms_rama_balls();
+   static void draw_intermediate_atoms(unsigned int pass_type);
+   static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);

@@ -874,7 +874,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 }
 
 void
-graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
+graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
 
    // this function gets called from draw_with_shadows() - but doesn't yet
    // use the shodows meshes shader.
@@ -885,7 +885,6 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 model_rotation = get_model_rotation();
 
-   Shader &shader = graphics_info_t::shader_for_meshes;
 
    molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
    glm::vec4 bgc(background_colour, 1.0);
@@ -896,8 +895,43 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
                 << " triangles" << std::endl;
    bool wireframe_mode = false;
    float opacity = 1.0f;
-   m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
-                           wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+
+   if (pass_type == PASS_TYPE_STANDARD) {
+      Shader &shader = shader_for_meshes;
+      m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
+                              wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+      Shader &shader = shader_for_meshes_for_ssao;
+      bool do_orthographic_projection = ! perspective_projection_flag;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      auto model_matrix = get_model_matrix();
+      auto view_matrix = get_view_matrix();
+      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+      m.molecule_as_mesh.draw_for_ssao(&shader, model_matrix, view_matrix, projection_matrix);
+   }
+
+   if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
+      Shader &shader = shader_for_meshes_shadow_map;
+      glm::vec3 dummy_eye_position;
+      bool gl_lines_mode = false;
+      glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
+      unsigned int light_index = 0;
+      std::map<unsigned int, lights_info_t>::const_iterator it = lights.find(light_index);
+      if (it != lights.end()) {
+         graphics_info_t g;
+         const auto &light = it->second;
+         mvp_orthogonal = g.get_mvp_for_shadow_map(light.direction);
+      }
+      bool do_depth_fog = true;
+      glm::vec4 bg_col(background_colour, 1.0);
+      m.molecule_as_mesh.draw(&shader, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                              opacity, bg_col, gl_lines_mode, do_depth_fog, show_just_shadows);
+   }
 
 }
 
@@ -960,7 +994,11 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
 
 
 void
-graphics_info_t::draw_intermediate_atoms_rama_balls() {
+graphics_info_t::draw_intermediate_atoms_rama_balls(unsigned int pass_type) {
+
+   // 20220302-PE Currently I don't draw rama balls with instancing
+   //             It would be nice to have.
+   return;
 
    if (! moving_atoms_asc) return;
    if (! moving_atoms_asc->mol) return;
@@ -1492,9 +1530,9 @@ graphics_info_t::draw_molecules() {
 
    draw_outlined_active_residue();
 
-   draw_intermediate_atoms();
+   draw_intermediate_atoms(PASS_TYPE_STANDARD);
 
-   draw_intermediate_atoms_rama_balls();
+   draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
 
    draw_atom_pull_restraints();
 
@@ -1635,9 +1673,9 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_outlined_active_residue();
 
-   draw_intermediate_atoms();
+   draw_intermediate_atoms(PASS_TYPE_STANDARD);
 
-   draw_intermediate_atoms_rama_balls();
+   draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
 
    draw_atom_pull_restraints();
 
