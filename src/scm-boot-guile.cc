@@ -103,6 +103,9 @@ void my_wrap_scm_boot_guile(int argc, char** argv) {
 /*                                                char **argv), */
 /*                             void *closure); */
 
+   // so that we don't run scheme commands before guile has been booted:
+   graphics_info_t::scm_boot_guile_booted = true;
+
    scm_boot_guile(argc, argv, inner_main, NULL);
 
    std::cout << "you should not see this, inner_main should never return\n";

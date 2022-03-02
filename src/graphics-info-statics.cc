@@ -26,6 +26,11 @@ bool graphics_info_t::prefer_python = 0;
 #endif // USE_PYTHON test
 #endif // USE_GUILE_GTK test
 
+#ifdef USE_GUILE
+bool graphics_info_t::scm_boot_guile_booted = false; // false until my_wrap_scm_boot_guile() has been run
+#endif
+
+
 
 #else // USE_GUILE test (no guile path)
 #ifdef USE_PYTHON

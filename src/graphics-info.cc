@@ -1646,13 +1646,19 @@ void
 graphics_info_t::run_post_read_model_hook(int imol) {
 
    std::string s;
+
 #ifdef USE_GUILE
 
+   std::cout << "HHHHHHere 0 " << std::endl;
    s = "post-read-model-hook";
    SCM v = safe_scheme_command(s.c_str());
+   std::cout << "scm v " << v << std::endl;
    if (scm_is_true(scm_procedure_p(v))) {
+      std::cout << "HHHHHHere 1 " << std::endl;
       s += "(" + s + " " + int_to_string(imol) + ")";
       SCM result = safe_scheme_command(s);
+   } else {
+      std::cout << "HHHHHHere 2 " << std::endl;
    }
 #endif
 
@@ -6041,11 +6047,20 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
 SCM
 graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 
+   // if this happens, it's because reading the PDB file (from the command line) is happening too early
+   // i.e. before I've called my_wrap_scm_boot_guile()
+   //
+   if (! scm_boot_guile_booted) return SCM_BOOL_F;
+
+   // std::cout << "starting safe_scheme_command() with scheme_command " << scheme_command << std::endl;
+
+   // return SCM_BOOL_F;
+
    // FIXME!
    SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))");
 
    // I am undecided if I want this or not:
-   // std::cout << "debug:: safe running :" << scheme_command << ":" << std::endl;
+   // std::cout << "debug:: safe_scheme_command(): :" << scheme_command << ":" << std::endl;
    std::string thunk("(lambda() ");
    thunk += scheme_command;
    thunk += " )";

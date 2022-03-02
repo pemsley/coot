@@ -930,6 +930,10 @@ public:
 
    static bool do_expose_swap_buffers_flag;
 
+#ifdef USE_GUILE
+   static bool scm_boot_guile_booted; // false until my_wrap_scm_boot_guile() has been run
+#endif
+
    // static std::queue<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_draw_queue;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
