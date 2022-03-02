@@ -821,6 +821,18 @@ graphics_info_t::draw_model_molecules() {
 void
 graphics_info_t::draw_model_molecules_with_shadows() {
 
+   if (show_symmetry) {
+      for (int ii=n_molecules()-1; ii>=0; ii--) {
+         if (! is_valid_model_molecule(ii)) continue;
+         molecule_class_info_t &m = molecules[ii];
+         if (! m.draw_it) continue;
+         Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::vec4 bgc(background_colour, 1.0);
+         glm::mat4 mvp = get_molecule_mvp();
+         m.draw_symmetry(&symm_shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      }
+   }
 }
 
 void
@@ -1670,6 +1682,8 @@ graphics_info_t::draw_molecules_with_shadows() {
 
 
    // convert these to shadow versions
+
+   draw_model_molecules_with_shadows();
 
    draw_outlined_active_residue();
 
