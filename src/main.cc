@@ -193,6 +193,33 @@ GtkWidget *do_splash_screen(const command_line_data &cld) {
    return splash_screen;
 }
 
+std::string
+make_main_window_title() {
+
+   std::string version_string = VERSION;
+   std::string main_title = "Coot " + version_string;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   // main_title += " EL";
+#endif
+
+#ifdef COOT_MAIN_TITLE_EXTRA
+   main_title += COOT_MAIN_TITLE_EXTRA;
+#else
+   // if this is a pre-release, stick in the revision number too
+   if (version_string.find("-pre") != std::string::npos) {
+      main_title += " (revision count ";
+      main_title += coot::util::int_to_string(git_revision_count());
+      main_title += ")";
+   }
+#endif
+
+#ifdef WINDOWS_MINGW
+   main_title = "Win" + main_title;
+#endif
+
+   return main_title;
+}
+
 void do_main_window(const command_line_data &cld) {
 
    GtkWidget *window1 = create_window1();
@@ -344,6 +371,9 @@ bool init_from_gtkbuilder() {
 
       if (main_window)
          graphics_info_t::set_main_window(main_window);
+
+      std::string main_title = make_main_window_title();
+      gtk_window_set_title(GTK_WINDOW(main_window), main_title.c_str());
 
       graphics_info_t::statusbar = sb;
 
