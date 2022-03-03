@@ -3760,6 +3760,17 @@ molecule_class_info_t::make_colour_table() const {
          colour_table[icol] = cc.to_glm();
       }
    }
+   // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)
+   // I guess the bonds_box for the remaining atoms (there are none of them) is incorrectly constructed.
+   // FIXME later.
+   // Note: we were called fromm this function:
+   // void
+   // molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
+   //                              const std::set<int> &no_bonds_to_these_atoms)
+   //
+   if (bonds_box.n_consolidated_atom_centres > bonds_box.num_colours) {
+      colour_table = std::vector<glm::vec4>(bonds_box.n_consolidated_atom_centres, glm::vec4(0.6f, 0.0f, 0.6f, 1.0f));
+   }
    return colour_table;
 }
 
@@ -3786,6 +3797,16 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
    if (atom_sel.mol) {
 
       std::vector<glm::vec4> colour_table = make_colour_table();
+
+      if (false) {
+         // when refining a ligand, the "remaining partos of the molecule" should be empty but has bonds_box.n_consolidated_atom_centres
+         // non zero. It should be zero. Fix later.
+         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() colour_table size " << colour_table.size() << std::endl;
+         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.num_colours " << bonds_box.num_colours << std::endl;
+         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres " << bonds_box.n_consolidated_atom_centres
+                   << std::endl;
+      }
+
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {

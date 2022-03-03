@@ -29,6 +29,9 @@ Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
    // missing residue loops
    // and rama balls if intermediate atoms.
 
+   if (colour_table.empty())
+      std::cout << "ERROR:: :::::::::::::::::::::: empty colour_table() in Mesh::make_graphical_bonds() " << std::endl;
+
    clear();
 
    unsigned int n_bonds = 0;
