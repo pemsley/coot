@@ -10455,3 +10455,9 @@ Mon  7 Feb 17:14:06 GMT 2022
    into crashes, use --g-fatal-warnings on the command line
 
    but it might not help much (because it seems that the gtk_widget_unref() happens after the callback finishes.
+
+---
+Thu  3 Mar 23:42:55 GMT 2022
+
+   War and Peace is 600,000 words
+
