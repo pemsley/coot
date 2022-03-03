@@ -51,7 +51,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
    molecular_mesh_generator_t mmg;
-   std::string name = "Ribbons";
+   std::string name = atom_selection + colour_scheme + style;
    Material material;
 
    material.shininess = 150.0;        // 20210905-PE make these user settable. Perhaps they are? I should check.
@@ -75,9 +75,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
                std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris =
                   mmg.get_molecular_triangles_mesh(atom_sel.mol, chain_p, colour_scheme, style);
                Mesh mesh(verts_and_tris);
-               mesh.set_name("Mesh for Rainbow Ribbons");
+               mesh.set_name(atom_selection + colour_scheme + "Rainbow Ribbons");
                meshes.push_back(mesh);
-               // meshes.back().setup(&molecular_triangles_shader, material); // do I need the shader to do this!? 20210910-PE
                meshes.back().setup(material); // do I need the shader to do this!?
             }
          }

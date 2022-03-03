@@ -4892,7 +4892,7 @@ int clear_ball_and_stick(int imol);
 void set_model_molecule_representation_style(int imol, unsigned int mode);
 
 /*! \brief set show a ribbon/mesh for a given molecule */
-void set_show_mesh(int imol, int mesh_index, short int state);
+void set_show_molecular_representation(int imol, int mesh_index, short int state);
 
 /* removed from API brief display/undisplay the given additional representation  */
 void set_show_additional_representation(int imol, int representation_number, int on_off_flag);

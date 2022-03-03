@@ -3753,6 +3753,18 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+   // -------- Meshes control (i.e. the Meshes of molecule_class_info)
+   void set_show_molecular_representation(int imol, unsigned int mesh_idx, bool on_off);
+   void update_main_window_molecular_representation_widgets();
+   static void main_window_meshes_togglebutton_toggled(GtkToggleButton *button, gpointer *user_data);
+
+   int add_molecular_representation(int imol,
+                                    const std::string &atom_selection,
+				    const std::string &colour_scheme,
+				    const std::string &style);
+   void remove_molecular_representation(int imol, int idx);
+   
+
    // -------- Texture Meshes (for importing glTF models) -------------
    static std::vector<TextureMesh> texture_meshes;
    static void draw_texture_meshes();

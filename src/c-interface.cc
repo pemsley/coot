@@ -3320,12 +3320,15 @@ void set_model_molecule_representation_style(int imol, unsigned int mode) {
 
 
 /*! set show a ribbon/mesh for a given molecule */
-void set_show_mesh(int imol, int mesh_index, short int state) {
+void set_show_molecular_representation(int imol, int mesh_index, short int state) {
 
    if (is_valid_model_molecule(imol)) {
       if (mesh_index >= 0)
-         if (mesh_index < static_cast<int>(graphics_info_t::molecules[imol].meshes.size()))
-            graphics_info_t::molecules[imol].meshes[mesh_index].set_draw_mesh_state(state);
+         if (mesh_index < static_cast<int>(graphics_info_t::molecules[imol].meshes.size())) {
+            // graphics_info_t::molecules[imol].meshes[mesh_index].set_draw_mesh_state(state);
+            graphics_info_t g;
+            g.set_show_molecular_representation(imol, mesh_index, state);
+         }
       graphics_draw();
    }
 }

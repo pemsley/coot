@@ -28,7 +28,9 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
       std::string atom_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_selection_py));
       std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
       std::string style          = PyBytes_AS_STRING(PyUnicode_AsUTF8String(style_py));
-      status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+      // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+      graphics_info_t g;
+      status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
       graphics_draw();
 #endif
    }
@@ -49,7 +51,9 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
       std::string ColorScheme    = scm_to_locale_string(ColorScheme_scm);
       std::string style          = scm_to_locale_string(style_scm);
       std::cout << "Calling add_molecular_representation with " << atom_selection << " " << ColorScheme << "  " << style << std::endl;
-      status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+      // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+      graphics_info_t g;
+      status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
       graphics_draw();
 #endif
    }
@@ -60,14 +64,15 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
 void remove_molecular_representation(int imol, int rep_no) {
 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].remove_molecular_representation(rep_no);
+      // graphics_info_t::molecules[imol].remove_molecular_representation(rep_no);
+      graphics_info_t g;
+      g.remove_molecular_representation(imol, rep_no);
       graphics_draw();
    }
 }
 
 extern "C" void add_molecular_representation_test() {
 #ifdef USE_MOLECULES_TO_TRIANGLES
-   int status = -1;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
    if (active_atom.first) {
       int imol = active_atom.second.first;
@@ -76,7 +81,9 @@ extern "C" void add_molecular_representation_test() {
          std::string atom_selection = "//A";
          std::string ColorScheme = "colorRampChainsScheme";
          std::string style = "Ribbon";
-         status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+         // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+         graphics_info_t g;
+         g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
          graphics_info_t::graphics_draw();
       }
    }
