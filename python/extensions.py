@@ -131,7 +131,11 @@ if True:
      def add_module_user_defined_restraints():
          import user_define_restraints
          menu = coot_gui.coot_menubar_menu("Restraints")
-     
+
+     def add_module_restraints_both():
+         gui_prosmart.add_module_restraints()
+         add_module_user_defined_restraints()
+
      # ---------------------------------------------
      #           extensions
      # ---------------------------------------------
@@ -1513,7 +1517,7 @@ if True:
 
      coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Refine", lambda func: refine.add_module_refine())
 
-     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Restraints", lambda func: add_module_user_defined_restraints())
+     coot_gui.add_simple_coot_menu_menuitem(submenu_modules, "Restraints", lambda func: add_module_restraints_both())
 
      # ---------------------------------------------------------------------
      #     Settings

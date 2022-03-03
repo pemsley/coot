@@ -466,43 +466,44 @@ if True:
                 coot.set_extra_restraints_prosmart_sigma_limits(
                     aa_imol, low, high)
 
-        coot_gui.add_simple_coot_menu_menuitem(
-            menu,
-            "ProSMART restraints interesting limit to 0.5...",
-            lambda func: set_prosmart_sigma_limit_func(-0.5, 0.5)
-        )
+        # coot_gui.add_simple_coot_menu_menuitem(
+        #     menu,
+        #     "ProSMART restraints interesting limit to 0.5...",
+        #     lambda func: set_prosmart_sigma_limit_func(-0.5, 0.5)
+        # )
 
-        coot_gui.add_simple_coot_menu_menuitem(
-            menu,
-            "ProSMART restraints interesting limit to 2.5...",
-            lambda func: set_prosmart_sigma_limit_func(-2.5, 2.5)
-        )
+        # coot_gui.add_simple_coot_menu_menuitem(
+        #     menu,
+        #     "ProSMART restraints interesting limit to 2.5...",
+        #     lambda func: set_prosmart_sigma_limit_func(-2.5, 2.5)
+        # )
 
-        def set_prosmart_display_func(state):
-            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
-                coot.set_show_extra_restraints(aa_imol, state)
+        # def set_extra_restraints_display_func(state):
+        #     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+        #                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
+        #         coot.set_show_extra_restraints(aa_imol, state)
 
-        coot_gui.add_simple_coot_menu_menuitem(
-            menu,
-            "Undisplay Extra Restraints",
-            lambda func: set_prosmart_display_func(0))
+        # coot_gui.add_simple_coot_menu_menuitem(
+        #     menu,
+        #     "Undisplay Extra Restraints",
+        #     lambda func: set_extra_restraints_display_func(0))
 
-        coot_gui.add_simple_coot_menu_menuitem(
-            menu,
-            "Display ProSMART Extra Restraints",
-            lambda func: set_prosmart_display_func(1))
+        # coot_gui.add_simple_coot_menu_menuitem(
+        #     menu,
+        #     "Display Extra Restraints",
+        #     lambda func: set_extra_restraints_display_func(1))
 
-        def set_prosmart_display_CA_func(state):
-            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
-                coot.set_extra_restraints_representation_for_bonds_go_to_CA(
-                    aa_imol, state)
+        # def set_prosmart_display_CA_func(state):
+        #     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+        #                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
+        #         coot.set_extra_restraints_representation_for_bonds_go_to_CA(
+        #             aa_imol, state)
 
-        coot_gui.add_simple_coot_menu_menuitem(
-            menu,
-            "Extra Restraints to CA",
-            lambda func: set_prosmart_display_CA_func(1))
+        # ProSMART menu item - but who needs it?
+        # coot_gui.add_simple_coot_menu_menuitem(
+        #     menu,
+        #     "Extra Restraints to CA",
+        #     lambda func: set_prosmart_display_CA_func(1))
 
         coot_gui.add_simple_coot_menu_menuitem(
             menu,
