@@ -75,7 +75,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                         cho_restraints_from_models.add_cho_restraints_for_residue(imol, new_res_spec)
 
                         with AutoAccept():
-                            refine_residues(imol, [current_residue_spec] + ls)
+                            coot.refine_residues_py(imol, [current_residue_spec] + ls)
                         # make the new res the one to add to (remove starting bool)
                         current_residue_spec = new_res_spec[1:]
 
@@ -357,7 +357,7 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
             cho_restraints_from_models.add_cho_restraints_for_residue(imol, new_res_spec)
             coot.rotate_y_scene(100, 0.5)
             with AutoAccept():
-                refine_residues(imol, local_ls)
+                coot.refine_residues_py(imol, local_ls)
             if (not isinstance(new_res_spec, list)):
                 # badness
                 return False
@@ -435,7 +435,7 @@ def add_linked_residue_tree(imol, parent, tree):
     wm = coot.matrix_state()
     coot.set_matrix(wm / 4.)
     coot.set_residue_selection_flash_frames_number(1)
-    coot_utils.set_go_to_atom_molecule(imol)
+    coot.set_go_to_atom_molecule(imol)
     coot_utils.set_go_to_atom_from_res_spec(parent)
     previous_m = coot.default_new_atoms_b_factor()
     m = coot.median_temperature_factor(imol)
@@ -467,7 +467,7 @@ def add_linked_residue_tree(imol, parent, tree):
             process_tree(parent, tree, add_linked_residue_add_cho_function)
             coot.go_to_view_number(start_pos_view, 0)
             with AutoAccept():
-                refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
+                coot.refine_residues_py(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
 
             # add a test here that the tree here (centre of screen) matches a known tree.
             #
@@ -503,7 +503,7 @@ def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
             # refine that
             with AutoAccept():
                 residues = [aa_res_spec] + residues_near_residue(aa_imol, aa_res_spec, 1.9)
-                refine_residues(aa_imol, residues)
+                coot.refine_residues_py(aa_imol, residues)
     coot.set_matrix(wm)
 
 def delete_all_cho():
