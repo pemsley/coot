@@ -92,34 +92,41 @@ PyObject *go_to_ligand_py() {
 clipper::Coord_orth
 go_to_ligand_inner() {
 
+   // note to self: this function *starts* the view interpolation and finishes quickly
+
    clipper::Coord_orth new_rotation_centre;
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       int imol = pp.second.first;
       if (is_valid_model_molecule(imol)) {
+
 	 graphics_info_t g;
 	 clipper::Coord_orth rc(graphics_info_t::RotationCentre_x(),
 				graphics_info_t::RotationCentre_y(),
 				graphics_info_t::RotationCentre_z());
 	 coot::new_centre_info_t new_centre =
 	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc, graphics_info_t::go_to_ligand_n_atoms_limit);
-         std::cout << "debug:: go_to_ligand_inner(): new_centre: "
-                   << new_centre.position.format() << " info \""
-                   << new_centre.info_string << "\" "
-                   << new_centre.residue_spec << " type "
-                   << new_centre.type << " "
-                   << std::endl;
+         if (false)
+            std::cout << "debug:: go_to_ligand_inner(): new_centre: "
+                      << new_centre.position.format() << " info \""
+                      << new_centre.info_string << "\" "
+                      << new_centre.residue_spec << " type "
+                      << new_centre.type << " "
+                      << std::endl;
 	 new_rotation_centre = new_centre.position;
 	 if (new_centre.type == coot::NORMAL_CASE) {
-            std::cout << "-------------------- normal " << std::endl;
 	    // g.setRotationCentre(new_centre.position); // the target position is (should be) reached by the tick animation
                                                          // in coot::view_info_t::interpolate()
 	    g.perpendicular_ligand_view(imol, new_centre.residue_spec);
+            std::cout << "::::::::::::::::::::::::::: go_to_ligand_inner() C " << std::endl;
             std::string name = g.molecules[imol].get_residue_name(new_centre.residue_spec);
 
-	    g.update_things_on_move_and_redraw(); // now not done in perpendicular_ligand_view()
-	    std::string s = "Centred on residue ";
+            // 20220303-PE  No, we are still at the starting point when we get here.
+            // view_info_t::interpolate() sets up it's own animation function (glarea_tick_function() is not used)
+	    // g.update_things_on_move_and_redraw(); // now not done in perpendicular_ligand_view()
+
+	    std::string s = "INFO:: Centred on residue ";
 	    s += new_centre.residue_spec.chain_id;
 	    s+= " ";
 	    s += coot::util::int_to_string(new_centre.residue_spec.res_no);
@@ -131,9 +138,8 @@ go_to_ligand_inner() {
 	    s += coot::util::int_to_string(pp.second.first);
 	    s += ".";
 	    add_status_bar_text(s.c_str());
-            std::cout << "status bar: " << s << std::endl;
+            std::cout << "INFO:: status bar text: " << s << std::endl;
 	 } else {
-            std::cout << "-------------------- not normal " << std::endl;
 	    if (new_centre.type == coot::NO_LIGANDS) {
 	       std::string s = "No ligand (hetgroup) found in this molecule (#";
 	       s += coot::util::int_to_string(pp.second.first);

@@ -1296,6 +1296,7 @@ public:
    static float smooth_scroll_zoom_limit; // above this value we zoom, if zoom is on.
    static int   smooth_scroll_do_zoom;
    static bool smooth_scroll_on_going;
+   static int go_to_ligand_animate_view_n_steps; // 50 default
 
    static
    gboolean smooth_scroll_animation_func(GtkWidget *widget,

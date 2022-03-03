@@ -137,6 +137,8 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                   } else {
                                      graphics_info_t::smooth_scroll_on_going = false;
                                      do_continue = G_SOURCE_REMOVE;
+                                     graphics_info_t g;
+                                     g.update_things_on_move_and_redraw();
                                   }
                                   return do_continue;
                                };

@@ -171,6 +171,7 @@ coot::Cartesian graphics_info_t::smooth_scroll_delta;
 int    graphics_info_t::mouse_just_cliked     = 0;
 float  graphics_info_t::rotation_centre_cube_size = 0.1; // Angstroems
 short int graphics_info_t::quanta_like_zoom_flag = 0;
+int    graphics_info_t::go_to_ligand_animate_view_n_steps = 50;
 
 // graphics display size:
 int graphics_info_t::graphics_x_size = GRAPHICS_WINDOW_X_START_SIZE;
