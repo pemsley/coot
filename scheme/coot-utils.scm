@@ -3969,7 +3969,7 @@
                             (if (string? new-string)
                                 (let ((mol-file-name (get-drug-via-wikipedia new-string)))
                                   (if (string? mol-file-name)
-                                      (set! db-id-list (cons (cons "redirect" mol-file-name)) db-id-list))))))
+                                      (set! db-id-list (cons (cons "redirect" mol-file-name) db-id-list)))))))
 		      )
 		    lines)
 
