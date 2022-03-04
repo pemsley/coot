@@ -2426,7 +2426,12 @@ public:
    int set_imol_refinement_map(int imol);
    float get_estimated_map_weight(int imol_map);
 
-   void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
+   enum moving_atoms_do_rama_markup { MOVING_ATOMS_DO_RAMA_MARKUP_FALSE, MOVING_ATOMS_DO_RAMA_MARKUP_TRUE, MOVING_ATOMS_DO_RAMA_MARKUP_USE_INTERNAL_SETTING};
+   enum moving_atoms_do_rota_markup { MOVING_ATOMS_DO_ROTA_MARKUP_FALSE, MOVING_ATOMS_DO_ROTA_MARKUP_TRUE, MOVING_ATOMS_DO_ROTA_MARKUP_USE_INTERNAL_SETTING};
+
+   void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc,
+                                          unsigned int do_rama_markup=MOVING_ATOMS_DO_RAMA_MARKUP_USE_INTERNAL_SETTING,
+                                          unsigned int do_rota_markup=MOVING_ATOMS_DO_ROTA_MARKUP_USE_INTERNAL_SETTING);
    static short int moving_atoms_asc_type;
    void make_moving_atoms_restraints_graphics_object();
    static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;

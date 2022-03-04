@@ -2748,6 +2748,8 @@ graphics_info_t::set_baton_build_params(int istart_resno,
 void
 graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &button_name) const {
 
+   std::cout << "-------------------- debug in model_fit_refine_unactive_togglebutton() " << button_name << std::endl;
+
    if (model_fit_refine_dialog) {
       GtkWidget *toggle_button = lookup_widget(model_fit_refine_dialog, button_name.c_str());
       if (toggle_button)
@@ -2767,8 +2769,8 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
       toolbar_button_name = "model_toolbar_regularize_togglebutton";
    if (button_name == "model_refine_dialog_rigid_body_togglebutton")
       toolbar_button_name = "model_toolbar_rigid_body_fit_togglebutton";
-   if (button_name == "model_refine_dialog_rot_trans_toolbutton")
-      toolbar_button_name = "model_toolbar_rot_trans_toolbutton";
+   if (button_name == "model_refine_dialog_rot_trans_togglebutton")
+      toolbar_button_name = "model_toolbar_rot_trans_toolbutton"; // 20220304-PE what should this be?
    if (button_name == "model_refine_dialog_auto_fit_rotamer_togglebutton")
       toolbar_button_name = "model_toolbar_auto_fit_rotamer_togglebutton";
    if (button_name == "model_refine_dialog_rotamer_togglebutton")
@@ -2789,6 +2791,9 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
       toolbar_button_name = "model_toolbar_simple_mutate_togglebutton";
    if (button_name == "model_refine_dialog_fit_terminal_residue_togglebutton")
       toolbar_button_name = "model_toolbar_add_terminal_residue_togglebutton";
+
+   std::cout << "-------------------- debug in model_fit_refine_unactive_togglebutton() toolbar_button_name "
+             << toolbar_button_name << std::endl;
 
    // now, button_name may have been
    // model_refine_dialog_edit_phi_psi_togglebutton or

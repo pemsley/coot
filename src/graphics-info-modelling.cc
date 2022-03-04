@@ -106,6 +106,8 @@
 
 #include "utils/coot-utils.hh"
 
+#include "widget-from-builder.hh"
+
 
 void
 graphics_info_t::get_restraints_lock(const std::string &calling_function_name) {
@@ -3755,7 +3757,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
    if (good_settings) {
 
-      GtkWidget *widget = create_rotate_translate_obj_dialog();
+      // GtkWidget *widget = create_rotate_translate_obj_dialog();
+      GtkWidget *widget = widget_from_builder("rotate_translate_obj_dialog");
       GtkWindow *main_window = GTK_WINDOW(get_main_window());
       gtk_window_set_transient_for(GTK_WINDOW(widget), main_window);
 
@@ -3832,7 +3835,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       // 	     << std::endl;
       imol_moving_atoms = imol_rot_trans_object;
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-      make_moving_atoms_graphics_object(imol_rot_trans_object, rt_asc); // shallow copy rt_asc to moving_atoms_asc
+      make_moving_atoms_graphics_object(imol_rot_trans_object, rt_asc, false, false); // shallow copy rt_asc to moving_atoms_asc
 
       // set the rotation centre atom index:
       //   rot_trans_atom_index_rotation_origin_atom =
@@ -3843,7 +3846,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
       rot_trans_rotation_origin_atom = find_atom_in_moving_atoms(origin_atom_spec);
 
-      if (0) {
+      if (false) {
 	 if (rot_trans_rotation_origin_atom) {
 	    std::cout << "DEBUG:: atom spec in moving atom " << origin_atom_spec << " returns "
 		      << rot_trans_rotation_origin_atom << std::endl;
@@ -3864,6 +3867,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       std::string info_string("Drag on an atom to translate residue, Ctrl Drag off atoms to rotate residue");
       add_status_bar_text(info_string);
    }
+
 }
 
 
@@ -3983,7 +3987,8 @@ graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) {
 //                                gfloat page_size );
 
    for (unsigned int i=0; i<hscale_lab.size(); i++) {
-      GtkWidget *hscale = lookup_widget(dialog, hscale_lab[i].c_str());
+      // GtkWidget *hscale = lookup_widget(dialog, hscale_lab[i].c_str());
+      GtkWidget *hscale = widget_from_builder(hscale_lab[i]);
       GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(0.0, -180.0, 360.0, 0.1, 1.0, 0));
       gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
       g_signal_connect(G_OBJECT(adj),
@@ -4064,6 +4069,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       y_add = screen_vectors.screen_z.y() * x_diff * 0.002 * zoom;
       z_add = screen_vectors.screen_z.z() * x_diff * 0.002 * zoom;
    }
+   std::cout << "Here 1 with x_add, y_add z_add " << x_add << " " << y_add << " " << z_add << std::endl;
 
    if (do_rotation) {
 
@@ -4112,6 +4118,9 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 	 clipper::Coord_orth co(moving_atoms_asc->atom_selection[i]->x,
 				moving_atoms_asc->atom_selection[i]->y,
 				moving_atoms_asc->atom_selection[i]->z);
+
+         // std::cout << "rotating atom by " << x_diff * 0.018 << std::endl;
+
 	 clipper::Coord_orth new_pos =
 	    coot::util::rotate_around_vector(screen_vector, co, rotation_centre, x_diff * 0.018);
 	 moving_atoms_asc->atom_selection[i]->x = new_pos.x();
@@ -4121,12 +4130,12 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
    } else {
 
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+         // std::cout << "translating atom " << i << " by " << x_add << " " << y_add << " " << z_add << std::endl;
 	 moving_atoms_asc->atom_selection[i]->x += x_add;
 	 moving_atoms_asc->atom_selection[i]->y += y_add;
 	 moving_atoms_asc->atom_selection[i]->z += z_add;
       }
    }
-   int do_disulphide_flag = 0;
 
    if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS ||
@@ -4144,10 +4153,27 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    } else {
-      Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag);
+      int do_disulphide_flag = 0;
+      int do_bonds_to_hydrogens = 1;
+      bool do_rama_markup = false;
+      bool do_rota_markup = false;
+      Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, do_disulphide_flag, do_bonds_to_hydrogens,
+                                 do_rama_markup, do_rota_markup);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    }
+
+   // 20220304-PE I do this in make_moving_atoms_graphics_object() I should do it here too because
+   // draw_hud_geometry_bars() uses moving_atoms_molecule, not regularize_object_bonds_box. Hmm.
+   // (that sounds like bad planning).
+   //
+   // Where else do I set regularize_object_bonds_box? Presumably we need these lines there also.
+   //
+   moving_atoms_molecule.atom_sel = *moving_atoms_asc;
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
+   attach_buffers();
+   moving_atoms_molecule.make_mesh_from_bonds_box();
+
    graphics_draw();
 }
 

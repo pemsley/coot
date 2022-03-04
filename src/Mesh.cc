@@ -626,15 +626,19 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenVertexArrays(1, &vao);
-      // std::cout << "DEBUG:: setup_buffers() ######### first time: generated VAO " << vao << std::endl;
+      // std::cout << "DEBUG:: Mesh::setup_buffers() ######### \"" << name << "\" first time: generated VAO " << vao << std::endl;
       //   don't return before we set first_time = false at the end
+   } else {
+      // std::cout << "DEBUG:: Mesh::setup_buffers() ######### not first time \"" << name << "\" using VAO " << vao << std::endl;
    }
 
-   // std::cout << "Mesh::setup_buffers() using vao " << vao << std::endl;
+   // 20220304-PE wondering why binding of this VAO fails? It's because you forgot to setup_buffers()
+   // before making new geometry. (Hopefully I will never read this again)
+   //
    glBindVertexArray(vao);
    GLenum err = glGetError();
    if (err)
-      std::cout << "GL ERROR:: setup_buffers() on binding vao " << vao << " error " << err << std::endl;
+      std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << err << std::endl;
 
    unsigned int n_vertices = vertices.size();
 
@@ -665,7 +669,7 @@ Mesh::setup_buffers() {
 
 
    if (false)
-      std::cout << "debug:: in setup_buffers() is_instanced_colours for mesh with name \"" << name << "\""
+      std::cout << "debug:: in Mesh::setup_buffers() is_instanced_colours for mesh with name \"" << name << "\""
                 << " is_instanced_colours: " << is_instanced_colours
 		<< " (not that that should matter any more)" << std::endl;
 
@@ -678,15 +682,15 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
    } else {
       glDeleteBuffers(1, &index_buffer_id);
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
    }
 
    if (false)
@@ -697,10 +701,10 @@ Mesh::setup_buffers() {
    if (setup_buffers_for_gl_lines) {
       unsigned int n_bytes_for_gl_lines = n_bytes_for_triangles * 2;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_gl_lines, &lines_vertex_indices[0], GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL error setup_buffers - setup_buffers_for_gl_lines()\n";
+      err = glGetError(); if (err) std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
    } else {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_triangles, &triangles[0], GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL error setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
    }
 
    glDisableVertexAttribArray(0);

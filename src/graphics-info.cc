@@ -2052,7 +2052,10 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 //
 void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
-                                                   const atom_selection_container_t &asc) {
+                                                   const atom_selection_container_t &asc,
+                                                   unsigned int do_rama_markup_in, // default MOVING_ATOMS_DO_RAMA_MARKUP_USE_INTERNAL_SETTING,
+                                                   unsigned int do_rota_markup_in  // default MOVING_ATOMS_DO_ROTA_MARKUP_USE_INTERNAL_SETTING
+                                                   ) {
 
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
@@ -2168,6 +2171,11 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
       bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
+      // check the args:
+      if (do_rama_markup_in == MOVING_ATOMS_DO_RAMA_MARKUP_FALSE) do_rama_markup = false;
+      if (do_rama_markup_in == MOVING_ATOMS_DO_RAMA_MARKUP_TRUE ) do_rama_markup = true;
+      if (do_rota_markup_in == MOVING_ATOMS_DO_ROTA_MARKUP_FALSE) do_rota_markup = false;
+      if (do_rota_markup_in == MOVING_ATOMS_DO_ROTA_MARKUP_TRUE ) do_rota_markup = true;
 
       // wrap the filling of the rotamer probability tables
       //

@@ -91,7 +91,7 @@ Bond_lines_container::init() {
 // We arrange things like this because the other constructor now uses
 // construct_from_asc() too.
 //
-// This is a tiny bit clumsy having so many constructors.
+// This is a tiny bit confusing having so many constructors.
 // Heyho - historical cruft.
 //
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
@@ -102,7 +102,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   bool do_rota_markup,       // default argument false
 					   coot::rotamer_probability_tables *tables_p
 					   ) {
-
+   // teehee
+   // std::cout << "################################## yes this constructor ###########################" << std::endl;
 
    init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
@@ -2573,7 +2574,7 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 					      int atom_colour_type,
 					      coot::my_atom_colour_map_t *atom_colour_map_p) {
 
-   std::cout << "Here in handle_long_bonded_atom() " << coot::atom_spec_t(atom) << std::endl;
+   // std::cout << "Here in handle_long_bonded_atom() " << coot::atom_spec_t(atom) << std::endl;
 
    float bond_limit = 2.16; // A S-S bonds are 2.05A.  So we've added
 			    // some wiggle room (2.1 was too short for

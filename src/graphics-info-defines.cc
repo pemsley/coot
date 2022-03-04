@@ -1316,6 +1316,7 @@ graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
    int state = 0;
    graphics_info_t g;
    if (g.in_rot_trans_object_define) {
+
       if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) { 
          pick_info naii = atom_pick(event);
          if (naii.success == GL_TRUE) {

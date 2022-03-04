@@ -22597,6 +22597,7 @@ Sorry.
     </child>
   </object>
   <object class="GtkDialog" id="rotate_translate_obj_dialog">
+    <property name="width_request">320</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Rotation &amp; Translation</property>
     <property name="type_hint">dialog</property>

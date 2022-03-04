@@ -3149,14 +3149,13 @@ extern "C" G_MODULE_EXPORT
 void on_rotate_translate_obj_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                                                     gpointer         user_data)
 {
-  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
-				    "rotate_translate_obj_dialog");
+  GtkWidget *widget = widget_from_builder("rotate_translate_obj_dialog");
 
   // graphics_unsetup_rotate_translate_buttons(widget);
   rot_trans_reset_previous();
   accept_regularizement();
   store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
   clear_up_moving_atoms(); // redraw done here
 
 }
@@ -3166,13 +3165,12 @@ extern "C" G_MODULE_EXPORT
 void on_rotate_translate_obj_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                                                         gpointer         user_data)
 {
-  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
-				    "rotate_translate_obj_dialog");
+  GtkWidget *widget = widget_from_builder("rotate_translate_obj_dialog");
 
  /*   clear_moving_atoms_object(); // redraw done here */
   clear_up_moving_atoms();
   store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
   normal_cursor();
 }
 
@@ -5532,7 +5530,7 @@ on_help_chi_angles_dismiss_button_clicked_gtkbuilder_callback (GtkButton       *
 extern "C" G_MODULE_EXPORT
 void
 on_rotate_translate_obj_dialog_destroy_gtkbuilder_callback (GtkWidget       *object,
-                                        gpointer         user_data)
+                                                            gpointer         user_data)
 {
    /* need to save the position coordinates of dialog */
    rot_trans_reset_previous();

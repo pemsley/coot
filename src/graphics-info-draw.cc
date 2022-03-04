@@ -2978,6 +2978,8 @@ graphics_info_t::draw_hud_geometry_bars() {
                                           rotamer_markup_container_t *rotamer_markups,
                                           int n_rotamer_markups) {
 
+                              std::cout << "debug:: add_rotamer_bars() n_rotamer_markups: " << n_rotamer_markups
+                                        << " " << std::endl;
                               // this code has to be the same as the check_if_hud_bar_clicked code
 
                               // needs to be consitent with above and check_bars()
@@ -3059,9 +3061,21 @@ graphics_info_t::draw_hud_geometry_bars() {
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
 
    // add rotas to new_bars
+
+   // note to self - for rotation/translation, it's regularize_object_bonds_box that gets updated.
+   // moving_atoms_molecule is not used until make_moving_atoms_graphics_object().
+   // execute_rotate_translate_ready() calls make_moving_atoms_graphics_object()
+
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
          int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
+         if (false) {
+            std::cout << "Here are the rotamer markups: " <<  nrms << std::endl;
+            for (int ii=0; ii<nrms; ii++) {
+               auto &rm = moving_atoms_molecule.bonds_box.rotamer_markups[ii];
+               std::cout << "   " << rm.spec << " " << rm.pos.format() << " " << rm.col << std::endl;
+            }
+         }
          if (nrms > 0) {
             add_rotamer_bars(&new_bars, 3, x_base_for_hud_geometry_bars, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
          }

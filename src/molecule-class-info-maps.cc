@@ -1089,7 +1089,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    // This is called from update_map_triangles().
 
-   if (true)
+   if (false)
       std::cout << "#### setup_glsl_map_rendering() start: map_colour " << imol_no << " "
                 << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
 
@@ -1100,7 +1100,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vertices_and_triangles;
    auto &vertices = vertices_and_triangles.first;
    auto &triangles = vertices_and_triangles.second;
-   std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres; // for sorting
+   std::vector<std::pair<int, map_triangle_t> > map_triangle_centres; // for sorting
 
    std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
    glm::vec4 col(map_colour.red, map_colour.green, map_colour.blue, 1.0f);
