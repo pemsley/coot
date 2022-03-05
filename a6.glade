@@ -11331,11 +11331,6 @@ Do you want to continue?
     <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/rigid-body.png</property>
   </object>
-  <object class="GtkImage" id="image20">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">pixmaps/rtz.png</property>
-  </object>
   <object class="GtkImage" id="image21">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -11395,6 +11390,12 @@ Do you want to continue?
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/atom-at-pointer.png</property>
+  </object>
+  <object class="GtkImage" id="image33">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/rtz.png</property>
+    <property name="use_fallback">True</property>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
@@ -13025,8 +13026,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToolbar" id="main_window_model_toolbar">
-                    <property name="height_request">380</property>
+                  <object class="GtkToolbar" id="main_window_model_toolbar_top">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
@@ -13112,20 +13112,78 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="homogeneous">True</property>
                       </packing>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuBar" id="menubar_for_rotate_translate_items">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_rot_trans_togglebutton">
+                      <object class="GtkImageMenuItem" id="rotate_translate_item_menu_item_top">
+                        <property name="label" translatable="yes">         Rotate/Translate</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Rotation/Translation</property>
-                        <property name="use_underline">True</property>
-                        <property name="icon_widget">image20</property>
-                        <signal name="toggled" handler="on_model_toolbar_rot_trans_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <property name="image">image33</property>
+                        <property name="use_stock">False</property>
+                        <child type="submenu">
+                          <object class="GtkMenu">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkMenuItem" id="rotate_translate_item_residue_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Residue</property>
+                                <signal name="activate" handler="on_rotate_translate_item_residue_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="rotate_translate_item_residue_range_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Residue Range</property>
+                                <signal name="activate" handler="on_rotate_translate_item_residue_range_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="rotate_translate_item_chain_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Chain</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_rotate_translate_item_chain_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="rotate_translate_item_molecule_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Molecule</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_rotate_translate_item_molecule_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
-                      </packing>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolbar" id="main_window_model_toolbar_lower">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkToggleToolButton" id="model_toolbar_auto_fit_rotamer_togglebutton">
                         <property name="visible">True</property>
@@ -13322,70 +13380,11 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkMenuBar" id=" ">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="rotate_translate_item_menu_item_top">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">             Rotate/Translate</property>
-                        <property name="use_underline">True</property>
-                        <child type="submenu">
-                          <object class="GtkMenu">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_residue_item">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Residue</property>
-                                <signal name="activate" handler="on_rotate_translate_item_residue_item_activate_gtkbuilder_callback" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_residue_range_item">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Residue Range</property>
-                                <signal name="activate" handler="on_rotate_translate_item_residue_range_item_activate_gtkbuilder_callback" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_chain_item">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Chain</property>
-                                <property name="use_underline">True</property>
-                                <signal name="activate" handler="on_rotate_translate_item_chain_item_activate_gtkbuilder_callback" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_molecule_item">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Molecule</property>
-                                <property name="use_underline">True</property>
-                                <signal name="activate" handler="on_rotate_translate_item_molecule_item_activate_gtkbuilder_callback" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkMenuBar">
+                  <object class="GtkMenuBar" id="menubar_for_delete_items">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
@@ -13456,7 +13455,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -13496,7 +13495,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>

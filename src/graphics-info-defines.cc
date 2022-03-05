@@ -237,8 +237,6 @@ int
 graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
 					   const GdkModifierType &state) {
 
-   std::cout << "check_if_in_range_defines() start" << std::endl;
-
    int iv = 0;
 
    check_if_in_user_defined_define(event);
@@ -1316,8 +1314,6 @@ int
 graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
 
    graphics_info_t g;
-   std::cout << "check_if_in_rot_trans_define() start " << in_rot_trans_object_define << " " << g.rot_trans_object_type
-             << std::endl;
    
    int state = 0;
    if (g.in_rot_trans_object_define) {
