@@ -237,6 +237,8 @@ int
 graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
 					   const GdkModifierType &state) {
 
+   std::cout << "check_if_in_range_defines() start" << std::endl;
+
    int iv = 0;
 
    check_if_in_user_defined_define(event);
@@ -1311,13 +1313,33 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 } 
 
 int
-graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) { 
+graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
+
+   graphics_info_t g;
+   std::cout << "check_if_in_rot_trans_define() start " << in_rot_trans_object_define << " " << g.rot_trans_object_type
+             << std::endl;
    
    int state = 0;
-   graphics_info_t g;
    if (g.in_rot_trans_object_define) {
 
-      if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) { 
+      std::cout << "Here 1 " << std::endl;
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_RESIDUE) {
+         std::cout << "Here 2 " << std::endl;
+         pick_info naii = atom_pick(event);
+         if (naii.success == GL_TRUE) {
+            std::cout << "Here 3 " << std::endl;
+            g.rot_trans_atom_index_1 = naii.atom_index;
+            g.rot_trans_atom_index_2 = naii.atom_index;
+            g.imol_rot_trans_object = naii.imol;
+            std::cout << "Here 4 callign execute_rotate_translate_ready()" << std::endl;
+            g.execute_rotate_translate_ready();
+            fleur_cursor();
+            g.in_rot_trans_object_define = 0;
+            pick_pending_flag = 0;
+         }
+      }
+
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) {
          pick_info naii = atom_pick(event);
          if (naii.success == GL_TRUE) {
             molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
@@ -1330,7 +1352,7 @@ graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
 	       if (g.in_rot_trans_object_define == 2) { 
 		  if (naii.imol == g.imol_rot_trans_object) { 
 		     g.rot_trans_atom_index_2 = naii.atom_index;
-		     
+
 		     // now we are setup to move:
 		     g.execute_rotate_translate_ready();
 		     fleur_cursor();

@@ -8818,6 +8818,51 @@ on_display_control_window_glade_configure_event_gtkbuilder_callback
   return FALSE;
 }
 
+// void
+//nuser_function (GtkMenuItem *menuitem,
+//               gpointer     user_data)
+
+extern "C" G_MODULE_EXPORT
+void
+on_rotate_translate_item_residue_range_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                         gpointer user_data) {
+
+   std::cout << "on_rotate_translate_item_residue_range_item_activate_gtkbuilder_callback() " << std::endl;
+   set_rot_trans_object_type(ROT_TRANS_TYPE_ZONE);
+   do_rot_trans_setup(1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_rotate_translate_item_residue_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                    gpointer user_data) {
+   std::cout << "on_rotate_translate_item_residue_item_activate_gtkbuilder_callback" << std::endl;
+   set_rot_trans_object_type(ROT_TRANS_TYPE_RESIDUE);
+   do_rot_trans_setup(1);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_rotate_translate_item_molecule_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                    gpointer user_data) {
+
+   std::cout << "on_rotate_translate_item_molecule_item_activate_gtkbuilder_callback" << std::endl;
+   set_rot_trans_object_type(ROT_TRANS_TYPE_MOLECULE);
+   do_rot_trans_setup(1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_rotate_translate_item_chain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                 gpointer user_data) {
+
+   std::cout << "on_rotate_translate_item_chain_item_activate_gtkbuilder_callback()" << std::endl;
+   set_rot_trans_object_type(ROT_TRANS_TYPE_CHAIN);
+   do_rot_trans_setup(1);
+}
+
+
 
 extern "C" G_MODULE_EXPORT
 gboolean
@@ -10744,7 +10789,6 @@ on_model_toolbar_rot_trans_toolbutton_clicked_gtkbuilder_callback
                                         (GtkMenuToolButton *toolbutton,
 					 gpointer         user_data) {
 
-  printf("clicked!\n");
   do_rot_trans_setup(1);
 }
 

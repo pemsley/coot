@@ -3727,8 +3727,18 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       good_settings = 1;
    }
 
-   if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE) {
+   // with ROT_TRANS_TYPE_RESIDUE, the atom_2 is valid and set to be the same as atom_1
+   //
+   if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE || rot_trans_object_type == ROT_TRANS_TYPE_RESIDUE) {
+      
+      std::cout << "execute_rotate_translate_ready() idx_1 " << rot_trans_atom_index_1 << std::endl;
+      std::cout << "execute_rotate_translate_ready() idx_2 " << rot_trans_atom_index_2 << std::endl;
+      
       mmdb::Atom *atom2 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_2];
+
+      std::cout << "execute_rotate_translate_ready atom_1 " << atom1 << std::endl;
+      std::cout << "execute_rotate_translate_ready atom_2 " << atom2 << std::endl;
+
       char *chain_id_1 = atom1->GetChainID();
       char *chain_id_2 = atom2->GetChainID();
 
@@ -3807,7 +3817,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       std::pair<mmdb::Manager *, int> mp(0, 0);
 
 
-      if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE)
+      if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE || rot_trans_object_type == ROT_TRANS_TYPE_RESIDUE)
 	mp =
 	 coot::util::create_mmdbmanager_from_res_selection(molecules[imol_rot_trans_object].atom_sel.mol,
 							   sel_residues, n_sel_residues,
