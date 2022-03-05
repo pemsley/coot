@@ -3004,7 +3004,8 @@ void set_colour_by_chain(int imol) {
       std::set<int> s; // dummy
       short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
       bool g = false; // goodsell_mode
-      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g);
+      bool force_rebonding = false;
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g, force_rebonding);
       graphics_draw();
    }
    std::string cmd = "set-colour-by-chain";
@@ -3019,7 +3020,8 @@ void set_colour_by_chain_goodsell_mode(int imol) {
       std::set<int> s; // dummy
       short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
       bool g = true; // goodsell_mode
-      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g);
+      bool force_rebonding = false;
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g, force_rebonding);
       graphics_draw();
    }
    std::string cmd = "set-colour-by-chain";
@@ -3031,7 +3033,8 @@ void set_colour_by_chain_goodsell_mode(int imol) {
 void set_colour_by_molecule(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].make_colour_by_molecule_bonds();
+      bool force_rebonding = false;
+      graphics_info_t::molecules[imol].make_colour_by_molecule_bonds(force_rebonding);
       graphics_draw();
    }
    std::string cmd = "set-colour-by-molecule";
@@ -5172,11 +5175,13 @@ void set_go_to_atom_molecule(int imol) {
 void graphics_to_ca_representation(int imol) {
 
    graphics_info_t g;
-   if (is_valid_model_molecule(imol))
-      g.molecules[imol].ca_representation();
-   else
+   if (is_valid_model_molecule(imol)) {
+      bool force_rebonding = false;
+      g.molecules[imol].ca_representation(force_rebonding);
+   } else {
       std::cout << "WARNING:: no such valid molecule " << imol
-		<< " in graphics_to_ca_representation" << std::endl;
+                << " in graphics_to_ca_representation" << std::endl;
+   }
    graphics_draw();
 
    std::vector<std::string> command_strings;
@@ -5189,16 +5194,18 @@ void graphics_to_ca_representation(int imol) {
 void graphics_to_colour_by_chain(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].make_colour_by_chain_bonds();
+      bool force_rebonding = false;
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(force_rebonding);
       graphics_draw();
    }
 }
 
 
-void graphics_to_ca_plus_ligands_representation   (int imol) {
+void graphics_to_ca_plus_ligands_representation(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.molecules[imol].ca_plus_ligands_representation(g.Geom_p());
+      bool force_rebonding = false;
+      g.molecules[imol].ca_plus_ligands_representation(g.Geom_p(), force_rebonding);
       graphics_draw();
    }
    std::vector<std::string> command_strings;
@@ -5223,7 +5230,8 @@ void graphics_to_ca_plus_ligands_and_sidechains_representation   (int imol) {
 void graphics_to_bonds_representation(int imol) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      g.molecules[imol].bond_representation(g.Geom_p());
+      bool force_rebonding = false;
+      g.molecules[imol].bond_representation(g.Geom_p(), force_rebonding);
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-bonds-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));

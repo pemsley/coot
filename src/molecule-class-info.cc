@@ -474,7 +474,8 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       add_molecular_symmetry_matrices(); // process REMARK 350 BIOMT[123]
 
       if (molecule_is_all_c_alphas()) {
-         ca_representation();
+         bool force_rebonding = true;
+         ca_representation(force_rebonding);
       } else {
 
          if (! is_undo_or_redo) {
@@ -3579,15 +3580,23 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 }
 
 void
-   molecule_class_info_t::make_colour_by_chain_bonds() {
+molecule_class_info_t::make_colour_by_chain_bonds(bool force_rebond) {
+
    std::set<int> no_bonds_to_these_atom_indices;
-   make_colour_by_chain_bonds(no_bonds_to_these_atom_indices, true, false);
+   // c-only-flag, goodsell-flag
+   make_colour_by_chain_bonds(no_bonds_to_these_atom_indices, true, false, force_rebond);
 }
 
 void
 molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms,
                                                   bool change_c_only_flag,
-                                                  bool goodsell_mode) {
+                                                  bool goodsell_mode,
+                                                  bool force_rebonding) {
+
+   // this function is called as a result of chaning the bonding mode in the Display Manager.
+   // or by even opening the Display Manager.
+   // We don't want to rebond if we don't have to (i.e the mode requested is the current mode)
+   // so check the previous value of bonds_box_type so that we can know if it can be skipped.
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
@@ -3600,11 +3609,21 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
    bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
                                              // stupid when it comes to thining.
 
+   // testing previous values of bonds_box_type
+   if (bonds_box_type != coot::COLOUR_BY_CHAIN_BONDS)
+      force_rebonding = true;
+
+   if (goodsell_mode)
+      if (bonds_box_type != coot::COLOUR_BY_CHAIN_GOODSELL)
+         force_rebonding = true;
+
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
+
    if (goodsell_mode)
       bonds_box_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   make_glsl_bonds_type_checked(__FUNCTION__);
+   if (force_rebonding)
+      make_glsl_bonds_type_checked(__FUNCTION__);
 
    // I don't think that this should be here - it should be in caller function
    //
@@ -3614,9 +3633,10 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 }
 
 void
-molecule_class_info_t::make_colour_by_molecule_bonds() {
+molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 
-   //
+   //bool force_rebonding?
+
    Bond_lines_container bonds;
    bonds.do_colour_by_molecule_bonds(atom_sel, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
@@ -3661,6 +3681,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    // Delete this in due course
    graphics_info_t g; // urgh!  (But the best solution?)
 
+   bool force_rebonding = true; // if we get here, this must be true (?)
+
    if (! g.use_graphics_interface_flag) return;
 
    coot::protein_geometry *geom_p = g.Geom_p();
@@ -3680,10 +3702,10 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
       bool goodsell_mode = false;
       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL)
          goodsell_mode = true;
-      make_colour_by_chain_bonds(s, g.rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode);
+      make_colour_by_chain_bonds(s, g.rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode, force_rebonding);
    }
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
-      make_colour_by_molecule_bonds();
+      make_colour_by_molecule_bonds(force_rebonding);
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS)
       make_ca_plus_ligands_bonds(g.Geom_p());
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS)
@@ -4119,7 +4141,8 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
          std::cout << "   make_bonds_type_checked(): No bond to atom " << coot::atom_spec_t(at) << std::endl;
       }
    }
-      
+
+   bool force_rebonding = true; // if we are here then we need to do rebonding (I think)
 
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
@@ -4130,13 +4153,13 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
          bool goodsell_mode = false;
          make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
                                     g.rotate_colour_map_on_read_pdb_c_only_flag,
-                                    goodsell_mode);
+                                    goodsell_mode, force_rebonding);
       } else {
          if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
             bool goodsell_mode = true;
             make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
                                        g.rotate_colour_map_on_read_pdb_c_only_flag,
-                                       goodsell_mode);
+                                       goodsell_mode, force_rebonding);
          } else {
             if (bonds_box_type == coot::CA_BONDS) {
                make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);

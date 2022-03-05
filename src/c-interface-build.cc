@@ -118,7 +118,7 @@
 /*  ------------------------------------------------------------------------ */
 /*                   model/fit/refine functions:                             */
 /*  ------------------------------------------------------------------------ */
-void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
+ void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
    graphics_info_t::model_fit_refine_rotate_translate_zone_string = txt;
    // if we have the dialog open we shall change the label
    if (graphics_info_t::model_fit_refine_dialog) {
@@ -4305,7 +4305,7 @@ int find_secondary_structure_local(
 	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol,asc,g.Geom_p(),"SecStruc",1);
-	 g.molecules[imol].ca_representation();
+	 g.molecules[imol].ca_representation(true);
 	 if (g.go_to_atom_window) {
 	    g.set_go_to_atom_molecule(imol);
 	    g.update_go_to_atom_window_on_new_mol();

@@ -393,13 +393,20 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
 }
 
 void
-molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p) {
+molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p,
+                                           bool force_rebonding) {
 
    bool do_rebond = true;
    if (draw_hydrogens_flag && bonds_box_type == coot::NORMAL_BONDS)
       do_rebond = false;
    if (!draw_hydrogens_flag && bonds_box_type == coot::BONDS_NO_HYDROGENS)
       do_rebond = false;
+
+   if  (force_rebonding)
+      do_rebond = true;
+
+   if (bonds_box_type != coot::NORMAL_BONDS)
+      do_rebond = true;
 
    if (do_rebond) {
       std::set<int> dummy;
@@ -408,33 +415,40 @@ molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p)
 }
 
 void
-molecule_class_info_t::ca_representation() {
+molecule_class_info_t::ca_representation(bool force_rebonding) {
 
-   if (bonds_box_type != coot::CA_BONDS) {
-      bonds_box.clear_up();
+   if (bonds_box_type != coot::CA_BONDS || force_rebonding) {
 
-      std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
-      make_ca_bonds(2.4, 4.7);
-      bonds_box_type = coot::CA_BONDS;
+      if (force_rebonding) {
+         // std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
+         bonds_box.clear_up();
+         make_ca_bonds(2.4, 4.7);
+         bonds_box_type = coot::CA_BONDS;
+      }
    }
 }
 
 void
-molecule_class_info_t::ca_plus_ligands_representation(coot::protein_geometry *geom) {
+molecule_class_info_t::ca_plus_ligands_representation(coot::protein_geometry *geom, bool force_rebonding) {
 
    if (bonds_box_type != coot::CA_BONDS_PLUS_LIGANDS) {
-      bonds_box.clear_up();
-      make_ca_plus_ligands_bonds(geom);
-      bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+      if (force_rebonding) {
+         bonds_box.clear_up();
+         make_ca_plus_ligands_bonds(geom);
+         bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+      }
    }
 }
 
 void
 molecule_class_info_t::ca_plus_ligands_and_sidechains_representation(coot::protein_geometry *geom) {
 
-   bonds_box.clear_up();
-   make_ca_plus_ligands_and_sidechains_bonds(geom);
-   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+   bool force_rebonding = true; // for now
+   if (force_rebonding) {
+      bonds_box.clear_up();
+      make_ca_plus_ligands_and_sidechains_bonds(geom);
+      bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+   }
 }
 
 void
@@ -7276,7 +7290,8 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
          set_have_unit_cell_flag_maybe(true); // but will always have symmetry
 
          if (molecule_is_all_c_alphas()) {
-            ca_representation();
+            bool force_rebonding =  true;
+            ca_representation(force_rebonding);
          } else {
 
             short int do_rtops_flag = 0;

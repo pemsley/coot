@@ -1011,15 +1011,15 @@ public:        //                      public
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
-   void make_colour_by_chain_bonds(); // simple/usual interfce to below function
-   void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode);
-   void make_colour_by_molecule_bonds();
+   void make_colour_by_chain_bonds(bool rebonding_is_needed); // simple/usual interfce to below function
+   void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode, bool rebonding_is_needed);
+   void make_colour_by_molecule_bonds(bool rebonding_is_needed);
    void bonds_no_waters_representation();
    void bonds_sec_struct_representation();
    void ca_plus_ligands_sec_struct_representation(coot::protein_geometry *pg);
    void ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg);
-   void ca_representation();
-   void ca_plus_ligands_representation(coot::protein_geometry *pg);
+   void ca_representation(bool rebonding_is_needed);
+   void ca_plus_ligands_representation(coot::protein_geometry *pg, bool rebonding_is_needed);
    void ca_plus_ligands_and_sidechains_representation(coot::protein_geometry *pg);
    void b_factor_representation();
    void b_factor_representation_as_cas();
@@ -1645,7 +1645,7 @@ public:        //                      public
 
    // for the "Render As: " menu items:
    //
-   void bond_representation(const coot::protein_geometry *geom_p);
+   void bond_representation(const coot::protein_geometry *geom_p, bool rebonding_is_needed);
    //
 
    float bonds_colour_map_rotation; // OpenGL1
