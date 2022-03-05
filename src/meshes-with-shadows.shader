@@ -171,7 +171,7 @@ void main() {
 
    } else {
 
-      float scale_factor_n_lights = 1.0; // was 0.75. why is the dwarf blacksmith dark?
+      float scale_factor_n_lights = 1.2; // was 0.75. why is the dwarf blacksmith dark?
 
       output_colour = vec4(0,0,0,0);
       vec4 bg_col = background_colour;
@@ -252,10 +252,9 @@ void main() {
 	    vec4 add_col = ambient + diffuse * shadow_diffuse + specular * shadow_specular;
 
             // is this right? It looks a bit weird - but maybe it's the effects shader...
-
-            // add_col = mix(add_col, background_colour, 0.0000001 * fog_amount);
-            // add_col = background_colour;
-            // add_col.a = opacity;
+            
+            add_col = mix(add_col, background_colour, 0.0000001 * fog_amount);
+            add_col.a = opacity;
 
             // add_col = vec4(vec3(shadow_diffuse), 1.0);
 

@@ -54,7 +54,7 @@ void main() {
 
    out_colour = vec4(mix(t1a, t2a, mf));
 
-   // out_colour = t1a;
+   // out_colour = t2a;
 
    //    out_colour = vec4(vec3(d), 1.0);
 

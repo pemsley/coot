@@ -17,17 +17,15 @@ void main() {
 
 #version 330 core
 
-in vec2 TexCoords; // _transfer
+in vec2 TexCoords;
 
-uniform sampler2D colourTexture;
-uniform sampler2D depthTexture;
+uniform sampler2D screenTexture;
 
 layout(location = 0) out vec4 out_colour;
 
 void main() {
 
-   // vec3  sampled       = texture(colourTexture, TexCoords).rgb;
-   float depth_sampled = texture(depthTexture,  TexCoords).r;
+   vec3 result = texture(screenTexture, TexCoords).rgb;
    float kern[11];
    kern[ 0] = 1.0;
    kern[ 1] = 0.9607894391523232;
@@ -40,37 +38,26 @@ void main() {
    kern[ 8] = 0.07730474044329971;
    kern[ 9] = 0.039163895098987066;
    kern[10] = 0.01831563888873418;
-   vec2 tex_scale = 1.0/textureSize(colourTexture, 0); // the size of single texel
+   vec2 tex_scale = 1.0/textureSize(screenTexture, 0); // the size of single texel
 
-   vec3 result = vec3(0,0,0);
    int n_pixels_max = 10;
    vec3 sum = vec3(0.0, 0.0, 0.0);
-   float nf = 0.11;
+   float weight_sum = 0.0;
    for (int iy=-n_pixels_max; iy<=n_pixels_max; iy++) {
       float k = kern[abs(iy)];
-      vec2 offset_coords = TexCoords + vec2(0.0, 1.01 * tex_scale.y * iy);
-      vec3 t = texture(colourTexture, offset_coords).rgb;
-      sum += t * vec3(k,k,k) * vec3(nf);
+      vec2 offset_coords = TexCoords + vec2(0.0, tex_scale.y * iy);
+      float weight = 1.0;
+      vec3 t = texture(screenTexture, offset_coords).rgb;
+      sum += t * vec3(k,k,k) * weight;
+      weight_sum += weight;
    }
-   result = sum;
 
-   // result = texture(colourTexture, TexCoords).rgb;
+   result = 2.4 * sum/weight_sum;
+   // result = texture(screenTexture, TexCoords).rgb;
+
    out_colour = vec4(result, 1.0);
-
-   // if (depth_sampled > 0.49)
-   // out_colour = vec4(1,0,0,1);
-   // else
-   //       out_colour = vec4(0,0,1,1);
-
-   // out_colour = texture(depthTexture, TexCoords);
-   // out_colour = texture(colourTexture, TexCoords);
 
    // out_colour = vec4(0,1,1,0);
 
-   // out_colour = vec4(result, 1.0);
-
-   // out_colour = texture(colourTexture, TexCoords);
-
-   // out_colour = vec4(result, 1.0);
 }
 
