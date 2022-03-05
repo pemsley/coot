@@ -13,7 +13,7 @@
    height="48"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="rotamers.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/rotamers.png"
@@ -47,8 +47,8 @@
      inkscape:document-units="px"
      inkscape:window-width="993"
      inkscape:window-height="964"
-     inkscape:window-x="327"
-     inkscape:window-y="55"
+     inkscape:window-x="1403"
+     inkscape:window-y="90"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata2165">
@@ -67,11 +67,11 @@
      inkscape:groupmode="layer"
      transform="translate(0,32)">
     <path
-       style="fill:none;stroke:#12125a;stroke-width:4.40558767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#d5f06b;stroke-width:4.40558767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 37.024349,13.797206 24.209326,4.3434097 33.145314,-17.270584 14.584509,-29.365315"
        id="path2168" />
     <path
-       style="fill:none;stroke:#000050;stroke-width:4.40558767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#d5f06b;stroke-width:4.40558767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 25.915955,0.6963543 12.582253,13.797206 3.6931169,2.7003966"
        id="path3383" />
   </g>

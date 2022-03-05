@@ -13,7 +13,7 @@
    height="48"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="atom-at-pointer.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/atom-at-pointer.png"
@@ -38,17 +38,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.7747252"
-     inkscape:cx="-50.946677"
-     inkscape:cy="46.889841"
+     inkscape:zoom="5.5494504"
+     inkscape:cx="5.1571269"
+     inkscape:cy="51.042761"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="1211"
      inkscape:window-height="1001"
-     inkscape:window-x="74"
-     inkscape:window-y="131"
+     inkscape:window-x="1213"
+     inkscape:window-y="157"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata2165">
@@ -67,19 +67,25 @@
      inkscape:groupmode="layer"
      transform="translate(0,32)">
     <path
-       style="fill:none;stroke:#000000;stroke-width:4.04698467px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#c0c0c0;stroke-width:4.04698467px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 14.101791,-8.3706101 20.270987,0.1121938 0,0"
-       id="path2292" />
+       id="path2292"
+       inkscape:export-xdpi="34.503799"
+       inkscape:export-ydpi="34.503799" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:4.04698467px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#c0c0c0;stroke-width:4.04698467px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 24.37061,-18.225778 -0.112194,20.270989 0,0"
-       id="path2296" />
+       id="path2296"
+       inkscape:export-xdpi="34.503799"
+       inkscape:export-ydpi="34.503799" />
     <rect
-       style="fill:none;stroke:#d4aa19;stroke-width:4.34997892;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:none;stroke:#ebbe26;stroke-width:4.34997892;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3912"
        width="40.166855"
        height="40.166855"
        x="4.1749897"
-       y="-28.341843" />
+       y="-28.341843"
+       inkscape:export-xdpi="34.503799"
+       inkscape:export-ydpi="34.503799" />
   </g>
 </svg>
