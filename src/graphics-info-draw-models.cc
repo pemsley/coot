@@ -34,11 +34,11 @@ graphics_info_t::draw_molecules_for_ssao() {
    int w = allocation.width;
    int h = allocation.height;
 
-   graphics_info_t g;
-   glm::mat4 model_mat      =      g.get_model_matrix();
-   glm::mat4 view_mat       =       g.get_view_matrix();
-   glm::mat4 projection_mat = g.get_projection_matrix(do_orthographic_projection, w, h);
+   glm::mat4 model_mat      =      get_model_matrix();
+   glm::mat4 view_mat       =       get_view_matrix();
+   glm::mat4 projection_mat = get_projection_matrix(do_orthographic_projection, w, h);
 
+   glDisable(GL_BLEND);
    for (int i=0; i<n_molecules(); i++) {
       if (is_valid_model_molecule(i)) {
          if (molecules[i].draw_it)
