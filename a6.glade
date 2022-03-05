@@ -11397,6 +11397,24 @@ Do you want to continue?
     <property name="pixbuf">pixmaps/rtz.png</property>
     <property name="use_fallback">True</property>
   </object>
+  <object class="GtkImage" id="image34">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/go-to-atom.png</property>
+    <property name="use_fallback">True</property>
+  </object>
+  <object class="GtkImage" id="image35">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/go-to-ligand.png</property>
+    <property name="use_fallback">True</property>
+  </object>
+  <object class="GtkImage" id="image36">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/reset-view.png</property>
+    <property name="use_fallback">True</property>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot</property>
@@ -12701,50 +12719,14 @@ Do you want to continue?
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkButton" id="reset_view_button">
+                        <property name="label" translatable="yes">Reset View</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="focus_on_click">False</property>
                         <property name="receives_default">False</property>
+                        <property name="image">image36</property>
+                        <property name="always_show_image">True</property>
                         <signal name="clicked" handler="on_reset_view_button_clicked_gtkbuilder_callback" swapped="no"/>
-                        <child>
-                          <object class="GtkAlignment" id="alignment1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xscale">0</property>
-                            <property name="yscale">0</property>
-                            <child>
-                              <object class="GtkBox" id="hbox152">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="spacing">2</property>
-                                <child>
-                                  <object class="GtkImage" id="image1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label326">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Reset View</property>
-                                    <property name="use_underline">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
                       </object>
                     </child>
                   </object>
@@ -12831,7 +12813,7 @@ Do you want to continue?
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Go To Atom</property>
                     <property name="use_underline">True</property>
-                    <property name="icon_name">applets-screenshooter</property>
+                    <property name="icon_widget">image34</property>
                     <signal name="clicked" handler="on_go_to_atom_toolbutton_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
@@ -12846,7 +12828,7 @@ Do you want to continue?
                     <property name="tooltip_text" translatable="yes">Go to (Next) Ligand</property>
                     <property name="label" translatable="yes">Go To Ligand</property>
                     <property name="use_underline">True</property>
-                    <property name="icon_name">office-contact</property>
+                    <property name="icon_widget">image35</property>
                     <signal name="clicked" handler="on_go_to_ligand_toolbutton_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
