@@ -40,6 +40,17 @@ on_shader_settings_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
 
 extern "C" G_MODULE_EXPORT
 void
+on_shader_settings_do_depth_fog_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                        gpointer         user_data) {
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      set_use_fog(1);
+   } else {
+      set_use_fog(0);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_shader_settings_do_depth_blur_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
                                                                          gpointer         user_data) {
 

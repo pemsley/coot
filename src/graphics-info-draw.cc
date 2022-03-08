@@ -5162,13 +5162,19 @@ graphics_info_t::fullscreen() {
    GtkWidget *window = widget_from_builder("main_window");
 
    if (GTK_IS_WINDOW(window)) {
-      gtk_window_fullscreen(GTK_WINDOW(window));
 
       GtkWidget *vbox       = widget_from_builder("main_window_vbox");
       GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
       GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
       GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
-      GtkWidget *menu_bar   = widget_from_builder("main_window_menubar");
+      // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
+      GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
+
+      // std::cout << "hiding menu_bar_frame " << menu_bar_frame << std::endl;
+      gtk_widget_hide(menu_bar_frame);
+      // std::cout << "hiding tool_bar " << tool_bar << std::endl;
+      gtk_widget_hide(tool_bar);
+      gtk_window_fullscreen(GTK_WINDOW(window));
 
       gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
@@ -5177,7 +5183,7 @@ graphics_info_t::fullscreen() {
       gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
       gtk_widget_grab_focus(glareas[0]);
 
-         if (false) {
+      if (false) {
          gtk_container_remove(GTK_CONTAINER(vbox), tool_bar);
          gtk_overlay_add_overlay(GTK_OVERLAY(overlay), tool_bar);
          gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), tool_bar, TRUE);
@@ -5186,15 +5192,13 @@ graphics_info_t::fullscreen() {
       }
 
       if (false) {
-         gtk_container_remove(GTK_CONTAINER(vbox), menu_bar);
-         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), menu_bar);
-         gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), menu_bar, TRUE);
-         gtk_widget_set_halign(menu_bar, GTK_ALIGN_START);
-         gtk_widget_set_valign(menu_bar, GTK_ALIGN_START);
+         gtk_container_remove(GTK_CONTAINER(vbox), menu_bar_frame);
+         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), menu_bar_frame);
+         gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), menu_bar_frame, TRUE);
+         gtk_widget_set_halign(menu_bar_frame, GTK_ALIGN_START);
+         gtk_widget_set_valign(menu_bar_frame, GTK_ALIGN_START);
       }
 
-      gtk_widget_hide(menu_bar);
-      gtk_widget_hide(tool_bar);
       graphics_info_t g;
       g.add_status_bar_text(""); // clear it
    }
@@ -5215,6 +5219,7 @@ graphics_info_t::unfullscreen() {
       GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
       GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
       GtkWidget *menu_bar   = widget_from_builder("main_window_menubar");
+      GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
 
 #if (GTK_MAJOR_VERSION > 3)
       gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), tool_bar);
@@ -5229,5 +5234,6 @@ graphics_info_t::unfullscreen() {
 
       gtk_widget_show(menu_bar);
       gtk_widget_show(tool_bar);
+      gtk_widget_show(tool_bar_frame);
    }
 }

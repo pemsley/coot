@@ -12186,6 +12186,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="draw_fullscreen">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Fullscreen</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_draw_fullscreen_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkImageMenuItem" id="generic_display_objects1">
                             <property name="label" translatable="yes">Generic Display Objects...</property>
                             <property name="visible">True</property>
@@ -25025,13 +25034,53 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
                     <child>
+                      <object class="GtkCheckButton" id="shader_settings_do_depth_fog_checkbutton">
+                        <property name="label" translatable="yes">Enable</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="on_shader_settings_do_depth_fog_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Depth Fog</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkCheckButton" id="shader_settings_do_depth_blur_checkbutton">
-                            <property name="label" translatable="yes">Do Depth Blur</property>
+                            <property name="label" translatable="yes">Enable</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
@@ -25141,7 +25190,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">4</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>

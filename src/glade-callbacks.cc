@@ -6836,6 +6836,8 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    GtkWidget    *fancy_mode_checkbutton = widget_from_builder("shader_settings_fancy_mode_radiobutton");
    GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_radiobutton");
 
+   GtkWidget *do_depth_fog_checkbutton = widget_from_builder("shader_settings_do_depth_fog_checkbutton");
+
    graphics_info_t g;
 
    // oh dear... labels and variables inconsistent
@@ -6861,6 +6863,11 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), TRUE);
    else
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), FALSE);
+
+   if (graphics_info_t::shader_do_depth_fog_flag)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_depth_fog_checkbutton), TRUE);
+   else
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_depth_fog_checkbutton), FALSE);
 
    double v1 = graphics_info_t::ssao_strength;
    double v2 = graphics_info_t::SSAO_radius;
@@ -6934,8 +6941,8 @@ on_generate_diff_map_peaks_cancel_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_difference_map_peaks1_activate_gtkbuilder_callback      (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_difference_map_peaks1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                       gpointer         user_data)
 {
   GtkWidget *w = wrapped_create_generate_diff_map_peaks_dialog();
   gtk_widget_show(w);
@@ -6978,6 +6985,15 @@ on_superpose_moving_chain_checkbutton_toggled_gtkbuilder_callback
   } else {
     gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_fullscreen_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                gpointer     user_data) {
+
+   fullscreen();
+   set_show_modelling_toolbar(0);
 }
 
 
