@@ -1,6 +1,8 @@
 
 
 #shader vertex
+// rama-ball.shader - 20220308-PE this is not currently used for Rama ball
+// but *is* used for contact dots
 
 #version 330 core
 
@@ -14,7 +16,7 @@ layout (location = 5) in float specular_strength;
 layout (location = 6) in float shininess;
 
 uniform mat4 mvp;
-uniform mat4 view_rotation;
+uniform mat4 view_rotation;  // needed?
 
 out vec4 colour_transfer;
 out vec3 frag_pos_transfer;
@@ -27,12 +29,6 @@ void main() {
    // I think that the configuration/placement of "displacement" is wrong at the moment.
    // displacement is a small number around 0, that gets multiplied by a displacement_scale
    // which is big for big baddies.
-   //
-   // To generate the displacements, use 3d perlin noise sampled at the spherical surface.
-   // No... this approach doesn't make sense because the normals need to change too
-   // and that needs to happen before the shader/OpenGL gets used.
-   // Hmm. Specificly displaced model(s), perhaps 2 or 3 of them, each with their own draw call.
-   // Use (subdivided) icospheres, not octaballs.
 
    vec4 p3 = vec4(size * (1.0 + displacement) * vertex_position + position, 1.0);
    gl_Position = mvp * p3;
@@ -47,6 +43,7 @@ void main() {
 }
 
 #shader fragment
+// rama-balls.shader
 
 #version 330 core
 
@@ -86,18 +83,21 @@ layout(location = 0) out vec4 outputColor;
 float get_fog_amount(float depth_in) {
 
    if (is_perspective_projection) {
-      return depth_in;
+      return depth_in * depth_in;
    } else {
-      // needs tweaking
       float d = depth_in;
-
-      float d2 = d - 0.5;
-      float d3 = 2.0 * d2 * d2 * d2 * d2;
-      float d4 = clamp(d3, 0.0, 1.0);
+      float d4 = d * d * d * d;
       return d4;
    }
-
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// the lights don't work here! (they are in the same frame as the molecule)
+// c.f. instanced-objects.shader.
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 void main() {
 
@@ -110,11 +110,14 @@ void main() {
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
-         float dp = dot(normal_transfer, light_dir);
+         float dp_raw = dot(normal_transfer, light_dir);
          // we can't have specular lights where there is no diffuse light
-         if (dp <= 0.0)
+         if (dp_raw <= 0.0)
             specular_strength = 0.0;
-         dp = clamp(dp, 0.0, 1.0); // no negative dot products for diffuse
+         // but don't make the insides black, have a bit of diffuse colour instead
+         float dp = clamp(dp_raw, -1.0, 1.0); // no negative dot products for diffuse
+         if (dp < 0.0)
+            dp = -0.5 * dp;
 
          vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0); // fix these
          vec4 lsd = vec4(0.6, 0.6, 0.6, 1.0);

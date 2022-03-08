@@ -112,11 +112,13 @@ void main() {
          float dp_raw = dot(normal_transfer, light_dir);
          // we can't have specular lights where there is no diffuse light
          float dp = dp_raw;
-         if (dp <= 0.0)
+         if (dp_raw <= 0.0)
             specular_strength = 0.0;
 
          // dp = clamp(dp, 0.0, 1.0); // no negative dot products for diffuse
          dp = abs(dp); // no black model interiors
+
+         specular_strength = specular_strength * 1110.0;
 
          vec4 lsa = light_sources[i].ambient;
          vec4 lsd = light_sources[i].diffuse;
@@ -150,6 +152,8 @@ void main() {
    outputColor += mix(sum_col, bg_col, fog_amount);
    outputColor = colour_transfer;
    outputColor = sum_col;
+
+   // outputColor = vec4(0,0.8,0,1)
 
    // If we are doing depth blur, we need to make the forground objects look more
    // like the background colour (*not* using alpha channel), something like this:

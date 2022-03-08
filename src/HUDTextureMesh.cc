@@ -184,6 +184,12 @@ HUDTextureMesh::update_instancing_buffer_data(const std::vector<glm::vec2> &new_
 void
 HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position_origin) {
 
+   // 20220308-PE if you are looking at rama data points, then they are drawn using draw_instances()
+
+   if (false)
+      std::cout << "HUDTextureMesh::draw() " << name << " " << shader_p->name
+                << " draw_this_mesh " << draw_this_mesh << std::endl;
+
    if (! draw_this_mesh) return;
 
    if (is_instanced) {
@@ -226,7 +232,7 @@ HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position
 
    glm::vec4 text_colour(0.8, 0.7, 0.5, 1.0);                 // what's this used for?
    shader_p->set_vec2_for_uniform("position", position);
-   shader_p->set_vec2_for_uniform("scales", scales);
+   shader_p->set_vec2_for_uniform("scales",   scales);
    shader_p->set_vec4_for_uniform("text_colour", text_colour);
 
    shader_p->set_int_for_uniform("image_texture", 0); // sampler2D - we don't *need* to set this uniform for the sampler
@@ -237,6 +243,15 @@ HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position
       shader_p->set_vec2_for_uniform("window_resize_position_correction", window_resize_position_correction);
    if (window_resize_scales_correction_set)
       shader_p->set_vec2_for_uniform("window_resize_scales_correction", window_resize_scales_correction);
+
+   if (false) {
+      std::cout << "HUDTextureMesh::draw() " << name << " sending"
+                << " scales " << glm::to_string(scales)
+                << " position " << glm::to_string(position)
+                << " window_resize_scales_correction "   << glm::to_string(window_resize_scales_correction)
+                << " window_resize_position_correction " << glm::to_string(window_resize_position_correction)
+                << std::endl;
+   }
 
    // std::cout << "debug:: HUDTextureMesh::draw() glDrawElements()" << std::endl;
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -265,8 +280,8 @@ HUDTextureMesh::draw_instances(Shader *shader_p) {
    shader_p->Use();
    if (vao == VAO_NOT_SET)
       std::cout << "error:: You forgot to setup this mesh " << name << " "
-                << shader_p->name << std::endl;
-
+                << shader_p->name << std::endl; // or maybe you didn't attach_buffers() before
+                                                // creating this mesh
    glBindVertexArray(vao);
 
    glEnableVertexAttribArray(0);  // vec2 vertices   - standard attribute
@@ -280,6 +295,15 @@ HUDTextureMesh::draw_instances(Shader *shader_p) {
       shader_p->set_vec2_for_uniform("window_resize_position_correction", window_resize_position_correction);
    if (window_resize_scales_correction_set)
       shader_p->set_vec2_for_uniform("window_resize_scales_correction", window_resize_scales_correction);
+
+   if (false) {
+      std::cout << "HUDTextureMesh::draw_instances() " << name << " sending"
+                << " scales " << glm::to_string(scales)
+                << " position " << glm::to_string(position)
+                << " window_resize_scales_correction "   << glm::to_string(window_resize_scales_correction)
+                << " window_resize_position_correction " << glm::to_string(window_resize_position_correction)
+                << std::endl;
+   }
 
    GLenum err = glGetError();
    if (err)

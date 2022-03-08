@@ -9,6 +9,23 @@
 #include "Texture.hh"
 #include "Shader.hh"
 
+class mouse_over_hit_t {
+
+   // we want to know both if a residue rama-texture was clicked on
+   // (and if it was, what was it)
+   // and also if we clicked on the plot.
+   // We don't want clicks over the plot, even if they don't hit a residue
+   // to go through to the atoms behind/below.
+
+public:
+   bool residue_was_clicked;
+   bool plot_was_clicked;
+   coot::residue_spec_t residue_spec;
+   mouse_over_hit_t(bool c1, bool c2, const coot::residue_spec_t &rs) : residue_was_clicked(c1),
+                                                                        plot_was_clicked(c2),
+                                                                        residue_spec(rs) {}
+};
+
 class gl_rama_plot_t {
 
    class canvas_tick_t {
@@ -77,7 +94,16 @@ class gl_rama_plot_t {
    float rama_plot_scale;
 
 public:
-   gl_rama_plot_t() { init(); }
+   gl_rama_plot_t() :
+      hud_tmesh_for_other_normal("hud_tmesh_for_other_normal"),
+      hud_tmesh_for_other_outlier("hud_tmesh_for_other_outlier"),
+      hud_tmesh_for_pro_normal("hud_tmesh_for_pro_normal"),
+      hud_tmesh_for_pro_outlier("hud_tmesh_for_pro_outlier"),
+      hud_tmesh_for_gly_normal("hud_tmesh_for_gly_normal"),
+      hud_tmesh_for_gly_outlier("hud_tmesh_for_gly_outlier"),
+      hud_tmesh_for_global_distribution_non_gly_pro("hud_tmesh_for_global_distribution_non_gly_pro"),
+      hud_tmesh_for_global_distribution_pro("hud_tmesh_for_global_distribution_pro"),
+      hud_tmesh_for_global_distribution_gly("hud_tmesh_for_global_distribution_gly") { init(); }
    void setup_buffers(float rama_plot_scale); // setup OpenGL things - must be done after OpenGL realize()
    void setup_from(int imol, mmdb::Manager *mol);
    void update_phi_psis_on_moved_atoms();
@@ -89,8 +115,8 @@ public:
    float position_hash; // updated and tested in setup_from() so that we don't recalculate if we don't need to
    void clear(); // empty the residue phi,psi map and delete the gl buffers (keep the vao)
    bool is_active() const; // for mouse-overing
-   std::pair<bool, coot::residue_spec_t> get_mouse_over_hit(double x_mouse, double y_mouse,
-                                                            int widget_width, int widget_height) const;
+   mouse_over_hit_t get_mouse_over_hit(double x_mouse, double y_mouse,
+                                       int widget_width, int widget_height) const;
 };
 
 #endif // GL_RAMA_PLOT_HH

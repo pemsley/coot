@@ -3832,7 +3832,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {
-         std::cout << "in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
+         // std::cout << "in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
          bool draw_cis_peptide_markups = true; //
          int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
          if (model_representation_mode == Mesh::BALLS_NOT_BONDS)

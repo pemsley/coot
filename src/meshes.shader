@@ -125,6 +125,9 @@ void main() {
             vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
             float dp = dot(normal_transfer, light_dir);
 
+            if (dp < 0.0)
+               specular_strength = 0.0;
+
             // We can't have specular lights where there is no diffuse light
             //
             // 20220115-PE That's true, but it might help debugging the specularity

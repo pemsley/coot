@@ -1561,7 +1561,7 @@ HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
 Texture graphics_info_t::texture_for_camera_facing_quad;
 TextureMesh graphics_info_t::tmesh_for_camera_facing_quad;
 Shader graphics_info_t::camera_facing_quad_shader;
-HUDTextureMesh graphics_info_t::tmesh_for_hud_image_testing;
+HUDTextureMesh graphics_info_t::tmesh_for_hud_image_testing = HUDTextureMesh("tmesh_for_hud_image_testing");
 
 TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers = TextureMesh("tmesh-for-happy-faces");
 Texture graphics_info_t::texture_for_happy_face_residue_marker;

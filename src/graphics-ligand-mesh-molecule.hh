@@ -55,10 +55,11 @@ class graphics_ligand_mesh_molecule_t : public lig_build::molecule_t<graphics_li
 
 public:
    // this is a static in graphics_info_t
-   graphics_ligand_mesh_molecule_t() {
+   graphics_ligand_mesh_molecule_t() : hud_texture_tmesh("graphics_ligand_mesh_molecule_t-no-name") {
       imol = -1;
       scale_correction.first = true;
       scale_correction.second = 1.0;
+      // hud_texture_tmesh = HUDTextureMesh("graphics_ligand_mesh_molecule_t-no-name");
    }
    ~graphics_ligand_mesh_molecule_t();
    LigandViewMesh mesh; // contains vectors for both lines and triangles. Don't use indexing to draw.

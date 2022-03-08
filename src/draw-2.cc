@@ -497,24 +497,26 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
             int w = allocation.width;
             int h = allocation.height;
             auto rama_plot_hit = g.gl_rama_plot.get_mouse_over_hit(event->x, event->y, w, h);
-            if (rama_plot_hit.first) {
-               std::cout << "::::::::::::::::: click " << rama_plot_hit.second << std::endl;
-               std::string message = "Rama plot clicked residue: ";
-               message += rama_plot_hit.second.chain_id;
-               message += " ";
-               message += std::to_string(rama_plot_hit.second.res_no);
-               if (! rama_plot_hit.second.ins_code.empty()) {
+            if (rama_plot_hit.plot_was_clicked) {
+               if (rama_plot_hit.residue_was_clicked) {
+                  std::cout << "::::::::::::::::: click " << rama_plot_hit.residue_was_clicked << std::endl;
+                  std::string message = "Rama plot clicked residue: ";
+                  message += rama_plot_hit.residue_spec.chain_id;
                   message += " ";
-                  message += rama_plot_hit.second.ins_code;
-               }
-               add_status_bar_text(message.c_str());
+                  message += std::to_string(rama_plot_hit.residue_spec.res_no);
+                  if (! rama_plot_hit.residue_spec.ins_code.empty()) {
+                     message += " ";
+                     message += rama_plot_hit.residue_spec.ins_code;
+                  }
+                  add_status_bar_text(message.c_str());
 
-               g.set_go_to_residue_intelligent(rama_plot_hit.second.chain_id,
-                                               rama_plot_hit.second.res_no,
-                                               rama_plot_hit.second.ins_code);
-               int success = g.try_centre_from_new_go_to_atom();
-               if (success) {
-                  g.update_things_on_move_and_redraw();
+                  g.set_go_to_residue_intelligent(rama_plot_hit.residue_spec.chain_id,
+                                                  rama_plot_hit.residue_spec.res_no,
+                                                  rama_plot_hit.residue_spec.ins_code);
+                  int success = g.try_centre_from_new_go_to_atom();
+                  if (success) {
+                     g.update_things_on_move_and_redraw();
+                  }
                }
                handled = true;
             }
@@ -802,17 +804,19 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       int w = allocation.width;
       int h = allocation.height;
       auto rama_plot_hit = g.gl_rama_plot.get_mouse_over_hit(event->x, event->y, w, h);
-      if (rama_plot_hit.first) {
-         // std::cout << "::::::::::::::::: hit " << rama_plot_hit.second << std::endl;
-         std::string message = "Rama plot residue: ";
-         message += rama_plot_hit.second.chain_id;
-         message += " ";
-         message += std::to_string(rama_plot_hit.second.res_no);
-         if (! rama_plot_hit.second.ins_code.empty()) {
+      if (rama_plot_hit.plot_was_clicked) {
+         if (rama_plot_hit.residue_was_clicked) {
+            // std::cout << "::::::::::::::::: hit " << rama_plot_hit.second << std::endl;
+            std::string message = "Rama plot residue: ";
+            message += rama_plot_hit.residue_spec.chain_id;
             message += " ";
-            message += rama_plot_hit.second.ins_code;
+            message += std::to_string(rama_plot_hit.residue_spec.res_no);
+            if (! rama_plot_hit.residue_spec.ins_code.empty()) {
+               message += " ";
+               message += rama_plot_hit.residue_spec.ins_code;
+            }
+            add_status_bar_text(message.c_str());
          }
-         add_status_bar_text(message.c_str());
       }
    }
 

@@ -43,9 +43,10 @@ class HUDTextureMesh {
    bool is_instanced;
 
 public:
-   HUDTextureMesh() { init(); }
+   // HUDTextureMesh() { init(); } // ugh. Needed for graphics_ligand_mesh_molecule_t.
    explicit HUDTextureMesh(const std::string &n) : name(n) { init(); }
    enum screen_position_origins_t { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
+   void set_name(const std::string &n) { name = n; }
 
    void setup_quad(); // camera-facing, of course
    // for the tooltip background, the position is dynamic (depending on the mouse position)

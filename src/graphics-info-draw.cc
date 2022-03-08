@@ -905,11 +905,11 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       std::cout << "----------------- draw_intermediate_atoms() intermediate atoms mesh has "
                 << m.molecule_as_mesh.vertices.size() << " vertices and " << m.molecule_as_mesh.triangles.size()
                 << " triangles" << std::endl;
-   bool wireframe_mode = false;
    float opacity = 1.0f;
 
    if (pass_type == PASS_TYPE_STANDARD) {
-      Shader &shader = shader_for_meshes;
+      Shader &shader = shader_for_meshes_with_shadows;
+      bool wireframe_mode = false;
       m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
                               wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
    }
@@ -2978,8 +2978,8 @@ graphics_info_t::draw_hud_geometry_bars() {
                                           rotamer_markup_container_t *rotamer_markups,
                                           int n_rotamer_markups) {
 
-                              std::cout << "debug:: add_rotamer_bars() n_rotamer_markups: " << n_rotamer_markups
-                                        << " " << std::endl;
+                              // std::cout << "debug:: add_rotamer_bars() n_rotamer_markups: " << n_rotamer_markups
+                              // << " " << std::endl;
                               // this code has to be the same as the check_if_hud_bar_clicked code
 
                               // needs to be consitent with above and check_bars()

@@ -192,17 +192,20 @@ void main() {
       for (int i=0; i<2; i++) {
 	 if (light_sources[i].is_on) {
 	    vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
-	    float dp = dot(normal_transfer, light_dir);
+	    float dp_raw = dot(normal_transfer, light_dir);
+            float dp = dp_raw;
+            if (dp_raw <= 0.0)
+               specular_strength = 0.0; // we can't have specular lights where there is no diffuse light.
+                                        // no weird shiny ball interiors
 
             // testing
             // for "flat" old-coot look, set dp = 0.0 and specular_strength = 0.0 here.
             // dp = 0.0;
             // specular_strength = 0.0;
 
-	    // we can't have specular lights where there is no diffuse light
-	    if (dp <= 0.0)
-	       specular_strength = 0.0;
 	    dp = clamp(dp, 0.1, 1.0); // no negative dot products for diffuse
+
+            // specular_strength = specular_strength * 0.0;
 
 	    vec4 ambient = scale_factor_n_lights * colour_transfer * material.ambient * 0.3;
 	    vec4 diffuse = scale_factor_n_lights * colour_transfer * material.diffuse * dp;
@@ -306,6 +309,7 @@ void main() {
    }
 
    output_colour = sum_col;
+   // output_colour = vec4(1,0,1,1);
 
 }
 
