@@ -4819,12 +4819,13 @@ coot::refinement_results_t::hooray() const {
    std::string message;
    for (unsigned int i=0; i<lights.size(); i++) {
       const refinement_lights_info_t &light = lights[i];
-      std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
+      if (false)
+         std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
       float crit_value = 1.0; // 20210906-PE was 1.4
       if (light.name == "Trans_peptide")
          crit_value = 2.0; // 20210906-PE  was 6.0. Should Trans-peptide even be tested in hooray()?
       if (light.value > crit_value) {
-         std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
+         // std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
          status = false;
       }
    }

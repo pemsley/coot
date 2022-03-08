@@ -151,7 +151,7 @@ Mesh::import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triang
    unsigned int idx_base = vertices.size();
    unsigned int idx_tri_base = triangles.size();
 
-   std::cout << "on Mesh::import idx_base " << idx_base << " idx_tri_base" << idx_tri_base << std::endl;
+   // std::cout << "on Mesh::import idx_base " << idx_base << " idx_tri_base " << idx_tri_base << std::endl;
    vertices.insert(vertices.end(), gv.begin(), gv.end());
    triangles.insert(triangles.end(),
                     indexed_vertices.begin(),
@@ -772,8 +772,9 @@ Mesh::import_and_setup_instanced_cylinders(Shader *shader_p,
 
    n_instances = mats.size();
    n_instances_allocated = n_instances;
-   std::cout << "::::::::::::: debug:: import_and_setup_instanced_cylinders() calls "
-             << "setup_matrix_and_colour_instancing_buffers_standard" << std::endl;
+   if (false)
+      std::cout << "::::::::::::: debug:: import_and_setup_instanced_cylinders() calls "
+                << "setup_matrix_and_colour_instancing_buffers_standard" << std::endl;
    setup_matrix_and_colour_instancing_buffers_standard(mats, colours);
    err = glGetError(); if (err) std::cout << "error import_and_setup_instanced_cylinders() -- end -- "
                                           << err << std::endl;
@@ -799,15 +800,17 @@ Mesh::setup_rtsc_instancing(Shader *shader_p,
    n_instances = n_instances_in;
    n_instances_allocated = n_instances;
 
-   std::cout << "::::::::::::: debug:: setup_rtsc_instancing() calls setup_matrix_and_colour_instancing_buffers_standard()"
-             << std::endl;
+   if (false)
+      std::cout << "::::::::::::: debug:: setup_rtsc_instancing() calls setup_matrix_and_colour_instancing_buffers_standard()"
+                << std::endl;
    setup_matrix_and_colour_instancing_buffers_standard(mats, colours);
    GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_cylinders() -- end -- "
                                                  << err << std::endl;
 
-   std::cout << "setup_rtsc_instancing(): " << vertices.size() << " vertices" << std::endl;
-   std::cout << "setup_rtsc_instancing(): " << triangles.size()
-             << " triangles" << std::endl;
+   if (false) {
+      std::cout << "setup_rtsc_instancing(): " << vertices.size() << " vertices" << std::endl;
+      std::cout << "setup_rtsc_instancing(): " << triangles.size() << " triangles" << std::endl;
+   }
 }
 
 void
@@ -1020,9 +1023,10 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    //
    // send only the size (they should both be the same size) (they can be updated differently)
 
-   std::cout << "----- setup_matrix_and_colour_instancing_buffers_standard(): mats size " << mats.size()
-             << " colours size " << colours.size() << " and is_instanced_colours " << is_instanced_colours
-             << std::endl;
+   if (false)
+      std::cout << "Mesh::setup_matrix_and_colour_instancing_buffers_standard(): mats size " << mats.size()
+                << " colours size " << colours.size() << " and is_instanced_colours " << is_instanced_colours
+                << std::endl;
 
    GLenum err = glGetError();
    if (err) std::cout << "Error setup_matrix_and_colour_instancing_buffers_standard() -- start -- "
@@ -1047,7 +1051,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    glBindVertexArray(vao);
 
    err = glGetError();
-   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B binding-vao "
+   if (err) std::cout << "GL ERROR:: Mesh::setup_matrix_and_colour_instancing_buffers_standard() B binding-vao "
                       << err << " with vao " << vao << std::endl;
 
    // -------- rotation/translation/scale matrices -----------
@@ -1057,8 +1061,9 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
 
    glGenBuffers(1, &inst_rts_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-   std::cout << "setup_matrix_and_colour_instancing_buffers_standard() allocating matrix buffer data "
-             << n_instances * 4 * sizeof(glm::mat4) << std::endl;
+   if (false)
+      std::cout << "setup_matrix_and_colour_instancing_buffers_standard() allocating matrix buffer data "
+                << n_instances * 4 * sizeof(glm::mat4) << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_instances * 4 * sizeof (glm::vec4), &(inst_rts_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
 
    err = glGetError(); if (err) std::cout << "GL ERROR:: setup_instancing_buffers() C1 " << err << std::endl;
@@ -1087,10 +1092,11 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    glGenBuffers(1, &inst_colour_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
    err = glGetError();
-   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B0 "
+   if (err) std::cout << "GL ERROR:: setup_matrix_and_colour_instancing_buffers_standard() B0 "
                       << err << std::endl;
-   std::cout << "setup_matrix_and_colour_instancing_buffers_old() allocating colour buffer data "
-             << n_instances * sizeof(glm::vec4) << std::endl;
+   if (false)
+      std::cout << "setup_matrix_and_colour_instancing_buffers_old() allocating colour buffer data "
+                << n_instances * sizeof(glm::vec4) << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
    glEnableVertexAttribArray(7);
    err = glGetError();

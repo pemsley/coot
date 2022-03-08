@@ -255,9 +255,13 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
    triangles = v2;
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
-   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   std::cout << "debug:: in Instanced_Markup_Mesh::setup_octasphere() " << name << " calling setup_buffers()"
-             << " time " << d10 << " milliseconds" << std::endl;
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+
+   // for sphere refine contact dots:
+   // about 25 microseconds for the frist call (H-bonds) and 2 or 3 microseconds after that.
+   if (false)
+      std::cout << "debug:: in Instanced_Markup_Mesh::setup_octasphere() " << name << " calling setup_buffers()"
+                << " time " << d10 << " microseconds" << std::endl;
    setup_buffers();
 
 }

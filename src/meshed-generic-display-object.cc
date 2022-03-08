@@ -141,10 +141,12 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
                                             bool do_faces,
                                             float unstubby_cap_factor) {
 
-   std::cout << "add_cylinder(): cap_start: " << cap_start  << std::endl;
-   std::cout << "add_cylinder(): cap_end: "   << cap_end  << std::endl;
-   std::cout << "add_cylinder(): do_faces: "  << do_faces  << std::endl;
-   std::cout << "add_cylinder(): unstubby_cap_factor: " << unstubby_cap_factor  << std::endl;
+   if (false) {
+      std::cout << "add_cylinder(): cap_start: " << cap_start  << std::endl;
+      std::cout << "add_cylinder(): cap_end: "   << cap_end  << std::endl;
+      std::cout << "add_cylinder(): do_faces: "  << do_faces  << std::endl;
+      std::cout << "add_cylinder(): unstubby_cap_factor: " << unstubby_cap_factor  << std::endl;
+   }
 
    float h = glm::distance(start_end.first, start_end.second);
    glm::vec4 base_colour(col.red, col.green, col.blue, 1.0f);

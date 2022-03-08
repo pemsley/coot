@@ -211,7 +211,7 @@ graphics_info_t::do_interactive_coot_probe() {
       if (moving_atoms_asc->n_selected_atoms > 0) {
          if (moving_atoms_asc->mol) {
 
-            std::cout << "doing do_interactive_coot_probe() " << std::endl;
+            // std::cout << "doing do_interactive_coot_probe() " << std::endl;
             // For speed, I need the lock inside this function, it's ok to release the lock after
             // the contact dots have been found (but before the contact dots meshes have
             // been generated).

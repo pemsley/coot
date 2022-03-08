@@ -5195,6 +5195,8 @@ graphics_info_t::fullscreen() {
 
       gtk_widget_hide(menu_bar);
       gtk_widget_hide(tool_bar);
+      graphics_info_t g;
+      g.add_status_bar_text(""); // clear it
    }
 }
 
