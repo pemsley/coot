@@ -7811,7 +7811,6 @@ that you wish to delete.               </property>
             <child>
               <object class="GtkCheckButton" id="environment_distance_label_atom_checkbutton">
                 <property name="label" translatable="yes">Label Atom?</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>

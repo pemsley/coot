@@ -611,7 +611,7 @@ graphics_info_t::add_distance_labels_for_environment_distances() {
          glm::vec3 mid_point = 0.5f * (s + e);
          glm::vec3 offset_mid_point = mid_point + glm::vec3(0.15, 0.05, 0.05);
          std::ostringstream ss;
-         ss << std::setprecision(3) << std::fixed << d;
+         ss << std::setprecision(2) << std::fixed << d;
          // ss << std::fixed << d;
          std::string text(ss.str());
 

@@ -3201,3 +3201,11 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
 
 
 
+
+void
+Mesh::invert_normals() { // flip normals
+
+   for (auto &vertex : vertices)
+      vertex.normal = -vertex.normal;
+
+}

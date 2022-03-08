@@ -909,7 +909,6 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
    // this is not sinusoidal. The first step is 1.
 
    float frac = 1.0;
-   graphics_info_t::smooth_scroll_n_steps = 20; // should be user choice?
    if (graphics_info_t::smooth_scroll_n_steps > 0)
       frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_n_steps);
    smooth_scroll_current_step += 1;
@@ -941,7 +940,7 @@ graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
                                                          GdkFrameClock *frame_clock,
                                                          gpointer data) {
 
-   smooth_scroll_n_steps = 20; // make this user-defined, or use frame_clock
+   // smooth_scroll_n_steps = 20; // make this user-defined, or use frame_clock
 
    smooth_scroll_current_step++;
    if (smooth_scroll_current_step <= smooth_scroll_n_steps) {
@@ -962,6 +961,7 @@ graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
       // finished moving
       graphics_info_t g;
       g.update_things_on_move_and_redraw();
+      g.update_environment_distances_by_rotation_centre_maybe(g.go_to_atom_molecule());
       return G_SOURCE_REMOVE;
    }
 }
@@ -1017,7 +1017,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       smooth_scroll_on = 1; // flag to stop wirecube being drawn.
       double v_acc = 0; // accumulated distance
       gpointer user_data = 0;
-      smooth_scroll_current_step = 0;
+      smooth_scroll_current_step = -1; // first thing the function does is add 1 to smooth_scroll_current_step.
       smooth_scroll_delta = coot::Cartesian(xd, yd, zd);
       if (false) {
          std::cout << "in smooth_scroll_maybe_sinusoidal_acceleration() with set smooth_scroll_delta "
@@ -1029,6 +1029,8 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
                    << std::endl;
       }
 
+      // put this in glarea_tick_func() ?
+      //
       gtk_widget_add_tick_callback(glareas[0], smooth_sinusoidal_scroll_animation_func, user_data, NULL);
       done_the_move = true;
 
@@ -3123,17 +3125,17 @@ graphics_info_t::add_label(const std::string &l, const glm::vec3 &p, const glm::
 void
 graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
 
-   environment_object_bonds_box =
-      molecules[imol].make_environment_bonds_box(atom_index, geom_p);
+   environment_object_bonds_box = molecules[imol].make_environment_bonds_box(atom_index, geom_p);
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-   mesh_for_environment_distances.init(environment_object_bonds_box,
-                                       background_is_black_p());
+   mesh_for_environment_distances.init(environment_object_bonds_box, background_is_black_p());
+
    Material material;
    // mesh_for_environment_distances.mesh.setup(&shader_for_moleculestotriangles, material); 20210910-PE
    mesh_for_environment_distances.mesh.setup(material);
 
    labels.clear(); // remove everything
+
    add_distance_labels_for_environment_distances();
 
 }

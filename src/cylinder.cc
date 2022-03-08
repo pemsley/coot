@@ -529,7 +529,7 @@ cylinder::crenulations() {
       v.pos.z -= z_height;
       v.pos.x *= base_radius;
       v.pos.y *= base_radius;
-      std::cout << " scale-down " << i << " " << glm::to_string(v.pos) << std::endl;
+      // std::cout << " scale-down " << i << " " << glm::to_string(v.pos) << std::endl;
    }
 
    s_generic_vertex offset_origin(glm::vec3(0.0f, 0.0f, -z_height), glm::vec3(0,0,-1), col);
@@ -553,11 +553,12 @@ cylinder::crenulations() {
          idx_2 = idx_base;
          idx_4 = idx_base + 3 * n_slices;
       }
-      std::cout << "adding triangle " << idx_1 << " " << idx_2 << " " << idx_3 << " "
-                << glm::to_string(vertices[idx_1].pos) << " "
-                << glm::to_string(vertices[idx_2].pos) << " "
-                << glm::to_string(vertices[idx_3].pos) << " "
-                << std::endl;
+      if (false)
+         std::cout << "adding triangle " << idx_1 << " " << idx_2 << " " << idx_3 << " "
+                   << glm::to_string(vertices[idx_1].pos) << " "
+                   << glm::to_string(vertices[idx_2].pos) << " "
+                   << glm::to_string(vertices[idx_3].pos) << " "
+                   << std::endl;
       triangles.push_back(g_triangle(idx_1, idx_2, idx_3));
       triangles.push_back(g_triangle(idx_2, idx_3, idx_4));
    }

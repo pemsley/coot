@@ -117,7 +117,7 @@ public:
    };
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() { imol = UNDEFINED; }
-   meshed_generic_display_object(const std::string name_in) { imol = UNDEFINED; mesh.name = name_in; }
+   explicit meshed_generic_display_object(const std::string &name_in) { imol = UNDEFINED; mesh.name = name_in; }
    explicit meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
@@ -149,7 +149,7 @@ public:
                      const coot::colour_holder &col, float radius,
                      unsigned int n_slices,
                      bool cap_start, bool cap_end,
-                     cap_type start_cap_type, cap_type end_cap_type, bool do_faces=true,
+                     cap_type start_cap_type, cap_type end_cap_type, bool do_faces=false,
                      float unstubby_cap_factor=1.0);
    void add_cone(const std::pair<glm::vec3, glm::vec3> &start_end,
                  const coot::colour_holder &col, float base_radius, float top_radius,

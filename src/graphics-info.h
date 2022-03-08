@@ -3775,6 +3775,9 @@ public:
    static std::vector<TextureMesh> texture_meshes;
    static void draw_texture_meshes();
 
+   static Mesh mesh_for_eyelashes;
+   static Mesh &get_mesh_for_eyelashes();
+
    // these are for non-molecule based generic display objects using instancing
    static std::vector<Instanced_Markup_Mesh> instanced_meshes;
 

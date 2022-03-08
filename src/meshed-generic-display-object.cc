@@ -125,7 +125,9 @@ meshed_generic_display_object::init(const graphical_bonds_container &bonds_box,
             glm::vec3 pos_1 = s + static_cast<float>(iseg) * delta_frag;
             glm::vec3 pos_2 = pos_1 + 0.5f * delta_frag;
             std::pair<glm::vec3, glm::vec3> start_end(pos_1, pos_2);
-            add_cylinder(start_end, col, 0.06, n_slices, true, true, FLAT_CAP, FLAT_CAP);
+            float line_radius = 0.06;
+            if (do_thinning) line_radius *= 0.5;
+            add_cylinder(start_end, col, line_radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);
          }
       }
    }
@@ -181,16 +183,19 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
 
    mesh.import(c.vertices, c.triangles);
 
+   // caches eyelashes!
+
    if (do_faces) {
-      Mesh eyelash_r;
-      std::string file_name("grey-eyelashes-many-lashes.glb");
-      eyelash_r.load_from_glTF(file_name, false); // tries local directory first
+      // std::string file_name("grey-eyelashes-many-lashes.glb");
+      // eyelash_r.load_from_glTF(file_name, false); // tries local directory first
+      Mesh eyelash_r = graphics_info_t::get_mesh_for_eyelashes();
       eyelash_r.apply_scale(0.026);
       eyelash_r.translate_by(glm::vec3(0.07, 0, 0.93));
       Mesh eyelash_l = eyelash_r;
       glm::mat4 rm(1.0f);
       glm::mat4 mirror_y(1.0f); mirror_y[1][1] = -1.0f; // does this change the normals also?
       eyelash_l.apply_transformation(mirror_y);
+      eyelash_l.invert_normals();
       glm::mat4 m_r = glm::rotate(rm,  0.5f, glm::vec3(0,0,1));
       glm::mat4 m_l = glm::rotate(rm, -0.5f, glm::vec3(0,0,1));
       eyelash_r.apply_transformation(m_r);

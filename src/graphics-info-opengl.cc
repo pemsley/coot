@@ -1242,3 +1242,14 @@ graphics_info_t::resize_framebuffers_textures_renderbuffers(int width, int heigh
    }
 }
 
+
+// static
+Mesh &
+graphics_info_t::get_mesh_for_eyelashes() {
+
+   if (mesh_for_eyelashes.empty()) {
+      std::string fn = "grey-eyelashes-many-lashes.glb";
+      mesh_for_eyelashes.load_from_glTF(fn);
+   }
+   return mesh_for_eyelashes;
+}

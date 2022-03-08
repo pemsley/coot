@@ -894,11 +894,12 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
      found = true;
    }
 
-   int kv = event->keyval;
-   if (kv == graphics_info_t::update_go_to_atom_from_current_residue_key) {
-      update_go_to_atom_from_current_position();
-      handled = TRUE;
-   }
+   // Don't make a special case for P now.
+   // int kv = event->keyval;
+   // if (kv == graphics_info_t::update_go_to_atom_from_current_residue_key) {
+   // update_go_to_atom_from_current_position();
+   // handled = TRUE;
+   // }
 
    if (! found)
       if (! handled)

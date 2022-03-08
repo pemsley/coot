@@ -102,6 +102,7 @@ public:
       use_blending = false;
       normals_are_setup = false;
    }
+   bool empty() const { return (vertices.size() == 0); }
    void close();
    void set_draw_mesh_state(bool state) { if (this_mesh_is_closed) draw_this_mesh = false; else draw_this_mesh = state; }
    void set_name(const std::string &n) { name = n; }
@@ -350,6 +351,7 @@ public:
 
    void apply_scale(float scale_factor);  // scale the positions in the vertices
    void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices
+   void invert_normals(); // flip normals
    std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres;
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
    void sort_map_triangles(const glm::vec3 &eye_position);

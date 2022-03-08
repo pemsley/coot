@@ -4761,7 +4761,10 @@ graphics_info_t::setup_key_bindings() {
                 return gboolean(TRUE);
              };
 
-   auto l9 = []() { update_go_to_atom_from_current_position(); return gboolean(TRUE); };
+   auto l9 = [] () {
+                update_go_to_atom_from_current_position();
+                return gboolean(TRUE);
+             };
 
    auto l10 = []() { graphics_info_t::zoom *= 0.9; return gboolean(TRUE); };
 

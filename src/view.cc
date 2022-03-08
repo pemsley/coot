@@ -82,6 +82,8 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 
          // Do this with sinusoidal acceleration (rotation and translation) for more yum-factor
 
+         // are you looking for smooth_sinusoidal_scroll_animation_func()?
+
          // return a gboolean
          auto animation_func = [] (GtkWidget *widget,
                                    GdkFrameClock *frame_clock,
@@ -139,6 +141,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                      do_continue = G_SOURCE_REMOVE;
                                      graphics_info_t g;
                                      g.update_things_on_move_and_redraw();
+                                     g.update_environment_distances_by_rotation_centre_maybe(g.go_to_atom_molecule());
                                   }
                                   return do_continue;
                                };

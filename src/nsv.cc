@@ -1308,7 +1308,7 @@ exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
    switch (residue_p->SSE)  {
 
       // case mmdb::SSE_Strand : s = "firebrick3";  break;
-   case mmdb::SSE_Strand : s = "fuchsia";  break;
+   case mmdb::SSE_Strand : s = "tomato";  break;
    case mmdb::SSE_Bulge  : s = "firebrick1";  break;
       // case mmdb::SSE_3Turn  : s = "MediumBlue";  break;
    case mmdb::SSE_3Turn  : s = "LightBlue";  break;

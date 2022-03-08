@@ -433,14 +433,15 @@ Mesh::load_from_glTF(const std::string &file_name_in, bool include_call_to_setup
 
    if (err.empty() && read_success) { // OK, good, let's go!
 
-      std::cout << "load_from_glTF() A ::::::::::::: success path, calling proc_model_v2()" << std::endl;
+      // std::cout << "load_from_glTF() A ::::::::::::: success path, calling proc_model_v2()" << std::endl;
       std::vector<extracted_buffer_info_t> r = proc_model_v2(model);
-      std::cout << "load_from_glTF(): B ::::::::::: found " << r.size() << " mesh primitives" << std::endl;
+      // std::cout << "load_from_glTF(): B ::::::::::: found " << r.size() << " mesh primitives" << std::endl;
       for (unsigned int i=0; i<r.size(); i++) {
          const extracted_buffer_info_t &ebi = r[i];
          if (ebi.normals.size() > 0) {
-	    std::cout << "debug ebi.normals size  " << ebi.normals.size() << " ebi positions size " << ebi.positions.size() << " "
-		      << "ebi vertex colours size " << ebi.vertex_colours.size() << std::endl;
+            if (false)
+               std::cout << "debug ebi.normals size  " << ebi.normals.size() << " ebi positions size " << ebi.positions.size() << " "
+                         << "ebi vertex colours size " << ebi.vertex_colours.size() << std::endl;
             if (ebi.normals.size() == ebi.positions.size()) {
 	       if (ebi.normals.size() == ebi.vertex_colours.size()) {
 		  unsigned int max_vertex_index = 0; // set this
