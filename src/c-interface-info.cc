@@ -3196,6 +3196,8 @@ std::string pythonize_command_name(const std::string &s) {
          ss += s[i];
       }
    }
+   ss = "coot." + ss; // hideous hack. presumes that all state script commands are in coot module
+                       // (most of them are, of course)
    return ss;
 }
 

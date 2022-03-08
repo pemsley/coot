@@ -64,8 +64,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
 int
 graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
-   // std::cout << "DEBUG:: ============================== saving state " << il
-   //           << std::endl;
+   std::cout << "DEBUG:: ============================== saving state " << filename << " " << std::endl;
 
    std::vector<std::string> commands;
 
@@ -955,7 +954,8 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    if (f) {
       for (unsigned int i=0; i<commands.size(); i++) {
-	 f << commands[i] << std::endl;
+	 f << commands[i] << "\n";
+         // std::cout << "write_state_fstream_mode() " << commands[i] << std::endl;
       }
       f.flush();  // fixes valgrind problem?
 
@@ -1093,7 +1093,8 @@ graphics_info_t::pythonize_command_strings(const std::vector<std::string> &comma
 
    std::string command;
    if (command_strings.size() > 0) {
-      command = pythonize_command_name(command_strings[0]);
+      std::string py_command = pythonize_command_name(command_strings[0]);
+      command = py_command;
       command += " (";
       for (int i=1; i<(int(command_strings.size())-1); i++) {
 	 command += command_strings[i];
