@@ -241,7 +241,8 @@ void
 exptl::nsv::on_nsv_close_button_clicked(GtkButton *button,
 					gpointer user_data) {
 
-   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "nsv_dialog");
+   // GtkWidget *window = lookup_widget(GTK_WIDGET(button), "nsv_dialog");
+   GtkWidget *window = widget_from_builder("nsv_dialog");
    if (! window) {
       std::cout << "ERROR:: window not found in on_nsv_close_button_clicked()" << std::endl;
    }

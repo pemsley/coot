@@ -51,13 +51,18 @@
 
 #include "graphics-info.h"
 
+#include "widget-from-builder.hh"
+
 std::vector<coot::restraints_editor> graphics_info_t::restraints_editors;
 
 void
 coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) { 
-   dialog = create_restraints_editor_dialog(); // defined in interface.h
-//    std::cout << "restraints editor saving "
-// 	     << dialog << std::endl;
+
+   // dialog = create_restraints_editor_dialog(); // defined in interface.h
+   dialog = widget_from_builder("restraints_editor_dialog");
+
+   //    std::cout << "restraints editor saving "
+   // 	     << dialog << std::endl;
    fill_info_tree_data   (dialog, restraints);
    fill_atom_tree_data   (dialog, restraints);
    fill_bond_tree_data   (dialog, restraints);
@@ -74,7 +79,8 @@ void
 coot::restraints_editor::fill_atom_tree_data(GtkWidget *restraints_editor_dialog,
 					     const coot::dictionary_residue_restraints_t &restraints) { 
 
-   GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, "atoms_treeview");
+   // GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, "atoms_treeview");
+   GtkWidget *atoms_treeview = widget_from_builder("atoms_treeview");
 
    GtkTreeView *tv_atoms = GTK_TREE_VIEW(atoms_treeview);
    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
@@ -292,8 +298,8 @@ coot::restraints_editor::get_column_type(int tree_type, int column_number, int m
 void coot::restraints_editor::fill_angle_tree_data(GtkWidget *restraints_editor_dialog,
 						   const coot::dictionary_residue_restraints_t &restraints) {
    
-   GtkWidget *angles_treeview = lookup_widget(restraints_editor_dialog, 
-					      "angles_treeview");
+   // GtkWidget *angles_treeview = lookup_widget(restraints_editor_dialog, "angles_treeview");
+   GtkWidget *angles_treeview = widget_from_builder("angles_treeview");
    
    GtkTreeView *tv_angles = GTK_TREE_VIEW(angles_treeview);
    GtkTreeStore *tree_store_angles =
@@ -329,8 +335,8 @@ void
 coot::restraints_editor::fill_info_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *info_treeview = lookup_widget(restraints_editor_dialog, 
-					    "info_treeview");
+   // GtkWidget *info_treeview = lookup_widget(restraints_editor_dialog, "info_treeview");
+   GtkWidget *info_treeview = widget_from_builder("info_treeview");
    
    GtkTreeView *tv_info = GTK_TREE_VIEW(info_treeview);
    GtkTreeStore *tree_store_info =
@@ -378,11 +384,11 @@ void
 coot::restraints_editor::fill_bond_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *bonds_treeview = lookup_widget(restraints_editor_dialog, "bonds_treeview");
+   // GtkWidget *bonds_treeview = lookup_widget(restraints_editor_dialog, "bonds_treeview");
+   GtkWidget *bonds_treeview = widget_from_builder("bonds_treeview");
    GtkTreeView *tv_bonds = GTK_TREE_VIEW(bonds_treeview);
-   GtkTreeStore *tree_store_bonds =
-      gtk_tree_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-			  G_TYPE_FLOAT, G_TYPE_FLOAT);
+   GtkTreeStore *tree_store_bonds = gtk_tree_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                                                        G_TYPE_FLOAT, G_TYPE_FLOAT);
    view_and_store_bonds.view = tv_bonds;
    view_and_store_bonds.store = tree_store_bonds;
 
@@ -439,8 +445,8 @@ void
 coot::restraints_editor::fill_torsion_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *torsions_treeview = lookup_widget(restraints_editor_dialog, 
-						"torsions_treeview");
+   // GtkWidget *torsions_treeview = lookup_widget(restraints_editor_dialog, "torsions_treeview");
+   GtkWidget *torsions_treeview = widget_from_builder("torsions_treeview");
 
    GtkTreeView *tv_torsions = GTK_TREE_VIEW(torsions_treeview);
    GtkTreeStore *tree_store_torsions =
@@ -482,8 +488,8 @@ void
 coot::restraints_editor::fill_chiral_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *chirals_treeview = lookup_widget(restraints_editor_dialog, 
-					     "chirals_treeview");
+   // GtkWidget *chirals_treeview = lookup_widget(restraints_editor_dialog, "chirals_treeview");
+   GtkWidget *chirals_treeview = widget_from_builder("chirals_treeview");
 
    GtkTreeView *tv_chirals = GTK_TREE_VIEW(chirals_treeview);
    GtkTreeStore *tree_store_chirals =
@@ -523,8 +529,8 @@ void
 coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialog,
 			  const coot::dictionary_residue_restraints_t &restraints) {
    
-   GtkWidget *planes_treeview = lookup_widget(restraints_editor_dialog, 
-					     "planes_treeview");
+   // GtkWidget *planes_treeview = lookup_widget(restraints_editor_dialog, "planes_treeview");
+   GtkWidget *planes_treeview = widget_from_builder("planes_treeview");
 
    GtkTreeView *tv_planes = GTK_TREE_VIEW(planes_treeview);
    
@@ -1355,7 +1361,9 @@ coot::restraints_editor::delete_restraint(GtkWidget *w) {
       
    GtkTreeIter   iter;
    
-   GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   // GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   GtkWidget *nb = widget_from_builder("restraints_editor_notebook");
+
    GtkNotebook *notebook = GTK_NOTEBOOK(nb);
    gint current_page_index = gtk_notebook_get_current_page(notebook);
    if (current_page_index != -1) { 
@@ -1387,7 +1395,8 @@ coot::restraints_editor::add_restraint(GtkWidget *w) {
    //model and view
    GtkTreeIter   iter;
    
-   GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   // GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   GtkWidget *nb = widget_from_builder("restraints_editor_notebook");
    GtkNotebook *notebook = GTK_NOTEBOOK(nb);
    gint current_page_index = gtk_notebook_get_current_page(notebook);
    if (current_page_index != -1) { 

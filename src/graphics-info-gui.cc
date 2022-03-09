@@ -2340,8 +2340,8 @@ graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
    int active_idx = 0;
-   int n_mol = molecules_index_vec.size();
-   for (unsigned int imap=0; imap<molecules_index_vec.size(); imap++) {
+   unsigned int n_mol = molecules_index_vec.size();
+   for (unsigned int imap=0; imap<n_mol; imap++) {
 
       std::cout << "::::::::: debug in fill_combobox_with_molecule_options() imap " << imap << std::endl;
       int imol = molecules_index_vec[imap];

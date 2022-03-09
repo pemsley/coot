@@ -7287,7 +7287,5 @@ void user_defined_click_py(int n_clicks, PyObject *func);
 
 /*! \} */
 
-void full_screen(int mode);
-
 #endif /* C_INTERFACE_H */
 END_C_DECLS

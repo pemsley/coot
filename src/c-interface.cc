@@ -132,6 +132,8 @@
 #include "positioned-widgets.h"
 #include "widget-headers.hh"
 
+#include "widget-from-builder.hh"
+
 // moving column_label selection to c-interface from mtz bits.
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
@@ -972,7 +974,8 @@ void hardware_stereo_mode() {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
          GtkWidget *gl_area = graphics_info_t::glareas[0];
-	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
 	 } else {
@@ -1000,7 +1003,8 @@ void zalman_stereo_mode() {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
          GtkWidget *gl_area = graphics_info_t::glareas[0];
-	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
 	 } else {
@@ -1048,12 +1052,14 @@ void mono_mode() {
 
       if (graphics_info_t::display_mode != coot::MONO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
-         GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
+         // GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
+         GtkWidget *gl_widget = graphics_info_t::glareas[0];
          int x_size = gtk_widget_get_allocated_width(gl_widget);
          int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
          GtkWidget *gl_area = graphics_info_t::glareas[0];
-	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
@@ -1120,7 +1126,8 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
          short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
          if (use_wall_eye_flag)
             stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-         GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         // GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *vbox = widget_from_builder("vbox1"); // 20220309-PE is this what you really want? - needs testing
          GtkWidget *glarea = gl_extras(vbox, stereo_mode);
          if (glarea) {
             if (graphics_info_t::idle_function_spin_rock_token) {
@@ -1171,7 +1178,8 @@ void set_dti_stereo_mode(short int state) {
          } else {
             stereo_mode = coot::SIDE_BY_SIDE_STEREO;
          }
-         GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         // GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *vbox = widget_from_builder("vbox1"); // 20220309-PE is this right?
          GtkWidget *glarea = gl_extras(vbox, stereo_mode);
          if (graphics_info_t::use_graphics_interface_flag) {
             if (graphics_info_t::idle_function_spin_rock_token) {
@@ -4489,7 +4497,9 @@ void do_clipping1_activate(){
 
    clipping_window = create_clipping_window();
 
-   hscale = GTK_SCALE(lookup_widget(clipping_window, "hscale1"));
+   GtkWidget *hscale1 = widget_from_builder("hscale1"); // really? needs testing
+
+   hscale = GTK_SCALE(hscale1);
 /*    gtk_scale_set_draw_value(hscale, TRUE);  already does */
 
    adjustment = GTK_ADJUSTMENT
@@ -5741,7 +5751,8 @@ void close_graphics_display_control_window() {
    graphics_info_t g;
    GtkWidget *w = g.display_control_window();
    if (w) {
-      gtk_widget_destroy(w);
+      // gtk_widget_destroy(w); // nope
+      gtk_widget_hide(w);
       reset_graphics_display_control_window();
    }
 }
@@ -5863,7 +5874,10 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
       }
 
       // std::cout << "lookup_widget() using button_name " << button_name << std::endl;
-      GtkWidget *button = lookup_widget(g.display_control_window(), button_name.c_str());
+      // GtkWidget *button = lookup_widget(g.display_control_window(), button_name.c_str());
+      GtkWidget *button = 0;
+      std::cout << "FIX in set_display_control_button_state() set the button correctly " << std::endl;
+
       if (button) {
 
 	 // Don't make unnecessary changes (creates redraw events?)
@@ -6311,7 +6325,8 @@ void set_refine_ramachandran_angles(int state) {
    // Adjust the GUI
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string w_name = "main_toolbar_restraints_rama_label";
-      GtkWidget *w = lookup_widget(graphics_info_t::glareas[0], w_name.c_str());
+      // GtkWidget *w = lookup_widget(graphics_info_t::glareas[0], w_name.c_str());
+      GtkWidget *w = widget_from_builder(w_name);
       if (w) {
 	 if (state) {
 	    if (graphics_info_t::restraints_rama_type == coot::RAMA_TYPE_ZO) {
@@ -6945,7 +6960,10 @@ void post_scheme_scripting_window() {
         GtkWidget *scheme_entry;
         window = create_scheme_window();
 
-        scheme_entry = lookup_widget(window, "scheme_window_entry");
+        // scheme_entry = lookup_widget(window, "scheme_window_entry");
+
+        // 20220309-PE when will this get used?
+        scheme_entry = widget_from_builder("scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
         gtk_widget_show(window);
 
@@ -6982,7 +7000,11 @@ void post_python_scripting_window() {
       GtkWidget *window;
       GtkWidget *python_entry;
       window = create_python_window();
-      python_entry = lookup_widget(window, "python_window_entry");
+      // python_entry = lookup_widget(window, "python_window_entry");
+
+      // old but better python script? Hmm.
+      // Probably not. Anyway, for another time to resolve/delete
+      python_entry = widget_from_builder("python_window_entry");
       setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
       gtk_widget_show(window);
 
@@ -7273,10 +7295,12 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       }
    } else {
 
-      // Old style
+      // Old style - I wonder what this is now...
 
-      w = create_run_state_file_dialog();
-      vbox_mols = lookup_widget(w, "mols_vbox");
+      // w = create_run_state_file_dialog();
+      w = widget_from_builder("run_state_file_dialog");
+      // vbox_mols = lookup_widget(w, "mols_vbox");
+      vbox_mols = widget_from_builder("mols_vbox");
    }
 
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);
@@ -7301,7 +7325,8 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
    short int il = 1;
    GtkWidget *w = create_run_state_file_dialog();
 
-   GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
+   // GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
+   GtkWidget *vbox_mols = widget_from_builder("mols_vbox");
 
    graphics_info_t g;
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);
@@ -7310,8 +7335,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
-      std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()"
-                << std::endl;
+      std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()" << std::endl;
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);

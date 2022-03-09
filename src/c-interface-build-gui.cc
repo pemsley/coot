@@ -248,7 +248,7 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
 
    graphics_info_t g;
 
-   GtkWidget *combobox  = widget_from_builder("move_molecule_here_combobox");
+   GtkWidget *combobox = widget_from_builder("move_molecule_here_combobox");
 
    // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
 
@@ -274,6 +274,11 @@ void move_molecule_here_by_widget() { // no widget needed.
 
 
 void fill_place_atom_molecule_combobox(GtkWidget *combobox) {
+
+   if (! combobox) {
+      std::cout << "ERROR fill_place_atom_molecule_combobox() null combobox" << std::endl;
+      return;
+   }
 
    graphics_info_t g;
    GCallback callback_func = G_CALLBACK(g.pointer_atom_molecule_combobox_changed);
@@ -322,8 +327,9 @@ void place_atom_at_pointer_by_window() {
 
    // put up a widget which has a OK callback button which does a
    // g.place_typed_atom_at_pointer();
-   GtkWidget *window = create_pointer_atom_type_dialog();
+   // GtkWidget *window = create_pointer_atom_type_dialog();
 
+   GtkWidget *window = widget_from_builder("pointer_atom_type_dialog");
 
    //   GtkSignalFunc callback_func =
    // 	GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
@@ -331,7 +337,7 @@ void place_atom_at_pointer_by_window() {
    // GtkWidget *optionmenu = lookup_widget(window, "pointer_atom_molecule_optionmenu");
    //   fill_place_atom_molecule_option_menu(optionmenu);
 
-   GtkWidget *combobox = lookup_widget(window, "pointer_atom_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("pointer_atom_molecule_combobox");
    fill_place_atom_molecule_combobox(combobox);
    gtk_widget_show(window);
 
@@ -356,7 +362,8 @@ void baton_mode_calculate_skeleton(GtkWidget *window) {
 
 GtkWidget *wrapped_create_renumber_residue_range_dialog() {
 
-   GtkWidget *w = create_renumber_residue_range_dialog();
+   // GtkWidget *w = create_renumber_residue_range_dialog();
+   GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
    int imol = first_coords_imol();
    graphics_info_t::renumber_residue_range_molecule = imol;
    if (is_valid_model_molecule(imol)) {
@@ -366,8 +373,8 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
 
       // by default, now the N-term button is off for the first choice
       // (and C-term is on for the second)
-      GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_1_entry");
-      GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_2_entry");
+      GtkWidget *entry_1 = widget_from_builder("renumber_residue_range_resno_1_entry");
+      GtkWidget *entry_2 = widget_from_builder("renumber_residue_range_resno_2_entry");
       gtk_widget_set_sensitive(entry_2, FALSE);
       // but anyway, let's put the residue number of the active residue there, just in case
       // the user wanted to start from there.
@@ -386,11 +393,11 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
    if (is_valid_model_molecule(imol)) {
 
-      GtkWidget *e1 = lookup_widget(window, "renumber_residue_range_resno_1_entry");
-      GtkWidget *e2 = lookup_widget(window, "renumber_residue_range_resno_2_entry");
-      GtkWidget *offent = lookup_widget(window, "renumber_residue_range_offset_entry");
-      GtkWidget *rb1 = lookup_widget(window, "renumber_residue_range_radiobutton_1"); // N-term button
-      GtkWidget *rb4 = lookup_widget(window, "renumber_residue_range_radiobutton_4"); // C-term button
+      GtkWidget *e1     = widget_from_builder("renumber_residue_range_resno_1_entry");
+      GtkWidget *e2     = widget_from_builder("renumber_residue_range_resno_2_entry");
+      GtkWidget *offent = widget_from_builder("renumber_residue_range_offset_entry");
+      GtkWidget *rb1    = widget_from_builder("renumber_residue_range_radiobutton_1"); // N-term button
+      GtkWidget *rb4    = widget_from_builder("renumber_residue_range_radiobutton_4"); // C-term button
 
       std::pair<short int, int> r1  = int_from_entry(e1);
       std::pair<short int, int> r2  = int_from_entry(e2);
@@ -427,7 +434,6 @@ void renumber_residues_from_widget(GtkWidget *window) {
 	       if (imol < graphics_info_t::n_molecules()) {
 		  if (graphics_info_t::molecules[imol].has_model()) {
 
-
 		     // renumber_residue_range returns 0 upon fail
 		     // including overlap, so test for this here?!
 		     int status;
@@ -457,16 +463,17 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
 void apply_add_OXT_from_widget(GtkWidget *ok_button) {
 
-   GtkWidget *combobox = lookup_widget(ok_button, "add_OXT_molecule_combobox");
+   // GtkWidget *combobox = lookup_widget(ok_button, "add_OXT_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("add_OXT_molecule_combobox");
 
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
 
-   std::cout << "combobox " << combobox << " imol " << imol << std::endl;
+   std::cout << "DEBUG:: apply_add_OXT_from_widget() combobox " << combobox << " imol " << imol << std::endl;
    int resno = -9999;
    std::string chain_id = graphics_info_t::add_OXT_chain;
 
-   GtkWidget *terminal_checkbutton = lookup_widget(ok_button, "add_OXT_c_terminus_radiobutton");
-   GtkWidget *residue_number_entry = lookup_widget(ok_button, "add_OXT_residue_entry");
+   GtkWidget *terminal_checkbutton = widget_from_builder("add_OXT_c_terminus_radiobutton");
+   GtkWidget *residue_number_entry = widget_from_builder("add_OXT_residue_entry");
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(terminal_checkbutton))) {
       std::cout << "DEBUG:: auto determine C terminus for imol " << imol << std::endl;
@@ -510,7 +517,7 @@ GtkWidget *wrapped_create_add_OXT_dialog() {
 
    GtkWidget *w = create_add_OXT_dialog();
 
-   GtkWidget *combobox = lookup_widget(w, "add_OXT_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("add_OXT_molecule_combobox");
    GCallback callback_func = G_CALLBACK(g.add_OXT_molecule_combobox_changed);
 
    int imol = first_coords_imol();
@@ -528,12 +535,9 @@ GtkWidget *wrapped_create_add_OXT_dialog() {
 
 void setup_alt_conf_with_dialog(GtkWidget *dialog) {
 
-   GtkWidget *widget_ca = lookup_widget(dialog,
-					"add_alt_conf_ca_radiobutton");
-   GtkWidget *widget_whole = lookup_widget(dialog,
-					   "add_alt_conf_whole_single_residue_radiobutton");
-   GtkWidget *widget_range = lookup_widget(dialog,
-					   "add_alt_conf_residue_range_radiobutton");
+   GtkWidget *widget_ca    = widget_from_builder("add_alt_conf_ca_radiobutton");
+   GtkWidget *widget_whole = widget_from_builder("add_alt_conf_whole_single_residue_radiobutton");
+   GtkWidget *widget_range = widget_from_builder("add_alt_conf_residue_range_radiobutton");
 
    if (graphics_info_t::alt_conf_split_type_number() == 0)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_ca), TRUE);
@@ -557,7 +561,8 @@ void setup_alt_conf_with_dialog(GtkWidget *dialog) {
 
 void altconf() {
 
-   GtkWidget *widget = create_add_alt_conf_dialog();
+   // GtkWidget *widget = create_add_alt_conf_dialog();
+   GtkWidget *widget = widget_from_builder("add_alt_conf_dialog");
    setup_alt_conf_with_dialog(widget);
    gtk_widget_show(widget);
 }
@@ -583,12 +588,13 @@ void recover_session() {
 	    *info_copy = info;
 	    info_copy->imol = imol;
 
-	    GtkWidget *widget = create_recover_coordinates_dialog();
+	    // GtkWidget *widget = create_recover_coordinates_dialog();
+	    GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
 	    g_object_set_data(G_OBJECT(widget), "backup_file_info", info_copy);
 
 	    GtkWidget *label1, *label2;
-	    label1 = lookup_widget(widget, "recover_coordinates_read_coords_label");
-	    label2 = lookup_widget(widget, "recover_coordinates_backup_coordinates_label");
+	    label1 = widget_from_builder("recover_coordinates_read_coords_label");
+	    label2 = widget_from_builder("recover_coordinates_backup_coordinates_label");
 
 	    gtk_label_set_text(GTK_LABEL(label1), info.name.c_str());
 	    gtk_label_set_text(GTK_LABEL(label2), info.backup_file_name.c_str());
@@ -631,17 +637,20 @@ void execute_recover_session(GtkWidget *widget) {
 
 GtkWidget *wrapped_create_merge_molecules_dialog() {
 
-   GtkWidget *w = create_merge_molecules_dialog();
+   // GtkWidget *w = create_merge_molecules_dialog();
+   GtkWidget *w = widget_from_builder("merge_molecules_dialog");
    // fill the dialog here
    // GtkWidget *molecule_option_menu = lookup_widget(w, "merge_molecules_optionmenu");
-   GtkWidget *combobox = lookup_widget(w, "merge_molecules_combobox");
-   GtkWidget *molecules_vbox       = lookup_widget(w, "merge_molecules_vbox");
+   // GtkWidget *combobox = lookup_widget(w, "merge_molecules_combobox");   
+   // GtkWidget *molecules_vbox       = lookup_widget(w, "merge_molecules_vbox");
+
+   GtkWidget *combobox       = widget_from_builder("merge_molecules_combobox");   
+   GtkWidget *molecules_vbox = widget_from_builder("merge_molecules_vbox");
 
    // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(merge_molecules_menu_item_activate);
    GCallback callback_func = G_CALLBACK(merge_molecules_master_molecule_combobox_changed);
 
    GCallback checkbox_callback_func = G_CALLBACK(on_merge_molecules_check_button_toggled);
-
 
    fill_vbox_with_coordinates_options(molecules_vbox, checkbox_callback_func);
 
@@ -680,7 +689,8 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 
    GtkWidget *checkbutton;
    std::string button_label;
-   GtkWidget *molecules_vbox = lookup_widget(dialog, "merge_molecules_vbox");
+   // GtkWidget *molecules_vbox = lookup_widget(dialog, "merge_molecules_vbox");
+   GtkWidget *molecules_vbox = widget_from_builder("merge_molecules_vbox");
 
    // Unset any preconcieved notion of merging molecules:
    //
@@ -835,7 +845,7 @@ void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer dat
 
    graphics_info_t::mutate_sequence_imol = imol;
    GCallback chain_callback_func = G_CALLBACK(mutate_sequence_chain_combobox_changed);
-   GtkWidget *chain_combobox = lookup_widget(combobox, "mutate_molecule_chain_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("mutate_molecule_chain_combobox");
    graphics_info_t g;
    std::string set_chain = g.fill_combobox_with_chain_options(chain_combobox, imol, chain_callback_func);
    // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
@@ -853,14 +863,13 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 
    graphics_info_t::mutate_sequence_imol = pos;
 
-   GtkWidget *chain_option_menu =
-      lookup_widget(item, "mutate_molecule_chain_optionmenu");
+   // GtkWidget *chain_option_menu = lookup_widget(item, "mutate_molecule_chain_optionmenu");
 
-   GCallback callback_func =
-      G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
+   GtkWidget *chain_combobox = widget_from_builder("mutate_molecule_chain_combobox");
 
-   std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_option_menu,
-									     pos, callback_func);
+   GCallback callback_func = G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
+
+   std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_combobox, pos, callback_func);
 
    // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
 }
@@ -874,6 +883,8 @@ void mutate_sequence_chain_combobox_changed(GtkWidget *combobox, gpointer data) 
 
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos) {
+
+   // is this a callback of a combobox? I have my doubts
 
    // graphics_info_t::mutate_sequence_chain_from_optionmenu = menu_item_label(item);
 }
@@ -919,8 +930,8 @@ void do_mutate_sequence(GtkWidget *dialog) {
 
    // decode the dialog here
 
-   GtkWidget *entry1 = lookup_widget(dialog, "mutate_molecule_resno_1_entry");
-   GtkWidget *entry2 = lookup_widget(dialog, "mutate_molecule_resno_2_entry");
+   GtkWidget *entry1 = widget_from_builder("mutate_molecule_resno_1_entry");
+   GtkWidget *entry2 = widget_from_builder("mutate_molecule_resno_2_entry");
 
    int t;
    int res1 = -9999, res2 = -99999;
@@ -954,7 +965,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
 
 
    // Auto fit?
-   GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton");
+   GtkWidget *checkbutton = widget_from_builder("mutate_sequence_do_autofit_checkbutton");
    short int autofit_flag = 0;
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
@@ -964,7 +975,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
       if (is_valid_model_molecule(imol)) {
 
 	 // get the sequence:
-	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
+	 GtkWidget *text = widget_from_builder("mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
@@ -1246,14 +1257,14 @@ GtkWidget *wrapped_create_change_chain_id_dialog() {
 
    graphics_info_t g;
 
-   GtkWidget *w = create_change_chain_id_dialog();
+   GtkWidget *w = widget_from_builder("change_chain_id_dialog");
+
    // GtkWidget *mol_option_menu =  lookup_widget(w, "change_chain_id_molecule_optionmenu");
    // GtkWidget *chain_option_menu =  lookup_widget(w, "change_chain_id_chain_optionmenu");
 
-   GtkWidget *mol_combobox   =  lookup_widget(w, "change_chain_id_molecule_combobox");
-   GtkWidget *chain_combobox =  lookup_widget(w, "change_chain_id_chain_combobox");
-   GtkWidget *residue_range_no_radiobutton =
-      lookup_widget(w, "change_chain_residue_range_no_radiobutton");
+   GtkWidget *mol_combobox   =  widget_from_builder("change_chain_id_molecule_combobox");
+   GtkWidget *chain_combobox =  widget_from_builder("change_chain_id_chain_combobox");
+   GtkWidget *residue_range_no_radiobutton = widget_from_builder("change_chain_residue_range_no_radiobutton");
 
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(residue_range_no_radiobutton), TRUE);
 
@@ -1269,6 +1280,8 @@ GtkWidget *wrapped_create_change_chain_id_dialog() {
 								 chain_callback_func);
       g.change_chain_id_from_chain = set_chain;
    }
+
+   std::cout << "----------- fill_combobox_with_coordinates_options " << mol_combobox << std::endl;
    g.fill_combobox_with_coordinates_options(mol_combobox, molecule_callback_func, imol);
    return w;
 }
@@ -1293,7 +1306,8 @@ change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
    graphics_info_t::change_chain_id_molecule = imol;
-   GtkWidget *chain_combobox = lookup_widget(combobox, "change_chain_id_chain_combobox");
+   // GtkWidget *chain_combobox = lookup_widget(combobox, "change_chain_id_chain_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("change_chain_id_chain_combobox");
    if (chain_combobox) {
       graphics_info_t g;
       g.fill_combobox_with_chain_options(chain_combobox, imol, NULL);
@@ -1312,11 +1326,11 @@ change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 void
 change_chain_id_by_widget(GtkWidget *w) {
 
-   GtkWidget *residue_range_yes_radiobutton = lookup_widget(w, "change_chain_residue_range_yes_radiobutton");
-   GtkWidget *residue_range_from_entry      = lookup_widget(w, "change_chain_residues_from_entry");
-   GtkWidget *residue_range_to_entry        = lookup_widget(w, "change_chains_residues_to_entry");
-   GtkWidget *change_chains_new_chain_entry = lookup_widget(w, "change_chains_new_chain_id");
-   GtkWidget *change_chain_id_from_chain_combobox = lookup_widget(w, "change_chain_id_chain_combobox");
+   GtkWidget *residue_range_yes_radiobutton = widget_from_builder("change_chain_residue_range_yes_radiobutton");
+   GtkWidget *residue_range_from_entry      = widget_from_builder("change_chain_residues_from_entry");
+   GtkWidget *residue_range_to_entry        = widget_from_builder("change_chains_residues_to_entry");
+   GtkWidget *change_chains_new_chain_entry = widget_from_builder("change_chains_new_chain_id");
+   GtkWidget *change_chain_id_from_chain_combobox = widget_from_builder("change_chain_id_chain_combobox");
 
    int imol = graphics_info_t::change_chain_id_molecule;
    bool use_res_range_flag = false;
@@ -1401,9 +1415,9 @@ show_fix_nomenclature_errors_gui(int imol,
    if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_model_molecule(imol)) {
 
-	 GtkWidget *w = create_fix_nomenclature_errors_dialog();
-
-	 GtkWidget *label = lookup_widget(w, "fix_nomenclature_errors_label");
+	 // GtkWidget *w = create_fix_nomenclature_errors_dialog();
+	 GtkWidget *w = widget_from_builder("fix_nomenclature_errors_dialog");
+	 GtkWidget *label = widget_from_builder("fix_nomenclature_errors_label");
 
 	 std::string s = "\n  Molecule number ";
 	 s += coot::util::int_to_string(imol);
@@ -1422,7 +1436,8 @@ show_fix_nomenclature_errors_gui(int imol,
 
 	 gtk_label_set_text(GTK_LABEL(label), s.c_str());
 
-	 GtkWidget *box = lookup_widget(w, "nomenclature_errors_vbox");
+	 // GtkWidget *box = lookup_widget(w, "nomenclature_errors_vbox");
+	 GtkWidget *box = widget_from_builder("nomenclature_errors_vbox");
 
 	 if (box) {
 	    // fill box
@@ -1454,7 +1469,11 @@ show_fix_nomenclature_errors_gui(int imol,
 void
 handle_get_libcheck_monomer_code(GtkWidget *widget) {
 
-   GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
+   // This function needs a name change FIXME - it doesn't use LIBCHECK any more
+   // but is the "Get Monomer" dialog
+
+   // GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
+   GtkWidget *frame = widget_from_builder("get_monomer_no_entry_frame");
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
 
    int no_entry_frame_shown = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "shown"));
@@ -1465,7 +1484,7 @@ handle_get_libcheck_monomer_code(GtkWidget *widget) {
 
       if (is_valid_model_molecule(imol)) {
 
-	 GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
+	 GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
 	 if (window)
 	    gtk_widget_destroy(window);
 	 else
@@ -1486,9 +1505,9 @@ handle_get_libcheck_monomer_code(GtkWidget *widget) {
 	 info_dialog("Failed to import molecule");
       }
 
-      GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
+      GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
       if (window)
-	 gtk_widget_destroy(window);
+	 gtk_widget_hide(window);
    }
 }
 
@@ -1576,13 +1595,14 @@ wrapped_create_fast_ss_search_dialog() {
   GtkWidget *strand_noaa_combobox;
   GtkWidget *radius_combobox;
 
-  dialog = create_fast_ss_search_dialog();
+  // dialog = create_fast_ss_search_dialog();
+  dialog = widget_from_builder("fast_ss_search_dialog");
 
-  helix_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_template_combobox");
-  helix_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_helix_no_aa_combobox");
-  strand_temp_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_template_combobox");
-  strand_noaa_combobox = lookup_widget(dialog, "fast_sss_dialog_strand_no_aa_combobox");
-  radius_combobox = lookup_widget(dialog, "fast_sss_dialog_radius_combobox");
+  helix_temp_combobox = widget_from_builder("fast_sss_dialog_helix_template_combobox");
+  helix_noaa_combobox = widget_from_builder("fast_sss_dialog_helix_no_aa_combobox");
+  strand_temp_combobox = widget_from_builder("fast_sss_dialog_strand_template_combobox");
+  strand_noaa_combobox = widget_from_builder("fast_sss_dialog_strand_no_aa_combobox");
+  radius_combobox = widget_from_builder("fast_sss_dialog_radius_combobox");
 
   // fill the comboboxes (done automatically, set the active ones)
   gtk_combo_box_set_active(GTK_COMBO_BOX(helix_temp_combobox), 0);

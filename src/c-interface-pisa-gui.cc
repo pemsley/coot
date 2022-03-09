@@ -36,14 +36,17 @@
 #include "c-interface-scm.hh"
 
 #include "pisa-interface.hh"
+#include "widget-from-builder.hh"
 
 void
 coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = create_pisa_interfaces_dialog();
+      // GtkWidget *w = create_pisa_interfaces_dialog();
+      GtkWidget *w = widget_from_builder("pisa_interface_dialog");
       gtk_widget_show(w);
-      GtkWidget *treeview = lookup_widget(w, "pisa_interfaces_treeview");
+      // GtkWidget *treeview = lookup_widget(w, "pisa_interfaces_treeview");
+      GtkWidget *treeview = widget_from_builder("pisa_interfaces_treeview");
       // we show:
       // molecule-number molecule-number chain-id chain-id symop Area energy #H-bonds #salt-bridges #Nss #Ncov
       GtkTreeStore *tree_store_interfaces =

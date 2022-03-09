@@ -48,7 +48,8 @@ coot::sequence_view *coot::sequence_view_object_t::seq_view = NULL;
 
 coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int coot_mol_no_in) {
 
-   GtkWidget *top_lev = create_sequence_view_dialog();
+   // GtkWidget *top_lev = create_sequence_view_dialog();
+   GtkWidget *top_lev = widget_from_builder("sequence_view_dialog");
    gtk_widget_set_size_request(GTK_WIDGET(top_lev), 500, 160);
    molecule_names.push_back(name);
    setup_internal(mol_in);
@@ -64,8 +65,8 @@ coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int 
 
    // connect canvas (which was created in setup_internal) to top_lev:
    //
-   GtkWidget *scrolled_window = seq_lookup_widget(GTK_WIDGET(top_lev),
-					      "sequence_view_scrolledwindow");
+   // GtkWidget *scrolled_window = seq_lookup_widget(GTK_WIDGET(top_lev), "sequence_view_scrolledwindow");
+   GtkWidget *scrolled_window = 0; // 20220309-PE FIXME set the scolled_window correctly by name lookup.
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
    gtk_widget_show(top_lev);

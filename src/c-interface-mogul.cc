@@ -37,6 +37,8 @@
 
 #include "interface.h"
 
+#include "widget-from-builder.hh"
+
 void
 mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
 
@@ -237,9 +239,12 @@ GtkWidget
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
       
-      GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
-      GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
-      GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+      // GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
+      // GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
+      // GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+      GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(widget_from_builder("mogul_bonds_treeview"));
+      GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(widget_from_builder("mogul_angles_treeview"));
+      GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(widget_from_builder("mogul_torsions_treeview"));
 
       coot::fill_mogul_bonds_tab(      mogul_bonds_treeview, w, m, residue);
       coot::fill_mogul_angles_tab(    mogul_angles_treeview, w, m, residue);

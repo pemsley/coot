@@ -11,18 +11,22 @@
 #include "c-interface-gtk-widgets.h"
 #include "coot-fileselections.h"
 
+#include "widget-from-builder.hh"
 
 // should this be part of graphics_info, with a wrapper?
 
 void
 wrapped_create_simple_refmac_dialog() {
 
-   GtkWidget *w = create_simple_refmac_dialog();
+   // GtkWidget *w = create_simple_refmac_dialog();
+   GtkWidget *w = widget_from_builder("simple_refmac_dialog");
    graphics_info_t g;
    int imol_active = -1;
    GCallback callback_func = 0;
-   GtkWidget *combobox_coords = lookup_widget(w, "simple_refmac_coordinates_combobox");
-   GtkWidget *combobox_file   = lookup_widget(w, "simple_refmac_mtz_file_combobox");
+   // GtkWidget *combobox_coords = lookup_widget(w, "simple_refmac_coordinates_combobox");
+   // GtkWidget *combobox_file   = lookup_widget(w, "simple_refmac_mtz_file_combobox");
+   GtkWidget *combobox_coords = widget_from_builder("simple_refmac_coordinates_combobox");
+   GtkWidget *combobox_file   = widget_from_builder("simple_refmac_mtz_file_combobox");
 
    g.fill_combobox_with_coordinates_options(combobox_coords, callback_func, imol_active);
 
@@ -37,8 +41,10 @@ wrapped_create_simple_refmac_dialog() {
 void
 simple_refmac_run_refmac(GtkWidget *dialog) {
 
-   GtkWidget *combobox_coords = lookup_widget(dialog, "simple_refmac_coordinates_combobox");
-   GtkWidget *combobox_file   = lookup_widget(dialog, "simple_refmac_mtz_file_combobox");
+   // GtkWidget *combobox_coords = lookup_widget(dialog, "simple_refmac_coordinates_combobox");
+   // GtkWidget *combobox_file   = lookup_widget(dialog, "simple_refmac_mtz_file_combobox");
+   GtkWidget *combobox_coords = widget_from_builder("simple_refmac_coordinates_combobox");
+   GtkWidget *combobox_file   = widget_from_builder("simple_refmac_mtz_file_combobox");
 
    graphics_info_t g;
    int imol_coords = g.combobox_get_imol(GTK_COMBO_BOX(combobox_coords));

@@ -233,15 +233,18 @@ void update_sequence_view_menu_manual(int imol, const char *name) {
    std::cout << "error:: update_sequence_view_menu_manual(): Don't use this " << std::endl;
 
    char *text;
-   GtkWidget *window1 = lookup_widget(main_window(), "window1");
-   GtkWidget *seq_view_menu = lookup_widget(window1, "seq_view_menu");
+   // GtkWidget *window1 = lookup_widget(main_window(), "window1");
+   GtkWidget *seq_view_menu = widget_from_builder("seq_view_menu");
    GtkWidget *menu_item;
 
    menu_item = gtk_menu_item_new_with_label (name);
+
+   // 20220309-PE why do I need to do this these days?
    // gtk_widget_ref (menu_item);
-   g_object_set_data_full (G_OBJECT(window1), "seq_view_menu_item",
-			   menu_item,
-			   NULL);
+   //  g_object_set_data_full (G_OBJECT(window1), "seq_view_menu_item",
+   // 			   menu_item,
+   // NULL);
+
    gtk_widget_show(menu_item);
    gtk_container_add(GTK_CONTAINER(seq_view_menu), menu_item);
    g_signal_connect (G_OBJECT(menu_item), "activate",
@@ -461,8 +464,8 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
    /* messing about with string variables for unique lookup values/name of the widgets */
    std::string widget_name;
 
-  display_molecule_vbox = lookup_widget(display_control_window_glade,
-					"display_molecule_vbox");
+   // display_molecule_vbox = lookup_widget(display_control_window_glade, "display_molecule_vbox");
+  display_molecule_vbox = widget_from_builder("display_molecule_vbox");
 
   display_mol_frame_1 = gtk_frame_new (NULL);
   // gtk_widget_ref (display_mol_frame_1);
@@ -706,19 +709,24 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
   int imol = n;
 
   for (i=0; i<1024; i++)
-    entry_name[i]= 0;
+     entry_name[i]= 0;
   if (is_valid_map_molecule(imol)) {
-    memcpy(entry_name, "display_map_entry_", 18);
-      } else {
-    memcpy(entry_name, "display_mol_entry_", 18);
-      }
+     memcpy(entry_name, "display_map_entry_", 18);
+  } else {
+     memcpy(entry_name, "display_mol_entry_", 18);
+  }
   tmp_name = entry_name + strlen(entry_name);
   snprintf(tmp_name, 4, "%-d", imol);
 
 /*   printf("debug:: molecule number (dereferenced): %d\n", *n); */
 /*   printf("debug:: pointer string: %s\n", tmp_name); */
 /*   printf("debug:: searching for entry name %s\n", entry_name); */
-  entry = lookup_widget(display_control_window_glade, entry_name);
+  // entry = lookup_widget(display_control_window_glade, entry_name);
+
+  //  entry = widget_from_builder(entry_name);
+
+  entry = 0;
+  std::cout << "do a proper lookup of entry here " << entry_name << std::endl;
 
   if (entry)
     gtk_entry_set_text(GTK_ENTRY(entry), display_name);
@@ -826,8 +834,8 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   /* we need to find references to objects that contain this widget */
 
-  display_map_vbox = lookup_widget(display_control_window_glade,
-				   "display_map_vbox");
+  // display_map_vbox = lookup_widget(display_control_window_glade, "display_map_vbox");
+  display_map_vbox = widget_from_builder("display_map_vbox");
 
   display_map_frame_1 = gtk_frame_new (NULL);
   // gtk_widget_ref (display_map_frame_1);
@@ -1064,7 +1072,9 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
 	    if (i != imol_this) {
 	       std::string test_name = "map_scroll_button_";
 	       test_name += coot::util::int_to_string(i);
-	       w = lookup_widget(display_manager_dialog, test_name.c_str());
+	       // w = lookup_widget(display_manager_dialog, test_name.c_str());
+               std::cout << "get_radio_button_in_scroll_group(): do a proper lookup of w here "  << std::endl;
+	       w = 0;
 	       if (w)
 		  break;
 	    }
@@ -1139,7 +1149,8 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   widget = patch_frame;
 
   widget = gtk_drawing_area_new();
-  widget_thing = lookup_widget(GTK_WIDGET(patch_frame), "single_map_colour_hbox");
+  //  widget_thing = lookup_widget(GTK_WIDGET(patch_frame), "single_map_colour_hbox");
+  widget_thing = widget_from_builder("single_map_colour_hbox");
   widget_thing = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 
@@ -1231,7 +1242,9 @@ on_display_control_mol_displayed_button_toggled(GtkToggleButton *button,
         set_mol_displayed(imol, 0);
 
      /*     printf("looking up widget name %s\n", widget_name); */
-     active_toggle_button = lookup_widget(GTK_WIDGET(button), widget_name.c_str());
+     // active_toggle_button = lookup_widget(GTK_WIDGET(button), widget_name.c_str());
+     std::cout << "on_display_control_mol_displayed_button_toggled() do a proper lookup of active_toggle_button here " << std::endl;
+     active_toggle_button = 0;
      if (active_toggle_button) {
       /*  printf("INFO:: Got active_toggle_button from name: %s\n", widget_name); */
 
@@ -1308,7 +1321,8 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   widget_name = (gchar *) malloc(100);
 
-  phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox");
+  // phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox");
+  phs_cell_chooser_vbox = widget_from_builder("phs_cell_chooser_vbox");
 
   hbox33 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox33);
@@ -1502,7 +1516,7 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   GtkWidget *phs_cell_none_radiobutton;
 
 
-  phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox");
+  phs_cell_chooser_vbox = widget_from_builder("phs_cell_chooser_vbox");
 
   hbox34 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox34);
@@ -1552,7 +1566,9 @@ display_control_add_reps_container(GtkWidget *display_control_window_glade,
    if (display_control_window_glade) {
       std::string name = "add_rep_display_control_frame_vbox_";
       name += coot::util::int_to_string(imol_no);
-      GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      // GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      GtkWidget *t = 0;
+      std::cout << "display_control_add_reps_container(): Do a proper lookup of t here" << std::endl;
       if (t)
 	 w = t;
       else
@@ -1571,7 +1587,9 @@ display_control_add_reps_frame(GtkWidget *display_control_window_glade,
    if (display_control_window_glade) {
       std::string name = "add_rep_display_control_frame_";
       name += coot::util::int_to_string(imol_no);
-      GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      // GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      GtkWidget *t = 0;
+      std::cout << "display_control_add_reps_frame(): Do a proper lookup of t here" << std::endl;
       if (t)
 	 w = t;
       else
@@ -1588,7 +1606,9 @@ display_control_add_reps_all_on_check_button(GtkWidget *display_control_window_g
    if (display_control_window_glade) {
       std::string name = "add_rep_all_on_check_button_";
       name += coot::util::int_to_string(imol_no);
-      GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      // GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      GtkWidget *t = 0;
+      std::cout << "display_control_add_reps_all_on_check_button(): Do a proper lookup of t here" << std::endl;
       if (t)
 	 w = t;
       else

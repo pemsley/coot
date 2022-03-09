@@ -71,6 +71,8 @@
 #include "c-interface-ligand-search.hh"
 #include "widget-headers.hh"
 
+#include "widget-from-builder.hh"
+
 #include "guile-fixups.h"
 
 /* in here we check if libcheck is available (if scripting is available) */
@@ -129,9 +131,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
    // The mask waters toggle buttons:
 
-   GtkWidget *togglebutton;
-   togglebutton = lookup_widget(find_ligand_dialog,
-				"find_ligand_mask_waters_yes_radiobutton");
+   GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
    if (g.find_ligand_mask_waters_flag)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
    else
@@ -141,8 +141,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    // The Search/Here toggle buttons:
    //
    GtkWidget *search_here_toggle_button;
-   search_here_toggle_button = lookup_widget(find_ligand_dialog,
-					     "find_ligands_search_here_radiobutton");
+   search_here_toggle_button = widget_from_builder("find_ligands_search_here_radiobutton");
    if (search_here_toggle_button)
       if (graphics_info_t::find_ligand_here_cluster_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_here_toggle_button), TRUE);
@@ -151,8 +150,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
    // multi-solution check button
    //
-   GtkWidget *multi_solution_check_button = lookup_widget(find_ligand_dialog,
-							  "find_ligand_multi_solution_checkbutton");
+   GtkWidget *multi_solution_check_button = widget_from_builder("find_ligand_multi_solution_checkbutton");
    if (multi_solution_check_button) {
 
       if (g.find_ligand_multiple_solutions_per_cluster_flag) {
@@ -162,8 +160,8 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 	 // g.find_ligand_score_by_correl_frac_limit
 	 // g.find_ligand_score_correl_frac_interesting_limit
 	 //
-	 GtkWidget *entry_1 = lookup_widget(find_ligand_dialog, "find_ligand_multi_solution_entry_1");
-	 GtkWidget *entry_2 = lookup_widget(find_ligand_dialog, "find_ligand_multi_solution_entry_2");
+	 GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
+	 GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
 	 if (entry_1) {
 	    gtk_entry_set_text(GTK_ENTRY(entry_1),
 			       coot::util::float_to_string(g.find_ligand_score_by_correl_frac_limit).c_str());
@@ -183,7 +181,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    //          never hide it.
    // if (graphics_info_t::ligand_expert_flag == 0) {
    if (false) {
-      GtkWidget *frame = lookup_widget(find_ligand_dialog, "ligand_expert_frame");
+      GtkWidget *frame = widget_from_builder("ligand_expert_frame");
       gtk_widget_hide(frame);
    }
 
@@ -197,18 +195,19 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 //
 void fill_ligands_sigma_level_entry(GtkWidget *dialog) {
 
-   GtkWidget *entry = lookup_widget(dialog, "find_ligand_sigma_level_entry");
+   // GtkWidget *entry = lookup_widget(dialog, "find_ligand_sigma_level_entry");
+   GtkWidget *entry = widget_from_builder("find_ligand_sigma_level_entry");
    gtk_entry_set_text(GTK_ENTRY(entry), graphics_info_t::float_to_string(graphics_info_t::ligand_cluster_sigma_level).c_str());
 
 }
 
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog) {
 
-   GtkWidget *entry = lookup_widget(find_ligand_dialog, "ligand_n_samples_entry");
+   GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
    gtk_entry_set_text(GTK_ENTRY(entry),
 		      graphics_info_t::int_to_string(graphics_info_t::ligand_wiggly_ligand_n_samples).c_str());
 
-   entry = lookup_widget(find_ligand_dialog, "ligand_n_top_ligands_entry");
+   entry = widget_from_builder("ligand_n_top_ligands_entry");
    gtk_entry_set_text(GTK_ENTRY(entry),
 		      graphics_info_t::int_to_string(graphics_info_t::find_ligand_n_top_ligands).c_str());
 
@@ -238,10 +237,10 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
    std::string vbox_name = dialog_name;
    vbox_name += "_vbox";
 
-   GtkWidget *find_ligand_map_vbox =
-      lookup_widget(find_ligand_dialog,vbox_name.c_str());
+   GtkWidget *find_ligand_map_vbox = widget_from_builder(vbox_name.c_str()); // 20220309-PE does this find the right name?
+
    if (find_ligand_map_vbox == NULL) {
-      std::cout << "disaster! find_ligand map vbox not found " << std::endl;
+      std::cout << "ERROR:: disaster! find_ligand map vbox not found " << std::endl;
    } else {
       for (int imol=0; imol<g.n_molecules(); imol++) {
 	 if (g.molecules[imol].has_xmap()) {
@@ -289,7 +288,7 @@ on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
    int imol = GPOINTER_TO_INT(user_data);
    if (gtk_toggle_button_get_active(togglebutton)) {
       std::cout << "imol " << imol << " active "<< std::endl;
-      GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "find_ligand_sigma_level_entry");
+      GtkWidget *w = widget_from_builder("find_ligand_sigma_level_entry");
       if (w) {
 	 if (map_is_difference_map(imol)) {
 	    gtk_entry_set_text(GTK_ENTRY(w), "3.0");
@@ -321,8 +320,7 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
    std::string vbox_name(dialog_name);
    vbox_name += "_vbox";
 
-   GtkWidget *find_ligand_protein_vbox =
-      lookup_widget(find_ligand_dialog,vbox_name.c_str());
+   GtkWidget *find_ligand_protein_vbox = widget_from_builder(vbox_name.c_str()); // 20220309-PE is this the right name?
    if (find_ligand_protein_vbox == NULL) {
       std::cout << "disaster! find_ligand protein vbox not found " << std::endl;
    } else {
@@ -368,8 +366,8 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
    std::string vbox_name(dialog_name);
    vbox_name += "_vbox";
 
-   GtkWidget *find_ligand_protein_vbox =
-      lookup_widget(find_ligand_dialog,vbox_name.c_str());
+   GtkWidget *find_ligand_protein_vbox = widget_from_builder(vbox_name.c_str()); // 20220309-PE is this the right name?
+
    if (find_ligand_protein_vbox == NULL) {
       std::cout << "disaster! fill_vbox_with_coords_options_by_dialog_name coords"
 		<< " vbox not found " << std::endl;
@@ -416,8 +414,7 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
    //
    GtkWidget *hbox;
 
-   GtkWidget *find_ligand_ligands_vbox =
-      lookup_widget(find_ligand_dialog, "find_ligand_ligands_vbox");
+   GtkWidget *find_ligand_ligands_vbox = widget_from_builder("find_ligand_ligands_vbox"); // 20220309-PE is this the right name?
    if (find_ligand_ligands_vbox == NULL) {
       std::cout << "disaster! find_ligand protein vbox not found " << std::endl;
    } else {
@@ -525,7 +522,8 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
       if (g.molecules[imol].has_xmap()) {
 	 std::string map_str = "find_ligand_map_radiobutton_";
 	 map_str += g.int_to_string(imol);
-	 ligand_button = lookup_widget(button, map_str.c_str());
+         // ligand_button = lookup_widget(button, map_str.c_str());
+         ligand_button = 0; // 20220309-PE FIXME set tne name in the caller
 	 if (ligand_button) {
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
 	       find_ligand_map_mol = imol;
@@ -545,7 +543,8 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
       if (g.molecules[imol].atom_sel.n_selected_atoms > 0) {
 	 std::string protein_str = "find_ligand_protein_radiobutton_";
 	 protein_str += g.int_to_string(imol);
-	 ligand_button = lookup_widget(button, protein_str.c_str());
+	 // ligand_button = lookup_widget(button, protein_str.c_str());
+	 ligand_button = 0;  // 20220309-PE FIXME set tne name in the caller
 	 if (ligand_button) {
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
 	       find_ligand_protein_mol = imol;
@@ -561,9 +560,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 
    // Now, do we mask waters for the protein mask?
 
-   GtkWidget *togglebutton;
-   togglebutton = lookup_widget(button,
-				"find_ligand_mask_waters_yes_radiobutton");
+   GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
       graphics_info_t::find_ligand_mask_waters_flag = 1;
    else
@@ -572,9 +569,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 
    // The Search/Here toggle buttons:
 
-   GtkWidget *search_here_toggle_button;
-   search_here_toggle_button = lookup_widget(button,
-					     "find_ligands_search_here_radiobutton");
+   GtkWidget *search_here_toggle_button = widget_from_builder("find_ligands_search_here_radiobutton");
    if (search_here_toggle_button) {
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(search_here_toggle_button))) {
 	 std::cout << " Activating SEARCH HERE in ligand fitting" << std::endl;
@@ -595,11 +590,13 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 	  g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) {
 	 std::string ligand_str = "find_ligand_ligand_checkbutton_";
 	 ligand_str += g.int_to_string(imol);
-	 ligand_button = lookup_widget(button, ligand_str.c_str());
+	 // ligand_button = lookup_widget(button, ligand_str.c_str());
+	 ligand_button = 0;
 
 	 std::string wiggly_str = "find_ligand_wligand_checkbutton_";
 	 wiggly_str += g.int_to_string(imol);
-	 GtkWidget *wiggly_button = lookup_widget(button, wiggly_str.c_str());
+	 // GtkWidget *wiggly_button = lookup_widget(button, wiggly_str.c_str());
+	 GtkWidget *wiggly_button = 0;
 
 	 if (ligand_button && wiggly_button) {
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
@@ -626,14 +623,13 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 
    // multi-solution check button
    //
-   GtkWidget *multi_solution_check_button = lookup_widget(button,
-							  "find_ligand_multi_solution_checkbutton");
+   GtkWidget *multi_solution_check_button = widget_from_builder("find_ligand_multi_solution_checkbutton");
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_solution_check_button))) {
       g.find_ligand_multiple_solutions_per_cluster_flag = true;
    }
 
-   GtkWidget *entry_1 = lookup_widget(button, "find_ligand_multi_solution_entry_1");
-   GtkWidget *entry_2 = lookup_widget(button, "find_ligand_multi_solution_entry_2");
+   GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
+   GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
    if (entry_1) {
       const gchar *e1t = gtk_entry_get_text(GTK_ENTRY(entry_1));
       if (e1t) {
@@ -684,8 +680,9 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 	 // we need to delete this widget when OK and cancel of the
 	 // many atoms widget is pressed, so let's attach it as user
 	 // data.
-	 GtkWidget *widget = lookup_widget(button, "find_ligand_dialog");
-	 do_find_ligand_many_atoms_in_ligands(widget);
+	 // GtkWidget *widget = lookup_widget(button, "find_ligand_dialog");
+	 GtkWidget *widget = widget_from_builder("find_ligand_dialog");
+         do_find_ligand_many_atoms_in_ligands(widget);
       }
    } else {
 	 std::cout << "Something wrong in the selection of map/molecules"
@@ -706,14 +703,16 @@ void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog) {
 
 void set_ligand_expert_options_from_widget(GtkWidget *button) {
 
-   GtkWidget *entry = lookup_widget(button, "ligand_n_samples_entry");
+   // GtkWidget *entry = lookup_widget(button, "ligand_n_samples_entry");
+   GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
    if (text) {
       int isample = atoi(text);
       if ((isample > 0) && (isample < 1000000))
 	 graphics_info_t::ligand_wiggly_ligand_n_samples = isample;
    }
-   entry = lookup_widget(button, "ligand_n_top_ligands_entry");
+   // entry = lookup_widget(button, "ligand_n_top_ligands_entry");
+   entry = widget_from_builder("ligand_n_top_ligands_entry");
    text = gtk_entry_get_text(GTK_ENTRY(entry));
    if (text) {
       int itop = atoi(text);
@@ -724,7 +723,8 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
 
 void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
 
-   GtkWidget *hbox = lookup_widget(toggle_button, "find_ligands_dialog_number_of_sites_hbox");
+   // GtkWidget *hbox = lookup_widget(toggle_button, "find_ligands_dialog_number_of_sites_hbox");
+   GtkWidget *hbox = widget_from_builder("find_ligands_dialog_number_of_sites_hbox");
    if (hbox) {
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) {
 	 gtk_widget_set_sensitive(hbox, FALSE);
@@ -757,7 +757,8 @@ void set_find_ligand_do_real_space_refinement(short int state) {
 /*  graphics_info_t::ligand_cluster_sigma_level */
 void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 
-   GtkWidget *entry = lookup_widget(button, "find_ligand_sigma_level_entry");
+   // GtkWidget *entry = lookup_widget(button, "find_ligand_sigma_level_entry");
+   GtkWidget *entry = widget_from_builder("find_ligand_sigma_level_entry");
    short int setit = 0;
 
    if (entry) {
@@ -1078,27 +1079,26 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = create_ligand_check_dialog();
 
-      GtkWidget *mogul_tick_w  = lookup_widget(w, "image_tick_mogul");
-      GtkWidget *mogul_cross_w = lookup_widget(w, "image_cross_mogul");
-      GtkWidget *mogul_incom_w = lookup_widget(w, "image_incomplete_mogul");
+      GtkWidget *mogul_tick_w  = widget_from_builder("image_tick_mogul");
+      GtkWidget *mogul_cross_w = widget_from_builder("image_cross_mogul");
+      GtkWidget *mogul_incom_w = widget_from_builder("image_incomplete_mogul");
 
-      GtkWidget *density_tick_w  = lookup_widget(w, "image_tick_density");
-      GtkWidget *density_cross_w = lookup_widget(w, "image_cross_density");
-      GtkWidget *density_incom_w = lookup_widget(w, "image_incomplete_density");
+      GtkWidget *density_tick_w  = widget_from_builder("image_tick_density");
+      GtkWidget *density_cross_w = widget_from_builder("image_cross_density");
+      GtkWidget *density_incom_w = widget_from_builder("image_incomplete_density");
 
-      GtkWidget *bumps_tick_w  = lookup_widget(w, "image_tick_bumps");
-      GtkWidget *bumps_cross_w = lookup_widget(w, "image_cross_bumps");
-      GtkWidget *bumps_incom_w = lookup_widget(w, "image_incomplete_bumps");
+      GtkWidget *bumps_tick_w  = widget_from_builder("image_tick_bumps");
+      GtkWidget *bumps_cross_w = widget_from_builder("image_cross_bumps");
+      GtkWidget *bumps_incom_w = widget_from_builder("image_incomplete_bumps");
 
-      GtkWidget *spec_label = lookup_widget(w, "ligand_check_ligand_spec_label");
+      GtkWidget *spec_label = widget_from_builder("ligand_check_ligand_spec_label");
+
       // GtkWidget *db_label   = lookup_widget(w, "ligand_check_db_label");
 
       std::cout << "percentile_limit                  " << percentile_limit << std::endl;
       // std::cout << "lr.mogul_percentile               " << lr.mogul_percentile << std::endl;
-      std::cout << "lr.density_correlation_percentile "
-		<< lr.density_correlation_percentile << std::endl;
-      std::cout << "lr.probe_clash_percentile         "
-		<< lr.probe_clash_percentile << std::endl;
+      std::cout << "lr.density_correlation_percentile " << lr.density_correlation_percentile << std::endl;
+      std::cout << "lr.probe_clash_percentile         " << lr.probe_clash_percentile << std::endl;
 
       std::string l = "Residue: " + spec.chain_id + " " + util::int_to_string(spec.res_no);
       gtk_label_set_text(GTK_LABEL(spec_label), l.c_str());

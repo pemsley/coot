@@ -79,6 +79,7 @@
 #include "c-interface-bonds.hh"
 
 #include "widget-headers.hh"
+#include "widget-from-builder.hh"
 
 PyObject *go_to_ligand_py() {
 
@@ -1055,8 +1056,9 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 #endif // USE_PYGTK
 #endif // USE_GUILE
 
-	 GtkWidget *w = create_new_ligands_info_dialog();
-	 GtkWidget *label = lookup_widget(w, "new_ligands_info_dialog_label");
+	 // GtkWidget *w = create_new_ligands_info_dialog();
+	 GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
+	 GtkWidget *label = widget_from_builder("new_ligands_info_dialog_label");
 	 std::string label_str("  Found ");
 	 label_str += graphics_info_t::int_to_string(n_new_ligand);
 	 if (n_new_ligand == 1)
@@ -1407,14 +1409,12 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    bool use_sbase_molecules = 0;
    std::string t(text);
 
-   GtkWidget *vbox_current = lookup_widget(viewport, "monomer_search_results_vbox");
-   GtkWidget *checkbutton =
-      lookup_widget(viewport, "monomer_search_minimal_descriptions_checkbutton");
-   GtkWidget *use_sbase_checkbutton =
-      lookup_widget(viewport, "monomer_search_sbase_molecules_checkbutton");
+   GtkWidget *vbox_current = widget_from_builder("monomer_search_results_vbox");
+   GtkWidget *checkbutton = widget_from_builder("monomer_search_minimal_descriptions_checkbutton");
+   GtkWidget *use_sbase_checkbutton = widget_from_builder("monomer_search_sbase_molecules_checkbutton");
 
    short int allow_minimal_descriptions_flag = 0;
-   GtkWidget *dialog = lookup_widget(viewport, "monomer_search_dialog");
+   GtkWidget *dialog = widget_from_builder("monomer_search_dialog");
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       allow_minimal_descriptions_flag = 1;
@@ -1517,7 +1517,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
    // a box of 14 is 400 pixels.  400 is about max size, I'd say
    g_signal_emit_by_name(G_OBJECT(vbox), "check_resize");
-   gtk_widget_show (vbox);
+   gtk_widget_show(vbox);
    return stat;
 
 }

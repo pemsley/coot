@@ -62,6 +62,8 @@
 
 #include "guile-fixups.h"
 
+#include "widget-from-builder.hh"
+
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
@@ -149,7 +151,8 @@ GtkWidget *wrapped_create_ncs_maps_dialog() {
 							diff_maps_only_flag);
    if (ifound == 0) {
       std::cout << "Error: you must have a difference map to analyse!" << std::endl;
-      GtkWidget *none_frame = lookup_widget(dialog, "no_maps_frame");
+      // GtkWidget *none_frame = lookup_widget(dialog, "no_maps_frame");
+      GtkWidget *none_frame = widget_from_builder("no_maps_frame");
       gtk_widget_show(none_frame);
    }
 
@@ -159,7 +162,8 @@ GtkWidget *wrapped_create_ncs_maps_dialog() {
 							 have_ncs_flag);
    if (ifound == 0) {
       std::cout << "You must have molecules with NCS to use this function\n";
-      GtkWidget *none_frame = lookup_widget(dialog, "no_models_frame");
+      // GtkWidget *none_frame = lookup_widget(dialog, "no_models_frame");
+      GtkWidget *none_frame = widget_from_builder("no_models_frame");
       gtk_widget_show(none_frame);
    }
 
@@ -457,7 +461,9 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
 	 std::string map_str = "ncs_maps_maps_radiobutton_";
 	 map_str += graphics_info_t::int_to_string(imol);
-	 map_button = lookup_widget(dialog, map_str.c_str());
+	 // map_button = lookup_widget(dialog, map_str.c_str());
+	 map_button = 0; // 20220309-PE FIXME set the map_button correctly in make_dynamically_transformed_ncs_maps_by_widget()
+         std::cout << "in make_dynamically_transformed_ncs_maps_by_widget() set the map_button correctly" << std::endl;
 	 if (map_button) {
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) { 
 	       imol_map = imol;
@@ -478,7 +484,9 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
 	 if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	    std::string coords_str = "ncs_maps_models_radiobutton_";
 	    coords_str += graphics_info_t::int_to_string(imol);
-	    coords_button = lookup_widget(dialog, coords_str.c_str());
+	    // coords_button = lookup_widget(dialog, coords_str.c_str());
+	    coords_button = 0; // 20220309-PE FIXME set the coords_button correctly in make_dynamically_transformed_ncs_maps_by_widget()
+            std::cout << "in make_dynamically_transformed_ncs_maps_by_widget() set the coords_button correctly" << std::endl;
 	    if (coords_button) {
 	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
 		  imol_coords = imol;

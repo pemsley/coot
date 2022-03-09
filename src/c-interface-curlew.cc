@@ -48,6 +48,8 @@ using json = nlohmann::json;
 #include "curlew.h"
 #include "curlew.hh"
 
+#include "widget-from-builder.hh"
+
 #include "c-interface-curlew.hh"
 
 void remove_file_curlew_menu_item_maybe() {
@@ -58,7 +60,8 @@ void remove_file_curlew_menu_item_maybe() {
 
 #else
    std::cout << "No curlew - not compiled" << std::endl;
-   GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   // GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   GtkWidget *menubar = widget_from_builder("menubar1");
    if (menubar) {
       // gtk_container_foreach(GTK_CONTAINER(menubar), my_delete_file_curlew_menu_item, menubar);
 
@@ -118,8 +121,10 @@ void curlew() {
    GtkWidget *w = create_curlew_dialog();
    graphics_info_t g;
 
-   GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
-   GtkWidget *install_selected_button = lookup_widget(w, "curlew_install_button");
+   //  GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
+   // GtkWidget *install_selected_button = lookup_widget(w, "curlew_install_button");
+   GtkWidget *vbox = widget_from_builder("curlew_vbox_for_extensions");
+   GtkWidget *install_selected_button = widget_from_builder("curlew_install_button");
    // new method does individual installs, not all at once
    gtk_widget_hide(install_selected_button);
 
@@ -313,7 +318,8 @@ void curlew() {
                   std::cout << "ERROR:: " << e.what() << std::endl;
                }
 
-               GtkWidget *done_label = lookup_widget(GTK_WIDGET(w), "curlew_already_installed_label");
+               // GtkWidget *done_label = lookup_widget(GTK_WIDGET(w), "curlew_already_installed_label");
+               GtkWidget *done_label = widget_from_builder("curlew_already_installed_label");
                if (done_label) {
                   if (n_already_done > 0) {
                      std::string txt = coot::util::int_to_string(n_already_done);
