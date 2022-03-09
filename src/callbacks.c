@@ -9259,8 +9259,8 @@ on_move_molecule_here1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = wrapped_create_move_molecule_here_dialog();
-  gtk_widget_show(w);
+  // GtkWidget *w = wrapped_create_move_molecule_here_dialog();
+  // gtk_widget_show(w);
 
 }
 

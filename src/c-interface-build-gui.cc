@@ -129,53 +129,33 @@ void do_regularize_kill_delete_dialog() {
    the go to atom atom list on deleting an atom  */
 void update_go_to_atom_residue_list(int imol) {
 
+   // called from delete_atom and nowhere else.
+
+#if 0 // lookup_widget cleansing
+
+   std::cout << "::::::::::::::::::::::::::::::::: update_go_to_atom_residue_list() " << std::endl;
+
    graphics_info_t g;
-      if (g.go_to_atom_window) {
-	 int go_to_atom_imol = g.go_to_atom_molecule();
-	 if (go_to_atom_imol == imol) {
+   if (g.go_to_atom_window) {
+      int go_to_atom_imol = g.go_to_atom_molecule();
+      if (go_to_atom_imol == imol) {
 
-	    // The go to atom molecule matched this molecule, so we
-	    // need to regenerate the residue and atom lists.
-	    GtkWidget *gtktree = lookup_widget(g.go_to_atom_window,
-					       "go_to_atom_residue_tree");
-	    GtkWidget *gtk_atom_list = lookup_widget(g.go_to_atom_window,
-						     "go_to_atom_atom_list");
-	    g.fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, gtktree, gtk_atom_list);
-	 }
-      }
-}
-
-/* utility function, moving widget work out of c-interface-build.cc */
-void delete_object_handle_delete_dialog(short int do_delete_dialog) {
-
-   if (graphics_info_t::delete_item_widget != NULL) {
-      if (do_delete_dialog) { // via ctrl
-
-	 // another check is needed, is the check button active?
-	 //
-	 // If not we can go ahead and delete the dialog
-	 //
-	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
-						"delete_item_keep_active_checkbutton");
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
-	    // don't kill the widget
-	    pick_cursor_maybe(); // it was set to normal_cursor() in
-                                 // graphics-info-define's delete_item().
-	 } else {
-
-	    gtk_widget_destroy(graphics_info_t::delete_item_widget);
-	    graphics_info_t::delete_item_widget = NULL;
-	    graphics_draw();
-	 }
+         // The go to atom molecule matched this molecule, so we
+         // need to regenerate the residue and atom lists.
+         // GtkWidget *gtktree = lookup_widget(g.go_to_atom_window, "go_to_atom_residue_tree");
+         // GtkWidget *gtk_atom_list = lookup_widget(g.go_to_atom_window, "go_to_atom_atom_list");
+         g.fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, gtktree, gtk_atom_list);
       }
    }
+#endif
 }
+
 
 void
 post_delete_item_dialog() {
 
-   GtkWidget *w = wrapped_create_delete_item_dialog();
-   gtk_widget_show(w);
+   // GtkWidget *w = wrapped_create_delete_item_dialog();
+   // gtk_widget_show(w);
 
 }
 
@@ -186,74 +166,77 @@ post_delete_item_dialog() {
    callback, so this wrapper does it */
 GtkWidget *wrapped_create_delete_item_dialog() {
 
-   GtkWidget *widget = create_delete_item_dialog();
-   GtkWidget *atom_toggle_button;
+   // GtkWidget *widget = create_delete_item_dialog();
+   // GtkWidget *atom_toggle_button;
 
-   if (delete_item_mode_is_atom_p()) {
-      atom_toggle_button = lookup_widget(GTK_WIDGET(widget),
-					 "delete_item_atom_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(atom_toggle_button), TRUE);
-      std::cout << "Click on the atom that you wish to delete\n";
-   } else {
-      if (delete_item_mode_is_water_p()) {
-	 GtkWidget *water_toggle_button = lookup_widget(widget,
-							"delete_item_water_radiobutton");
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(water_toggle_button), TRUE);
-      } else {
-	 if (delete_item_mode_is_sidechain_p()) {
-	 GtkWidget *sidechain_toggle_button = lookup_widget(widget,
-							"delete_item_sidechain_radiobutton");
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_toggle_button), TRUE);
+   // if (delete_item_mode_is_atom_p()) {
+   //    atom_toggle_button = lookup_widget(GTK_WIDGET(widget), "delete_item_atom_radiobutton");
+   //    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(atom_toggle_button), TRUE);
+   //    std::cout << "Click on the atom that you wish to delete\n";
+   // } else {
+   //    if (delete_item_mode_is_water_p()) {
+   //       GtkWidget *water_toggle_button = lookup_widget(widget,
+   //      						"delete_item_water_radiobutton");
+   //       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(water_toggle_button), TRUE);
+   //    } else {
+   //       if (delete_item_mode_is_sidechain_p()) {
+   //       GtkWidget *sidechain_toggle_button = lookup_widget(widget,
+   //      						"delete_item_sidechain_radiobutton");
+   //       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_toggle_button), TRUE);
 
-	 set_delete_sidechain_mode();
-	 std::cout << "Click on an atom in the residue that you wish to delete\n";
-	 } else {
-	    if (delete_item_mode_is_chain_p()) {
-	       GtkWidget *chain_toggle_button = lookup_widget(widget,
-								  "delete_item_chain_radiobutton");
-	       set_delete_chain_mode();
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
-	       std::cout << "Click on an atom in the chain that you wish to delete\n";
-	    } else {
+   //       set_delete_sidechain_mode();
+   //       std::cout << "Click on an atom in the residue that you wish to delete\n";
+   //       } else {
+   //          if (delete_item_mode_is_chain_p()) {
+   //             GtkWidget *chain_toggle_button = lookup_widget(widget,
+   //      							  "delete_item_chain_radiobutton");
+   //             set_delete_chain_mode();
+   //             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+   //             std::cout << "Click on an atom in the chain that you wish to delete\n";
+   //          } else {
 
-	       if (delete_item_mode_is_sidechain_range_p()) {
+   //             if (delete_item_mode_is_sidechain_range_p()) {
 
-		  GtkWidget *sidechain_range_toggle_button = lookup_widget(widget,
-									   "delete_item_sidechain_range_radiobutton");
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_range_toggle_button), TRUE);
+   //      	  GtkWidget *sidechain_range_toggle_button = lookup_widget(widget,
+   //      								   "delete_item_sidechain_range_radiobutton");
+   //      	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_range_toggle_button), TRUE);
 
-		  set_delete_sidechain_range_mode();
-	       } else {
+   //      	  set_delete_sidechain_range_mode();
+   //             } else {
 
-		  // if (delete_item_mode_is_residue_p()) {
-		  // if nothing else, let's choose delete residue mode
-		  if (true) {
-		     GtkWidget *chain_toggle_button = lookup_widget(widget,
-								    "delete_item_residue_radiobutton");
-		     set_delete_residue_mode();
-		     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   graphics_info_t::pick_pending_flag = 1;
-   pick_cursor_maybe();
-   set_transient_and_position(COOT_DELETE_WINDOW, widget);
-   store_delete_item_widget(widget);
-   return widget;
+   //      	  // if (delete_item_mode_is_residue_p()) {
+   //      	  // if nothing else, let's choose delete residue mode
+   //      	  if (true) {
+   //      	     GtkWidget *chain_toggle_button = lookup_widget(widget,
+   //      							    "delete_item_residue_radiobutton");
+   //      	     set_delete_residue_mode();
+   //      	     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+   //      	  }
+   //             }
+   //          }
+   //       }
+   //    }
+   // }
+   // graphics_info_t::pick_pending_flag = 1;
+   // pick_cursor_maybe();
+   // set_transient_and_position(COOT_DELETE_WINDOW, widget);
+   // store_delete_item_widget(widget);
+   // return widget;
+
+   return 0;
 }
 
 // -----------------------------------------------------
 //  move molecule here widget
 // -----------------------------------------------------
-GtkWidget *wrapped_create_move_molecule_here_dialog() {
+// GtkWidget *wrapped_create_move_molecule_here_dialog() {
 
-   GtkWidget *w = create_move_molecule_here_dialog();
-   fill_move_molecule_here_dialog(w);
-   return w;
-}
+   // GtkWidget *w = create_move_molecule_here_dialog();
+   //    fill_move_molecule_here_dialog(w);
+   // return w;
+
+//   return 0;
+// }
 
 // called (also) by the callback of toggling the
 // move_molecule_here_big_molecules_checkbutton.
@@ -261,19 +244,16 @@ GtkWidget *wrapped_create_move_molecule_here_dialog() {
 void
 fill_move_molecule_here_dialog(GtkWidget *w) {
 
-   // GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
+   // // GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
 
    graphics_info_t g;
 
-   GtkWidget *combobox  = lookup_widget(w, "move_molecule_here_combobox");
-   GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
-   gtk_widget_hide(check_button);
+   GtkWidget *combobox  = widget_from_builder("move_molecule_here_combobox");
 
    // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
 
    GCallback callback_func = G_CALLBACK(graphics_info_t::move_molecule_here_combobox_changed);
 
-   bool fill_with_small_molecule_only_flag = false;
    int imol_active = first_coords_imol();
 
    g.move_molecule_here_molecule_number = imol_active;
@@ -282,7 +262,7 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
 }
 
 
-void move_molecule_here_by_widget(GtkWidget *w) {
+void move_molecule_here_by_widget() { // no widget needed.
 
    int imol = graphics_info_t::move_molecule_here_molecule_number;
    move_molecule_to_screen_centre_internal(imol);

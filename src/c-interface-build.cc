@@ -1946,7 +1946,7 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
 		<< ins_code << ": atom-name " << atom_name << ": altconf :"
 		<< altconf << ":" << std::endl;
       delete_atom(imol, chain_id, resno, ins_code, atom_name, altconf);
-      delete_object_handle_delete_dialog(do_delete_dialog);
+      // delete_object_handle_delete_dialog(do_delete_dialog);
    }
 
    // no need for this, the called delete_atom() does it.
@@ -1985,7 +1985,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
 				    inscode.c_str(), altloc.c_str());
 
    short int do_delete_dialog = do_delete_dialog_by_ctrl;
-   delete_object_handle_delete_dialog(do_delete_dialog);
+   // delete_object_handle_delete_dialog(do_delete_dialog);
 
    graphics_draw();
    std::string cmd = "delete-residue-by-atom-index";
@@ -2007,7 +2007,7 @@ void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_de
 
    delete_residue_hydrogens(imol, chain_id.c_str(), resno, inscode.c_str(), altloc.c_str());
 
-   delete_object_handle_delete_dialog(do_delete_dialog);
+   // delete_object_handle_delete_dialog(do_delete_dialog);
    graphics_draw();
    std::string cmd = "delete-residue-hydrogens-by-atom-index";
    std::vector<coot::command_arg_t> args;
@@ -4726,28 +4726,6 @@ void set_secondary_structure_restraints_type(int itype) {
       graphics_info_t::pseudo_bonds_type = coot::HELIX_PSEUDO_BONDS;
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
-
-#if 0 // 20211027-PE these icons no longer exist
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-      std::string wa_name = "main_toolbar_restraints_alpha_label";
-      std::string wb_name = "main_toolbar_restraints_beta_label";
-      GtkWidget *w_a = lookup_widget(graphics_info_t::get_main_window(), wa_name.c_str());
-      GtkWidget *w_b = lookup_widget(graphics_info_t::get_main_window(), wb_name.c_str());
-      if (itype == 0) {
-	 gtk_widget_hide(w_a);
-	 gtk_widget_hide(w_b);
-      }
-      if (itype == 1) {
-	 gtk_widget_show(w_a);
-	 gtk_widget_hide(w_b);
-      }
-      if (itype == 2) {
-	 gtk_widget_hide(w_a);
-	 gtk_widget_show(w_b);
-      }
-   }
-#endif
 
 #endif // HAVE_GSL
 }

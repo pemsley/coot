@@ -16564,7 +16564,15 @@ Move Molecule Here:</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkComboBox" id="move_molecule_here_combobox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
           <packing>

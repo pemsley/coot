@@ -5268,9 +5268,6 @@ short int delete_item_widget_is_being_shown();
 short int delete_item_widget_keep_active_on();
 
 
-/* utility function, moving widget work out of c-interface-build.cc */
-void delete_object_handle_delete_dialog(short int do_delete_dialog);
-
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

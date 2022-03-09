@@ -949,7 +949,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
                   molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
                   delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
                               atom_name.c_str(), altloc.c_str());
-                  delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
+                  // this dialog no longer exists
+                  // delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
                   pick_pending_flag = 0;
                   run_post_manipulation_hook(naii.imol, DELETED);
                   item_deleted = true;

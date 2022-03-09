@@ -8606,11 +8606,12 @@ on_unit_cell_no_radiobutton_toggled_gtkbuilder_callback    (GtkToggleButton *tog
 extern "C" G_MODULE_EXPORT
 void
 on_move_molecule_here1_activate_gtkbuilder_callback        (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                                            gpointer         user_data) {
 
-  GtkWidget *w = wrapped_create_move_molecule_here_dialog();
-  gtk_widget_show(w);
+   // GtkWidget *w = wrapped_create_move_molecule_here_dialog();
+   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+   fill_move_molecule_here_dialog(w);
+   gtk_widget_show(w);
 
 }
 
@@ -8622,9 +8623,10 @@ on_move_molecule_here_ok_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "move_molecule_here_dialog");
-  move_molecule_here_by_widget(w);
-  gtk_widget_destroy(w);
+  move_molecule_here_by_widget();
+  GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+  gtk_widget_hide(w);
+
 }
 
 

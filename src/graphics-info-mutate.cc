@@ -242,8 +242,9 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
    // and auto_fit_mutate (in_mutate_auto_fit_define).
    // mutate_auto_fit_residue_imol will not be set in the simple mutate case
 
-   std::cout << "::::::::::::::::::::::: in do_mutation() with residue_type_chooser_auto_fit_flag "
-             << residue_type_chooser_auto_fit_flag << std::endl;
+   if (false)
+      std::cout << "::::::::::::::::::::::: in do_mutation() with residue_type_chooser_auto_fit_flag "
+                << residue_type_chooser_auto_fit_flag << std::endl;
 
    if (residue_type_chooser_auto_fit_flag) {
 

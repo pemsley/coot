@@ -71,32 +71,6 @@ on_map_color_changed(GtkWidget *w,
 }
 
 
-/* 		 GtkColorSelection *cs); */
-/*  The colour selection dialog has had its OK button pressed */
-void
-on_map_col_sel_ok_button_clicked        (GtkButton       *button,
-					 gpointer         user_data)
-{
-   GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_destroy(w);
-}
-
-/*  The colour selection dialog has had its cancel button pressed */
-void
-on_map_col_sel_cancel_button_clicked (GtkButton       *button,
-				      gpointer         *tmd)
-{
-
-  struct map_colour_data_type* t = (struct map_colour_data_type*) tmd;
-  int imol = t->imol;
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "map_color_selection_dialog");
-
-  /* we should put the colour back to
-     how it used to be then. */
-  restore_previous_map_colour(t->imol);
-  gtk_widget_destroy(dialog);
-}
-
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
