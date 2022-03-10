@@ -3584,7 +3584,7 @@ on_run_refmac_run_button_clicked       (GtkButton       *button,
 				    "run_refmac_dialog");
 /*   printf("debugging bad window ------------- starting on button click callback.... \n"); */
 
-  execute_refmac(window);
+  /* execute_refmac(window); */
 /*   free_memory_run_refmac(window); */
 /*   printf("debugging bad window about to refmac window destroy\n"); */
   /* This lookup is for testing/fixing? double running wierdness from
@@ -3605,7 +3605,7 @@ on_run_refmac_cancel_button_clicked    (GtkButton       *button,
 
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "run_refmac_dialog");
-  free_memory_run_refmac(window);
+  /* free_memory_run_refmac(window); */
   gtk_widget_destroy(window);
 
 }
@@ -3616,7 +3616,7 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 					      gpointer         user_data)
 {
 
-  wrapped_create_run_refmac_dialog();
+  /* wrapped_create_run_refmac_dialog(); */
 
 }
 
@@ -3788,9 +3788,9 @@ on_run_refmac_tls_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   if (gtk_toggle_button_get_active(togglebutton)) {
-    set_refmac_use_tls(1);
+    /* set_refmac_use_tls(1); */
   } else {
-    set_refmac_use_tls(0);
+    /* set_refmac_use_tls(0); */
   }
 }
 
@@ -3810,7 +3810,7 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
   GtkWidget *fobs_hbox       = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
   GtkWidget *fiobs_hbox      = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    set_refmac_use_twin(1);
+    /* set_refmac_use_twin(1); */
     /* update the column labels */
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
     /* hide SAD extras, no need to switch off use_sad as done in use_twin */
@@ -3847,18 +3847,18 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
   GtkWidget *fobs_hbox  = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
   GtkWidget *fpm_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fpm_hbox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    set_refmac_use_sad(1);
+    /* set_refmac_use_sad(1); */
     /* de-sensitise the TWIN button, no need to switch off use_twin as done in use_sad */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
     gtk_widget_set_sensitive(twin_checkbutton, FALSE);
     gtk_widget_show(sad_extras);
     /* fill the entry with 1st existing atom */
-    fill_refmac_sad_atom_entry(GTK_WIDGET(togglebutton));
+    /* fill_refmac_sad_atom_entry(GTK_WIDGET(togglebutton)); */
     /* change label box from fobs to f+/- as SAD needs this */
     gtk_widget_hide(fobs_hbox);
     gtk_widget_show(fpm_hbox);
   } else {
-    set_refmac_use_sad(0);
+    /* set_refmac_use_sad(0); */
     gtk_widget_set_sensitive(twin_checkbutton, TRUE);
     gtk_widget_hide(sad_extras);
     /* change label box back from f+/- to fobs for 'normal' refinement */
@@ -3879,7 +3879,7 @@ on_run_refmac_map_mtz_radiobutton_toggled
 
   GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_combobox_with_refmac_mtz_file_options(map_combobox);
+    /* fill_combobox_with_refmac_mtz_file_options(map_combobox); */
   }
 }
 
@@ -3891,10 +3891,10 @@ on_run_refmac_mtz_file_radiobutton_toggled
 {
   /* I am not sure that this - or the above does the right thing */
 
-  GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_combobox_with_refmac_file_labels_options(map_combobox);
-  }
+  /* GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox"); */
+  /* if (gtk_toggle_button_get_active(togglebutton)) { */
+  /*   fill_combobox_with_refmac_file_labels_options(map_combobox); */
+  /* } */
 
 }
 
@@ -4041,9 +4041,9 @@ on_run_refmac_ncs_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   if (gtk_toggle_button_get_active(togglebutton)) {
-    set_refmac_use_ncs(1);
+    /* set_refmac_use_ncs(1); */
   } else {
-    set_refmac_use_ncs(0);
+    /* set_refmac_use_ncs(0); */
   }
 
 }

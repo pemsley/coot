@@ -60,6 +60,8 @@
 
 #include "guile-fixups.h"
 
+#include "widget-from-builder.hh"
+
 void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) { 
 
 #ifdef HAVE_SSMLIB
@@ -261,9 +263,9 @@ void execute_superpose(GtkWidget *w) {
    std::cout << "DEBUG:: superpose_imol1: " << graphics_info_t::superpose_imol1 << std::endl;
    std::cout << "DEBUG:: superpose_imol2: " << graphics_info_t::superpose_imol2 << std::endl;
 
-   GtkWidget *checkbutton = lookup_widget(w, "superpose_dialog_move_copy_checkbutton");
-   GtkWidget *chain_mol1_checkbutton =  lookup_widget(w, "superpose_reference_chain_checkbutton");
-   GtkWidget *chain_mol2_checkbutton =  lookup_widget(w, "superpose_moving_chain_checkbutton");
+   GtkWidget *checkbutton = widget_from_builder("superpose_dialog_move_copy_checkbutton");
+   GtkWidget *chain_mol1_checkbutton =  widget_from_builder("superpose_reference_chain_checkbutton");
+   GtkWidget *chain_mol2_checkbutton =  widget_from_builder("superpose_moving_chain_checkbutton");
 
    if (!chain_mol1_checkbutton) std::cout << "----------- bad chain_mol1_checkbutton" << std::endl;
    if (!chain_mol2_checkbutton) std::cout << "----------- bad chain_mol2n_checkbutton" << std::endl;
@@ -347,12 +349,13 @@ GtkWidget *wrapped_create_superpose_dialog() {
 
 #ifdef HAVE_SSMLIB
 
-   w = create_superpose_dialog();
+   // w = create_superpose_dialog();
+   w = widget_from_builder("superpose_dialog");
 
    graphics_info_t g;
 
-   GtkWidget *combobox1 = lookup_widget(w, "superpose_dialog_reference_mol_combobox");
-   GtkWidget *combobox2 = lookup_widget(w, "superpose_dialog_moving_mol_combobox");
+   GtkWidget *combobox1 = widget_from_builder("superpose_dialog_reference_mol_combobox");
+   GtkWidget *combobox2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
 
    GCallback signal_func1 = G_CALLBACK(g.superpose_combobox_changed_mol1);
    GCallback signal_func2 = G_CALLBACK(g.superpose_combobox_changed_mol2);
@@ -372,8 +375,8 @@ GtkWidget *wrapped_create_superpose_dialog() {
    g.fill_combobox_with_coordinates_options(combobox1, signal_func1, g.superpose_imol1);
    g.fill_combobox_with_coordinates_options(combobox2, signal_func2, g.superpose_imol2);
 
-   GtkWidget *chain_ref_cb = lookup_widget(w, "superpose_dialog_reference_chain_combobox");
-   GtkWidget *chain_mov_cb = lookup_widget(w, "superpose_dialog_moving_chain_combobox");
+   GtkWidget *chain_ref_cb = widget_from_builder("superpose_dialog_reference_chain_combobox");
+   GtkWidget *chain_mov_cb = widget_from_builder("superpose_dialog_moving_chain_combobox");
 
    GtkWidget *chain_ref_menu = gtk_menu_new();
    GtkWidget *chain_mov_menu = gtk_menu_new();
@@ -638,7 +641,9 @@ void lsq_mov_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
 
 GtkWidget *wrapped_create_least_squares_dialog() {
 
-   GtkWidget *lsq_dialog = create_least_squares_dialog();
+   // GtkWidget *lsq_dialog = create_least_squares_dialog();
+   GtkWidget *lsq_dialog = widget_from_builder("least_squares_dialog");
+
    int imol_reference = -1;
    int imol_moving = -1;
    int ref_start_resno = -9999;
@@ -649,22 +654,22 @@ GtkWidget *wrapped_create_least_squares_dialog() {
 		           1: main
    		           2: all  */
 
-   GtkWidget *mov_combobox = lookup_widget(lsq_dialog, "least_squares_moving_molecule_combobox");
-   GtkWidget *ref_combobox = lookup_widget(lsq_dialog, "least_squares_reference_molecule_combobox");
-   GtkWidget *ref_res_range_1 = lookup_widget(lsq_dialog, "least_squares_reference_range_1_entry");
-   GtkWidget *ref_res_range_2 = lookup_widget(lsq_dialog, "least_squares_reference_range_2_entry");
-   GtkWidget *mov_res_range_1 = lookup_widget(lsq_dialog, "least_squares_moving_range_1_entry");
-   GtkWidget *mov_res_range_2 = lookup_widget(lsq_dialog, "least_squares_moving_range_2_entry");
+   GtkWidget *mov_combobox = widget_from_builder("least_squares_moving_molecule_combobox");
+   GtkWidget *ref_combobox = widget_from_builder("least_squares_reference_molecule_combobox");
+   GtkWidget *ref_res_range_1 = widget_from_builder("least_squares_reference_range_1_entry");
+   GtkWidget *ref_res_range_2 = widget_from_builder("least_squares_reference_range_2_entry");
+   GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
+   GtkWidget *mov_res_range_2 = widget_from_builder("least_squares_moving_range_2_entry");
 
-   GtkWidget *match_type_all_check_button =  lookup_widget(lsq_dialog, "least_squares_match_type_all_radiobutton");
-   GtkWidget *match_type_main_check_button = lookup_widget(lsq_dialog, "least_squares_match_type_main_radiobutton");
-   GtkWidget *match_type_main_calpha_button =lookup_widget(lsq_dialog, "least_squares_match_type_calpha_radiobutton");
+   GtkWidget *match_type_all_check_button =  widget_from_builder("least_squares_match_type_all_radiobutton");
+   GtkWidget *match_type_main_check_button = widget_from_builder("least_squares_match_type_main_radiobutton");
+   GtkWidget *match_type_main_calpha_button =widget_from_builder("least_squares_match_type_calpha_radiobutton");
 
-   // GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
-   // GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
+   // GtkWidget *ref_mol_chain_id_option_menu = widget_from_builder("least_squares_reference_chain_id");
+   // GtkWidget *mov_mol_chain_id_option_menu = widget_from_builder("least_squares_moving_chain_id");
 
-   GtkWidget *ref_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_reference_chain_id_combobox");
-   GtkWidget *mov_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_moving_chain_id_combobox");
+   GtkWidget *ref_mol_chain_id_combobox = widget_from_builder("least_squares_reference_chain_id_combobox");
+   GtkWidget *mov_mol_chain_id_combobox = widget_from_builder("least_squares_moving_chain_id_combobox");
 
    graphics_info_t g;
 
@@ -744,8 +749,8 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    // int imol_reference = graphics_info_t::lsq_ref_imol;
    // int imol_moving    = graphics_info_t::lsq_mov_imol;
 
-   GtkWidget *ref_combobox = lookup_widget(lsq_dialog, "least_squares_reference_molecule_combobox");
-   GtkWidget *mov_combobox = lookup_widget(lsq_dialog, "least_squares_moving_molecule_combobox");
+   GtkWidget *ref_combobox = widget_from_builder("least_squares_reference_molecule_combobox");
+   GtkWidget *mov_combobox = widget_from_builder("least_squares_moving_molecule_combobox");
    //
    int imol_reference = my_combobox_get_imol(GTK_COMBO_BOX(ref_combobox));
    int imol_moving    = my_combobox_get_imol(GTK_COMBO_BOX(mov_combobox));
@@ -758,24 +763,24 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
 		           1: main
    		           2: all  */
 
-   // GtkWidget *mov_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_molecule_optionmenu");
-   // GtkWidget *ref_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_molecule_optionmenu");
-   GtkWidget *ref_res_range_1 = lookup_widget(lsq_dialog, "least_squares_reference_range_1_entry");
-   GtkWidget *ref_res_range_2 = lookup_widget(lsq_dialog, "least_squares_reference_range_2_entry");
-   GtkWidget *mov_res_range_1 = lookup_widget(lsq_dialog, "least_squares_moving_range_1_entry");
-   GtkWidget *mov_res_range_2 = lookup_widget(lsq_dialog, "least_squares_moving_range_2_entry");
+   // GtkWidget *mov_option_menu = widget_from_builder("least_squares_moving_molecule_optionmenu");
+   // GtkWidget *ref_option_menu = widget_from_builder("least_squares_reference_molecule_optionmenu");
+   GtkWidget *ref_res_range_1 = widget_from_builder("least_squares_reference_range_1_entry");
+   GtkWidget *ref_res_range_2 = widget_from_builder("least_squares_reference_range_2_entry");
+   GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
+   GtkWidget *mov_res_range_2 = widget_from_builder("least_squares_moving_range_2_entry");
 
-   GtkWidget *match_type_all_check_button =  lookup_widget(lsq_dialog, "least_squares_match_type_all_radiobutton");
-   GtkWidget *match_type_main_check_button = lookup_widget(lsq_dialog, "least_squares_match_type_main_radiobutton");
-   GtkWidget *match_type_calpha_check_button =lookup_widget(lsq_dialog, "least_squares_match_type_calpha_radiobutton");
+   GtkWidget *match_type_all_check_button =  widget_from_builder("least_squares_match_type_all_radiobutton");
+   GtkWidget *match_type_main_check_button = widget_from_builder("least_squares_match_type_main_radiobutton");
+   GtkWidget *match_type_calpha_check_button =widget_from_builder("least_squares_match_type_calpha_radiobutton");
 
-   // GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
-   // GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
+   // GtkWidget *ref_mol_chain_id_option_menu = widget_from_builder("least_squares_reference_chain_id");
+   // GtkWidget *mov_mol_chain_id_option_menu = widget_from_builder("least_squares_moving_chain_id");
 
-   GtkWidget *ref_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_reference_chain_id_combobox");
-   GtkWidget *mov_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_moving_chain_id_combobox");
+   GtkWidget *ref_mol_chain_id_combobox = widget_from_builder("least_squares_reference_chain_id_combobox");
+   GtkWidget *mov_mol_chain_id_combobox = widget_from_builder("least_squares_moving_chain_id_combobox");
    
-   GtkWidget *copy_checkbutton = lookup_widget(lsq_dialog, "least_squares_move_copy_checkbutton");
+   GtkWidget *copy_checkbutton = widget_from_builder("least_squares_move_copy_checkbutton");
    if (copy_checkbutton) { 
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(copy_checkbutton))) {
 	 int new_imol_moving = copy_molecule(imol_moving);

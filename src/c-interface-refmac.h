@@ -72,49 +72,6 @@ BEGIN_C_DECLS
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
-/*  this is the option menu callback - does nothing. */
-int set_refmac_molecule(int imol); /* used by callback.c */
-
-/* some methods to get refmac run parameters */
-int get_refmac_refinement_method(void);
-void set_refmac_refinement_method(int method);
-int get_refmac_phase_input(void);
-void set_refmac_phase_input(int phase_flag);
-void set_refmac_use_tls(int state);
-int refmac_use_tls_state(void);
-void set_refmac_use_twin(int state);
-int refmac_use_twin_state(void);
-void set_refmac_use_sad(int state);
-int refmac_use_sad_state(void);
-int get_refmac_ncycles(void);
-void set_refmac_ncycles(int no_cycles);
-void add_refmac_ncycle_no(int cycle);
-void set_refmac_use_ncs(int state);
-int refmac_use_ncs_state(void);
-void set_refmac_use_intensities(int state);
-int refmac_use_intensities_state(void);
-int refmac_imol_coords(void);
-void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
-void add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp);
-void add_refmac_sad_atom_lambda(const char *atom_name, float lambda);
-void clear_refmac_sad_atoms();
-short int get_refmac_used_mtz_file_state();
-void set_refmac_used_mtz_file(int state);
-const gchar *get_saved_refmac_file_filename(void);
-void set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename);
-void save_refmac_params_to_map(int imol_map,
-			       const char *mtz_filename,
-			       const char *fobs_col,
-			       const char *sigfobs_col,
-			       const char *r_free_col,
-			       int r_free_flag_sensible);
-void save_refmac_phase_params_to_map(int imol_map,
-			     	     const char *phi,
-				     const char *fom,
-				     const char *hla,
-				     const char *hlb,
-				     const char *hlc,
-				     const char *hld);
 
 END_C_DECLS
 #endif /* C_INTERFACE_REFMAC_H */

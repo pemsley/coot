@@ -6221,11 +6221,12 @@ molecule_class_info_t::close_yourself() {
          display_frame_name = "display_map_frame_";
       display_frame_name += g.int_to_string(imol_no);
       std::cout << "DEBUG:: looking up map frame " << display_frame_name << std::endl;
-      GtkWidget *display_frame = lookup_widget(display_control_window,
-                                               display_frame_name.c_str());
+      // GtkWidget *display_frame = lookup_widget(display_control_window, display_frame_name.c_str());
+      GtkWidget *display_frame = 0; // 20220309-PE set this correctly
+      std::cout << "in close_yourself() find the correct frame in the Display Manager" << std::endl;
       if (display_frame) {
 
-         gtk_widget_destroy(display_frame);
+         gtk_widget_hide(display_frame);
 
       }
    }

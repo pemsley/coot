@@ -129,17 +129,17 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    set_transient_and_position(COOT_CHECK_WATERS_DIALOG, dialog);
 
    // Opps - this (logical OR) should be on by default:
-   GtkWidget *check_waters_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
+   GtkWidget *check_waters_OR_radiobutton  = widget_from_builder("check_waters_OR_radiobutton");
 
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
 
-   GtkWidget *check_waters_action_combobox = lookup_widget(dialog, "check_waters_action_combobox");
+   GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_combobox");
 
    gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
 
    GCallback callback_func = G_CALLBACK(check_waters_molecule_combobox_changed);
 
-   GtkWidget *combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("check_waters_molecule_combobox");
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -158,23 +158,23 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    std::string text_str;
 
    // b-factor
-   entry = lookup_widget(dialog, "check_waters_b_factor_entry");
+   entry = widget_from_builder("check_waters_b_factor_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_b_factor_limit);
    gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
 
 
    // map sigma
-   entry = lookup_widget(dialog, "check_waters_map_sigma_entry");
+   entry = widget_from_builder("check_waters_map_sigma_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_map_sigma_limit);
    gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
 
    // min_dist
-   entry = lookup_widget(dialog, "check_waters_min_dist_entry");
+   entry = widget_from_builder("check_waters_min_dist_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_min_dist_limit);
    gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
 
    // max_dist
-   entry = lookup_widget(dialog, "check_waters_max_dist_entry");
+   entry = widget_from_builder("check_waters_max_dist_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_max_dist_limit);
    gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
 
@@ -182,9 +182,9 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // too, to better organise the menus.
    //
    //GtkWidget *diff_map_option_menu =
-   // lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
+   // widget_from_builder("check_water_by_difference_map_optionmenu");
 
-   GtkWidget *diff_map_combobox = lookup_widget(dialog, "check_waters_by_difference_map_combobox");
+   GtkWidget *diff_map_combobox = widget_from_builder("check_waters_by_difference_map_combobox");
 
    std::cout << "debug:: diff_map_combobox " << diff_map_combobox << std::endl;
 
@@ -229,13 +229,13 @@ check_water_by_difference_maps_combobox_changed(GtkWidget *combobox, gpointer da
 //
 void do_check_waters_by_widget(GtkWidget *dialog) {
 
-   GtkWidget *checklogic_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
+   GtkWidget *checklogic_OR_radiobutton  = widget_from_builder("check_waters_OR_radiobutton");
 
    GtkWidget *entry1, *entry2, *entry3, *entry4;
-   entry1 = lookup_widget(dialog, "check_waters_b_factor_entry");
-   entry2 = lookup_widget(dialog, "check_waters_map_sigma_entry");
-   entry3 = lookup_widget(dialog, "check_waters_min_dist_entry");
-   entry4 = lookup_widget(dialog, "check_waters_max_dist_entry");
+   entry1 = widget_from_builder("check_waters_b_factor_entry");
+   entry2 = widget_from_builder("check_waters_map_sigma_entry");
+   entry3 = widget_from_builder("check_waters_min_dist_entry");
+   entry4 = widget_from_builder("check_waters_max_dist_entry");
 
    //
    float b_factor_lim  = get_positive_float_from_entry(GTK_ENTRY(entry1));
@@ -254,21 +254,21 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    bool use_max_dist_test = 1;
    bool use_difference_map_test = 1;
 
-   GtkWidget *hbox1 = lookup_widget(dialog, "check_waters_b_factor_hbox");
-   GtkWidget *hbox2 = lookup_widget(dialog, "check_waters_sigma_level_hbox");
-   GtkWidget *hbox3 = lookup_widget(dialog, "check_waters_min_dist_hbox");
-   GtkWidget *hbox4 = lookup_widget(dialog, "check_waters_max_dist_hbox");
+   GtkWidget *hbox1 = widget_from_builder("check_waters_b_factor_hbox");
+   GtkWidget *hbox2 = widget_from_builder("check_waters_sigma_level_hbox");
+   GtkWidget *hbox3 = widget_from_builder("check_waters_min_dist_hbox");
+   GtkWidget *hbox4 = widget_from_builder("check_waters_max_dist_hbox");
 
    GtkToggleButton *checkbutton1 =
-      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_b_factor_entry_active_checkbutton"));
+      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_b_factor_entry_active_checkbutton"));
    GtkToggleButton *checkbutton2 =
-      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_map_sigma_entry_active_checkbutton"));
+      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_map_sigma_entry_active_checkbutton"));
    GtkToggleButton *checkbutton3 =
-      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_min_dist_entry_active_checkbutton"));
+      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_min_dist_entry_active_checkbutton"));
    GtkToggleButton *checkbutton4 =
-      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_max_dist_entry_active_checkbutton"));
+      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_max_dist_entry_active_checkbutton"));
    GtkToggleButton *checkbutton5 =
-      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_by_difference_map_active_checkbutton"));
+      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_by_difference_map_active_checkbutton"));
 
    if (! gtk_toggle_button_get_active(checkbutton1))
       use_b_factor_limit_test = 0;
@@ -282,9 +282,9 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       if (! gtk_toggle_button_get_active(checkbutton5))
 	 use_difference_map_test = 0;
 
-   GtkWidget *zero_occ_checkbutton = lookup_widget(dialog, "check_waters_zero_occ_checkbutton");
+   GtkWidget *zero_occ_checkbutton = widget_from_builder("check_waters_zero_occ_checkbutton");
    GtkWidget *partial_occ_close_contact_checkbutton =
-      lookup_widget(dialog, "check_waters_low_occ_dist_checkbutton");
+      widget_from_builder("check_waters_low_occ_dist_checkbutton");
 
    short int zero_occ_flag = 0;
    short int part_occ_dist_flag = 0;
@@ -300,7 +300,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    }
 
    // Check or Delete?
-   GtkWidget *action_combobox = lookup_widget(dialog, "check_waters_action_combobox");
+   GtkWidget *action_combobox = widget_from_builder("check_waters_action_combobox");
    std::string action_string;
    gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(action_combobox));
    if (at) action_string = at;
@@ -414,7 +414,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 	    g_object_set_data(G_OBJECT(w), "baddies_size", GINT_TO_POINTER(baddies.size()));
 
 	    GtkWidget *button;
-	    GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
+	    GtkWidget *vbox = widget_from_builder("checked_waters_baddies_vbox");
 	    GSList *gr_group = NULL;
 
 	    if (baddies.size() > 0 ) {
@@ -632,7 +632,7 @@ void free_geometry_graph(GtkWidget *dialog) {
 #ifdef HAVE_GSL
 
    if (dialog) {
-      GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
+      GtkWidget *w = widget_from_builder("geometry_graph_canvas");
       if (w) {
 	 GtkObject *obj = GTK_OBJECT(w);
 
@@ -665,7 +665,7 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 
    int imol;
    if (dialog) {
-      GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
+      GtkWidget *w = widget_from_builder("geometry_graph_canvas");
       if (w) {
 	 GObject *obj = G_OBJECT(w);
          void *o = g_object_get_data(obj, "graphs");
@@ -907,7 +907,7 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
 							diff_maps_only_flag);
    if (ifound == 0) {
       std::cout << "Error: you must have a difference map to analyse!" << std::endl;
-      GtkWidget *none_frame = lookup_widget(dialog, "no_difference_maps_frame");
+      GtkWidget *none_frame = widget_from_builder("no_difference_maps_frame");
       gtk_widget_show(none_frame);
    }
 
@@ -918,7 +918,7 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
    }
 
    // the sigma entry:
-   GtkWidget *entry = lookup_widget(dialog, "generate_diff_map_peaks_sigma_level_entry");
+   GtkWidget *entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
    gtk_entry_set_text(GTK_ENTRY(entry),
 		      graphics_info_t::float_to_string(graphics_info_t::difference_map_peaks_sigma_level).c_str());
 
@@ -946,7 +946,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 	 if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 	    std::string map_str = "generate_diff_map_peaks_map_radiobutton_";
 	    map_str += graphics_info_t::int_to_string(imol);
-	    map_button = lookup_widget(dialog, map_str.c_str());
+	    map_button = widget_from_builder(map_str.c_str());
 	    if (map_button) {
 	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) {
 		  imol_diff_map = imol;
@@ -966,7 +966,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 std::string coords_str = "generate_diff_map_peaks_model_radiobutton_";
 	 coords_str += graphics_info_t::int_to_string(imol);
-	 coords_button = lookup_widget(dialog, coords_str.c_str());
+	 coords_button = widget_from_builder(coords_str.c_str());
 	 if (coords_button) {
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
 	       imol_coords = imol;
@@ -981,7 +981,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    // Check the level:
 
    GtkWidget *sigma_entry =
-      lookup_widget(dialog, "generate_diff_map_peaks_sigma_level_entry");
+      widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
 
    const gchar *txt = gtk_entry_get_text(GTK_ENTRY(sigma_entry));
    float v = atof(txt);
@@ -999,9 +999,9 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    short int do_negative_level = 0;
    short int do_positive_level = 0;
    GtkWidget *checkbutton_negative =
-      lookup_widget(dialog, "generate_diff_map_peaks_negative_level_checkbutton");
+      widget_from_builder("generate_diff_map_peaks_negative_level_checkbutton");
    GtkWidget *checkbutton_positive =
-      lookup_widget(dialog, "generate_diff_map_peaks_positive_level_checkbutton");
+      widget_from_builder("generate_diff_map_peaks_positive_level_checkbutton");
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_negative)))
       do_negative_level = 1;
@@ -1009,7 +1009,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_positive)))
       do_positive_level = 1;
 
-   GtkWidget *around_model_checkbutton = lookup_widget(dialog, "generate_diff_map_peaks_around_model_only_checkbutton");
+   GtkWidget *around_model_checkbutton = widget_from_builder("generate_diff_map_peaks_around_model_only_checkbutton");
 
    bool around_model_only = false;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(around_model_checkbutton))) {
@@ -1262,8 +1262,8 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
    // We don't have to worry about chains because they are not active on startup.
 
-   GtkWidget *combobox1 = lookup_widget(w, "ramachandran_plot_differences_first_mol_combobox");
-   GtkWidget *combobox2 = lookup_widget(w, "ramachandran_plot_differences_second_mol_combobox");
+   GtkWidget *combobox1 = widget_from_builder("ramachandran_plot_differences_first_mol_combobox");
+   GtkWidget *combobox2 = widget_from_builder("ramachandran_plot_differences_second_mol_combobox");
 
    if (! combobox1) std::cout << "null combobox1" << std::endl;
    if (! combobox2) std::cout << "null combobox2" << std::endl;
@@ -1304,10 +1304,8 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
    first_chain  = graphics_info_t::ramachandran_plot_differences_imol1_chain;
    second_chain = graphics_info_t::ramachandran_plot_differences_imol2_chain;
 
-   GtkWidget *checkbutton1 = lookup_widget(GTK_WIDGET(w),
-					  "ramachandran_plot_differences_first_chain_checkbutton");
-   GtkWidget *checkbutton2 = lookup_widget(GTK_WIDGET(w),
-					  "ramachandran_plot_differences_second_chain_checkbutton");
+   GtkWidget *checkbutton1 = widget_from_builder("ramachandran_plot_differences_first_chain_checkbutton");
+   GtkWidget *checkbutton2 = widget_from_builder("ramachandran_plot_differences_second_chain_checkbutton");
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton1)) &&
        gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton2))) {
@@ -1349,8 +1347,8 @@ void ramachandran_plot_differences_mol_combobox_first_changed(GtkWidget *combobo
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
    graphics_info_t::ramachandran_plot_differences_imol1 = imol;
 
-   GtkWidget *chain_combobox = lookup_widget(combobox, "ramachandran_plot_differences_first_chain_combobox");
-   GtkWidget *checkbutton    = lookup_widget(combobox, "ramachandran_plot_differences_first_chain_checkbutton");
+   GtkWidget *chain_combobox = widget_from_builder("ramachandran_plot_differences_first_chain_combobox");
+   GtkWidget *checkbutton    = widget_from_builder("ramachandran_plot_differences_first_chain_checkbutton");
    if (!chain_combobox) {
       std::cout << "first bad combobox" << std::endl;
    } else {
@@ -1365,8 +1363,8 @@ void ramachandran_plot_differences_mol_combobox_second_changed(GtkWidget *combob
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
    graphics_info_t::ramachandran_plot_differences_imol2 = imol;
 
-   GtkWidget *chain_combobox = lookup_widget(combobox, "ramachandran_plot_differences_second_chain_combobox");
-   GtkWidget *checkbutton    = lookup_widget(combobox, "ramachandran_plot_differences_second_chain_checkbutton");
+   GtkWidget *chain_combobox = widget_from_builder("ramachandran_plot_differences_second_chain_combobox");
+   GtkWidget *checkbutton    = widget_from_builder("ramachandran_plot_differences_second_chain_checkbutton");
    if (!chain_combobox) {
       std::cout << "first bad combobox" << std::endl;
    } else {
@@ -1550,11 +1548,9 @@ void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *c
    GtkWidget *mol_combobox = 0;
 
    if (is_first_mol_flag) {
-      mol_combobox = lookup_widget(chain_combobox,
-				   "ramachandran_plot_differences_first_mol_combobox");
+      mol_combobox = widget_from_builder("ramachandran_plot_differences_first_mol_combobox");
    } else {
-      mol_combobox = lookup_widget(chain_combobox,
-				   "ramachandran_plot_differences_second_mol_combobox");
+      mol_combobox = widget_from_builder("ramachandran_plot_differences_second_mol_combobox");
    }
 
    GCallback callback_func;
@@ -1570,8 +1566,7 @@ void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *c
 
    if (imol >=0 && imol< graphics_info_t::n_molecules()) {
       std::string set_chain =
-	 graphics_info_t::fill_combobox_with_chain_options(chain_combobox,
-							   imol, callback_func);
+	 graphics_info_t::fill_combobox_with_chain_options(chain_combobox, imol, callback_func);
       if (is_first_mol_flag) {
 	 graphics_info_t::ramachandran_plot_differences_imol1_chain = set_chain;
       } else {
@@ -1644,12 +1639,10 @@ int get_mol_from_dynarama(GtkWidget *window) {
    // graphics_info_t g;
    if (window) {
 
-      GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
+      GtkWidget *canvas = widget_from_builder("canvas");
 
       if (canvas) {
-	 coot::rama_plot * plot =
-	    (coot::rama_plot *)
-	    gtk_object_get_user_data(GTK_OBJECT(canvas));
+	 coot::rama_plot * plot = static_cast<coot::rama_plot *>(gtk_object_get_user_data(GTK_OBJECT(canvas)));
 	 if (plot)
 	    imol = plot->molecule_number();
 
@@ -1681,10 +1674,11 @@ resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
    int imol = get_mol_from_dynarama(window);
-   GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
+   // GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
+   GtkWidget *canvas = widget_from_builder("canvas");
    if (canvas) {
       // 20211201-PE FIXME - where was (should have been) this set?
-      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(canvas), "rama_plot");
+      coot::rama_plot *plot = static_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(canvas), "rama_plot"));
       if (plot) {
 	 if (is_valid_model_molecule(imol)) {
 	    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;

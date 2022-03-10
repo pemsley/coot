@@ -35,6 +35,8 @@
 #include "globjects.h" // for rotate_rgb.  That should be a utility
 			// function, not in globjects.hh
 
+#include "widget-from-builder.hh"
+
 extern "C" {
 #include "callbacks.h"
 }
@@ -138,8 +140,8 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    GtkWidget *colour_symm_by_molecule_molecule_0;
    GtkWidget *symmetry_control_vbox;
 
-   symmetry_control_vbox = lookup_widget(symmetry_controller_dialog,
-					 "symmetry_controller_vbox");
+   // symmetry_control_vbox = lookup_widget(symmetry_controller_dialog, "symmetry_controller_vbox");
+   symmetry_control_vbox = widget_from_builder("symmetry_controller_vbox");
 
    molecule_0_frame = gtk_frame_new (s.c_str());
    // gtk_widget_ref (molecule_0_frame);
@@ -322,7 +324,8 @@ molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) con
 void
 molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_dialog) const {
 
-   GtkWidget *ncs_control_vbox = lookup_widget(ncs_control_dialog, "ncs_control_vbox");
+   // GtkWidget *ncs_control_vbox = lookup_widget(ncs_control_dialog, "ncs_control_vbox");
+   GtkWidget *ncs_control_vbox = widget_from_builder("ncs_control_vbox");
    GtkWidget *frame_molecule_N;
    GtkWidget *vbox176;
    GtkWidget *ncs_controller_molecule_n_display_ncs_checkbutton;
@@ -553,7 +556,8 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
 
    if (w) {
       if (imaster != -1) {
-	 GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
+	 // GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
+	 GtkWidget *vbox = widget_from_builder("ncs_controller_molecule_n_display_chain_vbox");
 	 std::string imol_str = coot::util::int_to_string(imol_no);
 	 for (unsigned int i=0; i<chain_ids.size(); i++) {
 	    std::string name = "ncs_controller_molecule_";
@@ -561,7 +565,9 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
 	    name += "_display_chain_";
 	    name += coot::util::int_to_string(i);
 	    name += "_checkbutton";
-	    GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
+	    // GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
+	    GtkWidget *checkbutton = 0;
+            std::cout << "in ncs_control_change_ncs_master_to_chain_update_widget() set the checkbutton correctly" << std::endl;
 	    if (checkbutton) {
 	       if (int(i) == imaster) {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);

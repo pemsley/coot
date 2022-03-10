@@ -1148,11 +1148,16 @@ graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
 GtkWidget *
 graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) {
 
-   GtkWidget *w = create_skeleton_dialog();
-   GtkWidget *combobox    = lookup_widget(w, "skeleton_map_combobox");
-   GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
-   GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");
-   GtkWidget *ok_button = lookup_widget(w, "skeleton_ok_button");
+   // GtkWidget *w = create_skeleton_dialog();
+   // GtkWidget *combobox    = lookup_widget(w, "skeleton_map_combobox");
+   // GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
+   // GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");
+   // GtkWidget *ok_button = lookup_widget(w, "skeleton_ok_button");
+   GtkWidget *w         = widget_from_builder("skeleton_dialog");
+   GtkWidget *combobox  = widget_from_builder("skeleton_map_combobox");
+   GtkWidget *frame     = widget_from_builder("skeleton_dialog_on_off_frame");
+   GtkWidget *label     = widget_from_builder("ca_baton_mode_needs_skel_label");
+   GtkWidget *ok_button = widget_from_builder("skeleton_ok_button");
 
    // add user data to the OK button, we use it to determine if we go
    // on to display the baton dialog
@@ -1162,12 +1167,10 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
       show_baton_dialog = 1;
    }
 
-
    g_signal_connect(G_OBJECT(ok_button),
 		    "clicked",
 		    G_CALLBACK(on_skeleton_ok_button_dynamic_clicked),
 		    GINT_TO_POINTER(show_baton_dialog));
-
 
    if (show_ca_mode_needs_skel_label) {
       gtk_widget_show(label);
@@ -1184,10 +1187,11 @@ void
 graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
 							gpointer         user_data) {
 
-   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "skeleton_dialog");
+   // GtkWidget *window = lookup_widget(GTK_WIDGET(button), "skeleton_dialog");
+   GtkWidget *window = widget_from_builder("skeleton_dialog");
 
    // GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
-   GtkWidget *combobox = lookup_widget(window, "skeleton_map_combobox");
+   GtkWidget *combobox = widget_from_builder("skeleton_map_combobox");
 
    int do_baton_mode = GPOINTER_TO_INT(user_data);
 

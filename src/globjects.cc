@@ -102,7 +102,8 @@ GtkWidget *
 gl_gtk3_widget(GtkWidget *vbox, short int try_stereo_flag) {
 
    GtkWidget *drawing_area = gtk_gl_area_new();
-   GtkWidget *main_window_graphics_hbox = lookup_widget(vbox, "main_window_graphics_hbox");
+   // GtkWidget *main_window_graphics_hbox = lookup_widget(vbox, "main_window_graphics_hbox");
+   GtkWidget *main_window_graphics_hbox = 0; // 20220309-PE removing lookup-widget()s
    gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), drawing_area);
    gtk_widget_set_size_request(drawing_area, 500, 500);
    gtk_widget_show(drawing_area);
@@ -269,7 +270,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
 // 				     gl_context_x_size,
 // 				     gl_context_y_size);
 
-	GtkWindow *window1 = GTK_WINDOW(lookup_widget(vbox1,"window1"));
+	// GtkWindow *window1 = GTK_WINDOW(lookup_widget(vbox1,"window1"));
+	GtkWindow *window1 = 0; // 20220309-PE so that it compiles at least.
 	gtk_window_set_default_size(window1,
 				    n_contexts * gl_context_x_size,
 				    n_contexts * gl_context_y_size);
@@ -332,8 +334,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
 			  G_CALLBACK(glarea_scroll_event), NULL);
 
 	/* put glarea into vbox */
-	GtkWidget *main_window_graphics_hbox =
-	   lookup_widget(vbox1, "main_window_graphics_hbox");
+	// GtkWidget *main_window_graphics_hbox = lookup_widget(vbox1, "main_window_graphics_hbox");
+	GtkWidget *main_window_graphics_hbox = 0; // removing lookup_widget()s.
 	gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), GTK_WIDGET(drawing_area_tmp));
 
 // #endif here? confliced merge
