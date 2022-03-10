@@ -3635,13 +3635,13 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
         return dist_sum_sq < 25.
 
 # return a string "DB00xxxx.mol" or some such - this is the file name
-# of the mdl mol file from drugbank. Or False/undefined on fail.  
+# of the mdl mol file from drugbank. Or False/undefined on fail.
 # Test result with string?.
-# 
+#
 def get_drug_via_wikipedia(drug_name_in):
 
 
-    import urllib2, os
+    import urllib2, ssl, os
     from xml.etree import ElementTree
 
     def get_redirected_drug_name(xml):
@@ -3688,7 +3688,7 @@ def get_drug_via_wikipedia(drug_name_in):
                   "&prop=revisions&rvprop=content"
 
             # we want to parse the Etree rather than xml as this is an addurlinfo thingy
-            xml = urllib2.urlopen(url)
+            xml = urllib2.urlopen(url, context=ssl._create_unverified_context())
             xml_tree = ElementTree.parse(xml)
 
             db_id_list = []
