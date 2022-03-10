@@ -447,11 +447,8 @@ void set_display_generic_object_simple(int object_number, short int istate) {
       // get the togglebutton and set its state
       std::string toggle_button_name = "generic_object_" + coot::util::int_to_string(object_number) + "_toggle_button";
 
-      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str());
+      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str()); // #ifdef 0
       // GtkWidget *toggle_button = 0;
-
-      std::cout << "::: debug in set_display_generic_object_simple() toggle_button (from lookup_widget()!) "
-                << toggle_button << std::endl;
 
       if (toggle_button) {
          if (istate)
@@ -635,10 +632,11 @@ void close_generic_object(int object_number) {
       std::string stub = "generic_object_" + coot::util::int_to_string(object_number);
       std::string toggle_button_name = stub + "_toggle_button";
       std::string label_name = stub + "_label";
-      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
-					       toggle_button_name.c_str());
-      GtkWidget *label = lookup_widget(g.generic_objects_dialog,
-				       label_name.c_str());
+      // GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str());
+      // GtkWidget *label = lookup_widget(g.generic_objects_dialog, label_name.c_str());
+      std::cout << "WARNING:: in close_generic_object() set the toggle_button and label correctly " << std::endl;
+      GtkWidget *toggle_button = 0;
+      GtkWidget *label = 0;
       if (toggle_button)
 	 gtk_widget_hide(toggle_button);
       if (label)

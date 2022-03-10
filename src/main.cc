@@ -135,7 +135,6 @@ int setup_screen_size_settings();
 void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
 void check_reference_structures_dir();
-void create_rot_trans_menutoolbutton_menu(GtkWidget *window1);
 #include "boot-python.hh"
 
 #ifdef USE_MYSQL_DATABASE
@@ -286,7 +285,6 @@ void do_main_window(const command_line_data &cld) {
 	    gtk_statusbar_get_context_id(GTK_STATUSBAR(sb), "picked atom info");
 
 	 gtk_widget_show (window1);
-	 create_rot_trans_menutoolbutton_menu(window1);
 
          create_dynamic_menus(window1);
 
@@ -543,7 +541,7 @@ main (int argc, char *argv[]) {
    // to start the graphics, we need to init glut and gtk with the
    // command line args.
 
-   desensitive_scripting_menu_item_maybe(window1);
+   // desensitive_scripting_menu_item_maybe(window1);
 
    // Hack this in to get Python scripts to work - not sure where the correct place to put this is.
    //
@@ -595,20 +593,7 @@ main (int argc, char *argv[]) {
 
 void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
 
-   // Finally desensitize the missing scripting menu
-   if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w;
-#ifndef USE_GUILE
-      // This lookup fails - I don't know why. Get rid of it for now - to remove startup message
-      // w = lookup_widget(window1, "scripting_scheme1");
-      // std::cout << "debug:: in desensitive_scripting_menu_item_maybe() w " << w << std::endl;
-      // gtk_widget_set_sensitive(w, FALSE);
-#endif
-#ifndef USE_PYTHON
-      w = lookup_widget(window1, "scripting_python1");
-      gtk_widget_set_sensitive(w, FALSE);
-#endif
-   }
+   // it's not allowed to build coot without python and guile
 }
 
 
@@ -700,42 +685,3 @@ menutoolbutton_rot_trans_activated(GtkWidget *item, GtkPositionType pos) {
    }
 }
 
-void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
-
-   //
-   GtkWidget *menu_tool_button = lookup_widget(window1, "model_toolbar_rot_trans_toolbutton");
-
-   if (menu_tool_button) {
-      GtkWidget *menu = gtk_menu_new();
-      GtkWidget *menu_item;
-      GSList *group = NULL;
-
-      menu_item = gtk_radio_menu_item_new_with_label(group, "By Residue Range...");
-      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-      gtk_widget_show(menu_item);
-      g_signal_connect(G_OBJECT(menu_item), "activate",
-	              (GCallback) (menutoolbutton_rot_trans_activated),
-		GINT_TO_POINTER(ROT_TRANS_TYPE_ZONE));
-      /* activate the first item */
-      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
-
-      menu_item = gtk_radio_menu_item_new_with_label(group, "By Chain...");
-      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-      gtk_widget_show(menu_item);
-      g_signal_connect(G_OBJECT(menu_item), "activate",
-			 (GCallback) (menutoolbutton_rot_trans_activated),
-			 GINT_TO_POINTER(ROT_TRANS_TYPE_CHAIN));
-
-      menu_item = gtk_radio_menu_item_new_with_label(group, "By Molecule...");
-      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-      gtk_widget_show(menu_item);
-      g_signal_connect(G_OBJECT(menu_item), "activate",
-			 (GCallback) (menutoolbutton_rot_trans_activated),
-			 GINT_TO_POINTER(ROT_TRANS_TYPE_MOLECULE));
-
-      gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(menu_tool_button), menu);
-   }
-}

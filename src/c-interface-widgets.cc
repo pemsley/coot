@@ -48,11 +48,11 @@
 GtkWidget *main_menubar() {
 
    // GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "menubar1");
+
    GtkWidget *w = 0;
-   if (graphics_info_t::gui_from_gtkbuilder())
+   if (graphics_info_t::gui_from_gtkbuilder()) // 20220310-PE no other choice now!
       w = graphics_info_t::get_widget_from_builder("main_window_menubar");
-   else
-      w = lookup_widget(graphics_info_t::statusbar, "menubar1");
+
    return w;
 }
 
@@ -65,20 +65,20 @@ GtkWidget *main_statusbar() {
 GtkWidget *main_toolbar() {
 
    GtkWidget *w = 0;
-   if (graphics_info_t::gui_from_gtkbuilder())
+   if (graphics_info_t::gui_from_gtkbuilder())  // 20220310-PE no other choice now!
       w = graphics_info_t::get_widget_from_builder("main_window_toolbar");
    else
-      w = lookup_widget(graphics_info_t::statusbar, "main_toolbar");
+      w = 0;
    return w;
 }
 
 GtkWidget *main_hbox() {
 
    GtkWidget *w = 0;
-   if (graphics_info_t::gui_from_gtkbuilder())
+   if (graphics_info_t::gui_from_gtkbuilder())  // 20220310-PE no other choice now!
       w = graphics_info_t::get_widget_from_builder("main_window_hbox");
    else
-      w = lookup_widget(graphics_info_t::statusbar, "main_window_hbox");
+      w = 0;
    return w;
 
 }
@@ -101,8 +101,12 @@ short int delete_item_widget_is_being_shown() {
 short int delete_item_widget_keep_active_on() {
    short int r = 0;
    if (delete_item_widget_is_being_shown()) {
-      GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
-					     "delete_item_keep_active_checkbutton");
+
+      // GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget, "delete_item_keep_active_checkbutton");
+
+      // 20220310-PE this widget may not exist now
+      GtkWidget *checkbutton = widget_from_builder("delete_item_keep_active_checkbutton");
+
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	 r = 1;
       }
@@ -139,14 +143,15 @@ void store_delete_item_widget(GtkWidget *widget) {
     the contour level and redraw */
 void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 
-   std::cout << "needs to set widget data imol " << std::endl;
+   std::cout << "DEBUG:: in single_map_properties_apply_contour_level_to_map() needs to set widget data imol " << std::endl;
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
 
    if (is_valid_map_molecule(imol)) {
-      GtkToggleButton *toggle_button =
-	 GTK_TOGGLE_BUTTON(lookup_widget(w, "single_map_properties_sigma_radiobutton"));
+      GtkWidget *sigma_radiobutton = widget_from_builder("single_map_properties_sigma_radiobutton");
+      GtkToggleButton *toggle_button = GTK_TOGGLE_BUTTON(sigma_radiobutton);
 
-      GtkWidget *entry = lookup_widget(w, "single_map_properties_contour_level_entry");
+      // GtkWidget *entry = lookup_widget(w, "single_map_properties_contour_level_entry");
+      GtkWidget *entry = widget_from_builder("single_map_properties_contour_level_entry");
       const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
       float level = atof(txt);
       if (gtk_toggle_button_get_active(toggle_button)) {

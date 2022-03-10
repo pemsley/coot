@@ -162,8 +162,11 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
    gtk_window_set_title(GTK_WINDOW(dialog()), title.c_str());
 
    // And now the graph label for EJD:
-   GtkWidget *label = lookup_widget(dialog(), "geometry_graphs_label");
+#if 0
+   GtkWidget *label = lookup_widget(dialog(), "geometry_graphs_label"); // #ifdef 0 - I don't know what to do here.
+                                                                        // multiple graphs, multiple molecules...
    gtk_label_set_text(GTK_LABEL(label), graph_label.c_str());
+#endif
 }
 
 void

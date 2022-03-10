@@ -157,6 +157,7 @@ coot::get_mtz_columns(const std::string &filename) {
    return a;
 }
 
+#include "widget-from-builder.hh"
 
 /* used when the column label widget is being created   */
 void
@@ -164,9 +165,12 @@ coot::setup_refmac_parameters(GtkWidget *window,
                               const coot::mtz_column_types_info_t &col_labs) {
 
   // comboboxes
-  GtkWidget *fobs_combobox    = lookup_widget(window, "column_label_selector_refmac_fobs_combobox");
-  GtkWidget *sigfobs_combobox = lookup_widget(window, "column_label_selector_refmac_sigfobs_combobox");
-  GtkWidget *rfree_combobox   = lookup_widget(window, "column_label_selector_refmac_rfree_combobox");
+  // GtkWidget *fobs_combobox    = lookup_widget(window, "column_label_selector_refmac_fobs_combobox");
+  // GtkWidget *sigfobs_combobox = lookup_widget(window, "column_label_selector_refmac_sigfobs_combobox");
+  // GtkWidget *rfree_combobox   = lookup_widget(window, "column_label_selector_refmac_rfree_combobox");
+  GtkWidget *fobs_combobox    = widget_from_builder("column_label_selector_refmac_fobs_combobox");
+  GtkWidget *sigfobs_combobox = widget_from_builder("column_label_selector_refmac_sigfobs_combobox");
+  GtkWidget *rfree_combobox   = widget_from_builder("column_label_selector_refmac_rfree_combobox");
 
   my_combo_box_text_add_items(GTK_COMBO_BOX(fobs_combobox),    col_labs.f_cols,      0);
   my_combo_box_text_add_items(GTK_COMBO_BOX(sigfobs_combobox), col_labs.sigf_cols,   0);
@@ -259,14 +263,15 @@ coot::get_d_cols(const std::string &mtz_file_name) {
 void
 f_button_select(GtkWidget *item, GtkPositionType pos) {
 
-   GtkWidget *window;
    GtkWidget *checkbutton;
    std::string lab;
    short int make_diff_map_flag = 0;
 
    /* If this was an anomalous label, we want a difference map... */
 
-   window = lookup_widget(GTK_WIDGET(item), "column_label_window");
+   // GtkWidget *window = lookup_widget(GTK_WIDGET(item), "column_label_window");
+   GtkWidget *window = widget_from_builder("column_label_window");
+
    coot::mtz_column_types_info_t *save_f_phi_columns =
       (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "save_f_phi_columns");
 
@@ -298,7 +303,7 @@ f_button_select(GtkWidget *item, GtkPositionType pos) {
    }
 
    if (make_diff_map_flag) {
-      checkbutton = lookup_widget(window, "difference_map_checkbutton");
+      checkbutton = widget_from_builder("difference_map_checkbutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
    }
 }
@@ -318,9 +323,10 @@ void
 phase_button_select(GtkWidget *item, GtkPositionType pos) {
 
    /*     printf("setting phase position %d\n", pos);   */
-   GtkWidget *window = lookup_widget(item, "column_label_window");
-  coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
+   // GtkWidget *window = lookup_widget(item, "column_label_window");
+   GtkWidget *window = widget_from_builder("column_label_window");
+   coot::mtz_column_types_info_t *save_f_phi_columns
+      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
 
   save_f_phi_columns->selected_phi_col = pos;
 }
@@ -329,7 +335,7 @@ void
 weight_button_select(GtkWidget *item, GtkPositionType pos) {
 
 /*    printf("setting weight  position %d\n", pos);  */
-   GtkWidget *window = lookup_widget(item, "column_label_window");
+   GtkWidget *window = widget_from_builder("column_label_window");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
    save_f_phi_columns->selected_weight_col = pos;
@@ -350,7 +356,7 @@ void
 refmac_sigf_button_select(GtkWidget *item, GtkPositionType pos) {
 
    printf("setting refmac sigf position %d\n", pos);
-   GtkWidget *window = lookup_widget(item, "column_label_window");
+   GtkWidget *window = widget_from_builder("column_label_window");
    coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
    save_f_phi_columns->selected_refmac_sigfobs_col = pos;
@@ -360,7 +366,7 @@ void
 refmac_r_free_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting r free position %d\n", pos);
-  GtkWidget *window = lookup_widget(item, "column_label_window");
+  GtkWidget *window = widget_from_builder("column_label_window");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_r_free_col = pos;
@@ -371,7 +377,7 @@ void
 refmac_dialog_f_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting refmac f obs position %d\n", pos);
-  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fobs_col = pos;
@@ -401,7 +407,7 @@ void
 refmac_dialog_fpm_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting refmac f+/- obs position %d\n", pos);
-  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fp_col = pos;
@@ -427,7 +433,7 @@ void
 refmac_dialog_i_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting refmac i obs position %d\n", pos);
-  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_iobs_col = pos;
@@ -447,7 +453,7 @@ void
 refmac_dialog_ipm_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting refmac i+/- obs position %d\n", pos);
-  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_ip_col = pos;
@@ -472,7 +478,7 @@ void
 refmac_dialog_r_free_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting r free position %d\n", pos);
-   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+   GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_r_free_col = pos;
@@ -482,7 +488,7 @@ void
 refmac_dialog_phases_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting phases position %d\n", pos);
-   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+   GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_phi_col = pos;
@@ -492,7 +498,7 @@ void
 refmac_dialog_fom_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting fom position %d\n", pos);
-   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+   GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fom_col = pos;
@@ -502,7 +508,7 @@ void
 refmac_dialog_hl_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting hl position %d\n", pos);
-   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+   GtkWidget *window = widget_from_builder("run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_hla_col = pos;
@@ -597,8 +603,10 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    /* By default, we want the use weights checkbutton to be off */
 
-   check_weights = GTK_CHECK_BUTTON(lookup_widget(column_label_window,
-						  "use_weights_checkbutton"));
+   // check_weights = GTK_CHECK_BUTTON(lookup_widget(column_label_window, "use_weights_checkbutton"));
+   GtkWidget *use_weights_checkbutton =  widget_from_builder("use_weights_checkbutton");
+   check_weights = GTK_CHECK_BUTTON(use_weights_checkbutton);
+
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_weights), FALSE);
 
    coot::setup_refmac_parameters(column_label_window, *f_phi_columns);
@@ -660,12 +668,13 @@ void
 coot::column_selector_using_cmtz_setup_comboboxes(GtkWidget *column_label_window,
 						  coot::mtz_column_types_info_t *f_phi_columns) {
 
-   GtkWidget *amplitudes_combobox_w = lookup_widget(column_label_window,
-						  "column_selector_amplitudes_combobox");
-   GtkWidget *phases_combobox_w = lookup_widget(column_label_window,
-					      "column_selector_phases_combobox");
-   GtkWidget *weights_combobox_w = lookup_widget(column_label_window,
-						 "column_selector_weights_combobox");
+   // GtkWidget *amplitudes_combobox_w = lookup_widget(column_label_window, "column_selector_amplitudes_combobox");
+   // GtkWidget *phases_combobox_w     = lookup_widget(column_label_window, "column_selector_phases_combobox");
+   // GtkWidget *weights_combobox_w    = lookup_widget(column_label_window, "column_selector_weights_combobox");
+   GtkWidget *amplitudes_combobox_w = widget_from_builder("column_selector_amplitudes_combobox");
+   GtkWidget *phases_combobox_w     = widget_from_builder("column_selector_phases_combobox");
+   GtkWidget *weights_combobox_w    = widget_from_builder("column_selector_weights_combobox");
+
    GtkComboBox *amplitudes_combobox = GTK_COMBO_BOX(amplitudes_combobox_w);
    GtkComboBox *phases_combobox     = GTK_COMBO_BOX(phases_combobox_w);
    GtkComboBox *weights_combobox    = GTK_COMBO_BOX(weights_combobox_w);
@@ -693,9 +702,11 @@ coot::on_column_label_combobox_changed(GtkComboBox *combobox, gpointer user_data
    // Change the "is-difference-map" checkbutton when we choose a amplitude label that begins with
    // "DEL"
 
-   GtkCheckButton *is_diff_map_checkbutton = GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(combobox), "difference_map_checkbutton"));
+   GtkWidget *cb = widget_from_builder("difference_map_checkbutton");
+   GtkCheckButton *is_diff_map_checkbutton = GTK_CHECK_BUTTON(cb);
 
-   GtkWidget *amplidues_combobox = lookup_widget(GTK_WIDGET(combobox), "column_selector_amplitudes_combobox");
+   // GtkWidget *amplidues_combobox = lookup_widget(GTK_WIDGET(combobox), "column_selector_amplitudes_combobox");
+   GtkWidget *amplidues_combobox = widget_from_builder("column_selector_amplitudes_combobox");
    if (GTK_WIDGET(combobox) != amplidues_combobox) return;
 
    graphics_info_t g;
@@ -726,7 +737,8 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button) {
    /* messing about with string variables */
    gchar widget_name[25];
 
-   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
+   // GtkWidget *window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
+   GtkWidget *window = widget_from_builder("phs_cell_choice_window");
 
    for (int i=0; i< graphics_n_molecules(); i++) {
 

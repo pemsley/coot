@@ -3580,9 +3580,9 @@ void
 on_run_refmac_run_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
-				    "run_refmac_dialog");
-/*   printf("debugging bad window ------------- starting on button click callback.... \n"); */
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button), "run_refmac_dialog");
+
+  /*   printf("debugging bad window ------------- starting on button click callback.... \n"); */
 
   /* execute_refmac(window); */
 /*   free_memory_run_refmac(window); */
