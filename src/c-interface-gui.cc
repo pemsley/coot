@@ -2976,8 +2976,7 @@ reattach_modelling_toolbar() {
    // don't know how to fix this. GTK-FIXME
 
    /*
-  GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea,
-				       "model_fit_refine_toolbar_handlebox");
+  GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox");
   GdkEvent *event = gdk_event_new (GDK_DELETE);
   event->any.type = GDK_DELETE;
   event->any.window = GTK_HANDLE_BOX(handlebox)->float_window;

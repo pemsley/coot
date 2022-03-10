@@ -346,7 +346,7 @@ void
 refmac_f_button_select(GtkWidget *item, GtkPositionType pos) {
 
   printf("setting refmac f obs position %d\n", pos);
-   GtkWidget *window = lookup_widget(item, "column_label_window");
+  GtkWidget *window = widget_from_builder("column_label_window");
   coot::mtz_column_types_info_t *save_f_phi_columns
      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fobs_col = pos;
@@ -746,7 +746,9 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button) {
 
          std::string widget_name = "phs_cell_radiobutton_";
          widget_name += std::to_string(i);
-         GtkWidget *t_button = lookup_widget(GTK_WIDGET(button), widget_name.c_str());
+         // GtkWidget *t_button = lookup_widget(GTK_WIDGET(button), widget_name.c_str());
+         GtkWidget *t_button = 0;
+         std::cout << "in handle_phs_cell_choice_ok_button_clicked() correctly set t_button" << std::endl;
          if (t_button) {
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_button))) {
                printf("proceeding with phs reading using cell from molecule %d.\n", i);
@@ -757,7 +759,8 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button) {
       }
    }
 
-   GtkWidget *t_button = lookup_widget(button, "phs_cell_none_radiobutton");
+   // GtkWidget *t_button = lookup_widget(button, "phs_cell_none_radiobutton");
+   GtkWidget *t_button = widget_from_builder("phs_cell_none_radiobutton");
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_button))) {
       std::cout << "special value for none for phs_cell radiobuton active" << std::endl;
       GtkWidget *info_window = create_phs_info_box();
