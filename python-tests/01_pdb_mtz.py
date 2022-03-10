@@ -1500,11 +1500,11 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(valid_map_molecule_qm(new_map),
                         " average map fail")
 
+        set_ignore_pseudo_zeros_for_map_stats(0)
+
         # the differnce map shoudl be nearly flat (0.0)
         #
         diff_map = difference_map(imol_map_1, new_map, 1.0)
-
-        set_ignore_pseudo_zeros_for_map_stats(0)
 
         rms_1 = map_sigma(new_map)
         rms_2 = map_sigma(diff_map)
