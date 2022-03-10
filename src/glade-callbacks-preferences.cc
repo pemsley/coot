@@ -49,7 +49,9 @@
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
-#include "support.h"
+#include "support.h" // 20220310-PE  goodbye one day soon!
+
+#include "widget-from-builder.hh"
 
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
@@ -125,9 +127,10 @@ void
 on_preferences_ok_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "preferences");
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "preferences");
+  GtkWidget *w = widget_from_builder("preferences");
   save_preferences();
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
   clear_preferences();
 }
 
@@ -237,12 +240,12 @@ on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *w;
   GdkColor bg_colour;
   float fval1;
   float fval2;
   float fval3;
-  w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_bg_colour_colorbutton");
+  // GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_bg_colour_colorbutton");
+  GtkWidget *w = widget_from_builder("preferences_bg_colour_colorbutton");
   gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &bg_colour);
   fval1 = (float)bg_colour.red / 65535;
   fval2 = (float)bg_colour.green / 65535;
@@ -260,21 +263,21 @@ on_preferences_bg_colour_colorbutton_color_set_gtkbuilder_callback
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(colorbutton), "preferences_bg_colour_own_radiobutton");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w))) {
-    GdkColor bg_colour;
-    float fval1;
-    float fval2;
-    float fval3;
-    gtk_color_button_get_color(colorbutton, &bg_colour);
-    fval1 = (float)bg_colour.red / 65535;
-    fval2 = (float)bg_colour.green / 65535;
-    fval3 = (float)bg_colour.blue / 65535;
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(colorbutton), "preferences_bg_colour_own_radiobutton");
+   GtkWidget *w = widget_from_builder("preferences_bg_colour_own_radiobutton");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w))) {
+      GdkColor bg_colour;
+      float fval1;
+      float fval2;
+      float fval3;
+      gtk_color_button_get_color(colorbutton, &bg_colour);
+      fval1 = (float)bg_colour.red / 65535;
+      fval2 = (float)bg_colour.green / 65535;
+      fval3 = (float)bg_colour.blue / 65535;
 
-    preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
-    set_background_colour(fval1, fval2, fval3);
-  }
+      preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
+      set_background_colour(fval1, fval2, fval3);
+   }
 
 }
 
@@ -285,8 +288,8 @@ on_preferences_bg_colour_colorbutton_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(button), "preferences_bg_colour_own_radiobutton");
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "preferences_bg_colour_own_radiobutton");
+  GtkWidget *w = widget_from_builder("preferences_bg_colour_own_radiobutton");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 
 }
@@ -299,13 +302,13 @@ on_preferences_map_radius_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
 					 gpointer         user_data)
 {
-  const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
-  if ((fval > 0) && (fval <1000)) {
-    preferences_internal_change_value_float(PREFERENCES_MAP_RADIUS, fval);
-    set_map_radius(fval);
-  }
+   const gchar *text = gtk_entry_get_text(entry);
+   float fval = 0;
+   fval = atof(text);
+   if ((fval > 0) && (fval <1000)) {
+      preferences_internal_change_value_float(PREFERENCES_MAP_RADIUS, fval);
+      set_map_radius(fval);
+   }
 
 }
 
@@ -316,15 +319,15 @@ on_preferences_map_radius_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
 					 gpointer         user_data)
 {
-  GtkEntry *entry;
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_radius_entry"));
-  const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
-  if ((fval > 0) && (fval <200)) {
-    preferences_internal_change_value_float(PREFERENCES_MAP_RADIUS, fval);
-    set_map_radius(fval);
-  }
+   //GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_radius_entry"));
+   GtkEntry *entry = GTK_ENTRY(widget_from_builder("preferences_map_radius_entry"));
+   const gchar *text = gtk_entry_get_text(entry);
+   float fval = 0;
+   fval = atof(text);
+   if ((fval > 0) && (fval <200)) {
+      preferences_internal_change_value_float(PREFERENCES_MAP_RADIUS, fval);
+      set_map_radius(fval);
+   }
 
 }
 
@@ -352,8 +355,8 @@ on_preferences_map_increment_size_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable),
-					    "preferences_map_increment_size_entry"));
+   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_increment_size_entry"));
+  GtkEntry *entry = GTK_ENTRY(widget_from_builder("preferences_map_increment_size_entry"));
   const gchar *text = gtk_entry_get_text(entry);
   float fval = 0;
   fval = atof(text);
@@ -388,15 +391,15 @@ on_preferences_map_diff_increment_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry;
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_diff_increment_entry"));
-  const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
-  if (fval > 0) {
-    preferences_internal_change_value_float(PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT, fval);
-    set_diff_map_iso_level_increment(fval);
-  }
+   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_diff_increment_entry"));
+   GtkEntry *entry = GTK_ENTRY(widget_from_builder("preferences_map_diff_increment_entry"));
+   const gchar *text = gtk_entry_get_text(entry);
+   float fval = 0;
+   fval = atof(text);
+   if (fval > 0) {
+      preferences_internal_change_value_float(PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT, fval);
+      set_diff_map_iso_level_increment(fval);
+   }
 
 }
 
@@ -424,14 +427,15 @@ on_preferences_map_sampling_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_sampling_entry"));
-  const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
-  if ((fval < 100) && (fval > 1)) {
-    preferences_internal_change_value_float(PREFERENCES_MAP_SAMPLING_RATE, fval);
-    set_map_sampling_rate(fval);
-  }
+   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_sampling_entry"));
+   GtkEntry *entry = GTK_ENTRY(widget_from_builder("preferences_map_sampling_entry"));
+   const gchar *text = gtk_entry_get_text(entry);
+   float fval = 0;
+   fval = atof(text);
+   if ((fval < 100) && (fval > 1)) {
+      preferences_internal_change_value_float(PREFERENCES_MAP_SAMPLING_RATE, fval);
+      set_map_sampling_rate(fval);
+   }
 
 }
 
@@ -564,15 +568,15 @@ on_preferences_smooth_scroll_steps_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable),
-					    "preferences_smooth_scroll_steps_entry"));
-  const gchar *text = gtk_entry_get_text(entry);
-  int ival = 0;
-  ival = atoi(text);
-  if ((ival < 10000000) && (ival > 0)) {
-    preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL_STEPS, ival);
-    set_smooth_scroll_steps(ival);
-  }
+   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_steps_entry"));
+   GtkEntry *entry = GTK_ENTRY(widget_from_builder("preferences_smooth_scroll_steps_entry"));
+   const gchar *text = gtk_entry_get_text(entry);
+   int ival = 0;
+   ival = atoi(text);
+   if ((ival < 10000000) && (ival > 0)) {
+      preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL_STEPS, ival);
+      set_smooth_scroll_steps(ival);
+   }
 
 }
 
@@ -600,15 +604,15 @@ on_preferences_smooth_scroll_limit_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable),
-					    "preferences_smooth_scroll_limit_entry"));
-  const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
-  if ((fval < 1000) && (fval > 0)) {
-    preferences_internal_change_value_float(PREFERENCES_SMOOTH_SCROLL_LIMIT, fval);
-    set_smooth_scroll_limit(fval);
-  }
+   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_limit_entry"));
+   GtkEntry *entry = GTK_ENTRY(widget_from_builder("preferences_smooth_scroll_limit_entry"));
+   const gchar *text = gtk_entry_get_text(entry);
+   float fval = 0;
+   fval = atof(text);
+   if ((fval < 1000) && (fval > 0)) {
+      preferences_internal_change_value_float(PREFERENCES_SMOOTH_SCROLL_LIMIT, fval);
+      set_smooth_scroll_limit(fval);
+   }
 
 }
 
@@ -814,23 +818,23 @@ on_preferences_dialog_accept_docked_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *hbox;
-  GtkWidget *show_checkbutton;
-  GtkWidget *hide_checkbutton;
-  hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
-  show_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_show_radiobutton");
-  hide_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hide_radiobutton");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 1);
-    set_accept_reject_dialog_docked(1);
-    /* shall update the hbox */
-    if (accept_reject_dialog_docked_show_state() == 1) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_checkbutton), TRUE);
-    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_checkbutton), TRUE);
-    }
-    gtk_widget_show(hbox);
-  }
+   // GtkWidget *hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
+   // GtkWidget *show_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_show_radiobutton");
+   // GtkWidget *hide_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hide_radiobutton");
+   GtkWidget *hbox             = widget_from_builder("preferences_dialog_accept_docked_hbox");
+   GtkWidget *show_checkbutton = widget_from_builder("preferences_dialog_accept_docked_show_radiobutton");
+   GtkWidget *hide_checkbutton = widget_from_builder("preferences_dialog_accept_docked_hide_radiobutton");
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 1);
+      set_accept_reject_dialog_docked(1);
+      /* shall update the hbox */
+      if (accept_reject_dialog_docked_show_state() == 1) {
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_checkbutton), TRUE);
+      } else {
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_checkbutton), TRUE);
+      }
+      gtk_widget_show(hbox);
+   }
 
 }
 
@@ -841,17 +845,17 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *hbox;
-  hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 0);
-    set_accept_reject_dialog_docked(0);
-    /* shall update the hbox */
-    if (accept_reject_dialog_docked_show_state() == 1) {
-      set_accept_reject_dialog_docked_show(0);
-    }
-    gtk_widget_hide(hbox);
-  }
+   // GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
+   GtkWidget *hbox = widget_from_builder("preferences_dialog_accept_docked_hbox");
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 0);
+      set_accept_reject_dialog_docked(0);
+      /* shall update the hbox */
+      if (accept_reject_dialog_docked_show_state() == 1) {
+         set_accept_reject_dialog_docked_show(0);
+      }
+      gtk_widget_hide(hbox);
+   }
 
 }
 
@@ -1043,8 +1047,7 @@ on_preferences_refinement_speed_own_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_refinement_speed_entry");
+  GtkWidget *w = widget_from_builder("preferences_refinement_speed_entry");
   if (gtk_toggle_button_get_active(togglebutton)) {
     const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
     int val;
@@ -1065,22 +1068,21 @@ extern "C" G_MODULE_EXPORT
 void
 on_preferences_refinement_speed_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
-                                        gpointer         user_data)
-{
-  GtkWidget *w;
-  const gchar* entry_text;
-  int val;
-  w = lookup_widget(GTK_WIDGET(entry), "preferences_refinement_speed_own_radiobutton");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-  entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-  val = atoi(entry_text);
-  if ((val > 10000) || (val < 1)) {
-    printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
-    val  = 80;
-    gtk_entry_set_text(entry, "80");
-  }
-  preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
-  set_dragged_refinement_steps_per_frame(val);
+                                        gpointer         user_data) {
+
+   const gchar* entry_text;
+   int val;
+   GtkWidget *w = widget_from_builder("preferences_refinement_speed_own_radiobutton");
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+   entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+   val = atoi(entry_text);
+   if ((val > 10000) || (val < 1)) {
+      printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
+      val  = 80;
+      gtk_entry_set_text(entry, "80");
+   }
+   preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
+   set_dragged_refinement_steps_per_frame(val);
 }
 
 
@@ -1090,13 +1092,12 @@ on_preferences_refinement_speed_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
 					 gpointer         user_data)
 {
-  GtkWidget *w;
-  GtkWidget *togglebutton;
   const gchar* entry_text;
   int val;
 
-  w = lookup_widget(GTK_WIDGET(editable), "preferences_refinement_speed_entry");
-  togglebutton = lookup_widget(GTK_WIDGET(editable), "preferences_refinement_speed_own_radiobutton");
+  GtkWidget *w = widget_from_builder("preferences_refinement_speed_entry");
+  GtkWidget *togglebutton = widget_from_builder("preferences_refinement_speed_own_radiobutton");
+
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
 
   entry_text = gtk_entry_get_text(GTK_ENTRY(w));
@@ -1137,17 +1138,17 @@ on_preferences_spin_speed_entry_changed_gtkbuilder_callback
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  float fval;
-  GtkWidget *w = lookup_widget(GTK_WIDGET(editable), "preferences_spin_speed_entry");
-  const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-  fval = atof(entry_text);
-  if ((fval > 360) || (fval < 0)) {
-    printf("Cannot interpret: %s Assuming default 1.0 \n", entry_text);
-    fval  = 1.0;
-    gtk_entry_set_text(GTK_ENTRY(w), "1.0");
-  }
-  preferences_internal_change_value_float(PREFERENCES_SPIN_SPEED, fval);
-  set_idle_function_rotate_angle(fval);
+   float fval;
+   GtkWidget *w = widget_from_builder("preferences_spin_speed_entry");
+   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+   fval = atof(entry_text);
+   if ((fval > 360) || (fval < 0)) {
+      printf("Cannot interpret: %s Assuming default 1.0 \n", entry_text);
+      fval  = 1.0;
+      gtk_entry_set_text(GTK_ENTRY(w), "1.0");
+   }
+   preferences_internal_change_value_float(PREFERENCES_SPIN_SPEED, fval);
+   set_idle_function_rotate_angle(fval);
 }
 
 
@@ -1199,14 +1200,13 @@ on_preferences_font_size_others_radiobutton_toggled_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    GtkWidget *w;
-    w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_size_combobox");
-    gint ival = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
-    ival += 4;
-    preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, ival);
-    set_font_size(ival);
-  }
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      GtkWidget *w = widget_from_builder("preferences_font_size_combobox");
+      gint ival = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
+      ival += 4;
+      preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, ival);
+      set_font_size(ival);
+   }
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1215,8 +1215,7 @@ on_preferences_font_size_combobox_changed_gtkbuilder_callback
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(combobox),
-			       "preferences_font_size_others_radiobutton");
+  GtkWidget *w = widget_from_builder("preferences_font_size_others_radiobutton");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
   gint ival = gtk_combo_box_get_active(combobox);
   ival += 4;
@@ -1244,30 +1243,29 @@ on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  GdkColor font_colour;
-  float fval1;
-  float fval2;
-  float fval3;
-  int previous_state;
+   GdkColor font_colour;
+   float fval1;
+   float fval2;
+   float fval3;
+   int previous_state;
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_toggle_button_get_active(togglebutton)) {
 
-    previous_state = preferences_internal_font_own_colour_flag();
+      previous_state = preferences_internal_font_own_colour_flag();
 
-    if (previous_state != -1) { 	/* not unset */
-      w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_colorbutton");
-      gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
-      fval1 = (float) font_colour.red   / (float) 65535;
-      fval2 = (float) font_colour.green / (float) 65535;
-      fval3 = (float) font_colour.blue  / (float) 65535;
+      if (previous_state != -1) { 	/* not unset */
+         GtkWidget *w = widget_from_builder("preferences_font_colorbutton");
+         gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
+         fval1 = (float) font_colour.red   / (float) 65535;
+         fval2 = (float) font_colour.green / (float) 65535;
+         fval3 = (float) font_colour.blue  / (float) 65535;
 
-      preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
-      printf("     set_font_colour() - path B\n");
-      set_font_colour(fval1, fval2, fval3);
-      preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
-    }
-  }
+         preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
+         printf("     set_font_colour() - path B\n");
+         set_font_colour(fval1, fval2, fval3);
+         preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
+      }
+   }
 }
 
 
@@ -1279,31 +1277,29 @@ on_preferences_font_colorbutton_color_set_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GdkColor font_colour;
-  GtkWidget *w;
-  float fval1;
-  float fval2;
-  float fval3;
-  gtk_color_button_get_color(colorbutton, &font_colour);
-  fval1 = (float) font_colour.red   / (float) 65535;
-  fval2 = (float) font_colour.green / (float) 65535;
-  fval3 = (float) font_colour.blue  / (float) 65535;
+   GdkColor font_colour;
+   float fval1;
+   float fval2;
+   float fval3;
+   gtk_color_button_get_color(colorbutton, &font_colour);
+   fval1 = (float) font_colour.red   / (float) 65535;
+   fval2 = (float) font_colour.green / (float) 65535;
+   fval3 = (float) font_colour.blue  / (float) 65535;
 
-  preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
-  set_font_colour(fval1, fval2, fval3);
-  /* should set own colour button active (if colours away from default) */
-  if (fval1  >= 0.999 &&
-      fval2 >= 0.799 && fval2 <= 0.801 &&
-      fval3 >= 0.799 && fval3 <= 0.801) {
-     // set default button active
-     w = lookup_widget(GTK_WIDGET(colorbutton),
-                       "preferences_font_colour_default_radiobutton");
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-  } else {
-    /* set own font colour button active */
-    w = lookup_widget(GTK_WIDGET(colorbutton), "preferences_font_colour_own_radiobutton");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-  }
+   preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
+   set_font_colour(fval1, fval2, fval3);
+   /* should set own colour button active (if colours away from default) */
+   if (fval1  >= 0.999 &&
+       fval2 >= 0.799 && fval2 <= 0.801 &&
+       fval3 >= 0.799 && fval3 <= 0.801) {
+      // set default button active
+      GtkWidget *w = widget_from_builder("preferences_font_colour_default_radiobutton");
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+   } else {
+      /* set own font colour button active */
+      GtkWidget *w = widget_from_builder("preferences_font_colour_own_radiobutton");
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+   }
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1342,7 +1338,7 @@ on_preferences_pink_pointer_entry_changed_gtkbuilder_callback
                                         gpointer         user_data)
 {
   float fval;
-  GtkWidget *w = lookup_widget(GTK_WIDGET(editable), "preferences_pink_pointer_entry");
+  GtkWidget *w = widget_from_builder("preferences_pink_pointer_entry");
   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
   fval = atof(entry_text);
   if ((fval > 1000) || (fval < 0)) {
