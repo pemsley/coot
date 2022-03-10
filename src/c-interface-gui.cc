@@ -4918,13 +4918,12 @@ GtkWidget *wrapped_create_display_control_window() {
       else
          gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(widget)));
 #endif
-   } else {
 
       // OK, so create (then store) a new one.
 
       // widget = create_display_control_window_glade();
       widget = widget_from_builder("display_control_window_glade");
-      save_display_control_widget_in_graphics(widget);
+      save_display_control_widget_in_graphics(widget); // surely not needed now?
       add_map_and_mol_display_control_widgets(); /* uses just saved widget */
 
       // set the size and shape of the window and paned components:

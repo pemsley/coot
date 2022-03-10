@@ -70,8 +70,6 @@ on_map_color_changed(GtkWidget *w,
 
 }
 
-
-
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 /*                               symmetry                                   */
@@ -443,7 +441,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 					const gchar *name,
 					int imol, bool show_add_reps_frame_flag) {
 
-   std::cout << "start display_control_molecule_combo_box() " << std::endl;
+   std::cout << "DEBUG:: start display_control_molecule_combo_box() " << std::endl;
    GtkWidget *display_molecule_vbox;
    /*   GtkWidget *display_control_window_glade; passed parameter */
 
@@ -642,7 +640,7 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 				 bool show_add_reps_frame_flag) {
 
    GtkWidget *frame = gtk_frame_new("Additional Representations");
-   GtkWidget *v = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+   GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
    // show the frame if there were additional representations
    if (show_add_reps_frame_flag)
       gtk_widget_show(frame);
@@ -667,18 +665,15 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    // set the name so that it can be looked up.
    widget_name = "add_rep_display_control_frame_vbox_";
    widget_name += coot::util::int_to_string(imol_no);
-   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			     widget_name.c_str(),
-			   v, NULL);
+
+   // g_object_set_data_full(G_OBJECT (display_control_window_glade), widget_name.c_str(), v, NULL);
 
    widget_name = "add_rep_display_control_frame_";
    widget_name += coot::util::int_to_string(imol_no);
-   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			     widget_name.c_str(),
-			   frame, NULL);
+   g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name.c_str(), frame, NULL);
 
    gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
-   gtk_container_add(GTK_CONTAINER(frame), v);
+   gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 }
 
@@ -726,12 +721,12 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
   //  entry = widget_from_builder(entry_name);
 
   entry = 0;
-  std::cout << "do a proper lookup of entry here " << entry_name << std::endl;
+  std::cout << "FIXME:: update_name_in_display_control_molecule_combo_box() do a proper lookup of entry here "
+            << entry_name << std::endl;
 
   if (entry)
     gtk_entry_set_text(GTK_ENTRY(entry), display_name);
-  else
-    printf("oops no entry found with name %s\n", entry_name);
+
 }
 
 

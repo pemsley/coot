@@ -2885,17 +2885,11 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
 void
 graphics_info_t::clear_out_container(GtkWidget *vbox) {
 
-   std::cout << "GTK3 FIXME clear_out_container() " << std::endl;
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
 
-#if 0
-   GList *ls = gtk_container_children(GTK_CONTAINER(vbox));
-
-   while (ls) {
-      GtkWidget *w = GTK_WIDGET(ls->data);
-      gtk_widget_destroy(w);
-      ls = ls->next;
-   }
-#endif
+   if (GTK_IS_CONTAINER(vbox))
+      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
 }
 
 

@@ -6009,8 +6009,11 @@ void
 on_ligand_no_blobs_OK_button_clicked_gtkbuilder_callback   (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "ligand_no_blobs_dialog");
-  gtk_widget_destroy(dialog);
+   //   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "ligand_no_blobs_dialog");
+   // gtk_widget_destroy(dialog);
+
+   GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
+   gtk_widget_hide(dialog);
 }
 
 
@@ -6022,9 +6025,11 @@ on_new_delete_molecules_ok_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_close_molecules_dialog");
-  new_close_molecules(w);
-/*   gtk_widget_destroy(w); */
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_close_molecules_dialog");
+   GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
+   new_close_molecules(w);
+
+  /*   gtk_widget_destroy(w); */
 }
 
 
@@ -6034,8 +6039,9 @@ on_new_delete_molecules_cancel_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_close_molecules_dialog");
-  gtk_widget_destroy(w);
+   // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "new_close_molecules_dialog");
+   GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
+   gtk_widget_hide(w);
 
 }
 
@@ -8938,7 +8944,7 @@ void
 on_display_manager_button_clicked_gtkbuilder_callback      (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = wrapped_create_display_control_window();
+   GtkWidget *widget = wrapped_create_display_control_window(); // uses widget_from_builder()
    gtk_widget_show(widget);
 }
 

@@ -5701,18 +5701,31 @@ void save_display_control_widget_in_graphics(GtkWidget *widget) {
 void
 post_display_control_window() {
 
-   GtkWidget *widget = wrapped_create_display_control_window();
+   GtkWidget *widget = wrapped_create_display_control_window(); // uses gtkbuilder
    gtk_widget_show(widget);
    std::vector<std::string> command_strings;
    command_strings.push_back("post-display-control-window");
    add_to_history(command_strings);
 }
 
+void
+clear_out_container(GtkWidget *vbox) {
+
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+
+   if (GTK_IS_CONTAINER(vbox))
+      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+
+}
 
 
 void add_map_display_control_widgets() {
 
    graphics_info_t g;
+
+   GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
+   clear_out_container(map_vbox);
 
    for (int ii=0; ii<g.n_molecules(); ii++)
       if (g.molecules[ii].has_xmap() || g.molecules[ii].has_nxmap())
@@ -5724,6 +5737,9 @@ void add_map_display_control_widgets() {
 void add_mol_display_control_widgets() {
 
    graphics_info_t g;
+
+   GtkWidget *molecule_vbox = widget_from_builder("display_molecule_vbox");
+   clear_out_container(molecule_vbox);
 
    for (int ii=0; ii<g.n_molecules(); ii++) {
       if (g.molecules[ii].has_model()) {

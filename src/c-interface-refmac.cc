@@ -215,16 +215,12 @@ execute_refmac_real(std::string pdb_in_filename,
    short int ilang = coot::STATE_SCM;
    std::string cmd;
 
-#ifdef USE_PYTHON
 #ifndef USE_GUILE
    ilang = coot::STATE_PYTHON;
 #endif
-#endif
    if (ilang == coot::STATE_PYTHON) {
       cmd = g.state_command(cmds, ilang);
-#ifdef USE_PYTHON
       safe_python_command(cmd);
-#endif
    } else {
       cmd = g.state_command(cmds, ilang);
       safe_scheme_command(cmd);
@@ -238,3 +234,42 @@ SCM get_refmac_sad_atom_info_scm() {
    return SCM_EOL;
 }
 #endif
+
+
+/*! \brief retrive the stored refmac_sad_atoms to be used in refmac with SAD option */
+/*  return list of e.g. [["SE", -8.0, -4.0, None], ...]  */
+PyObject *get_refmac_sad_atom_info_py() {
+
+  PyObject *r = PyList_New(0);
+
+  std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
+  for (unsigned int i=0; i<sad_atoms.size(); i++) {
+    PyObject *ls = PyList_New(0);
+    std::string atom_name = sad_atoms[i].atom_name;
+    float fp = sad_atoms[i].fp;
+    float fpp = sad_atoms[i].fpp;
+    float lambda = sad_atoms[i].lambda;
+    PyList_Append(ls, myPyString_FromString(atom_name.c_str()));
+    if (fabs(fp + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(fp));
+    }
+    if (fabs(fpp + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(fpp));
+    }
+    if (fabs(lambda + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(lambda));
+    }
+    PyList_Append(r, ls);
+    Py_XDECREF(ls);
+  }
+  return r;
+}
