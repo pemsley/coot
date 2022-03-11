@@ -39,6 +39,7 @@
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
 #include "rotamer-search-modes.hh"
+#include "widget-from-builder.hh"
 
 // save state
 //
@@ -1028,8 +1029,8 @@ graphics_info_t::check_for_unsaved_changes() const {
 void
 graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
 
-   GtkWidget *vbox = lookup_widget(GTK_WIDGET(dialog),
-   "unsaved_changes_molecule_vbox");
+   // GtkWidget *vbox = lookup_widget(GTK_WIDGET(dialog), "unsaved_changes_molecule_vbox");
+   GtkWidget *vbox = widget_from_builder("unsaved_changes_molecule_vbox");
 
    int menu_index=0;
    for (int imol=0; imol<n_molecules(); imol++) {

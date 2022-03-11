@@ -417,7 +417,8 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    
    // GtkWidget *waters_table = lookup_widget(cfc_dialog, "cfc_waters_table");
 
-   GtkWidget *waters_vbox = lookup_widget(cfc_dialog, "cfc_waters_vbox");
+   // GtkWidget *waters_vbox = lookup_widget(cfc_dialog, "cfc_waters_vbox");
+   GtkWidget *waters_vbox = widget_from_builder("cfc_waters_vbox");
    GtkWidget *waters_table = gtk_table_new(cluster_vec.size(), 2, FALSE);
 
    std::string waters_table_name = "cfc_waters_table_site_";
@@ -626,7 +627,8 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
       std::cout << "DEBUG:: found " << n_pharacophores << " pharmacophores " << std::endl;
    }
 
-   GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
+   // GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
+   GtkWidget *cfc_ligands_vbox = widget_from_builder("cfc_ligands_vbox");
    GtkWidget *ligands_table = gtk_table_new(n_pharacophores+1, 2, FALSE);
 
    std::string ligands_table_name = "cfc_ligands_table_site_";
@@ -832,9 +834,12 @@ cfc::on_cfc_site_button_clicked(GtkButton *button,
 
       int site_number = pos_p->first;
       // undisplay other tables
-      GtkWidget *ligands_vbox  = lookup_widget(GTK_WIDGET(button), "cfc_ligands_vbox");
-      GtkWidget *waters_vbox   = lookup_widget(GTK_WIDGET(button), "cfc_waters_vbox");
-      GtkWidget *residues_vbox = lookup_widget(GTK_WIDGET(button), "cfc_residues_vbox");
+      // GtkWidget *ligands_vbox  = lookup_widget(GTK_WIDGET(button), "cfc_ligands_vbox");
+      // GtkWidget *waters_vbox   = lookup_widget(GTK_WIDGET(button), "cfc_waters_vbox");
+      // GtkWidget *residues_vbox = lookup_widget(GTK_WIDGET(button), "cfc_residues_vbox");
+      GtkWidget *ligands_vbox  = widget_from_builder("cfc_ligands_vbox");
+      GtkWidget *waters_vbox   = widget_from_builder("cfc_waters_vbox");
+      GtkWidget *residues_vbox = widget_from_builder("cfc_residues_vbox");
 
       if (ligands_vbox) {
 	 std::string show_this_one_name = "cfc_ligands_table_site_";
@@ -1514,8 +1519,9 @@ void
 cfc::cfc_dialog_add_site_info(unsigned int site_number,
 			      const extracted_cluster_info_from_python &eci) {
 
-   GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog,
-					  "cfc_sites_table");
+   // GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog, "cfc_sites_table");
+   GtkWidget *sites_table = widget_from_builder("cfc_sites_table");
+
    if (sites_table) {
       gtk_table_resize(GTK_TABLE(sites_table), site_number+1, 4);
       unsigned int n_structures = eci.n_pharmacophore_structures();

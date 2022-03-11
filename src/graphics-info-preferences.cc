@@ -39,7 +39,7 @@
 #include "c-interface-scm.hh"
 #include "coot-preferences.h"
 #include "utils/coot-utils.hh"
-
+#include "widget-from-builder.hh"
 
 // Return success status
 //
@@ -917,7 +917,8 @@ graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int too
       }
       coot::preferences_icon_info_t item = (*pall_items)[pos];
       widget_name = item.icon_widget;
-      icon_button = lookup_widget(graphics_info_t::get_main_window(), widget_name.c_str());
+      // icon_button = lookup_widget(graphics_info_t::get_main_window(), widget_name.c_str());
+      icon_button = widget_from_builder(widget_name.c_str());
 
       if (icon_button) { 
 

@@ -269,13 +269,13 @@ void do_main_window(const command_line_data &cld) {
       main_title = "Win" + main_title;
 #endif
 
-      GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar");
+      GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar"); // in do_main_window()
       gtk_widget_show(model_toolbar);
 
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
-      GtkWidget *vbox = lookup_widget(window1, "main_window_vbox");
+      GtkWidget *vbox = lookup_widget(window1, "main_window_vbox"); // in do_main_window()
       // make this a grid, so that we can have 2x3 (say) graphics contexts
-      GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
+      GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox"); // in do_main_window()
 
       GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, false);
       my_glarea_add_signals_and_events(glarea);
@@ -301,7 +301,7 @@ void do_main_window(const command_line_data &cld) {
 	    gtk_widget_show(graphics_info_t::glareas[1]);
 
 	 // and setup (store) the status bar
-	 GtkWidget *sb = lookup_widget(window1, "main_window_statusbar");
+	 GtkWidget *sb = lookup_widget(window1, "main_window_statusbar"); // in do_main_window()
 	 graphics_info_t::statusbar = sb;
 	 graphics_info_t::statusbar_context_id =
 	    gtk_statusbar_get_context_id(GTK_STATUSBAR(sb), "picked atom info");
