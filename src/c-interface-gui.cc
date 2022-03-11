@@ -2976,7 +2976,7 @@ reattach_modelling_toolbar() {
    // don't know how to fix this. GTK-FIXME
 
    /*
-  GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox");
+  GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox"); // commented
   GdkEvent *event = gdk_event_new (GDK_DELETE);
   event->any.type = GDK_DELETE;
   event->any.window = GTK_HANDLE_BOX(handlebox)->float_window;
@@ -2999,18 +2999,18 @@ set_model_toolbar_docked_position(int state) {
    /*
 
   if (graphics_info_t::use_graphics_interface_flag) {
-    GtkWidget *left_frame  = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+    GtkWidget *left_frame  = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), // commented
 					   "main_window_model_fit_dialog_frame_left");
-    GtkWidget *right_frame = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+    GtkWidget *right_frame = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),  // commented
 					   "main_window_model_fit_dialog_frame");
-    GtkWidget *handle = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+    GtkWidget *handle = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), // commented
 				       "model_fit_refine_toolbar_handlebox");
-    GtkWidget *vbox    = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+    GtkWidget *vbox    = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), // commented
 				       "main_window_vbox");  // was "vbox1"
-    GtkWidget *toolbar = lookup_widget(handle, "model_toolbar");
-    GtkWidget *vsep    = lookup_widget(handle, "model_toolbar_vsep_toolitem");
-    GtkWidget *hsep    = lookup_widget(handle, "model_toolbar_hsep_toolitem");
-    GtkWidget *style   = lookup_widget(handle, "model_toolbar_style_toolitem");
+    GtkWidget *toolbar = lookup_widget(handle, "model_toolbar"); // commented
+    GtkWidget *vsep    = lookup_widget(handle, "model_toolbar_vsep_toolitem"); // commented
+    GtkWidget *hsep    = lookup_widget(handle, "model_toolbar_hsep_toolitem"); // commented
+    GtkWidget *style   = lookup_widget(handle, "model_toolbar_style_toolitem"); // commented
 
     // reattach first, in case it wasn't and then change the mode
 
@@ -3133,14 +3133,14 @@ int suck_model_fit_dialog_bl() {
    /*
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+      GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),  // commented
 						  "main_window_hbox");
       GtkWidget *dialog = graphics_info_t::model_fit_refine_dialog;
 
       if (main_window_hbox) {
 	 if (dialog) {
 	    GtkWidget *handlebox2 = gtk_handle_box_new();
-	    GtkWidget *hbox = lookup_widget(dialog, "model_fit_refine_dialog_vbox");
+	    GtkWidget *hbox = lookup_widget(dialog, "model_fit_refine_dialog_vbox");  // commented
 	    gtk_container_add (GTK_CONTAINER(handlebox2), hbox);
 	    gtk_widget_reparent(hbox, handlebox2);
 	    gtk_box_pack_start(GTK_BOX(main_window_hbox), handlebox2, FALSE, TRUE, 0);
@@ -3165,15 +3165,15 @@ int suck_model_fit_dialog() {
 
    /*
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+      GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), // commented
 						  "main_window_hbox");
-      GtkWidget *main_window_side_frame = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+      GtkWidget *main_window_side_frame = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),  // commented
 							"main_window_model_fit_dialog_frame");
       GtkWidget *dialog = graphics_info_t::model_fit_refine_dialog;
 
       if (main_window_hbox) {
 	 if (dialog) {
-	    GtkWidget *hbox = lookup_widget(dialog, "model_fit_refine_dialog_vbox");
+	    GtkWidget *hbox = lookup_widget(dialog, "model_fit_refine_dialog_vbox");  // commented
 	    gtk_widget_reparent(hbox, main_window_side_frame);
 	    gtk_widget_show(main_window_side_frame);
 	    gtk_widget_destroy(dialog);
