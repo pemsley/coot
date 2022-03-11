@@ -110,7 +110,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    if (di.displayed_image_type == graphics_info_t::SHOW_AO_SCENE) {
 
-      std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
+      // std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
 
       // bind SSAO gbuffer framebuffer
       // draw_models_for_ssao()

@@ -350,6 +350,13 @@ bool init_from_gtkbuilder() {
 
    GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
 
+   // 20220310-PE and the preferences builder too now
+
+   GtkBuilder *preferences_builder = get_builder_for_preferences_dialog();
+   graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
+   std::cout << "########################################## init_builder(): preferences_builder "
+             << preferences_builder << std::endl;
+
    if (graphics_hbox) {
 
       graphics_info_t::set_gtkbuilder(builder); // store for future widget queries

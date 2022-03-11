@@ -6462,8 +6462,7 @@ on_preferences_map_radius_entry_changed
   GtkEntry *entry;
   entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_radius_entry"));
   const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
+  float fval = atof(text);
   if ((fval > 0) && (fval <200)) {
     preferences_internal_change_value_float(PREFERENCES_MAP_RADIUS, fval);
     set_map_radius(fval);

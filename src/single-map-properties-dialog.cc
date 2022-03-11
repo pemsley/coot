@@ -8,20 +8,18 @@
 
 std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() {
 
-   auto expand_file = [] (const std::string &file_name) {
-                         // FIXME
-                         std::string ff = file_name;
-                         return ff;
-                   };
-
    GtkWidget *single_map_properties_dialog = 0;
    GtkBuilder *builder = gtk_builder_new();
+
+   std::string dir = coot::package_data_dir();
    std::string glade_file_name = "single-map-properties-dialog.glade";
-   std::string single_map_properties_dialog_glade_file_name = expand_file(glade_file_name);
-   guint add_from_file_status = gtk_builder_add_from_file(builder, single_map_properties_dialog_glade_file_name.c_str(), NULL);
+   std::string glade_file_full = coot::util::append_dir_file(dir, glade_file_name);
+   if (coot::file_exists(glade_file_name))
+      glade_file_full = glade_file_name;
+
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
 
    if (add_from_file_status) {
-      std::cout << "::::::::::::::::::::::::::: single_map_properties_dialog from gtkbuilder" << std::endl;
       single_map_properties_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "single_map_properties_dialog"));
       gtk_builder_connect_signals(builder, single_map_properties_dialog); // if "nothing happens" then you've missed this call
    } else {

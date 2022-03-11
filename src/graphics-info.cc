@@ -105,6 +105,14 @@ graphics_info_t::get_widget_from_builder(const std::string &w_name) { // use gtk
    return w;
 }
 
+// static
+GtkWidget *
+graphics_info_t::get_widget_from_preferences_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
+
+   GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(preferences_gtkbuilder, w_name.c_str()));
+   return w;
+}
+
 // return a vector of the current valid map molecules
 std::vector<int>
 graphics_info_t::valid_map_molecules() const {
