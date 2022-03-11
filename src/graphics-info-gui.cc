@@ -110,6 +110,7 @@ void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_r
 
 }
 
+#include "widget-from-builder.hh"
 
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
 //
@@ -117,15 +118,16 @@ void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_r
 //
 void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
-   GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
+   // GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
+   GtkWidget *window = widget_from_builder("accept_reject_refinement_dialog");
    GtkWindow *main_window = GTK_WINDOW(graphics_info_t::get_main_window());
    GtkWidget *label = NULL;
 
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-      label = lookup_widget(GTK_WIDGET(window),
-			    "accept_dialog_accept_docked_label_string");
+      // label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_docked_label_string");
+      label = widget_from_builder("accept_dialog_accept_docked_label_string");
    } else {
-      label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
+      label = widget_from_builder("accept_dialog_accept_label_string");
    }
 
    if (false)
@@ -149,8 +151,9 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
 
    // atom pull autoclear state
+   // GtkWidget *auto_clear_atom_pull_restraint_checkbutton = lookup_widget(window, "accept_reject_refinement_atom_pull_autoclear_checkbutton");
    GtkWidget *auto_clear_atom_pull_restraint_checkbutton =
-      lookup_widget(window, "accept_reject_refinement_atom_pull_autoclear_checkbutton");
+      widget_from_builder("accept_reject_refinement_atom_pull_autoclear_checkbutton");
 
    if (auto_clear_atom_pull_restraint_checkbutton) {
       // it's on by default, should we turn it off?
@@ -166,7 +169,8 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
    // Was this a torsion general, in which we need to active the reverse button?
    GtkWidget *reverse_button;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-      reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
+      // reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
+      reverse_button = widget_from_builder("accept_reject_docked_reverse_button");
       if (fit_type == "Torsion General") {
 	 gtk_widget_show(reverse_button);
       } else {
@@ -174,7 +178,7 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
       }
    } else {
       if (fit_type == "Torsion General") {
-	 reverse_button = lookup_widget(window, "accept_reject_reverse_button");
+	 reverse_button = widget_from_builder("accept_reject_reverse_button");
 	 gtk_widget_show(reverse_button);
       }
    }
@@ -182,7 +186,7 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
       // we need to show some individual widget to make sure we get the right amount
       // of light boxes
-      GtkWidget *button_box = lookup_widget(GTK_WIDGET(main_window), "hbuttonbox1");
+      GtkWidget *button_box = widget_from_builder("hbuttonbox1");
       gtk_widget_show_all(button_box);
       gtk_widget_show(label);
       if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
@@ -225,6 +229,8 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
 
+   // 20220311-PE  this function used now?
+
    std::vector<std::pair<std::string, std::string> > boxes;
    boxes.push_back(std::pair<std::string, std::string>("Bonds",                    "bonds"));
    boxes.push_back(std::pair<std::string, std::string>("Angles",                  "angles"));
@@ -237,9 +243,9 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 
    GtkWidget *frame = 0;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-      frame = lookup_widget(window, "accept_reject_lights_frame_docked");
+      frame = widget_from_builder("accept_reject_lights_frame_docked");
    } else {
-      frame = lookup_widget(window, "accept_reject_lights_frame");
+      frame = widget_from_builder("accept_reject_lights_frame");
    }
    gtk_widget_show(frame);
 
@@ -254,7 +260,8 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
       const std::string &distortion_type_string = boxes[ibox].first;
       std::string widget_name = "accept_reject_label_for_box_";
       widget_name += boxes[ibox].second;
-      GtkWidget *w = lookup_widget(frame, widget_name.c_str());
+      // GtkWidget *w = lookup_widget(frame, widget_name.c_str());
+      GtkWidget *w = widget_from_builder(widget_name.c_str());
 
       // here comes the hiding
       // if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED)
@@ -282,7 +289,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 	    // we do not add labels for the docked box
 	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
 	       std::string label_name = boxes[ibox].second + "_label"; // needs fixing
-	       GtkWidget *label = lookup_widget(frame, label_name.c_str());
+	       GtkWidget *label = widget_from_builder(label_name.c_str());
 	       gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
 	       gtk_widget_show(label);
 	    } else {
@@ -323,15 +330,12 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
       std::cout << "   here with rr.progress " << rr.progress << " c.f. no-progress " << GSL_ENOPROG
 		<< " and success " << GSL_SUCCESS << " and continue " << GSL_CONTINUE << std::endl;
    }
-   GtkWidget *no_progress_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-						"accept_reject_dialog_no_progress_label");
+   GtkWidget *no_progress_label = widget_from_builder("accept_reject_dialog_no_progress_label");
 
    // now look up the label in window and change it.
-   GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-					  "extra_text_label");
+   GtkWidget *extra_label = widget_from_builder("extra_text_label");
 
-   GtkWidget *chiral_centre_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-						  "chiral_centre_text_label");
+   GtkWidget *chiral_centre_label = widget_from_builder("chiral_centre_text_label");
 
    if (text_type == coot::CHI_SQUAREDS) {
       if (rr.progress == GSL_ENOPROG) {
@@ -370,7 +374,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
       } else {
 
 	 // we have a docked accept/reject dialog
-	 GtkWidget *window = lookup_widget(accept_reject_dialog, "window1");
+	 GtkWidget *window = widget_from_builder("window1");
 	 // GtkTooltips *tooltips;
 	 // GtkTooltipsData *td;
 	 // tooltips = GTK_TOOLTIPS(lookup_widget(GTK_WIDGET(window), "tooltips"));
@@ -378,8 +382,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 	 int cis_pep_warn = rr.info_text.find("CIS");
 	 int chirals_warn = rr.info_text.find("chiral");
 
-	 GtkWidget *cis_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-						 "cis_peptides_eventbox_docked");
+	 GtkWidget *cis_eventbox = widget_from_builder("cis_peptides_eventbox_docked");
 
 	 GtkWidget *p = 0; // cis_eventbox->parent;
 	 GtkWidget *chirals_eventbox = 0; // lookup_widget(GTK_WIDGET(accept_reject_dialog),"chirals_eventbox_docked");
@@ -445,7 +448,7 @@ wrapped_create_accept_reject_refinement_dialog() {
 
   GtkWidget *w = 0;
   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-    w = lookup_widget(GTK_WIDGET(graphics_info_t::get_main_window()), "accept_reject_dialog_frame_docked");
+    w = widget_from_builder("accept_reject_dialog_frame_docked");
   } else {
      if (graphics_info_t::accept_reject_dialog)
 	w = graphics_info_t::accept_reject_dialog;
@@ -535,7 +538,7 @@ graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
       w = wrapped_nothing_bad_dialog(s);
 
       if (use_markup) {
-	 GtkWidget *label = lookup_widget(w, "nothing_bad_label");
+	 GtkWidget *label = widget_from_builder("nothing_bad_label");
 	 gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
 	 gtk_label_set_markup(GTK_LABEL(label), s.c_str());
       }

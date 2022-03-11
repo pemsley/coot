@@ -154,6 +154,8 @@ int setup_database();
 
 #include "dynamic-menus.hh"
 
+#include "widget-from-builder.hh"
+
 void
 windows_set_error_mode() {
 
@@ -172,7 +174,8 @@ GtkWidget *do_splash_screen(const command_line_data &cld) {
       if (graphics_info_t::use_graphics_interface_flag) {
          std::string f = cld.alternate_splash_screen_file_name;
          if (f.empty()) {
-            splash_screen = create_splash_screen_window();
+            // splash_screen = create_splash_screen_window();
+            splash_screen = widget_from_builder("splash_screen_window");
          } else {
             splash_screen = create_splash_screen_window_for_file(f.c_str());
          }
@@ -191,6 +194,25 @@ GtkWidget *do_splash_screen(const command_line_data &cld) {
    }
    return splash_screen;
 }
+
+void
+setup_pixmap_directory() {
+
+   // default location:
+   std::string dir = coot::package_data_dir();
+   std::string pixmap_dir = coot::util::append_dir_dir(dir, "pixmaps");
+
+   // over-ridden by user?
+   char *s = getenv("COOT_PIXMAPS_DIR");
+   if (s)
+      pixmap_dir = s;
+
+   add_pixmap_directory(pixmap_dir.c_str());
+
+}
+
+
+
 
 std::string
 make_main_window_title() {
@@ -322,8 +344,6 @@ do_self_tests() {
 
 void on_glarea_realize(GtkGLArea *glarea);
 
-#include "widget-from-builder.hh"
-
 // return success status
 bool init_from_gtkbuilder() {
 
@@ -332,7 +352,8 @@ bool init_from_gtkbuilder() {
    bool status = true;
 
    std::string dir = coot::package_data_dir();
-   std::string glade_file_full = coot::util::append_dir_file(dir, "a6.glade");
+   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+   std::string glade_file_full = coot::util::append_dir_file(dir_glade, "a6.glade");
 
    if (coot::file_exists("a6.glade"))  // Hack for now
       glade_file_full = "a6.glade";
@@ -354,8 +375,6 @@ bool init_from_gtkbuilder() {
 
    GtkBuilder *preferences_builder = get_builder_for_preferences_dialog();
    graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
-   std::cout << "########################################## init_builder(): preferences_builder "
-             << preferences_builder << std::endl;
 
    if (graphics_hbox) {
 
@@ -496,6 +515,8 @@ main (int argc, char *argv[]) {
          do_main_window(cld);
       }
 
+      setup_pixmap_directory();
+
       if (cld.use_gtkbuilder) {
          bool success = init_from_gtkbuilder();
          if (success) {
@@ -630,8 +651,7 @@ setup_splash_screen() {
 
    // default location:
    std::string splash_screen_pixmap_dir = coot::package_data_dir();
-   splash_screen_pixmap_dir += "/";
-   splash_screen_pixmap_dir += "pixmaps";
+   splash_screen_pixmap_dir = coot::util::append_dir_dir(splash_screen_pixmap_dir, "pixmaps");
 
    // over-ridden by user?
    char *s = getenv("COOT_PIXMAPS_DIR");
@@ -639,9 +659,8 @@ setup_splash_screen() {
       splash_screen_pixmap_dir = s;
    }
 
-   if (0)
-      std::cout << "INFO:: splash_screen_pixmap_dir "
-		<< splash_screen_pixmap_dir << std::endl;
+   if (true)
+      std::cout << "INFO:: splash_screen_pixmap_dir " << splash_screen_pixmap_dir << std::endl;
 
    // now add splash_screen_pixmap_dir to the pixmaps_directories CList
    //

@@ -105,7 +105,7 @@ EXTRA_DIST = \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
         fixup-interface.h.sh \
-	coot_wrap_guile_pre.cc dynarama.glade single-map-properties-dialog.glade
+	coot_wrap_guile_pre.cc dynarama.glade
 
 
 subpkgdatadir = $(pkgdatadir)

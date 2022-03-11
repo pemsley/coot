@@ -3998,7 +3998,7 @@ graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) {
 
    for (unsigned int i=0; i<hscale_lab.size(); i++) {
       // GtkWidget *hscale = lookup_widget(dialog, hscale_lab[i].c_str());
-      GtkWidget *hscale = widget_from_builder(hscale_lab[i]);
+      GtkWidget *hscale = widget_from_builder(hscale_lab[i]); // 20220311-PE is this right?
       GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(0.0, -180.0, 360.0, 0.1, 1.0, 0));
       gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
       g_signal_connect(G_OBJECT(adj),
@@ -4533,7 +4533,8 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // It it was not, then we should hide the hscale
       //
       if (is_alt_conf_dialog) {
-	 GtkWidget *hscale = lookup_widget(dialog, "new_alt_conf_occ_hscale");
+	 // GtkWidget *hscale = lookup_widget(dialog, "new_alt_conf_occ_hscale");
+	 GtkWidget *hscale = widget_from_builder("new_alt_conf_occ_hscale");
 	 float v = add_alt_conf_new_atoms_occupancy;
 	 // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
 	 GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
@@ -4545,7 +4546,8 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
 	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
 
       } else {
-	 GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
+	 // GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
+	 GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
 	 gtk_widget_hide(frame);
 	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
       }
@@ -4678,8 +4680,8 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    GSList *gr_group = NULL;
    GtkWidget *rotamer_selection_radio_button;
    GtkWidget *rotamer_selection_dialog = window;
-   GtkWidget *rotamer_selection_button_vbox =
-      lookup_widget(window, "rotamer_selection_button_vbox");
+   // GtkWidget *rotamer_selection_button_vbox = lookup_widget(window, "rotamer_selection_button_vbox");
+   GtkWidget *rotamer_selection_button_vbox = widget_from_builder("rotamer_selection_button_vbox");
    graphics_info_t g;
    std::string alt_conf = g.molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
    mmdb::Residue *residue = g.molecules[imol].atom_sel.atom_selection[atom_index]->residue;
@@ -5359,9 +5361,9 @@ graphics_info_t::delete_residue_range(int imol,
       if (! is_valid_model_molecule(imol))
 	 delete_molecule_from_from_display_manager(imol, false);
 
-      if (delete_item_widget) {
-	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
-						"delete_item_keep_active_checkbutton");
+      if (delete_item_widget) { // what is this?
+	 // GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget, "delete_item_keep_active_checkbutton");
+	 GtkWidget *checkbutton = widget_from_builder("delete_item_keep_active_checkbutton");
 	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	    // don't destroy it.
 	 } else {
@@ -5370,7 +5372,7 @@ graphics_info_t::delete_residue_range(int imol,
 	    // gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
 	    // delete_item_widget_x_position = upositionx;
 	    // delete_item_widget_y_position = upositiony;
-	    gtk_widget_destroy(delete_item_widget);
+	    gtk_widget_hide(delete_item_widget);
 	    delete_item_widget = 0;
 	    normal_cursor();
 	 }
@@ -5398,8 +5400,8 @@ graphics_info_t::delete_sidechain_range(int imol,
    if (is_valid_model_molecule(imol)) {
       molecules[imol].delete_sidechain_range(res_1, res_2);
       if (delete_item_widget) {
-	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
-						"delete_item_keep_active_checkbutton");
+	 // GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget, "delete_item_keep_active_checkbutton");
+	 GtkWidget *checkbutton = widget_from_builder("delete_item_keep_active_checkbutton");
 	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	    // don't destroy it.
 	 } else {

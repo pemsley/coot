@@ -43,6 +43,8 @@
 
 #include "coot-fileselections.h"
 
+#include "widget-from-builder.hh"
+
 void
 graphics_info_t::clear_pending_picks() {
    a_is_pressed = 0;
@@ -191,9 +193,11 @@ graphics_info_t::set_model_fit_refine_button_names(GtkWidget *widget) {
       button_names.push_back(normal_button_names[i]);
 
    for (unsigned int i=0; i<button_names.size(); i++) {
-      GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      GtkWidget *w = widget_from_builder(button_names[i].c_str());
       if (w) {
-	 gtk_widget_set_name(w, button_names[i].c_str());
+	 gtk_widget_set_name(w, button_names[i].c_str());     // 20220311-PE old way
+         char *s = g_strdup(button_names[i].c_str()); // leaked?
+         g_object_set_data(G_OBJECT(w), "name", s);           // new way
       }
    }
 }
@@ -202,8 +206,7 @@ graphics_info_t::set_model_fit_refine_button_names(GtkWidget *widget) {
 void
 graphics_info_t::set_other_modelling_tools_button_names(GtkWidget *widget) { 
 
-   std::vector<std::string> other_button_names =
-     other_modelling_tools_button_name_list();
+   std::vector<std::string> other_button_names = other_modelling_tools_button_name_list();
 
    std::vector<std::string> button_names = other_button_names;
    // dont need extra ones here yet
@@ -211,14 +214,15 @@ graphics_info_t::set_other_modelling_tools_button_names(GtkWidget *widget) {
    //   button_names.push_back(other_button_names[i]);
 
    for (unsigned int i=0; i<button_names.size(); i++) {
-      GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      // GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      GtkWidget *w = widget_from_builder(button_names[i].c_str());
       if (w) {
-        gtk_widget_set_name(w, button_names[i].c_str());
+         gtk_widget_set_name(w, button_names[i].c_str()); // old way.
+         char *s = g_strdup(button_names[i].c_str()); // leaked?
+         g_object_set_data(G_OBJECT(w), "name", s); // new way
       }
    }
 }
-
-   
 
 
 // static
@@ -1513,7 +1517,7 @@ GtkWidget *
 graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const {
 
    GtkWidget *w = create_residue_type_chooser_window();
-   GtkWidget *b = lookup_widget(w, "residue_type_chooser_stub_checkbutton");
+   GtkWidget *b = widget_from_builder("residue_type_chooser_stub_checkbutton");
 
    if (show_stub_option_flag == 0) 
       gtk_widget_hide(b);
@@ -2034,8 +2038,7 @@ graphics_info_t::check_if_in_base_pairing_define(GdkEventButton *event) {
 	 std::string chain_id = at->GetChainID();
 	 watson_crick_pair(naii.imol, chain_id.c_str(), res_no);
 	 if (other_modelling_tools_dialog) {
-	    GtkWidget *w = lookup_widget(other_modelling_tools_dialog,
-					 "other_tools_base_pair_toggle_button");
+	    GtkWidget *w = widget_from_builder("other_tools_base_pair_toggle_button");
 	    if (w) {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
 	    } 

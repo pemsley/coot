@@ -93,8 +93,7 @@ create_dummy_pixmap                    (GtkWidget       *widget)
 void
 add_pixmap_directory                   (const gchar     *directory)
 {
-  pixmaps_directories = g_list_prepend (pixmaps_directories,
-                                        g_strdup (directory));
+  pixmaps_directories = g_list_prepend(pixmaps_directories, g_strdup (directory));
 }
 
 
@@ -104,6 +103,8 @@ create_pixmap_gtk3_version(GtkWidget *widget, const gchar *filename) {
   GtkWidget *image = 0;
   GList *elem;
   gchar *found_filename = NULL;
+
+  printf("################################################## create_pixmap_gtk3_version() %s\n", filename);
 
   if (check_file_exists("./", filename)) {
     image = gtk_image_new_from_file (filename);
@@ -116,9 +117,12 @@ create_pixmap_gtk3_version(GtkWidget *widget, const gchar *filename) {
        elem = elem->next;
      }
      if (found_filename)
-       image = gtk_image_new_from_file (found_filename);
+       image = gtk_image_new_from_file(found_filename);
   }
   g_free (found_filename);
+
+  printf("################################################## create_pixmap_gtk3_version() %s returns image %p\n",
+         filename, image);
 
   return image;
 }

@@ -32,6 +32,8 @@
 #include <iomanip> 
 #include "graphics-info.h"
 
+#include "widget-from-builder.hh"
+
 // ----------------------------------------------------------------------------
 //                              superposing
 // ----------------------------------------------------------------------------
@@ -47,7 +49,8 @@ graphics_info_t::superpose_combobox_changed_mol1(GtkWidget *combobox, gpointer d
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
    superpose_imol1 = imol;
-   GtkWidget *chain_combobox = lookup_widget(combobox, "superpose_dialog_reference_chain_combobox");
+   // GtkWidget *chain_combobox = lookup_widget(combobox, "superpose_dialog_reference_chain_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
    fill_combobox_with_chain_options(chain_combobox, imol, 0);
 }
 
@@ -57,7 +60,8 @@ graphics_info_t::superpose_combobox_changed_mol2(GtkWidget *combobox, gpointer d
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
    superpose_imol2 = imol;
-   GtkWidget *chain_combobox = lookup_widget(combobox, "superpose_dialog_moving_chain_combobox");
+   // GtkWidget *chain_combobox = lookup_widget(combobox, "superpose_dialog_moving_chain_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
    fill_combobox_with_chain_options(chain_combobox, imol, 0);
 }
 
@@ -67,9 +71,9 @@ void graphics_info_t::fill_superpose_combobox_with_chain_options(GtkWidget *butt
    GtkWidget *chain_combobox = NULL;
 
    if (is_reference_structure_flag)
-      chain_combobox = lookup_widget(button, "superpose_dialog_reference_chain_combobox");
+      chain_combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
    else 
-      chain_combobox = lookup_widget(button, "superpose_dialog_moving_chain_combobox");
+      chain_combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
 
    GCallback callback_func = 0;
    int imol;

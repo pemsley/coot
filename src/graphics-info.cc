@@ -2041,11 +2041,13 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
    if (dc_window) { // is being displayed
       std::string display_frame_name = "display_mol_frame_";
       if (was_map)
-    display_frame_name = "display_map_frame_";
+         display_frame_name = "display_map_frame_";
       display_frame_name += int_to_string(imol);
-      GtkWidget *display_frame = lookup_widget(dc_window, display_frame_name.c_str());
+      // GtkWidget *display_frame = lookup_widget(dc_window, display_frame_name.c_str());
+      GtkWidget *display_frame = 0;
+      std::cout << "FIXME in delete_molecule_from_from_display_manager()  correctly set teh display_frame " << std::endl;
       if (display_frame) {
-    gtk_widget_destroy(display_frame);
+         gtk_widget_destroy(display_frame);
       }
    } else {
       // std::cout << "close: display_control_window is not active" << std::endl;
@@ -4328,8 +4330,9 @@ graphics_info_t::apply_undo() {
    // std::cout << "DEBUG:: undo molecule : " << umol << std::endl;
    if (umol == -2) {
       if (use_graphics_interface_flag) {
-         GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-         GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+         // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
+         GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
+         GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
          fill_combobox_with_undo_options(combobox);
          gtk_widget_show(dialog);
       }
@@ -4398,8 +4401,9 @@ graphics_info_t::apply_redo() {
 
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
-      GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-      GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+      // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
+      GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
+      GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
       fill_combobox_with_undo_options(combobox);
       gtk_widget_show(dialog);
    } else {
@@ -4453,10 +4457,9 @@ graphics_info_t::activate_redo_button() {
 
    GtkWidget *dialog = model_fit_refine_dialog;
 
-
    if (dialog) {
       // which it should be!
-      GtkWidget *button = lookup_widget(dialog, "model_refine_dialog_redo_button");
+      GtkWidget *button = widget_from_builder("model_refine_dialog_redo_button");
       gtk_widget_set_sensitive(button, TRUE);
    }
 }
@@ -5898,40 +5901,42 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
       int active_button_number = 0;
       int new_active_button_number;
       for (int i=0; i<n_rotamers; i++) {
-    std::string button_name = "rotamer_selection_button_rot_";
-    button_name += int_to_string(i);
-    button = lookup_widget(g.rotamer_dialog, button_name.c_str());
-    if (button) {
-       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-          ifound_active_button = 1;
-          active_button_number = i;
-          break;
-       }
-    } else {
-       std::cout << "ERROR:: rotamer button not found " << button_name << std::endl;
-    }
+         std::string button_name = "rotamer_selection_button_rot_";
+         button_name += int_to_string(i);
+         // button = lookup_widget(g.rotamer_dialog, button_name.c_str());
+         button = widget_from_builder(button_name.c_str());
+         if (button) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+               ifound_active_button = 1;
+               active_button_number = i;
+               break;
+            }
+         } else {
+            std::cout << "ERROR:: rotamer button not found " << button_name << std::endl;
+         }
       }
       if (ifound_active_button) {
-    if (istep == 1) {
-       new_active_button_number = active_button_number + 1;
-       if (new_active_button_number == n_rotamers) {
-          new_active_button_number = 0;
-       }
-    } else {
-       new_active_button_number = active_button_number - 1;
-       if (new_active_button_number < 0) {
-          new_active_button_number = n_rotamers -1;
-       }
-    }
-    std::string button_name = "rotamer_selection_button_rot_";
-    button_name += int_to_string(new_active_button_number);
-    GtkWidget *new_button = lookup_widget(g.rotamer_dialog, button_name.c_str());
+         if (istep == 1) {
+            new_active_button_number = active_button_number + 1;
+            if (new_active_button_number == n_rotamers) {
+               new_active_button_number = 0;
+            }
+         } else {
+            new_active_button_number = active_button_number - 1;
+            if (new_active_button_number < 0) {
+               new_active_button_number = n_rotamers -1;
+            }
+         }
+         std::string button_name = "rotamer_selection_button_rot_";
+         button_name += int_to_string(new_active_button_number);
+         // GtkWidget *new_button = lookup_widget(g.rotamer_dialog, button_name.c_str());
+         GtkWidget *new_button = widget_from_builder(button_name.c_str());
 
-    std::cout << "GTK-FIXME rotamer_dialog_neighbour_rotamer() gtk_signal_emit_by_name()" << std::endl;
-    //gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
+         std::cout << "GTK-FIXME rotamer_dialog_neighbour_rotamer() gtk_signal_emit_by_name()" << std::endl;
+         //gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
 
       } else {
-    std::cout << "ERROR:: not active rotamer button found " << std::endl;
+         std::cout << "ERROR:: not active rotamer button found " << std::endl;
       }
    }
 }
@@ -5969,14 +5974,15 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
    graphics_info_t g;
    if (g.difference_map_peaks_dialog) {
       int n_peaks = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.difference_map_peaks_dialog), "n_peaks"));
-      GtkWidget *button;
       short int ifound_active_button = 0;
       int active_button_number = -99;     // set later
       int new_active_button_number = -99; // set later
       for (int i=0; i<n_peaks; i++) {
          std::string button_name = "difference_map_peaks_button_";
          button_name +=  int_to_string(i);
-         button = lookup_widget(g.difference_map_peaks_dialog, button_name.c_str());
+         // GtkWidget *button = lookup_widget(g.difference_map_peaks_dialog, button_name.c_str());
+         GtkWidget *button = nullptr;
+         std::cout << "FIXME in difference_map_peaks_neighbour_peak() set the button correctly" << std::endl;
          if (button) {
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
                ifound_active_button = 1;
@@ -5999,8 +6005,9 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
       }
       std::string button_name = "difference_map_peaks_button_";
       button_name += int_to_string(new_active_button_number);
-      GtkWidget *new_button = lookup_widget(g.difference_map_peaks_dialog,
-                                            button_name.c_str());
+      // GtkWidget *new_button = lookup_widget(g.difference_map_peaks_dialog, button_name.c_str());
+      GtkWidget *new_button = 0;
+      std::cout << "FIXME in difference_map_peaks_neighbour_peak() set the button 2 correctly" << std::endl;
       std::cout << "GTK-FIXME difference_map_peaks_neighbour_peak() gtk_signal_emit_by_name() " << std::endl;
          // gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
 
@@ -6023,37 +6030,41 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
       int new_active_button_number = -99; // set later
 
       for (int i=0; i<n_baddies; i++) {
-    std::string button_name = "checked_waters_baddie_button_";
-    button_name += int_to_string(i);
-    button = lookup_widget(dialog, button_name.c_str());
-    if (button) {
-       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-          ifound_active_button = 1;
-          active_button_number = i;
-       }
-    } else {
-       std::cout << "failed to find button " << button_name
-         << std::endl;
-    }
+         std::string button_name = "checked_waters_baddie_button_";
+         button_name += int_to_string(i);
+         // button = lookup_widget(dialog, button_name.c_str());
+         button = nullptr;
+         std::cout << "FIXME in checked_waters_next_baddie() set the button correctly " << std::endl;
+         if (button) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+               ifound_active_button = 1;
+               active_button_number = i;
+            }
+         } else {
+            std::cout << "failed to find button " << button_name
+                      << std::endl;
+         }
       }
       if (ifound_active_button) {
-    if (dir == 1) {
-       new_active_button_number = active_button_number + 1;
-       if (new_active_button_number == n_baddies) {
-          new_active_button_number = 0;
-       }
-    } else {
-       new_active_button_number = active_button_number - 1;
-       if (new_active_button_number < 0)
-          new_active_button_number = n_baddies - 1;
-    }
-    std::string active_button_name = "checked_waters_baddie_button_";
-    active_button_name += int_to_string(new_active_button_number);
-    GtkWidget *new_active_button = lookup_widget(dialog, active_button_name.c_str());
-    std::cout << "----- GTK-FIXME checked_waters_next_baddie() gtk_signal_emit_by_name()" << std::endl;
-    // gtk_signal_emit_by_name(GTK_OBJECT(new_active_button), "clicked");
+         if (dir == 1) {
+            new_active_button_number = active_button_number + 1;
+            if (new_active_button_number == n_baddies) {
+               new_active_button_number = 0;
+            }
+         } else {
+            new_active_button_number = active_button_number - 1;
+            if (new_active_button_number < 0)
+               new_active_button_number = n_baddies - 1;
+         }
+         std::string active_button_name = "checked_waters_baddie_button_";
+         active_button_name += int_to_string(new_active_button_number);
+         // GtkWidget *new_active_button = lookup_widget(dialog, active_button_name.c_str());
+         GtkWidget *new_active_button = 0;
+         std::cout << "----- GTK-FIXME checked_waters_next_baddie() gtk_signal_emit_by_name()" << std::endl;
+         std::cout << "FIXME in checked_waters_next_baddie() set the button correctly 2 " << std::endl;
+         // gtk_signal_emit_by_name(GTK_OBJECT(new_active_button), "clicked");
       } else {
-    std::cout << "active button not found" << std::endl;
+         std::cout << "active button not found" << std::endl;
       }
    }
 }

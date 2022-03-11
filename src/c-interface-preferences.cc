@@ -72,6 +72,35 @@
 
 #include "widget-from-builder.hh"
 
+// c.f. create_single_map_properties_dialog_gtk3() {
+// return null on failure - called from main().
+//
+GtkBuilder *get_builder_for_preferences_dialog() {
+
+   GtkBuilder *builder = gtk_builder_new();
+
+   std::string dir = coot::package_data_dir();
+   std::string glade_file_name = "preferences-gtk3.glade";
+   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+   std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
+   if (coot::file_exists(glade_file_name))
+      glade_file_full = glade_file_name;
+
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+
+   if (add_from_file_status) {
+      GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder, "preferences_dialog"));
+      // std::cout << "############################ in get_builder_for_preferences_dialog() dialog " << dialog << std::endl;
+      gtk_builder_connect_signals(builder, dialog); // if "nothing happens" then you've missed this call
+      graphics_info_t::set_preferences_gtkbuilder(builder);
+      return builder;
+   } else {
+      std::cout << "ERROR:: failed to get builder file for single-map-properties dialog" << std::endl;
+      return nullptr;
+   }
+
+}
+
 void preferences() {
 
   show_preferences();
@@ -81,19 +110,13 @@ void preferences() {
 
 void show_preferences() {
 
-   std::cout << "############################## in show_preferences()" << std::endl;
-
-   // GtkWidget *w = create_preferences();
    GtkWidget *w = widget_from_preferences_builder("preferences_dialog");
 
-   std::cout << "############################ in show_preferences() w " << w << std::endl;
    graphics_info_t::preferences_widget = w;
 
    GtkWidget *scrolled_win_model_toolbar = widget_from_preferences_builder("preferences_model_toolbar_icons_scrolledwindow");
-   std::cout << "scrolled_win_model_toolbar " << scrolled_win_model_toolbar << std::endl;
    fill_preferences_model_toolbar_icons(w, scrolled_win_model_toolbar);
    GtkWidget *scrolled_win_main_toolbar = widget_from_preferences_builder("preferences_main_toolbar_icons_scrolledwindow");
-   std::cout << "scrolled_win_main_toolbar " << scrolled_win_main_toolbar << std::endl;
    fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
 
    GtkComboBoxText *combobox;
@@ -106,8 +129,8 @@ void show_preferences() {
    // fill the font combobox
    combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
    std::vector<std::string> fonts;  
-   fonts.push_back("Times Roman 10");
-   fonts.push_back("Times Roman 24");
+   // fonts.push_back("Times Roman 10");
+   // fonts.push_back("Times Roman 24");
    fonts.push_back("Fixed 8/13");
    fonts.push_back("Fixed 9/15");
    for (unsigned int j=0; j<fonts.size(); j++) {
@@ -123,35 +146,6 @@ void clear_preferences() {
    graphics_info_t::preferences_widget = NULL;
 
 }
-
-// c.f. create_single_map_properties_dialog_gtk3() {
-// return null on failure - called from main().
-//
-GtkBuilder *get_builder_for_preferences_dialog() {
-
-   GtkBuilder *builder = gtk_builder_new();
-
-   std::string dir = coot::package_data_dir();
-   std::string glade_file_name = "preferences-gtk3.glade";
-   std::string glade_file_full = coot::util::append_dir_file(dir, glade_file_name);
-   if (coot::file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
-
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
-
-   if (add_from_file_status) {
-      GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder, "preferences_dialog"));
-   std::cout << "############################ in get_builder_for_preferences_dialog() dialog " << dialog << std::endl;
-      gtk_builder_connect_signals(builder, dialog); // if "nothing happens" then you've missed this call
-      graphics_info_t::set_preferences_gtkbuilder(builder);
-      return builder;
-   } else {
-      std::cout << "ERROR:: failed to get builder file for single-map-properties dialog" << std::endl;
-      return nullptr;
-   }
-
-}
-
 
 void set_mark_cis_peptides_as_bad(int istate) {
 
