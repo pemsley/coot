@@ -1396,10 +1396,10 @@ graphics_info_t::density_fit_graphs(int imol) {
 		     mmdb::Model *model_p = mol->GetModel(imodel);
                      if (! model_p) continue;
 		     int n_chains = model_p->GetNumberOfChains();
+                     std::string mol_name = graphics_info_t::molecules[imol].name_for_display_manager();
 		     coot::geometry_graphs *graphs =
 			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_DENSITY_FIT,
-						  imol,
-						  graphics_info_t::molecules[imol].name_for_display_manager(),
+						  imol, mol_name,
 						  n_chains, max_chain_length);
 
 		     // residue_density_fit_graph[imol] = graphs->dialog();

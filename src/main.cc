@@ -659,7 +659,7 @@ setup_splash_screen() {
       splash_screen_pixmap_dir = s;
    }
 
-   if (true)
+   if (false)
       std::cout << "INFO:: splash_screen_pixmap_dir " << splash_screen_pixmap_dir << std::endl;
 
    // now add splash_screen_pixmap_dir to the pixmaps_directories CList

@@ -6248,22 +6248,25 @@ on_antialiasing_dialog_ok_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("antialiasing_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
+// ##########################################################################################
+
+//                 is this a good place for geometry_graphs callbacks?
 
 extern "C" G_MODULE_EXPORT
 void
-on_geometry_graphs_ok_button_clicked_gtkbuilder_callback   (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_geometry_graphs_close_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                            gpointer         user_data) {
 
-  GtkWidget *w = widget_from_builder("geometry_graphs_dialog");
-  if (w)
-    gtk_widget_destroy(w);
-  else
-    printf("ERROR getting dialog in on_geometry_graphs_ok_button_clicked\n");
+   // this usage of user_data was set using glade.
+   GtkWidget *dialog = GTK_WIDGET(user_data);
+   if (dialog)
+      gtk_widget_hide(dialog);
+   else
+      std::cout << "ERROR getting dialog in on_geometry_graphs_ok_button_clicked\n";
 
 }
 
@@ -6271,21 +6274,21 @@ on_geometry_graphs_ok_button_clicked_gtkbuilder_callback   (GtkButton       *but
 extern "C" G_MODULE_EXPORT
 void
 on_geometry_graphs_dialog_destroy_gtkbuilder_callback      (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+                                                            gpointer         user_data) {
 
   /* This is not causing the GTK_IS_WIDGET (widget) unref failure */
 
    GtkWidget *w = widget_from_builder("geometry_graphs_dialog");
    if (! w) {
-     printf("ERROR getting dialog in on_geometry_graphs_dialog_destroy\n");
+     printf("ERROR:: in on_geometry_graphs_dialog_destroy_gtkbuilder_callback() failure getting dialog \n");
    } else {
-/*      printf("DEBUG:: unsetting and freeing graph:\n");  */
-     unset_geometry_graph(w);
-     free_geometry_graph(w);
+      unset_geometry_graph(w);
+      free_geometry_graph(w);
    }
 
 }
+
+// ##########################################################################################
 
 
 extern "C" G_MODULE_EXPORT

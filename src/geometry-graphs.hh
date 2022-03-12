@@ -141,6 +141,7 @@ namespace coot {
 				  int min_res, int max_resno);
       std::vector<geometry_distortion_info_container_t>
       geometric_distortions_from_mol(const atom_selection_container_t &asc) const;
+      GtkBuilder *builder;
 
       double sane_occupancy(const double &occ_in) {
 	 // SHELX atoms have occupancies that depend on FVARS and can
@@ -165,6 +166,15 @@ namespace coot {
 	 }
 	 return occ;
       }
+
+      GtkWidget *widget_from_builder(const std::string &wn) const {
+         if (builder)
+            return GTK_WIDGET(gtk_builder_get_object(builder, wn.c_str()));
+         else
+            return nullptr;
+      }
+
+      GtkWidget *create_geometry_graphs_dialog_gtk3();
 
    public:
       geometry_graphs(geometry_graph_type type, int imol, std::string graph_label,

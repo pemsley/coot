@@ -23,6 +23,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "utils/win-compat.hh"
 #include "coot-utils/coot-coord-utils.hh" // compilation error on MacOSX if this
                                // doesn't come before the next 3 lines
                                // (for gtk/gtk-canvas) (I suspect
@@ -41,6 +42,101 @@
 #include "c-interface.h" // for the coot graphics callbacks in button_press()
 #include "cc-interface.hh"
 #include "graphics-info.h"
+
+// "Molecule 2: " (for example) gets prepended to the graph_label_in
+// before becoming at GtkLabel.
+//
+coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
+                                       int imol_in,
+                                       std::string graph_label_in,
+                                       int nchains_in, int max_chain_length_in) {
+
+   graph_type = graph_type_in;
+   imol = imol_in;
+   n_chains = nchains_in;
+   max_chain_length = max_chain_length_in;
+   builder = nullptr;
+   create_geometry_graphs_dialog_gtk3(); // creates builder, sets signals on dialog and sets builder class variable
+   setup_internal();
+   setup_canvas(nchains_in, max_chain_length_in);
+   // std::cout << "DEBUG:: in geometry_graphs constuctor resizing geometry_graphs block to "
+   // << nchains_in << std::endl;
+   blocks.resize(nchains_in);
+   offsets.resize(nchains_in);
+   chain_index.resize(n_chains);
+   graph_label = "Molecule ";
+   graph_label += coot::util::int_to_string(imol);
+   graph_label += ": ";
+   graph_label += graph_label_in;
+   if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
+      graph_label += " fit vs. Map ";
+      graph_label += coot::util::int_to_string(imol_refinement_map());
+   }
+
+   // set the window title:
+   std::string title("Graph");
+   switch(graph_type) {
+        case coot::GEOMETRY_GRAPH_GEOMETRY:
+                title = _("Geometry Graphs");
+                break;
+        case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
+                title = _(" < B > Factor Graphs ");
+                break;
+        case coot::GEOMETRY_GRAPH_B_FACTOR:
+                title = _(" B Factor Variance Graphs ");
+                break;
+        case coot::GEOMETRY_GRAPH_DENSITY_FIT:
+                title = _("Density Fit Graphs");
+                break;
+        case coot::GEOMETRY_GRAPH_OMEGA_DISTORTION:
+                title = _("Peptide Omega Distortion Graphs");
+                break;
+        case coot::GEOMETRY_GRAPH_ROTAMER:
+                title = _("Unusual Rotamer Graphs");
+                break;
+        case coot::GEOMETRY_GRAPH_NCS_DIFFS:
+                title = _("NCS Differences");
+                break;
+        default:
+                break;
+   }
+
+   // adjust distortion_max depending on graph type
+   if (graph_type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION)
+      distortion_max = 90.0; // degrees
+
+   gtk_window_set_title(GTK_WINDOW(dialog()), title.c_str());
+
+   // And now the graph label for EJD:
+   GtkWidget *label = widget_from_builder("geometry_graphs_label");
+   gtk_label_set_text(GTK_LABEL(label), graph_label.c_str());
+}
+
+
+GtkWidget *
+coot::geometry_graphs::create_geometry_graphs_dialog_gtk3() {
+
+   GtkWidget *gg_dialog = nullptr;
+   builder = gtk_builder_new();
+
+   std::string dir = coot::package_data_dir();
+   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+   std::string glade_file_name = "geometry_graphs_builder.glade";
+   std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
+   if (coot::file_exists(glade_file_name))
+      glade_file_full = glade_file_name;
+
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   if (add_from_file_status) {
+      gg_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "geometry_graphs_dialog"));
+      gtk_builder_connect_signals(builder, gg_dialog); // if "nothing happens" then you've missed this call
+   } else {
+      // delete builder here
+      builder = nullptr;
+   }
+
+   return gg_dialog;
+}
 
 
 gint
@@ -97,76 +193,6 @@ coot::geometry_graphs::mouse_over(GooCanvasItem *item, GdkEvent *event,
    std::cout << "Don't do tooltips like this" << std::endl;
 
 
-}
-
-// "Molecule 2: " (for example) gets prepended to the graph_label_in
-// before becoming at GtkLabel.
-//
-coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
-                                       int imol_in,
-                                       std::string graph_label_in,
-                                       int nchains_in, int max_chain_length_in) {
-
-   graph_type = graph_type_in;
-   imol = imol_in;
-   n_chains = nchains_in;
-   max_chain_length = max_chain_length_in;
-   setup_internal();
-   setup_canvas(nchains_in, max_chain_length_in);
-   // std::cout << "DEBUG:: in geometry_graphs constuctor resizing geometry_graphs block to "
-   // << nchains_in << std::endl;
-   blocks.resize(nchains_in);
-   offsets.resize(nchains_in);
-   chain_index.resize(n_chains);
-   graph_label = "Molecule ";
-   graph_label += coot::util::int_to_string(imol);
-   graph_label += ": ";
-   graph_label += graph_label_in;
-   if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
-      graph_label += " fit vs. Map ";
-      graph_label += coot::util::int_to_string(imol_refinement_map());
-   }
-
-   // set the window title:
-   std::string title("Graph");
-   switch(graph_type) {
-        case coot::GEOMETRY_GRAPH_GEOMETRY:
-                title = _("Geometry Graphs");
-                break;
-        case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
-                title = _(" < B > Factor Graphs ");
-                break;
-        case coot::GEOMETRY_GRAPH_B_FACTOR:
-                title = _(" B Factor Variance Graphs ");
-                break;
-        case coot::GEOMETRY_GRAPH_DENSITY_FIT:
-                title = _("Density Fit Graphs");
-                break;
-        case coot::GEOMETRY_GRAPH_OMEGA_DISTORTION:
-                title = _("Peptide Omega Distortion Graphs");
-                break;
-        case coot::GEOMETRY_GRAPH_ROTAMER:
-                title = _("Unusual Rotamer Graphs");
-                break;
-        case coot::GEOMETRY_GRAPH_NCS_DIFFS:
-                title = _("NCS Differences");
-                break;
-        default:
-                break;
-   }
-
-   // adjust distortion_max depending on graph type
-   if (graph_type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION)
-      distortion_max = 90.0; // degrees
-
-   gtk_window_set_title(GTK_WINDOW(dialog()), title.c_str());
-
-   // And now the graph label for EJD:
-#if 0
-   GtkWidget *label = lookup_widget(dialog(), "geometry_graphs_label"); // #ifdef 0 - I don't know what to do here.
-                                                                        // multiple graphs, multiple molecules...
-   gtk_label_set_text(GTK_LABEL(label), graph_label.c_str());
-#endif
 }
 
 void
@@ -420,7 +446,7 @@ coot::geometry_graphs::plot_blocks(const std::map<coot::residue_spec_t, std::pai
    std::map<coot::residue_spec_t, std::pair<double, std::string> >::const_iterator it;
    std::string distortion_string;
    
-   for (it=residue_distortions.begin(); it != residue_distortions.end(); it++) {
+   for (it=residue_distortions.begin(); it != residue_distortions.end(); ++it) {
       // std::cout << "plot residue " << it->first << " with height " << it->second << std::endl;
 
       // make an atom spec (graphics_info is not allowed here (well, not included anyway)).
@@ -935,22 +961,13 @@ coot::geometry_graphs::density_fit_rescale_button_callback(GtkButton *button, gp
    }
 };
 
-
 void
 coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
    // Fixes: could not find argument "points" in the `GnomeCanvasLine' class ancestry
    // goo_canvas_init();
 
-   GtkWidget *dialog = create_geometry_graphs_dialog();
-
-   // geometry graphs dialogs have viewports in the scrolled window.
-   // So, if it exists, we need to add the canvas to the viewport
-   // (not the scrolled window)
-   // Doesn't help with the jumping.
-
-   GtkWidget *viewport = lookup_widget(dialog, "geometry_graphs_viewport");
-   gtk_widget_destroy(viewport); // goocanvases don't want or need viewports
+   GtkWidget *dialog = create_geometry_graphs_dialog_gtk3();
 
    canvas = GOO_CANVAS(goo_canvas_new());
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL);
@@ -959,8 +976,8 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    int canvas_usize_x = max_chain_length*10 + 325; // add a bit more to get (may be
                                                    // general for GNOME_CANVAS)
 #else
-   int canvas_usize_x = max_chain_length*10 + 200; // add a bit to get
-                                                  // the label at the
+   int canvas_usize_x = max_chain_length*10 + 250; // add a bit to get
+                                                   // the label at the
                                                   // right hand side
 #endif //MINGW
 
@@ -969,26 +986,42 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
       std::cout << "WARNING:: truncating canvas width! " << std::endl;
       canvas_usize_x = 32100;
    }
-   int canvas_usize_y = 80 * n_chains + 30; 
+
+   int chain_scale = 100; // was 80;
+   int canvas_usize_y = chain_scale * n_chains + 30; 
+
    double scroll_width  = canvas_usize_x + 20.0;
    double scroll_height = canvas_usize_y + 20.0;
 
-   gtk_widget_set_size_request(GTK_WIDGET(canvas), canvas_usize_x, canvas_usize_y);
-   gtk_widget_set_size_request(dialog, 900, 450);
-   GtkWidget *scrolled_window = lookup_widget(dialog, "geometry_graphs_scrolledwindow");
+   std::cout << "INFO:: max_chain_length " << max_chain_length << std::endl;
+   std::cout << "INFO:: requesting canvas size " << canvas_usize_x << " " << canvas_usize_y << std::endl;
 
+   // gtk_widget_set_size_request(GTK_WIDGET(canvas), canvas_usize_x, canvas_usize_y);
+   gtk_widget_set_size_request(GTK_WIDGET(canvas), 100, 100);
+
+   double left = 0.0;
+   double top  = 0.0;
+   double right  = scroll_width;
+   double bottom = scroll_height;
+   goo_canvas_set_bounds(GOO_CANVAS(canvas), left, top, right, bottom);
+
+   // gtk_widget_set_size_request(dialog, 900, 450);
+   GtkWidget *scrolled_window = widget_from_builder("geometry_graphs_scrolledwindow");
 
    if (false) { // test rectangle
       goo_canvas_rect_new(goo_canvas_get_root_item(canvas), 0, 0, canvas_usize_x, canvas_usize_y,
-                          "fill-color-rgba", "#50505050",
+                          "fill-color-rgba", "darkblue", // was "#50505050",
                           "stroke-width", 0.0,
                           NULL);
    }
 
-//    std::cout << "INFO:: canvas size based on " << n_chains << " chains with max"
-//              << " length " << max_chain_length << std::endl;
-//    std::cout << "INFO:: canvas size: " << canvas_usize_x << " " << canvas_usize_y
-//              << std::endl;
+   // gtk_widget_set_size_request(scrolled_window, canvas_usize_x, canvas_usize_y);
+   gtk_widget_set_size_request(scrolled_window, 1300, canvas_usize_y);
+
+   //    std::cout << "INFO:: canvas size based on " << n_chains << " chains with max"
+   //              << " length " << max_chain_length << std::endl;
+   //    std::cout << "INFO:: canvas size: " << canvas_usize_x << " " << canvas_usize_y
+   //              << std::endl;
 
    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
    // GTK_WIDGET(canvas));
@@ -1013,7 +1046,8 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    g_object_set_data(G_OBJECT(canvas), "geometry-graph", this); // looked up by geometry_graph_dialog_to_object()
 
    if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
-      GtkWidget *dialog_vbox = lookup_widget(dialog, "geometry_graphs_dialog_vbox");
+      // GtkWidget *dialog_vbox = widget_from_builder("geometry_graphs_dialog_vbox");
+      GtkWidget *dialog_vbox = widget_from_builder("geometry_graphs_vbox"); // new name
       if (dialog_vbox) {
 
          GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -1058,15 +1092,17 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
    int resno = block_info.resno;
    GooCanvasItem *item;
    double scale = 10.0;
-   double chain_scale = 80.0;
+   //scale = 50.0; // testing/debugging              
+   double chain_scale = 100.0; // was 80.0;
    double distortion = block_info.distortion;
    int offset = offset_in;
 
    // x2 and y2 are height and width
-   double x1 = (resno-offset)*scale;
-   double x2 = 9.0;
-   double y1 = 50 + chain_number*chain_scale;
-   double y2 = -distortion * 0.5;
+   double x1 = 1.0 * (resno-offset)*scale;
+   double x2 = 8.0; // was 9.0; // width
+   double y1 = 100.0 + chain_number*chain_scale;
+   //    double y2 = -distortion * 0.5;
+   double y2 = -distortion * 0.65; // height
 
    std::string colour = distortion_to_colour(distortion);
 
@@ -1121,21 +1157,26 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
 void
 coot::geometry_graphs::draw_chain_axis(int nres, int ichain) const {
 
-   double chain_scale = 80.0;
+   double chain_scale = 100.0; // was 80.0;
    double scale = 10.0;
+   std::string line_colour = "grey80";
 
    //   x2,y2
    //  |
    //  |x0,y0
    //  ------------------------------- x1,y1
    double x0 = 7;
-   double y0 = 55 + ichain*chain_scale;
+   double y0 = 100.0 + 3.0 + ichain*chain_scale; // slightly below "0" actually
+   // y0 += 2;
 
-   double x1 = x0 + scale * nres + 10;
+   double x1 = x0 + scale * (nres+5) + 10;
    double y1 = y0;
 
    double x2 = x0;
    double y2 = y0 - 50;
+
+   // the close-path false seems not be honoured - so let's draw 2 lines,
+   // one for each axis - ah that may not be true - the FA
 
 //    std::cout << "chain axis: " << ichain << " "
 //              << "(" << x0 << "," << y0 << ")"
@@ -1144,24 +1185,41 @@ coot::geometry_graphs::draw_chain_axis(int nres, int ichain) const {
 //              << std::endl;
 
    GooCanvasItem *item;
-   GooCanvasPoints *points = goo_canvas_points_new(3);
+   GooCanvasPoints *points_x_axis = goo_canvas_points_new(2);
+   GooCanvasPoints *points_y_axis = goo_canvas_points_new(2);
 
-   points->coords[0] = x1;
-   points->coords[1] = y1;
+   points_x_axis->coords[0] = x1;
+   points_x_axis->coords[1] = y1;
 
-   points->coords[2] = x0;
-   points->coords[3] = y0;
+   points_x_axis->coords[2] = x0;
+   points_x_axis->coords[3] = y0;
 
-   points->coords[4] = x2;
-   points->coords[5] = y2;
+   points_y_axis->coords[0] = x2;
+   points_y_axis->coords[1] = y2;
+
+   points_y_axis->coords[2] = x0;
+   points_y_axis->coords[3] = y0;
 
    item = goo_canvas_polyline_new(goo_canvas_get_root_item(canvas),
-                                  TRUE, 0,
-                                  "width_pixels", 3.0,
-                                  "points", points,
-                                  "fill_color", "black",
+                                  FALSE, 2, // close-path n-points
+                                  "width", 2.0,
+                                  "points", points_x_axis,
+                                  "stroke-color", line_colour.c_str(),
+                                  "close-path", gboolean(FALSE),
+                                  // "fill_color", line_colour.c_str(),
                                   NULL);
-   goo_canvas_points_unref(points);
+
+   item = goo_canvas_polyline_new(goo_canvas_get_root_item(canvas),
+                                  FALSE, 2,  // close-path n-points
+                                  "width", 2.0,
+                                  "points", points_y_axis,
+                                  "stroke-color", line_colour.c_str(),
+                                  "close-path", gboolean(FALSE),
+                                  // "fill_color", line_colour.c_str(),
+                                  NULL);
+
+   goo_canvas_points_unref(points_x_axis);
+   goo_canvas_points_unref(points_y_axis);
 
 }
 
@@ -1172,25 +1230,29 @@ coot::geometry_graphs::draw_chain_axis_tick_and_tick_labels(int min_resno,
                                                             int chain_number) const {
 
    double res_scale = 10.0;
-   double chain_scale = 80.0;
+   double chain_scale = 100.0; // was 80.0;
 
    std::string tick_colour = "grey80";
 
    int tick_start_res_no = min_resno + 9; // make this more clever.
 
-   for (int i=tick_start_res_no; i<max_resno; i+= 10) {
+   for (int i=tick_start_res_no; i<(max_resno+10); i+= 10) {
 
       GooCanvasPoints *points = goo_canvas_points_new(2);
       double x0 = (i - min_resno + 1) * res_scale + 5.0;
-      double y0 = 50.0 + chain_number * chain_scale;
+      double y0 = 100.0 + chain_number * chain_scale;
       double x1 = x0;
       double y1 = y0 + 6.0;
+
+      // y1 += 40.0; // testing/debuging   
 
       points->coords[0] = x0;
       points->coords[1] = y0;
 
       points->coords[2] = x1;
       points->coords[3] = y1;
+
+      // std::cout << "adding tick at " << i << std::endl;
 
       GooCanvasItem *item = goo_canvas_polyline_new(goo_canvas_get_root_item(canvas),
                                                     TRUE, 0,
@@ -1199,6 +1261,8 @@ coot::geometry_graphs::draw_chain_axis_tick_and_tick_labels(int min_resno,
                                                     "stroke-color", tick_colour.c_str(),
                                                     NULL);
       goo_canvas_points_unref(points);
+
+      // std::cout << "adding label " << i << std::endl;
 
       item = goo_canvas_text_new(goo_canvas_get_root_item(canvas),
                                  std::to_string(i).c_str(),
@@ -1218,10 +1282,10 @@ coot::geometry_graphs::draw_chain_axis_tick_and_tick_labels(int min_resno,
 void
 coot::geometry_graphs::label_chain(const std::string &label, int ichain) const {
 
-   double chain_scale = 80.0;
+   double chain_scale = 100.0; // was 80.0;
 
-   double x = 20;
-   double y = 10 + ichain*chain_scale;
+   double x = 10.0;
+   double y = 30.0 + static_cast<double>(ichain) * chain_scale;
    std::string text = "Chain ";
    text += label;
    GooCanvasItem *item;
@@ -1257,14 +1321,11 @@ coot::geometry_graphs::setup_internal() {
    colour_list.push_back("firebrick1");
    colour_list.push_back("red");
 
-   fixed_font_str = "fixed";
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-   fixed_font_str = "monospace";
-#endif
+   // fixed_font_str = "fixed";
+   fixed_font_str = coot::get_fixed_font();
 
    tooltip_item = NULL;
    tooltip_item_text = NULL;
-
 
 }
 
@@ -1290,7 +1351,7 @@ coot::geometry_graphs::distortion_to_colour(const double &distortion) const {
 
 GtkWidget *
 coot::geometry_graphs::dialog() const {
-   return lookup_widget(GTK_WIDGET(canvas), "geometry_graphs_dialog");
+   return widget_from_builder("geometry_graphs_dialog");
 }
 
 
