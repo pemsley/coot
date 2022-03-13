@@ -165,7 +165,27 @@ windows_set_error_mode() {
 #endif // MINGW
 }
 
+
+
+GtkWidget*
+my_create_splash_screen_window (void) {
+
+   GtkWidget *splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
+   gtk_window_set_title (GTK_WINDOW (splash_screen_window), "Coot");
+   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
+   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+
+   GtkWidget *image10854 = create_pixmap(splash_screen_window, "coot-0.9.9-pre.png");
+   gtk_widget_show (image10854);
+   gtk_container_add(GTK_CONTAINER(splash_screen_window), image10854);
+
+   return splash_screen_window;
+}
+
+
 GtkWidget *do_splash_screen(const command_line_data &cld) {
+
+   // 20220313-PE this runs before builder is set.
 
    GtkWidget *splash_screen = 0;
    setup_splash_screen();
@@ -174,8 +194,9 @@ GtkWidget *do_splash_screen(const command_line_data &cld) {
       if (graphics_info_t::use_graphics_interface_flag) {
          std::string f = cld.alternate_splash_screen_file_name;
          if (f.empty()) {
-            // splash_screen = create_splash_screen_window();
-            splash_screen = widget_from_builder("splash_screen_window");
+            splash_screen = my_create_splash_screen_window();
+            // splash_screen = widget_from_builder("splash_screen_window");
+            std::cout << "------------- in do_splash_screen() splash_screen set to " << splash_screen << std::endl;
          } else {
             splash_screen = create_splash_screen_window_for_file(f.c_str());
          }

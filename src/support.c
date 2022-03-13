@@ -104,8 +104,6 @@ create_pixmap_gtk3_version(GtkWidget *widget, const gchar *filename) {
   GList *elem;
   gchar *found_filename = NULL;
 
-  printf("################################################## create_pixmap_gtk3_version() %s\n", filename);
-
   if (check_file_exists("./", filename)) {
     image = gtk_image_new_from_file (filename);
   } else {
@@ -121,8 +119,8 @@ create_pixmap_gtk3_version(GtkWidget *widget, const gchar *filename) {
   }
   g_free (found_filename);
 
-  printf("################################################## create_pixmap_gtk3_version() %s returns image %p\n",
-         filename, image);
+  /* printf("################################################## create_pixmap_gtk3_version() %s returns image %p\n", */
+  /*        filename, image); */
 
   return image;
 }

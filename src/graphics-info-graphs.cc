@@ -85,7 +85,8 @@
 // Validation stuff	    //
 
 
-
+// this should be a wrapper - and the real function be in graphics_info_t
+//
 void
 coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog) {
 
@@ -148,8 +149,8 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 
    GtkWidget *w = 0;
    if (graphics_info_t::is_valid_model_molecule(imol)) {
-      bool found = 1;
-	switch(type){
+      bool found = true;
+	switch(type) {
 	case coot::GEOMETRY_GRAPH_GEOMETRY:
 	   w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
 	   break;
@@ -178,10 +179,9 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 	   w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
 	   break;
 	default:
-	   found=0;
+	   found = false;
 	   break;
 	}
-
    }
    return w;
 }
@@ -242,6 +242,7 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
    }
 
    graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_DENSITY_FIT);
+
    if (graph) {
       coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
