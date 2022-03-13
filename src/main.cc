@@ -196,7 +196,7 @@ GtkWidget *do_splash_screen(const command_line_data &cld) {
          if (f.empty()) {
             splash_screen = my_create_splash_screen_window();
             // splash_screen = widget_from_builder("splash_screen_window");
-            std::cout << "------------- in do_splash_screen() splash_screen set to " << splash_screen << std::endl;
+            // std::cout << "-- in do_splash_screen() splash_screen set to " << splash_screen << std::endl;
          } else {
             splash_screen = create_splash_screen_window_for_file(f.c_str());
          }

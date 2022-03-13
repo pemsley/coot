@@ -708,7 +708,7 @@ void  free_blob_dialog_memory(GtkWidget *w);
 
 void fill_find_waters_dialog(GtkWidget *find_ligand_dialog);
 /* interface fluff */
-void execute_find_waters(GtkWidget *ok_button);
+void execute_find_waters();
 
 void on_big_blob_button_clicked(GtkButton *button, gpointer user_data);
 

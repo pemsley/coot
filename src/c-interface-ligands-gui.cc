@@ -572,7 +572,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 
    // void *data is actually a pointer to imol_map (also works for protein molecule too)
    //
-   auto get_mol_for_find_ligands = [] (GtkWidget *item, void *data) mutable {
+   auto get_mol_for_find_ligands = [] (GtkWidget *item, void *data) {
                                       if (GTK_IS_TOGGLE_BUTTON(item)) {
                                          if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
                                             int *imol_ptr = static_cast<int *>(data);

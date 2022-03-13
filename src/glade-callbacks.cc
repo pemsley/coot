@@ -2402,14 +2402,9 @@ void
 on_find_waters_ok_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget;
-
-   widget = widget_from_builder(
-			  "find_waters_dialog");
-
-   execute_find_waters(GTK_WIDGET(button));
-   gtk_widget_destroy(widget);
-
+   GtkWidget *widget = widget_from_builder("find_waters_dialog");
+   execute_find_waters();
+   gtk_widget_hide(widget);
 }
 
 
@@ -4905,9 +4900,8 @@ on_ligand_big_blob_dismiss_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *window = widget_from_builder(
-				   "ligand_big_blob_dialog");
-  gtk_widget_destroy(window);
+  GtkWidget *window = widget_from_builder( "ligand_big_blob_dialog");
+  gtk_widget_hide(window);
 
 }
 
@@ -4923,7 +4917,7 @@ on_edit_chi_angles_dialog_ok_button_clicked_gtkbuilder_callback
   accept_regularizement();
   unset_moving_atom_move_chis();
   store_window_position(COOT_EDIT_CHI_DIALOG, widget);
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -11895,6 +11889,18 @@ extern "C" G_MODULE_EXPORT
 void
 on_calculate_find_ligands_item_activate_gtkbuilder_callback() {
    do_find_ligands_dialog();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_calculate_find_waters_item_activate_gtkbuilder_callback() {
+
+   std::cout << "################################ on_calculate_find_waters_item_activate_gtkbuilder_callback() " << std::endl;
+   GtkWidget *dialog = widget_from_builder("find_waters_dialog");
+   std::cout << "find_waters_dialog " << dialog << std::endl;
+   fill_find_waters_dialog(dialog);
+   gtk_widget_show(dialog);
+      
 }
 
 extern "C" G_MODULE_EXPORT

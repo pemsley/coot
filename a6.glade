@@ -8586,7 +8586,7 @@ Do you want to continue?
   </object>
   <object class="GtkDialog" id="find_waters_dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">find waters dialog</property>
+    <property name="title" translatable="yes">Coot: Find Waters</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox10">
@@ -8865,7 +8865,7 @@ Do you want to continue?
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -8874,7 +8874,7 @@ Do you want to continue?
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
@@ -8941,7 +8941,7 @@ Do you want to continue?
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">3</property>
               </packing>
@@ -11853,6 +11853,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="calculate_find_waters_item">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Find Waters...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_calculate_find_waters_item_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkMenuItem" id="fit_loop1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -14382,8 +14391,9 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
     </child>
   </object>
   <object class="GtkDialog" id="ligand_big_blob_dialog">
+    <property name="height_request">250</property>
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Unmodelled blobs of density:</property>
+    <property name="title" translatable="yes">Coot: Unmodelled blobs of density</property>
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_ligand_big_blob_dialog_destroy_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
@@ -14451,6 +14461,7 @@ density (too big to be waters):
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkBox" id="ligand_big_blob_vbox">
+                        <property name="height_request">200</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
