@@ -7942,7 +7942,8 @@ that you wish to delete.               </property>
                                   <object class="GtkLabel" id="label364">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Find 'em!</property>
+                                    <property name="label" translatable="yes">Find Ligands</property>
+                                    <property name="use_markup">True</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                   <packing>
@@ -8308,6 +8309,7 @@ that you wish to delete.               </property>
                       <object class="GtkEntry" id="find_ligand_sigma_level_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="tooltip_text" translatable="yes">Used for blob analysis (set this to a high number (3 say) if you only want the most dense blobs to be considered as ligands</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
                       </object>
@@ -8321,7 +8323,6 @@ that you wish to delete.               </property>
                       <object class="GtkLabel" id="label145">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">  sigma  </property>
                         <property name="justify">center</property>
                       </object>
                       <packing>
@@ -8336,7 +8337,8 @@ that you wish to delete.               </property>
                   <object class="GtkLabel" id="label280">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Sigma Level</property>
+                    <property name="tooltip_text" translatable="yes">Used for blob analysis</property>
+                    <property name="label" translatable="yes">r.m.s.d. Level</property>
                   </object>
                 </child>
               </object>
@@ -8357,7 +8359,7 @@ that you wish to delete.               </property>
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox" id="hbox131">
+                      <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -8368,35 +8370,10 @@ that you wish to delete.               </property>
                             <property name="justify">center</property>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
                           </packing>
                         </child>
-                        <child>
-                          <object class="GtkEntry" id="ligand_n_samples_entry">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="hbox132">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkLabel" id="label262">
                             <property name="visible">True</property>
@@ -8405,29 +8382,75 @@ that you wish to delete.               </property>
                             <property name="justify">center</property>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">1</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="ligand_n_top_ligands_entry">
+                          <object class="GtkEntry" id="ligand_n_samples_entry">
+                            <property name="width_request">5</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="ligand_n_top_ligands_entry">
+                            <property name="width_request">5</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="primary_icon_activatable">False</property>
+                            <property name="secondary_icon_activatable">False</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">1</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="hbox131">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="hbox132">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
@@ -8441,7 +8464,7 @@ that you wish to delete.               </property>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">5</property>
               </packing>
@@ -11813,6 +11836,15 @@ Do you want to continue?
                             <property name="label" translatable="yes">All Molecule...</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_calculate_all_molecule_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="calculate_find_ligands_item">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Find Ligands...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_calculate_find_ligands_item_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>

@@ -1904,26 +1904,23 @@ on_find_ligands1_activate_gtkbuilder_callback              (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 				/* Not used any more */
+   // see on_model_refine_dialog_find_ligands_button_clicked_gtkbuilder_callback()
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_find_ligand_ok_button_clicked_gtkbuilder_callback       (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkWidget *window;
+                                                            gpointer         user_data) {
 
    int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
-			                    	/* which then runs
-				                   execute_ligand_search */
-
+			                    	/* which then runs execute_ligand_search */
    if (n_ligands > 0) {
-     window = widget_from_builder("find_ligand_dialog");
-     free_ligand_search_user_data(GTK_WIDGET(button));
-     gtk_widget_destroy(window);
+      GtkWidget *window = widget_from_builder("find_ligand_dialog");
+      // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
+      gtk_widget_hide(window);
    } else {
-     info_dialog("WARNING:: No ligands were selected");
+      info_dialog("WARNING:: No ligands were selected");
    }
 }
 
@@ -1935,7 +1932,7 @@ on_find_ligand_cancel_button_clicked_gtkbuilder_callback   (GtkButton       *but
 {
    GtkWidget *window = widget_from_builder("find_ligand_dialog");
    free_ligand_search_user_data(GTK_WIDGET(button));
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
 }
 
 
@@ -1945,27 +1942,22 @@ on_find_ligand_many_atoms_continue_button_clicked_gtkbuilder_callback (GtkButton
 						   gpointer         user_data)
 {
 
-   GtkWidget *window = widget_from_builder(
-				     "find_ligand_many_atoms_dialog");
-   GtkWidget *find_ligand_dialog = (GtkWidget *) g_object_get_data(G_OBJECT(window), "dialog");
+   GtkWidget *window = widget_from_builder("find_ligand_many_atoms_dialog");
+   GtkWidget *find_ligand_dialog = widget_from_builder("find_ligand_dialog");
 
-/* Needed at all, the if? */
-#if defined USE_GUILE && defined USE_PYTHON
    execute_ligand_search();
-#endif
-   gtk_widget_destroy(window);
-   gtk_widget_destroy(find_ligand_dialog);
+   gtk_widget_hide(window);
+   gtk_widget_hide(find_ligand_dialog);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_find_ligand_many_atoms_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
-						 gpointer         user_data)
-{
-   GtkWidget *window = widget_from_builder(
-				     "find_ligand_many_atoms_dialog");
-   gtk_widget_destroy(window);
+on_find_ligand_many_atoms_cancel_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                    gpointer         user_data) {
+
+   GtkWidget *window = widget_from_builder("find_ligand_many_atoms_dialog");
+   gtk_widget_hide(window);
 }
 
 
@@ -2396,9 +2388,8 @@ on_model_refine_dialog_find_waters_button_clicked_gtkbuilder_callback (GtkButton
 						   gpointer         user_data)
 {
 
-   GtkWidget *widget;
-
-   widget = create_find_waters_dialog();
+   // GtkWidget *widget = create_find_waters_dialog();
+   GtkWidget *widget = widget_from_builder("find_waters_dialog");
 
    fill_find_waters_dialog(widget);
    gtk_widget_show(widget);
@@ -3408,7 +3399,7 @@ on_hints_dialog_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
                                         gpointer         user_data)
 {
    GtkWidget *widget = widget_from_builder("hints_dialog");
-   gtk_widget_destroy(widget);
+   gtk_widget_hide(widget);
 
 }
 
@@ -11899,6 +11890,12 @@ on_calculate_align_and_mutate_activate_gtkbuilder_callback (GtkMenuItem     *men
    gtk_widget_show(w);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_calculate_find_ligands_item_activate_gtkbuilder_callback() {
+   do_find_ligands_dialog();
+}
 
 extern "C" G_MODULE_EXPORT
 void

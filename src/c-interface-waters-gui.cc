@@ -251,13 +251,13 @@ void execute_find_blobs(int imol_model, int imol_for_map,
    }
 }
 
+#include "widget-from-builder.hh"
 
 // function to show find waters (from wherever)
 void
 wrapped_create_find_waters_dialog() {
 
-   GtkWidget *widget;
-   widget = create_find_waters_dialog();
+   GtkWidget *widget = widget_from_builder("find_waters_dialog");
    fill_find_waters_dialog(widget);
    gtk_widget_show(widget);
 }

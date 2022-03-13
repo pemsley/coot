@@ -1368,19 +1368,22 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 
 
 void do_find_ligands_dialog() {
-   GtkWidget *dialog;
+
    int istate;
-   dialog = create_find_ligand_dialog();
+   GtkWidget *dialog = widget_from_builder("find_ligand_dialog");
    istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
+
    if (istate == 0) {
-      gtk_widget_destroy(dialog);
+      gtk_widget_hide(dialog);
       std::string s("Problem finding maps, coords or ligands!");
       graphics_info_t g;
       g.add_status_bar_text(s);
       std::cout << s << std::endl;
-   }
-   else
+   } else {
+
+      std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
      gtk_widget_show(dialog);
+   }
 
 }
 
