@@ -19,7 +19,9 @@ void
 wrapped_create_simple_refmac_dialog() {
 
    // GtkWidget *w = create_simple_refmac_dialog();
-   GtkWidget *w = widget_from_builder("simple_refmac_dialog");
+   GtkWidget *dialog = widget_from_builder("simple_refmac_dialog");
+
+   std::cout << "wrapped_create_simple_refmac_dialog() found dialog " << dialog << std::endl;
    graphics_info_t g;
    int imol_active = -1;
    GCallback callback_func = 0;
@@ -35,8 +37,10 @@ wrapped_create_simple_refmac_dialog() {
                                      g.mtz_file_for_refmac.c_str());
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_file), 0);
    }
-   gtk_widget_show(w);
+   gtk_widget_show(dialog);
 }
+
+#include "cc-interface-scripting.hh"
 
 void
 simple_refmac_run_refmac(GtkWidget *dialog) {
@@ -75,6 +79,7 @@ simple_refmac_run_refmac(GtkWidget *dialog) {
 
       int ierr = g.molecules[imol_coords].write_pdb_file(pdb_in_filename);
       if (! ierr) {
+         safe_python_command("import refmac");
          execute_refmac_real(pdb_in_filename, pdb_out_filename,
                              mtz_in_filename, mtz_out_filename,
                              cif_lib_filename,

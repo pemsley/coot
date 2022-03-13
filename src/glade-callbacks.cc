@@ -12145,20 +12145,20 @@ extern "C" G_MODULE_EXPORT
 void
 on_simple_refmac_dialog_response_gtkbuilder_callback       (GtkDialog       *dialog,
                                         gint             response_id,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    if (response_id == GTK_RESPONSE_CLOSE) {
       /* do I need to do this? */
       /* gtk_widget_destroy(dialog); */
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_destroy(GTK_WIDGET(dialog));
+      gtk_widget_hide(GTK_WIDGET(dialog));
    }
 
    if (response_id == GTK_RESPONSE_OK) {
       simple_refmac_run_refmac(GTK_WIDGET(dialog));
-      gtk_widget_destroy(GTK_WIDGET(dialog));
+      gtk_widget_hide(GTK_WIDGET(dialog));
    }
 
 }
@@ -12179,7 +12179,7 @@ on_simple_refmac_mtz_file_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = create_simple_refmac_filechooserdialog();
+   GtkWidget *w = widget_from_builder("simple_refmac_filechooser_dialog");
    GtkWidget *simple_refmac_dialog = widget_from_builder("simple_refmac_dialog");
    /* automtically file filter only mtz files */
    GtkFileFilter *filterselect = gtk_file_filter_new();
@@ -12192,23 +12192,23 @@ on_simple_refmac_mtz_file_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_simple_refmac_filechooserdialog_response_gtkbuilder_callback
-                                        (GtkDialog       *dialog,
-                                        gint             response_id,
-                                        gpointer         user_data)
-{
+on_simple_refmac_filechooser_dialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                                                  gint             response_id,
+                                                                  gpointer         user_data) {
+
    const gchar *file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
    if (response_id == GTK_RESPONSE_CLOSE) {
-      printf("on_simple_refmac_filechooserdialog_response() Close\n");
+      std::cout << "on_simple_refmac_filechooserdialog_response() Close\n";
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      printf("on_simple_refmac_filechooserdialog_response() Cancel\n");
+      std::cout << "on_simple_refmac_filechooserdialog_response() Cancel\n";
    }
 
    if (response_id == GTK_RESPONSE_OK) {
-      GtkWidget *simple_refmac_dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "simple_refmac_dialog"));
+      // GtkWidget *simple_refmac_dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "simple_refmac_dialog"));
+      GtkWidget *simple_refmac_dialog = widget_from_builder("simple_refmac_dialog");
       if (simple_refmac_dialog) {
          GtkWidget *file_combobox = widget_from_builder("simple_refmac_mtz_file_combobox");
          if (file_combobox) {
@@ -12219,7 +12219,7 @@ on_simple_refmac_filechooserdialog_response_gtkbuilder_callback
       }
    }
 
-   gtk_widget_destroy(GTK_WIDGET(dialog));
+   gtk_widget_hide(GTK_WIDGET(dialog));
 
 }
 

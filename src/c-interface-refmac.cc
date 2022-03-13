@@ -35,6 +35,8 @@
 #include "c-interface.h" // for is_valid_map_molecule()
 #include "python-3-interface.hh" // for myPyString_FromString()
 
+#include "c-interface-refmac.h"
+
 void set_refmac_counter(int imol, int refmac_count) {
 
    graphics_info_t g;
@@ -173,7 +175,7 @@ execute_refmac_real(std::string pdb_in_filename,
 
    std::string phase_combine_cmd;
    if (phase_combine_flag > 0 && phase_combine_flag < 3) {
-#ifdef USE_GUILE
+#ifdef USE_GUILE_XXX
       phase_combine_cmd += "(cons ";
       phase_combine_cmd += single_quote(phib_string);
       phase_combine_cmd += " ";
@@ -215,7 +217,7 @@ execute_refmac_real(std::string pdb_in_filename,
    short int ilang = coot::STATE_SCM;
    std::string cmd;
 
-#ifndef USE_GUILE
+#ifndef USE_GUILE_XXX
    ilang = coot::STATE_PYTHON;
 #endif
    if (ilang == coot::STATE_PYTHON) {
@@ -272,4 +274,23 @@ PyObject *get_refmac_sad_atom_info_py() {
     Py_XDECREF(ls);
   }
   return r;
+}
+
+int refmac_imol_coords() {
+
+  graphics_info_t g;
+  return g.refmac_molecule;
+}
+
+
+int get_refmac_refinement_method() {
+
+  graphics_info_t g;
+  return g.refmac_refinement_method;
+}
+
+void set_refmac_refinement_method(int method) {
+
+  graphics_info_t g;
+  g.set_refmac_refinement_method(method);
 }

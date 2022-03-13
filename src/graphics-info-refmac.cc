@@ -146,3 +146,37 @@ graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox,
 
 }
 
+
+
+void
+graphics_info_t::set_refmac_refinement_method(int method) {
+
+  graphics_info_t g;
+
+  switch (method) {
+
+  case coot::refmac::RESTRAINED:
+    g.refmac_refinement_method = coot::refmac::RESTRAINED;
+    break;
+
+  case coot::refmac::RIGID_BODY:
+    g.refmac_refinement_method = coot::refmac::RIGID_BODY;
+    break;
+
+  case coot::refmac::RESTRAINED_TLS:
+    g.refmac_refinement_method = coot::refmac::RESTRAINED_TLS;
+    break;
+
+  default:
+    g.refmac_refinement_method = coot::refmac::RESTRAINED;
+    break;
+  }
+}
+
+void
+graphics_info_t::refmac_change_refinement_method(GtkWidget *item, GtkPositionType pos) {
+
+  set_refmac_refinement_method(pos);
+
+}
+

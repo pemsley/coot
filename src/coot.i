@@ -14,7 +14,6 @@
 #include "c-interface-ligands-swig.hh"
 #include "c-interface-mogul.hh"
 #include "c-interface-sequence.hh"
-#include "c-interface-refmac.h"
 #include "c-interface-refine.h"
 #include "cc-interface.hh"
 #include "cc-interface-image.hh"

@@ -72,6 +72,10 @@ BEGIN_C_DECLS
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
+int get_refmac_refinement_method();
+void set_refmac_refinement_method(int method);
+int refmac_imol_coords(void);
 
 END_C_DECLS
+
 #endif /* C_INTERFACE_REFMAC_H */

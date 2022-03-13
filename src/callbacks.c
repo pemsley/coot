@@ -12802,6 +12802,11 @@ on_simple_refmac_mtz_file_button_clicked
    GtkWidget *simple_refmac_dialog = lookup_widget(GTK_WIDGET(button), "simple_refmac_dialog");
    /* automtically file filter only mtz files */
    GtkFileFilter *filterselect = gtk_file_filter_new();
+
+
+
+   printf("####################################### on_simple_refmac_mtz_file_button_clicked() was called!\n");
+
    gtk_file_filter_add_pattern(filterselect, "*.mtz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(w), filterselect);
    /* we need to find the file combo box in the simple refmac dialog */
@@ -12835,13 +12840,8 @@ on_simple_refmac_filechooserdialog_response
       if (simple_refmac_dialog) {
          file_combobox = lookup_widget(GTK_WIDGET(simple_refmac_dialog), "simple_refmac_mtz_file_combobox");
          if (file_combobox) {
-#if (GTK_MAJOR_VERSION > 2)
+
             gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(file_combobox));
-#else
-            model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(file_combobox));
-            store_from_model = GTK_LIST_STORE(model_from_combobox);
-            gtk_list_store_clear(store_from_model);
-#endif
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(file_combobox), file_name);
             gtk_combo_box_set_active(GTK_COMBO_BOX(file_combobox), 0);
          }

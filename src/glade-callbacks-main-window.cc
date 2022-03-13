@@ -435,6 +435,7 @@ on_model_toolbar_refmac_button_clicked_gtkbuilder_callback (GtkToolButton   *too
 
 }
 
+
 extern "C" G_MODULE_EXPORT
 void
 on_refine_params_torsion_weight_combobox_changed_gtkbuilder_callback(GtkComboBox     *combobox,
