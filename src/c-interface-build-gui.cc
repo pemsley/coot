@@ -511,11 +511,13 @@ void apply_add_OXT_from_widget(GtkWidget *ok_button) {
 }
 
 
+// uses builder
 GtkWidget *wrapped_create_add_OXT_dialog() {
 
    graphics_info_t g;
 
-   GtkWidget *w = create_add_OXT_dialog();
+   // GtkWidget *w = create_add_OXT_dialog();
+   GtkWidget *w = widget_from_builder("add_OXT_dialog");
 
    GtkWidget *combobox = widget_from_builder("add_OXT_molecule_combobox");
    GCallback callback_func = G_CALLBACK(g.add_OXT_molecule_combobox_changed);
@@ -527,7 +529,7 @@ GtkWidget *wrapped_create_add_OXT_dialog() {
       g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       g.fill_add_OXT_dialog_internal(w, imol); // function needs object (not static)
    } else {
-      std::cout << "bad combobox!" << std::endl;
+      std::cout << "ERROR:: in wrapped_create_add_OXT_dialog() failed to find combobox!" << std::endl;
    }
 
    return w;

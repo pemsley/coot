@@ -272,8 +272,7 @@ void
 on_clipping_button_clicked_gtkbuilder_callback             (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_destroy(widget_from_builder(
-				    "clipping_window"));
+   gtk_widget_hide(widget_from_builder( "clipping_window"));
 }
 
 
@@ -4296,24 +4295,24 @@ void
 on_crosshairs1_activate_gtkbuilder_callback                (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_crosshairs_dialog();
-  GtkWidget *button = widget_from_builder("crosshairs_on_radiobutton");
+   GtkWidget *widget = widget_from_builder("crosshairs_dialog");
+   GtkWidget *button = widget_from_builder("crosshairs_on_radiobutton");
 
-  if (draw_crosshairs_state()) {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-  }
-  gtk_widget_show(widget);
+   if (draw_crosshairs_state()) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+   }
+   gtk_widget_show(widget);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_crosshairs_on_radiobutton_toggled_gtkbuilder_callback   (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-    set_draw_crosshairs(1);
-  }
+                                                            gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+      set_draw_crosshairs(1);
+   }
 }
 
 
@@ -5204,23 +5203,24 @@ on_get_monomer1_activate_gtkbuilder_callback               (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_libcheck_monomer_ok_button_clicked_gtkbuilder_callback  (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *widget = widget_from_builder("libcheck_monomer_dialog");
-  GtkWidget *entry  = widget_from_builder("libcheck_monomer_entry");
-  handle_get_libcheck_monomer_code(entry);
+on_get_monomer_ok_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                     gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("libcheck_monomer_dialog");
+   GtkWidget *entry  = widget_from_builder("libcheck_monomer_entry");
+   handle_get_libcheck_monomer_code(entry);
+   gtk_widget_hide(dialog);
 
 /*   gtk_widget_destroy(widget);  done in handle_get_libcheck_monomer_code */
 }
 
 
 extern "C" G_MODULE_EXPORT
-void on_libcheck_monomer_cancel_button_clicked_gtkbuilder_callback(GtkButton       *button,
+void on_get_monomer_cancel_button_clicked_gtkbuilder_callback(GtkButton       *button,
                                                                    gpointer         user_data)
 {
   GtkWidget *widget = widget_from_builder("libcheck_monomer_dialog");
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 }
 
 
@@ -5902,7 +5902,7 @@ on_add_OXT_ok_button_clicked_gtkbuilder_callback           (GtkButton       *but
 {
   GtkWidget *w = widget_from_builder("add_OXT_dialog");
   apply_add_OXT_from_widget(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5922,8 +5922,8 @@ on_model_refine_dialog_add_OXT_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_create_add_OXT_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
+   gtk_widget_show(w);
 }
 
 
@@ -7287,7 +7287,7 @@ void
 on_change_chain_ids2_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *w = wrapped_create_change_chain_id_dialog();
+   GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
    gtk_widget_show(w);
 
 }
@@ -11475,10 +11475,10 @@ on_edit_renumber_residues_activate_gtkbuilder_callback    (GtkMenuItem     *menu
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_change_chain_ids1_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *w = wrapped_create_change_chain_id_dialog();
+on_edit_change_chain_ids1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                                        gpointer         user_data) {
+
+   GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
    gtk_widget_show(w);
 }
 

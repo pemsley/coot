@@ -78,7 +78,8 @@
 /* in here we check if libcheck is available (if scripting is available) */
 GtkWidget *wrapped_create_libcheck_monomer_dialog() {
 
-   GtkWidget *w = create_libcheck_monomer_dialog();
+   // GtkWidget *w = create_libcheck_monomer_dialog();
+   GtkWidget *w = widget_from_builder("libcheck_monomer_dialog");
    return w;
 }
 

@@ -679,7 +679,15 @@ Bernhard Lohkamp
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="add_OXT_molecule_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -706,7 +714,15 @@ Bernhard Lohkamp
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="add_OXT_chain_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -747,7 +763,16 @@ Bernhard Lohkamp
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">  </property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>
@@ -11992,7 +12017,6 @@ Do you want to continue?
                 </child>
                 <child>
                   <object class="GtkMenuItem" id="draw1">
-                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">_Draw</property>
                     <property name="use_underline">True</property>
@@ -12094,17 +12118,8 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkMenuItem" id="clipping1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Clipping...</property>
-                            <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_clipping1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="crosshairs1">
-                            <property name="label" translatable="yes">Crosshairs...</property>
+                            <property name="label" translatable="yes">Crosshairs Toggle...</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="use_underline">True</property>
@@ -14164,7 +14179,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
   </object>
   <object class="GtkDialog" id="libcheck_monomer_dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Get monomer molecule from libcheck</property>
+    <property name="title" translatable="yes">Coot: Get monomer molecule</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox43">
@@ -14190,7 +14205,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="has_default">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_libcheck_monomer_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_get_monomer_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -14207,7 +14222,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="can_default">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_libcheck_monomer_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_get_monomer_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -14238,7 +14253,15 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
             <property name="border_width">4</property>
             <property name="orientation">vertical</property>
             <child>
-              <placeholder/>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <object class="GtkBox" id="hbox80">
@@ -16644,7 +16667,15 @@ Move Molecule Here:</property>
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="mutate_molecule_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -16677,7 +16708,15 @@ Move Molecule Here:</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="mutate_molecule_chain_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>

@@ -4487,23 +4487,24 @@ autobuild_ca_off() {
 /*                         clipping */
 /*  ------------------------------------------------------------------------ */
 
-void do_clipping1_activate(){
+void do_clipping1_activate() {
 
-   GtkWidget *clipping_window;
+   std::cout << "############## do_clipping1_activate() " << std::endl;
+
    GtkScale *hscale;
    GtkAdjustment *adjustment;
 
    /* connect this to displaying the new clipping window */
 
-   clipping_window = create_clipping_window();
+   // GtkWidget *clipping_window = create_clipping_window();
+   GtkWidget *clipping_window = widget_from_builder("clipping_window");
 
    GtkWidget *hscale1 = widget_from_builder("hscale1"); // really? needs testing
 
    hscale = GTK_SCALE(hscale1);
-/*    gtk_scale_set_draw_value(hscale, TRUE);  already does */
+   /*    gtk_scale_set_draw_value(hscale, TRUE);  already does */
 
-   adjustment = GTK_ADJUSTMENT
-      (gtk_adjustment_new(0.0, -10.0, 20.0, 0.05, 4.0, 10.1));
+   adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0.0, -10.0, 20.0, 0.05, 4.0, 10.1));
 
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
@@ -6032,7 +6033,7 @@ void display_only_active() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
 
-   std::cout << "display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
 
    if (aa.first) {
       int imol_active = aa.second.first;
