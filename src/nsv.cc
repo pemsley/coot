@@ -203,7 +203,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
    // sequence_letter_background_colour = "white";
-   sequence_letter_background_colour = "#202020"; // for a dark background, should be configurable
+   sequence_letter_background_colour = "#404040"; // for a dark background, should be configurable
    int y_size_initial = setup_canvas(mol);
 
    if (top_lev)
