@@ -3677,72 +3677,40 @@ new_close_molecules(GtkWidget *window) {
    // GtkWidget *vbox = lookup_widget(window, "new_delete_molecules_vbox");
    GtkWidget *vbox = widget_from_builder("new_delete_molecules_vbox");
    short int closed_something_flag = 0;
-   std::vector<int> closed_model_molecules;
+   std::vector<int> closed_molecules;
 
-   GtkWidget *checkbutton;
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_model() ||
-	  graphics_info_t::molecules[imol].has_xmap()  ||
-	  graphics_info_t::molecules[imol].has_nxmap()) {
-	 std::string button_name("delete_molecule_checkbutton_");
-	 button_name += graphics_info_t::int_to_string(imol);
-	 // checkbutton = lookup_widget(vbox, button_name.c_str());
-         checkbutton = 0; // lookup checkbutton using a "name" user-data property
-	 if (checkbutton) {
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
-	       if (is_valid_model_molecule(imol))
-		  closed_model_molecules.push_back(imol);
+   if (GTK_IS_BOX(vbox)) {
 
-	       // Close the sequence view of that molecule if it was
-	       // displayed (fixes a bug):
-	       //
-	       // graphics_info_t::sequence_view_is_displayed[imol] returns the canvas
-// 	       std::cout << "DEBUG:: graphics_info_t::sequence_view_is_displayed["
-// 			 << imol << "] is "
-// 			 << graphics_info_t::sequence_view_is_displayed[imol] << std::endl;
+      GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
+      GList *free_list = dlist;
 
+      while (dlist) {
+         GtkWidget *list_item = GTK_WIDGET(dlist->data);
+         if (GTK_IS_TOGGLE_BUTTON(list_item)) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
+               int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
+               closed_molecules.push_back(imol);
+            }
+         } else {
+            std::cout << "not a toggle button" << std::endl;
+         }
+         dlist = dlist->next;
+      }
+      g_list_free(free_list);
+   }
 
-	       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-	       if (w) {
-		  // gtk_widget_destroy(graphics_info_t::sequence_view_is_displayed[imol]);
-		  //
-		  // use undisplay().  But how do we get to the object?
-		  graphics_info_t g;
-#if 0 // 20211201-PE sequence-view.cc doesn't compile ATM
-		  coot::sequence_view *seq_view = g.get_sequence_view(imol);
-		  if (seq_view) {
-		     seq_view->undisplay(imol);
-		  } else {
-		     std::cout << "ERROR:! missing seq_view for molecule number : "
-			       << imol << std::endl;
-		  }
-#endif
-		  // GtkWidget *window = lookup_widget(w, "sequence_view_dialog");
-		  GtkWidget *window = widget_from_builder("sequence_view_dialog");
-		  if (window) {
-		     gtk_widget_destroy(window);
-		  } else {
-		     // window = lookup_widget(w, "nsv_dialog");
-		     window = widget_from_builder("nsv_dialog");
-		     if (window)
-			gtk_widget_hide(window);
-		  }
-	       }
-	       //graphics_info_t::molecules[imol].close_yourself();
-	       close_molecule(imol);
-	       closed_something_flag = 1;
-	    }
-	 }
+   if (! closed_molecules.empty()) {
+      for (const auto &imol : closed_molecules) {
+         graphics_info_t::molecules[imol].close_yourself();
       }
    }
 
-
    // update go to atom molecule now that we may have deleted the
    // currently set one.
-   if (closed_something_flag) {
+   if (! closed_molecules.empty()) {
       graphics_info_t g;
-      for (unsigned int i=0; i<closed_model_molecules.size(); i++) {
-	 if (closed_model_molecules[i] == g.go_to_atom_molecule()) {
+      for (unsigned int i=0; i<closed_molecules.size(); i++) {
+	 if (closed_molecules[i] == g.go_to_atom_molecule()) {
 	    // set it to the bottom model molecule:
 	    for (int imol=graphics_info_t::n_molecules()-1; imol>=0; imol--) {
 	       if (is_valid_model_molecule(imol)) {
@@ -3752,7 +3720,11 @@ new_close_molecules(GtkWidget *window) {
             }
          }
       }
+      closed_something_flag = true;
    }
+
+   // ------ here ----- if there is a sequence view of a closed molecule being displayed then
+   // hide it. - that should be done in close_yourself().
 
 
    if (closed_something_flag) {
@@ -3772,13 +3744,8 @@ new_close_molecules(GtkWidget *window) {
 
 GtkWidget *wrapped_create_new_close_molecules_dialog() {
 
-   // GtkWidget *w = create_new_close_molecules_dialog();
-   GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
-
-   // GtkWidget *vbox = lookup_widget(w, "new_delete_molecules_vbox");
-   GtkWidget *vbox = widget_from_builder("new_delete_molecules_vbox");
-   GtkWidget *checkbutton;
-   GtkWidget *frame;
+   GtkWidget *dialog = widget_from_builder("new_close_molecules_dialog");
+   GtkWidget *vbox   = widget_from_builder("new_delete_molecules_vbox"); // nice and consistent...
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model() ||
 	  graphics_info_t::molecules[imol].has_xmap() ||
@@ -3789,20 +3756,16 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
 	 mol_name += "  ";
 	 mol_name += graphics_info_t::molecules[imol].name_for_display_manager();
 	 button_name += graphics_info_t::int_to_string(imol);
-	 checkbutton = gtk_check_button_new_with_label(mol_name.c_str());
+         GtkWidget *checkbutton = gtk_check_button_new_with_label(mol_name.c_str());
 	 // gtk_widget_ref (checkbutton);
-	 g_object_set_data(G_OBJECT(w), button_name.c_str(), (gpointer)checkbutton);
-	 gtk_widget_show (checkbutton);
-	 frame = gtk_frame_new(NULL);
-	 gtk_container_add(GTK_CONTAINER(frame), checkbutton);
-
-	 gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
-	 gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
-	 gtk_widget_show (frame);
+	 // g_object_set_data(G_OBJECT(w), button_name.c_str(), (gpointer)checkbutton);
+         g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
+	 gtk_widget_show(checkbutton);
+	 gtk_box_pack_start (GTK_BOX (vbox), checkbutton, FALSE, FALSE, 0);
       }
    }
 
-   return w;
+   return dialog;
 }
 
 

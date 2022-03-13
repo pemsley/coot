@@ -3292,8 +3292,8 @@ on_close_molecule1_activate_gtkbuilder_callback            (GtkMenuItem     *men
 /*    fill_close_option_menu_with_all_molecule_options(optionmenu); */
 /*   gtk_widget_show(widget); */
 
-  GtkWidget *widget = wrapped_create_new_close_molecules_dialog();
-  gtk_widget_show(widget);
+   GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
+   gtk_widget_show(widget);
 }
 
 
