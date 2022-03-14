@@ -4864,8 +4864,6 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
 
 GtkWidget *wrapped_create_display_control_window() {
 
-   std::cout << "DEBUG:: Here in wrapped_create_display_control_window() " << std::endl;
-
    // this needs to be rewritten now that we don't create Display Control window from scratch.
 
    graphics_info_t g;
@@ -4883,7 +4881,8 @@ GtkWidget *wrapped_create_display_control_window() {
 
       // OK, so create (then store) a new one.
 
-      add_map_and_mol_display_control_widgets(); /* uses just saved widget */
+      save_display_control_widget_in_graphics(widget);
+      add_map_and_mol_display_control_widgets();
 
       // set the size and shape of the window and paned components:
       if (graphics_info_t::display_manager_x_size != -1) {

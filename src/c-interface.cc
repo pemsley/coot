@@ -3233,8 +3233,8 @@ void set_default_representation_type(int type) {
 
 void set_bond_thickness(int imol, float t) {
    graphics_info_t g;
-   std::cout << "debug:: -----------------------------------set_bond_thickness() called with imol "
-             << imol << " thickness " << t << std::endl;
+   // std::cout << "debug:: -----------------------------------set_bond_thickness() called with imol "
+   // << imol << " thickness " << t << std::endl;
    g.set_bond_thickness(imol, t);
 }
 
@@ -5866,63 +5866,43 @@ void display_maps_py(PyObject *pyo) {
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
 
+   //   button type is "Active" or "Displayed"
    if (false)
       std::cout << "start: set_display_control_button_state() " << imol << " " << button_type
                 << " new_state: " << state << std::endl;
 
-   graphics_info_t g;
-   if (g.display_control_window()) {
+   GtkWidget *display_control_molecule_vbox = widget_from_builder("display_molecule_vbox");
+   if (GTK_IS_BOX(display_control_molecule_vbox)) {
+ 
+      GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_control_molecule_vbox));
+      GList *free_list = dlist;
 
-      std::string button_name = "";
-      int nn = 3;
-      if (imol > 9) nn = 2;
-      if (imol > 99) nn = 1;
-      std::string four_char_imol(nn, '0');
-      four_char_imol += coot::util::int_to_string(imol);
-
-      if (button_type == "Displayed") {
-	 button_name = "display_mol_button_";
-	 button_name += four_char_imol;
-      }
-
-      if (button_type == "Active") {
-	 button_name = "active_mol_button_";
-	 button_name += four_char_imol;
-      }
-
-      // std::cout << "lookup_widget() using button_name " << button_name << std::endl;
-      // GtkWidget *button = lookup_widget(g.display_control_window(), button_name.c_str());
-      GtkWidget *button = 0;
-      std::cout << "FIX in set_display_control_button_state() set the button correctly " << std::endl;
-
-      if (button) {
-
-	 // Don't make unnecessary changes (creates redraw events?)
-	 //
-	 bool is_active_now = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
-	 if (state != 0) {
-            if (is_active_now) {
-	    // nothing
-            } else {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
+      while (dlist) {
+         GtkWidget *list_item = GTK_WIDGET(dlist->data);
+         if (true) {
+            int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
+            if (imol_widget == imol) {
+               if (button_type == "Active") {
+                  GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "active_toggle_button"));
+                  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
+               }
+               if (button_type == "Displayed") {
+                  GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "display_toggle_button"));
+                  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
+               }
             }
-         } else {
-	    if (is_active_now) {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
-	    } else {
-	       // nothing again, it's already off.
-	    }
-	 }
-
-      } else {
-	 std::cout << "ERROR:: Opps failed to find button_type " << button_type << " button for mol "
-		   << imol << std::endl;
+         }
+         dlist = dlist->next;
       }
+      g_list_free(free_list);
    }
 }
 
 /*! \brief make the coordinates molecule displayed/undisplayed, 0 for off, 1 for on */
 void set_mol_displayed(int imol, int state) {
+
+   // std::cout << "debug:: set_mol_displayed called with imol " << imol << " state " << state << std::endl;
+
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_mol_is_displayed(state);

@@ -10503,7 +10503,7 @@ Sun 13 Mar 08:39:24 GMT 2022
       }
    }
 
- // example of how to interate through children of a vbox:
+   // example of how to interate through children of a vbox:
 
       GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
       GList *free_list = dlist;

@@ -540,8 +540,6 @@ molecule_class_info_t::update_map_in_display_control_widget() const {
 
    graphics_info_t g;
 
-   std::cout << "::::::::::::::::::::::::::::::::::::::: here in mcit::update_map_in_display_control_widget()" << std::endl;
-
    std::string dmn = name_for_display_manager();
    display_control_map_combo_box(dmn.c_str(), imol_no);
 
