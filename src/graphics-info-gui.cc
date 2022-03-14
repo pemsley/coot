@@ -4639,7 +4639,8 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol,
                         return label;
                      };
 
-   GtkWidget *w = create_diff_map_peaks_dialog();
+   // GtkWidget *w = create_diff_map_peaks_dialog();
+   GtkWidget *w = widget_from_builder("diff_map_peaks_dialog");
 
    gtk_window_set_title(GTK_WINDOW(w), dialog_title.c_str());
 

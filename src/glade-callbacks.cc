@@ -7791,9 +7791,8 @@ on_other_tools_place_strand_here_button_clicked_gtkbuilder_callback     (GtkButt
 
 extern "C" G_MODULE_EXPORT
 void
-on_diff_map_peaks_dialog_destroy_gtkbuilder_callback       (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+on_diff_map_peaks_dialog_destroy_gtkbuilder_callback(GtkWidget       *object,
+                                        gpointer         user_data) {
   set_difference_map_peaks_widget(0); /* a null pointer */
 }
 

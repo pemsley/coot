@@ -341,16 +341,11 @@ execute_find_waters() {
    if (GTK_IS_BOX(protein_vbox)) {
       int imol_protein = -1;
       void *imol_ptr = &imol_protein;
-      std::cout << "################# here 1 " << std::endl;
       gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
-      std::cout << "################# here 2 imol_protein " << imol_protein << std::endl;
       if (is_valid_model_molecule(imol_protein)) {
          find_waters_protein_mol = imol_protein;
       }
    }
-
-   std::cout << "################### here with find_waters_protein_mol " << find_waters_protein_mol << std::endl;
-   std::cout << "################### here with find_waters_map_mol     " << find_waters_map_mol << std::endl;
 
    // now read the entry containing the cut-off
    // GtkWidget *entry = lookup_widget(dialog_ok_button, "find_waters_peak_level_entry");
@@ -361,8 +356,7 @@ execute_find_waters() {
       std::cout << "finding peaks above " << f << " sigma " << std::endl;
    } else {
       f= 2.2;
-      std::cout << "nonsense value for cut-off: using " << f
-		<< " instead." << std::endl;
+      std::cout << "WARNING:: nonsense value for cut-off: using " << f << " instead." << std::endl;
    }
 
    set_value_for_find_waters_sigma_cut_off(f); // save it for later

@@ -241,11 +241,16 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 						const char *dialog_name,
 						short int diff_maps_only_flag) {
 
+   // this funny passing of the dialog name is used beause I want to use the function
+   // for difference map peaks as well as ligands
+
    int ifound = 0;
    graphics_info_t g;
    // Add map elements:
    GSList *find_ligand_map_group = NULL;
    //
+
+   // e.g. can be "generate_diff_map_peaks_map", + _"vbox"
    std::string vbox_name = dialog_name;
    vbox_name += "_vbox";
 

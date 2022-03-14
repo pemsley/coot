@@ -6490,6 +6490,8 @@ that you wish to delete.               </property>
     </child>
   </object>
   <object class="GtkDialog" id="diff_map_peaks_dialog">
+    <property name="width_request">340</property>
+    <property name="height_request">240</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Difference Map Peaks</property>
     <property name="type_hint">dialog</property>
@@ -6537,6 +6539,8 @@ that you wish to delete.               </property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkBox" id="diff_map_peaks_vbox">
+                    <property name="width_request">300</property>
+                    <property name="height_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="border_width">2</property>

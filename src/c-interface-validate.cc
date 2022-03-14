@@ -898,7 +898,8 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
 
    // c.f. wrapped_create_check_waters_diff_map_dialog()
 
-   GtkWidget *dialog = create_generate_diff_map_peaks_dialog();
+   // GtkWidget *dialog = create_generate_diff_map_peaks_dialog();
+   GtkWidget *dialog = widget_from_builder("generate_diff_map_peaks_dialog");
 
    int ifound;
    short int diff_maps_only_flag = 1;
@@ -919,11 +920,11 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
 
    // the sigma entry:
    GtkWidget *entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
-   gtk_entry_set_text(GTK_ENTRY(entry),
-		      graphics_info_t::float_to_string(graphics_info_t::difference_map_peaks_sigma_level).c_str());
+   graphics_info_t g;
+   std::string s = g.float_to_string(g.difference_map_peaks_sigma_level);
+   gtk_entry_set_text(GTK_ENTRY(entry), s.c_str());
 
-
-return dialog;
+   return dialog;
 
 }
 
@@ -936,59 +937,46 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    int imol_diff_map = -1;
    int imol_coords = -1;
 
-   // Check the difference map:
+   GtkWidget *map_vbox = widget_from_builder("generate_diff_map_peaks_map_vbox");
+   GtkWidget *protein_vbox = widget_from_builder("generate_diff_map_peaks_model_vbox");
 
-   // the strings correspond to the above function with _radiobuton_ tagged on.
+   auto get_mol_for_find_waters = [] (GtkWidget *item, void *data) {
+                                     if (GTK_IS_TOGGLE_BUTTON(item)) {
+                                        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
+                                           int *imol_ptr = static_cast<int *>(data);
+                                           int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+                                           *imol_ptr = imol;
+                                        }
+                                     }
+                                  };
 
-   GtkWidget *map_button;
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_xmap()) {
-	 if (graphics_info_t::molecules[imol].is_difference_map_p()) {
-	    std::string map_str = "generate_diff_map_peaks_map_radiobutton_";
-	    map_str += graphics_info_t::int_to_string(imol);
-	    map_button = widget_from_builder(map_str.c_str());
-	    if (map_button) {
-	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) {
-		  imol_diff_map = imol;
-		  found_active_button_for_map = 1;
-	       }
-	    } else {
-	       std::cout << "ooops failed to find button" << map_str << std::endl;
-	    }
-	 }
+   if (GTK_IS_BOX(map_vbox)) {
+      int imol_map = -1;
+      void *imol_ptr = &imol_map;
+      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_map_molecule(imol_map)) {
+         imol_diff_map = imol_map;
+      }
+   }
+   if (GTK_IS_BOX(protein_vbox)) {
+      int imol_protein = -1;
+      void *imol_ptr = &imol_protein;
+      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_model_molecule(imol_protein)) {
+         imol_coords = imol_protein;
       }
    }
 
-   // Check the coords:
-
-   GtkWidget *coords_button;
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_model()) {
-	 std::string coords_str = "generate_diff_map_peaks_model_radiobutton_";
-	 coords_str += graphics_info_t::int_to_string(imol);
-	 coords_button = widget_from_builder(coords_str.c_str());
-	 if (coords_button) {
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
-	       imol_coords = imol;
-	       found_active_button_for_map = 1;
-	    }
-	 } else {
-	    std::cout << "ooops failed to find button" << coords_str << std::endl;
-	 }
-      }
-   }
 
    // Check the level:
 
-   GtkWidget *sigma_entry =
-      widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
-
+   GtkWidget *sigma_entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
    const gchar *txt = gtk_entry_get_text(GTK_ENTRY(sigma_entry));
-   float v = atof(txt);
+   float v = coot::util::string_to_float(txt);
 
-   short int good_sigma = 0;
+   bool good_sigma = false;
    if (v > -1000 && v < 1000) {
-      good_sigma = 1;
+      good_sigma = true;
    } else {
       std::cout << "WARNING:: Invalid sigma level: " << v
 		<< " can't do peak search." << std::endl;
@@ -996,27 +984,23 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 
    // Check the negative level checkbutton:
 
-   short int do_negative_level = 0;
-   short int do_positive_level = 0;
-   GtkWidget *checkbutton_negative =
-      widget_from_builder("generate_diff_map_peaks_negative_level_checkbutton");
-   GtkWidget *checkbutton_positive =
-      widget_from_builder("generate_diff_map_peaks_positive_level_checkbutton");
+   bool do_negative_level = false;
+   bool do_positive_level = false;
+   GtkWidget *checkbutton_negative = widget_from_builder("generate_diff_map_peaks_negative_level_checkbutton");
+   GtkWidget *checkbutton_positive = widget_from_builder("generate_diff_map_peaks_positive_level_checkbutton");
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_negative)))
-      do_negative_level = 1;
+      do_negative_level = true;
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_positive)))
-      do_positive_level = 1;
+      do_positive_level = true;
 
    GtkWidget *around_model_checkbutton = widget_from_builder("generate_diff_map_peaks_around_model_only_checkbutton");
-
    bool around_model_only = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(around_model_checkbutton))) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(around_model_checkbutton)))
       around_model_only = true;
-   }
 
-   if (found_active_button_for_map) {
+   if (is_valid_model_molecule(imol_coords) && is_valid_map_molecule(imol_diff_map)) {
       if (good_sigma)
 	 // if imol_coords is -1 it is ignored in difference_map_peaks
 	 difference_map_peaks(imol_diff_map, imol_coords, v,

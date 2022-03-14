@@ -10471,3 +10471,34 @@ Tue  8 Mar 18:57:30 GMT 2022
 ----
 Sun 13 Mar 08:39:24 GMT 2022
 
+   for decoding molecule buttons in a vbox
+
+   GtkWidget *map_vbox     = widget_from_builder("find_waters_map_vbox");
+   GtkWidget *protein_vbox = widget_from_builder("find_waters_protein_vbox");
+
+   auto get_mol_for_find_waters = [] (GtkWidget *item, void *data) {
+                                     if (GTK_IS_TOGGLE_BUTTON(item)) {
+                                        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
+                                           int *imol_ptr = static_cast<int *>(data);
+                                           int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+                                           *imol_ptr = imol;
+                                        }
+                                     }
+                                  };
+
+   if (GTK_IS_BOX(map_vbox)) {
+      int imol_map = -1;
+      void *imol_ptr = &imol_map;
+      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_map_molecule(imol_map)) {
+         find_waters_map_mol = imol_map;
+      }
+   }
+   if (GTK_IS_BOX(protein_vbox)) {
+      int imol_protein = -1;
+      void *imol_ptr = &imol_protein;
+      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_model_molecule(imol_protein)) {
+         find_waters_protein_mol = imol_protein;
+      }
+   }
