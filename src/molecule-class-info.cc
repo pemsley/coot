@@ -6164,6 +6164,7 @@ molecule_class_info_t::quick_save() {
 }
 
 
+#include "widget-from-builder.hh"
 
 void
 molecule_class_info_t::close_yourself() {
@@ -6213,21 +6214,33 @@ molecule_class_info_t::close_yourself() {
    // delete from display manager combo box
    //
    graphics_info_t g;
-   GtkWidget *display_control_window = g.display_control_window();
+   GtkWidget *display_control_window = widget_from_builder("display_control_window_glade");
    //
-   if (display_control_window) { // is being displayed
-      std::string display_frame_name = "display_mol_frame_";
-      if (was_map)
-         display_frame_name = "display_map_frame_";
-      display_frame_name += g.int_to_string(imol_no);
-      std::cout << "DEBUG:: looking up map frame " << display_frame_name << std::endl;
-      // GtkWidget *display_frame = lookup_widget(display_control_window, display_frame_name.c_str());
-      GtkWidget *display_frame = 0; // 20220309-PE set this correctly
-      std::cout << "in close_yourself() find the correct frame in the Display Manager" << std::endl;
-      if (display_frame) {
 
-         gtk_widget_hide(display_frame);
+   auto delete_mol_hbox_func = [] (GtkWidget *item, void *data) {
+                                  int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+                                  int imol_this = *static_cast<int *>(data);
+                                  std::cout << "imol_widget " << imol_widget << " imol_this " << imol_this << std::endl;
+                                  if (imol_widget == imol_this) {
+                                     gtk_widget_hide(item); // destroying may do bad things to the foreach loop variable
+                                  }
+                               };
 
+   if (display_control_window) {
+      if (was_map) {
+         GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
+         if (GTK_IS_BOX(map_vbox)) {
+            int imol_this = imol_no;
+            gtk_container_foreach(GTK_CONTAINER(map_vbox), delete_mol_hbox_func, &imol_this);
+         }
+      }
+
+      if (was_coords) {
+         GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
+         if (GTK_IS_BOX(coords_vbox)) {
+            int imol_this = imol_no;
+            gtk_container_foreach(GTK_CONTAINER(coords_vbox), delete_mol_hbox_func, &imol_this);
+         }
       }
    }
 

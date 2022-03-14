@@ -146,7 +146,7 @@ void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 
 
 
-GtkWidget *get_radio_button_in_scroll_group(GtkWidget *d, int imol_this);
+GtkWidget *get_radio_button_in_scroll_group(int imol_this);
 
 void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, const gchar *name, int n); 
 void simple_display_control_mol_menu_item(GtkWidget *model_menu, int imol_no, int map_coords_mol_flag);
@@ -165,7 +165,6 @@ void render_as_b_factor_representation_button_select(int imol);
 void render_as_b_factor_cas_representation_button_select(int imol);
 void render_as_occupancy_representation_button_select(int imol);
 
-GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade, const gchar *name, int n);
 
 /* void */
 /* on_display_control_map_displayed_button_clicked   (GtkButton       *button, */

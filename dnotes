@@ -10502,3 +10502,32 @@ Sun 13 Mar 08:39:24 GMT 2022
          find_waters_protein_mol = imol_protein;
       }
    }
+
+ // example of how to interate through children of a vbox:
+
+      GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
+      GList *free_list = dlist;
+
+      while (dlist) {
+         GtkWidget *list_item = GTK_WIDGET(dlist->data);
+         if (GTK_IS_TOGGLE_BUTTON(list_item)) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
+               int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
+               closed_molecules.push_back(imol);
+            }
+         } else {
+            std::cout << "not a toggle button" << std::endl;
+         }
+         dlist = dlist->next;
+      }
+      g_list_free(free_list);
+    }
+ 
+
+----
+Mon 14 Mar 09:25:01 GMT 2022
+
+
+Failed to load module "appmenu-gtk-module"
+
+sudo apt-get install appmenu-gtk3-module

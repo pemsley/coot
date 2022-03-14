@@ -529,6 +529,7 @@ molecule_class_info_t::set_draw_solid_density_surface(bool state) {
    update_map(true); // gets solid triangles too.
 }
 
+#include "gtk-manual.hh" // 20220314-PE new interface to display_control_map_combo_box()
 
 // Create a new combo box for this newly created map.
 //
@@ -539,11 +540,10 @@ molecule_class_info_t::update_map_in_display_control_widget() const {
 
    graphics_info_t g;
 
+   std::cout << "::::::::::::::::::::::::::::::::::::::: here in mcit::update_map_in_display_control_widget()" << std::endl;
+
    std::string dmn = name_for_display_manager();
-   if (g.display_control_window())
-      display_control_map_combo_box(g.display_control_window(),
-				    dmn.c_str(),
-				    imol_no);
+   display_control_map_combo_box(dmn.c_str(), imol_no);
 
 }
 

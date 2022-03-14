@@ -805,229 +805,100 @@ void render_as_occupancy_representation_button_select(int imol) {
 
 
 /* n is the nth element in the molecule display VBox */
-GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade,
-					 const gchar *name,
-					 int n) {
+void
+display_control_map_combo_box(const std::string &name, int imol) {
 
-  GtkWidget *my_combo_box = 0;
+   GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
+   GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+   g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
+   gtk_box_pack_start(GTK_BOX(display_map_vbox), hbox, FALSE, FALSE, 0);
+   gtk_widget_show(hbox);
 
-  GtkWidget *display_map_vbox;
-/*   GtkWidget *display_control_window_glade; passed parameter */
+   // Do I need to clear_out_container(display_map_vbox) here?
 
-  GtkWidget *display_map_frame_1;
-  GtkWidget *hbox31;
-  GtkWidget *hbox32;
-  GtkWidget *entry2;
-  GtkWidget *displayed_button_1;
-  GtkWidget *mol_label;
+   // We need to add thesee items:
+   // 1: molecule number label
+   // 2: entry with molecule name
+   // 3: "Display" checkbutton
+   // 4: "Scroll" radiobutton
+   // 5: "Properties" button
+   // 6: "Delete Map" button -  done in display_control_add_delete_molecule_button()
 
-/* messing about with string variables */
-  gchar *widget_name;
-  gchar *tmp_name;
+   // 1: molecule number label
+   std::string imol_str = std::to_string(imol);
+   GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
+   gtk_widget_show(molecule_number_label);
+   gtk_box_pack_start(GTK_BOX(hbox), molecule_number_label, FALSE, FALSE, 10);
 
-  GtkWidget *scroll_radio_button_1;
+   // 2: entry with molecule name
+   GtkWidget *entry = gtk_entry_new();
+   gtk_entry_set_text(GTK_ENTRY(entry), name.c_str());
+   gtk_widget_show(entry);
+   gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
 
-  /* we need to find references to objects that contain this widget */
+   // 3: "Display" checkbutton
+   GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
+   gtk_widget_show(display_checkbutton);
+   gtk_box_pack_start(GTK_BOX(hbox), display_checkbutton, FALSE, FALSE, 2);
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), map_is_displayed(imol));
 
-  // display_map_vbox = lookup_widget(display_control_window_glade, "display_map_vbox");
-  display_map_vbox = widget_from_builder("display_map_vbox");
+   // 4: "Scroll" checkbutton
+   GtkWidget *previous_radio_button = get_radio_button_in_scroll_group(imol);
+   GtkWidget *scroll_button = nullptr;
+   if (previous_radio_button)
+      scroll_button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(previous_radio_button), "Scroll");
+   else
+      scroll_button = gtk_radio_button_new_with_label(NULL, "Scroll");
+   gtk_widget_show(scroll_button);
+   gtk_box_pack_start(GTK_BOX(hbox), scroll_button, FALSE, FALSE, 2);
 
-  display_map_frame_1 = gtk_frame_new (NULL);
-  // gtk_widget_ref (display_map_frame_1);
+   // 5: "Properties" button
+   GtkWidget *properties_button = gtk_button_new_with_label("Properties");
+   gtk_widget_show(properties_button);
+   gtk_box_pack_start(GTK_BOX(hbox), properties_button, FALSE, FALSE, 2);
 
-  widget_name = (gchar *) malloc(100); /* should be enough */
+   // 6: "Delete" map button
+   display_control_add_delete_molecule_button(imol, hbox, true);
 
-  strcpy(widget_name, "display_map_frame_");
-  tmp_name = widget_name + strlen(widget_name);
-
-  snprintf(tmp_name, 4, "%-d", n);
-
-/*   printf("display_map_frame_{thing} name constructed as: :%s:\n", widget_name);  */
-
-
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name,
-			  display_map_frame_1, NULL);
-  gtk_widget_show (display_map_frame_1);
-  /* setting to true means that the buttons etc in the box can expand
-     vertically to fill the box  */
-  gtk_box_pack_start (GTK_BOX (display_map_vbox), display_map_frame_1, FALSE, FALSE, 2); // box child expand fill padding
-
-  hbox31 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-  // gtk_widget_ref (hbox31);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox31", hbox31, NULL);
-
-  gtk_widget_show (hbox31);
-  gtk_container_add (GTK_CONTAINER (display_map_frame_1), hbox31);
-
-/* -- molecule number label */
-
-  strcpy(widget_name, "display_map_number_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
-
-  mol_label = gtk_label_new (_(tmp_name));
-  // gtk_widget_ref (mol_label);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name, mol_label,
-			  NULL);
-
-  gtk_widget_show (mol_label);
-  gtk_box_pack_start (GTK_BOX (hbox31), mol_label, FALSE, FALSE, 3);
-
-/* -- molecule number label */
-
-/* -- */
-
-  strcpy(widget_name, "display_map_entry_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
-
-  entry2 = gtk_entry_new ();
-  // gtk_widget_ref (entry2);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name, entry2,
-			  NULL);
-  if (name) {
-    gtk_entry_set_text(GTK_ENTRY(entry2), name);
-  }
-
-  gtk_editable_set_editable(GTK_EDITABLE(entry2), FALSE);
-
-  gtk_widget_show (entry2);
-  gtk_box_pack_start (GTK_BOX (hbox31), entry2, TRUE, TRUE, 0);
-
-  hbox32 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-  // gtk_widget_ref (hbox32);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox32", hbox32,
-			  NULL);
-  gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, FALSE, 0);
-
-/* -- */
-
-  strcpy(widget_name, "displayed_button_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
-
-  displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1), map_is_displayed(n));
-  // gtk_widget_ref (displayed_button_1);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			    widget_name,
-			    displayed_button_1,
-			  NULL);
-  gtk_widget_show (displayed_button_1);
-  gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
-
-  g_signal_connect(G_OBJECT (displayed_button_1),  "toggled",
-		     G_CALLBACK (on_display_control_map_displayed_button_toggled),
-		     GINT_TO_POINTER(n));
-
-/*   // associate with the button a pointer to the variable which */
-/*   // contains the passed variable int n */
-/*   //  */
-/*   // we cast as a (char *) to make the compiler happy. */
-/*   //  */
-    g_object_set_data (G_OBJECT (displayed_button_1), "imol", GINT_TO_POINTER(n));
-
-/* -- */
-  /* 20050316 Today I add scroll check-button, as Charlie asked for ages ago. */
-
-  strcpy(widget_name, "map_scroll_button_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
-
-  GtkWidget *previous_radio_button =
-     get_radio_button_in_scroll_group(display_control_window_glade, n);
-
-  if (previous_radio_button)
-     scroll_radio_button_1 =
-	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(previous_radio_button),
-						    _("Scroll"));
-  else
-     scroll_radio_button_1 = gtk_radio_button_new_with_label(NULL, _("Scroll"));
-
-  g_object_set_data_full(G_OBJECT(display_control_window_glade),
-			   widget_name,
- 			   scroll_radio_button_1,
- 			   NULL);
-
-
-  gtk_widget_show(scroll_radio_button_1);
-  gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE,FALSE, 2);
-  g_signal_connect(G_OBJECT(scroll_radio_button_1), "toggled",
-		     G_CALLBACK (on_display_control_map_scroll_radio_button_toggled),
-		     GINT_TO_POINTER(n));
-  g_signal_connect(G_OBJECT(scroll_radio_button_1), "group_changed",
-		     G_CALLBACK (on_display_control_map_scroll_radio_button_group_changed),
-		     GINT_TO_POINTER(n));
-
-  if (scroll_wheel_map() == n) {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), TRUE);
-  } else {
-     if (previous_radio_button) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
-     }
-  }
-
-
-/* -- */
-
-  strcpy(widget_name, "properties_button_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
-
-  displayed_button_1 = gtk_button_new_with_label (_("Properties"));
-  // gtk_widget_ref (displayed_button_1);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			  widget_name,
-			  displayed_button_1,
-			  NULL);
-  gtk_widget_show (displayed_button_1);
-  gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
-
-  g_signal_connect(G_OBJECT (displayed_button_1),  "clicked",
+   // connect signals to display, scroll and properties
+   std::cout << "########### connecting button signals with imol " << imol << std::endl;
+   g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
+                    G_CALLBACK(on_display_control_map_displayed_button_toggled),
+                    GINT_TO_POINTER(imol));
+   g_signal_connect(G_OBJECT(scroll_button), "toggled",
+                    G_CALLBACK(on_display_control_map_scroll_radio_button_toggled),
+                    GINT_TO_POINTER(imol));
+   g_signal_connect(G_OBJECT(properties_button), "clicked",
 		     G_CALLBACK (on_display_control_map_properties_button_clicked),
-		     GINT_TO_POINTER(n));
+		     GINT_TO_POINTER(imol));
 
-/*   // associate with the button a pointer to the variable which */
-/*   // contains the passed variable int n */
-/*   //  */
-  /*   // we cast as a (char *) to make the compiler happy. */
-/*   //  */
-    g_object_set_data (G_OBJECT (displayed_button_1), "imol", GINT_TO_POINTER(n));
-
-  // A delete molecule button
-  display_control_add_delete_molecule_button(n, hbox32, true);
-
-  free(widget_name);
-  return my_combo_box;
 }
 
 
 void
 on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button,
-						   gpointer         user_data)
-{
+						   gpointer         user_data) {
 
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+   int imol = GPOINTER_TO_INT(user_data);
+   std::cout << "in on_display_control_map_displayed_button_toggled() with imol " << imol << std::endl;
 
-   if (gtk_toggle_button_get_active(button))
+   if (gtk_toggle_button_get_active(button)) {
+      std::cout << "in on_display_control_map_displayed_button_toggled() path 1 " << std::endl;
       set_map_displayed(imol, 1);
-   else
+   } else {
+      std::cout << "in on_display_control_map_displayed_button_toggled() path 2 " << std::endl;
       set_map_displayed(imol, 0);
+   }
 }
 
 /* Added 20050316 (Bangalore) */
 void
 on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
 						    gpointer         user_data) {
-  int imol = GPOINTER_TO_INT(user_data);
-  const char *state = "inactive";
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-    state = "active";
-    set_scrollable_map(imol);
-  }
+   int imol = GPOINTER_TO_INT(user_data);
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+      set_scrollable_map(imol);
+   }
 }
 
 void
@@ -1036,11 +907,46 @@ on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button
    // do nothing these days. Scroll group is handled gtk-internally via radio buttons.
 }
 
+GtkWidget *get_radio_button_in_scroll_group(int imol_this) {
+
+   GtkWidget *w = nullptr;
+   GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
+
+   // check all the hboxes for a scroll radio button
+
+   GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_map_vbox));
+   GList *free_list = dlist;
+
+   while (dlist) {
+      GtkWidget *mol_hbox = GTK_WIDGET(dlist->data);
+
+      if (GTK_IS_BOX(mol_hbox)) {
+
+         GList *dlist_inner = gtk_container_get_children(GTK_CONTAINER(mol_hbox));
+         GList *free_list_inner = dlist_inner;
+
+         while (dlist_inner) {
+            GtkWidget *item = GTK_WIDGET(dlist_inner->data);
+            if (GTK_IS_RADIO_BUTTON(item)) {
+               w = item;
+            }
+            dlist_inner = dlist_inner->next;
+         }
+         g_list_free(free_list_inner);
+      }
+      dlist = dlist->next;
+   }
+   g_list_free(free_list);
+   std::cout << "DEBUG:: on_display_control_map_scroll_radio_button_group_changed() for imol_this "
+             << imol_this << " returning w " << w << std::endl;
+   return w;
+
+}
+
 // return NULL when there are no radio buttons found that have a group
 // (i.e. there are no maps displayed in the Display Manager.
 //
-GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
-					    int imol_this) {
+GtkWidget *get_radio_button_in_scroll_group_old(int imol_this) {
 
    // 20090517: Previously, we'd been looking at all
    // map_scroll_buttons (i.e. for every map), but in the case of 2
@@ -1055,7 +961,7 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
    //
    //
    GtkWidget *w = NULL;
-   if (display_manager_dialog) {
+   if (true) {
       // for (int i=0; i<graphics_n_molecules(); i++) {
       //
       // 20120124 but surely when we are creating a new dialog and we
@@ -1081,11 +987,12 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
 
 
 void
-on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
-						   gpointer         user_data)
-{
+on_display_control_delete_molecule_button_clicked(GtkButton       *button,
+                                                  gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
+
+   std::cout << "################## in on_display_control_delete_molecule_button_clicked() imol" << imol << std::endl;
    if (0)
       std::cout << "DEBUG:: calling close_molecule() for " << imol << " from "
 		<< "on_display_control_delete_molecule_button_clicked"
@@ -1122,6 +1029,8 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 //   gtk_rc_style_unref (rc_style);
 
 
+  std::cout << "################### calling wrapped_create_single_map_properties_dialog_gtk3() with imol "
+            << imol << std::endl;
   GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
 
   gtk_widget_show(dialog);
