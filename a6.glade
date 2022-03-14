@@ -12067,6 +12067,7 @@ Do you want to continue?
                 </child>
                 <child>
                   <object class="GtkMenuItem" id="draw1">
+                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">_Draw</property>
                     <property name="use_underline">True</property>
@@ -12165,16 +12166,6 @@ Do you want to continue?
                             <property name="label" translatable="yes">Central Atom Label...</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_draw_central_atom_label_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="crosshairs1">
-                            <property name="label" translatable="yes">Crosshairs Toggle...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_crosshairs1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
