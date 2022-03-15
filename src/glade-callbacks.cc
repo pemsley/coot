@@ -1302,7 +1302,7 @@ on_go_to_atom_cancel_button_clicked_gtkbuilder_callback    (GtkButton       *but
   widget     = widget_from_builder("goto_atom_window");
 
   unset_go_to_atom_widget();
-  gtk_widget_destroy(widget);	/* There is something that had been
+  gtk_widget_hide(widget);	/* There is something that had been
 				   added to the Go To Atom window that
 				   is not a widget.  It has been
 				   cleared perhaps but not destroyed.
@@ -1320,7 +1320,7 @@ on_go_to_atom1_activate_gtkbuilder_callback                (GtkMenuItem     *men
      GtkWidget *widget;
 
      /* fills the window too */
-     widget = wrapped_create_goto_atom_window();
+     widget = wrapped_create_goto_atom_window(); // uses gtkbuilder
 
 				/* now we need to fill the entry boxes
 				   with default vaules and the option
@@ -10790,8 +10790,8 @@ extern "C" G_MODULE_EXPORT
 void
 on_go_to_atom_toolbutton_clicked_gtkbuilder_callback(GtkToolButton   *toolbutton,
                                                      gpointer         user_data) {
-  GtkWidget *widget = wrapped_create_goto_atom_window();
-  gtk_widget_show(widget);
+   GtkWidget *widget = wrapped_create_goto_atom_window(); // uses builder
+   gtk_widget_show(widget);
 }
 
 extern "C" G_MODULE_EXPORT

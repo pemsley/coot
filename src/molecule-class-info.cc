@@ -6220,7 +6220,6 @@ molecule_class_info_t::close_yourself() {
    auto delete_mol_hbox_func = [] (GtkWidget *item, void *data) {
                                   int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
                                   int imol_this = *static_cast<int *>(data);
-                                  std::cout << "imol_widget " << imol_widget << " imol_this " << imol_this << std::endl;
                                   if (imol_widget == imol_this) {
                                      gtk_widget_hide(item); // destroying may do bad things to the foreach loop variable
                                   }

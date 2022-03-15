@@ -10749,7 +10749,15 @@ Do you want to continue?
                         <property name="can_focus">False</property>
                         <property name="border_width">3</property>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="go_to_atom_molecule_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label40">
@@ -10786,7 +10794,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkButton" id="update_go_to_atom_from_current_position_button">
-                            <property name="label" translatable="yes"> Update from Current Postion </property>
+                            <property name="label" translatable="yes">Update from Current Postion</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
@@ -10808,7 +10816,7 @@ Do you want to continue?
                             <property name="border_width">2</property>
                             <child>
                               <object class="GtkEntry" id="go_to_atom_atom_name_entry">
-                                <property name="width_request">50</property>
+                                <property name="width_request">10</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -10825,13 +10833,13 @@ Do you want to continue?
                               <object class="GtkLabel" id="label43">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Atom Name</property>
+                                <property name="label" translatable="yes"> Atom Name</property>
                                 <property name="justify">center</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="padding">6</property>
+                                <property name="padding">2</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -10850,7 +10858,7 @@ Do you want to continue?
                             <property name="border_width">2</property>
                             <child>
                               <object class="GtkEntry" id="go_to_atom_residue_entry">
-                                <property name="width_request">50</property>
+                                <property name="width_request">10</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -10867,13 +10875,13 @@ Do you want to continue?
                               <object class="GtkLabel" id="label42">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Residue Number</property>
+                                <property name="label" translatable="yes"> Residue Number</property>
                                 <property name="justify">center</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="padding">6</property>
+                                <property name="padding">2</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -10892,7 +10900,7 @@ Do you want to continue?
                             <property name="border_width">2</property>
                             <child>
                               <object class="GtkEntry" id="go_to_atom_chain_entry">
-                                <property name="width_request">50</property>
+                                <property name="width_request">10</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -10909,13 +10917,13 @@ Do you want to continue?
                               <object class="GtkLabel" id="label41">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Chain</property>
+                                <property name="label" translatable="yes"> Chain</property>
                                 <property name="justify">center</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="padding">6</property>
+                                <property name="padding">2</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -10960,7 +10968,7 @@ Do you want to continue?
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
-            <property name="border_width">8</property>
+            <property name="border_width">6</property>
             <signal name="clicked" handler="on_go_to_atom_next_residue_button_clicked_gtkbuilder_callback" swapped="no"/>
             <child>
               <object class="GtkAlignment" id="alignment16">
@@ -11014,7 +11022,7 @@ Do you want to continue?
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
-            <property name="border_width">8</property>
+            <property name="border_width">6</property>
             <signal name="clicked" handler="on_go_to_atom_previous_residue_button_clicked_gtkbuilder_callback" swapped="no"/>
             <child>
               <object class="GtkAlignment" id="alignment17">

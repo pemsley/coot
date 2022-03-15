@@ -2314,13 +2314,15 @@ graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
 
    // This might be OK if combobox had been created by us, not glade code, and has been added to an hbox already.
 
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
+
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
    int active_idx = 0;
    unsigned int n_mol = molecules_index_vec.size();
    for (unsigned int imap=0; imap<n_mol; imap++) {
 
-      std::cout << "::::::::: debug in fill_combobox_with_molecule_options() imap " << imap << std::endl;
+      //std::cout << "::::::::: debug in fill_combobox_with_molecule_options() imap " << imap << std::endl;
       int imol = molecules_index_vec[imap];
       std::string ss; // = int_to_string(imol); done in renderer now.
       ss += " " ;
@@ -2359,6 +2361,7 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							int imol_active) {
 
    printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- don't use this function -----\n");
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- use fill_combobox_with_coordinates_options --\n");
 
    printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- start -----\n");
 

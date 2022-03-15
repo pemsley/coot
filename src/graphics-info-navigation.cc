@@ -715,6 +715,11 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       // GtkWidget *residue_tree = lookup_widget(go_to_atom_window, "go_to_atom_residue_tree");
       GtkWidget *residue_tree = widget_from_builder("go_to_atom_residue_tree");
       GtkWidget *atom_list    = widget_from_builder("go_to_atom_atom_list");
+
+
+      if (false)
+         std::cout << ".......................... in update_go_to_atom_window_on_changed_mol() " << imol
+                   << " residue_tree " << residue_tree << " atom_list " << atom_list << std::endl;
       if (residue_tree == NULL) {
          std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n";
       } else {
@@ -728,19 +733,15 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
 void
 graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 
-  const gchar *chain_str;
-  const gchar *res_str;
-  const gchar *atom_name_str;
-
   GtkEntry *entry;
 
   // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_chain_entry"));
   entry = GTK_ENTRY(widget_from_builder("go_to_atom_chain_entry"));
-  chain_str = gtk_entry_get_text(entry);
+  const gchar *chain_str = gtk_entry_get_text(entry); 
 
   // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_residue_entry"));
   entry = GTK_ENTRY(widget_from_builder("go_to_atom_residue_entry"));
-  res_str = gtk_entry_get_text(entry);
+  const gchar *res_str = gtk_entry_get_text(entry);
 
   // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_name_entry"));
   entry = GTK_ENTRY(widget_from_builder("go_to_atom_atom_name_entry"));
@@ -755,10 +756,9 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
      // we have to use the version of set_go_to.. that has 4 params,
      // because the 3 parameter version sets the altconf to "empty:.
      //
-     atom_name_str = p.first.c_str();
+     const gchar *atom_name_str = p.first.c_str();
 
-     std::pair<std::string, std::string> resno_inscode =
-	split_resno_inscode(std::string(res_str));
+     std::pair<std::string, std::string> resno_inscode = split_resno_inscode(std::string(res_str));
      int resno = atoi(resno_inscode.first.c_str());
      std::string inscode = resno_inscode.second;
 

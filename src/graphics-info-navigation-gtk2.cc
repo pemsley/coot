@@ -50,6 +50,16 @@ enum {
 
 void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *widget) {
 
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+   
    // make this a wrapper function for a graphics_info_t function
    // After the GTK3 build is working - FIXME
 
@@ -62,7 +72,20 @@ void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *widget) {
 
    // GtkWidget *combobox = lookup_widget(widget, "go_to_atom_molecule_combobox");
    GtkWidget *combobox = widget_from_builder("go_to_atom_molecule_combobox");
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+
+   // fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+
+   // use this instead
+   // void
+   // graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
+   //                                                  GCallback signal_func,
+   //                                                  int imol_active_position,
+   //                                                  const std::vector<int> &molecules_index_vec)
+
+   // maybe make a function to wrap this?
+   //
+   auto mols = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(combobox, callback_func, gimol, mols); // not static!
 
    /* These are in a special order: The residue is done first
       because it is set to a magic number (-9999 (or so)) initially.
@@ -137,53 +160,77 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					     GtkWidget *residue_tree_scrolled_window,
 					     GtkWidget *atom_list_scrolled_window) {
 
-   graphics_info_t g;
-   GtkWidget *residue_tree = gtk_tree_view_new(); 
-   // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
-   //      				 residue_tree);
-   gtk_container_add(GTK_CONTAINER(residue_tree_scrolled_window), residue_tree);
 
-   // gtk_widget_ref(residue_tree);
-   g_object_set_data_full(G_OBJECT(go_to_atom_window),
- 			  "go_to_atom_residue_tree",
- 			  residue_tree, go_to_atom_residue_tree_destroy
- 			    );
+   graphics_info_t g;
+
+   auto add_residue_tree_to_scrolled_window_if_needed = [] (GtkWidget *scrolled_window) {
+
+                                                GtkTreeView *residue_tree = nullptr; // return this
+                                                GList *dlist = gtk_container_get_children(GTK_CONTAINER(scrolled_window));
+                                                GList *free_list = dlist;
+                                                while (dlist) {
+                                                   GtkWidget *list_item = GTK_WIDGET(dlist->data);
+                                                   if (GTK_IS_TREE_VIEW(list_item)) {
+                                                      residue_tree = GTK_TREE_VIEW(list_item);
+                                                   }
+                                                   dlist = dlist->next;
+                                                }
+                                                g_list_free(free_list);
+
+                                                if (! residue_tree) {
+                                                   residue_tree = GTK_TREE_VIEW(gtk_tree_view_new());
+                                                   gtk_container_add( GTK_CONTAINER(scrolled_window), GTK_WIDGET(residue_tree));
+                                                }
+                                                return residue_tree;
+                                             };
+   
+   GtkTreeView *residue_tree = add_residue_tree_to_scrolled_window_if_needed(residue_tree_scrolled_window); 
+
+   // 20220315-PE what's this for? I don't know - remove
+   //  g_object_set_data_full(G_OBJECT(go_to_atom_window), "go_to_atom_residue_tree",
+   //			  residue_tree,
+   // go_to_atom_residue_tree_destroy // do I really want destroy?
+   //                           );
+
    int imol = g.go_to_atom_molecule();
    
-   /* The atom list/tree */
-   // GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window), "go_to_atom_atom_scrolledwindow");
    GtkWidget *scrolled_window = widget_from_builder("go_to_atom_atom_scrolledwindow");
-   GtkTreeView *atom_list = GTK_TREE_VIEW(gtk_tree_view_new());
 
-   if (0) { 
-      std::cout << "atom_list: "     << atom_list   << std::endl;
-      std::cout << "residue_tree: " << residue_tree << std::endl;
-      std::cout << "go_to_atom_window: " << go_to_atom_window << std::endl;
-   }
-   
-   // gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
-   //      				  GTK_WIDGET(atom_list));
-   gtk_container_add( GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_list));
+   // this might actually be an atom_tree... not sure
+   //
+   auto add_atom_list_to_scrolled_window_if_needed = [] (GtkWidget *scrolled_window) {
 
+                                                GtkTreeView *atom_list = nullptr; // return this
+                                                GList *dlist = gtk_container_get_children(GTK_CONTAINER(scrolled_window));
+                                                GList *free_list = dlist;
+                                                while (dlist) {
+                                                   GtkWidget *list_item = GTK_WIDGET(dlist->data);
+                                                   if (GTK_IS_TREE_VIEW(list_item)) {
+                                                      atom_list = GTK_TREE_VIEW(list_item);
+                                                   }
+                                                   dlist = dlist->next;
+                                                }
+                                                g_list_free(free_list);
+
+                                                if (! atom_list) {
+                                                   atom_list = GTK_TREE_VIEW(gtk_tree_view_new());
+                                                   gtk_container_add( GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_list));
+                                                }
+                                                return atom_list;
+                                             };
+
+
+   GtkTreeView *atom_list = add_atom_list_to_scrolled_window_if_needed(scrolled_window);
 
    /* attach the name to the widget (by hand (as interface.c does
       it) so that we can look it up in the callback of residue selection changed */
 
-   // However, we can't unref it because we can't ref the atom tree
-   // (as we normally do with things for which we do
-   // gtk_object_set_data_full() because it is not a GtkWidget (or
-   // something).
+   // what does this do?
+   g_object_set_data_full(G_OBJECT(go_to_atom_window), "go_to_atom_atom_list", atom_list, go_to_atom_list_destroy);
 
-   
-    g_object_set_data_full(G_OBJECT(go_to_atom_window), "go_to_atom_atom_list",
- 			    atom_list, go_to_atom_list_destroy);
+   g.fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, GTK_WIDGET(residue_tree), GTK_WIDGET(atom_list));
 
-   
-   
-   graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree,
-								    GTK_WIDGET(atom_list));
-   
-   gtk_widget_show(residue_tree);
+   gtk_widget_show(GTK_WIDGET(residue_tree));
    gtk_widget_show(GTK_WIDGET(atom_list));
 
 }
@@ -307,20 +354,17 @@ graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
 
       if (need_renderer) { 
 	 GtkCellRenderer *cell = gtk_cell_renderer_text_new();
-	 GtkTreeViewColumn *column =
-	    gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
-	 gtk_tree_view_append_column (GTK_TREE_VIEW (tv),
-				      GTK_TREE_VIEW_COLUMN (column));
+	 GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
+	 gtk_tree_view_append_column (GTK_TREE_VIEW (tv), GTK_TREE_VIEW_COLUMN (column));
 
 	 GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
 	 gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
 	 // double clicks
-	 g_signal_connect(tv, "row-activated",
-			  (GCallback) residue_tree_residue_row_activated, NULL);
+	 g_signal_connect(tv, "row-activated", G_CALLBACK(residue_tree_residue_row_activated), NULL);
 
-	 gtk_tree_selection_set_select_function (tree_sel,
-						 graphics_info_t::residue_tree_selection_func,
-						 NULL, NULL);
+	 gtk_tree_selection_set_select_function(tree_sel,
+                                                graphics_info_t::residue_tree_selection_func,
+                                                NULL, NULL);
       }
    }
 
@@ -351,10 +395,10 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
        if (!path_currently_selected) {
-	  if (1) {  // if this was a residue, not a chain click
-	     // update the go to atom residues from the
-	     // characteristics of this row... bleurgh.. how do I do
-	     // that!?  Check the level, is how I did it in gtk1...
+	  if (true) {  // if this was a residue, not a chain click
+	               // update the go to atom residues from the
+   	               // characteristics of this row... bleurgh.. how do I do
+	               // that!?  Check the level, is how I did it in gtk1...
 	     graphics_info_t g;
 	     int go_to_imol = g.go_to_atom_molecule();
 	     if (is_valid_model_molecule(go_to_imol)) {
@@ -385,7 +429,7 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		      
 		      // now we want the atom list to contain the atoms of the
 		      // newly selected residue:
-		      
+
 		      // Fill me...
 		      fill_go_to_atom_atom_list_gtk2(g.go_to_atom_window,
 						     g.go_to_atom_molecule(),
@@ -409,6 +453,10 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 						    GtkTreePath        *path,
 						    GtkTreeViewColumn  *col,
 						    gpointer            userdata) {
+
+   // a double-click (I think) so that we do a "Go to atom"
+
+   std::cout << "################################ residue_tree_residue_row_activated()  " << std::endl;
 
    // This gets called on double-clicking, and not on single clicking
    
@@ -464,22 +512,35 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 void
 graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, int imol,
 						char *chain_id, int resno, char *ins_code) {
-   
+
    // GtkTreeView *atom_tree = GTK_TREE_VIEW(lookup_widget(go_to_atom_window, "go_to_atom_atom_list"));
-   GtkTreeView *atom_tree = GTK_TREE_VIEW(widget_from_builder("go_to_atom_atom_list"));
+   // GtkTreeView *atom_tree = GTK_TREE_VIEW(widget_from_builder("go_to_atom_atom_list"));
+   GtkWidget *scrolled_window = widget_from_builder("go_to_atom_atom_scrolledwindow");
+
+   GtkTreeView *atom_tree = nullptr;
+   // if there is something alreay in scrolled_window, let's use that as the atom tree.
+   // If not, make a new one and add it into scrolled_window.
+
+   GList *dlist = gtk_container_get_children(GTK_CONTAINER(scrolled_window));
+   GList *free_list = dlist;
+   while (dlist) {
+      GtkWidget *list_item = GTK_WIDGET(dlist->data);
+      if (GTK_IS_TREE_VIEW(list_item)) {
+         atom_tree = GTK_TREE_VIEW(list_item);
+      }
+      dlist = dlist->next;
+   }
+   g_list_free(free_list);
    
-   bool need_renderer = 1; 
+   bool need_renderer = true;
    if (!atom_tree) {
       // std::cout << "making new atom_tree..." << std::endl;
       // add a new one
       atom_tree = GTK_TREE_VIEW(gtk_tree_view_new());
       // GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window), "go_to_atom_atom_scrolledwindow");
-      GtkWidget *scrolled_window = widget_from_builder("go_to_atom_atom_scrolledwindow");
       // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
       //   				    GTK_WIDGET(atom_tree));
       gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_tree));
-   } else {
-      // std::cout << "using a pre-existing atom tree...\n";
    }
 
    std::string ins_code_str(ins_code);
@@ -520,13 +581,11 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
       GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (atom_tree);
       gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
       // double clicks
-      g_signal_connect(atom_tree, "row-activated",
-		       (GCallback) atom_tree_atom_row_activated, NULL);
+      g_signal_connect(atom_tree, "row-activated", G_CALLBACK(atom_tree_atom_row_activated), NULL);
       gtk_tree_selection_set_select_function (tree_sel,
 					      graphics_info_t::atom_tree_selection_func,
 					      NULL, NULL);
    }
-      
 }
 
 // static

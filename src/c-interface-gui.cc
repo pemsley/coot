@@ -2122,7 +2122,8 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 	    int x_pos = graphics_info_t::graphics_x_position - 100;
 	    int y_pos = graphics_info_t::graphics_y_position + 100;
 	    if (x_pos < 5) x_pos = 5;
-	    std::cout << "GTK-FIXME no gtk_widget_set_uposition F" << std::endl;
+            if (false) // 20220315-PE I don't care at the moment and this is noisy
+               std::cout << "GTK-FIXME no gtk_widget_set_uposition F" << std::endl;
 	    // gtk_widget_set_uposition(window, x_pos, y_pos);
 	 }
       }
@@ -4655,13 +4656,16 @@ GtkWidget *wrapped_create_goto_atom_window() {
 	 gtk_widget_show(widget);
       else
          gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(widget))); // can I just cast it like this?
-      std::cout << "GTK-FIXME no raise wrapped_create_goto_atom_window()" << std::endl;
+      // std::cout << "GTK-FIXME no raise wrapped_create_goto_atom_window()" << std::endl;
 #endif
+
    } else {
-      widget = create_goto_atom_window();
+      // widget = create_goto_atom_window();
+      widget = widget_from_builder("goto_atom_window");
       graphics_info_t::go_to_atom_window = widget;
       if (graphics_info_t::go_to_atom_window_x_position > -1) {
-	 std::cout << "GTK-FIXME no gtk_widget_set_uposition F" << std::endl;
+         if (false) // 20220315-PE too much noise - I shold fix this later
+            std::cout << "GTK-FIXME no gtk_widget_set_uposition F2" << std::endl;
 
          // GTK3 - you can't set widget/window positions.
          // 	 gtk_widget_set_uposition(widget,
