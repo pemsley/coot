@@ -3901,7 +3901,7 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
       combine_textures_using_depth_framebuffer.init(sf * width, sf * height, index_offset, "combine");
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
-      std::cout << "reset_frame_buffers w " << sf * width << " h " << sf * height << std::endl;
+      std::cout << "debug:: reset_frame_buffers() sf " << sf << " width " << width << " height " << height << std::endl;
 
       // index_offset = 0;
       // g.blur_framebuffer.init(width, height, index_offset, "blur");

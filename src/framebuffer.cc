@@ -41,7 +41,7 @@ framebuffer::reset(int width, int height) {
    if (err)
       std::cout << "--- start framebuffer " << name << " init() err is " << err << std::endl;
 
-   if (true)
+   if (false)
       std::cout << "debug:: framebuffer::reset() calling generate_framebuffer_object() " << name
                 << " with " << width << " " << height << std::endl;
 
@@ -171,8 +171,9 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
    err = glGetError();
    if (err) std::cout << "GL ERROR:: generate_framebuffer_object() D \"" << name << "\" err is " << err << std::endl;
 
-   std::cout << "debug:: framebuffer::generate_framebuffer_object() currently drawbuffer.size() is " << drawbuffer.size()
-             << " for " << name << std::endl;
+   if (false)
+      std::cout << "debug:: framebuffer::generate_framebuffer_object() currently drawbuffer.size() is " << drawbuffer.size()
+                << " for " << name << std::endl;
 
    // add attachments
    drawbuffer.push_back(GL_COLOR_ATTACHMENT0 + attachment_index_color_texture);
