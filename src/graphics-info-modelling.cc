@@ -4079,7 +4079,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       y_add = screen_vectors.screen_z.y() * x_diff * 0.002 * zoom;
       z_add = screen_vectors.screen_z.z() * x_diff * 0.002 * zoom;
    }
-   std::cout << "Here 1 with x_add, y_add z_add " << x_add << " " << y_add << " " << z_add << std::endl;
+   // std::cout << "Here 1 with x_add, y_add z_add " << x_add << " " << y_add << " " << z_add << std::endl;
 
    if (do_rotation) {
 

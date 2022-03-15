@@ -1323,16 +1323,12 @@ graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
    int state = 0;
    if (g.in_rot_trans_object_define) {
 
-      std::cout << "Here 1 " << std::endl;
       if (g.rot_trans_object_type == ROT_TRANS_TYPE_RESIDUE) {
-         std::cout << "Here 2 " << std::endl;
          pick_info naii = atom_pick(event);
          if (naii.success == GL_TRUE) {
-            std::cout << "Here 3 " << std::endl;
             g.rot_trans_atom_index_1 = naii.atom_index;
             g.rot_trans_atom_index_2 = naii.atom_index;
             g.imol_rot_trans_object = naii.imol;
-            std::cout << "Here 4 callign execute_rotate_translate_ready()" << std::endl;
             g.execute_rotate_translate_ready();
             fleur_cursor();
             g.in_rot_trans_object_define = 0;
