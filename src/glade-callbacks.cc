@@ -290,8 +290,8 @@ on_density_ok_button_clicked_gtkbuilder_callback           (GtkButton       *but
 /*    entry_char_type *text; */
    const char *text;
 
-   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_radius_xray_entry"));
-   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_radius_em_entry"));
+   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_xray_radius_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_paameters_em_radius_entry"));
    const char *text_xray = gtk_entry_get_text(entry_xray);
    const char *text_em   = gtk_entry_get_text(entry_em);
    int imol = -1;
@@ -326,29 +326,29 @@ on_density_ok_button_clicked_gtkbuilder_callback           (GtkButton       *but
 
    set_map_sampling_rate_text(text);
 
+   // what a mish-mash of naming schemes. (it was one of the very first dialogs)
+   GtkWidget *dialog = widget_from_builder("global_map_properties_window");
+   gtk_widget_hide(dialog);
 
-
- /* Goodbye Mr Widget */
-
-   gtk_widget_destroy(widget_from_builder(
-				     "global_map_properties_window"));
 }
 /* In the menubar, Edit Density size has been selected. */
+// this is now map_parameters "Map Parameters"
 extern "C" G_MODULE_EXPORT
 void
 on_density_size1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
-                                               gpointer         user_data)
-{
-   GtkWidget *density_window;
-   GtkWidget *checkbutton;
+                                               gpointer         user_data) {
+
    char *text;
    int imol = 0;		/* FIXME */
 
-   density_window = create_global_map_properties_window();
-   GtkWidget *entry = widget_from_builder("entry1");
+   // this widget is looked up in
+   // on_density_ok_button_clicked_gtkbuilder_callback()
 
-   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_radius_xray_entry"));
-   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_radius_em_entry"));
+   GtkWidget *density_window = widget_from_builder("global_map_properties_window");
+
+   // 20220315-PE archaic but OK for now
+   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_parameters_em_radius_entry"));
    text = get_text_for_density_size_widget(); /* const gchar *text */
    gtk_entry_set_text(entry_xray, text);
    text = get_text_for_density_size_em_widget(); /* const gchar *text */
@@ -356,14 +356,15 @@ on_density_size1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    free (text);
    text = 0;
 
- /* Now the iso level increment entry  */
+   /* Now the iso level increment entry  */
 
+   GtkWidget *entry;
    entry = widget_from_builder("iso_level_increment_entry");
    text = get_text_for_iso_level_increment_entry(imol);
 
    gtk_entry_set_text(GTK_ENTRY(entry), text);
 
- /* Now the iso level for the differenece map increment entry  */
+   /* Now the iso level for the differenece map increment entry  */
 
    entry = widget_from_builder("diff_map_iso_level_increment_entry");
    text = get_text_for_diff_map_iso_level_increment_entry(imol);
@@ -376,7 +377,7 @@ on_density_size1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 
    gtk_entry_set_text(GTK_ENTRY(entry), text);
 
-   checkbutton = widget_from_builder("map_dynamic_map_sampling_checkbutton");
+   GtkWidget *checkbutton = widget_from_builder("map_dynamic_map_sampling_checkbutton");
    set_map_dynamic_map_sampling_checkbutton(checkbutton);
    checkbutton = widget_from_builder("map_dynamic_map_size_display_checkbutton");
    set_map_dynamic_map_display_size_checkbutton(checkbutton);
@@ -8231,15 +8232,26 @@ on_entry1_key_press_event_gtkbuilder_callback              (GtkWidget       *wid
   return FALSE;
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_map_radius_x_ray_apply_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                               gpointer         user_data) {
+
+   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_parameters_em_radius_entry"));
+   const char *text = gtk_entry_get_text(entry_xray);
+   set_density_size_from_widget(text);
+}
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_radius_apply_button_clicked_gtkbuilder_callback     (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkEntry *entry = GTK_ENTRY(widget_from_builder("map_radius_xray_entry"));
-   const char *text = gtk_entry_get_text(entry);
-   set_density_size_from_widget(text);
+on_map_radius_em_apply_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                          gpointer         user_data) {
+
+   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_parameters_em_radius_entry"));
+   const char *text = gtk_entry_get_text(entry_em);
+   set_density_size_em_from_widget(text);
 }
 
 

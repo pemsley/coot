@@ -7779,7 +7779,7 @@ that you wish to delete.               </property>
                           <object class="GtkLabel" id="label92">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  Angstroms  </property>
+                            <property name="label" translatable="yes">  Ångströms  </property>
                             <property name="justify">center</property>
                           </object>
                           <packing>
@@ -7829,7 +7829,7 @@ that you wish to delete.               </property>
                           <object class="GtkLabel" id="label93">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  Angstroms  </property>
+                            <property name="label" translatable="yes">  Ångströms  </property>
                             <property name="justify">center</property>
                           </object>
                           <packing>
@@ -10264,7 +10264,7 @@ Do you want to continue?
                   <object class="GtkLabel" id="label6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Map Radius: </property>
+                    <property name="label" translatable="yes">Map Radius x-ray: </property>
                     <property name="justify">center</property>
                   </object>
                   <packing>
@@ -10275,7 +10275,7 @@ Do you want to continue?
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry1">
+                  <object class="GtkEntry" id="map_parameters_x_ray_radius_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="primary_icon_activatable">False</property>
@@ -10293,7 +10293,7 @@ Do you want to continue?
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Angstroems</property>
+                    <property name="label" translatable="yes">Ångströms</property>
                     <property name="justify">center</property>
                   </object>
                   <packing>
@@ -10304,13 +10304,13 @@ Do you want to continue?
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="map_radius_apply_button">
+                  <object class="GtkButton" id="map_radius_x_ray_apply_button">
                     <property name="label" translatable="yes">  Apply  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_map_radius_apply_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_map_radius_x_ray_apply_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -10338,6 +10338,68 @@ Do you want to continue?
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="map_parameters_em_radius_hbox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Map Radius EM: </property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">7</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="map_parameters_em_radius_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Ångströms</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">18</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="map_radius_em_apply_button">
+                <property name="label" translatable="yes">Apply</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_map_radius_em_apply_button_clicked_gtkbuilder_callback" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
           </packing>
         </child>
         <child>
@@ -10381,7 +10443,7 @@ Do you want to continue?
                   <object class="GtkLabel" id="label33">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">e/A^3</property>
+                    <property name="label" translatable="yes">e/Å^3</property>
                     <property name="justify">center</property>
                   </object>
                   <packing>
@@ -10397,7 +10459,7 @@ Do you want to continue?
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
         <child>
@@ -10440,7 +10502,7 @@ Do you want to continue?
                   <object class="GtkLabel" id="label35">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">e/A^3</property>
+                    <property name="label" translatable="yes">e/Å^3</property>
                     <property name="justify">center</property>
                   </object>
                   <packing>
@@ -10456,7 +10518,7 @@ Do you want to continue?
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child>
@@ -10504,7 +10566,7 @@ Do you want to continue?
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
         <child>
@@ -10557,7 +10619,7 @@ Do you want to continue?
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">6</property>
+            <property name="position">7</property>
           </packing>
         </child>
         <child>
@@ -10569,7 +10631,7 @@ Do you want to continue?
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="padding">6</property>
-            <property name="position">7</property>
+            <property name="position">8</property>
           </packing>
         </child>
         <child>
@@ -10693,7 +10755,7 @@ Do you want to continue?
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">8</property>
+            <property name="position">9</property>
           </packing>
         </child>
       </object>
@@ -10780,7 +10842,7 @@ Do you want to continue?
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkTable" id="table5">
+                      <object class="GtkTable" id="go_to_atom_attributes_table">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="border_width">2</property>
@@ -10810,7 +10872,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkBox" id="hbox26">
-                            <property name="width_request">160</property>
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="border_width">2</property>
@@ -10852,7 +10914,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkBox" id="hbox25">
-                            <property name="width_request">160</property>
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="border_width">2</property>
@@ -10867,7 +10929,7 @@ Do you want to continue?
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
+                                <property name="fill">False</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -10894,7 +10956,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkBox" id="hbox24">
-                            <property name="width_request">140</property>
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="border_width">2</property>
@@ -19925,7 +19987,7 @@ just the cell and symmetry)
                           <object class="GtkLabel" id="label236">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes"> Angstroms </property>
+                            <property name="label" translatable="yes"> Ångströms </property>
                             <property name="justify">center</property>
                             <property name="xalign">0</property>
                           </object>
@@ -19942,7 +20004,7 @@ just the cell and symmetry)
                           <object class="GtkLabel" id="label235">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes"> Angstroms </property>
+                            <property name="label" translatable="yes"> Ångströms </property>
                             <property name="justify">center</property>
                             <property name="xalign">0</property>
                           </object>
@@ -23078,7 +23140,7 @@ Sorry.
               <object class="GtkLabel" id="label52">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Angstroems</property>
+                <property name="label" translatable="yes">Ångströms</property>
                 <property name="justify">center</property>
               </object>
               <packing>
