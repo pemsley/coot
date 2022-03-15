@@ -355,6 +355,18 @@ void set_effects_shader_output_type(unsigned int type) {
    graphics_draw();
 }
 
+//! \brief adjust the effects shader brightness
+void set_effects_shader_brightness(float f) {
+   graphics_info_t::effects_brightness = f;
+   graphics_draw();
+}
+
+//! \brief adjust the effects shader gamma
+void set_effects_shader_gamma(float f) {
+   graphics_info_t::effects_gamma = f;
+   graphics_draw();
+}
+
 
 //! \brief set the shadow softness (1, 2 or 3)
 void set_shadow_softness(unsigned int softness) {

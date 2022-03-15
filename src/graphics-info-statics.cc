@@ -1649,6 +1649,9 @@ bool graphics_info_t::use_ssao  = true;  // in the effects filter, adds (or not)
 bool graphics_info_t::show_just_ssao = false; // in the effects filter, shows *just* the SSAO effects
 unsigned int graphics_info_t::effects_shader_output_type(EFFECTS_SHADER_STANDARD);
 
+float graphics_info_t::effects_brightness = 1.0f;
+float graphics_info_t::effects_gamma = 1.0f;
+
 Shader graphics_info_t::shader_for_tmeshes_for_ssao;
 Shader graphics_info_t::shader_for_meshes_for_ssao;
 

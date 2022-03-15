@@ -1549,6 +1549,12 @@ void set_shadow_texture_resolution_multiplier(unsigned int m);
 //! \brief adjust the effects shader output type (for debugging effects)
 void set_effects_shader_output_type(unsigned int type);
 
+//! \brief adjust the effects shader brightness
+void set_effects_shader_brightness(float f);
+
+//! \brief adjust the effects shader gamma
+void set_effects_shader_gamma(float f);
+
 // testing function
 void read_test_gltf_models();
 

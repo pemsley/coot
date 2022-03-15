@@ -4801,6 +4801,9 @@ string   static std::string sessionid;
    static float ssao_strength;
    static bool show_just_ssao; // show *just* the SSAO colour in the effects shader
 
+   static float effects_brightness;
+   static float effects_gamma;
+
    static void renderQuad();
    static std::vector<glm::vec3> ssaoKernel;
    // Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));

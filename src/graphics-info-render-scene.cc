@@ -338,6 +338,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
                shader_for_effects.set_vec4_for_uniform("background_colour", bg_col);
                shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
+               shader_for_effects.set_float_for_uniform("brightness", effects_brightness);
+               shader_for_effects.set_float_for_uniform("gamma",      effects_gamma);
+
                err = glGetError();
                if (err)
                   std::cout << "GL ERROR:: render_scene_sans_depth_blur() D err " << err << std::endl;
@@ -638,6 +641,8 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
                shader_for_effects.set_vec4_for_uniform("background_colour", bg_col);
                shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
+               shader_for_effects.set_float_for_uniform("brightness", effects_brightness);
+               shader_for_effects.set_float_for_uniform("gamma",      effects_gamma);
                GLenum err = glGetError();
                if (err)
                   std::cout << "GL ERROR:: render_scene_sans_depth_blur() D err " << err << std::endl;

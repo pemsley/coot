@@ -257,6 +257,8 @@ on_shader_settings_fancy_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleB
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
       set_use_fancy_lighting(1);
+      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      gtk_widget_set_sensitive(fancy_vbox, TRUE);
    }
 }
 
@@ -269,9 +271,33 @@ on_shader_settings_standard_mode_radiobutton_toggled_gtkbuilder_callback(GtkTogg
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
       set_use_fancy_lighting(0);
+      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      gtk_widget_set_sensitive(fancy_vbox, FALSE);
+   } else {
+      GtkWidget    *basic_mode_checkbutton = widget_from_builder("shader_settings_basic_mode_radiobutton");
+      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      bool is_fancy_mode = true;
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_checkbutton))) is_fancy_mode = false;
+      if (! is_fancy_mode)
+         gtk_widget_set_sensitive(fancy_vbox, FALSE);
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_shader_settings_brightness_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+                                                                      gpointer         user_data) {
+   gdouble f = gtk_range_get_value(range);
+   set_effects_shader_brightness(f);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_shader_settings_gamma_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+                                                                 gpointer         user_data) {
+   gdouble f = gtk_range_get_value(range);
+   set_effects_shader_gamma(f);
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -281,5 +307,14 @@ on_shader_settings_basic_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleB
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(1);
       set_use_fancy_lighting(0);
+      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      gtk_widget_set_sensitive(fancy_vbox, FALSE);
+   } else {
+      GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_radiobutton");
+      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      bool is_fancy_mode = true;
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton))) is_fancy_mode = false;
+      if (! is_fancy_mode)
+         gtk_widget_set_sensitive(fancy_vbox, FALSE);
    }
 }

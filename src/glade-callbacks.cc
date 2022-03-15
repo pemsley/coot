@@ -6623,6 +6623,8 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    GtkWidget *r5 = widget_from_builder("shader_settings_depth_blur_focus_depth_scale");
    GtkWidget *r6 = widget_from_builder("shader_settings_depth_blur_strength_scale");
    GtkWidget *r7 = widget_from_builder("shader_settings_ssao_bias_scale");
+   GtkWidget *r8 = widget_from_builder("shader_settings_brightness_scale");
+   GtkWidget *r9 = widget_from_builder("shader_settings_gamma_scale");
 
    GtkWidget *sssb_0 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_0_radiobutton");
    GtkWidget *sssb_1 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_1_radiobutton");
@@ -6678,6 +6680,14 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    else
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_depth_fog_checkbutton), FALSE);
 
+   // make this insensitve if mode is not fancy
+   GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+   bool is_fancy_mode = true;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_checkbutton)))    is_fancy_mode = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton))) is_fancy_mode = false;
+   if (! is_fancy_mode)
+      gtk_widget_set_sensitive(fancy_vbox, FALSE);
+
    double v1 = graphics_info_t::ssao_strength;
    double v2 = graphics_info_t::SSAO_radius;
    double v3 = graphics_info_t::n_ssao_kernel_samples;
@@ -6685,6 +6695,8 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    double v5 = graphics_info_t::focus_blur_z_depth;
    double v6 = graphics_info_t::focus_blur_strength;
    double v7 = graphics_info_t::SSAO_bias;
+   double v8 = graphics_info_t::effects_brightness;
+   double v9 = graphics_info_t::effects_gamma;
 
    gtk_range_set_range(GTK_RANGE(r1), 0.0, 2.0);
    gtk_range_set_value(GTK_RANGE(r1), v1);
@@ -6700,6 +6712,10 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    gtk_range_set_value(GTK_RANGE(r6), v6);
    gtk_range_set_range(GTK_RANGE(r7), 0.0, 0.4);
    gtk_range_set_value(GTK_RANGE(r7), v7);
+   gtk_range_set_range(GTK_RANGE(r8), 0.0, 3.0);
+   gtk_range_set_value(GTK_RANGE(r8), v8);
+   gtk_range_set_range(GTK_RANGE(r9), 0.0, 2.0);
+   gtk_range_set_value(GTK_RANGE(r9), v9);
 
    gtk_widget_show(w);
 }
