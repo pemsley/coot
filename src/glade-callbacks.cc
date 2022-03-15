@@ -9007,13 +9007,12 @@ extern "C" G_MODULE_EXPORT
 void
 on_display_control_all_maps_togglebutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton))
-    set_all_maps_displayed(1);
-  else
-    set_all_maps_displayed(0);
+   if (gtk_toggle_button_get_active(togglebutton))
+      set_all_maps_displayed(1);
+   else
+      set_all_maps_displayed(0);
 
 }
 
@@ -9022,12 +9021,12 @@ extern "C" G_MODULE_EXPORT
 void
 on_display_control_all_models_togglebutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
-    set_all_models_displayed_and_active(1);
-  else
-    set_all_models_displayed_and_active(0);
+                                        gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton))
+      set_all_models_displayed_and_active(1);
+   else
+      set_all_models_displayed_and_active(0);
 
 }
 

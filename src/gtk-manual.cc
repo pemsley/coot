@@ -734,6 +734,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_show(display_checkbutton);
    gtk_box_pack_start(GTK_BOX(hbox), display_checkbutton, FALSE, FALSE, 2);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), map_is_displayed(imol));
+   g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_checkbutton); // for set_display_control_button_state()
 
    // 4: "Scroll" checkbutton
    GtkWidget *previous_radio_button = get_radio_button_in_scroll_group(imol);
@@ -768,17 +769,14 @@ display_control_map_combo_box(const std::string &name, int imol) {
 
 
 void
-on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button,
-						   gpointer         user_data) {
+on_display_control_map_displayed_button_toggled(GtkToggleButton       *button,
+                                                gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-   std::cout << "in on_display_control_map_displayed_button_toggled() with imol " << imol << std::endl;
 
    if (gtk_toggle_button_get_active(button)) {
-      std::cout << "in on_display_control_map_displayed_button_toggled() path 1 " << std::endl;
       set_map_displayed(imol, 1);
    } else {
-      std::cout << "in on_display_control_map_displayed_button_toggled() path 2 " << std::endl;
       set_map_displayed(imol, 0);
    }
 }

@@ -5869,13 +5869,18 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
 
    //   button type is "Active" or "Displayed"
    if (false)
-      std::cout << "start: set_display_control_button_state() " << imol << " " << button_type
+      std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
                 << " new_state: " << state << std::endl;
 
-   GtkWidget *display_control_molecule_vbox = widget_from_builder("display_molecule_vbox");
-   if (GTK_IS_BOX(display_control_molecule_vbox)) {
+   GtkWidget *display_control_vbox = nullptr;
+   if (is_valid_model_molecule(imol))
+      display_control_vbox = widget_from_builder("display_molecule_vbox");
+   if (is_valid_map_molecule(imol))
+      display_control_vbox = widget_from_builder("display_map_vbox");
+
+   if (GTK_IS_BOX(display_control_vbox)) {
  
-      GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_control_molecule_vbox));
+      GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_control_vbox));
       GList *free_list = dlist;
 
       while (dlist) {
@@ -5883,11 +5888,13 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
          if (true) {
             int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
             if (imol_widget == imol) {
-               if (button_type == "Active") {
-                  GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "active_toggle_button"));
-                  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
+               if (is_valid_model_molecule(imol)) {
+                  if (button_type == "Active") {
+                     GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "active_toggle_button"));
+                     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
+                  }
                }
-               if (button_type == "Displayed") {
+               if (button_type == "Displayed") { // molecule and map types
                   GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "display_toggle_button"));
                   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
                }
@@ -5980,9 +5987,9 @@ void set_all_maps_displayed(int on_or_off) {
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_map_molecule(imol)) {
-	 graphics_info_t::molecules[imol].set_mol_is_active(on_or_off);
-	 if (g.display_control_window())
+	 if (g.display_control_window()) {
 	    set_display_control_button_state(imol, "Displayed", on_or_off);
+         }
       }
    }
    g.mol_displayed_toggle_do_redraw = true;
