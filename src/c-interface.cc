@@ -2934,7 +2934,8 @@ int get_colour_map_rotation_on_read_pdb_c_only_flag() {
 /* widget work */
 GtkWidget *wrapped_create_coords_colour_control_dialog() {
 
-   GtkWidget *w = create_coords_colour_control_dialog();
+   // GtkWidget *w = create_coords_colour_control_dialog();
+   GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
 
    graphics_info_t g;
    g.fill_bond_colours_dialog_internal(w);

@@ -8096,11 +8096,10 @@ extern "C" G_MODULE_EXPORT
 void
 on_coord_colour_control_ok_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -8111,8 +8110,10 @@ on_bond_colours1_activate_gtkbuilder_callback              (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = wrapped_create_coords_colour_control_dialog();
-  gtk_widget_show(w);
+   // note on_coord_colour_control_ok_button_clicked_gtkbuilder_callback()
+   // (above)
+   GtkWidget *w = wrapped_create_coords_colour_control_dialog(); // uses builder
+   gtk_widget_show(w);
 
 }
 

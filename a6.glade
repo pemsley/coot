@@ -5782,6 +5782,8 @@ the Ctrl key when moving the mouse.</property>
     </child>
   </object>
   <object class="GtkDialog" id="coords_colour_control_dialog">
+    <property name="width_request">380</property>
+    <property name="height_request">380</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Molecule Colours</property>
     <property name="type_hint">dialog</property>
@@ -6036,7 +6038,7 @@ the Ctrl key when moving the mouse.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkFrame" id="frame172">
+                      <object class="GtkFrame" id="bond_parameters_rotate_colour_map_c_only_frame">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="border_width">2</property>

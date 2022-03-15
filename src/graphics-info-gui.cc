@@ -4261,6 +4261,10 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
    }
 
+   // 20220315-PE  but it doesn't work and who wants this mode anyway? Pink nitrogens?
+   //
+   GtkWidget *frame_c_only = widget_from_builder("bond_parameters_rotate_colour_map_c_only_frame");
+   gtk_widget_hide(frame_c_only);
 
    // Now the tricky bit, fill the scrolled vbox of molecule colour rotation step sliders:
 
@@ -4271,6 +4275,8 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
    GtkWidget *label269;
    GtkWidget *label270;
    GtkWidget *coords_colour_hscale_mol_N;
+
+   clear_out_container(coords_colours_vbox);
 
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
