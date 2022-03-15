@@ -1,4 +1,8 @@
 
+#include <vector>
+#include <string>
+#include <fstream>
+
 namespace coot {
 
    class history_list_t {

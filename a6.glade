@@ -20180,7 +20180,8 @@ just the cell and symmetry)
   <object class="GtkWindow" id="python_window">
     <property name="can_focus">False</property>
     <property name="border_width">10</property>
-    <property name="title" translatable="yes">window2</property>
+    <property name="title" translatable="yes">Coot: Python Scripting</property>
+    <property name="default_width">400</property>
     <child>
       <object class="GtkBox" id="vbox41">
         <property name="visible">True</property>
@@ -20188,7 +20189,6 @@ just the cell and symmetry)
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow4">
-            <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="shadow_type">in</property>
             <child>

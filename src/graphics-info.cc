@@ -1659,16 +1659,13 @@ graphics_info_t::run_post_read_model_hook(int imol) {
 
 #ifdef USE_GUILE
 
-   std::cout << "HHHHHHere 0 " << std::endl;
    s = "post-read-model-hook";
    SCM v = safe_scheme_command(s.c_str());
    std::cout << "scm v " << v << std::endl;
    if (scm_is_true(scm_procedure_p(v))) {
-      std::cout << "HHHHHHere 1 " << std::endl;
       s += "(" + s + " " + int_to_string(imol) + ")";
       SCM result = safe_scheme_command(s);
    } else {
-      std::cout << "HHHHHHere 2 " << std::endl;
    }
 #endif
 

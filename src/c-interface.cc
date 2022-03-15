@@ -7000,16 +7000,15 @@ void post_python_scripting_window() {
 
    } else {
 
-     // let's load the simple window
+      // let's load the simple window
 
-      GtkWidget *window;
-      GtkWidget *python_entry;
-      window = create_python_window();
+      GtkWidget *window = widget_from_builder("python_window");
+
       // python_entry = lookup_widget(window, "python_window_entry");
 
       // old but better python script? Hmm.
       // Probably not. Anyway, for another time to resolve/delete
-      python_entry = widget_from_builder("python_window_entry");
+      GtkWidget *python_entry = widget_from_builder("python_window_entry");
       setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
       gtk_widget_show(window);
 
