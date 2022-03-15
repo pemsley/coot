@@ -3070,7 +3070,7 @@ public:
    // used by above:
    // (imol should be encoded into vbox - it isn't yet) // FIXME
    int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type, edit_chi_edit_type mode);
-   void clear_out_container(GtkWidget *vbox);
+   static void clear_out_container(GtkWidget *vbox);
    static std::string chi_angle_alt_conf;
 
    // multi-residue torsion

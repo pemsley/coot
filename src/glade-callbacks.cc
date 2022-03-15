@@ -8015,7 +8015,7 @@ on_ncs_control_ok_button_clicked_gtkbuilder_callback       (GtkButton       *but
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("ncs_control_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -8093,7 +8093,7 @@ void
 on_ncs_ghost_control1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *w = wrapped_create_ncs_control_dialog();
+   GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
    gtk_widget_show(w);
 }
 

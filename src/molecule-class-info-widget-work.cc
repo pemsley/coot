@@ -319,6 +319,8 @@ molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) con
    }
 }
 
+#include "graphics-info.h" // 20220315-PE becaause we want clear_out_container().
+                           // (no, it's not a good arangement)
 
 // NCS control
 void
@@ -341,6 +343,9 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    GSList *molecule_n_ncs_master_chain_gr_group = NULL;
    GtkWidget *ncs_controller_ncs_master_chain_ich_radiobutton;
    // GtkTooltips *tooltips;
+
+   // funny place to put this function...
+   graphics_info_t::clear_out_container(ncs_control_vbox);
 
    std::string m("Molecule ");
    std::string imol_str = coot::util::int_to_string(imol_no);

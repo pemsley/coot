@@ -272,7 +272,7 @@ void ncs_update_ghosts(int imol) {
 
 GtkWidget *wrapped_create_ncs_control_dialog() {
 
-   GtkWidget *w = create_ncs_control_dialog();
+   GtkWidget *w = widget_from_builder("ncs_control_dialog");
 
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++)
       if (is_valid_model_molecule(imol))
