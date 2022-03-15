@@ -8597,7 +8597,7 @@ on_least_squares_close_button_clicked_gtkbuilder_callback  (GtkButton       *but
 {
   GtkWidget *w = widget_from_builder("least_squares_dialog");
   update_lsq_dialog_store_values(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -8610,7 +8610,7 @@ on_least_squares_cancel_button_clicked_gtkbuilder_callback (GtkButton       *but
 {
 
   GtkWidget *w = widget_from_builder("least_squares_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -8621,8 +8621,8 @@ on_lsq_superpose1_activate_gtkbuilder_callback             (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = wrapped_create_least_squares_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_least_squares_dialog(); // uses builder
+   gtk_widget_show(w);
 
 }
 

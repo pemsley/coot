@@ -13899,51 +13899,14 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                 </child>
                 <child>
                   <object class="GtkButton" id="least_squares_cancel_button">
+                    <property name="label">gtk-close</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="border_width">2</property>
+                    <property name="use_stock">True</property>
+                    <property name="always_show_image">True</property>
                     <signal name="clicked" handler="on_least_squares_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment56">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox207">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1525">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-cancel</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label381">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">  Cancel  </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -13997,7 +13960,15 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="least_squares_reference_molecule_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label293">
@@ -14014,7 +13985,15 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="least_squares_moving_molecule_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
                     </child>
                   </object>
                 </child>
@@ -14106,7 +14085,15 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="least_squares_reference_chain_id_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">5</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -14185,7 +14172,15 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="least_squares_moving_chain_id_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">5</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>

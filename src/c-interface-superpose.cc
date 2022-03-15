@@ -770,9 +770,9 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
    GtkWidget *mov_res_range_2 = widget_from_builder("least_squares_moving_range_2_entry");
 
-   GtkWidget *match_type_all_check_button =  widget_from_builder("least_squares_match_type_all_radiobutton");
-   GtkWidget *match_type_main_check_button = widget_from_builder("least_squares_match_type_main_radiobutton");
-   GtkWidget *match_type_calpha_check_button =widget_from_builder("least_squares_match_type_calpha_radiobutton");
+   GtkWidget *match_type_all_check_button    = widget_from_builder("least_squares_match_type_all_radiobutton");
+   GtkWidget *match_type_main_check_button   = widget_from_builder("least_squares_match_type_main_radiobutton");
+   GtkWidget *match_type_calpha_check_button = widget_from_builder("least_squares_match_type_calpha_radiobutton");
 
    // GtkWidget *ref_mol_chain_id_option_menu = widget_from_builder("least_squares_reference_chain_id");
    // GtkWidget *mov_mol_chain_id_option_menu = widget_from_builder("least_squares_moving_chain_id");
