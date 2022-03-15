@@ -72,7 +72,6 @@ coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_p
    if (init_status) {
       psi_axis_mode = psi_axis; // or should this be in init_internal?!
 
-      std::cout << "::::::::::::::: calling init_internal() " << std::endl;
       init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0, is_kleywegt_plot_flag_in);
       gtk_widget_set_sensitive(rama_view_menu, TRUE);
       plot_type = RAMA;
@@ -188,8 +187,6 @@ coot::rama_plot::resize_mode_changed(int state) {
 bool
 coot::rama_plot::create_dynarama_window() {
 
-   std::cout << "::::::::::::::::::::::::::::::::::::::::::::::::: create_dynarama_window() called " << std::endl;
-
    if (dynawin) {
       // we already have a window, probably hidden, so no need to make a new one
       return 1;
@@ -245,6 +242,7 @@ coot::rama_plot::create_dynarama_window() {
 
                GtkWidget *dynarama_viewport = 0;
                dynawin = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_window"));
+               std::cout << "##### direct from the builder dynawin is  " << dynawin << std::endl;
                dynarama_ok_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_ok_button"));
                dynarama_close_button = GTK_WIDGET(gtk_builder_get_object(builder, "dynarama2_close_button"));
                dynarama_label = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_label"));
@@ -299,9 +297,9 @@ coot::rama_plot::create_dynarama_window() {
                gtk_widget_hide(rama_stats_label2);
 
                // new goocanvass don't wan't or need the viewport. So add the canvas to the scrolled_window
-               std::cout << "::::::: calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
+               // std::cout << "::::::: calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
                gtk_widget_destroy(dynarama_viewport);
-               std::cout << "::::::: back from calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
+               // std::cout << "::::::: back from calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
             }
          }
       }
@@ -375,16 +373,16 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
    canvas = goo_canvas_new();
    root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
-   gtk_widget_set_size_request(scrolled_window, 400, 400);
+   gtk_widget_set_size_request(scrolled_window, 410, 460);
 
    gtk_container_add(GTK_CONTAINER(scrolled_window), canvas);
    // gtk_widget_ref(canvas);
 
    // new 20211103-PE
-   std::cout << ":::::::::: debug setting data for close_button " << dynarama_close_button << " \"rama_plot\" " << this << std::endl;
+   // std::cout << ":::::::::: debug setting data for close_button " << dynarama_close_button << " \"rama_plot\" " << this << std::endl;
    g_object_set_data(G_OBJECT(dynarama_close_button), "rama_plot", (gpointer) this);
 
-   std::cout << ":::::::::: debug setting data for canvas " << canvas << " \"rama_plot\" " << this << std::endl;
+   // std::cout << ":::::::::: debug setting data for canvas " << canvas << " \"rama_plot\" " << this << std::endl;
    g_object_set_data(G_OBJECT(canvas),  "rama_plot", (gpointer) this);
    g_object_set_data(G_OBJECT(canvas), " user_data", (gpointer) this);
    g_object_set_data(G_OBJECT(dynawin), "dynawin", (gpointer) this);
@@ -408,7 +406,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
       std::cout << "rama set the window position here " << std::endl;
    }
 
-   gtk_widget_show (canvas);
+   gtk_widget_show(canvas);
 
    // Normally we have a plot from a molecule (and we communicate back
    // to graphics_info_t that we now have one), but occassionally we
@@ -416,7 +414,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    //
    if (! phipsi_edit_flag && ! backbone_edit_flag)
       // a c-interface function
-      set_dynarama_is_displayed(GTK_WIDGET(canvas), imol);
+      set_dynarama_is_displayed(dynawin, imol); // was canvas. Why would I want to send that?
 
    setup_internal(level_prefered, level_allowed);
    step = step_in;
@@ -622,7 +620,7 @@ coot::rama_plot::draw_rect() {
 void
 coot::rama_plot::draw_it(mmdb::Manager *mol) {
 
-   // std::cout << "here in rama_plot::draw_it with mol " << mol << std::endl;
+   // std::cout << "###### here in rama_plot::draw_it with mol " << mol << std::endl;
 
    if (mol) {
       clear_canvas_items();
@@ -654,7 +652,6 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
 
    int take_bg_image = 1;
 
-
    bg_all = goo_canvas_group_new(root, NULL);
    bg_gly = goo_canvas_group_new(root, NULL);
    bg_pro = goo_canvas_group_new(root, NULL);
@@ -673,27 +670,29 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
           psi_axis_mode == PSI_CLASSIC)
       {
 
-         take_bg_image = make_background_from_image(rama, bg_all, "rama2_all.png");
-         take_bg_image += make_background_from_image(r_gly, bg_gly, "rama2_gly.png");
-         take_bg_image += make_background_from_image(r_pro, bg_pro, "rama2_pro.png");
-         take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
-                                                     "rama2_non_gly_pro.png");
-         take_bg_image += make_background_from_image(r_ileval, bg_ileval,
-                                                     "rama2_ileval.png");
-         take_bg_image += make_background_from_image(r_pre_pro, bg_pre_pro,
-                                                     "rama2_pre_pro.png");
-         take_bg_image += make_background_from_image(r_non_gly_pro_pre_pro_ileval,
-                                                     bg_non_gly_pro_pre_pro_ileval,
-                                                     "rama2_non_gly_pro_pre_pro_ileval.png");
+         take_bg_image =  make_background_from_image(rama,          bg_all,         "rama2_all.png");
+         take_bg_image += make_background_from_image(r_gly,         bg_gly,         "rama2_gly.png");
+         take_bg_image += make_background_from_image(r_pro,         bg_pro,         "rama2_pro.png");
+         take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro, "rama2_non_gly_pro.png");
+         take_bg_image += make_background_from_image(r_ileval,      bg_ileval,      "rama2_ileval.png");
+         take_bg_image += make_background_from_image(r_pre_pro,     bg_pre_pro,     "rama2_pre_pro.png");
+         take_bg_image += make_background_from_image(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval, "rama2_non_gly_pro_pre_pro_ileval.png");
       }
    }
 
-   // no bg done, so lets make the "classic" way
-   if (take_bg_image) {
+   // 20220315-PE it's good if take_bg_image is 0 here (no errors)
+
+   if (take_bg_image > 0) {
+
+      // bg not loaded from image, so lets make the "classic" way
+
+      // sad face path
+      std::cout << "rama_plot::setup_background() PATH E" << std::endl;
       // do at least one:
       if (! blocks && ! isolines)
          blocks = 1;
       if (blocks) {
+         std::cout << "rama_plot::setup_background() PATH F" << std::endl;
          make_background(rama, bg_all);
          make_background(r_gly, bg_gly);
          make_background(r_pro, bg_pro);
@@ -705,6 +704,7 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
       }
 
       if (isolines) {
+         std::cout << "rama_plot::setup_background() PATH G" << std::endl;
          make_isolines(rama, bg_all);
          make_isolines(r_gly, bg_gly);
          make_isolines(r_pro, bg_pro);
@@ -713,12 +713,7 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
          make_isolines(r_pre_pro, bg_pre_pro);
          make_isolines(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
       }
-   } else {
-      make_background(r_ileval, bg_ileval);
-      make_background(r_pre_pro, bg_pre_pro);
-      make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
    }
-
 
    hide_all_background();
    // upon init show all
@@ -880,11 +875,17 @@ coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_typ
    GdkPixbuf *pixbuf = NULL;
    int ret = 0;
 
-   std::string abs_file_name = coot::package_data_dir() + "/pixmaps/";
-   abs_file_name += file_name;
+   std::string dir = coot::package_data_dir();
+   std::string pixmap_dir = coot::util::append_dir_dir(dir, "pixmaps");
+
+   std::string full_file_name = coot::util::append_dir_file(pixmap_dir, file_name);
+   // std::cout << "trying to load pixmap from file " << full_file_name << std::endl;
 
    // check if file exists? Done by pixbuf I guess
-   pixbuf = gdk_pixbuf_new_from_file_at_size(abs_file_name.c_str(), 360, 360, NULL);
+   GError *error = NULL;
+   pixbuf = gdk_pixbuf_new_from_file_at_size(full_file_name.c_str(), 360, 360, &error);
+   if (error)
+      std::cout << "   error status " << error->message << std::endl;
    if (pixbuf) {
       item = goo_canvas_image_new(bg_group, pixbuf,
                                   -180.0, -180.0,
@@ -892,13 +893,14 @@ coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_typ
                                   "height", 360.0,
                                   NULL);
       g_object_unref(pixbuf);
+      ret = 0;
    } else {
-      g_print("BL INFO:: couldnt load rama background file %s, so rendering it with blocks.\n",
-              abs_file_name.c_str());
+      std::cout << "WARNING:: failed to load rama background file " << full_file_name
+                << " so rendering witill be done with blocks" << std::endl;
       ret = 1;
    }
 
-   return ret;
+   return ret; // return 0 on success (no failure)
 }
 
 
@@ -907,8 +909,8 @@ coot::rama_plot::show_background(GooCanvasItem *new_bg) {
 
    if (current_bg != new_bg) {
       if (current_bg)
-         g_object_set (current_bg, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
-      g_object_set (new_bg, "visibility", GOO_CANVAS_ITEM_VISIBLE, NULL);
+         g_object_set(current_bg, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
+      g_object_set(new_bg, "visibility", GOO_CANVAS_ITEM_VISIBLE, NULL);
       current_bg = new_bg;
    }
 }
@@ -1207,7 +1209,7 @@ coot::rama_plot::clear_canvas_items(int all) {
 
 
 void
-coot::rama_plot::destroy_yourself() {
+coot::rama_plot::hide_yourself() {
 
    // I (BL) think we shouldnt destroy but just hide.
    if (dynawin)
@@ -2022,8 +2024,8 @@ coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
 gint
 coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) {
 
-   gchar *res_name = static_cast<gchar *> (g_object_get_data(G_OBJECT(item), "res_name"));
-   gint *is_pre_pro = static_cast<gint *> (g_object_get_data(G_OBJECT(item), "is_pre_pro"));
+   gchar *res_name  = static_cast<gchar *> (g_object_get_data(G_OBJECT(item), "res_name"));
+   gint *is_pre_pro = static_cast<gint *>  (g_object_get_data(G_OBJECT(item), "is_pre_pro"));
 
    // for clarity all copied
    if (strcmp(res_name, "GLY") == 0) {

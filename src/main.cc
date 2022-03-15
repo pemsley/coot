@@ -540,10 +540,6 @@ main (int argc, char *argv[]) {
 
       if (cld.use_gtkbuilder) {
          bool success = init_from_gtkbuilder();
-
-         std::cout << "debug:: hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhistory " << graphics_info_t::command_history.commands.size() << std::endl;
-         
-         
          if (success) {
             GtkWidget *glarea = graphics_info_t::glareas[0];
             setup_application_icon(GTK_WINDOW(graphics_info_t::get_main_window()));

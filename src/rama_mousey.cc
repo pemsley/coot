@@ -37,7 +37,9 @@
 extern "C" G_MODULE_EXPORT void
 on_dynarama2_window_destroy(GObject *caller, gpointer user_data) {
 
-   std::cout << "on_dynarama2_window_destroy() caller-object: " << caller << std::endl;
+   // 20220315-PE this is no longer connected.
+
+   // std::cout << "on_dynarama2_window_destroy() caller-object: " << caller << std::endl;
 
    // maybe no callback from builder for mainwindow!?
    GtkWidget *canvas = GTK_WIDGET(user_data);
@@ -64,6 +66,8 @@ on_dynarama2_window_configure_event(GtkWidget       *widget,
                                    GdkEventConfigure *event,
                                    gpointer         user_data) {
 
+   // std::cout << "DEBUG:: on_dynarama2_window_configure_event() --- start --- " << std::endl;
+
    // maybe no callback from builder for mainwindow!?
    // or use the "new one"
    // do we need this then?
@@ -87,7 +91,7 @@ on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
          int imol = plot->molecule_number();
          if (imol == -9999)
             accept_phi_psi_moving_atoms();
-         gtk_widget_destroy(plot->dynawin);
+         gtk_widget_hide(plot->dynawin); // 20220315-PE hide, not destroy.
       }
    }
 
@@ -129,6 +133,8 @@ on_dynarama2_close_button_clicked_gtkbuilder_callback(GtkButton *button, gpointe
          if (imol == -9999)
             clear_moving_atoms_object();
          gtk_widget_hide(plot->dynawin);
+
+         std::cout << "Hiding Rama plot dynawin for imol " << imol << " " << plot->dynawin << std::endl;
       }
    }
 }
@@ -545,8 +551,8 @@ gboolean rama_item_motion_event (GooCanvasItem *item,
                                 gpointer data) {
 
 
-   coot::rama_plot *plot =
-      static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(item), "rama_plot"));
+   void *p = g_object_get_data(G_OBJECT(item), "rama_plot");
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (p);
 
    plot->item_motion_event(item, event);
 
@@ -579,7 +585,6 @@ gint rama_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       y = event->y;
       state = (GdkModifierType) event->state;
    }
-
 
    return 0;
 }

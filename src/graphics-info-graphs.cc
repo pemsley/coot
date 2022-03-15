@@ -149,7 +149,6 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 
    GtkWidget *w = 0;
    if (graphics_info_t::is_valid_model_molecule(imol)) {
-      bool found = true;
 	switch(type) {
 	case coot::GEOMETRY_GRAPH_GEOMETRY:
 	   w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
@@ -176,10 +175,9 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 	   w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
 	   break;
 	case coot::RAMACHANDRAN_PLOT:
-	   w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
+	   w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed; // terrible name for a widget
 	   break;
 	default:
-	   found = false;
 	   break;
 	}
    }
@@ -351,10 +349,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 void
 graphics_info_t::update_ramachandran_plot(int imol) {
 
-   std::cout << "--------------------------- update_ramachandran_plot() " << imol << std::endl;
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      // this ojbect get data has been changed - the set needs to changed too - whereever that is.
+      // this object get data has been changed - the set needs to changed too - whereever that is.
       coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
       std::cout << "doing handle_rama_plot_update() " << std::endl;
       handle_rama_plot_update(plot);
@@ -367,7 +364,6 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 void
 graphics_info_t::update_validation_graphs(int imol) {
 
-   std::cout << "--------------------------- update_validation_graphs() " << imol << std::endl;
    update_ramachandran_plot(imol);
    // now update the geometry graphs, so get the asc
    atom_selection_container_t u_asc = molecules[imol].atom_sel;

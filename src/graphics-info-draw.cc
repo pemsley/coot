@@ -2732,9 +2732,9 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.stop_refinement_internal();
                            g.accept_moving_atoms();
                            g.hud_button_info.clear();
-                           g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
                            g.clear_gl_rama_plot();
+                           g.graphics_draw();
                            return true;
                    };
 

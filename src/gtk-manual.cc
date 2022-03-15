@@ -189,30 +189,22 @@ create_initial_ramachandran_mol_submenu(GtkWidget *widget) {
 
 void
 rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
-				 gpointer         user_data)
-{
-  int imol = GPOINTER_TO_INT(user_data);
-  GtkWidget *rama_widget = 0;
-/*   printf("selector activate: do rama plot for molecule: %d\n", *imol); */
+				 gpointer         user_data) {
 
-/* We should come here and be given imol.  New molecules should insert
-   themselves into the Ramachandran Plot menu(item). */
+   int imol = GPOINTER_TO_INT(user_data);
 
+   /* We should come here and be given imol.  New molecules should insert
+      themselves into the Ramachandran Plot menu(item). */
 
-  rama_widget = dynarama_is_displayed_state(imol);
-  if (rama_widget == NULL) {
-    do_ramachandran_plot(imol);
-  } else {
-     // if (!GTK_WIDGET_MAPPED(rama_widget))
-     if (true) {
-        gtk_widget_show(rama_widget);
-     } else {
+   GtkWidget *rama_widget = dynarama_is_displayed_state(imol);
+   if (rama_widget == NULL) {
+      do_ramachandran_plot(imol);
+   } else {
+      gtk_widget_show(rama_widget);
 #if (GTK_MAJOR_VERSION < 4)
-        gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
+      gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
 #endif
-     }
-  }
-
+   }
 }
 
 /* And similar for sequence view: */
@@ -230,7 +222,6 @@ void update_sequence_view_menu_manual(int imol, const char *name) {
 
    std::cout << "error:: update_sequence_view_menu_manual(): Don't use this " << std::endl;
 
-   char *text;
    // GtkWidget *window1 = lookup_widget(main_window(), "window1");
    GtkWidget *seq_view_menu = widget_from_builder("seq_view_menu");
    GtkWidget *menu_item;

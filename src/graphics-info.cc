@@ -1617,8 +1617,8 @@ graphics_info_t::accept_moving_atoms() {
 
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
-      // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
+      coot::rama_plot *plot = static_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
+      std::cout << "debug:: accept_moving_atoms:: updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
    }
@@ -4725,7 +4725,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
    if (edit_phi_psi_plot) {
       // we need to get to the widget "dynarama_window" and destroy it.
-      edit_phi_psi_plot->destroy_yourself();
+      edit_phi_psi_plot->hide_yourself();
       edit_phi_psi_plot = 0; // Richard Baxter bug
    } else {
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";

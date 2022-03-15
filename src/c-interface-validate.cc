@@ -1578,8 +1578,6 @@ void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *c
 //
 void set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
-   std::cout << "set_dynarama_is_displayed() called with " << dyna_toplev << " for imol " << imol << std::endl;
-
    graphics_info_t g;
    g.set_dynarama_is_displayed(dyna_toplev, imol);
 

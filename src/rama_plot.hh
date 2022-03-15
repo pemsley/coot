@@ -592,7 +592,7 @@ namespace coot {
       void apply_selection_from_widget();
       void debug() const;
 
-      void destroy_yourself();
+      void hide_yourself();
 
    }; 
 
