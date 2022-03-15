@@ -12336,16 +12336,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkImageMenuItem" id="ncs_ghost_control1">
-                            <property name="label" translatable="yes">NCS Ghost Control...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_ncs_ghost_control1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkMenuItem" id="draw_representation_tools">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
