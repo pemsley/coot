@@ -6764,7 +6764,7 @@ on_ncs_maps_ok_button_clicked_gtkbuilder_callback          (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder("ncs_maps_dialog");
    make_dynamically_transformed_ncs_maps_by_widget(w);
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -6774,7 +6774,7 @@ on_ncs_maps_cancel_button_clicked_gtkbuilder_callback      (GtkButton       *but
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("ncs_maps_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 }
 
 

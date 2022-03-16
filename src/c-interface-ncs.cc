@@ -141,7 +141,8 @@ int add_strict_ncs_from_mtrix_from_self_file(int imol) {
 
 GtkWidget *wrapped_create_ncs_maps_dialog() {
 
-   GtkWidget *dialog = create_ncs_maps_dialog();
+   // GtkWidget *dialog = create_ncs_maps_dialog();
+   GtkWidget *dialog = widget_from_builder("ncs_maps_dialog");
    short int diff_maps_only_flag = 0;
    int ifound;
 
