@@ -496,7 +496,7 @@ graphics_info_t::get_moving_atoms_active_atom(const coot::Cartesian &rc, float w
       }
    }
    return at_moving;
-};
+}
 
 
 #include "ligand/side-chain.hh"

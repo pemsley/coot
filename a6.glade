@@ -13721,6 +13721,20 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
+                      <object class="GtkToolButton" id="model_toolbar_refmac_button">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Refmac</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_widget">image1</property>
+                        <signal name="clicked" handler="on_model_toolbar_refmac_button_clicked_gtkbuilder_callback" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkToolButton" id="model_toolbar_undo_button">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -13742,20 +13756,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="use_underline">True</property>
                         <property name="icon_name">edit-redo</property>
                         <signal name="clicked" handler="on_model_toolbar_redo_button_clicked_gtkbuilder_callback" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_refmac_button">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Refmac</property>
-                        <property name="use_underline">True</property>
-                        <property name="icon_widget">image1</property>
-                        <signal name="clicked" handler="on_model_toolbar_refmac_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>

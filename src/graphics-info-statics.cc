@@ -1672,7 +1672,7 @@ framebuffer graphics_info_t::framebuffer_for_effects;
 
 unsigned int graphics_info_t::shadow_depthMap_framebuffer = 0;
 unsigned int graphics_info_t::shadow_depthMap_texture = 0; // the texture
-float graphics_info_t::shadow_strength = 0.2; // 0 to 1 (strong shadows don't look good)
+float graphics_info_t::shadow_strength = 0.0; // 0 to 1 (strong shadows don't look good)
 unsigned int graphics_info_t::shadow_softness = 2; // 1, 2 or 3
 unsigned int graphics_info_t::shadow_texture_multiplier = 2;
 unsigned int graphics_info_t::shadow_texture_width  = graphics_info_t::shadow_texture_multiplier * 1024;
