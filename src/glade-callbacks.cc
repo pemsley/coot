@@ -8147,16 +8147,19 @@ void on_generic_objects_dialog_response_gtkbuilder_callback(GtkDialog       *dia
 // what a terrible function name!
 extern "C" G_MODULE_EXPORT
 gboolean
-on_entry1_key_press_event_gtkbuilder_callback              (GtkWidget       *widget,
-                                        GdkEventKey     *event,
-                                        gpointer         user_data)
-{
-  GtkEntry *entry = (GTK_ENTRY(widget_from_builder("map_radius_xray_entry")));
-  const char *text = gtk_entry_get_text(entry);
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-    set_density_size_from_widget(text);
-  }
-  return FALSE;
+on_entry1_key_press_event_gtkbuilder_callback(GtkWidget       *widget,
+                                              GdkEventKey     *event,
+                                              gpointer         user_data) {
+
+   // 1: I don't like the name of this callback.
+   // 2: There is no EM version of this.
+
+   GtkEntry *entry = (GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry")));
+   const char *text = gtk_entry_get_text(entry);
+   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+      set_density_size_from_widget(text);
+   }
+   return FALSE;
 }
 
 extern "C" G_MODULE_EXPORT

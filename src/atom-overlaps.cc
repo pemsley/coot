@@ -215,7 +215,12 @@ graphics_info_t::do_interactive_coot_probe() {
             // For speed, I need the lock inside this function, it's ok to release the lock after
             // the contact dots have been found (but before the contact dots meshes have
             // been generated).
+            // auto tp_0 = std::chrono::high_resolution_clock::now();
             coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
+            // auto tp_1 = std::chrono::high_resolution_clock::now();
+            // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+            // 30 ms for chain refine.
+            // std::cout << "INFO:: ---------- Timing for contact dots " << d10 << " milliseconds" << std::endl;
          }
       }
    }

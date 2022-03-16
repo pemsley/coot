@@ -2920,6 +2920,7 @@ graphics_info_t::draw_hud_geometry_bars() {
    auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                        unsigned int bar_index,
                        std::vector<HUD_bar_attribs_t> *new_bars_p,
+                       const coot::residue_spec_t &active_residue_spec,
                        float x_base_for_hud_geometry_bars,
                        float (*distortion_to_rotation_amount)(float),
                        float (*distortion_to_bar_size)(float)) {
@@ -2960,6 +2961,15 @@ graphics_info_t::draw_hud_geometry_bars() {
                             HUD_bar_attribs_t bar(col, position_offset, bar_length);
                             new_bars_p->push_back(bar);
                          }
+
+                         // active residue purple bar (overdraws)
+                         coot::residue_spec_t residue_for_bar(baddies[i].first);
+                         if (residue_for_bar == active_residue_spec) {
+                            glm::vec4 col_pink(1.0f, 0.2f, 1.0f, 0.8f);
+                            HUD_bar_attribs_t bar(col_pink, position_offset, bar_length);
+                            new_bars_p->push_back(bar);
+                         }
+
                          sum_l += bar_length + 0.005; // with a gap between bars
                       }
                    };
@@ -2974,6 +2984,7 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    auto add_rotamer_bars = [rota_sorter] (std::vector<HUD_bar_attribs_t> *new_bars_p,
                                           unsigned int bar_index,
+                                          const coot::residue_spec_t &active_residue_spec,
                                           float x_base_for_hud_geometry_bars,
                                           rotamer_markup_container_t *rotamer_markups,
                                           int n_rotamer_markups) {
@@ -3041,23 +3052,45 @@ graphics_info_t::draw_hud_geometry_bars() {
                                     HUD_bar_attribs_t bar(col, position_offset, bar_length);
                                     new_bars_p->push_back(bar);
                                  }
+
+                                 // active residue purple bar (overdraws)
+                                 coot::residue_spec_t residue_for_bar(v[i].spec);
+                                 if (residue_for_bar == active_residue_spec) {
+                                    glm::vec4 col_pink(1.0f, 0.2f, 1.0f, 0.8f);
+                                    glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                                    HUD_bar_attribs_t bar(col_pink, position_offset, bar_length);
+                                    new_bars_p->push_back(bar);
+                                 }
+
                                  sum_l += bar_length + 0.005; // with a gap between bars
                               }
                            };
 
    std::vector<HUD_bar_attribs_t> new_bars;
 
+   // set the residue spec for the moving molecule.
+   coot::Cartesian rc = get_rotation_centre_cart();
+   float within_radius_limit = 9.0;
+   coot::residue_spec_t moving_atoms_active_residue;
+   mmdb::Atom *mv_at = get_moving_atoms_active_atom(rc, within_radius_limit);
+   if (mv_at) {
+      coot::atom_spec_t mv_at_spec(mv_at);
+      moving_atoms_active_residue = coot::residue_spec_t(mv_at_spec);
+   }
+
    float x_base_for_hud_geometry_bars = get_x_base_for_hud_geometry_bars();
    // add to new_bars
-   add_bars(rr.sorted_atom_pulls, 0, &new_bars, x_base_for_hud_geometry_bars,
+   add_bars(rr.sorted_atom_pulls, 0, &new_bars,
+            moving_atoms_active_residue, x_base_for_hud_geometry_bars,
             distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
 
    if (rr.refinement_results_contain_overall_nbc_score)
-      add_bars(rr.sorted_nbc_baddies, 1, &new_bars, x_base_for_hud_geometry_bars,
-               distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
+      add_bars(rr.sorted_nbc_baddies, 1, &new_bars, moving_atoms_active_residue,
+               x_base_for_hud_geometry_bars, distortion_to_rotation_amount_nbc,
+               hud_geometry_distortion_to_bar_size_nbc);
 
    if (rr.refinement_results_contain_overall_rama_plot_score)
-      add_bars(rr.sorted_rama_baddies, 2, &new_bars, x_base_for_hud_geometry_bars,
+      add_bars(rr.sorted_rama_baddies, 2, &new_bars, moving_atoms_active_residue, x_base_for_hud_geometry_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
 
    // add rotas to new_bars
@@ -3077,7 +3110,9 @@ graphics_info_t::draw_hud_geometry_bars() {
             }
          }
          if (nrms > 0) {
-            add_rotamer_bars(&new_bars, 3, x_base_for_hud_geometry_bars, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
+            add_rotamer_bars(&new_bars, 3, moving_atoms_active_residue,
+                             x_base_for_hud_geometry_bars,
+                             moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
          }
       }
    }

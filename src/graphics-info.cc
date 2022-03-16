@@ -1640,7 +1640,7 @@ graphics_info_t::accept_moving_atoms() {
    // Why do I want to do this when the intermediate atoms are undisplayed?
    // To *clear up* the interactive probe dots.
    if (do_coot_probe_dots_during_refine_flag)
-      do_interactive_coot_probe();
+      do_interactive_coot_probe(); // in accept_moving_atoms() to turn off the dots
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);

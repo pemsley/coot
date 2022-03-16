@@ -4448,7 +4448,6 @@ string   static std::string sessionid;
 
    static bool ignore_pseudo_zeros_for_map_stats;
 
-#ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
    static int  threaded_refinement_loop_counter;
@@ -4456,7 +4455,7 @@ string   static std::string sessionid;
    static bool threaded_refinement_needs_to_clear_up; // because ESC was pressed
    static bool threaded_refinement_needs_to_accept_moving_atoms; // because Return was pressed
    static int  threaded_refinement_redraw_timeout_fn_id; // -1 initially
-#endif // HAVE_CXX_THREAD
+
    static int regenerate_intermediate_atoms_bonds_timeout_function();
    // static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw(); old timeout style
    static gint regenerate_intermediate_atoms_bonds_timeout_function_and_draw(gpointer data);

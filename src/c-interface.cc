@@ -1976,21 +1976,24 @@ PyObject *map_statistics_py(int imol) {
 
 void set_density_size_from_widget(const char *text) {
 
-   graphics_info_t g;
-
-   float tmp = atof(text);
-
-   if ((tmp > 0.0) && (tmp < 9999.9)) {
-      g.box_radius_xray = tmp;
-   } else {
-      std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
-                << text << "\".  Assuming 10A" << std::endl;
-      g.box_radius_xray = 10.0;
-   }
-   //
-   for (int ii=0; ii<g.n_molecules(); ii++) {
-      if (is_valid_map_molecule(ii))
-	  g.molecules[ii].update_map(true);
+   if (text) {
+      try {
+         std::string ss(text);
+         float f = coot::util::string_to_float(ss);
+         if (f > 0.0) {
+            if (f < 1999.9) {
+               graphics_info_t g;
+               g.box_radius_xray = f;
+               for (int ii=0; ii<g.n_molecules(); ii++) {
+                  if (is_valid_map_molecule(ii))
+                     g.molecules[ii].update_map(true);
+               }
+            }
+         }
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
    }
    graphics_draw();
 }
@@ -1998,17 +2001,24 @@ void set_density_size_from_widget(const char *text) {
 void
 set_density_size_em_from_widget(const char *text) {
 
-   float tmp = atof(text);
-   graphics_info_t g;
-   if (tmp > 0.0) {
-      g.box_radius_em = tmp;
-      for (int ii=0; ii<g.n_molecules(); ii++)
-	 if (is_valid_map_molecule(ii))
-	    g.molecules[ii].update_map(true);
-   } else {
-      std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
-		<< text << "\".  Assuming 55A" << std::endl;
-      g.box_radius_em = 55.0;
+   if (text) {
+      try {
+         std::string ss(text);
+         float f = coot::util::string_to_float(ss);
+         if (f > 0.0) {
+            if (f < 1999.9) {
+               graphics_info_t g;
+               g.box_radius_em = f;
+               for (int ii=0; ii<g.n_molecules(); ii++) {
+                  if (is_valid_map_molecule(ii))
+                     g.molecules[ii].update_map(true);
+               }
+            }
+         }
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
    }
    graphics_draw();
 }

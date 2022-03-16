@@ -979,6 +979,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
       if (do_coot_probe_dots_during_refine_flag) {
          g.do_interactive_coot_probe();
+         graphics_draw(); // 20220316-PE is this what I want?
       }
       moving_atoms_bonds_lock = 0;
       moving_atoms_lock = false;
