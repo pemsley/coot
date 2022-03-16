@@ -4167,7 +4167,7 @@ int reset_view() {
 
       // Were we centred anywhere already?
       //
-      bool was_centred = 0;
+      bool was_centred = false;
       int centred_mol = -1;
       float best_fit_for_centred = 9001.1;
 
@@ -4213,14 +4213,12 @@ int reset_view() {
       }
 
 
-      if (! graphics_info_t::perspective_projection_flag) {
-         float size = g.molecules[new_centred_molecule].size_of_molecule();
-         if (size < 1.0) size = 1.0;
-         float new_zoom = 7.0*size;
-         g.setRotationCentreAndZoom(new_centre, new_zoom);
-      } else {
-         g.setRotationCentre(new_centre);
-      }
+      // float size = g.molecules[new_centred_molecule].size_of_molecule();
+      // if (size < 1.0) size = 1.0;
+      // float new_zoom = 7.0*size;
+      // g.setRotationCentreAndZoom(new_centre, new_zoom);
+      g.setRotationCentre(new_centre); // it's a Cartesian
+
       for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
 	 graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
 	 graphics_info_t::molecules[ii].update_symmetry();

@@ -408,8 +408,6 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
 void
 manage_column_selector(const char *filename) {
 
-   std::cout << "debug:: in manage_column_selector" << std::endl;
-
    if (graphics_info_t::use_graphics_interface_flag) {
       // try to read as phs, cif etc, if not, return a selection
       // widget
@@ -503,6 +501,8 @@ get_active_label_in_combobox(GtkComboBox *combobox) {
 void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
 
    // does any of this refmac code work now?
+
+   std::cout << ":::::::::::::::::::::::: handle_column_label_make_fourier_v2() " << std::endl;
 
    // GtkWidget *weights_checkbutton     = lookup_widget(GTK_WIDGET(column_label_window), "use_weights_checkbutton");
    // GtkWidget *is_diff_map_checkbutton = lookup_widget(GTK_WIDGET(column_label_window), "difference_map_checkbutton");
@@ -621,9 +621,10 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
 
    /* --------- make and draw --------- */
 
-   std::cout << "debug:: calling make_and_draw_map_with_reso_with_refmac_params() with the refmac params "
-             << have_refmac_params << " " << fobs_col << " " << sigfobs_col << " " << r_free_col << " " << sensible_r_free_col
-             << std::endl;
+   if (false)
+      std::cout << "debug:: calling make_and_draw_map_with_reso_with_refmac_params() with the refmac params "
+                << have_refmac_params << " " << fobs_col << " " << sigfobs_col << " "
+                << r_free_col << " " << sensible_r_free_col << std::endl;
 
    make_and_draw_map_with_reso_with_refmac_params(mtz_filename.c_str(),
                                                   f_label.c_str(),
@@ -639,8 +640,7 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
                                                   limit_reso_flag,
                                                   low_res_limit, high_res_limit);
 
-   /* We can destroy the column_label_window top level widget now. */
-   gtk_widget_destroy(column_label_window);
+   gtk_widget_hide(column_label_window);
 
 }
 
@@ -1695,33 +1695,33 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
   GtkFileFilter *filterall    = gtk_file_filter_new();
   GtkFileFilter *filterselect = gtk_file_filter_new();
 
-  gtk_file_filter_set_name(filterall, "all-files");
+  gtk_file_filter_set_name(filterall, "All Files");
   gtk_file_filter_add_pattern(filterall, "*");
 
   if (d == COOT_COORDS_FILE_SELECTION || d == COOT_SAVE_COORDS_FILE_SELECTION) {
 
-    gtk_file_filter_set_name (filterselect, "coordinate-files");
+    gtk_file_filter_set_name (filterselect, "CoordinatesFiles");
 
     globs = *graphics_info_t::coordinates_glob_extensions;
   };
 
   if (d == COOT_DATASET_FILE_SELECTION) {
 
-    gtk_file_filter_set_name (filterselect, "data-files");
+    gtk_file_filter_set_name (filterselect, "Data Files");
 
     globs = *graphics_info_t::data_glob_extensions;
   };
 
   if (d == COOT_MAP_FILE_SELECTION) {
 
-    gtk_file_filter_set_name (filterselect, "map-files");
+    gtk_file_filter_set_name (filterselect, "Map Files");
 
     globs = *graphics_info_t::map_glob_extensions;
   };
 
   if (d == COOT_CIF_DICTIONARY_FILE_SELECTION) {
 
-    gtk_file_filter_set_name (filterselect, "dictionary-files");
+    gtk_file_filter_set_name (filterselect, "Dictionary Files");
 
     globs = *graphics_info_t::dictionary_glob_extensions;
   };
@@ -2132,9 +2132,7 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 
 GtkWidget *coot_file_chooser() {
 
-   GtkWidget *w;
-
-   w = create_coords_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("coords_filechooserdialog1");
    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
 
    return w;
@@ -2142,21 +2140,20 @@ GtkWidget *coot_file_chooser() {
 
 GtkWidget *coot_dataset_chooser() {
 
-   GtkWidget *w = create_dataset_filechooserdialog1();
+   // GtkWidget *w = create_dataset_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("dataset_filechooserdialog1");
    return w;
 }
 
 GtkWidget *coot_map_name_chooser() {
 
-   GtkWidget *w = create_map_name_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("map_name_filechooserdialog1");
    return w;
 }
 
 GtkWidget *coot_save_coords_chooser() {
 
-   GtkWidget *w;
-
-   w = create_save_coords_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("save_coords_filechooserdialog1");
    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
 
    return w;
@@ -2164,33 +2161,33 @@ GtkWidget *coot_save_coords_chooser() {
 
 GtkWidget *coot_cif_dictionary_chooser() {
 
-   GtkWidget *w = create_cif_dictionary_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("cif_dictionary_filechooserdialog1");
    return w;
 }
 
 GtkWidget *coot_run_script_chooser() {
 
-   GtkWidget *w = create_run_script_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("run_script_filechooserdialog1");
    return w;
 }
 
 GtkWidget *coot_save_state_chooser() {
 
-   GtkWidget *w = create_save_state_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("save_state_filechooserdialog1");
    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_save_symmetry_chooser() {
 
-   GtkWidget *w = create_save_symmetry_coords_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooserdialog1");
    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_screendump_chooser() {
 
-   GtkWidget *w = create_screendump_filechooserdialog1();
+   GtkWidget *w = widget_from_builder("screendump_filechooserdialog1");
    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }

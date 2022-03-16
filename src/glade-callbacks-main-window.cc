@@ -487,3 +487,131 @@ on_refine_params_rama_restraints_combobox_changed_gtkbuilder_callback (GtkComboB
 //    do_torsions_toggle(GTK_WIDGET(togglebutton));
 // }
 
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_open_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  open_coords_dialog();
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_open_dataset1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                               gpointer         user_data) {
+
+  GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
+  set_directory_for_filechooser(dataset_chooser);
+  set_file_selection_dialog_size(dataset_chooser);
+  add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
+  gtk_widget_show(dataset_chooser);
+  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  int is_auto_read_fileselection = 1;
+  int is;
+  GtkWidget *file_filter_button;
+  GtkWidget *sort_button;
+  GtkWidget *dataset_fileselection1 = coot_dataset_chooser ();
+  add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
+  file_filter_button = add_filename_filter_button(dataset_fileselection1,
+						  COOT_DATASET_FILE_SELECTION);
+  sort_button = add_sort_button_fileselection(dataset_fileselection1);
+  /*   set_directory_for_fileselection(dataset_fileselection1); */
+
+  /* stuff in user data saying if this is autoread or not... */
+  is = is_auto_read_fileselection;
+  g_object_set_data(G_OBJECT(dataset_fileselection1), "imol", GINT_TO_POINTER(is));
+  set_file_selection_dialog_size(dataset_fileselection1);
+
+  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
+  gtk_widget_show (dataset_fileselection1);
+  push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_fileselection1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                                    gint             response_id,
+                                                                    gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      if (fnc) {
+         std::string fn(fnc);
+         std::cout << "Now do something with " << fn << std::endl;
+      }
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_dataset_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                           gint             response_id,
+                                                           gpointer         user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      if (fnc) {
+         std::string fn(fnc);
+         manage_column_selector(fnc); // move the function declaration into a c++ header one day
+      }
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_name_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                            gint             response_id,
+                                                            gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      if (fnc) {
+         std::string fn(fnc);
+         std::cout << "Now do something with " << fn << std::endl;
+      }
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                          gint             response_id,
+                                                          gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      if (fnc) {
+         std::string fn(fnc);
+         std::cout << "Now do something with " << fn << std::endl;
+      }
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+

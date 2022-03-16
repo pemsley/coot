@@ -532,7 +532,6 @@ coot::column_selector_using_cmtz(const std::string &filename) {
              << filename << std::endl;
 
    unsigned int i;
-   GtkWidget *column_label_window;
 
    GtkCheckButton *check_weights;
    int is_phs = 0;
@@ -546,7 +545,7 @@ coot::column_selector_using_cmtz(const std::string &filename) {
    *f_phi_columns = coot::get_mtz_columns(filename);
    f_phi_columns->mtz_filename = filename;
 
-   if (true)
+   if (false)
       std::cout << "debug:: in column_selector_using_cmtz() ----------- f_phi_columns->mtz_filename "
                 << f_phi_columns->mtz_filename << " was attached to f_phi_columns "
                 << f_phi_columns << std::endl;
@@ -581,10 +580,13 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    /* Else filename was OK */
 
-/* Recall that save_f_phi_columns is now attached to this widget */
+   /* Recall that save_f_phi_columns is now attached to this widget */
 
    /* Stuff a pointer to mtz info into the dialog: */
-   column_label_window = create_column_label_window();
+
+   // column_label_window = create_column_label_window();
+   GtkWidget *column_label_window = widget_from_builder("column_label_window");
+
    set_transient_and_position(COOT_MTZ_COLUMN_SELECTOR_DIALOG, column_label_window);
 
    // modern: g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
@@ -594,12 +596,9 @@ coot::column_selector_using_cmtz(const std::string &filename) {
    g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
 
 
-
    // ----------------------- comboboxes! ----------------------
 
-   coot::column_selector_using_cmtz_setup_comboboxes(column_label_window,
-						     f_phi_columns);
-
+   coot::column_selector_using_cmtz_setup_comboboxes(column_label_window, f_phi_columns);
 
    /* By default, we want the use weights checkbutton to be off */
 

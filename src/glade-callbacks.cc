@@ -109,76 +109,6 @@ on_window1_delete_event_gtkbuilder_callback                (GtkWidget       *wid
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_open_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  open_coords_dialog();
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_open_dataset1_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-  int is_auto_read_fileselection = 0;
-  int is;
-  GtkWidget *file_filter_button;
-  GtkWidget *sort_button;
-  GtkWidget *dataset_fileselection1 = coot_dataset_chooser();
-
-  //   add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
-  file_filter_button = add_filename_filter_button(dataset_fileselection1,
-						  COOT_DATASET_FILE_SELECTION);
-  sort_button = add_sort_button_fileselection(dataset_fileselection1);
-  /* add_filename_filter_button needs the sort button to be in place (for now) */
-  /*   set_directory_for_fileselection(dataset_fileselection1); */
-
-  /* stuff in user data saying if this is autoread or not... */
-  is = is_auto_read_fileselection;
-  g_object_set_data(G_OBJECT(dataset_fileselection1), "imol", GINT_TO_POINTER(is));
-
-  /* set_file_selection_dialog_size(dataset_fileselection1); */
-
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
-  gtk_widget_show (dataset_fileselection1);
-  /* in gtk2 we have to push the buttons after we show the selection */
-  push_the_buttons_on_fileselection(file_filter_button, sort_button,
-				    dataset_fileselection1);
-
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  int is_auto_read_fileselection = 1;
-  int is;
-  GtkWidget *file_filter_button;
-  GtkWidget *sort_button;
-  GtkWidget *dataset_fileselection1 = coot_dataset_chooser ();
-  add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
-  file_filter_button = add_filename_filter_button(dataset_fileselection1,
-						  COOT_DATASET_FILE_SELECTION);
-  sort_button = add_sort_button_fileselection(dataset_fileselection1);
-  /*   set_directory_for_fileselection(dataset_fileselection1); */
-
-  /* stuff in user data saying if this is autoread or not... */
-  is = is_auto_read_fileselection;
-  g_object_set_data(G_OBJECT(dataset_fileselection1), "imol", GINT_TO_POINTER(is));
-  set_file_selection_dialog_size(dataset_fileselection1);
-
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
-  gtk_widget_show (dataset_fileselection1);
-  push_the_buttons_on_fileselection(file_filter_button, sort_button,
-				    dataset_fileselection1);
-}
-
-
-extern "C" G_MODULE_EXPORT
 void on_file1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                             gpointer         user_data)
 {
@@ -1153,14 +1083,12 @@ on_open_map1_activate_gtkbuilder_callback                  (GtkMenuItem     *men
    sort_button = add_sort_button_fileselection(map_name_fileselection1);
    /*    set_directory_for_fileselection(map_name_fileselection1); */
 
-   push_the_buttons_on_fileselection(filter_button, sort_button,
-				     map_name_fileselection1);
+   // push_the_buttons_on_fileselection(filter_button, sort_button, map_name_fileselection1);
 
    set_file_selection_dialog_size(map_name_fileselection1);
    gtk_widget_show (map_name_fileselection1);
 
-   push_the_buttons_on_fileselection(filter_button, sort_button,
-				     map_name_fileselection1);
+   // push_the_buttons_on_fileselection(filter_button, sort_button, map_name_fileselection1);
 }
 
 

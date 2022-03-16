@@ -4931,6 +4931,57 @@ the Ctrl key when moving the mouse.</property>
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="cif_dictionary_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="cif_dictionary_filechooser_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="cif_dictionary_filechooser_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkDialog" id="close_molecule_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Choose Molecule to Close:</property>
@@ -5219,7 +5270,15 @@ the Ctrl key when moving the mouse.</property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="column_selector_amplitudes_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                 </child>
@@ -5255,7 +5314,15 @@ the Ctrl key when moving the mouse.</property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="column_selector_phases_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                 </child>
@@ -5295,7 +5362,6 @@ the Ctrl key when moving the mouse.</property>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="use_weights_checkbutton">
-                            <property name="label" translatable="yes">Use Weights?</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
@@ -5303,6 +5369,9 @@ the Ctrl key when moving the mouse.</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                             <signal name="toggled" handler="on_use_weights_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -5338,7 +5407,15 @@ the Ctrl key when moving the mouse.</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="column_selector_weights_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -5506,7 +5583,7 @@ the Ctrl key when moving the mouse.</property>
             </child>
             <child>
               <object class="GtkCheckButton" id="refmac_column_labels_checkbutton">
-                <property name="label" translatable="yes">Assign Labels for Refmac?</property>
+                <property name="label" translatable="yes">Assign Labels for Structure Factor Calculation?</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
@@ -5551,7 +5628,15 @@ the Ctrl key when moving the mouse.</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="column_label_selector_refmac_fobs_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -5581,7 +5666,15 @@ the Ctrl key when moving the mouse.</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="column_label_selector_refmac_sigfobs_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -5611,7 +5704,15 @@ the Ctrl key when moving the mouse.</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="column_label_selector_refmac_rfree_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -5764,7 +5865,6 @@ the Ctrl key when moving the mouse.</property>
         </child>
         <child>
           <object class="GtkLabel" id="label8">
-            <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">(Thinking, not crashing)</property>
             <property name="justify">center</property>
@@ -6094,6 +6194,62 @@ the Ctrl key when moving the mouse.</property>
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="coords_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_coords_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="coords_filechooser_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="coords_filechooser_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">coords_filechooser_cancel_button</action-widget>
+      <action-widget response="-5">coords_filechooser_ok_button</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkDialog" id="copy_fragment_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot Copy Fragment</property>
@@ -6227,6 +6383,62 @@ the Ctrl key when moving the mouse.</property>
     <child type="titlebar">
       <placeholder/>
     </child>
+  </object>
+  <object class="GtkFileChooserDialog" id="dataset_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_dataset_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="dataset_filechooser_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="dataset_filechooser_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">dataset_filechooser_cancel_button</action-widget>
+      <action-widget response="-5">dataset_filechooser_ok_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkDialog" id="delete_item_dialog">
     <property name="can_focus">False</property>
@@ -14794,6 +15006,62 @@ density (too big to be waters):
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="map_name_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_map_name_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="map_name_filechooser_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="map_name_filechooser_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">map_name_filechooser_cancel_button</action-widget>
+      <action-widget response="-5">map_name_filechooser_ok_button</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkDialog" id="map_sharpening_dialog">
     <property name="can_focus">False</property>
     <property name="default_width">500</property>
@@ -19374,6 +19642,57 @@ Nucleotide Builder
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="phs_coordinates_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="phs_coordinates_filechooser_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkWindow" id="phs_info_box">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">.phs Info</property>
@@ -23505,6 +23824,57 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="run_script_filechooser_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="run_script_filechooser_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkDialog" id="run_state_file_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot Previously-Saved State</property>
@@ -23736,6 +24106,62 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="save_coordinates_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button8">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button9">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">button8</action-widget>
+      <action-widget response="-5">button9</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkDialog" id="save_coords_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Save Coordinates Molecule Selector</property>
@@ -23860,6 +24286,108 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
     </action-widgets>
     <child type="titlebar">
       <placeholder/>
+    </child>
+  </object>
+  <object class="GtkFileChooserDialog" id="save_symmety_coords_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">button</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">button</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFileChooserDialog" id="screendump_filechooser_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">button</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">button</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
     </child>
   </object>
   <object class="GtkDialog" id="select_fitting_map_dialog">
