@@ -6789,8 +6789,8 @@ that you wish to delete.               </property>
     </child>
   </object>
   <object class="GtkWindow" id="display_control_window_glade">
-    <property name="width_request">400</property>
-    <property name="height_request">240</property>
+    <property name="width_request">420</property>
+    <property name="height_request">280</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Display Manager</property>
     <property name="default_width">700</property>
@@ -28394,7 +28394,15 @@ View Mode</property>
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="superpose_dialog_reference_mol_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
                     </child>
                     <child>
                       <object class="GtkFrame" id="superpose_reference_structure_frame">
@@ -28423,7 +28431,15 @@ View Mode</property>
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkComboBoxText" id="superpose_dialog_reference_chain_combobox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </object>
                         </child>
@@ -28474,7 +28490,15 @@ View Mode</property>
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="superpose_dialog_moving_mol_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
                     </child>
                     <child>
                       <object class="GtkFrame" id="superpose_moving_structure_frame">
@@ -28503,7 +28527,15 @@ View Mode</property>
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkComboBoxText" id="superpose_dialog_moving_chain_combobox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </object>
                         </child>

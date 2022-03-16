@@ -456,6 +456,24 @@ on_refine_params_rama_restraints_combobox_changed_gtkbuilder_callback (GtkComboB
    set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
 }
 
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_ssm_superposition1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = wrapped_create_superpose_dialog(); // uses builder
+
+   /* we get returned w = 0 when there is no MMDBSSM. (We are doing it
+      this way because we don't have to introduce HAVE_MMDBSSM into the
+      *c* compiler arguments (this is simpler)).  */
+  if (w)
+     gtk_widget_show(w);
+}
+
+
+
 // extern "C" G_MODULE_EXPORT
 // void
 // on_sec_str_rest_strand_rest_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,

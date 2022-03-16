@@ -5294,7 +5294,7 @@ on_superpose_dialog_superpose_button_clicked_gtkbuilder_callback
 {
   GtkWidget *w = widget_from_builder("superpose_dialog");
   execute_superpose(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5304,7 +5304,7 @@ on_superpose_dialog_cancel_button_clicked_gtkbuilder_callback (GtkButton       *
 					   gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("superpose_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5327,24 +5327,6 @@ on_superpose_nonsense_cancel_button_clicked_gtkbuilder_callback
   GtkWidget *w = widget_from_builder("superpose_dialog");
   gtk_widget_destroy(w);
 
-}
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ssm_superposition1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = wrapped_create_superpose_dialog();
-
-  /* we get returned w = 0 when there is no MMDBSSM. (We are doing it
-     this way because we don't have to introduce HAVE_MMDBSSM into the
-     *c* compiler arguments (this is simpler)).  */
-  if (w)
-    gtk_widget_show(w);
-  else
-    printf("Function not available - need to recompile with libmmdbssm\n");
 }
 
 extern "C" G_MODULE_EXPORT
