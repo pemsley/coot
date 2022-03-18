@@ -4179,7 +4179,8 @@ string   static std::string sessionid;
    static float contact_dots_density; // 1 by default
    static void setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
                                       int imol, float tube_radius, bool extra_annotation=false);
-   
+
+   static unsigned int bond_smoothness_factor; // default 1, changes num_subdivisions and n_slices
 
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.

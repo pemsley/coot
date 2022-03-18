@@ -398,6 +398,14 @@ void set_use_fancy_lighting(short int state) {
 
 }
 
+//! \brief set bond smoothness (default 1 (not smooth))
+void set_bond_smoothness_factor(unsigned int fac) {
+   graphics_info_t::bond_smoothness_factor = fac;
+   // rebonding of the molecules might be needed here.
+   graphics_draw();
+}
+
+
 //! \brief set use simple lines for model molecule
 void set_use_simple_lines_for_model_molecules(short int state) {
 

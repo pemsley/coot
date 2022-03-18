@@ -1614,6 +1614,8 @@ bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 
 std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
 
+unsigned int graphics_info_t::bond_smoothness_factor = 1; // changes num_subdivisions and n_slices
+
 float graphics_info_t::contact_dots_density = 0.4; // 20220308-PE was 1.0
 float graphics_info_t::contact_dot_sphere_subdivisions = 1;
 bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;

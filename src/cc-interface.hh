@@ -1555,6 +1555,9 @@ void set_effects_shader_brightness(float f);
 //! \brief adjust the effects shader gamma
 void set_effects_shader_gamma(float f);
 
+//! \brief set bond smoothness (default 1 (not smooth))
+void set_bond_smoothness_factor(unsigned int fac);
+
 // testing function
 void read_test_gltf_models();
 

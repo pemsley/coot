@@ -453,8 +453,9 @@ Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
                                   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
                                };
 
-   std::cout << "in make_graphical_bonds_rotamer_dodecs() we have " << gbc.n_rotamer_markups
-             << " rotamer markups" << std::endl;
+   if (false)
+      std::cout << "in make_graphical_bonds_rotamer_dodecs() we have " << gbc.n_rotamer_markups
+                << " rotamer markups" << std::endl;
 
    glm::vec4 col(0.6, 0.2, 0.8, 1.0);
    if (gbc.n_rotamer_markups > 0) {

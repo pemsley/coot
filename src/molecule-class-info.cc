@@ -3800,18 +3800,29 @@ molecule_class_info_t::make_colour_table() const {
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
-   unsigned int num_subdivisions = 2;
+   unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
-   unsigned int n_stacks = 2;
+
+   // num_subdivisions = 2 corresponds to n_slices = 16 ie.. num_slices = 4 * 2^(n_subdivision)
+
+   unsigned int n_stacks = 2; // top and bottom stacks.
    float atom_radius = 0.02 * bond_width; // use atom_radius_scale_factor
    if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
    float bond_radius = atom_radius;
 
    // do smooth
-   if (false) {
-      num_subdivisions = 3;
+   if (graphics_info_t::bond_smoothness_factor == 1) {
+      num_subdivisions = 1;
+      n_slices = 8;
+   }
+   if (graphics_info_t::bond_smoothness_factor == 2) {
+      num_subdivisions = 2;
       n_slices = 16;
+   }
+   if (graphics_info_t::bond_smoothness_factor == 3) {
+      num_subdivisions = 3;
+      n_slices = 32;
    }
 
    // std::cout << "######################## imol_no " << imol_no << std::endl;
