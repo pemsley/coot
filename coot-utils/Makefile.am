@@ -173,11 +173,13 @@ bin_PROGRAMS = mmrrcc
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 
+# Why do I need to add lidia-core here? It's already added to libcoot-coord-utils.
 mmrrcc_SOURCES = mmrrcc.cc
 mmrrcc_LDADD = ./libcoot-map-utils.la \
 	./libcoot-coord-utils.la  \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(CLIPPER_LIBS)
 
 make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc

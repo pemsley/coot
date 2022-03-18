@@ -12,7 +12,6 @@ atom_selection_container_t
 coot::mol_to_asc_rdkit(const std::string &file_name) {
 
    atom_selection_container_t asc;
-
    try { 
 
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);

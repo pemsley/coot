@@ -1,7 +1,15 @@
 
+  Release 0.9.8.1
+
+  o BUG-FIX:  Python test for averaged maps fixed
+
+  o BUG-FIX:  Pythonic and scheme get_drug() function fixed
+
+  o BUG-FIX: downloaded curlew files are now copied, not renamed.
+
 ----
 
-  Pre-Release 0.9.8
+  Release 0.9.8
 
   o BUG-FIX:  Fix python extension scripts
 

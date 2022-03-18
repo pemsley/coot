@@ -263,7 +263,7 @@ main (int argc, char *argv[]) {
 	 gtk_main_iteration();
       }
    }
-  
+
    setup_symm_lib();
    setup_rgb_reps();
    check_reference_structures_dir();
