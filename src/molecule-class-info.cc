@@ -1407,8 +1407,18 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
 
       // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
 
-      float rotation_size = 1.0 - float(icol-offset) * 0.7/max_colour + bonds_colour_map_rotation/360.0;
-      rgb = rotate_rgb(rgb, rotation_size);
+      if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
+         // rotation_size is a fraction of a circle
+         float rotation_size = 1.0 - float(icol-offset) * 0.7/max_colour;
+         rgb = rotate_rgb(rgb, rotation_size);
+         if (false)
+            std::cout << "icol " << std::setw(2) <<  icol << " rotation size " << std::setw(7) << rotation_size
+                      << "  rgb " << std::setw(6) << rgb[0] << " " << std::setw(6) << rgb[1] << " "
+                      << std::setw(6) << rgb[2] << std::endl;
+      } else {
+         float rotation_size = 1.0 - float(icol-offset) * 0.7/max_colour + bonds_colour_map_rotation/360.0;
+         rgb = rotate_rgb(rgb, rotation_size);
+      }
    }
 
    // rotation_size size has useful colours between
@@ -3776,7 +3786,8 @@ molecule_class_info_t::make_colour_table() const {
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
-         get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS); // bleugh
+         glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
+         colour_table[icol] = col;
       } else {
          coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
          colour_table[icol] = cc.to_glm();

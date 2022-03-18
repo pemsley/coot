@@ -10539,3 +10539,9 @@ Wed 16 Mar 10:30:38 GMT 2022
 conkit-validate simkovic et al (involves alphafold)
 
 
+----
+Fri 18 Mar 13:26:34 GMT 2022
+
+   Use libglyphy for text rendering:
+
+   https://github.com/behdad/glyphy/

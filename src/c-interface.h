@@ -4838,6 +4838,8 @@ void graphics_to_ca_plus_ligands_and_sidechains_representation   (int imol);
 void graphics_to_bonds_no_waters_representation(int imol);
 /*! \brief draw molecule number imol with normal bonds */
 void graphics_to_bonds_representation(int mol);
+/*! \brief draw molecule with colour-by-molecule colours */
+void graphics_to_colour_by_molecule(int imol);
 /*! \brief draw molecule number imol with CA bonds in secondary
   structure representation and ligands */
 void graphics_to_ca_plus_ligands_sec_struct_representation(int imol);
@@ -4857,7 +4859,7 @@ void graphics_to_user_defined_atom_colours_representation(int imol);
 /*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
 void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
-int graphics_molecule_bond_type(int imol);
+int get_graphics_molecule_bond_type(int imol);
 /*! \brief scale the colours for colour by b factor representation */
 int set_b_factor_bonds_scale_factor(int imol, float f);
 /*! \brief change the representation of the model molecule closest to

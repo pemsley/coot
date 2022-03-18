@@ -311,6 +311,7 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
 
    if (txt) {
       std::string at(txt);
+      std::cout << "at: " << at << std::endl;
       if (at == _("Bonds (Colour by Atom)")) {
          std::cout << "display as bonds " <<std::endl;
          graphics_to_bonds_representation(imol);
@@ -319,17 +320,17 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
          std::cout << "display as CA " <<std::endl;
          graphics_to_ca_representation(imol);
       }
-      if (at == _("Bonds (Colour by Molecule)")) {
-         render_as_bonds_colored_by_molecule_button_select(imol);
-      }
       if (at == _("Bonds (Colour by Chain)")) {
          render_as_bonds_colored_by_chain_button_select(imol);
+      }
+      if (at == _("Bonds (Colour by Molecule)")) {
+         render_as_bonds_colored_by_molecule_button_select(imol);
       }
       // 20211019-PE currently this can't happen
       if (at == _("Bonds (Goodsell Colour by Chain)")) {
          render_as_bonds_goodsell_colored_by_chain_button_select(imol);
       }
-      if (at == _("Bonds (Colour by Sec. Str.)")) {
+      if (at == _("Colour by Sec. Str. Bonds")) {
          render_as_sec_struct_bonds_button_select(imol);
       }
       if (at == _("CAs + Ligands")) {
@@ -344,7 +345,7 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
       if (at ==  _("Colour by Atom - No Waters")) {
          render_as_bonds_no_waters(imol);
       }
-      if (at ==  _("Colour by B-factor - CAs")) {
+      if (at ==  _("Colour by B-factor - Backbone")) {
          render_as_b_factor_cas_representation_button_select(imol);
       }
       if (at ==  _("Colour by B-factor - All")) {
@@ -364,14 +365,14 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    GtkWidget *combobox = gtk_combo_box_text_new();
 
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Atom)"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Molecule)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Chain)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Molecule)"));
    // gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Goodsell Colour by Chain)"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Sec. Str.)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("C-alphas/Backbone"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs + Ligands"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs+Ligs SecStr Col"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Jones' Rainbow"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Sec. Str. Bonds"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Atom - No Waters"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by B-factor - Backbone"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by B-factor - All"));
@@ -383,9 +384,8 @@ GtkWidget *selections_and_colours_combobox(int imol) {
 
    int index = 0; // needs to be dynamic (at some stage)
 
-   int bbt = graphics_molecule_bond_type(imol);
+   int bbt = get_graphics_molecule_bond_type(imol);
 
-   // std::cout << "Here with bbt " << bbt << std::endl;
    // This is ugly.
    // bonds colour by atom: 1
    // bonds colour by molecule: 8
@@ -400,15 +400,33 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    // B-factor backbone: 1... wrong
    // occ: 11
    //
-   if (bbt ==  8) index =  1;
-   if (bbt ==  3) index =  2;
-   if (bbt == 21) index =  3;
-   if (bbt ==  6) index =  4;
-   if (bbt ==  2) index =  5;
-   if (bbt ==  4) index =  6;
-   if (bbt ==  7) index =  7;
-   if (bbt ==  9) index =  8;
-   if (bbt == 11) index = 12;
+
+   // enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
+   //        COLOUR_BY_CHAIN_BONDS=3,
+   //        CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
+   //        BONDS_NO_HYDROGENS=15,
+   //        CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+   //        CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+   //        CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
+   //        COLOUR_BY_MOLECULE_BONDS=8,
+   //        COLOUR_BY_RAINBOW_BONDS=9,
+   //        COLOUR_BY_B_FACTOR_BONDS=10,
+   //        COLOUR_BY_OCCUPANCY_BONDS=11,
+   //        COLOUR_BY_USER_DEFINED_COLOURS_BONDS=12 };
+   
+   if (bbt ==  3) index =  1;
+   if (bbt ==  8) index =  2;
+   if (bbt ==  2) index =  3;
+   if (bbt ==  4) index =  4;
+   if (bbt ==  7) index =  5;
+   if (bbt ==  9) index =  6;
+   if (bbt ==  6) index =  7;
+   if (bbt ==  5) index =  8;
+   if (bbt == 14) index =  9;
+   if (bbt == 10) index = 10;
+   if (bbt == 11) index = 11;
+
+   // std::cout << "Here with bbt " << bbt << " index " << index << std::endl;
 
    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), index);
    gtk_widget_show(combobox);
