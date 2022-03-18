@@ -6371,15 +6371,8 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                if (!home_directory.empty()) {
                   std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
                   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
-                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
-                  // BL: on windows (non POSIX) rename wont overwrite, so
-                  // need to remove first.
-#ifndef WINDOWS_MINGW
-                  int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
-#else
-                  // int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
+                  std::cout << "debug:: attempting to copy " << dl_fn << " as " << preferences_file_name << std::endl;
                   int status = coot::copy_file(dl_fn, preferences_file_name); // it returns a bool actually
-#endif
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
                      std::cout << "WARNING:: rename error: " << strerror(errno) << std::endl;
