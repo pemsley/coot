@@ -1663,7 +1663,11 @@ graphics_info_t::draw_molecules_with_shadows() {
                                                                                          eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                                                          shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
                                      } else {
-                                        if (opacity < 1.0) m.map_as_mesh.use_blending = true;
+                                        if (opacity < 1.0) {
+                                           m.map_as_mesh.use_blending = true;
+                                           glm::vec3 eye_position_ws = get_world_space_eye_position();
+                                           m.map_as_mesh.sort_map_triangles(eye_position_ws);
+                                        }
                                         m.map_as_mesh.set_material(m.material_for_maps);
                                         m.map_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                                         eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
@@ -2836,7 +2840,7 @@ graphics_info_t::get_x_base_for_hud_geometry_bars() {
    float w_adjust = static_cast<float>(w)/static_cast<float>(900);
 
    // shift to more negative x when the window is wider
-   return -0.83 - 0.04 * w_adjust;
+   return -0.83 - 0.02 * w_adjust;
 
 }
 

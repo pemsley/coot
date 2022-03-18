@@ -50,13 +50,16 @@ Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
    if (representation_type == BALL_AND_STICK)
       make_graphical_bonds_bonds(gbc, bond_radius, n_slices, n_stacks, colour_table);
 
+   if (draw_cis_peptides)
+      make_graphical_bonds_cis_peptides(gbc);
+
    // We shouldn't make Rama balls here - they should be made in an InstancedMesh - rama balls have their own
    // (at the moment unused) layout and shader.
    //
    glm::vec3 screen_up_dir(0,1,0); // for now
    make_graphical_bonds_rama_balls(gbc, screen_up_dir);
-   if (draw_cis_peptides)
-      make_graphical_bonds_cis_peptides(gbc);
+
+   make_graphical_bonds_rotamer_dodecs(gbc, screen_up_dir);
 
    setup_buffers();
 }
@@ -112,7 +115,7 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
             float scale = 1.0;
             if (at_info.is_hydrogen_atom) scale *= 0.5;
             glm::vec3 t(at->x, at->y, at->z);
-            float sar = scale * atom_radius;
+            float sar = scale * atom_radius * at_info.radius_scale;
             glm::vec3 sc(sar, sar, sar);
             glm::mat4 mm = glm::scale(unit, sc);
             mm = glm::translate(mm, t);
@@ -431,6 +434,106 @@ Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
       }
 
    }
+}
+
+#include "utils/dodec.hh"
+
+void
+Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
+                                          const glm::vec3 &screen_up_dir) {
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+                           };
+   auto clipper_to_glm = [] (const clipper::Coord_orth &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+                           };
+
+   auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
+                                  return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+                               };
+
+   std::cout << "in make_graphical_bonds_rotamer_dodecs() we have " << gbc.n_rotamer_markups
+             << " rotamer markups" << std::endl;
+
+   glm::vec4 col(0.6, 0.2, 0.8, 1.0);
+   if (gbc.n_rotamer_markups > 0) {
+
+      dodec d;
+      std::vector<clipper::Coord_orth> coords = d.coords();
+      std::vector<glm::vec3> dodec_postions(coords.size());
+      for (unsigned int i=0; i<coords.size(); i++)
+         dodec_postions[i] = clipper_to_glm(coords[i]);
+
+      std::vector<s_generic_vertex> dodec_vertices;
+      std::vector<g_triangle> dodec_triangles;
+      dodec_triangles.reserve(36);
+
+      for (unsigned int iface=0; iface<12; iface++) {
+
+         std::vector<s_generic_vertex> face_verts;
+         std::vector<g_triangle> face_triangles;
+         face_triangles.reserve(3);
+
+         std::vector<unsigned int> indices_for_face = d.face(iface);
+         glm::vec3 ns(0,0,0);
+         for (unsigned int j=0; j<5; j++)
+            ns += dodec_postions[indices_for_face[j]];
+         glm::vec3 normal = glm::normalize(ns);
+
+         for (unsigned int j=0; j<5; j++) {
+            glm::vec3 &pos = dodec_postions[indices_for_face[j]];
+            s_generic_vertex v(0.5f * pos, normal, col);
+            face_verts.push_back(v);
+         }
+
+         face_triangles.push_back(g_triangle(0,1,2));
+         face_triangles.push_back(g_triangle(0,2,3));
+         face_triangles.push_back(g_triangle(0,3,4));
+
+         unsigned int idx_base = dodec_vertices.size();
+         unsigned int idx_tri_base = dodec_triangles.size();
+         dodec_vertices.insert(dodec_vertices.end(), face_verts.begin(), face_verts.end());
+         dodec_triangles.insert(dodec_triangles.end(), face_triangles.begin(), face_triangles.end());
+         for (unsigned int jj=idx_tri_base; jj<dodec_triangles.size(); jj++)
+            dodec_triangles[jj].rebase(idx_base);
+      }
+
+#if 0
+      // Just one - as a test.
+      //
+      unsigned int idx_base = vertices.size();
+      unsigned int idx_tri_base = triangles.size();
+      vertices.insert(vertices.end(), dodec_vertices.begin(), dodec_vertices.end());
+      triangles.insert(triangles.end(), dodec_triangles.begin(), dodec_triangles.end());
+      for (unsigned int jj=idx_tri_base; jj<triangles.size(); jj++)
+         triangles[jj].rebase(idx_base);
+#endif
+
+      // now there is a dodec at the origin, dodec_vertices and dodec_triangle
+
+      for (int i=0; i<gbc.n_rotamer_markups; i++) {
+         const rotamer_markup_container_t &rm = gbc.rotamer_markups[i];
+         glm::vec3 atom_pos = cartesian_to_glm(rm.pos);
+
+         std::vector<s_generic_vertex> this_dodec_vertices = dodec_vertices; // at the origin to start
+         // now move it.
+         for (unsigned int j=0; j<dodec_vertices.size(); j++) {
+            this_dodec_vertices[j].pos  += atom_pos;
+            this_dodec_vertices[j].pos  += 1.5f * screen_up_dir;
+            this_dodec_vertices[j].color = colour_holder_to_glm(rm.col);
+         }
+         unsigned int idx_base = vertices.size();
+         unsigned int idx_tri_base = triangles.size();
+         vertices.insert(vertices.end(), this_dodec_vertices.begin(), this_dodec_vertices.end());
+         triangles.insert(triangles.end(), dodec_triangles.begin(), dodec_triangles.end());
+         for (unsigned int jj=idx_tri_base; jj<triangles.size(); jj++)
+            triangles[jj].rebase(idx_base);
+      }
+
+
+   }
+
 }
 
 #include "molecular-mesh-generator.hh"

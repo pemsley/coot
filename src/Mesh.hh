@@ -250,6 +250,9 @@ public:
    void make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
                                         const glm::vec3 &screen_up_dir); // normalized
 
+   void make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
+                                            const glm::vec3 &screen_up_dir);
+
    void make_graphical_bonds_cis_peptides(const graphical_bonds_container &gbc);
 
    // the simple-lines option for the main molecule
