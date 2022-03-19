@@ -710,13 +710,11 @@ graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
    bool done_centre_jump = g.setRotationCentre(centre);
    if (done_centre_jump)
       g.update_things_on_move_and_redraw();
-
 }
 
 
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
-
    mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
    float x = atom->x;
    float y = atom->y;

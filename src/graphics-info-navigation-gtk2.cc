@@ -456,8 +456,6 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 
    // a double-click (I think) so that we do a "Go to atom"
 
-   std::cout << "################################ residue_tree_residue_row_activated()  " << std::endl;
-
    // This gets called on double-clicking, and not on single clicking
    
    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
@@ -467,7 +465,7 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
        // g_print ("Double-clicked row contains name %s\n", name);
-       if (1) {
+       if (true) {
 	  graphics_info_t g;
 	  int go_to_imol = g.go_to_atom_molecule();
 	  if (is_valid_model_molecule(go_to_imol)) {
@@ -490,7 +488,8 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 		if (!at) {
 		   std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "
 			     << go_to_imol << " " << res << " (row_activated)" << std::endl;
-		} else { 
+		} else {
+                   // this only sets variables
 		   g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
 							    at->GetSeqNum(),
 							    at->GetInsCode(),

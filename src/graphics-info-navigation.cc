@@ -733,53 +733,45 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
 void
 graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 
-  GtkEntry *entry;
+   GtkEntry *entry = GTK_ENTRY(widget_from_builder("go_to_atom_chain_entry"));
+   const gchar *chain_str = gtk_entry_get_text(entry);
 
-  // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_chain_entry"));
-  entry = GTK_ENTRY(widget_from_builder("go_to_atom_chain_entry"));
-  const gchar *chain_str = gtk_entry_get_text(entry); 
+   // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_residue_entry"));
+   entry = GTK_ENTRY(widget_from_builder("go_to_atom_residue_entry"));
+   const gchar *res_str = gtk_entry_get_text(entry);
 
-  // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_residue_entry"));
-  entry = GTK_ENTRY(widget_from_builder("go_to_atom_residue_entry"));
-  const gchar *res_str = gtk_entry_get_text(entry);
+   // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_name_entry"));
+   entry = GTK_ENTRY(widget_from_builder("go_to_atom_atom_name_entry"));
 
-  // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_name_entry"));
-  entry = GTK_ENTRY(widget_from_builder("go_to_atom_atom_name_entry"));
+   const gchar *txt =  gtk_entry_get_text(entry);
+   if (txt) {
+      std::pair<std::string, std::string> p =
+         graphics_info_t::split_atom_name(std::string(txt));
+      //      std::cout << "DEBUG: split: " << std::string(txt) << " into :"
+      // 	       << p.first << ":  :" << p.second << ":\n" ;
 
-  const gchar *txt =  gtk_entry_get_text(entry);
-  if (txt) {
-     std::pair<std::string, std::string> p =
-        graphics_info_t::split_atom_name(std::string(txt));
-//      std::cout << "DEBUG: split: " << std::string(txt) << " into :"
-// 	       << p.first << ":  :" << p.second << ":\n" ;
+      // we have to use the version of set_go_to.. that has 4 params,
+      // because the 3 parameter version sets the altconf to "empty:.
+      //
+      const gchar *atom_name_str = p.first.c_str();
 
-     // we have to use the version of set_go_to.. that has 4 params,
-     // because the 3 parameter version sets the altconf to "empty:.
-     //
-     const gchar *atom_name_str = p.first.c_str();
+      std::pair<std::string, std::string> resno_inscode = split_resno_inscode(std::string(res_str));
+      int resno = atoi(resno_inscode.first.c_str());
+      std::string inscode = resno_inscode.second;
 
-     std::pair<std::string, std::string> resno_inscode = split_resno_inscode(std::string(res_str));
-     int resno = atoi(resno_inscode.first.c_str());
-     std::string inscode = resno_inscode.second;
+      if (false)
+         std::cout << "DEBUG:: in apply_go_to_atom_from_widget(): chain_str " << chain_str
+                   << " resno " << resno << " inscode " << inscode << " atom_name_str \""
+                   << atom_name_str << "\" split thing \"" << p.second << "\"\n";
 
-     if (false)
-        std::cout << "DEBUG:: in apply_go_to_atom_from_widget(): chain_str " << chain_str
-                  << " resno " << resno << " inscode " << inscode << " atom_name_str \""
-                  << atom_name_str << "\" split thing \"" << p.second << "\"\n";
+      set_go_to_atom_chain_residue_atom_name(chain_str,
+                                             resno,
+                                             inscode.c_str(),
+                                             atom_name_str,
+                                             p.second.c_str());
 
-     set_go_to_atom_chain_residue_atom_name(chain_str,
-					    resno,
-					    inscode.c_str(),
-					    atom_name_str,
-					    p.second.c_str());
-
-     int success = try_centre_from_new_go_to_atom();
-     if (false)
-        std::cout << "debug() try_centre_from_new_go_to_atom() returns "
-                  << success << std::endl;
-     if (success)
-	update_things_on_move_and_redraw();
-  }
+      int success = try_centre_from_new_go_to_atom();
+   }
 }
 
 

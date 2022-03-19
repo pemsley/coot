@@ -413,7 +413,7 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    //        COLOUR_BY_B_FACTOR_BONDS=10,
    //        COLOUR_BY_OCCUPANCY_BONDS=11,
    //        COLOUR_BY_USER_DEFINED_COLOURS_BONDS=12 };
-   
+
    if (bbt ==  3) index =  1;
    if (bbt ==  8) index =  2;
    if (bbt ==  2) index =  3;
