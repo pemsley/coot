@@ -47,7 +47,7 @@ public:
      use_splash_screen = 1;
      run_internal_tests_and_exit = 0;
      em_mode = false;
-     use_gtkbuilder = false;
+     use_gtkbuilder = true;
    }
    void handle_immediate_settings();
    void roberto_pdbs(int argc, char **argv); // add any pdb files not alread added with --pdb/coords/xyzin

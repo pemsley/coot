@@ -121,7 +121,6 @@ parse_command_line(int argc, char ** argv ) {
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
-      {"gtkbuilder", 0, 0, 0},
       {"run-state-script", 0, 0, 0},
       {"splash-screen",    1, 0, 0}, // alternate splash screen
       {"self-test",        0, 0, 0},
@@ -220,9 +219,6 @@ parse_command_line(int argc, char ** argv ) {
 
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
-
-            if (arg_str == "gtkbuilder")
-               cld.use_gtkbuilder = true;
 
 	    if (arg_str == "stereo") {
 	       cld.hardware_stereo_flag = 1;
@@ -351,14 +347,9 @@ parse_command_line(int argc, char ** argv ) {
                                                                cld.update_self = 1;
                                                                cld.do_graphics = 0;
                                                             } else {
-                                                               // this is a bit hacky. the test should happen before
-                                                               // and push this whole block to the right
-                                                               if (arg_str == "gtkbuilder") {
-                                                               } else {
-                                                                  std::cout << "WARNING! Malformed option - needs an argument: "
-                                                                            << long_options[option_index].name
-                                                                            << std::endl << std::endl;
-                                                               }
+                                                               std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                         << long_options[option_index].name
+                                                                         << std::endl << std::endl;
                                                             }
                                                          }
                                                       }
