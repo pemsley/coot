@@ -1944,56 +1944,25 @@ on_model_refine_dialog_dismiss_button_clicked_gtkbuilder_callback (GtkButton    
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  GtkWidget *widget;
-  GtkWidget *combobox;
-  GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
-  int imol = first_coords_imol();
-  int imol_unsaved = first_unsaved_coords_imol();
-  if (imol_unsaved != -1)
-    imol = imol_unsaved;
-  printf("in on_save_coordinates1_activate() with imol_unsaved %d\n", imol_unsaved);
-  set_save_molecule_number(imol); /* set *save* molecule number */
-
-  widget = create_save_coords_dialog();
-
-  combobox = widget_from_builder("save_coordinates_combobox");
-
-  if (combobox) {
-
-/*     fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol); */
-    fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-    set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-    gtk_widget_show(widget);
-    gtk_window_present(GTK_WINDOW(widget));
-  } else {
-    printf("bad combobox!\n");
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_save_coords_dialog_save_button_clicked_gtkbuilder_callback (GtkButton       *button,
-					   gpointer         user_data)
-{
-  GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
-  GtkWidget *dialog = widget_from_builder("save_coords_dialog");
-  GtkWidget *chooser;
-  int imol;
-  if (! combobox) {
-    printf("on_save_coords_dialog_save_button_clicked: bad combobox\n");
-  } else {
-    imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
-    chooser = coot_save_coords_chooser();
-    g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
-    set_file_for_save_filechooser(chooser);
-    gtk_widget_show(chooser);
-    set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
-  }
-  gtk_widget_destroy(dialog);
+                                                               gpointer         user_data) {
+
+   // we need to select the molecule to save - this is someone clicking on the
+   // "Save Molecule" button in the save molecule chooser - not in a file selector
+
+   GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
+   GtkWidget *dialog = widget_from_builder("save_coords_dialog");
+   if (! combobox) {
+      std::cout << "ERROR:: on_save_coords_dialog_save_button_clicked: bad combobox\n";
+   } else {
+      int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+      GtkWidget *chooser = coot_save_coords_chooser(); // uses builder
+      g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
+      set_file_for_save_filechooser(chooser);
+      gtk_widget_show(chooser);
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
+   }
+   gtk_widget_hide(dialog);
 
 }
 
@@ -2018,8 +1987,7 @@ on_save_coords_cancel_button_clicked_gtkbuilder_callback   (GtkButton       *but
    // this looks wrong
    gpointer o = g_object_get_data(G_OBJECT(widget), "stuff");
    free(o);
-
-   gtk_widget_destroy(widget);
+   gtk_widget_hide(widget);
 
 }
 

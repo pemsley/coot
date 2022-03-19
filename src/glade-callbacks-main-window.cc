@@ -560,6 +560,37 @@ on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *men
    push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_chooser);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_save_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
+                                                            gpointer         user_data)
+{
+   GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
+   int imol = first_coords_imol();
+   int imol_unsaved = first_unsaved_coords_imol();
+   if (imol_unsaved != -1)
+      imol = imol_unsaved;
+   std::cout << "DEBUG:: in on_save_coordinates1_activate() with imol_unsaved "
+             << imol_unsaved << std::endl;
+   set_save_molecule_number(imol); /* set *save* molecule number */
+
+   // this is the molecule chooser, not the file chooser
+   //
+   GtkWidget *widget = widget_from_builder("save_coords_dialog");
+   GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
+
+   if (combobox) {
+      fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
+      gtk_widget_show(widget);
+      gtk_window_present(GTK_WINDOW(widget));
+   } else {
+      std::cout << "ERROR:: in on_save_coordinates1_activate() bad combobox!\n";
+   }
+}
+
+
 extern "C" G_MODULE_EXPORT
 void
 on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
@@ -568,7 +599,11 @@ on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback(GtkDialog   
    if (response_id == GTK_RESPONSE_OK) {
       const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       if (fnc) {
-         int imol = 0; // FIXME
+
+         // imol set in
+         // on_save_coords_dialog_save_button_clicked_gtkbuilder_callback(GtkButton       *button,
+         //                                                               gpointer         user_data)
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
          save_coordinates(imol, fnc);
       }
       gtk_widget_hide(GTK_WIDGET(dialog));

@@ -24103,6 +24103,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   <object class="GtkFileChooserDialog" id="save_coordinates_filechooser_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <property name="action">save</property>
     <signal name="response" handler="on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
@@ -24262,7 +24263,15 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="save_coordinates_combobox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
             </child>

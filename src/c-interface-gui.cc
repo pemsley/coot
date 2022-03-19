@@ -2148,7 +2148,7 @@ GtkWidget *coot_map_name_chooser() {
 
 GtkWidget *coot_save_coords_chooser() {
 
-   GtkWidget *w = widget_from_builder("save_coords_filechooser_dialog");
+   GtkWidget *w = widget_from_builder("save_coordinates_filechooser_dialog");
    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
 
    return w;
