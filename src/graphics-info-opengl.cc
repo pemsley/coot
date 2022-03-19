@@ -56,6 +56,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_tmeshes_for_ssao,
                                                            shader_for_tmeshes_with_shadows,
                                                            shader_for_texture_meshes_shadow_map,
+                                                           shader_for_rotation_centre_cross_hairs_for_ssao,
                                                            shader_for_tmeshes,
                                                            shader_for_tmeshes_for_ssao,
                                                            shader_for_shadow_map_image_texture_mesh,
@@ -128,6 +129,9 @@ graphics_info_t::init_shaders() {
    shader_for_y_blur.init("blur-y.shader", Shader::Entity_t::SCREEN);
    shader_for_dof_blur_by_texture_combination.init("depth-of-field.shader", Shader::Entity_t::SCREEN);
    shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN); // old
+
+   // long name at the bottom
+   shader_for_rotation_centre_cross_hairs_for_ssao.init("rotation-centre-cross-hairs-for-ssao.shader", Shader::Entity_t::NONE);
 
    for (it=shaders.begin(); it!=shaders.end(); ++it) {
       if (! it->get().get_success_status()) {

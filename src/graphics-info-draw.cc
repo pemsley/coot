@@ -2064,6 +2064,8 @@ graphics_info_t::draw_meshes() {
 void
 graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
+   // std::cout << "draw_cube() with cube_type " << cube_type << std::endl;
+
    gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
    if (err) std::cout << "error draw_central_cube() A0 err " << err << std::endl;
@@ -2103,7 +2105,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
       mvp = glm::scale(mvp, sc);
    }
 
-   // we don't diverge here on the cube tye. Maybe change the name of the shader
+   // we don't diverge here on the cube type. Maybe change the name of the shader
    // because it does both
    Shader &shader = shader_for_central_cube;
 
@@ -2152,13 +2154,14 @@ graphics_info_t::draw_central_cube(GtkGLArea *glarea) {
 
 void
 graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
+
    draw_cube(glarea, ORIGIN_CUBE);
 }
 
 void
-graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
+graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int pass_type) {
 
-   gtk_gl_area_make_current(glarea); // needed?
+   // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();
    if (err) std::cout << "error draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
 
@@ -2172,7 +2175,13 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
    glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
    if (err) std::cout << "error draw_rotation_centre_crosshairs() B err " << err << std::endl;
 
-   shader_for_central_cube.Use(); // (it's drawing the crosshairs though - same shader)
+   if (pass_type == PASS_TYPE_STANDARD) {
+      shader_for_central_cube.Use(); // (it's drawing the crosshairs though - same shader)
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+      shader_for_rotation_centre_cross_hairs_for_ssao.Use();
+   }
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
@@ -2191,21 +2200,40 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea) {
    if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
                       << std::endl;
 
-    bool is_bb = graphics_info_t::background_is_black_p();
-   glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
-   if (! is_bb) 
-      line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+   if (pass_type == PASS_TYPE_STANDARD) {
+      bool is_bb = graphics_info_t::background_is_black_p();
+      glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
+      if (! is_bb) 
+         line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 
-   GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
-   glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
+      GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
+      glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
 
-   GLuint background_colour_uniform_location = shader_for_central_cube.background_colour_uniform_location;
-   glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
-   glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+      GLuint background_colour_uniform_location = shader_for_central_cube.background_colour_uniform_location;
+      glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+      glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
 
-   err = glGetError();
-   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for background " << err
-                      << std::endl;
+      err = glGetError();
+      if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for background " << err
+                         << std::endl;
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+
+      // need to be sent uniforms model, view. projection
+
+      int w = graphics_x_size;
+      int h = graphics_y_size;
+      bool do_orthographic_projection = ! perspective_projection_flag;
+      glm::mat4 model_matrix = get_model_matrix();
+      glm::mat4  view_matrix = get_view_matrix();
+      glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+
+      shader_for_rotation_centre_cross_hairs_for_ssao.set_mat4_for_uniform("model",     model_matrix);
+      shader_for_rotation_centre_cross_hairs_for_ssao.set_mat4_for_uniform("view",       view_matrix);
+      shader_for_rotation_centre_cross_hairs_for_ssao.set_mat4_for_uniform("projection", proj_matrix);
+
+   }
 
    glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
    if (err) std::cout << "error::draw_rotation_centre_crosshairs() glDrawElements " << err << std::endl;
@@ -3568,7 +3596,7 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    draw_origin_cube(gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-   draw_rotation_centre_crosshairs(gl_area);
+   draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
 
    draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
                      // so rename this function? Or just bring everything here?  Put this render() function
@@ -3604,7 +3632,7 @@ graphics_info_t::render_3d_scene_with_shadows() {
    draw_origin_cube(gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-   draw_rotation_centre_crosshairs(gl_area);
+   draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
 
    draw_molecules_with_shadows(); // includes particles, happy-faces and boids (should they be there (maybe not))
                                   // so rename this function? Or just bring everything here?  Put this render() function

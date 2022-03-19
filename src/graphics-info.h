@@ -4301,6 +4301,7 @@ string   static std::string sessionid;
    static Shader shader_for_moleculestotriangles;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
+   static Shader shader_for_rotation_centre_cross_hairs_for_ssao; // central_cube by a modern name
    static Shader shader_for_hud_text;
    static Shader shader_for_hud_buttons;
    static Shader shader_for_hud_image_texture;
@@ -4402,7 +4403,7 @@ string   static std::string sessionid;
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
-   static void draw_rotation_centre_crosshairs(GtkGLArea *glarea);
+   static void draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int pass_type);
    static void draw_outlined_active_residue();
    static void draw_hud_ligand_view();
    static void draw_hud_buttons();

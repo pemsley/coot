@@ -1656,6 +1656,7 @@ float graphics_info_t::effects_gamma = 1.0f;
 
 Shader graphics_info_t::shader_for_tmeshes_for_ssao;
 Shader graphics_info_t::shader_for_meshes_for_ssao;
+Shader graphics_info_t::shader_for_rotation_centre_cross_hairs_for_ssao;
 
 unsigned int graphics_info_t::rboDepth = 0;
 unsigned int graphics_info_t::ssaoFBO = 0;
