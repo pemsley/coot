@@ -2998,8 +2998,9 @@ graphics_info_t::draw_hud_geometry_bars() {
                          coot::residue_spec_t residue_for_bar(baddies[i].first);
                          if (residue_for_bar == active_residue_spec) {
                             glm::vec4 col_pink(1.0f, 0.2f, 1.0f, 0.8f);
-                            HUD_bar_attribs_t bar(col_pink, position_offset, bar_length);
-                            new_bars_p->push_back(bar);
+                            HUD_bar_attribs_t bar(col_pink, position_offset + glm::vec2(0.0f, -0.01f), bar_length);
+                            // new_bars_p->push_back(bar);
+                            new_bars_p->insert(new_bars_p->begin(), bar);
                          }
 
                          sum_l += bar_length + 0.005; // with a gap between bars
@@ -3048,9 +3049,10 @@ graphics_info_t::draw_hud_geometry_bars() {
                               float sum_l = 0;
                               for (unsigned int i=0; i<v.size(); i++) {
 
-                                 bool this_atom_is_in_a_moving_atoms_residue = v[i].spec.int_user_data;
+                                 rotamer_markup_container_t &rm = v[i];
+                                 bool this_atom_is_in_a_moving_atoms_residue = rm.spec.int_user_data;
 
-                                 float pr = v[i].rpi.probability;
+                                 float pr = rm.rpi.probability;
                                  float q = 0.01 * (48.0f - v[i].rpi.probability);
                                  if (q > 1.0) q = 1.0;
                                  if (q < 0.0) q = 0.0;
@@ -3089,9 +3091,10 @@ graphics_info_t::draw_hud_geometry_bars() {
                                  coot::residue_spec_t residue_for_bar(v[i].spec);
                                  if (residue_for_bar == active_residue_spec) {
                                     glm::vec4 col_pink(1.0f, 0.2f, 1.0f, 0.8f);
-                                    glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                                    glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0) + glm::vec2(0.0f, -0.01f);
                                     HUD_bar_attribs_t bar(col_pink, position_offset, bar_length);
-                                    new_bars_p->push_back(bar);
+                                    // new_bars_p->push_back(bar);
+                                    new_bars_p->insert(new_bars_p->begin(), bar);
                                  }
 
                                  sum_l += bar_length + 0.005; // with a gap between bars
@@ -3543,11 +3546,9 @@ graphics_info_t::draw_hud_geometry_tooltip() {
       int w = allocation.width;
       int h = allocation.height;
       float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
-      std::cout << "pre-set_scales() " << glm::to_string(tmesh_for_hud_geometry_tooltip_label.get_scales()) << std::endl;
       // 20220215-PE Hmmm about 0.00006 will do.
       glm::vec2 label_scale(0.00006, 0.00006 * aspect_ratio);
       tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
-      std::cout << "post-set_scales() " << glm::to_string(tmesh_for_hud_geometry_tooltip_label.get_scales()) << std::endl;
 
       tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
                                                       &shader_for_hud_geometry_tooltip_text,

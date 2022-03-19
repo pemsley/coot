@@ -513,6 +513,8 @@ Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
 
       // now there is a dodec at the origin, dodec_vertices and dodec_triangle
 
+      // let's make copies of that and move them around the protein
+
       for (int i=0; i<gbc.n_rotamer_markups; i++) {
          const rotamer_markup_container_t &rm = gbc.rotamer_markups[i];
          glm::vec3 atom_pos = cartesian_to_glm(rm.pos);

@@ -129,7 +129,14 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 		  // pr is high, z low, -> green
 		  // pr is ~0, z is ~1 -> red
                   //
-		  z = 1.0 - sqrt(pr.probability*0.01);
+
+		  // z = 1.0 - sqrt(pr.probability*0.01);
+
+                  // 20220319-PE let's try another function
+		  z = 1.0 - pr.probability*0.01;
+                  if (z < 0.0) z = 0.0;
+                  if (z > 1.0) z = 1.0;
+                  z = z * z;
 
 		  // args fraction, min, max, dummy-not-colour-triple-flag
 		  col = coot::colour_holder(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
