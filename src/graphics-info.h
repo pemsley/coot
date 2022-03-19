@@ -3295,8 +3295,9 @@ public:
    void set_directory_for_filechooser_string(std::string filename);
    void set_directory_for_saving_for_filechooser_string(std::string filename);
 
-   static int file_selection_dialog_x_size;
-   static int file_selection_dialog_y_size;
+   // 20220319-PE what do these do these days?
+   static int file_chooser_dialog_x_size;
+   static int file_chooser_dialog_y_size;
 
    // Origin marker for Johan
    static int show_origin_marker_flag;

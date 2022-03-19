@@ -113,18 +113,20 @@ void open_coords_dialog() {
       /* This split was here because the buttons don't work. They act on the
 	 file list, using the file list as a CList.  And CList is deprecated
 	 in GTk+2.  So the button-press callback code needs to be adjusted. */
-      GtkWidget *coords_filechooser1 = coot_file_chooser();
+      GtkWidget *coords_filechooser = coot_file_chooser();
+
       // add_ccp4i_project_optionmenu(coords_filechooser1, COOT_COORDS_FILE_SELECTION);
 
-      GtkWidget *file_filter_button = add_filename_filter_button(coords_filechooser1,
-                                                                 COOT_COORDS_FILE_SELECTION);
+      // GtkWidget *file_filter_button = add_filename_filter_button(coords_filechooser, COOT_COORDS_FILE_SELECTION);
+
+      add_filechooser_filter_button(coords_filechooser, COOT_COORDS_FILE_SELECTION);
 
       // sort_button = add_sort_button_filechooser(coords_filechooser1); // FIXME
-      add_recentre_on_read_pdb_combobox(coords_filechooser1);
-      set_directory_for_coot_file_chooser(coords_filechooser1);
-      set_file_selection_dialog_size(coords_filechooser1);
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, coords_filechooser1);
-      gtk_widget_show (coords_filechooser1);
+      add_recentre_on_read_pdb_combobox(coords_filechooser);
+      set_directory_for_coot_file_chooser(coords_filechooser);
+      set_file_selection_dialog_size(coords_filechooser);
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, coords_filechooser);
+      gtk_widget_show (coords_filechooser);
 
       /* in gtk2 we have to push the buttons after we show the selection */
       // push_the_buttons_on_filechooser(file_filter_button, sort_button, coords_filechooser1);
@@ -1211,14 +1213,13 @@ void set_graphics_window_size(int x_size, int y_size) {
 }
 
 
- 
 void add_recentre_on_read_pdb_combobox(GtkWidget *filechooser) {
 
-   GtkWidget *combobox = widget_from_builder("coords_filechooserdialog1_recentre_combobox");
+   GtkWidget *combobox = widget_from_builder("coords_filechooserdialog_recentre_combobox");
 
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Recentre on Molecule");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Don't Recentre");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Recentre Molecule Here");
+   // gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Recentre on Molecule");
+   // gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Don't Recentre");
+   // gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Recentre Molecule Here");
 
    if (graphics_info_t::recentre_on_read_pdb)
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
@@ -1277,8 +1278,8 @@ store_window_position(int window_type, GtkWidget *widget) {
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
-   graphics_info_t::file_selection_dialog_x_size = allocation.width;
-   graphics_info_t::file_selection_dialog_y_size = allocation.height;
+   graphics_info_t::file_chooser_dialog_x_size = allocation.width;
+   graphics_info_t::file_chooser_dialog_y_size = allocation.height;
 
    gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
 
@@ -1412,27 +1413,21 @@ void graphics_window_size_and_position_to_preferences() {
 void
 store_window_size(int window_type, GtkWidget *widget) {
 
-   if (window_type == COOT_FILESELECTION_DIALOG) {
+   if (window_type == COOT_FILESELECTION_DIALOG) { // 20220319-PE bleugh
       GtkAllocation allocation;
       gtk_widget_get_allocation(widget, &allocation);
-      graphics_info_t::file_selection_dialog_x_size = allocation.width;
-      graphics_info_t::file_selection_dialog_y_size = allocation.height;
+      graphics_info_t::file_chooser_dialog_x_size = allocation.width;
+      graphics_info_t::file_chooser_dialog_y_size = allocation.height;
    }
 }
 
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
-   if (graphics_info_t::file_selection_dialog_x_size > 0) {
+   if (graphics_info_t::file_chooser_dialog_x_size > 0) {
 
-      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-         gtk_window_set_default_size(GTK_WINDOW(dialog),
-				     graphics_info_t::file_selection_dialog_x_size,
-				     graphics_info_t::file_selection_dialog_y_size);
-      } else {
-         gtk_window_resize(GTK_WINDOW(dialog),
- 			   graphics_info_t::file_selection_dialog_x_size,
-			   graphics_info_t::file_selection_dialog_y_size);
-      }
+      gtk_window_resize(GTK_WINDOW(dialog),
+                        graphics_info_t::file_chooser_dialog_x_size,
+                        graphics_info_t::file_chooser_dialog_y_size);
    }
 }
 
@@ -2132,8 +2127,8 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 
 GtkWidget *coot_file_chooser() {
 
-   GtkWidget *w = widget_from_builder("coords_filechooserdialog1");
-   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
+   GtkWidget *w = widget_from_builder("coords_filechooser_dialog");
+   // gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
 
    return w;
 }
@@ -2141,19 +2136,19 @@ GtkWidget *coot_file_chooser() {
 GtkWidget *coot_dataset_chooser() {
 
    // GtkWidget *w = create_dataset_filechooserdialog1();
-   GtkWidget *w = widget_from_builder("dataset_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("dataset_filechooser_dialog");
    return w;
 }
 
 GtkWidget *coot_map_name_chooser() {
 
-   GtkWidget *w = widget_from_builder("map_name_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("map_name_filechooser_dialog");
    return w;
 }
 
 GtkWidget *coot_save_coords_chooser() {
 
-   GtkWidget *w = widget_from_builder("save_coords_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("save_coords_filechooser_dialog");
    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
 
    return w;
@@ -2161,7 +2156,7 @@ GtkWidget *coot_save_coords_chooser() {
 
 GtkWidget *coot_cif_dictionary_chooser() {
 
-   GtkWidget *w = widget_from_builder("cif_dictionary_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("cif_dictionary_filechooser_dialog");
    return w;
 }
 
@@ -2173,29 +2168,29 @@ GtkWidget *coot_run_script_chooser() {
 
 GtkWidget *coot_save_state_chooser() {
 
-   GtkWidget *w = widget_from_builder("save_state_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("save_state_filechooserdialog");
    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_save_symmetry_chooser() {
 
-   GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooser_dialog");
    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_screendump_chooser() {
 
-   GtkWidget *w = widget_from_builder("screendump_filechooserdialog1");
+   GtkWidget *w = widget_from_builder("screendump_filechooser_dialog");
    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 
-void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
+void set_directory_for_coot_file_chooser(GtkWidget *coords_chooser) {
 
-   set_directory_for_filechooser(coords_fileselection1);
+   set_directory_for_filechooser(coords_chooser);
 }
 
 const char *coot_file_chooser_file_name(GtkWidget *widget) {

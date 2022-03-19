@@ -535,25 +535,29 @@ void
 on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  int is_auto_read_fileselection = 1;
-  int is;
-  GtkWidget *file_filter_button;
-  GtkWidget *sort_button;
-  GtkWidget *dataset_fileselection1 = coot_dataset_chooser ();
-  add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
-  file_filter_button = add_filename_filter_button(dataset_fileselection1,
-						  COOT_DATASET_FILE_SELECTION);
-  sort_button = add_sort_button_fileselection(dataset_fileselection1);
-  /*   set_directory_for_fileselection(dataset_fileselection1); */
+   int is_auto_read_fileselection = 1;
+   int is;
+   GtkWidget *file_filter_button;
+   GtkWidget *sort_button;
+   GtkWidget *dataset_chooser = coot_dataset_chooser();
 
-  /* stuff in user data saying if this is autoread or not... */
-  is = is_auto_read_fileselection;
-  g_object_set_data(G_OBJECT(dataset_fileselection1), "imol", GINT_TO_POINTER(is));
-  set_file_selection_dialog_size(dataset_fileselection1);
+   // add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
 
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
-  gtk_widget_show (dataset_fileselection1);
-  push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_fileselection1);
+   file_filter_button = add_filename_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
+   sort_button = add_sort_button_fileselection(dataset_chooser);
+   /*   set_directory_for_fileselection(dataset_fileselection1); */
+
+   /* stuff in user data saying if this is autoread or not... */
+   is = is_auto_read_fileselection;
+   g_object_set_data(G_OBJECT(dataset_chooser), "imol", GINT_TO_POINTER(is));
+
+   // set_file_selection_dialog_size(dataset_chooser);
+
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
+   gtk_widget_show(dataset_chooser);
+
+   // what does this do?
+   push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_chooser);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -564,8 +568,8 @@ on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback(GtkDialog   
    if (response_id == GTK_RESPONSE_OK) {
       const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       if (fnc) {
-         std::string fn(fnc);
-         std::cout << "Now do something with " << fn << std::endl;
+         int imol = 0; // FIXME
+         save_coordinates(imol, fnc);
       }
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -620,11 +624,44 @@ on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialo
                                                           gint             response_id,
                                                           gpointer         user_data) {
    if (response_id == GTK_RESPONSE_OK) {
-      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-      if (fnc) {
-         std::string fn(fnc);
-         std::cout << "Now do something with " << fn << std::endl;
+
+      GtkWidget *recentre_combobox = widget_from_builder("coords_filechooserdialog_recentre_combobox");
+      int active_item_index = gtk_combo_box_get_active(GTK_COMBO_BOX(recentre_combobox));
+
+#if 0
+      GSList *files_list = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
+      while (files_list) {
+
+         const char *fnc = static_cast<const char *>(files_list->data);
+         if (fnc) {
+            std::string fn(fnc);
+            std::cout << "Now do something with " << fn << std::endl;
+            handle_read_draw_molecule_with_recentre(fn, 0);
+         }
+         files_list = g_slist_next(files_list);
       }
+#endif
+
+      const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+      bool recentre_on_read_pdb_flag = false;
+      bool move_molecule_here_flag = false;
+      if (active_item_index == 0)
+         recentre_on_read_pdb_flag = true;
+      if (active_item_index == 1)
+         recentre_on_read_pdb_flag = false;
+      if (active_item_index == 2)
+         move_molecule_here_flag = true;
+
+      if (move_molecule_here_flag) {
+         handle_read_draw_molecule_and_move_molecule_here(fn);
+      } else {
+         if (recentre_on_read_pdb_flag)
+            handle_read_draw_molecule_with_recentre(fn, 1);
+         else
+            handle_read_draw_molecule_with_recentre(fn, 0); // no recentre
+      }
+
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
 
@@ -633,3 +670,14 @@ on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialo
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_coords_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
+                                                                gpointer user_data) {
+
+   // 20220319-PE shouldn't need to connect to this says the documentation - hmmm.....
+   const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   handle_read_draw_molecule_with_recentre(fn, 1);
+   gtk_widget_hide(GTK_WIDGET(dialog));
+
+}

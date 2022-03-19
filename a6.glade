@@ -6195,8 +6195,10 @@ the Ctrl key when moving the mouse.</property>
     </child>
   </object>
   <object class="GtkFileChooserDialog" id="coords_filechooser_dialog">
+    <property name="width_request">600</property>
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <signal name="file-activated" handler="on_coords_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
     <signal name="response" handler="on_coords_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
@@ -6241,7 +6243,47 @@ the Ctrl key when moving the mouse.</property>
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="coords_filechooserdialog_recentre_combobox">
+                <property name="width_request">220</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="active">0</property>
+                <property name="has_entry">True</property>
+                <items>
+                  <item translatable="yes">Recentre on New Molecule</item>
+                  <item translatable="yes">Don't Recentre</item>
+                  <item translatable="yes">Move New Molecule Here</item>
+                </items>
+                <child internal-child="entry">
+                  <object class="GtkEntry">
+                    <property name="can_focus">False</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </object>
     </child>
