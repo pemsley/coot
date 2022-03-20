@@ -385,13 +385,13 @@ graphics_info_t::draw_anti_aliasing() {
 //
 coot::read_refmac_mon_lib_info_t
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
-       int imol_enc_in,
-       short int show_no_bonds_dialog_maybe_flag) {
+                                    int imol_enc_in,
+                                    short int show_no_bonds_dialog_maybe_flag) {
 
    if (false)
       std::cout << "::: add_cif_dictionary() called with "
-   << cif_dictionary_filename << " " << imol_enc_in << " "
-   << show_no_bonds_dialog_maybe_flag << std::endl;
+                << cif_dictionary_filename << " " << imol_enc_in << " "
+                << show_no_bonds_dialog_maybe_flag << std::endl;
 
    int imol_enc = imol_enc_in;
 
@@ -399,58 +399,59 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
       std::vector<std::string> comp_ids = coot::comp_ids_in_dictionary_cif(cif_dictionary_filename);
       bool is_non_auto_load_comp_id = false;  // because it is ATP, not LIG
       for (unsigned int i=0; i<comp_ids.size(); i++) {
-    if (geom_p->is_non_auto_load_ligand(comp_ids[i])) {
-       // imol_enc is the latest model added that contains this comp_id
-       //
-       is_non_auto_load_comp_id = true;
+         if (geom_p->is_non_auto_load_ligand(comp_ids[i])) {
+            // imol_enc is the latest model added that contains this comp_id
+            //
+            is_non_auto_load_comp_id = true;
 
-       for (int ii=(n_molecules()-1); ii>=0; ii--){
-          if (is_valid_model_molecule(ii)) {
-     imol_enc = ii;
-     break;
-          }
-       }
-       break;
-    }
+            for (int ii=(n_molecules()-1); ii>=0; ii--){
+               if (is_valid_model_molecule(ii)) {
+                  imol_enc = ii;
+                  break;
+               }
+            }
+            break;
+         }
       }
       if (! is_non_auto_load_comp_id)
-    imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+         imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
    }
 
    coot::read_refmac_mon_lib_info_t rmit =
-   geom_p->init_refmac_mon_lib(cif_dictionary_filename,
-          cif_dictionary_read_number,
-          imol_enc);
+      geom_p->init_refmac_mon_lib(cif_dictionary_filename,
+                                  cif_dictionary_read_number,
+                                  imol_enc);
 
    cif_dictionary_read_number++;
    if (rmit.success > 0) {
       cif_dictionary_filename_vec->push_back(cif_dictionary_filename);
       if (show_no_bonds_dialog_maybe_flag) {
-    display_density_level_this_image = 1;
-    std::string s;
-    s = "Read ";
-    s += int_to_string(rmit.n_atoms + rmit.n_links);
-    s += " atoms/links in restraints from ";
-    s += cif_dictionary_filename;
-    display_density_level_screen_string = s;
-    add_status_bar_text(s);
-    graphics_draw();
+         display_density_level_this_image = 1;
+         std::string s;
+         s = "Read ";
+         s += int_to_string(rmit.n_atoms + rmit.n_links);
+         s += " atoms/links in restraints from ";
+         s += cif_dictionary_filename;
+         display_density_level_screen_string = s;
+         add_status_bar_text(s);
+         graphics_draw();
       }
       std::cout << display_density_level_screen_string << std::endl;
    } else {
       std::cout << "init_refmac_mon_lib "  << cif_dictionary_filename
-   << " had no bond restraints\n";
+                << " had no bond restraints\n";
       if (use_graphics_interface_flag) {
-    if (show_no_bonds_dialog_maybe_flag) {
-       GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
-       gtk_widget_show(widget);
-    }
+         if (show_no_bonds_dialog_maybe_flag) {
+            // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
+            GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
+            gtk_widget_show(widget);
+         }
       }
 
       std::string s;
       for (unsigned int i=0; i<rmit.error_messages.size(); i++) {
-    s += rmit.error_messages[i];
-    s += "\n";
+         s += rmit.error_messages[i];
+         s += "\n";
       }
       info_dialog(s);
    }
@@ -3716,8 +3717,8 @@ graphics_info_t::start_baton_here() {
    baton_root = RotationCentre();
 
    int imol_for_skel = imol_for_skeleton(); // if unset, sets and
-       // returns if only one
-       // map, else return -1
+   // returns if only one
+   // map, else return -1
    if (imol_for_skel < 0) {
 
       std::cout << "WARNING: no skeleton found " << std::endl;
@@ -3725,18 +3726,19 @@ graphics_info_t::start_baton_here() {
       std::vector<int> map_molecules = valid_map_molecules();
 
       if (map_molecules.size() > 0) {
-    GtkWidget *w = wrapped_create_skeleton_dialog(1);
-    gtk_widget_show(w);
-    return 0;
+         GtkWidget *w = wrapped_create_skeleton_dialog(1);
+         gtk_widget_show(w);
+         return 0;
 
       } else {
 
-    // 20091218 It is as it was - No map.
-    //
-    GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-    g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
-    gtk_widget_show(w);
-    return 0;
+         // 20091218 It is as it was - No map.
+         //
+         // GtkWidget *w = create_baton_mode_make_skeleton_dialog();
+         GtkWidget *w = widget_from_builder("baton_mode_make_skeleton_dialog");
+         g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
+         gtk_widget_show(w);
+         return 0;
       }
 
    } else {

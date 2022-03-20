@@ -239,7 +239,8 @@ void chemical_feature_clusters_accept_info_py(unsigned int site_number,
 
 void chemical_feature_clusters_setup_dialog() {
 
-   GtkWidget *w = create_cfc_dialog();
+   // GtkWidget *w = create_cfc_dialog();
+   GtkWidget *w = widget_from_builder("cfc_dialog");
    if (w) {
       graphics_info_t::cfc_dialog = w;
    } else {

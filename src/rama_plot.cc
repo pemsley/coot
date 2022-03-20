@@ -68,7 +68,7 @@ coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_p
    phipsi_edit_flag = 0;
    backbone_edit_flag = 0;
    bool init_status;
-   init_status = create_dynarama_window();
+   init_status = this->create_dynarama_window();
    if (init_status) {
       psi_axis_mode = psi_axis; // or should this be in init_internal?!
 
@@ -91,7 +91,7 @@ coot::rama_plot::init(const std::string &type, short int psi_axis) {
       backbone_edit_flag = 0;
       imol = -9999; // magic number used in OK button callback.
       bool init_status;
-      init_status = create_dynarama_window();
+      init_status = this->create_dynarama_window();
       if (init_status) {
          psi_axis_mode = psi_axis; // or should this be in init_internal?!
          init_internal("Ramachandran Plot (Phi/Psi Edit Mode)", 0.02, 0.002, 1);
@@ -107,7 +107,7 @@ coot::rama_plot::init(const std::string &type, short int psi_axis) {
       imol = -9999; // magic number used in OK button callback.
       short int hide_buttons = 1;
       bool init_status;
-      init_status = create_dynarama_window();
+      init_status = this->create_dynarama_window();
       if (init_status) {
          psi_axis_mode = psi_axis; // or should this be in init_internal?!
          init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);

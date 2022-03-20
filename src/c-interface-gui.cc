@@ -2276,7 +2276,9 @@ void do_torsions_toggle(GtkWidget *togglebutton) {
 
 GtkWidget *wrapped_create_refine_params_dialog() {
 
-   GtkWidget *w = create_refine_params_dialog();
+   //    What is this?
+   // GtkWidget *w = create_refine_params_dialog();
+   GtkWidget *w = widget_from_builder("refine_params_dialog");
    set_refine_params_toggle_buttons(w);
    set_refine_params_comboboxes(w);
    return w;
@@ -3225,7 +3227,8 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
 
       // create (then store) a new one.
 
-      widget = create_model_refine_dialog();
+      // widget = create_model_refine_dialog();
+      widget = widget_from_builder("model_refine_dialog");
       graphics_info_t::model_fit_refine_dialog = widget;
       if (graphics_info_t::model_fit_refine_dialog_was_sucked) {
 	 suck_model_fit_dialog();
@@ -4778,14 +4781,14 @@ GtkWidget *wrapped_create_residue_info_dialog() {
 //       else
 // 	 gdk_window_raise(widget->window);
 
-      gtk_widget_destroy(widget);
-      widget = create_residue_info_dialog();
+      widget = widget_from_builder("residue_info_dialog");
       graphics_info_t::residue_info_dialog = widget;
+
    } else {
 
       // create (then store) a new one.
 
-      widget = create_residue_info_dialog();
+      widget = widget_from_builder("residue_info_dialog");
       graphics_info_t::residue_info_dialog = widget;
    }
    return widget;
@@ -5003,7 +5006,8 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
 
    if (true) {
 
-      GtkWidget *file_chooser_dialog = create_export_map_filechooserdialog();
+      // GtkWidget *file_chooser_dialog = create_export_map_filechooserdialog();
+      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_filechooser_dialog");
       unsigned int l = std::string(entry_text).length();
       char *c = new char [l + 1];
       strncpy(c, entry_text, l+1);
@@ -5938,7 +5942,8 @@ void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
 // keyboarding mode
 void show_go_to_residue_keyboarding_mode_window() {
 
-   GtkWidget *w = create_keyboard_goto_residue_window();
+   // GtkWidget *w = create_keyboard_goto_residue_window();
+   GtkWidget *w = widget_from_builder("keyboard_goto_residue_window");
    graphics_info_t g;
    // g.graphics_x_position, graphics_x_size
    int x_pos = g.graphics_x_position + 5;

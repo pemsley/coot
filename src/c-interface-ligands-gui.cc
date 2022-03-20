@@ -912,7 +912,8 @@ int execute_get_mols_ligand_search_old(GtkWidget *button) {
 //
 void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog) {
 
-   GtkWidget *widget = create_find_ligand_many_atoms_dialog();
+   // GtkWidget *widget = create_find_ligand_many_atoms_dialog();
+   GtkWidget *widget = widget_from_builder("find_ligand_many_atoms_dialog");
    g_object_set_data(G_OBJECT(widget), "find_ligand_dialog", find_ligand_dialog);
    gtk_widget_show(widget);
 }
@@ -1293,7 +1294,8 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 				      double percentile_limit) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = create_ligand_check_dialog();
+      // GtkWidget *w = create_ligand_check_dialog();
+      GtkWidget *w = widget_from_builder("ligand_check_dialog");
 
       GtkWidget *mogul_tick_w  = widget_from_builder("image_tick_mogul");
       GtkWidget *mogul_cross_w = widget_from_builder("image_cross_mogul");

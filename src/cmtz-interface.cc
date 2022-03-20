@@ -762,9 +762,10 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button) {
    GtkWidget *t_button = widget_from_builder("phs_cell_none_radiobutton");
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_button))) {
       std::cout << "special value for none for phs_cell radiobuton active" << std::endl;
-      GtkWidget *info_window = create_phs_info_box();
+      // GtkWidget *info_window = create_phs_info_box();
+      GtkWidget *info_window = widget_from_builder("phs_info_box");
       gtk_widget_show(info_window);
    }
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
 
 }

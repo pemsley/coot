@@ -453,7 +453,8 @@ wrapped_create_accept_reject_refinement_dialog() {
      if (graphics_info_t::accept_reject_dialog)
 	w = graphics_info_t::accept_reject_dialog;
      else
-	w = create_accept_reject_refinement_dialog();
+	// w = create_accept_reject_refinement_dialog();
+	w = widget_from_builder("accept_reject_refinement_dialog");
   }
   graphics_info_t::accept_reject_dialog = w;
   return w;
@@ -1154,7 +1155,8 @@ graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
    if (do_baton_mode) {
       int state = g.try_set_draw_baton(1);
       if (state) {
-	 GtkWidget *w = create_baton_dialog();
+	 //  GtkWidget *w = create_baton_dialog();
+	 GtkWidget *w = widget_from_builder("baton_dialog");
 	 gtk_widget_show(w);
       }
    }
@@ -2818,14 +2820,13 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
 
    // mode is either EDIT_CHI or RESIDUE_PARTIAL_ALT_LOCS.
 
-
-   GtkWidget *dialog = create_edit_chi_angles_dialog();
+   // GtkWidget *dialog = create_edit_chi_angles_dialog();
+   GtkWidget *dialog = widget_from_builder("edit_chi_angles_dialog");
    if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
       gtk_window_set_title(GTK_WINDOW(dialog), "Add Alternative Conformer Split by Torsion");
    }
 
    set_transient_and_position(COOT_EDIT_CHI_DIALOG, dialog);
-
 
    // Fill the vbox with buttons with atom labels about which there
    // are rotatable torsions:
@@ -3298,7 +3299,8 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 // 			    << backbone_torsion_end_ca_2.format() << std::endl;
 
 		  graphics_draw();
-		  GtkWidget *widget = create_edit_backbone_torsions_dialog();
+		  // GtkWidget *widget = create_edit_backbone_torsions_dialog();
+		  GtkWidget *widget = widget_from_builder("edit_backbone_torsions_dialog");
 		  set_edit_backbone_adjustments(widget);
 		  gtk_widget_show(widget);
         // update the graph to show both
@@ -3919,7 +3921,8 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
    GtkWidget *w;
 
    if (v.size() > 0) {
-      w = create_interesting_waters_by_difference_map_check_dialog();
+      // w = create_interesting_waters_by_difference_map_check_dialog();
+      w = widget_from_builder("interesting_waters_by_difference_map_check_dialog");
       GtkWidget *vbox = widget_from_builder("interesting_waters_by_difference_map_check_vbox");
       GtkWidget *button;
       coot::atom_spec_t *atom_spec;
@@ -4066,7 +4069,7 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 
    } else {
       std::cout << "Congratulations: there are no bad chiral volumes in this molecule.\n";
-      dialog = create_no_bad_chiral_volumes_dialog();
+      dialog = widget_from_builder("no_bad_chiral_volumes_dialog");
    }
    return dialog;
 }
@@ -4774,7 +4777,8 @@ GtkWidget *graphics_info_t::wrapped_create_symmetry_controller_dialog() const {
 
    GtkWidget *w = symmetry_controller_dialog;
    if (! w) {
-      w = create_symmetry_controller_dialog();
+      //  w = create_symmetry_controller_dialog();
+      w = widget_from_builder("symmetry_controller_dialog");
       symmetry_controller_dialog = w;
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model())
@@ -4790,7 +4794,8 @@ GtkWidget *graphics_info_t::wrapped_create_symmetry_controller_dialog() const {
 GtkWidget *
 graphics_info_t::wrapped_create_lsq_plane_dialog() {
 
-   GtkWidget *w = create_lsq_plane_dialog();
+   //GtkWidget *w = create_lsq_plane_dialog();
+   GtkWidget *w = widget_from_builder("lsq_plane_dialog");
    pick_cursor_maybe();
    lsq_plane_dialog = w;
    GtkWindow *main_window = GTK_WINDOW(get_main_window());
@@ -4804,10 +4809,10 @@ graphics_info_t::wrapped_create_lsq_plane_dialog() {
 GtkWidget *
 wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &pairs) {
 
-   GtkWidget *w = create_multi_residue_torsion_dialog();
+   // GtkWidget *w = create_multi_residue_torsion_dialog();
+   GtkWidget *w = widget_from_builder("multi_residue_torsion_dialog");
    GtkWidget *vbox = widget_from_builder("multi_residue_torsion_vbox");
    graphics_info_t::multi_residue_torsion_reverse_fragment_mode = 0; // reset every time
-
 
    for (unsigned int i=0; i<pairs.size(); i++) {
       std::string s;

@@ -218,7 +218,8 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	 if (interactive_flag) { 
 	    if ( n_big_blobs > 0 ) {
 
-	       GtkWidget *dialog = create_ligand_big_blob_dialog();
+	       // GtkWidget *dialog = create_ligand_big_blob_dialog();
+	       GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
 	       GtkWidget *main_window = graphics_info_t::get_main_window();
 	       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
 	       // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
@@ -243,7 +244,8 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	       gtk_widget_show(dialog);
 	    } else { 
 	       std::cout << "Coot found no blobs" << std::endl;
-	       GtkWidget *dialog = create_ligand_no_blobs_dialog();
+	       // GtkWidget *dialog = create_ligand_no_blobs_dialog();
+	       GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
 	       gtk_widget_show(dialog);
 	    } 
 	 }

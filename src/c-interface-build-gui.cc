@@ -607,7 +607,8 @@ void recover_session() {
       }
    }
    if (i_rec == 0) {
-      GtkWidget *w = create_nothing_to_recover_dialog();
+      // GtkWidget *w = create_nothing_to_recover_dialog();
+      GtkWidget *w = widget_from_builder("nothing_to_recover_dialog");
       gtk_widget_show(w);
    }
 }

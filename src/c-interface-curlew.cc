@@ -118,7 +118,8 @@ void curlew() {
       return;
    }
 
-   GtkWidget *w = create_curlew_dialog();
+   // GtkWidget *w = create_curlew_dialog();
+   GtkWidget *w = widget_from_builder("curlew_dialog");
    graphics_info_t g;
 
    //  GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");

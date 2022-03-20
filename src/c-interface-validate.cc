@@ -124,7 +124,8 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // There is a imol_refinement map check done in the callbacks.c
    // function that calls this function
 
-   GtkWidget *dialog = create_check_waters_dialog();
+   // GtkWidget *dialog = create_check_waters_dialog();
+   GtkWidget *dialog = widget_from_builder("check_waters_dialog");
 
    set_transient_and_position(COOT_CHECK_WATERS_DIALOG, dialog);
 
@@ -393,7 +394,8 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) {
-      w = create_checked_waters_baddies_dialog();
+      // w = create_checked_waters_baddies_dialog();
+      w = widget_from_builder("checked_waters_baddies_dialog");
 
       set_transient_and_position(COOT_CHECKED_WATERS_BADDIES_DIALOG, w);
 
@@ -1242,7 +1244,8 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-   w = create_ramachandran_plot_differences_dialog();
+   // w = create_ramachandran_plot_differences_dialog();
+   w = widget_from_builder("ramachandran_plot_differences_dialog");
 
    // We don't have to worry about chains because they are not active on startup.
 

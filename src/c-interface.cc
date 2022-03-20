@@ -7008,9 +7008,9 @@ void post_scheme_scripting_window() {
         // load the fallback window if we have COOT_SCHEME_DIR (only Windows?!)
         // only for gtk2!
 
-        GtkWidget *window;
         GtkWidget *scheme_entry;
-        window = create_scheme_window();
+        // GtkWidget *window = create_scheme_window();
+        GtkWidget *window = widget_from_builder("scheme_window");
 
         // scheme_entry = lookup_widget(window, "scheme_window_entry");
 
@@ -7308,7 +7308,7 @@ run_state_file_maybe() {
 	    graphics_info_t::state_file_was_run_flag = true;
 	 } else {
 	    if (graphics_info_t::use_graphics_interface_flag) {
-	       GtkWidget *dialog = wrapped_create_run_state_file_dialog();
+	       GtkWidget *dialog = wrapped_create_run_state_file_dialog(); // uses builder
 	       gtk_widget_show(dialog);
 	    }
 	 }
@@ -7374,7 +7374,8 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
 
    std::string filename("0-coot.state.py");
    short int il = 1;
-   GtkWidget *w = create_run_state_file_dialog();
+   // GtkWidget *w = create_run_state_file_dialog();
+   GtkWidget *w = widget_from_builder("run_state_file_dialog");
 
    // GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
    GtkWidget *vbox_mols = widget_from_builder("mols_vbox");

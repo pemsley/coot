@@ -191,7 +191,8 @@ void
 on_about1_activate_gtkbuilder_callback                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *about_window = create_aboutdialog();
+   // GtkWidget *about_window = create_aboutdialog();
+   GtkWidget *about_window = widget_from_builder("aboutdialog");
    add_coot_references_button(about_window);
    gtk_widget_show(about_window);
 }
@@ -357,7 +358,8 @@ void
 on_fps1_activate_gtkbuilder_callback                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *fps_window = create_fps_window();
+   // GtkWidget *fps_window = create_fps_window();
+   GtkWidget *fps_window = widget_from_builder("fps_window");
    GtkButton       *button;
 
    if ( get_fps_flag() == 1) {
@@ -419,7 +421,8 @@ void
 on_dragged_map1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                               gpointer         user_data)
 {
-   GtkWidget *active_map_window = create_active_map_window();
+   // GtkWidget *active_map_window = create_active_map_window();
+   GtkWidget *active_map_window = widget_from_builder("active_map_window");
    GtkButton       *button;
 
    if ( get_active_map_drag_flag() == 1 ) {
@@ -678,7 +681,8 @@ on_anisotropic_atoms1_activate_gtkbuilder_callback         (GtkMenuItem     *men
    GtkAdjustment *adjustment;
    float hscale_initial;
 
-   aniso_window = create_aniso_window();
+   // aniso_window = create_aniso_window();
+   aniso_window = widget_from_builder("aniso_window");
 
 /* Show Aniso Radiobuttons */
    if (get_show_aniso() == 1) {
@@ -844,7 +848,8 @@ on_recentring1_activate_gtkbuilder_callback                (GtkMenuItem     *men
    char *text;
    GtkButton *button;
 
-   smooth_scroll_window = create_smooth_scroll_window();
+   // smooth_scroll_window = create_smooth_scroll_window();
+   smooth_scroll_window = widget_from_builder("smooth_scroll_window"); // what is this?
 
 /* Show Smooth Scrolling Radio Buttons */
    if (get_smooth_scroll() == 1) {
@@ -894,7 +899,8 @@ on_font_size1_activate_gtkbuilder_callback                 (GtkMenuItem     *men
 
    GtkButton *button = 0;
 
-   font_size_window = create_font_size_window();
+   // font_size_window = create_font_size_window();
+   font_size_window = widget_from_builder("font_size_window"); // what is this?
 
 /* The Font Size RadioButtons */
 
@@ -1133,12 +1139,9 @@ void
 on_skeleton_colour1_activate_gtkbuilder_callback           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *col_sel_window;
-
-   col_sel_window = create_skeleton_colour_selection_window();
+   // GtkWidget *col_sel_window = create_skeleton_colour_selection_window();
+   GtkWidget *col_sel_window = widget_from_builder("skeleton_colour_selection_window");
    gtk_widget_show(col_sel_window);
-
-
 }
 
 
@@ -1353,11 +1356,11 @@ void
 on_skeleton_box_radius1_activate_gtkbuilder_callback       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *widget;
   GtkWidget *entry;
   gchar *text;
 
-  widget = create_skeletonization_box_radius_window();
+  // GtkWidget *widget = create_skeletonization_box_radius_window();
+  GtkWidget *widget = widget_from_builder("skeletonization_box_radius_window");
 
   text = get_text_for_skeleton_box_size_entry();
   entry = widget_from_builder("skeleton_box_size_entry");
@@ -1375,19 +1378,19 @@ void
 on_skeletonization_level1_activate_gtkbuilder_callback     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *widget;
   GtkWidget *entry;
   gchar *text;
 
-  widget = create_skeletonization_level_window();
+  // GtkWidget *widget = create_skeletonization_level_window();
+  GtkWidget *widget = widget_from_builder("skeletonization_level_window");
 
-				/* Fill the entry: */
+  /* Fill the entry: */
   text = get_text_for_skeletonization_level_entry();
   entry = widget_from_builder("skeleton_level_entry");
   gtk_entry_set_text(GTK_ENTRY(entry), text);
 
   g_free(text);
-				/* show the widget */
+  /* show the widget */
   gtk_widget_show(widget);
 }
 
@@ -1405,18 +1408,15 @@ void
 on_skel_box_radius_ok_button_clicked_gtkbuilder_callback   (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkEntry *entry;
   const char    *txt;
 
-  entry = GTK_ENTRY(widget_from_builder(
-				  "skeleton_box_size_entry"));
+  GtkEntry *entry = GTK_ENTRY(widget_from_builder("skeleton_box_size_entry"));
 
   txt = gtk_entry_get_text(entry);
 
   set_skeleton_box_size_from_widget(txt);
 
-  gtk_widget_destroy(widget_from_builder(
-				   "skeletonization_box_radius_window"));
+  gtk_widget_hide(widget_from_builder("skeletonization_box_radius_window"));
 
 }
 
@@ -1427,8 +1427,7 @@ on_skel_box_radius_cancel_button_clicked_gtkbuilder_callback (GtkButton       *b
 					  gpointer         user_data)
 {
 
-  gtk_widget_destroy(widget_from_builder(
-				   "skeletonization_box_radius_window"));
+  gtk_widget_hide(widget_from_builder("skeletonization_box_radius_window"));
 
 }
 
@@ -1439,19 +1438,16 @@ on_skeletonization_level_ok_button_clicked_gtkbuilder_callback (GtkButton       
 					    gpointer         user_data)
 {
 
-  GtkEntry *entry;
   const char *txt;
 
-  entry = GTK_ENTRY(widget_from_builder(
-				  "skeleton_level_entry"));
+  GtkEntry *entry = GTK_ENTRY(widget_from_builder("skeleton_level_entry"));
 
   txt = gtk_entry_get_text(entry);
 
   set_skeletonization_level_from_widget(txt); /* does a skeleton
 						 update and redraw */
 
-  gtk_widget_destroy(widget_from_builder(
-				   "skeletonization_level_window"));
+  gtk_widget_hide(widget_from_builder("skeletonization_level_window"));
 
 }
 
@@ -1463,11 +1459,9 @@ on_skeletonization_level_apply_button_clicked_gtkbuilder_callback (GtkButton    
 {
 
 
-  GtkEntry *entry;
   const char *txt;
 
-  entry = GTK_ENTRY(widget_from_builder(
-				  "skeleton_level_entry"));
+  GtkEntry *entry = GTK_ENTRY(widget_from_builder("skeleton_level_entry"));
 
   txt = gtk_entry_get_text(entry);
 
@@ -1484,8 +1478,7 @@ on_skeletonization_level_cancel_button_clicked_gtkbuilder_callback (GtkButton   
 						gpointer         user_data)
 {
 
-  gtk_widget_destroy(widget_from_builder(
-				   "skeletonization_level_window"));
+  gtk_widget_hide(widget_from_builder("skeletonization_level_window"));
 }
 
 
@@ -1520,26 +1513,26 @@ on_display_control_ok_button_clicked_gtkbuilder_callback   (GtkButton       *but
    GtkWidget *molecules_vbox = 0;
    GtkWidget *pane = 0;
 
-  reset_graphics_display_control_window(); /* Needed! (also resets the scroll group) */
-  if (w) {
-     store_window_position(COOT_DISPLAY_CONTROL_WINDOW, w);
-     maps_vbox      = widget_from_builder("display_map_vbox");
-     molecules_vbox = widget_from_builder("display_molecule_vbox");
-     pane           = widget_from_builder("display_control_vpaned");
-     /* store the size, actually */
-     if (maps_vbox)
-	store_window_position(COOT_DISPLAY_CONTROL_MAPS_VBOX, maps_vbox);
-     if (molecules_vbox)
-	store_window_position(COOT_DISPLAY_CONTROL_MOLECULES_VBOX,
-			      molecules_vbox);
-     if (pane)
-	store_window_position(COOT_DISPLAY_CONTROL_PANE, pane);
+   reset_graphics_display_control_window(); /* Needed! (also resets the scroll group) */
+   if (w) {
+      store_window_position(COOT_DISPLAY_CONTROL_WINDOW, w);
+      maps_vbox      = widget_from_builder("display_map_vbox");
+      molecules_vbox = widget_from_builder("display_molecule_vbox");
+      pane           = widget_from_builder("display_control_vpaned");
+      /* store the size, actually */
+      if (maps_vbox)
+         store_window_position(COOT_DISPLAY_CONTROL_MAPS_VBOX, maps_vbox);
+      if (molecules_vbox)
+         store_window_position(COOT_DISPLAY_CONTROL_MOLECULES_VBOX,
+                               molecules_vbox);
+      if (pane)
+         store_window_position(COOT_DISPLAY_CONTROL_PANE, pane);
 
-     // gtk_widget_destroy(w); // 20220309-PE not these days, buddy-boy
-     gtk_widget_hide(w);
-  } else {
-    printf("Error:: in on_display_control_ok_button_clicked() failed to lookup display_control_window_glade\n");
-  }
+      // gtk_widget_destroy(w); // 20220309-PE not these days, buddy-boy
+      gtk_widget_hide(w);
+   } else {
+      printf("Error:: in on_display_control_ok_button_clicked() failed to lookup display_control_window_glade\n");
+   }
 }
 
 
@@ -2421,8 +2414,8 @@ on_environment_distances1_activate_gtkbuilder_callback     (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-   GtkWidget *widget;
-   widget = create_environment_distance_dialog();
+   //  GtkWidget *widget = create_environment_distance_dialog();
+   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
    fill_environment_widget(widget);
    gtk_widget_show(widget);
 
@@ -2455,10 +2448,8 @@ on_refine_params_use_torsions_checkbutton_toggled_gtkbuilder_callback (GtkToggle
 						   gpointer         user_data)
 {
 #if 0 // 20211026-PE  old
-   GtkWidget *omega_checkbutton = widget_from_builder(
-                                                "refine_params_use_peptide_omegas_checkbutton");
-   GtkWidget *phi_psi_restraints_vbox = widget_from_builder(
-                                                      "peptide_torsions_restraints_vbox");
+   GtkWidget *omega_checkbutton = widget_from_builder("refine_params_use_peptide_omegas_checkbutton");
+   GtkWidget *phi_psi_restraints_vbox = widget_from_builder("peptide_torsions_restraints_vbox");
 
    do_torsions_toggle(GTK_WIDGET(togglebutton));
 
@@ -2481,11 +2472,11 @@ on_refine_params_use_planar_peptides_checkbutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    add_planar_peptide_restraints();
-  } else {
-    remove_planar_peptide_restraints();
-  }
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      add_planar_peptide_restraints();
+   } else {
+      remove_planar_peptide_restraints();
+   }
 }
 
 
@@ -2496,11 +2487,11 @@ on_refine_params_use_trans_peptide_restraints_checkbutton_toggled_gtkbuilder_cal
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_use_trans_peptide_restraints(1);
-  } else {
-    set_use_trans_peptide_restraints(0);
-  }
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      set_use_trans_peptide_restraints(1);
+   } else {
+      set_use_trans_peptide_restraints(0);
+   }
 }
 
 
@@ -2538,8 +2529,7 @@ on_refine_params_use_peptide_torsions_checkbutton_toggled_gtkbuilder_callback (G
 							   gpointer         user_data)
 {
 
-   GtkWidget *frame = widget_from_builder(
-				    "peptide_torsions_restraints_vbox");
+   GtkWidget *frame = widget_from_builder("peptide_torsions_restraints_vbox");
    if (gtk_toggle_button_get_active(togglebutton)) {
       gtk_widget_set_sensitive(frame, TRUE);
    } else {
@@ -3237,7 +3227,8 @@ void
 on_hints1_activate_gtkbuilder_callback                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = create_hints_dialog();
+   // GtkWidget *widget = create_hints_dialog();
+   GtkWidget *widget = widget_from_builder("hints_dialog");
    gtk_widget_show(widget);
 }
 
@@ -3251,7 +3242,7 @@ on_residue_info_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
    // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
    apply_residue_info_changes(widget);
-/*    gtk_widget_destroy(widget); not now that it's the Apply button*/
+   /*    gtk_widget_destroy(widget); not now that it's the Apply button*/
 
 }
 
@@ -3541,7 +3532,8 @@ on_model_refine_dialog_baton_button_clicked_gtkbuilder_callback (GtkButton      
      skeletonized map). */
   int state = try_set_draw_baton(1);
   if (state) {
-     GtkWidget *widget = create_baton_dialog();
+     // GtkWidget *widget = create_baton_dialog();
+     GtkWidget *widget = widget_from_builder("baton_dialog()");
     gtk_widget_show(widget);
   }
 }
@@ -3554,14 +3546,12 @@ void
 on_use_weights_checkbutton_toggled_gtkbuilder_callback     (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *hbox = widget_from_builder(
-				  "column_label_window_weights_hbox");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-    gtk_widget_set_sensitive(GTK_WIDGET(hbox), TRUE);
-  } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(hbox), FALSE);
-  }
-
+   GtkWidget *hbox = widget_from_builder("column_label_window_weights_hbox");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+      gtk_widget_set_sensitive(GTK_WIDGET(hbox), TRUE);
+   } else {
+      gtk_widget_set_sensitive(GTK_WIDGET(hbox), FALSE);
+   }
 }
 
 
@@ -3608,25 +3598,27 @@ void
 on_coordinates_recentring1_activate_gtkbuilder_callback    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_read_pdb_recentre_dialog();
-				/* lookup the toggle widgets here and
-				   set the acording to
-				   recentre_on_read_pdb()  */
-  GtkWidget *yes_radio_button = widget_from_builder(
-					      "read_pdb_recentre_yes_radiobutton");
-  GtkWidget *no_radio_button = widget_from_builder(
-					     "read_pdb_recentre_no_radiobutton");
 
-  if (recentre_on_read_pdb()) {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(yes_radio_button), TRUE);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_radio_button), FALSE);
-  } else {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(yes_radio_button), FALSE);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_radio_button), TRUE);
-  }
+   // GtkWidget *widget = create_read_pdb_recentre_dialog();
+   GtkWidget *widget = widget_from_builder("read_pdb_recentre_dialog");
+   /* lookup the toggle widgets here and
+      set the acording to
+      recentre_on_read_pdb()  */
+   GtkWidget *yes_radio_button = widget_from_builder(
+                                                     "read_pdb_recentre_yes_radiobutton");
+   GtkWidget *no_radio_button = widget_from_builder(
+                                                    "read_pdb_recentre_no_radiobutton");
+
+   if (recentre_on_read_pdb()) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(yes_radio_button), TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_radio_button), FALSE);
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(yes_radio_button), FALSE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_radio_button), TRUE);
+   }
 
 
-  gtk_widget_show(widget);
+   gtk_widget_show(widget);
 }
 
 
@@ -4709,8 +4701,9 @@ on_run_refmac_help_button_clicked_gtkbuilder_callback      (GtkButton       *but
   /* GtkWidget *widget = create_run_refmac_help_dialog();
      we use the 'new' help now, but preserve the old dialog
      as backup for now */
-  GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
-  gtk_widget_show(widget);
+   // GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
+   GtkWidget *widget = widget_from_builder("run_refmac_nolabels_help_dialog");
+   gtk_widget_show(widget);
 }
 
 
@@ -4722,7 +4715,7 @@ on_run_refmac_help_dialog_ok_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *widget = widget_from_builder("run_refmac_help_dialog");
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -4733,8 +4726,9 @@ on_run_refmac_nolabels_help_button_clicked_gtkbuilder_callback
 					(GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
-  gtk_widget_show(widget);
+   // GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
+   GtkWidget *widget = widget_from_builder("run_refmac_nolabels_help_dialog");
+   gtk_widget_show(widget);
 }
 
 
@@ -4746,7 +4740,7 @@ on_run_refmac_nolabels_help_dialog_ok_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *widget = widget_from_builder("run_refmac_nolabels_help_dialog");
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -5021,9 +5015,10 @@ on_zoom1_activate_gtkbuilder_callback                      (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = create_zoom_dialog();
-  set_zoom_adjustment(w);
-  gtk_widget_show(w);
+   // GtkWidget *w = create_zoom_dialog();
+   GtkWidget *w = widget_from_builder("zoom_dialog");
+   set_zoom_adjustment(w);
+   gtk_widget_show(w);
 
 }
 
@@ -5159,16 +5154,17 @@ void
 on_centre_atom_label1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_centre_atom_label_dialog();
-  GtkWidget *on  = widget_from_builder("centre_atom_label_radiobutton_on");
-  GtkWidget *off = widget_from_builder("centre_atom_label_radiobutton_off");
-  int v = centre_atom_label_status();
-  if (v) {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on), TRUE);
-  } else {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off), TRUE);
-  }
-  gtk_widget_show(widget);
+   // GtkWidget *widget = create_centre_atom_label_dialog();
+   GtkWidget *widget = widget_from_builder("centre_atom_label_dialog");
+   GtkWidget *on  = widget_from_builder("centre_atom_label_radiobutton_on");
+   GtkWidget *off = widget_from_builder("centre_atom_label_radiobutton_off");
+   int v = centre_atom_label_status();
+   if (v) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on), TRUE);
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off), TRUE);
+   }
+   gtk_widget_show(widget);
 }
 
 
@@ -5208,8 +5204,9 @@ void
 on_edit_chi_angles_help_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = create_chi_angle_help_dialog();
-  gtk_widget_show(w);
+   //   GtkWidget *w = create_chi_angle_help_dialog();
+   GtkWidget *w = widget_from_builder("chi_angle_help_dialog");
+   gtk_widget_show(w);
 }
 
 
@@ -6066,13 +6063,14 @@ void
 on_antialiasing1_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *w = create_antialiasing_dialog();
-  GtkWidget *checkbutton;
-  if (do_anti_aliasing_state()) {
-    checkbutton = widget_from_builder("antialias_dialog_yes_radiobutton");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-  }
-  gtk_widget_show(w);
+   // GtkWidget *w = create_antialiasing_dialog();
+   GtkWidget *w = widget_from_builder("antialiasing_dialog");
+   GtkWidget *checkbutton;
+   if (do_anti_aliasing_state()) {
+      checkbutton = widget_from_builder("antialias_dialog_yes_radiobutton");
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+   }
+   gtk_widget_show(w);
 }
 
 
@@ -6080,8 +6078,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_antialias_dialog_yes_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   if (gtk_toggle_button_get_active(togglebutton))
     set_do_anti_aliasing(1);
@@ -6371,7 +6368,8 @@ void
 on_stereo1_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
                                        gpointer         user_data) {
 
-   GtkWidget *w = create_stereo_dialog();
+   //  GtkWidget *w = create_stereo_dialog();
+   GtkWidget *w = widget_from_builder("stereo_dialog");
    GtkWidget *checkbutton;
 
    if (stereo_mode_state() == 1) { /* coot::HARDWARE_STEREO_MODE */
@@ -6437,7 +6435,8 @@ on_stereo_dialog_hardware_stereo_radiobutton_toggled_gtkbuilder_callback
       mono_togglebutton = widget_from_builder("stereo_dialog_mono_radiobutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(mono_togglebutton), TRUE);
       /* do this in C rather than mess about calling c++ function: */
-      nothing_bad_dialog = create_nothing_bad_dialog();
+      // nothing_bad_dialog = create_nothing_bad_dialog();
+      nothing_bad_dialog = widget_from_builder("nothing_bad_dialog");
       label_widget = widget_from_builder("nothing_bad_label");
       gtk_label_set_text(GTK_LABEL(label_widget), "This computer appears not to be able\nto do hardware stereo");
       gtk_widget_show(nothing_bad_dialog);
@@ -6798,7 +6797,8 @@ void
 on_pointer_distances1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *w = create_pointer_distances_dialog();
+   // GtkWidget *w = create_pointer_distances_dialog();
+   GtkWidget *w = widget_from_builder("pointer_distances_dialog");
    fill_pointer_distances_widget(w);
    gtk_widget_show(w);
 }
@@ -7044,7 +7044,7 @@ on_fit_loop_by_rama_search1_activate_gtkbuilder_callback (GtkMenuItem     *menui
                                                           gpointer         user_data)
 {
 
-   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version();
+   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version(); // fixed
    gtk_widget_show(w);
 }
 
@@ -7218,7 +7218,8 @@ void
 on_on_line_docs_url1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *w = create_doc_urls_dialog();
+   // GtkWidget *w = create_doc_urls_dialog();
+   GtkWidget *w = widget_from_builder("doc_urls_dialog");
    gtk_widget_show(w);
 
 }
@@ -8301,7 +8302,7 @@ void
 on_unit_cell_yes_radiobutton_toggled_gtkbuilder_callback   (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+   if (gtk_toggle_button_get_active(togglebutton))
       set_show_unit_cells_all(1);
   else
       set_show_unit_cells_all(0);
@@ -8378,8 +8379,9 @@ void
 on_search_monomer_library1_activate_gtkbuilder_callback    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *w = create_monomer_search_dialog();
-  gtk_widget_show(w);
+   // GtkWidget *w = create_monomer_search_dialog();
+   GtkWidget *w = widget_from_builder("monomer_search_dialog");
+   gtk_widget_show(w);
 }
 
 
@@ -8389,18 +8391,16 @@ on_monomer_library_search_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *entry = widget_from_builder(
-				   "monomer_search_entry");
-  entry_char_type *text;
-  GtkWidget *viewport = widget_from_builder(
-				   "monomer_search_results_viewport");
+   GtkWidget *entry = widget_from_builder("monomer_search_entry");
+   entry_char_type *text;
+   GtkWidget *viewport = widget_from_builder("monomer_search_results_viewport");
 
-  if (entry) {
-    text = gtk_entry_get_text(GTK_ENTRY(entry));
-    if (text) {
-      handle_make_monomer_search(text, viewport);
-    }
-  }
+   if (entry) {
+      text = gtk_entry_get_text(GTK_ENTRY(entry));
+      if (text) {
+         handle_make_monomer_search(text, viewport);
+      }
+   }
 }
 
 
@@ -8421,21 +8421,19 @@ on_monomer_search_entry_key_press_event_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *entry = widget_from_builder(
-				   "monomer_search_entry");
-  entry_char_type *text;
-  GtkWidget *viewport = widget_from_builder(
-				   "monomer_search_results_viewport");
+   GtkWidget *entry = widget_from_builder("monomer_search_entry");
+   entry_char_type *text;
+   GtkWidget *viewport = widget_from_builder("monomer_search_results_viewport");
 
-  if (entry) {
-    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      text = gtk_entry_get_text(GTK_ENTRY(entry));
-      if (text) {
-	handle_make_monomer_search(text, viewport);
+   if (entry) {
+      if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+         text = gtk_entry_get_text(GTK_ENTRY(entry));
+         if (text) {
+            handle_make_monomer_search(text, viewport);
+         }
       }
-    }
-  }
-  return FALSE;
+   }
+   return FALSE;
 }
 
 
@@ -10258,8 +10256,8 @@ void
 on_other_tools_build_na_button_clicked_gtkbuilder_callback (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w;
-   w = create_build_na_dialog();
+   // GtkWidget *w = create_build_na_dialog();
+   GtkWidget *w = widget_from_builder("build_na_dialog");
    gtk_widget_show(w);
 
 }
@@ -10271,9 +10269,8 @@ on_build_na_dialog_cancelbutton_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w;
-   w = widget_from_builder("build_na_dialog");
-   gtk_widget_destroy(w);
+   GtkWidget *w = widget_from_builder("build_na_dialog");
+   gtk_widget_hide(w);
 
 }
 
@@ -10288,12 +10285,11 @@ on_build_na_dialog_okbutton_clicked_gtkbuilder_callback    (GtkButton       *but
    const char *text;
    float r;
    w = widget_from_builder("build_na_dialog");
-   entry = (GTK_ENTRY(widget_from_builder(
-                                    "build_na_dialog_radius_entry")));
+   entry = (GTK_ENTRY(widget_from_builder("build_na_dialog_radius_entry")));
    text = gtk_entry_get_text(entry);
    r = atof(text);
    find_nucleic_acids_local(r);
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 
 }
 
@@ -10682,8 +10678,9 @@ on_baton_build_set_params_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
 					 gpointer         user_data) {
 
-  GtkWidget *w = create_baton_build_params_dialog();
-  gtk_widget_show(w);
+   // GtkWidget *w = create_baton_build_params_dialog();
+   GtkWidget *w = widget_from_builder("baton_build_params_dialog");
+   gtk_widget_show(w);
 
 }
 
@@ -10768,8 +10765,7 @@ gboolean
 on_environment_distance_min_entry_key_press_event_gtkbuilder_callback
                                         (GtkWidget       *widget,
                                         GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
        execute_environment_settings(widget);
@@ -10827,8 +10823,7 @@ on_refine_params_weight_matrix_entry_changed_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
-  GtkWidget *entry = widget_from_builder(
-				   "refine_params_weight_matrix_entry");
+  GtkWidget *entry = widget_from_builder("refine_params_weight_matrix_entry");
   struct entry_info_t ei = coot_entry_to_val(GTK_ENTRY(entry));
   if (ei.float_is_set)
     set_matrix(ei.val_as_float);
@@ -10866,8 +10861,8 @@ void
 on_remarks_browser1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                                   gpointer         user_data) {
 
-  GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog(); // uses builder
+   gtk_widget_show(w);
 
 }
 

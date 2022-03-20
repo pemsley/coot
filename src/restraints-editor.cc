@@ -1313,16 +1313,14 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
    graphics_info_t g;
    coot::restraints_editor re = g.get_restraints_editor(w);
    if (re.is_valid()) {
-      GtkWidget *ww = create_save_restraint_chooserdialog();
+      // GtkWidget *ww = create_save_restraint_chooserdialog();
+      GtkWidget *ww = widget_from_builder("save_restraint_chooserdialog");
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       std::string filename = "monomer-";
 
       filename += r.residue_info.comp_id;
       filename += ".cif";
-#if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10))
-#else
       gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
-#endif      
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(ww), filename.c_str());
       add_ccp4i_project_optionmenu(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
       add_filename_filter_button(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);

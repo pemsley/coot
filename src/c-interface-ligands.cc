@@ -1068,7 +1068,8 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
 	 gtk_widget_show(w);
       } else {
-	 GtkWidget *w = create_no_new_ligands_info_dialog();
+	 // GtkWidget *w = create_no_new_ligands_info_dialog();
+	 GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
 	 gtk_widget_show(w);
       }
    }
@@ -2382,7 +2383,8 @@ setup_multi_residue_torsion() {
    pick_cursor_maybe(); // depends on ctrl key for rotate
 
    g.multi_residue_torsion_reverse_fragment_mode = false;
-   GtkWidget *w = create_multi_residue_torsion_pick_dialog();
+   // GtkWidget *w = create_multi_residue_torsion_pick_dialog();
+   GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
    gtk_widget_show(w);
 }
 

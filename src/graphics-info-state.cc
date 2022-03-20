@@ -1016,7 +1016,8 @@ graphics_info_t::check_for_unsaved_changes() const {
    int iv = 0;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].Have_unsaved_changes_p()) {
-	 GtkWidget *dialog = create_unsaved_changes_dialog();
+	 // GtkWidget *dialog = create_unsaved_changes_dialog();
+	 GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
 	 fill_unsaved_changes_dialog(dialog);
 	 gtk_widget_show(dialog);
 	 iv = 1;

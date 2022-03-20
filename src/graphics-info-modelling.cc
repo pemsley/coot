@@ -1374,7 +1374,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    } else {
       continue_threaded_refinement_loop = false;
       if (use_graphics_interface_flag) {
-         GtkWidget *widget = create_no_restraints_info_dialog();
+         // GtkWidget *widget = create_no_restraints_info_dialog();
+         GtkWidget *widget = widget_from_builder("no_restraints_info_dialog");
          gtk_widget_show(widget);
       }
    }
@@ -3080,7 +3081,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       //
    } else {
       if (use_graphics_interface_flag) {
-	 GtkWidget *w = create_rigid_body_refinement_failed_dialog();
+	 // GtkWidget *w = create_rigid_body_refinement_failed_dialog();
+	 GtkWidget *w = widget_from_builder("rigid_body_refinement_failed_dialog");
 	 gtk_widget_show(w);
       }
    }
@@ -3109,8 +3111,8 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 	 mmdb::PPAtom selatoms;
 	 int nselatoms;
 
-// 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms altconf :"
-// 		   << altconf << ":" << std::endl;
+         // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms altconf :"
+         // 		   << altconf << ":" << std::endl;
 
 	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
 						   resno_start, // starting resno, an int
@@ -3123,8 +3125,8 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 						    altconf.c_str()  // alt loc.
 						   );
 	 molecules[imol].atom_sel.mol->GetSelIndex(SelHnd, selatoms, nselatoms);
-// 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (1) "
-// 		   << nselatoms << std::endl;
+         // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (1) "
+         // 		   << nselatoms << std::endl;
 	 if (nselatoms > 0) {
 	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_1) == mmdb::UDDATA_Ok) {
 	       residue_range_atom_index_1 = ind_1;
@@ -3360,7 +3362,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       std::cout << "WARNING: failed to find a fit for terminal residue"
 			 << std::endl;
 	       if (use_graphics_interface_flag) {
-		  GtkWidget *w = create_add_terminal_residue_finds_none_dialog();
+		  // GtkWidget *w = create_add_terminal_residue_finds_none_dialog();
+		  GtkWidget *w = widget_from_builder("add_terminal_residue_finds_none_dialog");
 		  gtk_widget_show(w);
 	       }
 
@@ -4523,7 +4526,8 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
 //       std::cout << "DEBUG:: in do_rotamers() atom_index is " << atom_index
 // 		<< " and alconf is :" <<  altconf << ":" << std::endl;
 
-      GtkWidget *dialog = create_rotamer_selection_dialog();
+      // GtkWidget *dialog = create_rotamer_selection_dialog();
+      GtkWidget *dialog = widget_from_builder("rotamer_selection_dialog");
       set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
       rotamer_dialog = dialog;
       g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));

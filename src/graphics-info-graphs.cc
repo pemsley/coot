@@ -734,7 +734,8 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 		     cif_dictionary_read_number += res_types.size();
 		     if (! hd) {
 			if (use_graphics_interface_flag) {
-			   GtkWidget *widget = create_no_restraints_info_dialog();
+			   // GtkWidget *widget = create_no_restraints_info_dialog();
+			   GtkWidget *widget = widget_from_builder("no_restraints_info_dialog");
 			   gtk_widget_show(widget);
 			} else {
 			   std::cout << "WARNING:: No dictionary for some residue types " << std::endl;

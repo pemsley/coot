@@ -967,7 +967,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    // Fixes: could not find argument "points" in the `GnomeCanvasLine' class ancestry
    // goo_canvas_init();
 
-   GtkWidget *dialog = create_geometry_graphs_dialog_gtk3();
+   GtkWidget *dialog = this->create_geometry_graphs_dialog_gtk3(); // new style
 
    canvas = GOO_CANVAS(goo_canvas_new());
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL);
