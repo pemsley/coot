@@ -26,8 +26,6 @@ LinesMesh::init() {
 #ifdef COMPILED_WITH_CLIPPER
 LinesMesh::LinesMesh(const clipper::Cell &cell) {
 
-   index_buffer_id = 999999;
-
    float corners[8][3] = {
                           {0,0,0}, //0
                           {0,0,1}, //1
@@ -38,12 +36,14 @@ LinesMesh::LinesMesh(const clipper::Cell &cell) {
                           {1,1,0}, //6
                           {1,1,1}};//7
 
+   init();
+
    vertices.resize(8);
    for (int ii=0; ii<8; ii++) {
       clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
       clipper::Coord_orth c_o = c_f.coord_orth(cell);
       glm::vec3 pos = coord_orth_to_glm(c_o);
-      std::cout << ii << " " << glm::to_string(pos) << std::endl;
+      // std::cout << ii << " " << glm::to_string(pos) << std::endl;
       vertices[ii].pos = pos;
       vertices[ii].normal = glm::vec3(0,0,1); // not used
       vertices[ii].color  = glm::vec4(0.6, 0.6, 0.1, 1.0);
@@ -161,11 +161,11 @@ LinesMesh::draw(Shader *shader_p,
       std::cout << "ERROR:: LinesMesh::draw() You forgot to setup this mesh " << name << " "
                 << shader_p->name << std::endl;
    glBindVertexArray(vao);
-   err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw() B binding vao\n";
+   err = glGetError(); if (err) std::cout << "GL ERROR:: LinesMesh::draw() B binding vao " << vao << "\n";
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
-   err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw C()\n";
+   err = glGetError(); if (err) std::cout << "GL ERROR:: LinesMesh::draw C()\n";
 
    // no atom_position uniform
 
@@ -180,9 +180,11 @@ LinesMesh::draw(Shader *shader_p,
       shader_p->set_vec2_for_uniform("offset_positions", offset_positions);
 
    GLuint n_indices = indices.size();
+
    if (false)
-      std::cout << "debug:: LinesMesh draw() drawing n_indices " << n_indices
+      std::cout << "DEBUG:: LinesMesh draw() drawing n_indices " << n_indices
                 << " vertices.size() " << vertices.size() << std::endl;
+
    glDrawElements(GL_LINES, n_indices, GL_UNSIGNED_INT, nullptr);
    err = glGetError(); if (err) std::cout << "error LinesMesh::draw() glDrawElements()"
                                           << err << std::endl;

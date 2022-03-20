@@ -3092,12 +3092,10 @@ get_show_unit_cell(int imol) {
 void
 set_show_unit_cell(int imol, short int state) {
 
-
-   //    for (int imol=0; imol<graphics_n_molecules(); imol++) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].show_unit_cell_flag = state;
    }
-   //    }
+
    graphics_draw();
    std::string cmd = "set-show-unit-cell";
    std::vector<coot::command_arg_t> args;
@@ -3117,7 +3115,6 @@ void set_show_unit_cells_all(short int istate) {
       }
    }
 
-   std::cout << "calling graphics_draw()" << std::endl;
    graphics_draw();
 
    std::string cmd = "set-show-unit-cells-all";

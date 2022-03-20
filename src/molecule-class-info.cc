@@ -1704,6 +1704,13 @@ molecule_class_info_t::draw_unit_cell(Shader *shader_p,
       }
    }
 
+   // 20220320-PE
+   // this is needed beacuse the unit cell is setup *during* (the first time) a draw call.
+   // That's not right - it should be setup before this draw call.
+   // setup and draw need to be untangled - but for now let's add an extra draw.
+   //
+   graphics_info_t::graphics_draw();
+
 }
 
 // --------------------------------------------------------------------
