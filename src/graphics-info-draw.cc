@@ -2380,8 +2380,9 @@ graphics_info_t::setup_hud_geometry_bars() {
    // glm::vec2 scales(0.56/aspect_ratio, 0.56);
    // mesh_for_hud_geometry_labels.set_position_and_scales(position, scales); // ""NBC, Pull"" texture
 
-   mesh_for_hud_tooltip_background.setup_quad(); // does setup_buffers()
-   mesh_for_hud_tooltip_background.set_scales(glm::vec2(sc_x, sc_y));
+   // 20220319-PE  this is no longer drawn (at the moment)
+   // mesh_for_hud_tooltip_background.setup_quad(); // does setup_buffers()
+   // mesh_for_hud_tooltip_background.set_scales(glm::vec2(sc_x, sc_y));
 
    tmesh_for_hud_geometry_tooltip_label.setup_quad();
    glm::vec2 label_scale(0.000095, 0.000095/aspect_ratio);
@@ -3548,6 +3549,7 @@ graphics_info_t::draw_hud_geometry_tooltip() {
       float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
       // 20220215-PE Hmmm about 0.00006 will do.
       glm::vec2 label_scale(0.00006, 0.00006 * aspect_ratio);
+      label_scale *= 1.5f;
       tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
       tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
