@@ -1242,6 +1242,8 @@ public:
    GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol, ccp4srs::Manager *srs_manager);
 #endif // HAVE_CCP4SRS
 
+   void basic_white_underlay(); // changes background colour of canvas
+
    void pe_test_function();
 
    // ----------------------------------------------------- functions from src ----------------------

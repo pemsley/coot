@@ -258,7 +258,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
       GList* glist = gtk_container_get_children(GTK_CONTAINER(lbg_sbase_search_results_vbox));
       while (glist) {
 	 GtkWidget *w = GTK_WIDGET(glist->data);
-	 gtk_widget_destroy(w);
+	 gtk_widget_destroy(w); // clear existing children
 	 glist = glist->next;
       }
 

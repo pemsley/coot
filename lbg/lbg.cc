@@ -541,6 +541,26 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 }
 #endif
 
+// not const because we modify canvas_item_vec
+// 
+void
+lbg_info_t::basic_white_underlay() {
+
+   // we dont do an outline around the white canvas
+   // but make a box later
+
+   GdkRGBA col_background;
+   if (gdk_rgba_parse(&col_background, "#cccccc") != TRUE)
+      std::cout << "ERROR:: in basic_white_underlay() failed to parse colour " << std::endl;
+
+   gtk_widget_override_background_color(GTK_WIDGET(canvas), GTK_STATE_FLAG_NORMAL, &col_background);
+
+   // 12/12/18 was grey97
+   // orig grey 90; grey 100 is white; 95 was good
+
+} 
+
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 RDKit::Bond::BondType
 lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
@@ -936,6 +956,7 @@ void
 lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
 
    clear_canvas();
+   basic_white_underlay();
    if (delta.non_zero()) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
@@ -3431,7 +3452,6 @@ lbg_info_t::init(GtkBuilder *builder) {
    gtk_widget_hide(lbg_qed_properties_vbox);
 #endif
 
-
    return true;
 
 }
@@ -4045,9 +4065,11 @@ lbg_info_t::render() {
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    if (false)
-      std::cout << "------------ render_from_molecule() with display_atom_names " << display_atom_names
+      std::cout << "------------ render() with display_atom_names " << display_atom_names
 		<< " display_atom_numbers "  << display_atom_numbers << " "
 		<< mol.atoms.size() << " atoms " << mol.bonds.size() << " bonds" << std::endl;
+
+   basic_white_underlay();
 
    if (! display_atom_names && ! display_atom_numbers) {
 
