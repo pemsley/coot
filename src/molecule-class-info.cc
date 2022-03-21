@@ -3811,6 +3811,22 @@ molecule_class_info_t::make_colour_table() const {
    if (bonds_box.n_consolidated_atom_centres > bonds_box.num_colours) {
       colour_table = std::vector<glm::vec4>(bonds_box.n_consolidated_atom_centres, glm::vec4(0.6f, 0.0f, 0.6f, 1.0f));
    }
+
+   auto pastelize = [] (glm::vec4 &col, float degree) {
+                       for (unsigned int i=0; i<3; i++) {
+                          const float &cc = col[i];
+                          float r = 1.0f - cc;
+                          col[i] += r * degree;
+                       }
+                    };
+
+   if (is_intermediate_atoms_molecule) {
+      // pastelize the colour table
+      float degree = 0.5f;
+      for (auto &col : colour_table) {
+         pastelize(col, degree); //ref
+      }
+   }
    return colour_table;
 }
 
