@@ -4784,17 +4784,249 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    for (int i=0; i<SelAtom.n_selected_atoms; i++)
       SelAtom.atom_selection[i]->PutUDData(udd_has_bond_handle, 0);
 
+   auto new_style_nucleotide_backbone_chain_rep = [this] (int imod,  mmdb::Chain *chain_p,
+                                                          int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
+                                                          const std::string &res_name_1, const std::string &res_name_2,
+                                                          int udd_atom_index_handle, int bond_colour_type,
+                                                          int atom_colours_udd,
+                                                          coot::my_atom_colour_map_t &atom_colour_map, // reference
+                                                          int udd_handle_for_user_defined_colours,
+                                                          int udd_has_bond_handle) {
+
+                                                     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+                                                     std::string chain_id = chain_p->GetChainID();
+
+                                                     // first do the P_C4_prime bonds internal to the residue_this
+                                                     //
+                                                     for (int iat=0; iat<n_atoms_this; iat++) {
+                                                        mmdb::Atom *at_1 = residue_this->GetAtom(iat);
+                                                        std::string atom_name_1(at_1->GetAtomName());
+                                                        if (atom_name_1 == " C4'") {
+                                                           for (int jat=0; jat<n_atoms_this; jat++) {
+                                                              mmdb::Atom *at_2 = residue_this->GetAtom(jat);
+                                                              std::string atom_name_2(at_2->GetAtomName());
+                                                              if (atom_name_2 == " P  ") {
+                                                                 std::string alt_conf_1 = at_1->altLoc;
+                                                                 std::string alt_conf_2 = at_2->altLoc;
+                                                                 if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_2 == alt_conf_1) {
+                                                                    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+                                                                    coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
+                                                                    coot::Cartesian bond_mid_point = pt_1.mid_point(pt_2);
+                                                                    int iat_1 = -1;
+                                                                    int iat_2 = -1;
+                                                                    at_1->GetUDData(udd_atom_index_handle, iat_1);
+                                                                    at_2->GetUDData(udd_atom_index_handle, iat_2);
+                                                                    int col_1 = atom_colour_map.index_for_chain(chain_id);
+                                                                    int col_2 = atom_colour_map.index_for_chain(chain_id);
+                                                                    addBond(col_1, pt_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                                                    addBond(col_1, bond_mid_point, pt_2, cc, imod, iat_1, iat_2);
+                                                                    at_1->PutUDData(udd_has_bond_handle, 1);
+                                                                    at_2->PutUDData(udd_has_bond_handle, 1);
+                                                                    // for use with Ca+ligand mode
+                                                                    residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                                                                 }
+                                                              }
+
+                                                              bool do_base_stick_bond = false;
+                                                              if (atom_name_2 == " N1 ") {
+                                                                 if (res_name_2 == "DG" || res_name_2 == "G" || res_name_2 == "A" || res_name_2 == "DA") {
+                                                                    do_base_stick_bond = true;
+                                                                 }
+                                                              }
+                                                              if (atom_name_2 == " O4 ") {
+                                                                 if (res_name_2 == "DT" || res_name_2 == "U") {
+                                                                    do_base_stick_bond = true;
+                                                                 }
+                                                              }
+                                                              if (atom_name_2 == " N4 ") {
+                                                                 if (res_name_2 == "DC" || res_name_2 == "C") {
+                                                                    do_base_stick_bond = true;
+                                                                 }
+                                                              }
+                                                              if (do_base_stick_bond) { // at least potentially...
+                                                                 std::string alt_conf_1 = at_1->altLoc;
+                                                                 std::string alt_conf_2 = at_2->altLoc;
+                                                                 if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_2 == alt_conf_1) {
+                                                                    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+                                                                    coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
+                                                                    int iat_1 = -1;
+                                                                    int iat_2 = -1;
+                                                                    at_1->GetUDData(udd_atom_index_handle, iat_1);
+                                                                    at_2->GetUDData(udd_atom_index_handle, iat_2);
+                                                                    int col_1 = atom_colour_map.index_for_chain(chain_id);
+                                                                    addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2);
+                                                                 }
+                                                              }
+                                                           }
+                                                        }
+                                                     }
+
+                                                     // now inter-residue bonds
+
+                                                     for (int iat=0; iat<n_atoms_prev; iat++) {
+                                                        mmdb::Atom *at_1 = residue_prev->GetAtom(iat);
+                                                        std::string atom_name_1(at_1->GetAtomName());
+                                                        if (atom_name_1 == " C4'") { // PDBv3 FIXME
+                                                           for (int jat=0; jat<n_atoms_this; jat++) {
+                                                              mmdb::Atom *at_2 = residue_this->GetAtom(jat);
+                                                              std::string atom_name_2(at_2->GetAtomName());
+                                                              if (atom_name_2 == " P  ") { // PDBv3 FIXME
+                                                                 std::string alt_conf_prev = at_1->altLoc;
+                                                                 std::string alt_conf_this = at_2->altLoc;
+                                                                 if (alt_conf_prev.empty() || alt_conf_this.empty() || alt_conf_prev == alt_conf_this) {
+                                                                    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+                                                                    coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
+                                                                    int iat_1 = -1;
+                                                                    int iat_2 = -1;
+                                                                    at_1->GetUDData(udd_atom_index_handle, iat_1);
+                                                                    at_2->GetUDData(udd_atom_index_handle, iat_2);
+                                                                    int col_1 = atom_colour_map.index_for_chain(chain_id);
+                                                                    addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2);
+                                                                    at_1->PutUDData(udd_has_bond_handle, 1);
+                                                                    at_2->PutUDData(udd_has_bond_handle, 1);
+                                                                    // for use with Ca+ligand mode
+                                                                    residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                                                                    residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                                                                 }
+                                                              }
+                                                           }
+                                                        }
+                                                     }
+                                                  };
+
+   auto CA_CA_or_P_P = [this] (int imod, mmdb::Chain *chain_p,
+                               int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
+                               const std::string &res_name_1, const std::string &res_name_2,
+                               float dist_max_CA_CA, float dist_max_P_P,
+                               int udd_atom_index_handle, int bond_colour_type,
+                               int atom_colours_udd,
+                               coot::my_atom_colour_map_t &atom_colour_map, // reference
+                               int udd_handle_for_user_defined_colours,
+                               int udd_has_bond_handle,
+                               int udd_has_ca_handle) {
+
+                          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+
+                          // normal case (not a gap in the sequence)
+                          for (int iat=0; iat<n_atoms_prev; iat++) {
+                             mmdb::Atom *at_1 = residue_prev->GetAtom(iat);
+                             std::string atom_name_1(at_1->GetAtomName());
+                             if (atom_name_1 == " CA " || atom_name_1 == " P  ") { // PDBv3 FIXME
+                                for (int jat=0; jat<n_atoms_this; jat++) {
+                                   mmdb::Atom *at_2 = residue_this->GetAtom(jat);
+                                   std::string atom_name_2(at_2->GetAtomName());
+                                   std::string alt_conf_prev = at_1->altLoc;
+                                   std::string alt_conf_this = at_2->altLoc;
+                                   // Allow MSE hetgroups in CA mode
+                                   if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
+                                      if (!at_1->isTer() && !at_2->isTer()) {
+                                         float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
+                                         bool phosphate_pair = false;
+                                         bool Calpha_pair    = false;
+                                         if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) {
+                                            phosphate_pair = 1;
+                                            dist_max_sqrd = dist_max_P_P * dist_max_P_P;
+                                         }
+                                         if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) {
+                                            Calpha_pair = 1;
+                                         }
+
+                                         if (Calpha_pair || phosphate_pair) {
+                                            if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
+                                               int col = 0; // overridden.
+                                               coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
+                                               coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
+                                               int iat_1 = -1;
+                                               int iat_2 = -1;
+                                               at_1->GetUDData(udd_atom_index_handle, iat_1);
+                                               at_2->GetUDData(udd_atom_index_handle, iat_2);
+                                               if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) {
+                                                  if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+
+                                                     int col_1 = 0;
+                                                     int col_2 = 0;
+                                                     if (atom_colours_udd > 0) {
+                                                        mmdb::realtype f;
+                                                        if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
+                                                           col_1 = atom_colour_map.index_for_b_factor(f);
+                                                        if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
+                                                           col_2 = atom_colour_map.index_for_b_factor(f);
+                                                     }
+                                                     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+                                                     addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                                     addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+                                                  } else {
+                                                     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
+                                                        coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+                                                        col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
+                                                        addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                                        col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
+                                                        addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+                                                     } else {
+
+                                                        int col_1 = 0;
+                                                        int col_2 = 0;
+                                                        if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+                                                           if (atom_colours_udd > 0) {
+                                                              mmdb::realtype f;
+                                                              if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+                                                                 col_1 = atom_colour_map.index_for_rainbow(f);
+                                                                 if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+                                                                    col_2 = atom_colour_map.index_for_rainbow(f);
+                                                                 } else {
+                                                                    col_2 = 0;
+                                                                 }
+                                                              } else {
+                                                                 col_1 = 0;
+                                                              }
+                                                           } else {
+                                                              col_1 = 0;
+                                                           }
+                                                        } else {
+
+                                                           if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+                                                              col_1 = this->get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
+                                                              col_2 = this->get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
+                                                              if (col_1 < 0) // problem
+                                                                 col_1 = 0;
+                                                              if (col_2 < 0) // ditto
+                                                                 col_2 = 0;
+                                                           } else {
+                                                              col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
+                                                              col_2 = col_1;
+                                                           }
+                                                        }
+                                                        this->bonds_size_colour_check(col_1);
+                                                        this->bonds_size_colour_check(col_2);
+                                                        coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+                                                        addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                                        addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+                                                     }
+                                                  }
+                                                  at_1->PutUDData(udd_has_bond_handle, 1);
+                                                  at_2->PutUDData(udd_has_bond_handle, 1);
+                                                  // for use with Ca+ligand mode
+                                                  residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                                                  residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                                               }
+                                            }
+                                         }
+                                      }
+                                   }
+                                }
+                             }
+                          }
+                       };
+
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = SelAtom.mol->GetModel(imod);
       if (model_p) {
-	 mmdb::Chain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            bool is_nucleotide_chain_flag = chain_p->isNucleotideChain();
 	    int nres = chain_p->GetNumberOfResidues();
             if (nres < 2) continue;
-	    mmdb::Atom *at_1;
-	    mmdb::Atom *at_2;
 	    for (int ires=1; ires<nres; ires++) {
 	       mmdb::Residue *residue_this = chain_p->GetResidue(ires);
 	       mmdb::Residue *residue_prev = chain_p->GetResidue(ires-1);
@@ -4816,116 +5048,34 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
                   } else {
 
-		     // normal case (not a gap in the sequence)
-
-		     for (int iat=0; iat<n_atoms_prev; iat++) {
-			at_1 = residue_prev->GetAtom(iat);
-			std::string atom_name_1(at_1->GetAtomName());
-			if (atom_name_1 == " CA " || atom_name_1 == " P  ") { // PDBv3 FIXME
-			   for (int jat=0; jat<n_atoms_this; jat++) {
-			      at_2 = residue_this->GetAtom(jat);
-			      std::string atom_name_2(at_2->GetAtomName());
-			      std::string alt_conf_prev = at_1->altLoc;
-			      std::string alt_conf_this = at_2->altLoc;
-			      // Allow MSE hetgroups in CA mode
-			      if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
-				 if (!at_1->isTer() && !at_2->isTer()) {
-				    float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
-				    bool phosphate_pair = false;
-				    bool Calpha_pair    = false;
-				    if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) {
-				       phosphate_pair = 1;
-				       dist_max_sqrd = dist_max_P_P * dist_max_P_P;
-				    }
-				    if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) {
-				       Calpha_pair = 1;
-				    }
-
-				    if (Calpha_pair || phosphate_pair) {
-				       if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
-					  int col = 0; // overridden.
-					  coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
-					  coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
-					  int iat_1 = -1;
-					  int iat_2 = -1;
-					  at_1->GetUDData(udd_atom_index_handle, iat_1);
-					  at_2->GetUDData(udd_atom_index_handle, iat_2);
-					  if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) {
-					     if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-
-                                                int col_1 = 0;
-                                                int col_2 = 0;
-                                                if (atom_colours_udd > 0) {
-                                                   mmdb::realtype f;
-                                                   if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
-                                                      col_1 = atom_colour_map.index_for_b_factor(f);
-                                                   if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
-                                                      col_2 = atom_colour_map.index_for_b_factor(f);
-                                                }
-						coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-						addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-						addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-					     } else {
-						if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
-						   coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-						   col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
-						   addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-						   col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
-						   addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-						} else {
-
-						   int col_1 = 0;
-						   int col_2 = 0;
-						   if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-						      if (atom_colours_udd > 0) {
-							 mmdb::realtype f;
-							 if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-							    col_1 = atom_colour_map.index_for_rainbow(f);
-							    if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-							       col_2 = atom_colour_map.index_for_rainbow(f);
-							    } else {
-							       col_2 = 0;
-							    }
-							 } else {
-							    col_1 = 0;
-							 }
-						      } else {
-							 col_1 = 0;
-						      }
-						   } else {
-
-						      if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-							 col_1 = get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
-							 col_2 = get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
-							 if (col_1 < 0) // problem
-							    col_1 = 0;
-							 if (col_2 < 0) // ditto
-							    col_2 = 0;
-						      } else {
-							 col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
-							 col_2 = col_1;
-						      }
-						   }
-						   bonds_size_colour_check(col_1);
-						   bonds_size_colour_check(col_2);
-						   coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-						   addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-						   addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-						}
-					     }
-					     at_1->PutUDData(udd_has_bond_handle, 1);
-					     at_2->PutUDData(udd_has_bond_handle, 1);
-					     // for use with Ca+ligand mode
-					     residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-					     residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-					  }
-				       }
-				    }
-				 }
-			      }
-			   }
-			}
-		     }
+                     bool old_style = false;
+                     if (old_style) {
+                        CA_CA_or_P_P(imod, chain_p, n_atoms_prev, residue_prev, n_atoms_this, residue_this,
+                                     res_name_1, res_name_2, dist_max_CA_CA, dist_max_P_P,
+                                     udd_atom_index_handle, bond_colour_type,
+                                     atom_colours_udd, atom_colour_map,
+                                     udd_handle_for_user_defined_colours,
+                                     udd_has_bond_handle,
+                                     udd_has_ca_handle);
+                     } else {
+                        if (is_nucleotide_chain_flag) {
+                           new_style_nucleotide_backbone_chain_rep(imod, chain_p, n_atoms_prev, residue_prev, n_atoms_this, residue_this,
+                                                                   res_name_1, res_name_2,
+                                                                   udd_atom_index_handle, bond_colour_type,
+                                                                   atom_colours_udd, atom_colour_map,
+                                                                   udd_handle_for_user_defined_colours,
+                                                                   udd_has_bond_handle);
+                        } else {
+                           // std::cout << "was not nucleic acid chain .............................. " << chain_p->GetChainID() << std::endl;
+                           CA_CA_or_P_P(imod, chain_p, n_atoms_prev, residue_prev, n_atoms_this, residue_this,
+                                        res_name_1, res_name_2, dist_max_CA_CA, dist_max_P_P,
+                                        udd_atom_index_handle, bond_colour_type,
+                                        atom_colours_udd, atom_colour_map,
+                                        udd_handle_for_user_defined_colours,
+                                        udd_has_bond_handle,
+                                        udd_has_ca_handle);
+                        }
+                     }
 		  }
 	       }
 	    }
