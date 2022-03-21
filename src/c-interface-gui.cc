@@ -4960,6 +4960,9 @@ int file_chooser_overwrite_state(){
 void export_map_gui(short int export_map_fragment) {
 
    // GtkWidget *w = create_export_map_dialog();
+
+   // this is the widget that chooses the map molecule, not the file chooser.
+   //
    GtkWidget *w = widget_from_builder("export_map_dialog");
 
    if (! export_map_fragment) {
@@ -4980,11 +4983,8 @@ void export_map_gui(short int export_map_fragment) {
    // item was.
 
    g_object_set_data(G_OBJECT(w), "is_map_fragment", GINT_TO_POINTER(export_map_fragment));
-
    int imol_active = imol_refinement_map();
-
    g.fill_combobox_with_map_options(combobox, NULL, imol_active);
-
    gtk_widget_show(w);
 
 }
@@ -5873,6 +5873,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 
 void
 calc_and_set_optimal_b_factor ( GtkWidget *w ) {
+
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
    int imol = graphics_info_t::imol_map_sharpening;
    float Bopt = optimal_B_kurtosis(imol);

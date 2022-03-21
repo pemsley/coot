@@ -143,11 +143,8 @@ void
 on_cancel_coords_button1_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *coords_fileselection1 = widget_from_builder(
-						    "coords_fileselection1");
-
-   gtk_widget_destroy(coords_fileselection1);
-
+   GtkWidget *coords_fileselection1 = widget_from_builder( "coords_fileselection1");
+   gtk_widget_hide(coords_fileselection1);
 }
 
 
@@ -156,9 +153,8 @@ void
 on_cancel_dataset_button1_clicked_gtkbuilder_callback      (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *dataset_fileselection1 = widget_from_builder(
-						   "dataset_fileselection1");
-   gtk_widget_destroy(dataset_fileselection1);
+   GtkWidget *dataset_fileselection1 = widget_from_builder("dataset_fileselection1");
+   gtk_widget_hide(dataset_fileselection1);
 }
 
 
@@ -169,9 +165,7 @@ on_column_label_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
 {
 
   GtkWidget *column_label_window = widget_from_builder("column_label_window");
-
   handle_column_label_make_fourier_v2(column_label_window);
-
 }
 
 
@@ -181,8 +175,7 @@ on_column_label_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
                                         gpointer         user_data)
 {
    printf("column_label_window CANCEL button clicked\n");
-   gtk_widget_destroy(widget_from_builder(
-				     "column_label_window"));
+   gtk_widget_hide(widget_from_builder("column_label_window"));
 }
 
 
@@ -393,7 +386,7 @@ on_fps_window_ok_button_clicked_gtkbuilder_callback        (GtkButton       *but
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("radiobutton2"))))
       set_fps_flag(0);
 
-   gtk_widget_destroy(widget_from_builder("fps_window"));
+   gtk_widget_hide(widget_from_builder("fps_window"));
 
 }
 
@@ -410,8 +403,7 @@ on_active_map_ok_button_clicked_gtkbuilder_callback        (GtkButton       *but
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("active_map_radiobutton_no"))))
       set_active_map_drag_flag(0);
 
-   gtk_widget_destroy(widget_from_builder(
-				    "active_map_window"));
+  gtk_widget_hide(widget_from_builder( "active_map_window"));
 
 }
 
@@ -475,8 +467,7 @@ on_show_symmetry1_activate_gtkbuilder_callback             (GtkMenuItem     *men
 extern "C" G_MODULE_EXPORT
 void
 on_show_symmetry_ok_button_clicked_gtkbuilder_callback     (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                                            gpointer         user_data) {
    GtkEntry      *entry;
    GtkWidget     *checkbutton;
    const char *text;
@@ -549,8 +540,7 @@ on_show_symmetry_ok_button_clicked_gtkbuilder_callback     (GtkButton       *but
      set_symmetry_atom_labels_expanded(0);
 
 /* Goodbye Mr Widget */
-   gtk_widget_destroy(widget_from_builder(
-				    "show_symmetry_window"));
+   gtk_widget_hide(widget_from_builder( "show_symmetry_window"));
 
 }
 
@@ -663,8 +653,7 @@ void
 on_about_ok_button_clicked_gtkbuilder_callback             (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_destroy(widget_from_builder(
-				    "about_window"));
+   gtk_widget_hide(widget_from_builder("about_window"));
 }
 
 
@@ -787,7 +776,7 @@ on_show_aniso_close_button_clicked_gtkbuilder_callback     (GtkButton       *but
                                         gpointer         user_data)
 {
 /* Goodbye Widget */
-   gtk_widget_destroy(widget_from_builder("aniso_window"));
+   gtk_widget_hide(widget_from_builder("aniso_window"));
 }
 
 extern "C" G_MODULE_EXPORT
@@ -832,7 +821,7 @@ void on_smooth_scrolling_window_ok_button_clicked_gtkbuilder_callback (GtkButton
    set_smooth_scroll_steps_str(text);
 
 
-   gtk_widget_destroy(widget_from_builder("smooth_scroll_window"));
+   gtk_widget_hide(widget_from_builder("smooth_scroll_window"));
 
 }
 
@@ -942,7 +931,7 @@ on_font_size_ok_button_clicked_gtkbuilder_callback         (GtkButton       *but
       set_font_size(3);
 
 /* goodbye widget */
-   gtk_widget_destroy(widget_from_builder("font_size_window"));
+   gtk_widget_hide(widget_from_builder("font_size_window"));
 
 }
 
@@ -1105,8 +1094,7 @@ on_cancel_button_map_name_clicked_gtkbuilder_callback      (GtkButton       *but
                                         gpointer         user_data)
 {
 
-   gtk_widget_destroy(widget_from_builder(
-				     "map_name_fileselection1"));
+   gtk_widget_hide(widget_from_builder("map_name_fileselection1"));
 
 }
 
@@ -1154,8 +1142,7 @@ on_phs_info_ok_button_clicked_gtkbuilder_callback          (GtkButton       *but
    phs_pdb_cell_symm(); /* which runs
 			   create_phs_coordinates_fileselection() */
 
-   gtk_widget_destroy(widget_from_builder(
-				    "phs_info_box"));
+   gtk_widget_hide(widget_from_builder( "phs_info_box"));
 
 }
 
@@ -1165,8 +1152,7 @@ void
 on_phs_info_cancel_button_clicked_gtkbuilder_callback      (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_destroy(widget_from_builder(
-				    "phs_info_box"));
+   gtk_widget_hide(widget_from_builder("phs_info_box"));
 
 }
 
@@ -1177,8 +1163,7 @@ on_cancel_phs_coord_button_clicked_gtkbuilder_callback     (GtkButton       *but
                                         gpointer         user_data)
 {
 
-  gtk_widget_destroy(widget_from_builder(
-				     "phs_coordinates_fileselection"));
+  gtk_widget_hide(widget_from_builder( "phs_coordinates_fileselection"));
 
 
 }
@@ -1750,7 +1735,7 @@ on_dynarama_ok_button_clicked_gtkbuilder_callback          (GtkButton       *but
    if (imol == -9999)
      accept_phi_psi_moving_atoms();
 
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1773,7 +1758,7 @@ on_dynarama_cancel_button_clicked_gtkbuilder_callback      (GtkButton       *but
    if (imol == -9999)
      clear_moving_atoms_object();
 
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
 
    /* maybe we should also destroy the edit backbone torsion dialog, if it exists. */
 
@@ -1930,7 +1915,7 @@ on_model_refine_dialog_dismiss_button_clicked_gtkbuilder_callback (GtkButton    
    store_window_position(COOT_MODEL_REFINE_DIALOG, dialog);
    /* was it a top-level?  If so, kill off the top-level. */
    if (dialog)
-      gtk_widget_destroy(dialog);
+      gtk_widget_hide(dialog);
 }
 
 
@@ -2106,7 +2091,7 @@ on_refine_params_dialog_ok_button_clicked_gtkbuilder_callback
     set_refinement_weight_from_entry(entry);
   }
 
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 }
 
 
@@ -2172,7 +2157,7 @@ on_accept_reject_refinement_accept_button_clicked_gtkbuilder_callback (GtkButton
   c_accept_moving_atoms();
   save_accept_reject_dialog_window_position(window);
   set_accept_reject_dialog(NULL);
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
 }
 
 
@@ -2188,7 +2173,7 @@ on_accept_reject_refinement_reject_button_clicked_gtkbuilder_callback (GtkButton
 
   stop_refinement_internal();
   clear_up_moving_atoms();
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -2308,7 +2293,7 @@ on_find_waters_cancel_button_clicked_gtkbuilder_callback   (GtkButton       *but
    widget = widget_from_builder(
 			  "find_waters_dialog");
 
-   gtk_widget_destroy(widget);
+   gtk_widget_hide(widget);
 }
 
 
@@ -2320,7 +2305,7 @@ on_fast_sss_dialog_cancel_button_clicked_gtkbuilder_callback
 {
   GtkWidget *widget;
   widget = widget_from_builder("fast_ss_search_dialog");
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -2387,7 +2372,7 @@ on_fast_sss_dialog_ok_button_clicked_gtkbuilder_callback   (GtkButton       *but
 				 use_strand, strand_length, strand_target,
 				 radius);
 
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 
 }
 
@@ -2557,7 +2542,7 @@ on_cif_dictionary_fileselection_cancel_button_clicked_gtkbuilder_callback
   GtkWidget *fileselection;
 
   fileselection = widget_from_builder("cif_dictionary_fileselection");
-  gtk_widget_destroy(fileselection);
+  gtk_widget_hide(fileselection);
 
 }
 
@@ -2589,7 +2574,7 @@ on_residue_type_chooser_ALA_clicked_gtkbuilder_callback    (GtkButton       *but
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
 
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("ALA", istate);
 }
 
@@ -2606,7 +2591,7 @@ on_residue_type_chooser_ARG_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("ARG", istate);
 
 }
@@ -2624,7 +2609,7 @@ on_residue_type_chooser_ASN_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("ASN", istate);
 
 }
@@ -2642,7 +2627,7 @@ on_residue_type_chooser_ASP_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("ASP", istate);
 
 }
@@ -2660,7 +2645,7 @@ on_residue_type_chooser_CYS_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("CYS", istate);
 
 }
@@ -2678,7 +2663,7 @@ on_residue_type_chooser_GLN_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("GLN", istate);
 
 }
@@ -2696,7 +2681,7 @@ on_residue_type_chooser_GLU_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("GLU", istate);
 
 }
@@ -2714,7 +2699,7 @@ on_residue_type_chooser_GLY_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("GLY", istate);
 
 }
@@ -2732,7 +2717,7 @@ on_residue_type_chooser_HIS_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("HIS", istate);
 
 }
@@ -2750,7 +2735,7 @@ on_residue_type_chooser_ILE_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("ILE", istate);
 
 }
@@ -2768,7 +2753,7 @@ on_residue_type_chooser_LEU_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("LEU", istate);
 
 }
@@ -2786,7 +2771,7 @@ on_residue_type_chooser_LYS_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("LYS", istate);
 
 }
@@ -2804,7 +2789,7 @@ on_residue_type_chooser_MET_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("MET", istate);
 
 }
@@ -2821,7 +2806,7 @@ on_residue_type_chooser_MSE_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("MSE", istate);
 
 }
@@ -2841,7 +2826,7 @@ on_residue_type_chooser_PHE_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("PHE", istate);
 
 }
@@ -2859,7 +2844,7 @@ on_residue_type_chooser_PRO_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("PRO", istate);
 
 }
@@ -2877,7 +2862,7 @@ on_residue_type_chooser_SER_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("SER", istate);
 
 }
@@ -2895,7 +2880,7 @@ on_residue_type_chooser_THR_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("THR", istate);
 
 }
@@ -2913,7 +2898,7 @@ on_residue_type_chooser_TRP_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("TRP", istate);
 
 }
@@ -2931,7 +2916,7 @@ on_residue_type_chooser_TYR_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("TYR", istate);
 
 }
@@ -2950,7 +2935,7 @@ on_residue_type_chooser_VAL_clicked_gtkbuilder_callback    (GtkButton       *but
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_destroy(window);
+   gtk_widget_hide(window);
    do_mutation("VAL", istate);
 
 }
@@ -3189,7 +3174,7 @@ on_close_molecule_close_button_clicked_gtkbuilder_callback (GtkButton       *but
 				    "close_molecule_dialog");
   GtkWidget *optionmenu = widget_from_builder("close_molecule_optionmenu");
   close_molecule_by_widget(optionmenu);
-/*   gtk_widget_destroy(window); */
+/*   gtk_widget_hide(window); */
 }
 
 
@@ -3200,7 +3185,7 @@ on_close_molecule_cancel_button_clicked_gtkbuilder_callback (GtkButton       *bu
 {
   GtkWidget *window = widget_from_builder(
 				    "close_molecule_dialog");
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
 
 }
 
@@ -3218,7 +3203,7 @@ on_delete_item_cancel_button_clicked_gtkbuilder_callback   (GtkButton       *but
    normal_cursor();
    store_window_position(COOT_DELETE_WINDOW, widget);
    store_delete_item_widget(NULL);
-   gtk_widget_destroy(widget);
+   gtk_widget_hide(widget);
 }
 
 
@@ -3242,7 +3227,7 @@ on_residue_info_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
    // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
    apply_residue_info_changes(widget);
-   /*    gtk_widget_destroy(widget); not now that it's the Apply button*/
+   /*    gtk_widget_hide(widget); not now that it's the Apply button*/
 
 }
 
@@ -3257,7 +3242,7 @@ on_residue_info_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
 
    residue_info_release_memory(widget);  // Hmmm! that seems dangerous
 
-   // gtk_widget_destroy(widget); not now we use builder
+   // gtk_widget_hide(widget); not now we use builder
    gtk_widget_hide(widget);
    unset_residue_info_widget();
 }
@@ -3307,7 +3292,7 @@ on_rotamer_selection_ok_button_clicked_gtkbuilder_callback (GtkButton       *but
    accept_regularizement();
    clear_moving_atoms_object();
    store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 }
 
 
@@ -3336,7 +3321,7 @@ on_rotamer_selection_cancel_button_clicked_gtkbuilder_callback
    }
 
    store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 }
 
 
@@ -3430,7 +3415,7 @@ on_unsaved_changes_cancel_button_clicked_gtkbuilder_callback
 
    GtkWidget *dialog = widget_from_builder(
 				     "unsaved_changes_dialog");
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 }
 
 
@@ -3442,7 +3427,7 @@ on_unsaved_changes_continue_button_clicked_gtkbuilder_callback
 {
    GtkWidget *dialog = widget_from_builder(
 				     "unsaved_changes_dialog");
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
    coot_clear_backup_or_real_exit(0);
 }
 
@@ -3517,7 +3502,7 @@ on_baton_dialog_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
   try_set_draw_baton(0);
   set_baton_mode(0);		/* if you can't see it, there's no
 				   point in trying to move it */
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -3574,7 +3559,7 @@ on_environment_distance_dialog_ok_button_clicked_gtkbuilder_callback
    GtkWidget *widget;
    widget = widget_from_builder("environment_distance_dialog");
    execute_environment_settings(GTK_WIDGET(button));
-   gtk_widget_destroy(widget);
+   gtk_widget_hide(widget);
 
 }
 
@@ -3659,7 +3644,7 @@ on_read_pdb_recentre_dialog_ok_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
    // GtkWidget *widget = widget_from_builder("read_pdb_recentre_dialog");
-   // gtk_widget_destroy(widget);
+   // gtk_widget_hide(widget);
 
    GtkWidget *w = widget_from_builder("read_pdb_recentre_dialog");
    gtk_widget_hide(w);
@@ -3673,7 +3658,7 @@ on_pointer_atom_type_cancel_button_clicked_gtkbuilder_callback(GtkButton       *
                                                                gpointer         user_data) {
 
    // GtkWidget *widget = widget_from_builder("pointer_atom_type_dialog");
-   // gtk_widget_destroy(widget);
+   // gtk_widget_hide(widget);
 
    GtkWidget *w = widget_from_builder("pointer_atom_type_dialog");
    gtk_widget_hide(w);
@@ -3719,7 +3704,7 @@ on_pointer_atom_type_ok_button_clicked_gtkbuilder_callback (GtkButton       *but
   }
   /* Recall that the molecule is set by the callback from menu item "activate" */
 
-  // gtk_widget_destroy(dialog);
+  // gtk_widget_hide(dialog);
   gtk_widget_hide(dialog);
 }
 
@@ -4036,7 +4021,7 @@ on_skeleton_ok_button_clicked_gtkbuilder_callback          (GtkButton       *but
   skeletonize_map_by_optionmenu(optionmenu);
   */
   skeletonize_map_by_combobox(combobox);
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
   if (do_baton_mode)
     try_set_draw_baton(1);
 
@@ -4209,7 +4194,7 @@ on_display_crosshairs_ok_button_clicked_gtkbuilder_callback (GtkButton       *bu
 {
   GtkWidget *dialog = widget_from_builder("crosshairs_dialog");
 
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 
 }
 
@@ -4266,7 +4251,7 @@ on_add_alt_conf_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
   GtkWidget *dialog = widget_from_builder("add_alt_conf_dialog");
   unset_add_alt_conf_dialog();
   unset_add_alt_conf_define();
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 
 }
 
@@ -4296,7 +4281,7 @@ on_validation_dialog_cancel_button_clicked_gtkbuilder_callback (GtkButton       
 
   GtkWidget *widget = widget_from_builder("");
 
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -4393,7 +4378,7 @@ on_run_state_file_cancel_button_clicked_gtkbuilder_callback (GtkButton       *bu
    // GtkWidget *dialog = widget_from_builder("run_state_file_dialog"); // old glade style
   GtkWidget *dialog = widget_from_builder("run_state_file_dialog");
   gtk_widget_hide(dialog);
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 }
 
 
@@ -4522,7 +4507,7 @@ on_edit_backbone_torsion_ok_button_clicked_gtkbuilder_callback
 				    "edit_backbone_torsions_dialog");
   accept_regularizement();	/* does a clear too. */
   destroy_edit_backbone_rama_plot();
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
 }
 
 
@@ -4536,7 +4521,7 @@ on_edit_backbone_torsion_cancel_button_clicked_gtkbuilder_callback
    /*   clear_moving_atoms_object(); done as part of window destroy
         callback */
    destroy_edit_backbone_rama_plot(); // 20211006-PE this function name should be changed
-   //gtk_widget_destroy(window);
+   //gtk_widget_hide(window);
    gtk_widget_hide(window);
 
 }
@@ -4640,7 +4625,7 @@ on_select_map_for_fitting_button_clicked_gtkbuilder_callback
 //  GtkWidget *widget = widget_from_builder(
 //				    "select_fitting_map_dialog");
 
- // gtk_widget_destroy(widget);
+ // gtk_widget_hide(widget);
 
 }
 
@@ -4753,7 +4738,7 @@ on_no_restraints_info_dialog_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *window = widget_from_builder("no_restraints_info_dialog");
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
 
 }
 
@@ -4766,7 +4751,7 @@ on_no_cif_dictionary_bonds_ok_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *window = widget_from_builder("no_cif_dictionary_bonds_dialog");
-  gtk_widget_destroy(window);
+  gtk_widget_hide(window);
 
 }
 
@@ -4824,7 +4809,7 @@ on_edit_chi_angles_cancel_button_clicked_gtkbuilder_callback
   clear_up_moving_atoms();	/* and remove the graphics object */
   unset_moving_atom_move_chis();
   store_window_position(COOT_EDIT_CHI_DIALOG, widget);
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -4836,7 +4821,7 @@ on_check_waters_ok_button_clicked_gtkbuilder_callback      (GtkButton       *but
 {
   GtkWidget *widget = widget_from_builder("check_waters_dialog");
   do_check_waters_by_widget(widget);
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 }
 
 
@@ -4847,7 +4832,7 @@ on_check_waters_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
 {
 
   GtkWidget *widget = widget_from_builder("check_waters_dialog");
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -4924,7 +4909,7 @@ on_geometry_dialog_close_button_clicked_gtkbuilder_callback
   /* it is the COOT_DISTANCES_ANGLES_WINDOW, hmm. */
   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
   store_geometry_dialog(NULL);
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 #endif
 
   GtkWidget *dialog = widget_from_builder("geometry_dialog");
@@ -4991,7 +4976,7 @@ on_new_ligands_info_dialog_ok_button_clicked_gtkbuilder_callback (GtkButton     
                                                                   gpointer         user_data)
 {
    // GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
-   // gtk_widget_destroy(w);
+   // gtk_widget_hide(w);
    GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
    gtk_widget_hide(w);
 }
@@ -5003,7 +4988,7 @@ on_no_new_ligands_info_dialog_ok_button_clicked_gtkbuilder_callback (GtkButton  
                                                                      gpointer         user_data)
 {
    // GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
-   // gtk_widget_destroy(w);
+   // gtk_widget_hide(w);
    GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
    gtk_widget_hide(w);
 }
@@ -5030,7 +5015,7 @@ on_zoom_dialog_ok_button_clicked_gtkbuilder_callback       (GtkButton       *but
 {
 
   GtkWidget *w = widget_from_builder("zoom_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5088,7 +5073,7 @@ on_get_monomer_ok_button_clicked_gtkbuilder_callback(GtkButton       *button,
    handle_get_libcheck_monomer_code(entry);
    gtk_widget_hide(dialog);
 
-/*   gtk_widget_destroy(widget);  done in handle_get_libcheck_monomer_code */
+/*   gtk_widget_hide(widget);  done in handle_get_libcheck_monomer_code */
 }
 
 
@@ -5124,7 +5109,7 @@ on_recover_coordinates_ok_button_clicked_gtkbuilder_callback
   GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
 
   execute_recover_session(widget); /* widget needed for lookup of user data */
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 
 }
 
@@ -5136,7 +5121,7 @@ on_recover_coordinates_cancel_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
   GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
-  gtk_widget_destroy(widget);
+  gtk_widget_hide(widget);
 }
 
 
@@ -5216,7 +5201,7 @@ on_help_chi_angles_dismiss_button_clicked_gtkbuilder_callback (GtkButton       *
 					   gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("chi_angle_help_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5236,7 +5221,7 @@ on_no_symmetry_warning_ok_button_clicked_gtkbuilder_callback (GtkButton       *b
 					  gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("no_symmetry_warning_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5246,7 +5231,7 @@ on_nothing_to_recover_ok_button_clicked_gtkbuilder_callback (GtkButton       *bu
 					 gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("nothing_to_recover_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5279,7 +5264,7 @@ on_superpose_nonsense_ok_button_clicked_gtkbuilder_callback (GtkButton       *bu
 					 gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("superpose_nonsense_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5290,7 +5275,7 @@ on_superpose_nonsense_cancel_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("superpose_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5300,7 +5285,7 @@ on_add_terminal_residue_finds_none_ok_button_clicked_gtkbuilder_callback (GtkBut
 						      gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("add_terminal_residue_finds_none_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5484,7 +5469,7 @@ on_chiral_volume_baddies_dialog_cancel_button_clicked_gtkbuilder_callback (GtkBu
 						       gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("bad_chiral_volumes_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5506,7 +5491,7 @@ on_rigid_body_refinement_failed_dialog_ok_button_clicked_gtkbuilder_callback (Gt
 {
   GtkWidget *w = widget_from_builder(
 			       "rigid_body_refinement_failed_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5518,7 +5503,7 @@ on_baton_mode_calculate_skeleton_ok_button_clicked_gtkbuilder_callback (GtkButto
   GtkWidget *w = widget_from_builder(
 			       "baton_mode_make_skeleton_dialog");
   baton_mode_calculate_skeleton(w); /* get the imol from here */
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5529,7 +5514,7 @@ on_baton_mode_calculate_skeleton_cancel_button_clicked_gtkbuilder_callback (GtkB
 {
   GtkWidget *w = widget_from_builder(
 			       "baton_mode_make_skeleton_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5585,7 +5570,7 @@ on_merge_molecules_ok_button_clicked_gtkbuilder_callback   (GtkButton       *but
 {
   GtkWidget *w = widget_from_builder("merge_molecules_dialog");
   do_merge_molecules(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5596,7 +5581,7 @@ on_merge_molecules_cancel_button_clicked_gtkbuilder_callback (GtkButton       *b
 					  gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("merge_molecules_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5719,7 +5704,7 @@ on_renumber_residue_range_ok_button_clicked_gtkbuilder_callback
   GtkWidget *w = widget_from_builder(
 			       "renumber_residue_range_dialog");
   renumber_residues_from_widget(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5732,7 +5717,7 @@ on_renumber_residue_range_cancel_button_clicked_gtkbuilder_callback
 {
   GtkWidget *w = widget_from_builder(
 			       "renumber_residue_range_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5773,7 +5758,7 @@ on_add_OXT_cancel_button_clicked_gtkbuilder_callback       (GtkButton       *but
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("add_OXT_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -5814,7 +5799,7 @@ on_bond_parameters_ok_button_clicked_gtkbuilder_callback   (GtkButton       *but
 {
    // GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    // apply_bond_parameters(w);
-   // gtk_widget_destroy(w);
+   // gtk_widget_hide(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -5871,7 +5856,7 @@ on_ligand_no_blobs_OK_button_clicked_gtkbuilder_callback   (GtkButton       *but
                                         gpointer         user_data)
 {
    //   GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
-   // gtk_widget_destroy(dialog);
+   // gtk_widget_hide(dialog);
 
    GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
    gtk_widget_hide(dialog);
@@ -5890,7 +5875,7 @@ on_new_delete_molecules_ok_button_clicked_gtkbuilder_callback
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    new_close_molecules(w);
 
-  /*   gtk_widget_destroy(w); */
+  /*   gtk_widget_hide(w); */
 }
 
 
@@ -5949,7 +5934,7 @@ on_find_blobs_ok_button_clicked_gtkbuilder_callback        (GtkButton       *but
 {
   GtkWidget *w = widget_from_builder("unmodelled_blobs_dialog");
   execute_find_blobs_from_widget(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5960,7 +5945,7 @@ on_find_blobs_cancel_button_clicked_gtkbuilder_callback    (GtkButton       *but
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("unmodelled_blobs_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -5973,7 +5958,7 @@ on_chiral_restraints_problem_ok_button_clicked_gtkbuilder_callback (GtkButton   
 {
 
   GtkWidget *w = widget_from_builder("chiral_restraints_problem_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 /* We'll keep this for now because it is used by
@@ -5988,7 +5973,7 @@ on_check_waters_diff_map_ok_button_clicked_gtkbuilder_callback (GtkButton       
 
 /*   GtkWidget *w = widget_from_builder("check_waters_diff_map_dialog"); */
 /*   check_waters_by_difference_map_by_widget(w); */
-/*   gtk_widget_destroy(w); */
+/*   gtk_widget_hide(w); */
 
 
 }
@@ -6000,7 +5985,7 @@ on_check_waters_diff_map_cancel_button_clicked_gtkbuilder_callback (GtkButton   
 						gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("check_waters_diff_map_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -6023,7 +6008,7 @@ on_interesting_waters_by_difference_map_check_ok_button_clicked_gtkbuilder_callb
 
   GtkWidget *w = widget_from_builder(
 			       "interesting_waters_by_difference_map_check_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -6160,7 +6145,7 @@ on_save_symmetry_coords_fileselection_ok_button_clicked_gtkbuilder_callback
 {
   GtkWidget *w = widget_from_builder("save_symmetry_coords_fileselection");
   save_symmetry_coords_from_fileselection(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -6171,7 +6156,7 @@ on_save_symmetry_coords_fileselection_cancel_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("save_symmetry_coords_fileselection");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -6403,7 +6388,7 @@ on_stereo_dialog_ok_button_clicked_gtkbuilder_callback     (GtkButton       *but
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("stereo_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -6788,7 +6773,7 @@ on_pointer_distances_ok_button_clicked_gtkbuilder_callback (GtkButton       *but
 {
    GtkWidget *dialog = widget_from_builder("pointer_distances_dialog");
    execute_pointer_distances_settings(dialog);
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 }
 
 
@@ -6839,7 +6824,7 @@ on_ramachandran_plot_differences_ok_button_clicked_gtkbuilder_callback
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
    int istat = do_ramachandran_plot_differences_by_widget(w);
    if (istat) 			/* the plot was drawn (i.e. no chain selection funnies) */
-      gtk_widget_destroy(w);
+      gtk_widget_hide(w);
 
 }
 
@@ -6851,7 +6836,7 @@ on_ramachandran_plot_differences_cancel_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 
 }
 
@@ -7087,7 +7072,7 @@ on_base_chooser_A_button_clicked_gtkbuilder_callback       (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder(
 				"nucleic_acid_base_chooser_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
    do_base_mutation("A");
 }
 
@@ -7099,7 +7084,7 @@ on_base_chooser_C_button_clicked_gtkbuilder_callback       (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder(
 				"nucleic_acid_base_chooser_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
    do_base_mutation("C");
 }
 
@@ -7111,7 +7096,7 @@ on_base_chooser_G_button_clicked_gtkbuilder_callback       (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder(
 				"nucleic_acid_base_chooser_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
    do_base_mutation("G");
 }
 
@@ -7123,7 +7108,7 @@ on_base_chooser_T_button_clicked_gtkbuilder_callback       (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder(
 				"nucleic_acid_base_chooser_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
    do_base_mutation("T");
 }
 
@@ -7135,7 +7120,7 @@ on_base_chooser_U_button_clicked_gtkbuilder_callback       (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder(
 				"nucleic_acid_base_chooser_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
    do_base_mutation("U");
 }
 
@@ -7148,7 +7133,7 @@ on_base_chooser_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
 
    GtkWidget *w = widget_from_builder(
 				"nucleic_acid_base_chooser_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -7193,7 +7178,7 @@ on_change_chain_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
                                         gpointer         user_data)
 {
    // GtkWidget *w = widget_from_builder("change_chain_id_dialog");
-   // gtk_widget_destroy(w);
+   // gtk_widget_hide(w);
 
    GtkWidget *w = widget_from_builder("change_chain_id_dialog");
    gtk_widget_hide(w);
@@ -7232,7 +7217,7 @@ on_on_line_documentation_ok_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("doc_urls_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 
 }
 
@@ -7246,7 +7231,7 @@ on_save_state_cancel_button1_clicked_gtkbuilder_callback   (GtkButton       *but
 {
    GtkWidget *w = widget_from_builder(
 				"save_state_fileselection");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -7462,7 +7447,7 @@ on_other_modelling_tools_close_button_clicked_gtkbuilder_callback
    // GtkWidget *w = widget_from_builder("other_model_tools_dialog");
    GtkWidget *w = widget_from_builder("other_model_tools_dialog");
 
-   // gtk_widget_destroy(w);
+   // gtk_widget_hide(w);
    gtk_widget_hide(w);
 }
 
@@ -7636,7 +7621,7 @@ on_screendump_image_ok_button_clicked_gtkbuilder_callback  (GtkButton       *but
    }
   */
    if (filechooser)
-     gtk_widget_destroy(filechooser);
+     gtk_widget_hide(filechooser);
 }
 
 
@@ -7650,7 +7635,7 @@ on_screendump_image_cancel_button_clicked_gtkbuilder_callback
 					    "screendump_filechooser"); /* now consistent with above */
 
    if (filechooser)
-     gtk_widget_destroy(filechooser);
+     gtk_widget_hide(filechooser);
 
 }
 
@@ -7701,7 +7686,7 @@ on_symmetry_controller_ok_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *w = widget_from_builder("symmetry_controller_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -7930,7 +7915,7 @@ on_lsq_plane_ok_button_clicked_gtkbuilder_callback         (GtkButton       *but
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("lsq_plane_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
   normal_cursor();
 }
 
@@ -8283,7 +8268,7 @@ on_ideal_rna_ok_button_clicked_gtkbuilder_callback         (GtkButton       *but
 {
   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
   ideal_nucleic_acid_by_widget(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -8293,7 +8278,7 @@ on_ideal_rna_cancel_button_clicked_gtkbuilder_callback     (GtkButton       *but
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -8358,7 +8343,7 @@ on_move_molecule_here_cancel_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -8370,7 +8355,7 @@ on_monomer_library_search_dialog_cancel_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("monomer_search_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -9270,13 +9255,13 @@ on_coords_filechooserdialog1_response_gtkbuilder_callback  (GtkDialog       *dia
     sel_files = sel_files->next;
   }
 
-  gtk_widget_destroy(coords_fileselection1);
+  gtk_widget_hide(coords_fileselection1);
 
  } else {
   GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "coords_filechooserdialog1");
 
-  gtk_widget_destroy(coords_fileselection1);
+  gtk_widget_hide(coords_fileselection1);
 
  }
 }
@@ -9291,7 +9276,7 @@ on_coords_filechooserdialog1_destroy_gtkbuilder_callback  (GtkWidget       *obje
   GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "coords_filechooserdialog1");
 
-  gtk_widget_destroy(coords_fileselection1);
+  gtk_widget_hide(coords_fileselection1);
 }
 
 
@@ -9359,13 +9344,13 @@ on_dataset_filechooserdialog1_response_gtkbuilder_callback (GtkDialog       *dia
 	    /* try to read as a phs, cif etc... */
 	    manage_column_selector(copied_filename);
       }
-      gtk_widget_destroy(dataset_fileselection1);
+      gtk_widget_hide(dataset_fileselection1);
       free(copied_filename);
    } else {
       GtkWidget *dataset_fileselection1 = widget_from_builder(
 							"dataset_filechooserdialog1");
 
-      gtk_widget_destroy(dataset_fileselection1);
+      gtk_widget_hide(dataset_fileselection1);
    }
 
 }
@@ -9381,7 +9366,7 @@ on_dataset_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget       *obje
   GtkWidget *dataset_fileselection1 = widget_from_builder(
                                                 "dataset_filechooserdialog1");
 
-  gtk_widget_destroy(dataset_fileselection1);
+  gtk_widget_hide(dataset_fileselection1);
 }
 
 
@@ -9420,7 +9405,7 @@ on_map_name_filechooserdialog1_response_gtkbuilder_callback
       sfile = (char *) malloc (1001);
       strncpy(sfile, filename, 1000);
 
-      gtk_widget_destroy(map_name_fileselection1); /* the file browser,
+      gtk_widget_hide(map_name_fileselection1); /* the file browser,
 						      when destroyed,
 						      scribbles over
 						      filename. */
@@ -9431,7 +9416,7 @@ on_map_name_filechooserdialog1_response_gtkbuilder_callback
       GtkWidget *map_name_fileselection1 = widget_from_builder(
 							 "map_name_filechooserdialog1");
 
-      gtk_widget_destroy(map_name_fileselection1);
+      gtk_widget_hide(map_name_fileselection1);
    }
 
 }
@@ -9457,7 +9442,7 @@ on_map_name_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget       *obj
   GtkWidget *map_name_fileselection1 = widget_from_builder(
                                                 "map_name_filechooserdialog1");
 
-  gtk_widget_destroy(map_name_fileselection1);
+  gtk_widget_hide(map_name_fileselection1);
 }
 
 
@@ -9481,7 +9466,7 @@ on_phs_coordinates_filechooserdialog1_response_gtkbuilder_callback
      save_directory_from_filechooser(phs_fileselection);
      read_phs_and_coords_and_make_map(filename);
    }
-   gtk_widget_destroy(phs_fileselection);
+   gtk_widget_hide(phs_fileselection);
 
 }
 
@@ -9497,7 +9482,7 @@ on_phs_coordinates_filechooserdialog1_destroy_gtkbuilder_callback
   GtkWidget *phs_fileselection1 = widget_from_builder(
                                                 "phs_coordinates_filechooserdialog1");
 
-  gtk_widget_destroy(phs_fileselection1);
+  gtk_widget_hide(phs_fileselection1);
 }
 
 
@@ -9530,10 +9515,10 @@ on_save_coords_filechooserdialog1_response_gtkbuilder_callback
     save_coordinates_using_widget(fileselection);
     // this is wrong // FIXME-LATER-PE
     // free(stuff);
-    gtk_widget_destroy(fileselection);
+    gtk_widget_hide(fileselection);
   } else {
     GtkWidget *fileselection = widget_from_builder("save_coords_filechooserdialog1");
-    gtk_widget_destroy(fileselection);
+    gtk_widget_hide(fileselection);
   }
 }
 
@@ -9549,7 +9534,7 @@ on_save_coords_filechooserdialog1_destroy_gtkbuilder_callback
   GtkWidget *fileselection = widget_from_builder(
                                                 "save_coords_filechooserdialog1");
 
-  gtk_widget_destroy(fileselection);
+  gtk_widget_hide(fileselection);
 }
 
 
@@ -9600,12 +9585,12 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
      handle_cif_dictionary_for_molecule(filename, imol_enc,
 					new_molecule_checkbutton_state);
 
-     gtk_widget_destroy(fileselection);
+     gtk_widget_hide(fileselection);
 } else {
    fileselection = widget_from_builder(
 				 "cif_dictionary_filechooserdialog1");
 
-   gtk_widget_destroy(fileselection);
+   gtk_widget_hide(fileselection);
  }
 
 }
@@ -9622,7 +9607,7 @@ on_cif_dictionary_filechooserdialog1_destroy_gtkbuilder_callback
   GtkWidget *fileselection = widget_from_builder(
                                                 "cif_dictionary_filechooserdialog1");
 
-  gtk_widget_destroy(fileselection);
+  gtk_widget_hide(fileselection);
 }
 
 
@@ -9640,13 +9625,13 @@ on_run_script_filechooserdialog1_response_gtkbuilder_callback
 
     const char *script_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
     run_script(script_filename);
-    gtk_widget_destroy(fileselection);
+    gtk_widget_hide(fileselection);
 
   } else {
     GtkWidget *fileselection = widget_from_builder(
                                                 "run_script_filechooserdialog1");
 
-    gtk_widget_destroy(fileselection);
+    gtk_widget_hide(fileselection);
   }
 
 }
@@ -9663,7 +9648,7 @@ on_run_script_filechooserdialog1_destroy_gtkbuilder_callback
   GtkWidget *fileselection = widget_from_builder(
                                                 "run_script_filechooserdialog1");
 
-  gtk_widget_destroy(fileselection);
+  gtk_widget_hide(fileselection);
 }
 
 
@@ -9696,12 +9681,12 @@ on_save_symmetry_coords_filechooserdialog1_response_gtkbuilder_callback
   if (response_id == GTK_RESPONSE_OK) {
     GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooserdialog1");
     save_symmetry_coords_from_fileselection(w);
-    gtk_widget_destroy(w);
+    gtk_widget_hide(w);
   } else {
     GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "save_symmetry_coords_filechooserdialog1");
 
-    gtk_widget_destroy(coords_fileselection1);
+    gtk_widget_hide(coords_fileselection1);
 
   }
 }
@@ -9718,7 +9703,7 @@ on_save_symmetry_coords_filechooserdialog1_destroy_gtkbuilder_callback
   GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "save_symmetry_coords_filechooserdialog1");
 
-  gtk_widget_destroy(coords_fileselection1);
+  gtk_widget_hide(coords_fileselection1);
 }
 
 
@@ -9756,12 +9741,12 @@ on_save_state_filechooserdialog1_response_gtkbuilder_callback (GtkDialog * dialo
 
    save_state_file(filename);    /* write the file */
    set_save_state_file_name(filename); /* save as a static in graphics_info_t */
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
   } else {
     GtkWidget *coords_fileselection1 = widget_from_builder(
 						   "save_state_filechooserdialog1");
 
-    gtk_widget_destroy(coords_fileselection1);
+    gtk_widget_hide(coords_fileselection1);
   }
 }
 
@@ -9776,7 +9761,7 @@ on_save_state_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget * object
   GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "save_state_filechooserdialog1");
 
-  gtk_widget_destroy(coords_fileselection1);
+  gtk_widget_hide(coords_fileselection1);
 }
 
 
@@ -9822,13 +9807,13 @@ on_screendump_filechooserdialog1_response_gtkbuilder_callback (GtkDialog * dialo
    if (image_type == COOT_SCREENDUMP_RASTER3D) {
       make_image_raster3d(filename);
    }
-   gtk_widget_destroy(fileselection);
+   gtk_widget_hide(fileselection);
 
   } else {
     GtkWidget *fileselection = widget_from_builder(
                                                 "screendump_filechooserdialog1");
 
-    gtk_widget_destroy(fileselection);
+    gtk_widget_hide(fileselection);
   }
 
 }
@@ -9844,7 +9829,7 @@ on_screendump_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget * object
   GtkWidget *fileselection = widget_from_builder(
                                                 "screendump_filechooserdialog1");
 
-  gtk_widget_destroy(fileselection);
+  gtk_widget_hide(fileselection);
 }
 /* end of chooser insert */
 
@@ -9951,7 +9936,7 @@ void
 on_fixed_atom_close_button_clicked_gtkbuilder_callback     (GtkButton       *button,
                                                             gpointer         user_data) {
   GtkWidget *dialog = widget_from_builder("fixed_atom_dialog");
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 }
 
 
@@ -10016,7 +10001,7 @@ on_add_rep_add_rep_button_clicked_gtkbuilder_callback (GtkButton       *button,
 {
    // GtkWidget *w = widget_from_builder("add_reps_dialog");
    // add_additional_representation_by_widget(w);
-   // gtk_widget_destroy(w);
+   // gtk_widget_hide(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10057,7 +10042,7 @@ on_add_rep_cancel_button_clicked_gtkbuilder_callback       (GtkButton       *but
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("add_reps_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10107,7 +10092,7 @@ on_all2_activate_gtkbuilder_callback                       (GtkMenuItem     *men
 //   GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
 //   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
 //   show_restraints_editor(t);
-//   gtk_widget_destroy(dialog);
+//   gtk_widget_hide(dialog);
 // }
 
 
@@ -10117,7 +10102,7 @@ on_residue_editor_select_monomer_type_cancel_button_clicked_gtkbuilder_callback 
 							gpointer         user_data) {
 
   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 }
 
 
@@ -10152,7 +10137,7 @@ on_restraints_editor_close_button_clicked_gtkbuilder_callback
   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
   if (w) {
     clear_restraints_editor_by_dialog(w);
-    gtk_widget_destroy(w);
+    gtk_widget_hide(w);
   }
 
 }
@@ -10212,10 +10197,10 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
   GtkWidget *w = widget_from_builder("save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
     save_monomer_restraints_by_widget(dialog);
-    gtk_widget_destroy(w);
+    gtk_widget_hide(w);
   }
   if (response_id == GTK_RESPONSE_CANCEL) {
-    gtk_widget_destroy(w);
+    gtk_widget_hide(w);
   }
 }
 
@@ -10311,7 +10296,7 @@ on_build_na_dialog_radius_entry_activate_gtkbuilder_callback
    text = gtk_entry_get_text(entry);
    r = atof(text);
    find_nucleic_acids_local(r);
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 
 }
 
@@ -10452,7 +10437,7 @@ on_coot_references_closebutton_clicked_gtkbuilder_callback (GtkButton       *but
 {
   GtkWidget *dialog;
   dialog = widget_from_builder("coot_references_dialog");
-  gtk_widget_destroy(dialog);
+  gtk_widget_hide(dialog);
 
 }
 
@@ -10600,7 +10585,7 @@ on_map_sharpening_ok_button_clicked_gtkbuilder_callback    (GtkButton       *but
 {
 
    GtkWidget *w = widget_from_builder("map_sharpening_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
 
 }
 
@@ -10655,7 +10640,7 @@ on_baton_build_params_ok_button_clicked_gtkbuilder_callback
 
   GtkWidget *w = widget_from_builder("baton_build_params_dialog");
   set_baton_build_params_from_widget(w);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -10668,7 +10653,7 @@ on_baton_build_params_cancel_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *w = widget_from_builder("baton_build_params_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -10780,7 +10765,7 @@ on_pisa_interfces_close_button_clicked_gtkbuilder_callback (GtkButton       *but
                                                             gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("pisa_interfaces_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -10848,7 +10833,7 @@ on_refine_params_weight_matrix_entry_changed_gtkbuilder_callback
 //                                         (GtkButton       *button,
 // 					 gpointer         user_data) {
 //    // GtkWidget *w = widget_from_builder("remarks_browser_molecule_chooser_dialog");
-//    // gtk_widget_destroy(w);
+//    // gtk_widget_hide(w);
 
 //    GtkWidget *dialog = widget_from_builder("remarks_browser_molecule_chooser_dialog");
 //    gtk_widget_hide(dialog);
@@ -10902,7 +10887,7 @@ on_fix_nomenclature_errors_ok_button_clicked_gtkbuilder_callback
   GtkWidget *w = widget_from_builder("fix_nomenclature_errors_dialog");
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
   fix_nomenclature_errors(imol);
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -10914,7 +10899,7 @@ on_fix_nomenclature_errors_cancel_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *w = widget_from_builder("fix_nomenclature_errors_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -10937,7 +10922,7 @@ on_multi_residue_torsion_cancel_button_clicked_gtkbuilder_callback
   clear_pending_picks(); /* emcompasses in_multi_residue_torsion_define (but not mode) */
   clear_multi_residue_torsion_mode();
   normal_cursor();
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 
@@ -10949,7 +10934,7 @@ on_multi_residue_torsion_OK_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *w = widget_from_builder("multi_residue_torsion_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
   accept_regularizement();
   clear_multi_residue_torsion_mode();
 }
@@ -10978,7 +10963,7 @@ on_multi_residue_torsion_pick_apply_button_clicked_gtkbuilder_callback
 {
 
   GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
   clear_pending_picks(); /* emcompasses in_multi_residue_torsion_mode */
   normal_cursor();
   show_multi_residue_torsion_dialog();
@@ -11001,7 +10986,7 @@ on_multi_residue_torsion_pick_cancel_button_clicked_gtkbuilder_callback
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
   clear_pending_picks(); /* emcompasses in_multi_residue_torsion_define (but not mode) */
   clear_multi_residue_torsion_mode();
   normal_cursor();
@@ -11046,11 +11031,11 @@ on_keyboard_go_to_residue_entry_key_press_event_gtkbuilder_callback
   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     handle_go_to_residue_keyboarding_mode(text);
-    gtk_widget_destroy(w);
+    gtk_widget_hide(w);
     return TRUE;
   }
   if (event->keyval == GDK_KEY_Escape) {
-    gtk_widget_destroy(w);
+    gtk_widget_hide(w);
     return TRUE;
   }
   return FALSE;
@@ -11064,7 +11049,7 @@ on_mogul_geometry_dialog_close_button_clicked_gtkbuilder_callback
 
    GtkWidget *dialog = widget_from_builder("mogul_geometry_results_table_dialog");
    /* And the histogram?  How do I look that up? */
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 }
 
 
@@ -11074,7 +11059,7 @@ on_ligand_check_okbutton_clicked(GtkButton       *button,
                                  gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("ligand_check_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 
 }
 
@@ -11089,7 +11074,7 @@ on_generic_objects_dialog_closebutton_clicked_gtkbuilder_callback
 
 #if 0 // 20211007-PE
    GtkWidget *w = widget_from_builder("generic_objects_dialog");
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w);
    clear_generic_objects_dialog_pointer();
    graphics_draw();
 #endif
@@ -11134,8 +11119,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_generic_objects_close_all_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
   close_all_generic_objects();
 }
 
@@ -11143,21 +11127,21 @@ on_generic_objects_close_all_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_export_map1_activate_gtkbuilder_callback                (GtkMenuItem     *menuitem,
-                                        gpointer         user_data) {
+on_file_export_map1_activate_gtkbuilder_callback                (GtkMenuItem     *menuitem,
+                                                                 gpointer         user_data) {
 
-  short int is_fragment = 0;
-  export_map_gui(is_fragment);
+   short int is_fragment = false;
+   export_map_gui(is_fragment);
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_export_map_fragment1_activate_gtkbuilder_callback       (GtkMenuItem     *menuitem,
-                                        gpointer         user_data) {
+on_file_export_map_fragment1_activate_gtkbuilder_callback       (GtkMenuItem     *menuitem,
+                                                            gpointer         user_data) {
 
-  short int is_fragment = 1;
-  export_map_gui(is_fragment);
+   short int is_fragment = true;
+   export_map_gui(is_fragment);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -11175,7 +11159,7 @@ on_export_map_dialog_cancel_button_clicked_gtkbuilder_callback
 					 gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("export_map_dialog");
-  gtk_widget_destroy(w);
+  gtk_widget_hide(w);
 }
 
 /* void */
@@ -11185,7 +11169,7 @@ on_export_map_dialog_cancel_button_clicked_gtkbuilder_callback
 /* { */
 
 /*   GtkWidget *w = widget_from_builder("export_map_filechooserdialog"); */
-/*   gtk_widget_destroy(w); */
+/*   gtk_widget_hide(w); */
 
 
 /* } */
@@ -11211,27 +11195,66 @@ on_export_map_dialog_cancel_button_clicked_gtkbuilder_callback
 /*   } else {  */
 /*     export_map(imol_map, filename); */
 /*   }  */
-/*   gtk_widget_destroy(w); */
+/*   gtk_widget_hide(w); */
 
 /* } */
 
+
 extern "C" G_MODULE_EXPORT
 void
-on_export_map_filechooserdialog_response_gtkbuilder_callback
-                                        (GtkDialog       *dialog,
-                                         gint             response_id,
-					 gpointer         user_data) {
+on_export_map_dialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                                   gint             response_id,
+                                                   gpointer         user_data) {
 
+
+   if (response_id == GTK_RESPONSE_OK) {
+      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
+      GtkWidget *combobox            = widget_from_builder("export_map_map_combobox");
+      GtkWidget *radius_entry        = widget_from_builder("export_map_radius_entry");
+      int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+      int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
+      // std::cout << "debug:: in on_export_map_dialog_response_gtkbuilder_callback() imol_map is " << imol_map << std::endl;
+      const char *entry_text = gtk_entry_get_text(GTK_ENTRY(radius_entry));
+      // std::cout << "debug:: in on_export_map_dialog_response_gtkbuilder_callback() got entry_text \"" << entry_text << "\"" << std::endl;
+      GString* text_copy   = g_string_new(entry_text);
+      GString* text_copy_2 = g_string_new(entry_text);
+      // gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_show(file_chooser_dialog);
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number", GINT_TO_POINTER(imol_map));
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",     GINT_TO_POINTER(is_map_fragment));
+      // std::cout << "debug:: in on_export_map_dialog_response_gtkbuilder_callback() storing entry text " << text_copy << std::endl;
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "export_map_radius_entry_text", text_copy);
+      // decoded:
+      // int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
+
+   }
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_export_map_file_chooser_dialog_response_gtkbuilder_callback (GtkDialog       *dialog,
+                                                                gint             response_id,
+                                                                gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_OK) {
       int imol_map        = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
       int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
 
+      // std::cout << "extracted imol_map " << imol_map << " from file chooser dialog " << std::endl;
+      // std::cout << "extracted is_map_fragment " << is_map_fragment << " from file chooser dialog " << std::endl;
+
       if (is_map_fragment > 0) {
          if (GTK_IS_FILE_CHOOSER(dialog)) {
             const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-            const char *txt_radius = static_cast<const char *>(g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text"));
-            export_map_fragment_with_text_radius(imol_map, txt_radius, filename);
+            GString *txt_radius_str = static_cast<GString *>(g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text"));
+            const char *entry_text = g_string_free(txt_radius_str, FALSE); // leaking entry_text - ho hum.
+            if (entry_text == 0) {
+               std::cout << "ERROR:: entry_text is null " << std::endl;
+            }
+            export_map_fragment_with_text_radius(imol_map, entry_text, filename);
          }
       } else {
          if (GTK_IS_FILE_CHOOSER(dialog)) {
@@ -11241,7 +11264,7 @@ on_export_map_filechooserdialog_response_gtkbuilder_callback
       }
    }
    
-   gtk_widget_destroy(GTK_WIDGET(dialog));
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 #include "cfc-widgets-c-interface.h"
@@ -11608,7 +11631,7 @@ on_curlew_dialog_response_gtkbuilder_callback              (GtkDialog       *dia
   */
 
   if (response_id == GTK_RESPONSE_CLOSE)
-    gtk_widget_destroy(GTK_WIDGET(dialog));
+    gtk_widget_hide(GTK_WIDGET(dialog));
 
 }
 
@@ -12058,7 +12081,7 @@ on_simple_refmac_dialog_response_gtkbuilder_callback       (GtkDialog       *dia
 
    if (response_id == GTK_RESPONSE_CLOSE) {
       /* do I need to do this? */
-      /* gtk_widget_destroy(dialog); */
+      /* gtk_widget_hide(dialog); */
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
@@ -12165,7 +12188,7 @@ on_residue_type_chooser_entry_key_press_event_gtkbuilder_callback
       istate = 1;
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       handle_residue_type_chooser_entry_chose_type(entry_text, istate);
-      gtk_widget_destroy(window);
+      gtk_widget_hide(window);
    }
    return FALSE;
 }

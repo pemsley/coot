@@ -2326,6 +2326,8 @@ graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
       //std::cout << "::::::::: debug in fill_combobox_with_molecule_options() imap " << imap << std::endl;
       int imol = molecules_index_vec[imap];
       std::string ss; // = int_to_string(imol); done in renderer now.
+      ss = int_to_string(imol); // 20220321-PE well, the map number is missing in the export map molecule chooser
+                                // combobox - add it back and sort out duplication later (maybe model molecules?)
       ss += " " ;
       int ilen = molecules[imol].name_.length();
       int left_size = ilen-go_to_atom_menu_label_n_chars_max;

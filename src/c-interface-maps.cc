@@ -1498,7 +1498,6 @@ int export_map(int imol, const char *filename) {
 
    int rv = 0; // fail
    if (is_valid_map_molecule(imol)) {
-
       try {
          clipper::CCP4MAPfile mapout;
          mapout.open_write(std::string(filename));
@@ -1507,12 +1506,12 @@ int export_map(int imol, const char *filename) {
          rv = 1;
       }
       catch (...) {
-         std::cout << "CCP4 map writing error for " << filename << std::endl;
+         std::cout << "WARNING:: CCP4 map writing error for " << filename << std::endl;
       }
 
    } else {
       graphics_info_t g;
-      g.add_status_bar_text("Invalid map molecule number");
+      g.add_status_bar_text("WARNING:: Invalid map molecule number");
    }
    return rv;
 }

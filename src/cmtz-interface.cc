@@ -659,6 +659,8 @@ my_combobox_get_imol(GtkComboBox *combobox) {
    if (combobox) {
       graphics_info_t g;
       imol = g.combobox_get_imol(combobox);
+   } else {
+      std::cout << "ERROR in my_combobox_get_imol() null combobox" << std::endl;
    }
    return imol;
 }
