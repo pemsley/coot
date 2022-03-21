@@ -4794,6 +4794,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                                           int udd_has_bond_handle) {
 
                                                      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+                                                     graphics_line_t::cylinder_class_t base_spike_cc = graphics_line_t::SINGLE;
+
                                                      std::string chain_id = chain_p->GetChainID();
 
                                                      // first do the P_C4_prime bonds internal to the residue_this
@@ -4818,8 +4820,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                                                     at_2->GetUDData(udd_atom_index_handle, iat_2);
                                                                     int col_1 = atom_colour_map.index_for_chain(chain_id);
                                                                     int col_2 = atom_colour_map.index_for_chain(chain_id);
-                                                                    addBond(col_1, pt_1, bond_mid_point, cc, imod, iat_1, iat_2);
-                                                                    addBond(col_1, bond_mid_point, pt_2, cc, imod, iat_1, iat_2);
+                                                                    addBond(col_1, pt_1, bond_mid_point, cc, imod, iat_1, iat_2, false, false);
+                                                                    addBond(col_1, bond_mid_point, pt_2, cc, imod, iat_1, iat_2, false, false);
                                                                     at_1->PutUDData(udd_has_bond_handle, 1);
                                                                     at_2->PutUDData(udd_has_bond_handle, 1);
                                                                     // for use with Ca+ligand mode
@@ -4854,7 +4856,9 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                                                     at_1->GetUDData(udd_atom_index_handle, iat_1);
                                                                     at_2->GetUDData(udd_atom_index_handle, iat_2);
                                                                     int col_1 = atom_colour_map.index_for_chain(chain_id);
-                                                                    addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2);
+                                                                    // the bools for the end caps seem to be the wrong way around
+                                                                    // but this works and the reverse does not.
+                                                                    addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2, false, true);
                                                                  }
                                                               }
                                                            }

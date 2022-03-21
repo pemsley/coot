@@ -39,8 +39,7 @@ public:
 
    graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e,
 		   int model_no_in,
-		   int atom_index_1_in, int atom_index_2_in) {
-      positions = p;
+		   int atom_index_1_in, int atom_index_2_in) : positions(p) {
       has_begin_cap = b;
       has_end_cap = e;
       cylinder_class = cc;
