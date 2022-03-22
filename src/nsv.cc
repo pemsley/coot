@@ -1325,6 +1325,10 @@ exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
 void
 exptl::nsv::highlight_residue(mmdb::Residue *residue_p) {
 
+   // this is an example of how to set data in a goocanvas
+
+   std::string non_highlight_colour = "grey20";
+
    std::map<mmdb::Residue *, GooCanvasItem *>::const_iterator it;
    it = rect_residue_map.find(residue_p);
    if (it != rect_residue_map.end()) {
@@ -1337,7 +1341,7 @@ exptl::nsv::highlight_residue(mmdb::Residue *residue_p) {
          if (it != rect_residue_map.end()) {
             GooCanvasItem *rect_prev = it->second;
             if (GOO_IS_CANVAS_ITEM(rect_prev)) {
-               g_object_set(rect_prev, "fill_color", "grey95", NULL);
+               g_object_set(rect_prev, "fill_color", non_highlight_colour.c_str(), NULL);
             }
          }
       }
