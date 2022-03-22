@@ -788,3 +788,63 @@ on_menubar_rsr_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
    rsr_sphere_refine();
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_atom_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                      gpointer     user_data) {
+   set_delete_atom_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_water_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                      gpointer     user_data) {
+
+   set_delete_water_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_sidechain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                           gpointer     user_data) {
+   set_delete_sidechain_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_sidechains_in_residue_rangeitem_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                            gpointer     user_data) {
+   set_delete_sidechain_range_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_residue_hydrogen_atoms_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                        gpointer     user_data) {
+
+   set_delete_residue_hydrogens_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_residue_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                         gpointer     user_data) {
+
+   set_delete_residue_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_residue_range_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                               gpointer     user_data) {
+   set_delete_residue_zone_mode();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_delete_item_chain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                       gpointer     user_data) {
+
+   set_delete_chain_mode();
+}
