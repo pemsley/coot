@@ -4812,6 +4812,7 @@ string   static std::string sessionid;
    // static Camera camera;
 
    static bool show_fps_flag;
+   static float fps_times_scale_factor;
    static glm::mat4 get_projection_matrix(bool do_orthographic_projection,
                                           int graphics_x_size, int graphics_y_size);
 

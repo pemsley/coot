@@ -10381,6 +10381,15 @@ Now:
             buttons.append(ls)
         coot_gui.dialog_box_of_buttons("Non-pukka puckers", [370, 250], buttons, "  Close  ")
 
+----
+Fri 25 Feb 2022 07:14:47 GMT
+
+    Mac:
+
+# glib-compile-schemas ~/gtk/inst/share/glib-2.0/schemas
+# makes gschemas.compiled in that directory
+
+setenv XDG_DATA_DIRS ~/gtk/inst/share
 
 Thu  9 Sep 22:15:06 BST 2021
 

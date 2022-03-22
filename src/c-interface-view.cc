@@ -368,6 +368,13 @@ void set_effects_shader_gamma(float f) {
 }
 
 
+void set_fps_timing_scale_factor(float f) {
+
+   graphics_info_t::fps_times_scale_factor = f;
+   graphics_draw();
+
+}
+
 //! \brief set the shadow softness (1, 2 or 3)
 void set_shadow_softness(unsigned int softness) {
    graphics_info_t::shadow_softness = softness;

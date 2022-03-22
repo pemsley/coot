@@ -2652,7 +2652,8 @@ graphics_info_t::draw_hud_fps() {
 
          // make glm::vec2 data and then convert that to OpenGL screen coordinates
          //
-         float ms_to_opengl_y = 0.0025;
+         float ms_to_opengl_y = fps_times_scale_factor; // default 0.0025
+         // ms_to_opengl_y = 0.001;
          unsigned int time_count = 0;
          std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
          for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); ++it) {

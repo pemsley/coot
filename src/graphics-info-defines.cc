@@ -944,7 +944,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
                std::string inscode(at->GetInsCode());
                std::string atom_name(at->name);
                std::string ele = at->element;
-               coot::residue_spec_t res_spec(coot::atom_spec_t(at));
+               coot::atom_spec_t at_spec(at);
+               coot::residue_spec_t res_spec(at_spec);
                setup_delete_residue_pulse(res);
                if (ele == " H") {
                   delete_residue_with_full_spec(naii.imol, naii.model_number, chain_id.c_str(),

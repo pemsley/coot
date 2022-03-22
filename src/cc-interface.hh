@@ -1558,6 +1558,9 @@ void set_effects_shader_gamma(float f);
 //! \brief set bond smoothness (default 1 (not smooth))
 void set_bond_smoothness_factor(unsigned int fac);
 
+//! \brief set the FPS timing scale factor - default 0.0025
+void set_fps_timing_scale_factor(float f);
+
 // testing function
 void read_test_gltf_models();
 
