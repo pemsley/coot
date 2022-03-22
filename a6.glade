@@ -11788,16 +11788,6 @@ Do you want to continue?
     <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/refmac.svg</property>
   </object>
-  <object class="GtkImage" id="image16">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">pixmaps/refine-1.png</property>
-  </object>
-  <object class="GtkImage" id="image17">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">pixmaps/regularize.png</property>
-  </object>
   <object class="GtkImage" id="image18">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -11807,6 +11797,11 @@ Do you want to continue?
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/rigid-body.png</property>
+  </object>
+  <object class="GtkImage" id="image20">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/refine.png</property>
   </object>
   <object class="GtkImage" id="image21">
     <property name="visible">True</property>
@@ -12435,16 +12430,6 @@ Do you want to continue?
                             <property name="label" translatable="yes">Modelling...</property>
                             <property name="use_underline">True</property>
                             <signal name="activate" handler="on_modelling_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="regularize1">
-                            <property name="label" translatable="yes">Model/Fit/Refine...</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_model_refine_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -13505,34 +13490,126 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="homogeneous">True</property>
                       </packing>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuBar" id="menubar_for_rsr">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_refine_togglebutton">
+                      <object class="GtkImageMenuItem" id="menubar_for_rsr_item_menuitem">
+                        <property name="label" translatable="yes">  Real Space Refinement</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Real Space Refinement</property>
-                        <property name="use_underline">True</property>
-                        <property name="icon_widget">image16</property>
-                        <signal name="toggled" handler="on_model_toolbar_refine_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <property name="margin_top">1</property>
+                        <property name="margin_bottom">1</property>
+                        <property name="image">image20</property>
+                        <property name="use_stock">False</property>
+                        <child type="submenu">
+                          <object class="GtkMenu">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_sphere">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Sphere</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_rsr_sphere_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_sphere_plus">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Big Sphere</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_rsr_sphere_plus_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_tandem_3">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Tandem ± 3</property>
+                                <signal name="activate" handler="on_menubar_rsr_tandem_3_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_tandem_5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Tandem ± 5</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_rsr_tandem_5_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_single_residue">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Single Residue</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_rsr_single_residue_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_chain">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Chain</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_rsr_chain_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_regularize_sphere">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Regularize Sphere</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_regularize_sphere_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_regularize_tandem_3">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Regualize Tandem ± 3</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_regularize_tandem_3_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menubar_regularize_residue">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Regularize Residue</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_regularize_residue_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
-                      </packing>
                     </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_regularize_togglebutton">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Regularization</property>
-                        <property name="use_underline">True</property>
-                        <property name="icon_widget">image17</property>
-                        <signal name="toggled" handler="on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
-                      </packing>
-                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolbar" id="main_window_model_toolbar_second_top">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkToggleToolButton" id="model_toolbar_fixed_atoms_togglebutton">
                         <property name="visible">True</property>
@@ -13565,7 +13642,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -13625,7 +13702,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -13829,7 +13906,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">3</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -13904,7 +13981,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">4</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -13958,7 +14035,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">5</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
               </object>

@@ -652,6 +652,8 @@ libcootsumo_la_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
+	rsr-functions.cc         \
+	rsr-functions.hh         \
 	screen-utils.cc		 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \

@@ -34,6 +34,9 @@ uniform vec4 background_colour;
 // show *just* the ssao, that is
 uniform bool show_ssao;
 uniform int effects_output_type;
+uniform float brightness;
+uniform float gamma;
+
 
 layout(location = 0) out vec4 out_color;
 
@@ -58,6 +61,14 @@ float get_fog_amount(float depth_in) {
    } else {
       return 0.0;
    }
+}
+
+vec4 adjust_colour(vec4 colour_in, float brightness, float gamma) {
+
+   vec3 c1 = vec3(brightness * colour_in.rgb);
+   vec3 c2 = pow(c1, vec3(1.0/gamma));
+   return vec4(c2, colour_in.a);
+
 }
 
 
@@ -124,6 +135,11 @@ void main() {
    if (effects_output_type == 3) {
       out_color = vec4(vec3(texture(screenDepth, TexCoords).r), 1.0);
    }
+
+   // does this slow things down? Calculating pow() for every pixel?
+   // 20220318-PE ... doesn't seem to affect the frame rate at all.
+   //             when gamma and brightness are 1.0
+   out_color = adjust_colour(out_color, brightness, gamma);
 
    // test hack!
    // out_color = texture(screenTexture, TexCoords);

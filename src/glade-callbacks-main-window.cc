@@ -716,3 +716,75 @@ on_coords_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* 
    gtk_widget_hide(GTK_WIDGET(dialog));
 
 }
+
+
+#include "rsr-functions.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_regularize_residue_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                           gpointer     user_data) {
+
+   regularize_residue();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_regularize_tandem_3_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                            gpointer     user_data) {
+   regularize_tandem_3();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_regularize_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                          gpointer     user_data) {
+   regularize_sphere();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_rsr_single_residue_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                           gpointer     user_data) {
+
+   rsr_refine_residue();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_rsr_tandem_5_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                     gpointer     user_data) {
+
+   rsr_refine_tandem_5();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_rsr_tandem_3_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                     gpointer     user_data) {
+   rsr_refine_tandem_3();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_rsr_sphere_plus_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                        gpointer     user_data) {
+
+   rsr_sphere_refine_plus();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_rsr_chain_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                  gpointer     user_data) {
+
+   rsr_refine_chain();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_menubar_rsr_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                   gpointer     user_data) {
+   rsr_sphere_refine();
+}
+
