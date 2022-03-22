@@ -13931,6 +13931,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Atom</property>
                                 <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_atom_item_activate_gtkbuilder_callback" swapped="no"/>
                               </object>
                             </child>
                             <child>
@@ -13939,14 +13940,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Water</property>
                                 <property name="use_underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_residue_item">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Residue</property>
-                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_water_item_activate_gtkbuilder_callback" swapped="no"/>
                               </object>
                             </child>
                             <child>
@@ -13955,6 +13949,16 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Sidechain</property>
                                 <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_sidechain_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="delete_item_sidechains_in_residue_range_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Sidechains in Residue Range</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_sidechains_in_residue_range_item_activate_gtkbuilder_callback" swapped="no"/>
                               </object>
                             </child>
                             <child>
@@ -13963,6 +13967,25 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Residue Hydrogen Atoms</property>
                                 <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_residue_hydrogen_atoms_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="delete_item_residue_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Residue</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_residue_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="delete_item_residue_range_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Residue Range</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_residue_range_item_activate_gtkbuilder_callback" swapped="no"/>
                               </object>
                             </child>
                             <child>
@@ -13971,6 +13994,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Chain</property>
                                 <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_delete_item_chain_item_activate_gtkbuilder_callback" swapped="no"/>
                               </object>
                             </child>
                           </object>

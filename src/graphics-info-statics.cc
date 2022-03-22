@@ -787,7 +787,7 @@ glm::vec3 graphics_info_t::background_colour = glm::vec3(17.0 * norm_255,
                                                          17.0 * norm_255);
 //
 short int graphics_info_t::delete_item_atom = 0;
-short int graphics_info_t::delete_item_residue = 1;
+short int graphics_info_t::delete_item_residue = 0;
 short int graphics_info_t::delete_item_residue_zone = 0;
 short int graphics_info_t::delete_item_residue_hydrogens = 0;
 short int graphics_info_t::delete_item_water = 0;
