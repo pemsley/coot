@@ -3817,6 +3817,7 @@ molecule_class_info_t::make_colour_table() const {
                           const float &cc = col[i];
                           float r = 1.0f - cc;
                           col[i] += r * degree;
+                          col[i] *= (1.0f - 0.5f * degree); // I don't want bright pastel
                        }
                     };
 
