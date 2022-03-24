@@ -1821,8 +1821,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
    if (err) std::cout << "GL ERROR:: Mesh::draw() shader: " << shader_p->name << " post mvp uniform "
                       << err << std::endl;
 
-   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE,
-                      &view_rotation_matrix[0][0]);
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
                       << " draw() post view rotation uniform " << err << std::endl;

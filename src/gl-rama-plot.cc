@@ -104,10 +104,12 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
 
    // mark the corners of the plot for scaling and offset testing
 
-   new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf * -180.0));
-   new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf * -180.0));
-   new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
-   new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
+   if (false) {
+      new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf * -180.0));
+      new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf * -180.0));
+      new_other_normal_positions.push_back(glm::vec2(sf * -180.0, sf *  180.0));
+      new_other_normal_positions.push_back(glm::vec2(sf *  180.0, sf *  180.0));
+   }
 
    if (false) // check the z-depth and/or draw order
       for (unsigned int i=0; i<new_other_normal_positions.size(); i++)

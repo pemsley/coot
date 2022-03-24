@@ -2502,10 +2502,11 @@ graphics_info_t::draw_hud_buttons() {
       const auto &button = hud_button_info[i];
       const std::string &label = button.button_label;
       if (! label.empty()) {
-         std::string mesh_name = "HUDTexturemesh for button with label" + label;
+         std::string mesh_name = "HUDTexturemesh for button with label " + label;
          HUDTextureMesh htm(mesh_name);
          htm.setup_quad();
          float text_scale_raw = 0.4 * 0.00018;
+         text_scale_raw *= 1.2; // 20220324-PE
          // text_scale_raw *= 100.0;
          float text_scale = text_scale_raw * height_adjust;
          glm::vec2 label_scale(text_scale / aspect_ratio, text_scale);
@@ -2513,7 +2514,7 @@ graphics_info_t::draw_hud_buttons() {
          unsigned int n_chars = label.size(); // really I want the sum of x_advance for the letters. Can I get that?
          float x_advance = htm.get_sum_x_advance(label, ft_characters);
          float width_adjust = static_cast<float>(900)/static_cast<float>(w);
-         float tl_adjust = - static_cast<float>(n_chars-1) * text_scale_raw * 2.5 * 50.0 * width_adjust;
+         float tl_adjust = - static_cast<float>(n_chars-1) * text_scale_raw * 2.2 * 50.0 * width_adjust;
          glm::vec2 pos = button.position_offset;
          pos += glm::vec2(0.0, 0.3 * button_height); // vertical adjustment for label
          pos += glm::vec2(0.5 * button_width, 0.00); // horizontal adjustment for label (lefttext is middle of button)
@@ -3627,11 +3628,15 @@ graphics_info_t::render_3d_scene_with_shadows() {
 
    //  ------------------- render scene ----------------------------
 
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+
+   // Try not using the meshes-with-shadows.shader
+   // render_3d_scene(gl_area);
+   // return;
+
    glEnable(GL_DEPTH_TEST);
    GLenum err = glGetError();
    if (err) std::cout << "render_3d_scene_with_shadows B err " << err << std::endl;
-
-   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
 
    draw_origin_cube(gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
