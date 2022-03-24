@@ -11010,9 +11010,8 @@ on_multi_residue_torsion_start_button_clicked_gtkbuilder_callback
 /* wrong callback possibly */
 extern "C" G_MODULE_EXPORT
 void
-on_keyboard_go_to_residue_entry_changed_gtkbuilder_callback   (GtkEditable     *editable,
-                                        gpointer         user_data)
-{
+on_keyboard_go_to_residue_entry_changed_gtkbuilder_callback(GtkEditable     *editable,
+                                                            gpointer         user_data) {
 
 }
 
@@ -11021,24 +11020,31 @@ on_keyboard_go_to_residue_entry_changed_gtkbuilder_callback   (GtkEditable     *
 
 extern "C" G_MODULE_EXPORT
 gboolean
+on_keyboard_go_to_residue_entry_key_release_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                      GdkEventKey     *event,
+                                                                      gpointer         user_data) {
+   return FALSE; // use the key press event.
+}
+
+extern "C" G_MODULE_EXPORT
+gboolean
 on_keyboard_go_to_residue_entry_key_press_event_gtkbuilder_callback
                                         (GtkWidget       *widget,
                                         GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
-  GtkWidget *w = widget_from_builder("keyboard_goto_residue_window");
-  const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-    handle_go_to_residue_keyboarding_mode(text);
-    gtk_widget_hide(w);
-    return TRUE;
-  }
-  if (event->keyval == GDK_KEY_Escape) {
-    gtk_widget_hide(w);
-    return TRUE;
-  }
-  return FALSE;
+   GtkWidget *w = widget_from_builder("keyboard_go_to_residue_window");
+   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+      handle_go_to_residue_keyboarding_mode(text);
+      gtk_widget_hide(w);
+      return TRUE;
+   }
+   if (event->keyval == GDK_KEY_Escape) {
+      gtk_widget_hide(w);
+      return TRUE;
+   }
+   return FALSE;
 }
 
 extern "C" G_MODULE_EXPORT

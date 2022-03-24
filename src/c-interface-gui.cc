@@ -5944,7 +5944,7 @@ void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
 void show_go_to_residue_keyboarding_mode_window() {
 
    // GtkWidget *w = create_keyboard_goto_residue_window();
-   GtkWidget *w = widget_from_builder("keyboard_goto_residue_window");
+   GtkWidget *w = widget_from_builder("keyboard_go_to_residue_window");
    graphics_info_t g;
    // g.graphics_x_position, graphics_x_size
    int x_pos = g.graphics_x_position + 5;
