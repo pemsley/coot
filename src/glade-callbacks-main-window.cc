@@ -813,8 +813,8 @@ on_delete_item_sidechain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_sidechains_in_residue_rangeitem_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
-                                                                            gpointer     user_data) {
+on_delete_item_sidechains_in_residue_range_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                             gpointer     user_data) {
    set_delete_sidechain_range_mode();
 }
 
