@@ -35,16 +35,17 @@ molecule_class_info_t::set_mol_triangles_is_displayed(int state) {
 }
 
 #include "molecular-mesh-generator.hh"
-#ifdef USE_MOLECULES_TO_TRIANGLES
 int
 molecule_class_info_t::add_molecular_representation(const std::string &atom_selection,
                                                     const std::string &colour_scheme,
                                                     const std::string &style) {
+   int status = 0;
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
 
    std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: " << atom_selection
              << " colour_scheme: " << colour_scheme << " style: " << style << std::endl;
 
-   int status = 0;
    if (! atom_sel.mol)  return 0;
    if (atom_sel.n_selected_atoms == 0)  return 0;
 
@@ -112,16 +113,16 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    std::cout << "DEBUG:: mcit::add_molecular_representation() ... for molecule " << imol_no << " we have "
              << meshes.size() << " meshes " << std::endl;
 
+#endif // USE_MOLECULES_TO_TRIANGLES
    return status;
 }
 
-#endif // USE_MOLECULES_TO_TRIANGLES
 
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
 void
 molecule_class_info_t::remove_molecular_representation(int idx) {
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
    if (idx >= 0) {
 
       // this will shuffle the indices of the other molecule representations, hmm...
@@ -133,6 +134,6 @@ molecule_class_info_t::remove_molecular_representation(int idx) {
     std::cout << "erased - now molrepinsts size " << molrepinsts.size() << std::endl;
       }
    }
-}
 
 #endif // USE_MOLECULES_TO_TRIANGLES
+}
