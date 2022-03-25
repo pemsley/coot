@@ -73,8 +73,12 @@ void setup_python(int argc, char **argv) {
    auto get_pythondir = [] () {
                            std::string p = coot::prefix_dir();
                            std::string dp   = coot::util::append_dir_dir(p,   "lib");
-                           std::string ddp  = coot::util::append_dir_dir(dp,  "python3.9");
-                           std::string dddp = coot::util::append_dir_dir(ddp, "site-package");
+                           std::string python_version = "python";
+                           python_version += coot::util::int_to_string(PY_MAJOR_VERSION);
+                           python_version += ".";
+                           python_version += coot::util::int_to_string(PY_MINOR_VERSION);
+                           std::string ddp  = coot::util::append_dir_dir(dp,  python_version);
+                           std::string dddp = coot::util::append_dir_dir(ddp, "site-packages");
                            return dddp;
                         };
    auto get_pkgpythondir = [get_pythondir] () {
