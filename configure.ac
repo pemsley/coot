@@ -27,7 +27,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 
 
-AC_INIT(coot, 1-pre)
+AC_INIT([coot],[1-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -35,12 +35,19 @@ dnl Pick up the macros.
 AM_ACLOCAL_INCLUDE(macros)
 AC_CONFIG_MACRO_DIR(macros)
 
-AC_ISC_POSIX
+AC_SEARCH_LIBS([strerror],[cposix])
 AC_PROG_CC
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro `STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_PROG_EGREP
+
 
 AC_PROG_CXX
-# AM_PROG_LIBTOOL that's old style. Now we use LT_INIT.
+# LT_INIT that's old style. Now we use LT_INIT.
 # It is not yet clear to me how AC_LANG_SOURCE should be used
 # for LT_INIT
 LT_INIT
@@ -51,7 +58,7 @@ AC_MSG_CHECKING([which libtool initialization strategy to adopt])
 AC_MSG_RESULT([m4_ifset([LT_INIT],[LT-INIT],[AC-PROG-LIBTOOL])])
 m4_ifset([LT_INIT],
 [LT_INIT],
-[AC_PROG_LIBTOOL])
+[LT_INIT])
 
 GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
@@ -202,7 +209,7 @@ dnl =========================== GSL ================================
 
 dnl test for GSL
 # min_gsl_version=1.3
-AM_PATH_GSL(1.3,[COOT_GSL_FLAGS=-DHAVE_GSL], [COOT_GSL_FLAGS=""])
+AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
 AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
@@ -395,7 +402,7 @@ dnl Set PACKAGE_LOCALE_DIR in config.h.
   # AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 # fi
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 macros/Makefile
 pdb-templates/Makefile
@@ -453,6 +460,7 @@ auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
 rcrane/Makefile
 ])
+AC_OUTPUT
 # removed setup/Makefile
 # po/Makefile.in
 # lbg/Makefile
