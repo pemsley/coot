@@ -864,3 +864,50 @@ on_calculate_updating_maps1_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
    show_calculate_updating_maps_gui();
 
 }
+
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_icons_menubar_icons_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                       gpointer     user_data) {
+
+   GtkWidget *tb;
+
+   tb = widget_from_builder("main_window_model_toolbar_second_top");
+   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
+   tb = widget_from_builder("main_window_model_toolbar_lower");
+   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
+   tb = widget_from_builder("main_window_model_toolbar_bottom");
+   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
+
+   GtkWidget *mi = widget_from_builder("rotate_translate_item_menu_item_top");
+   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
+   mi = widget_from_builder("menubar_for_rsr_item_menuitem");
+   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
+   mi = widget_from_builder("menubar_for_delete_items_menu_item_top");
+   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_icons_menubar_icons_and_text_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                                gpointer     user_data) {
+
+   GtkWidget *tb;
+
+   tb = widget_from_builder("main_window_model_toolbar_second_top");
+   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
+   tb = widget_from_builder("main_window_model_toolbar_lower");
+   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
+   tb = widget_from_builder("main_window_model_toolbar_bottom");
+   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
+
+   GtkWidget *mi = widget_from_builder("rotate_translate_item_menu_item_top");
+   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "Rotate/Translate");
+   mi = widget_from_builder("menubar_for_rsr_item_menuitem");
+   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "Real Space Refinement");
+   mi = widget_from_builder("menubar_for_delete_items_menu_item_top");
+   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "   Delete");
+
+}

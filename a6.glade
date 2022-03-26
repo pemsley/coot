@@ -11788,6 +11788,16 @@ Do you want to continue?
     <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/refmac.svg</property>
   </object>
+  <object class="GtkImage" id="image16">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-play</property>
+  </object>
+  <object class="GtkImage" id="image17">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-delete</property>
+  </object>
   <object class="GtkImage" id="image18">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -13923,12 +13933,12 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-delete</property>
+                      <object class="GtkImageMenuItem" id="menubar_for_delete_items_menu_item_top">
+                        <property name="label">Delete</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="image">image17</property>
+                        <property name="use_stock">False</property>
                         <property name="always_show_image">True</property>
                         <child type="submenu">
                           <object class="GtkMenu">
@@ -14071,6 +14081,51 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="position">7</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkMenuBar" id="model_toolbar_icons_menubar">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="pack_direction">ttb</property>
+                    <property name="child_pack_direction">ttb</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="model_toolbar_icons_menubar_top_item">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="image">image16</property>
+                        <property name="use_stock">False</property>
+                        <child type="submenu">
+                          <object class="GtkMenu">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkMenuItem" id="model_toolbar_icons_menubar_icons_and_text_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Icons &amp; Text</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_model_toolbar_icons_menubar_icons_and_text_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="model_toolbar_icons_menubar_icons_item">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Icons</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_model_toolbar_icons_menubar_icons_item_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">8</property>
+                  </packing>
+                </child>
               </object>
             </child>
           </object>
@@ -14085,7 +14140,10 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
             <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <child>
-              <placeholder/>
+              <object class="GtkToolbar">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
             </child>
           </object>
           <packing>
@@ -15391,6 +15449,7 @@ density (too big to be waters):
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
+                <property name="pack_type">end</property>
                 <property name="position">2</property>
               </packing>
             </child>
