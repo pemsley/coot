@@ -1756,7 +1756,7 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
 # Scale_factor > 1 makes brighter...
 #
 
-
+# brighten maps
 def brighten_map(imol, scale_factor):
 
     if valid_map_molecule_qm(imol):
@@ -1778,23 +1778,37 @@ def brighten_map(imol, scale_factor):
 
 # Make all maps brighter
 #
-
-
 def brighten_maps():
     list(map(lambda imap: brighten_map(imap, 1.25), map_molecule_list()))
 
 # Make all maps darker
 #
-
-
 def darken_maps():
     list(map(lambda imap: brighten_map(imap, 0.8), map_molecule_list()))
+
+# pastelize the colour of the map by degree
+def pastelize_map(imol_map: int, degree: float):
+    if valid_map_molecule_qm(imol_map):
+        colour = coot.map_colour_components_py(imol_map)
+        try:
+            for i in range(len(colour)):
+                cc = colour[i];
+                r = 1.0 - cc # extra "whiteness" (for this colour component)
+                colour[i] += r * degree;
+                colour[i] *= (1-0 - 0.5 * degree) # I don't want bright pastels
+            coot.set_map_colour(imol_map, *colour)
+        except Exception as e:
+            print("ERROR:: pastelize_map(): ", e, "bad non-list current-colour ", colour)
+        coot.graphics_draw()
+
+# pastelize maps
+def pastelize_maps():
+    list(map(lambda imap: pastelize_map(imap, 0.25), map_molecule_list()))
+
 
 # return a list of chain ids for given molecule number @var{imol}.
 # return empty list on error
 #
-
-
 def chain_ids(imol):
 
     # if this fails, check that you have not set chain_id to override coot's chain_id()
