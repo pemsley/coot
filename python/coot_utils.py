@@ -1805,6 +1805,12 @@ def pastelize_map(imol_map: int, degree: float):
 def pastelize_maps():
     list(map(lambda imap: pastelize_map(imap, 0.25), map_molecule_list()))
 
+def solidify_maps():
+    list(map(lambda imap: coot.set_draw_solid_density_surface(imap, 1), map_molecule_list()))
+
+def lineify_maps():
+    list(map(lambda imap: coot.set_draw_map_standard_lines(imap, 1), map_molecule_list()))
+
 
 # return a list of chain ids for given molecule number @var{imol}.
 # return empty list on error
