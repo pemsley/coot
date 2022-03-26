@@ -135,14 +135,12 @@ AM_PATH_SQLITE3
 dnl =========================== crystallographic libraries ================================
 dnl Check for gpp4
 
-AC_ARG_WITH([backward], AS_HELP_STRING([--with-backward], [Build with the backward header (better debugging info on GNU/Linux)]))
-if test "xwith_backward" ; then
-   # tested in utils/Makefile.am
+# I had the syntax wrong - it was alway passing
+AC_ARG_WITH([backward], AS_HELP_STRING([--with-backward Build with the backward header (better debugging info on GNU/Linux)]), with_backward=true, with_backward=false)
+if test "x$with_backward" = xtrue ; then
    USE_BACKWARD=use_backward
-else
-   USE_BACKWARD=no
 fi
-AM_CONDITIONAL(USE_BACKWARD, [test $USE_BACKWARD = use_backward])
+AM_CONDITIONAL(USE_BACKWARD, [test x$USE_BACKWARD = xuse_backward])    # tested in utils/Makefile.am
 
 if test "x$with_gpp4" = "xyes"; then
     PKG_CHECK_MODULES([CCP4], [gpp4])
