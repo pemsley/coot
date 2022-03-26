@@ -2364,7 +2364,7 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							int imol_active) {
 
    printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- don't use this function -----\n");
-   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- use fill_combobox_with_coordinates_options --\n");
+   printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- use fill_combobox_with_molecule_options --\n");
 
    printf("DEBUG:: fill_combobox_with_coordinates_options(): -------------------------- start -----\n");
 

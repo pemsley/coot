@@ -15525,13 +15525,13 @@ density (too big to be waters):
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="merge_molecules_ok_button">
-                    <property name="label" translatable="yes">   Merge   </property>
+                  <object class="GtkButton" id="merge_molecules_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_merge_molecules_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_merge_molecules_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -15540,13 +15540,13 @@ density (too big to be waters):
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="merge_molecules_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
+                  <object class="GtkButton" id="merge_molecules_ok_button">
+                    <property name="label" translatable="yes">   Merge   </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_merge_molecules_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_merge_molecules_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -15644,7 +15644,15 @@ into Molecule:
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="merge_molecules_combobox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label180">
@@ -25372,7 +25380,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                         </child>
                         <child>
                           <object class="GtkRadioButton" id="shader_settings_standard_mode_radiobutton">
-                            <property name="label" translatable="yes">Standard</property>
+                            <property name="label" translatable="yes">Plain</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>

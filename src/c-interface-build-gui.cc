@@ -655,6 +655,7 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
 
    GCallback checkbox_callback_func = G_CALLBACK(on_merge_molecules_check_button_toggled);
 
+   // the ligands vbox
    fill_vbox_with_coordinates_options(molecules_vbox, checkbox_callback_func);
 
    int imol_master = graphics_info_t::merge_molecules_master_molecule;
@@ -669,7 +670,22 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
    }
 
    graphics_info_t g;
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_master);
+
+   // 20220326-PE  this should be a member function of graphics_info_t and indeed should be
+   // used in fill_combobox_with_model_molecule_options which wraps
+   // fill_combobox_with_molecule_options(). That function doesn't exist yet, just to be clear.
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   std::vector<int> molecules_index_vec = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(combobox, callback_func, imol_master, molecules_index_vec);
    return w;
 }
 
@@ -758,7 +774,7 @@ void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
 // Display the gui
 void do_merge_molecules_gui() {
 
-   GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   GtkWidget *w = wrapped_create_merge_molecules_dialog(); // uses builder
    gtk_widget_show(w);
 }
 
