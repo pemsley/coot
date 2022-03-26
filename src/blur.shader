@@ -58,6 +58,8 @@ vec3 sampling_blur(int n_pixels_max) {
    float depth_centre = texture(screenDepth, TexCoords).x;
    vec3 result = vec3(1.0, 1.0, 0.0);
 
+   // if (depth_centre < 0.2) discard;
+
    // centre is the point being blurred *into*
 
    vec3 orig_colour = texture(screenTexture, TexCoords).rgb; // don't blur
@@ -125,6 +127,7 @@ vec3 sampling_blur(int n_pixels_max) {
       float alpha_inner = w_inner_neighbs;
       alpha_inner = clamp(alpha_inner, 0.0f, 1.0f);
       float alpha = 0.0f; // not at the moment. was clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
+      // alpha = clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
       float Sc = 0.4f/float(n_pixels_max*n_pixels_max); // was 0.6
       vec3 result_intermediate = mix(orig_colour, average_col_from_inner_neighbs, alpha_inner);
       result = mix(result_intermediate, Sc * sum_outer, alpha);
@@ -159,8 +162,6 @@ vec3 make_outline() {
 void main() {
 
    vec3 result = vec3(0,0,0);
-
-   // bool do_outline    = false;  this is passed now.
 
    if (do_depth_blur && ! do_outline) {
       result = sampling_blur(8); // 14 is good

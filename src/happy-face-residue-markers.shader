@@ -11,6 +11,7 @@ layout(location = 4) in vec3 instance_translation;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
+uniform float canvas_scale; // 0.8 for happy faces, 0.2 for anchor/fixed atoms
 out vec2 texCoord_transfer;
 
 void main() {
@@ -19,7 +20,7 @@ void main() {
    // perspective mode, but not in orthographic. Baah!
    //
    mat4 t = transpose(view_rotation);
-   vec4 p2 = vec4(0.8 * position, 1.0); // 1.0 is important here
+   vec4 p2 = vec4(canvas_scale * position, 1.0); // 1.0 is important here
    vec4 p3 = t * p2;
    vec4 p4 = p3 + vec4(instance_translation, 0.0); // 0.0 is important here
 

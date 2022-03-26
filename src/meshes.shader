@@ -25,7 +25,7 @@ uniform mat4 view_rotation;
 void main() {
    vec4 n = vec4(normal, 1.0);
    gl_Position = mvp * vec4(position, 1.0);
-   normal_transfer = normal; // Hmmm! 20220209-PE I wonder if this should use view_rotation?
+   normal_transfer = normal; // Hmmm! 20220209-PE normals are in "molecule" space (as are the light positions)
    colour_transfer = colour;
    frag_pos_transfer = position;
 }
@@ -173,7 +173,7 @@ void main() {
 
             eye_pos = eye_position_in_molecule_coordinates_space;
 
-            vec3 norm_2 = normalize(normal_transfer); // not needed, I think
+            vec3 norm_2 = normal_transfer;
             vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
             vec3 reflect_dir = reflect(-light_dir, norm_2);
             reflect_dir = normalize(reflect_dir); // belt and braces
@@ -225,6 +225,8 @@ void main() {
 
 
    // testing hacks:
+
+   // output_colour = vec4(normal_transfer, 1.0);
 
    // material.specular_strength = 0.4
    // if (material.specular_strength > 0.4)  // great than 0.2, 0.3  less than 0.4

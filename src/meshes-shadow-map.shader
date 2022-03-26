@@ -1,6 +1,6 @@
 
-
 #shader vertex
+// meshes-shadow-map.shader
 
 #version 330 core
 
@@ -18,6 +18,7 @@ void main() {
 }
 
 #shader fragment
+// meshes-shadow-map.shader
 
 #version 330 core
 

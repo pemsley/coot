@@ -17,15 +17,24 @@ out vec3 normal_transfer;
 out vec4 colour_transfer;
 
 uniform mat4 mvp;
+uniform mat4 view_rotation;
 uniform mat4 light_space_mvp;
 
 void main() {
    vec4 n = vec4(normal, 1.0);
    gl_Position = mvp * vec4(position, 1.0);
    normal_transfer = normal;  // this does not match texture-meshes-with-shadows.shader
+   mat3 view_rotation_3 = mat3(view_rotation);
+   mat3 transpose_view_matrix = transpose(view_rotation_3);
+   normal_transfer = normal;  // * transpose_view_matrix; // 20220326-PE these normals change the colour of the surface
+                                                          // dependent on the view - so that blue is always facing the  viewer
+   normal_transfer = normal; // this is like meshes.shader - the dp is calculated using eye in molecule space
    frag_pos_transfer = position;
    frag_pos_light_space_transfer = light_space_mvp * vec4(position, 1.0);
    colour_transfer = colour;
+
+   // hack test
+   // colour_transfer = vec4(normal_transfer, 1.0);
 }
 
 
@@ -187,6 +196,8 @@ void main() {
       // specular_strength *= 32;
       // shininess *= 8;
 
+      // specular_strength = 0.0;
+
       float fog_amount = get_fog_amount(gl_FragCoord.z);
 
       for (int i=0; i<2; i++) {
@@ -211,21 +222,6 @@ void main() {
 	    vec4 diffuse = scale_factor_n_lights * colour_transfer * material.diffuse * dp;
 	    // diffuse = dp * vec4(0.5, 0.5, 0.5, 1.0);
 
-#if 0
-	    // specular - 20220108-PE the specular component dosen't work correctly.
-            //            Does the specular component work for texture-meshes (with shadows)?
-            //
-	    vec3 eye_pos = eye_position;  // Hmmm! divide by eye_position.w?
-	    vec3 norm_2 = normalize(normal_transfer); // not needed, I think
-	    vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
-	    vec3 reflect_dir = reflect(-light_dir, norm_2);
-	    reflect_dir = normalize(reflect_dir); // belt and braces
-	    float dp_view_reflect = dot(view_dir, reflect_dir);
-	    dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
-	    float spec = pow(dp_view_reflect, shininess);
-	    vec4 specular = specular_strength * spec * light_sources[i].specular * scale_factor_n_lights;
-#endif
-
 #if 1 // largely from moleculestotriangles.shader, but using a different eye position space.
       // Also the same as meshes.shader.
 
@@ -235,7 +231,7 @@ void main() {
 
             eye_pos = eye_position_in_molecule_coordinates_space;
 
-            vec3 norm_2 = normalize(normal_transfer); // not needed, I think
+            vec3 norm_2 = normal_transfer;
             vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
             vec3 reflect_dir = reflect(-light_dir, norm_2);
             reflect_dir = normalize(reflect_dir); // belt and braces
@@ -243,6 +239,8 @@ void main() {
             dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
             float spec = pow(dp_view_reflect, shininess);
             vec4 specular = specular_strength * spec * light_sources[i].specular;
+            if (! do_specular)
+               specular = vec4(0,0,0,0);
 #endif
 
             // Don't allow specularity if the pixel is in any amount of shadow.
@@ -309,6 +307,11 @@ void main() {
    }
 
    output_colour = sum_col;
+
+   // 20220326-PE testing the normals:
+   // output_colour = vec4(normal_transfer, 1.0);
+
+   // output_colour = colour_transfer;
    // output_colour = vec4(1,0,1,1);
 
 }

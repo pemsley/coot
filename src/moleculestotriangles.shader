@@ -1,9 +1,13 @@
 
 // use the #shader "directive" to separate the shaders on parsing
 // -----------------------------------------
+
+// 20220213-PE question to self: what does this do that meshes.shader does not do?
+
 #shader vertex
 
 #version 330 core
+// moleculestotriangles.shader
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
@@ -18,7 +22,6 @@ out vec3 frag_pos_transfer;
 void main() {
    vec4 n = vec4(normal, 1.0);
    gl_Position = mvp * vec4(position, 1.0);
-
    normal_transfer = normalize(normal); // probably the normalize() here is not needed
    colour_transfer = colour;
    frag_pos_transfer = position;
@@ -29,6 +32,7 @@ void main() {
 #shader fragment
 
 #version 330 core
+// moleculestotriangles.shader
 
 struct LightSource {
    bool is_on;

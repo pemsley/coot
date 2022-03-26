@@ -21,17 +21,22 @@ uniform vec2 scales;
 uniform vec2 window_resize_position_correction;
 uniform vec2 window_resize_scales_correction;
 
+uniform bool relative_to_right = true;
+uniform bool relative_to_top   = true;
+
 void main() {
 
-   vec2 c_scales = scales;
-   // c_scales.x = 0.2;
-   // c_scales.y = 0.2;
-   vec2 scaled_vertices = vec2(vertex.x, vertex.y)  * c_scales;
+   vec2 scaled_vertices = vertex  * scales;
    vec2 p1 = scaled_vertices + position;
    vec2 p2 = p1 * window_resize_scales_correction;
-   vec2 p3 = p2 + window_resize_position_correction;
+   vec2 p3 = p2;
+   bool xx_relative_to_right = true;
+   bool xx_relative_to_top   = true;
+   if (relative_to_right) p3.x += 1.0;
+   if (relative_to_top)   p3.y += 1.0;
+   vec2 p4 = p3 + window_resize_position_correction;
 
-   gl_Position = vec4(vertex , 0.0, 1.0);
+   gl_Position = vec4(p4, 0.0, 1.0);
    texCoord_transfer = texCoord;
 }
 
@@ -53,6 +58,11 @@ void main() {
    vec4 sampled = texture(image_texture, texCoord_transfer);
 
    outputColor = sampled;
-   outputColor = vec4(0.8 * sampled.r, 0.8 * sampled.r, 0.8 * sampled.r, 1.0);
+   // outputColor = vec4(0.8 * sampled.r, 0.8 * sampled.r, 0.8 * sampled.r, 1.0);
 
+   if (outputColor.a < 0.5) discard; // for text as textures rendering
+
+   // outputColor.a = 0.9; // why did I have this? For the rama underlying distribution? Hmm.
+                           // OK I guess I need a uniform for that if I'm going to use this shader
+                           // for that.
 }

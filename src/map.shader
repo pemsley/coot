@@ -1,6 +1,8 @@
 
 #shader vertex
 
+// This is map.shader
+
 #version 330 core
 
 layout(location = 0) in vec3 position;
@@ -19,11 +21,16 @@ void main() {
    gl_Position = mvp * vec4(position, 1.0);
 
    frag_pos = position;
+
+   // frag_pos += 0.1 * colour.rgb;
    normal_transfer = normalize(normal); // * transpose(mat3(view_rotation)); (you'd think)
    colour_transfer = colour;
+   // colour_transfer = vec4(1,0,1,1);
 }
 
 #shader fragment
+
+// This is map.shader
 
 #version 330 core
 
@@ -81,6 +88,7 @@ float get_fog_amount(float depth_in) {
          // needs tweaking
          float d = depth_in;
          float d4 = d * d * d * d;
+         // d4 = 0.25 * d; // 20220202-PE crow m,v,p matrices
          return d4;
       }
    } else {
@@ -99,6 +107,9 @@ void main() {
    ambient_strength = 0.4;
    diffuse_strength = 0.96;
    out_col = vec4(0,0,0,0);
+
+   vec4 colour_local = colour_transfer;
+   // colour_local = vec4(1,0,1,1);// so colour_transfer is not correct.
 
    // get specular_strength from the material
    float specular_strength = material.specular_strength; // 1.5 is very shiny, shiny is good for transparent maps
@@ -146,8 +157,6 @@ void main() {
          // float shine_opacity = 1.0 - clamp(40.0 * specular_strength * spec, 0.0, 1.0);
          float shine_opacity = 1.0;
          float front_opacity = 1.0; // sqrt(sqrt(gl_FragCoord.z)); // 20211014-PE looks terrible with solid surfaces
-
-         vec4 colour_local = colour_transfer;
 
          vec4 col_1 = colour_local; // ambient
          vec4 col_2 = diffuse_strength * colour_local * dp;

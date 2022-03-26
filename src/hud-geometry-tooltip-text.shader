@@ -19,6 +19,7 @@ void main() {
 
    // Note to self: the text of the tooltip needs to go over the
    // background of the tooltip
+   // 20220214-PE actually for the moment, I have removed the background, so that we see ust "raw" text.
 
    vec2 scaled = vertex * scales;
    gl_Position = vec4(scaled + position, -1.0, 1.0);

@@ -6,7 +6,7 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec4 colour; // instanced. For instanced objects, the colour is set
+layout(location = 2) in vec4 colour; // For instanced objects, the colour is set
                                      // in the generic vertex (i.e. this), not the material.
 
 layout(location = 3) in vec4 colour_instanced;
@@ -20,6 +20,7 @@ uniform mat4 view_rotation;
 out vec4 colour_transfer;
 out vec3 normal_transfer;
 out vec4 frag_pos_transfer;
+out mat3 model_rotation_transfer;
 
 void main() {
    mat4 model_rotation_translation_scale = mat4(model_rotation_translation_scale_0,
@@ -34,7 +35,8 @@ void main() {
 
    gl_Position = mvp * frag_pos;
 
-   normal_transfer = model_rotation * normal;
+   normal_transfer = normal * transpose(model_rotation); // lights are a funny thing.
+
    colour_transfer = colour_instanced;
    frag_pos_transfer = frag_pos;
 }
@@ -79,6 +81,7 @@ uniform bool do_depth_fog;
 in vec4 frag_pos_transfer;
 in vec4 colour_transfer; // for instanced objects, the colour is set in the generic vertex, not the material
 in vec3 normal_transfer;
+in mat3 model_rotation_transfer;
 
 out vec4 outputColor;
 
@@ -99,14 +102,17 @@ void main() {
    vec4 bg_col = background_colour;
    vec4 sum_col = vec4(0,0,0,0);
 
-   float specular_strength = 0.4 * material.specular_strength;
+   float specular_strength = 1.0 * material.specular_strength;
+   //specular_strength = 0.0;
+   vec4 specular_light_colour = material.specular;
+
 
    // if (gl_FragCoord.z < 0.5) discard; // useful later maybe (in another shader)
 
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
-         float dp = dot(normal_transfer, light_dir);
+         float dp = dot(-normal_transfer, light_dir);
          // we can't have specular lights where there is no diffuse light
          if (dp <= 0.0)
             specular_strength = 0.0;
@@ -117,20 +123,21 @@ void main() {
 
          // diffuse
          vec3 norm_2 = normalize(normal_transfer); // not needed?
-         vec4 diffuse = 0.5 * light_sources[i].diffuse * dp * material.diffuse * colour_transfer;
+         vec4 diffuse = 5.5 * light_sources[i].diffuse * dp * material.diffuse * colour_transfer;
 
          // specular
          float shininess = material.shininess;
-         vec3 eye_pos = eye_position;
+         vec3 eye_pos = eye_position * transpose(model_rotation_transfer);
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz); // frag_pos_transfer is a vec3 in model.shader
          vec3 reflect_dir = reflect(-light_dir, norm_2);
-         reflect_dir = normalize(reflect_dir); // belt and braces
+         reflect_dir = normalize(reflect_dir); // belt and braces, needed?
          float dp_view_reflect = dot(view_dir, reflect_dir);
          dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
          float spec = pow(dp_view_reflect, shininess);
-         vec4 specular = specular_strength * spec * light_sources[i].specular;
+         // vec4 specular = specular_strength * spec * light_sources[i].specular;
+         vec4 col_specular = 3.0 * specular_strength * spec * specular_light_colour * light_sources[i].specular;
 
-         sum_col += ambient + diffuse + specular;
+         sum_col += ambient + diffuse + col_specular;
 
       }
    }

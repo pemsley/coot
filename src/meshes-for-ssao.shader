@@ -4,6 +4,7 @@
 #shader vertex
 
 #version 330 core
+// meshes-for-ssao.shader
 
 // make it work like 9.ssao_geometry.shader
 
@@ -37,6 +38,7 @@ void main() {
 #shader fragment
 
 #version 330 core
+// meshes-for-ssao.shader
 
 layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
@@ -52,6 +54,7 @@ void main() {
    // normal_view_rotated = normal; // I don't understand how this works.
 
    gPosition = frag_pos_transfer;
-   gNormal = normalize(normal_transfer); // do we need to normalize?
+   //    gNormal = normalize(normal_transfer); // do we need to normalize?
+   gNormal = normal_transfer;
 
 }
