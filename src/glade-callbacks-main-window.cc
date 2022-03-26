@@ -855,3 +855,12 @@ on_delete_item_chain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
    set_delete_chain_mode();
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_calculate_updating_maps1_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                         gpointer     user_data) {
+
+   show_calculate_updating_maps_gui();
+
+}

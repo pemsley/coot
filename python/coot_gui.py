@@ -861,6 +861,16 @@ def make_store_for_map_molecule_combobox():
             mol_store.append([imol, m_label_str])
     return mol_store
 
+def make_store_for_diff_map_molecule_combobox():
+    mol_store = Gtk.ListStore(int, str)
+    for imol in coot_utils.molecule_number_list():
+        if coot.is_valid_map_molecule(imol) == 1:
+            if coot.map_is_difference_map(imol) == 1:
+                label_str = coot.molecule_name(imol)
+                m_label_str = str(imol) + ' ' + label_str
+                mol_store.append([imol, m_label_str])
+    return mol_store
+
 
 def make_store_for_model_molecule_combobox():
     mol_store = Gtk.ListStore(int, str)
@@ -5283,7 +5293,7 @@ def refmac_multi_sharpen_gui():
     b_factor_list = [50, 100, 200, 400, 800, 2000]
 
     combobox_map_items = make_store_for_map_molecule_combobox()
-    combobox_map = Gtk.ComboBox.new_with_model(combobox_items)
+    combobox_map = Gtk.ComboBox.new_with_model(combobox_map_items)
     renderer_text = Gtk.CellRendererText()
     if len(combobox_map_items) > 0:
         combobox_map.set_active(0)
@@ -5963,6 +5973,149 @@ def pukka_puckers_qm(imol):
             ls = [label, func]
             buttons.append(ls)
         dialog_box_of_buttons("Non-pukka puckers", [370, 250], buttons, "  Close  ")
+
+def model_map_diff_map_molecule_chooser_gui(callback_function):
+
+    def delete_event(*args):
+       window.destroy()
+       return False
+
+    def combobox_to_molecule_number(combobox):
+        imol = -1
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
+
+    def on_ok_clicked(*args):
+        active_mol_no_model    = combobox_to_molecule_number(combobox_model)
+        active_mol_no_map      = combobox_to_molecule_number(combobox_map)
+        active_mol_no_diff_map = combobox_to_molecule_number(combobox_diff_map)
+        try:
+           active_mol_no_model    = int(active_mol_no_model)
+           active_mol_no_map      = int(active_mol_no_map)
+           active_mol_no_diff_map = int(active_mol_no_diff_map)
+           print("INFO: operating on molecule numbers ", active_mol_no_model, active_mol_no_map, active_mol_no_diff_map)
+           try:
+               auto_button_state = auto_update_checkbutton.get_active()
+               callback_function(active_mol_no_model, active_mol_no_map, active_mol_no_diff_map, auto_button_state)
+           except TypeError as e:
+               print(e)
+               print("BL INFO:: problem in callback_function", callback_function.func_name)
+           delete_event()
+        except TypeError as e:
+            print(e)
+            print( "Failed to get a (molecule) number")
+
+    window = Gtk.Window(title="Coot: Map Molecule Chooser")
+    model_chooser_label = "Model"
+    map_chooser_label   = "Map (with data info attached)"
+    diff_map_chooser_label   = "Difference Map"
+    label_for_map      = Gtk.Label(map_chooser_label)
+    label_for_diff_map = Gtk.Label(diff_map_chooser_label)
+    label_for_model    = Gtk.Label(model_chooser_label)
+    vbox = Gtk.VBox(False,6)
+    hbox_buttons = Gtk.HBox(False,5)
+
+    # 20220326-PE
+    # combobox_model    = Gtk.combo_box_new_text()
+    # combobox_diff_map = Gtk.combo_box_new_text()
+    # combobox_map      = Gtk.combo_box_new_text()
+
+    combobox_diff_map = Gtk.ComboBox()
+
+    combobox_mol_items = make_store_for_model_molecule_combobox()
+    combobox_model = Gtk.ComboBox.new_with_model(combobox_mol_items)
+
+    renderer_text_for_model = Gtk.CellRendererText()
+    if len(combobox_mol_items) > 0:
+        combobox_model.set_active(0)
+    combobox_model.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox_model.pack_start(renderer_text_for_model, True)
+    combobox_model.add_attribute(renderer_text_for_model, "text", 1)
+
+    combobox_map_items = make_store_for_map_molecule_combobox()
+    combobox_map = Gtk.ComboBox.new_with_model(combobox_map_items)
+    
+    renderer_text_for_map = Gtk.CellRendererText()
+    if len(combobox_map_items) > 0:
+        combobox_map.set_active(0)
+    combobox_map.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox_map.pack_start(renderer_text_for_map, True)
+    combobox_map.add_attribute(renderer_text_for_map, "text", 1)
+
+    combobox_diff_map_items = make_store_for_diff_map_molecule_combobox()
+    combobox_diff_map = Gtk.ComboBox.new_with_model(combobox_diff_map_items)
+
+    renderer_text_for_diff_map = Gtk.CellRendererText()
+    if len(combobox_diff_map_items) > 0:
+        combobox_diff_map.set_active(0)
+    combobox_diff_map.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox_diff_map.pack_start(renderer_text_for_diff_map, True)
+    combobox_diff_map.add_attribute(renderer_text_for_diff_map, "text", 1)
+
+    ok_button = Gtk.Button("  OK  ")
+    cancel_button = Gtk.Button(" Cancel ")
+    h_sep = Gtk.HSeparator()
+
+    # "auto" button
+    auto_update_checkbutton = Gtk.CheckButton("Auto Update")
+
+    window.set_default_size(370,100)
+    window.add(vbox)
+    vbox.pack_start(label_for_model,False,False, 5)
+    vbox.pack_start(combobox_model, True, True,  2)
+    vbox.pack_start(label_for_map,  False,False, 5)
+    vbox.pack_start(combobox_map,   True, True,  2)
+    vbox.pack_start(label_for_diff_map,  False,False, 5)
+    vbox.pack_start(combobox_diff_map,   True, True,  2)
+    vbox.pack_start(auto_update_checkbutton, False, False, 2)
+    vbox.pack_start(h_sep,True,False, 2)
+    vbox.pack_start(hbox_buttons,False, False,5)
+    hbox_buttons.pack_start(ok_button, True,False,5)
+    hbox_buttons.pack_start(cancel_button, True, False,5)
+
+    # button callbacks:
+    ok_button.connect("clicked", on_ok_clicked)
+    cancel_button.connect("clicked", delete_event)
+
+    window.show_all()
+
+def show_updating_maps_chooser():
+
+    def update_maps_func(toolbutton):
+        # the R-factor is added to the status bar
+        stats_result = coot.calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
+
+    def generator_update_maps_func_wrap_for_capture(imol, imol_map, imol_diff_map):
+        func = lambda imol_c=imol, imol_map_c=imol_map, imol_diff_map_c=imol_diff_map : coot.calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
+        def action(arg):
+           func(imol, imol_map, imol_diff_map)
+        return action
+
+    # this needs  the same generator work-around but I've run out of energy.
+    def shiftfield_func():
+        imol = 0
+        coot.shiftfield_b_factor_refinement(imol)
+
+    def ok_button_function(imol, imol_map, imol_diff_map, use_auto_update_mode):
+        # print("imol for coords", imol, "imol_for_map", imol_map, "use_auto_update_mode", use_auto_update_mode)
+        if coot.is_valid_map_molecule(imol_map):
+            if use_auto_update_mode:
+                coot.set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map)
+            else:
+                print("================================= calculate_maps_and_stats_py()", imol, imol_map, imol_diff_map)
+                coot.calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
+            menu_bar_callback_func = generator_update_maps_func_wrap_for_capture(imol, imol_map, imol_diff_map)
+            coot_toolbar_button("Update Maps", menu_bar_callback_func, use_button=True)
+            coot_toolbar_button("Shiftfield B", shiftfield_func)
+
+    model_map_diff_map_molecule_chooser_gui(ok_button_function)
 
 
 
