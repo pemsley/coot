@@ -213,7 +213,7 @@ if True:
      # draw_menu.append(menuitem_6)
      # menuitem_6.show()
 
-     draw_representation_menu.set_submenu(submenu_representation)
+     # draw_representation_menu.set_submenu(submenu_representation)
 
      menuitem_pisa.set_submenu(submenu_pisa)
      draw_menu.append(menuitem_pisa)

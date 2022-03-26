@@ -12734,57 +12734,6 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkMenuItem" id="draw_representation_tools">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Representation Tools...</property>
-                            <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_draw_representation_tools_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="skeleton_parameters1">
-                            <property name="label" translatable="yes">Skeleton Parameters</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">False</property>
-                            <child type="submenu">
-                              <object class="GtkMenu" id="skeleton_parameters1_menu">
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkImageMenuItem" id="skeleton_colour1">
-                                    <property name="label" translatable="yes">Skeleton Colour...</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="use_stock">False</property>
-                                    <signal name="activate" handler="on_skeleton_colour1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="skeleton_box_radius1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Skeleton Box Radius...</property>
-                                    <property name="use_underline">True</property>
-                                    <signal name="activate" handler="on_skeleton_box_radius1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="skeletonization_level1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Skeletonization Level...</property>
-                                    <property name="use_underline">True</property>
-                                    <signal name="activate" handler="on_skeletonization_level1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="spin_view_on/off1">
                             <property name="label" translatable="yes">Spin View On/Off</property>
                             <property name="visible">True</property>
