@@ -71,7 +71,7 @@ try_read_phs_file(const char *filename) {
 	 return 1;			/* we try to deal with a .phs file */
 	 
       } else {
-	printf("%s is not a .phs file\n", filename); 
+	printf("INFO:: %s is not a .phs file\n", filename);
       }
    }
    

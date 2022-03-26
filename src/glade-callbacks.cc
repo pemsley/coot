@@ -1061,29 +1061,18 @@ on_foadi_off_activate_gtkbuilder_callback                  (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_open_map1_activate_gtkbuilder_callback                  (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  GtkWidget *map_name_fileselection1;
-  GtkWidget *filter_button;
-  GtkWidget *sort_button;
+on_open_map1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                           gpointer         user_data) {
 
-   map_name_fileselection1 = coot_map_name_chooser();
+   GtkWidget *map_name_chooser = widget_from_builder("map_name_filechooser_dialog");
+   GtkWidget *filter_button = add_filename_filter_button(map_name_chooser, COOT_MAP_FILE_SELECTION);
 
-   gtk_widget_show (map_name_fileselection1);
-   add_is_difference_map_checkbutton(map_name_fileselection1);
-   add_ccp4i_project_optionmenu(map_name_fileselection1, COOT_MAP_FILE_SELECTION);
-   filter_button = add_filename_filter_button(map_name_fileselection1,
-					      COOT_MAP_FILE_SELECTION);
-   sort_button = add_sort_button_fileselection(map_name_fileselection1);
-   /*    set_directory_for_fileselection(map_name_fileselection1); */
+   gtk_widget_show (map_name_chooser);
+   add_is_difference_map_checkbutton(map_name_chooser);
 
-   // push_the_buttons_on_fileselection(filter_button, sort_button, map_name_fileselection1);
+   gtk_widget_show(map_name_chooser);
+   set_directory_for_filechooser(map_name_chooser);
 
-   set_file_selection_dialog_size(map_name_fileselection1);
-   gtk_widget_show (map_name_fileselection1);
-
-   // push_the_buttons_on_fileselection(filter_button, sort_button, map_name_fileselection1);
 }
 
 
@@ -9369,7 +9358,7 @@ on_dataset_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget       *obje
   gtk_widget_hide(dataset_fileselection1);
 }
 
-
+// I don't think that this is used now - delete it
 extern "C" G_MODULE_EXPORT
 void
 on_map_name_filechooserdialog1_response_gtkbuilder_callback

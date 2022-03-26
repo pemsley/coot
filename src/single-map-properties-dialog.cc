@@ -33,8 +33,6 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
 
 void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *> w_and_b, int imol) {
 
-   std::cout << "::::::::::::::::::::::::::: fill_single_map_properties_dialog_gtk3() for imol " << imol << std::endl;
-
    graphics_info_t g;
    if (! g.is_valid_map_molecule(imol)) return;
 
@@ -227,7 +225,6 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fresnel_checkbutton), TRUE);
    }
 
-   printf("!!!!!!!!! fill_single_map_properties_dialog_gtk3() done\n");
 }
 
 GtkWidget *wrapped_create_single_map_properties_dialog_gtk3(int imol) {

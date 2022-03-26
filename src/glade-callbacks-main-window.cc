@@ -59,6 +59,8 @@ typedef const char entry_char_type;
 #include "utils/coot-utils.hh"
 #include "graphics-info.h"
 
+#include "cc-interface.hh" // for read_ccp4_map()
+
 
 // Let's put the new refinement and regularization control tools together here
 // (although not strictly main window)
@@ -639,11 +641,17 @@ void
 on_map_name_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
                                                             gint             response_id,
                                                             gpointer         user_data) {
+
    if (response_id == GTK_RESPONSE_OK) {
       const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       if (fnc) {
          std::string fn(fnc);
          std::cout << "Now do something with " << fn << std::endl;
+         bool is_diff_map = false;
+         GtkWidget *checkbutton = widget_from_builder("map_filechooser_is_difference_map_button");
+         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+            is_diff_map = true;
+         read_ccp4_map(fn, is_diff_map);
       }
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -670,7 +678,6 @@ on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialo
          const char *fnc = static_cast<const char *>(files_list->data);
          if (fnc) {
             std::string fn(fnc);
-            std::cout << "Now do something with " << fn << std::endl;
             handle_read_draw_molecule_with_recentre(fn, 0);
          }
          files_list = g_slist_next(files_list);

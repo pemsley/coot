@@ -43,7 +43,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 			  double weight_for_3d_distances) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   
+
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       mmdb::Residue *residue_p =
