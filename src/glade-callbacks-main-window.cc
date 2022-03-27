@@ -911,3 +911,49 @@ on_model_toolbar_icons_menubar_icons_and_text_item_activate_gtkbuilder_callback(
    gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "   Delete");
 
 }
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_ribbons_colour_by_chain_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                  gpointer     user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "Chain";
+      std::string atom_selection = "//";
+      std::string style = "Ribbon";
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_ribbons_colour_rainbow_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                 gpointer     user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "colorRampChainsScheme";
+      std::string atom_selection = "//";
+      std::string style = "Ribbon";
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_perspective_perspective_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                       gpointer     user_data) {
+   set_use_perspective_projection(1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_perspective_orthographic_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                        gpointer     user_data) {
+   set_use_perspective_projection(0);
+}
