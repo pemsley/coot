@@ -82,10 +82,13 @@ void on___glade_unnamed_94_activate_gtkbuilder_callback(GtkMenuItem *menuitem, g
 
 extern "C" G_MODULE_EXPORT
 void
-on_window1_destroy_gtkbuilder_callback                     (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-  gtk_main_quit();
+on_window1_destroy_gtkbuilder_callback (GtkWidget       *object,
+                                        gpointer         user_data) {
+
+   // 20220327-PE the window manager killing the Coot window doesn't call this
+
+   std::cout << "on_window1_destroy_gtkbuilder_callback()" << std::endl;
+   gtk_main_quit();
 }
 
 /* When the user uses the window manager to close coot, this gets called. */
@@ -100,7 +103,7 @@ on_window1_delete_event_gtkbuilder_callback                (GtkWidget       *wid
                                         GdkEvent        *event,
                                         gpointer         user_data)
 {
-/*   printf("---------------------------- on_window1_delete_event() ------------------\n"); */
+   printf("---------------------------- on_window1_delete_event() ------------------\n");
   /* coot_checked_exit() calls coot_real_exit() and that calls exit(),
      so we don't (normally?) return from this function. */
   coot_no_state_real_exit(0);
@@ -6572,7 +6575,49 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 }
 
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_shader_settings_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                           GdkEvent        *event,
+                                                           gpointer         user_data) {
 
+   // this happens when the window manager closes the window (or tries to)
+   // std::cout << "-------------- on_shader_settings_dialog_delete_event_gtkbuilder_callback() " << std::endl;
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_shader_settings_dialog_destroy_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                           GdkEvent        *event,
+                                                           gpointer         user_data) {
+
+   // this doesn't happen
+   std::cout << "-------------- on_shader_settings_dialog_destroy_event_gtkbuilder_callback() " << std::endl;
+   return TRUE;
+}
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_shader_settings_dialog_destroy_gtkbuilder_callback(GtkWidget       *widget,
+                                                           gpointer         user_data) {
+
+   // this doesn't happen
+   std::cout << "-------------- on_shader_settings_dialog_ destroy " << std::endl;
+   return TRUE;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_shader_settings_dialog_close_gtkbuilder_callback(GtkDialog *dialog,
+                                                    gpointer   user_data) {
+
+   // The ::close signal is a keybinding signal which gets emitted when the user uses a keybinding to close the dialog.
+   // The default binding for this signal is the Escape key.
+   
+   std::cout << "-------------- on_shader_settings_dialog close  " << std::endl;
+}
 
 
 /* end preferences */
