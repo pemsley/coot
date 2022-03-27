@@ -215,9 +215,9 @@ if True:
 
      # draw_representation_menu.set_submenu(submenu_representation)
 
-     menuitem_pisa.set_submenu(submenu_pisa)
-     draw_menu.append(menuitem_pisa)
-     menuitem_pisa.show()
+     # menuitem_pisa.set_submenu(submenu_pisa)
+     # draw_menu.append(menuitem_pisa)
+     # menuitem_pisa.show()
 
      # menuitem_7.set_submenu(submenu_settings)
      edit_settings_menu.set_submenu(submenu_settings)
