@@ -1047,7 +1047,7 @@ fi
 # yum install mesa-*
 # yum install gcc-gfortran
 
-if test $OS = Linux ; then 
+if test $OS = Linux ; then
 
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
@@ -1182,8 +1182,8 @@ case $dist_name in
        libc6-dev
        libtinfo-dev
        libncurses5-dev
-       libglu1-mesa-dev
        libssl-dev
+       libglu1-mesa-dev
        libjpeg-dev
        mesa-common-dev
        libgtk2.0-dev
@@ -1214,19 +1214,14 @@ case $dist_name in
       ;;
 
     debian)
-<<<<<<< HEAD
-      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip'
-      for dep in $dep_list
-=======
       # note from Dirk Kostrewa 20211018-PE:
       #
       # cmake libncurses5-dev libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev
       # libgnomecanvas2-dev libxt-dev libjpeg-dev
       # 20211019-PE also texinfo (for makeinfo for guile-lib)
       dep_list='rsync m4 unzip patch libncurses5-dev g++ libxext-dev libxt-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev unzip texinfo cmake libjpeg-dev'
-      for dep in $dep_list 
->>>>>>> refinement
-      do 
+      for dep in $dep_list
+      do
          echo $dep
          if dpkg-query --status $dep > /dev/null ; then
             echo system has $dep
@@ -1644,15 +1639,9 @@ else
        ${AUTOBUILD_SOURCES}/index.html | sort
     echo ==== with tail ==========
     awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
-<<<<<<< HEAD
-       ${AUTOBUILD_SOURCES}/index.html | tail -1
+       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1
     echo =========== from ${AUTOBUILD_SOURCES}/index.html
     cat ${AUTOBUILD_SOURCES}/index.html
-=======
-       ${AUTOBUILD_SOURCES}/index.html | sort | tail -1
-    echo =========== from ${AUTOBUILD_SOURCES}/index.html 
-    cat ${AUTOBUILD_SOURCES}/index.html 
->>>>>>> refinement
     echo ==============
     coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
@@ -1946,19 +1935,19 @@ case "$architecture" in
      STD_PKGCONFIG_DIR=/usr/lib64/pkgconfig
      ;;
 esac
-if [ -z "$PKG_CONFIG_PATH" ] ; then 
+if [ -z "$PKG_CONFIG_PATH" ] ; then
     # I think that the standard dir is not needed.
     # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
     PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
     case "$architecture" in
-        x86_64*) 
+        x86_64*)
            PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig
            ;;
     esac
 else
     PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
     case "$architecture" in
-        x86_64*) 
+        x86_64*)
            PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib64/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
            ;;
     esac
@@ -2147,7 +2136,7 @@ if [ -e $install_top_dir/bin/guile-config ] ; then
 
        # We have a seen a situation somehow where bin/guile-config is installed
        # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
-       #
+      #
        if test -e $install_top_dir/include/libguile.h ; then
            echo installation has guile
            build_guile=
@@ -2159,7 +2148,6 @@ if [ -e $install_top_dir/bin/guile-config ] ; then
        fi
    else
       echo guile-config failed. guile should be built
-      echo no include/libguile.h. guile-gtk should be built
       build_guile=1
       build_guile_gtk=1
    fi
@@ -2550,7 +2538,7 @@ if test -n "$build_ccp4c" ; then
        fi
     fi
     ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
-else 
+else
     echo not building libccp4:
 fi
 #
@@ -2638,7 +2626,7 @@ if [ -e $install_top_dir/lib64/libmmdb2.so ] ; then
     mmdb_lib_dir=$install_top_dir/lib64
 fi
 ./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$mmdb_lib_dir
-if $MAKE ; then 
+if $MAKE ; then
    $MAKE install
 fi
 ) >  $HOSTLOGDIR/02-ssm.txt 2>&1
@@ -2758,7 +2746,7 @@ if test -n "$build_clipper" ; then
       if [ -e $install_top_dir/lib64 ] ; then
           export LIBS="-L$install_top_dir/lib64 -L$install_top_dir/lib"
       fi
-    else 
+    else
       save_libs="$LIBS"
       export LIBS=-L$install_top_dir/lib:$LIBS
       if [ -e $install_top_dir/lib64 ] ; then
@@ -3348,7 +3336,7 @@ if test -n "$build_pygtk" ; then
    fi
    export DYLD_LIBRARY_PATH=$save_dllp
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
-else 
+else
    echo not building pygtk:
 fi
 
@@ -3602,7 +3590,7 @@ if [ "$build_rdkit" = true ] ; then
       which cmake
 
       # No help:  -DBoost_INCLUDE_DIR=$install_top_dir/include
-      # Cmake policy:	 -DMACOSX_RPATH=ON
+      # Cmake policy:    -DMACOSX_RPATH=ON
 
       # old verisons of boost (before 1.60?) can't find boost python
       # with new (github Feb 2016) rdkit
@@ -3621,7 +3609,7 @@ if [ "$build_rdkit" = true ] ; then
 
 
       # catches correctly (no need to specify)
-      #     -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
+      # 	 -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
 
       if [ $(uname) = Darwin ] ; then
          cmake_macosx_rpath=-DCMAKE_MACOSX_RPATH=ON
@@ -3767,45 +3755,6 @@ if test -n "$build_libtool" ; then
 else
     echo not building libtool:
 fi
-<<<<<<< HEAD
-
-
-if test -n "$build_readline" ; then
-    echo BUILDING readline:
-    readline_version=6.2
-    readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    ${WGET} $extras_place/readline-5.1.patch
-    (
-    date
-    pwd
-    gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
-    cd readline-$readline_version
-    if test -n "$need_readline_patch" ; then
-       echo patching readline...
-       # need a patch (for debian only) to add curses to the additional libs line
-       patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
-    fi
-    if [ "$dist_name" = debian ] ; then
-       echo applying debian sed patch for shared-lib libreadline
-       # thanks for the quoting help tony duan @ stackoverflow
-       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
-       extra_args_for_debian="--with-curses --enable-shared"
-    fi
-    echo ./configure $generic_prefix $extra_args_for_debian
-    ./configure $generic_prefix $extra_args_for_debian
-    # single thread
-    if make ; then
-       make install
-    else
-       echo make of readline failed
-    fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
-else
-    echo not building readline:
-fi
-=======
->>>>>>> refinement
 
 
 # $ guile
@@ -4723,16 +4672,11 @@ fi
 clear_up_type=
 if [ $shared_static_flag = "--enable-shared" ] ; then
     clear_up_type=clear-static
-fi   
+fi
 if [ $shared_static_flag = "--disable-static" ] ; then
     clear_up_type=clear-static
-<<<<<<< HEAD
 fi
-if [ $shared_static_flag != "--disable-shared" ] ; then
-=======
-fi   
 if [ $shared_static_flag = "--disable-shared" ] ; then
->>>>>>> refinement
     clear_up_type=clear-dynamic
 fi
 
@@ -4742,13 +4686,8 @@ if [ $clear_up_type != "" ] ; then
    else
       slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk2
    fi
-<<<<<<< HEAD
-   echo post-install slim... >&2
-   post_install_slim $install_top_dir $slim_dir $clear_up_type
-=======
    echo post-install slim... with clear-up type $clear_up_type >&2
-   post_install_slim $install_top_dir $slim_dir $clear_up_type 
->>>>>>> refinement
+   post_install_slim $install_top_dir $slim_dir $clear_up_type
 fi
 
 # clean up old status:
@@ -4917,3 +4856,4 @@ $publish_logs $LOGS
 
 echo finished.
 echo finished.>&2
+
