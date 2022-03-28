@@ -311,15 +311,18 @@ def quick_test_validation_outliers_dialog(imol):
     def regenerate_button_fn(*args):
 
         def cb_func(button, callback):
-            for item in callback:
-                item[0](*item[1:])
+            callback(button)
 
         if dialog_vbox:
             buttons = make_quick_test_validation_buttons(imol)
             old_buttons = dialog_vbox.get_children()
-            for button_spec in buttons:
-                button = gtk.Button(button_spec[0])
-                button.connect("clicked", cb_func, button_spec[1])
+            for button_info in buttons:
+                button_spec = button_info[0]
+                f           = button_info[1]
+                label       = button_info[2]
+                cb_fun      = button_info[3]
+                button = Gtk.Button(label)
+                button.connect("clicked", cb_func, cb_fun)
                 dialog_vbox.pack_start(button, False, False, 2)
                 button.show()
             if window:
