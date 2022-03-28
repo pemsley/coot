@@ -399,6 +399,15 @@ Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
                               return glm::vec3(c.x(), c.y(), c.z());
                            };
 
+   auto prob_raw_to_colour_rotation = [] (float prob) {
+                                         if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
+                                         // good probabilities have q = 0
+                                         // bad probabilities have q 0.66
+                                         double q = (1.0 - 2.0 * prob);
+                                         q = pow(q, 20.0);
+                                         return q;
+                                      };
+
    if (true) { // maybe I want an "is-intermediate-atoms" test here (and rama restraints are not used)?
 
       unsigned int num_subdivisions = 2;
@@ -412,9 +421,7 @@ Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
          const coot::Cartesian &position = gbc.ramachandran_goodness_spots_ptr[i].first;
          const float &prob_raw    = gbc.ramachandran_goodness_spots_ptr[i].second;
          double prob(prob_raw);
-         if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
-         double q = (1.0 - 2.0 * prob);
-         q = pow(q, 20);
+         double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
          glm::vec3 atom_position = cartesian_to_glm(position);
          glm::vec3 ball_position = atom_position + rama_ball_pos_offset_scale * screen_up_dir;

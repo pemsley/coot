@@ -395,8 +395,8 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    //  1: draw the box outline
    //  2: draw the phi ticks
    //  3: draw the psi ticks
-   //  4: draw the phi ticks
-   //  5: draw the psi ticks
+   //  4: draw the phi tick labels
+   //  5: draw the psi tick labels
    //  6: draw/render the phi axis label
    //  7: draw/render the psi axis label
    //  8: draw/render the background texture

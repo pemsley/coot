@@ -2434,10 +2434,17 @@ graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
    return d3;
 #endif
 
+#if 0 // 20220328-PE this is how it was
    float d1 = distortion + 16.0;
    float d2 = d1 / 6.0;
    if (d2 < 0.0) d2 = 0.0;
    float d3 = 0.1 * d2 * d2;
+#endif
+
+   float d1 = distortion + 18.0; // 18.0 is carefully chosen (16 too small, 22 too big)
+   float d2 = d1 / 6.0f;
+   if (d2 < 0.0f) d2 = 0.0f;
+   float d3 = 0.14f * d2 * d2;
 
    return d3;
 }
