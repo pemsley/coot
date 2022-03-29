@@ -53,6 +53,7 @@ public:
    glm::vec4 colour_highlighted;
    unsigned int position_offset_index; // used to determine the position of this bar when checking to see if this
                                        // button has been moused over
+
    bool is_drawn_flag;
    std::string button_label;
    static constexpr float button_width  = 0.30;
@@ -72,13 +73,15 @@ public:
       set_colours_from_basic();
       is_drawn_flag = true;
       callback_function = 0;
+      position_offset_index = 0;
    }
-   HUD_button_info_t (const std::string &label) :
+   explicit HUD_button_info_t (const std::string &label) :
       HUD_bar_attribs_t(get_default_colour(), glm::vec2(0.0, 0.0), button_width, button_height),
       colour_basic(get_default_colour()), button_label(label) {
       set_colours_from_basic();
       is_drawn_flag = true;
       callback_function = 0;
+      position_offset_index = 0;
    }
    void set_colours_from_basic() {
       colour_highlighted = colour_basic + glm::vec4( 0.07,  0.07,  0.07, colour_basic.w);
@@ -121,6 +124,9 @@ class HUDMesh {
    bool offset_position_has_been_set;
    glm::vec2 scales;
    glm::vec2 offset_position;
+   glm::vec2 window_resize_scales_correction;
+   glm::vec2 window_resize_position_correction;
+
 public:
    GLuint vao;
    GLuint vertex_buffer_id;
@@ -150,6 +156,13 @@ public:
    void setup_instancing_buffer(unsigned int n_boxes, unsigned int size_of_bar_info);
    void update_instancing_buffer_data(const std::vector<HUD_bar_attribs_t> &new_bars);
    void update_instancing_buffer_data(const std::vector<HUD_button_info_t> &new_buttons);
+   void set_window_resize_scales_correction(const glm::vec2 &v) {
+      window_resize_scales_correction = v;
+   }
+   void set_window_resize_position_correction(const glm::vec2 &v) {
+      window_resize_position_correction = v;
+   }
+
    void draw(Shader *shader);
    void close() { this_mesh_is_closed = true; }
 

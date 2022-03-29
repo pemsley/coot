@@ -1522,11 +1522,8 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       tmesh_for_hud_refinement_dialog_arrow.set_position(position_natural);
       auto p_s = get_munged_offset_and_scale(HUDTextureMesh::TOP_RIGHT, position_natural, 1.0, 1.0, w, h);
       glm::vec2 munged_position_offset = p_s.first;
-
       glm::vec2 munged_scales = p_s.second;
-
-      auto scaled_munged_pos_cor = munged_position_offset;
-      tmesh_for_hud_refinement_dialog_arrow.set_window_resize_position_correction(scaled_munged_pos_cor);
+      tmesh_for_hud_refinement_dialog_arrow.set_window_resize_position_correction(munged_position_offset);
       tmesh_for_hud_refinement_dialog_arrow.set_window_resize_scales_correction(munged_scales);
 
       Shader &shader = shader_for_hud_image_texture;
@@ -2482,6 +2479,38 @@ graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortio
 void
 graphics_info_t::draw_hud_buttons() {
 
+   auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
+                                           const glm::vec2 &offset_natural,
+                                           float scale_x_natural, float scale_y_natural,
+                                           int glarea_width, int glarea_height) {
+
+                                          glm::vec2 offset_rel = glm::vec2(0,0);
+
+                                          // we don't need to be clever now that the shader is passed
+                                          // the relative origin.
+                                          // So this code may not be needed.
+
+                                          float w = static_cast<float>(glarea_width);
+                                          float h = static_cast<float>(glarea_height);
+
+                                          float wr = static_cast<float>(900)/static_cast<float>(glarea_width);
+                                          float hr = static_cast<float>(900)/static_cast<float>(glarea_height);
+
+                                          if (spo == HUDTextureMesh::TOP_LEFT)
+                                             offset_rel = glm::vec2(-1.0 + offset_natural.x/wr, 1.0 + offset_natural.y/hr) - offset_natural;
+                                          if (spo == HUDTextureMesh::BOTTOM_LEFT)
+                                             offset_rel = glm::vec2(wr - 1.0, hr - 1.0) * offset_natural;
+                                          if (spo == HUDTextureMesh::BOTTOM_RIGHT)
+                                             offset_rel = glm::vec2(1.0 + offset_natural.x/wr, -1.0 + offset_natural.y/hr);
+
+                                          if (spo == HUDTextureMesh::TOP_RIGHT) {
+                                          }
+
+                                          glm::vec2 scales_new(scale_x_natural * wr, scale_y_natural * hr);
+
+                                          return std::pair<glm::vec2, glm::vec2>(offset_rel, scales_new);
+                                       };
+
    if (hud_button_info.empty()) return;
 
    glEnable(GL_DEPTH_TEST); // needed?
@@ -2495,14 +2524,23 @@ graphics_info_t::draw_hud_buttons() {
    int h = allocation.height;
    float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
 
+   float height_adjust = static_cast<float>(900)/static_cast<float>(h);
+   float button_width  = HUD_button_info_t::button_width  * static_cast<float>(900)/static_cast<float>(w);
+   float button_height = HUD_button_info_t::button_height * static_cast<float>(900)/static_cast<float>(h);
+
+   glm::vec2 position_natural(-0.1f, .1f); // relative to bottom right
+   auto p_s = get_munged_offset_and_scale(HUDTextureMesh::BOTTOM_RIGHT, position_natural, 1.0, 1.0, w, h);
+   glm::vec2 munged_position_offset = p_s.first;
+   glm::vec2 munged_scales = p_s.second;
+   std::cout << "window corrections scales: " << glm::to_string(munged_scales) << " pos-off: " << glm::to_string(munged_position_offset) << std::endl;
+   mesh_for_hud_buttons.set_window_resize_scales_correction(munged_scales);
+   mesh_for_hud_buttons.set_window_resize_position_correction(munged_position_offset);
+
    mesh_for_hud_buttons.draw(&shader_for_hud_buttons); // we have added the button instances before now.
                                                        // (actually in show_accept_reject_hud_buttons()).
 
    // do the texture for the labels all on the fly - is that sound?
    //
-   float height_adjust = static_cast<float>(900)/static_cast<float>(h);
-   float button_width  = HUD_button_info_t::button_width  * static_cast<float>(900)/static_cast<float>(w);
-   float button_height = HUD_button_info_t::button_height * static_cast<float>(900)/static_cast<float>(h);
    glm::vec4 text_colour_white(0.95f, 0.95f, 0.95f, 1.0f);
    Shader &shader = shader_for_hud_geometry_tooltip_text;
    shader.Use();
@@ -2550,13 +2588,15 @@ graphics_info_t::draw_hud_ramachandran_plot() {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
    bool draw_gl_ramachandran_plot = true;
+   if (! saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
+      draw_gl_ramachandran_plot = false;
    if (draw_gl_ramachandran_plot) { // make this a member of graphics_info_t
       if (moving_atoms_asc) {
          if (moving_atoms_asc->n_selected_atoms > 0) {
             gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol); // checks to see if an update is acutally needed.
             gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
                               &shader_for_rama_plot_phi_phis_markers, // instanced
-                              &shader_for_hud_image_texture, w, h); // background texture (not text!), uses window_resize_position_correction
+                              &shader_for_hud_image_texture, w, h, w, h); // background texture (not text!), uses window_resize_position_correction
          }
       }
    }

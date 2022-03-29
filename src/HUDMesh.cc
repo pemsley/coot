@@ -20,6 +20,9 @@ HUDMesh::init() {
    offset_position_has_been_set = false;
    scales = glm::vec2(1,1);
    offset_position = glm::vec2(0,0);
+   window_resize_scales_correction   = glm::vec2(1.0, 1.0);
+   window_resize_position_correction = glm::vec2(0.0, 0.0);
+
 }
 
 void
@@ -406,6 +409,13 @@ HUDMesh::draw(Shader *shader_p) { // in this case draw() is draw_instanced() ---
       if (offset_position_has_been_set)
          std::cout << "HUDMesh sending offset_position " << glm::to_string(offset_position) << std::endl;
    }
+
+   shader_p->set_vec2_for_uniform("window_resize_position_correction", window_resize_position_correction);
+   shader_p->set_vec2_for_uniform("window_resize_scales_correction",   window_resize_scales_correction);
+
+   // these are true for HUD refinment buttons - I haven't thought about anything else.
+   shader_p->set_bool_for_uniform("relative_to_right;", true);
+   shader_p->set_bool_for_uniform("relative_to_top;",  false);
 
    unsigned int n_triangle_vertices = triangles.size() * 3;
 

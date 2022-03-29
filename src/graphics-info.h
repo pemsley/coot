@@ -1024,6 +1024,11 @@ public:
       if (glareas.size() > 1) glc.widget_2 = glareas[1];
       return glc;
    }
+   // we need to store these because when we want to correct the size
+   // and position of HUD objects (refinemetn arrow, HUD refinement buttons)
+   // we need to know them.
+   static int hud_start_graphics_window_x_width;
+   static int hud_start_graphics_window_x_height;
 
    // ------------- statusbar -----------------------
    static GtkWidget *statusbar;

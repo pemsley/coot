@@ -111,7 +111,9 @@ public:
    void draw(Shader *shader_for_axes_and_tick,
              Shader *shader_for_rama_plot_phi_psis_markers_p,  // instanced
              Shader *shader_for_hud_textures_p,
-             int glarea_width, int glarea_height);
+             int glarea_height_at_hud_start,
+             int glarea_width_at_hud_start,
+             int glarea_current_width, int glarea_current_height);
    float position_hash; // updated and tested in setup_from() so that we don't recalculate if we don't need to
    void clear(); // empty the residue phi,psi map and delete the gl buffers (keep the vao)
    bool is_active() const; // for mouse-overing

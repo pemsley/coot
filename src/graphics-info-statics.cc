@@ -414,6 +414,9 @@ std::string graphics_info_t::browser_open_command = "firefox -remote";
 //
 
 std::vector<GtkWidget *> graphics_info_t::glareas;
+int graphics_info_t::hud_start_graphics_window_x_width = -1;  // unset
+int graphics_info_t::hud_start_graphics_window_x_height = -1;
+
 GtkWidget *graphics_info_t::statusbar = NULL;
 guint      graphics_info_t::statusbar_context_id = 0;
 std::string graphics_info_t::main_window_title;
