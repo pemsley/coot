@@ -2215,7 +2215,7 @@ if test -n "$build_ccp4c" ; then
     # ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     # ${WGET} $extras_place/libccp4-6.4.0.tar.gz
     # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
-    # ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
+    ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
     (
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
