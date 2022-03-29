@@ -319,8 +319,9 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.setup_key_bindings();
 
-      g.gl_rama_plot.setup_buffers(0.6); // rama relative size, put it into graphics_info_t
-                                         // and allow it to be set in the API
+      float double_rama_size = 0.8; // scaled by 0.5 in the gl-rama draw call.
+      g.gl_rama_plot.setup_buffers(double_rama_size); // rama relative size, put it into graphics_info_t
+                                                      // and allow it to be set in the API
 
       g.setup_draw_for_happy_face_residue_markers_init();
 

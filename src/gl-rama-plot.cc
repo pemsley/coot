@@ -13,7 +13,7 @@ gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol) {
       // std::cout << "comparing hashes " << position_hash_now << " " << position_hash << std::endl;
       if (position_hash_now != position_hash) {
          phi_psi_map = generate_phi_psis(imol, mol);
-         update_hud_tmeshes(phi_psi_map);
+         update_hud_tmeshes(phi_psi_map); // no need for attach_buffers() as this is instanced data.
          position_hash = position_hash_now;
       }
    }
@@ -363,8 +363,8 @@ gl_rama_plot_t::get_munged_offset_and_scale(screen_position_origins_t spo,
    // for 900 pixels and offset if 0.1 is 90 pixels.
    // 90 pixels in a 1000 pixels widths is 0.1/wr
 
-   float wr = static_cast<float>(900)/static_cast<float>(glarea_width);
-   float hr = static_cast<float>(900)/static_cast<float>(glarea_height);
+   float wr = static_cast<float>(700)/static_cast<float>(glarea_width);  // 20220328-PE was 900, 900
+   float hr = static_cast<float>(700)/static_cast<float>(glarea_height);
 
    if (spo == TOP_LEFT)
       offset_rel = glm::vec2(-1.0 + offset_natural.x/wr, 1.0 + offset_natural.y/hr) - offset_natural;
@@ -380,9 +380,6 @@ gl_rama_plot_t::get_munged_offset_and_scale(screen_position_origins_t spo,
    return std::pair<glm::vec2, glm::vec2>(offset_rel, scales_new);
 
 }
-
-   
-
 
 void
 gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
@@ -438,7 +435,7 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    glDisable(GL_BLEND);
 
-   glm::vec2 offset_position_natural(0.1, -0.1);
+   glm::vec2 offset_position_natural(0.1, 0.1);
    auto p_s = get_munged_offset_and_scale(BOTTOM_LEFT, offset_position_natural, 1.0, 1.0, glarea_width, glarea_height);
    glm::vec2 munged_position_offset = p_s.first;
    glm::vec2 munged_scales = p_s.second;
@@ -447,10 +444,17 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
       texture_for_global_distribution_non_gly_pro.Bind(0);
       // munged_position_offset = glm::vec2(0,0);
       // munged_scales = glm::vec2(1,1);
+
+      // In on_glarea_realize() this is setup using:
+      // g.gl_rama_plot.setup_buffers(0.6)
+
+      // 20220329-PE use a reference to graphics_info_t::hud_tmesh_for_global_distribution, which can be reassigned,
+      // depending on the moused-over residue type (that should happen in the moused-over-residue gtk callback).
+      //
       hud_tmesh_for_global_distribution_non_gly_pro.set_scales(glm::vec2(rama_plot_scale * 0.5, rama_plot_scale * 0.5));
       float ff = -0.5 * rama_plot_scale + 0.9;
       hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
-      hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+      hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10.0,10.0));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
       hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
    }

@@ -2540,7 +2540,7 @@ graphics_info_t::clear_gl_rama_plot() {
 }
 
 void
-graphics_info_t::draw_ramachandran_plot() {
+graphics_info_t::draw_hud_ramachandran_plot() {
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
@@ -3580,7 +3580,7 @@ graphics_info_t::draw_hud_elements() {
 
    draw_hud_geometry_tooltip(); // background and text
 
-   draw_ramachandran_plot();
+   draw_hud_ramachandran_plot();
 
    draw_hud_buttons();
 

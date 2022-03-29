@@ -210,11 +210,6 @@ HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position
 
    glDisable(GL_DEPTH_TEST);
 
-   if (false) {
-      std::cout << "HUDTextureMesh::draw() " << name << " sending position " << glm::to_string(position) << std::endl;
-      std::cout << "HUDTextureMesh::draw() " << name << " sending scales "   << glm::to_string(scales) << std::endl;
-   }
-
    bool rel_top   = false;
    bool rel_right = false;
    if (screen_position_origin == TOP_RIGHT) {

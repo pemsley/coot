@@ -4414,7 +4414,7 @@ string   static std::string sessionid;
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 
    static gl_rama_plot_t gl_rama_plot;
-   static void draw_ramachandran_plot(); // OpenGL rama plot
+   static void draw_hud_ramachandran_plot(); // OpenGL rama plot
    void clear_gl_rama_plot();
 
    void reset_frame_buffers(int width, int height);
