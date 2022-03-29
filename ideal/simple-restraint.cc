@@ -1736,7 +1736,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                double dd = dd_raw / rama_plot_weight;
                dd *= 50.0; // scale to non-ZO non weighted
                if (false) // range -13 to 0 with weight 1.4, and 100 times that with weight 140
-                  std::cout << "zo-rama distortion for restraint " << i << " distortion is "
+                  std::cout << "PATH A zo-rama distortion for restraint " << i << " distortion is "
                             << dd_raw << " " << " (post-mod) " << dd << " "
                             << atom_spec_t(atom[restraint.atom_index_3])
                             << std::endl;
@@ -1757,11 +1757,11 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                all_ramas.push_back(rp);
             } else {
                double w = get_rama_plot_weight();
-               double dd = distortion_score_rama(restraint, v, LogRama(), w);
+               double dd = distortion_score_rama(restraint, v, LogRama(), w) / rama_plot_weight;
                rama_distortion_score_sum += dd;
                if (false)
-                  std::cout << "rama for restraint " << i << " distortion " << dd << " "
-                            << atom_spec_t(atom[restraint.atom_index_3])
+                  std::cout << "PATH B rama for restraint " << i << " distortion " << dd << " "
+                            << atom_spec_t(atom[restraint.atom_index_3]) << " using rama plot weight " << rama_plot_weight
                             << std::endl;
 
                refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
@@ -1820,6 +1820,8 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    rr->sorted_nbc_baddies = nbc_baddies_with_spec_vec;
    rr->refinement_results_contain_overall_nbc_score = true;
 
+   // --- rama ---
+
    if (n_rama_restraints > 0) {
       std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
       idx = 0;
@@ -1838,7 +1840,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             rama_baddies_with_spec_vec[i].first.int_user_data = 0;
          else
             rama_baddies_with_spec_vec[i].first.int_user_data = 1;
-         if (false)
+         if (false) // debug
             std::cout << "debug:: rama_baddies_with_spec_vec " << i << " "
                       << rama_baddies_with_spec_vec[i].first << " "
                       << rama_baddies_with_spec_vec[i].second << std::endl;
@@ -1847,6 +1849,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
       rr->all_ramas = all_ramas;
       rr->sorted_rama_baddies = rama_baddies_with_spec_vec;
       rr->overall_rama_plot_score = rama_distortion_score_sum;
+
    }
 
    // --- atom pulls ---

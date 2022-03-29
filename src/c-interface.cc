@@ -6400,16 +6400,16 @@ void set_refine_ramachandran_angles(int state) {
 void set_refine_ramachandran_restraints_type(int type) {
    graphics_info_t::restraints_rama_type = type;
    if (type == 0)
-      graphics_info_t::rama_restraints_weight = 1.0; // big numbers make the refinement fail (precision?)
+      graphics_info_t::rama_plot_restraints_weight = 1.0; // big numbers make the refinement fail (precision?)
 }
 
 
 void set_refine_ramachandran_restraints_weight(float w) {
-   graphics_info_t::rama_restraints_weight = w;
+   graphics_info_t::rama_plot_restraints_weight = w;
 }
 
 float refine_ramachandran_restraints_weight() {
-   return graphics_info_t::rama_restraints_weight;
+   return graphics_info_t::rama_plot_restraints_weight;
 }
 
 

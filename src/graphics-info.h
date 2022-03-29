@@ -1935,7 +1935,8 @@ public:
 
    static short int in_residue_info_define; // initially 0
    static float geometry_vs_map_weight; // actually it's the other way around, isn't it? rename this.
-   static float rama_plot_restraint_weight;
+   static float rama_plot_restraints_weight;
+   static int  restraints_rama_type;
    static int rama_n_diffs;
    static double torsion_restraints_weight;
    static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
@@ -1970,8 +1971,6 @@ public:
    static bool do_numerical_gradients; // for debugging
    static bool do_rotamer_restraints;
    static bool do_debug_refinement;
-   static int  restraints_rama_type;
-   static float rama_restraints_weight;
 
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
 

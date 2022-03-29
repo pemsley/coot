@@ -11913,7 +11913,6 @@ on_refine_params_rama_restraints_weight_combobox_changed_gtkbuilder_callback
                                         gpointer         user_data)
 {
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
-   printf("GTK3 FIXME on_refine_params_rama_restraints_weight_combobox_changed\n");
    int active_item_idx = gtk_combo_box_get_active(combobox);
    set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
 }

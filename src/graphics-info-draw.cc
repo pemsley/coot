@@ -2441,7 +2441,7 @@ graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
    float d1 = distortion + 18.0; // 18.0 is carefully chosen (16 too small, 22 too big)
    float d2 = d1 / 6.0f;
    if (d2 < 0.0f) d2 = 0.0f;
-   float d3 = 0.14f * d2 * d2;
+   float d3 = 0.07f * d2 * d2; // carefully chosen.
 
    return d3;
 }
@@ -2467,7 +2467,7 @@ graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortio
    // Note also that cis peptides don't have ramachandran restraints.
    //
    float d2 = distortion + 16.0;
-   float rotation_amount = 1.0 - 0.1 * d2;
+   float rotation_amount = 1.0 - 0.05 * d2; // 20220329-PE less "bad" colour than they used to be
    if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
    if (rotation_amount > 1.00) rotation_amount = 1.0;
 
@@ -2532,7 +2532,8 @@ graphics_info_t::draw_hud_buttons() {
    auto p_s = get_munged_offset_and_scale(HUDTextureMesh::BOTTOM_RIGHT, position_natural, 1.0, 1.0, w, h);
    glm::vec2 munged_position_offset = p_s.first;
    glm::vec2 munged_scales = p_s.second;
-   std::cout << "window corrections scales: " << glm::to_string(munged_scales) << " pos-off: " << glm::to_string(munged_position_offset) << std::endl;
+   // std::cout << "window corrections scales: " << glm::to_string(munged_scales) << " pos-off: "
+   //           << glm::to_string(munged_position_offset) << std::endl;
    mesh_for_hud_buttons.set_window_resize_scales_correction(munged_scales);
    mesh_for_hud_buttons.set_window_resize_position_correction(munged_position_offset);
 
@@ -3175,9 +3176,11 @@ graphics_info_t::draw_hud_geometry_bars() {
                x_base_for_hud_geometry_bars, distortion_to_rotation_amount_nbc,
                hud_geometry_distortion_to_bar_size_nbc);
 
-   if (rr.refinement_results_contain_overall_rama_plot_score)
+   if (rr.refinement_results_contain_overall_rama_plot_score) {
+      // std::cout << "add_bars() for rama with " << rr.sorted_rama_baddies.size() << " sorted baddies" << std::endl;
       add_bars(rr.sorted_rama_baddies, 2, &new_bars, moving_atoms_active_residue, x_base_for_hud_geometry_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
+   }
 
    // add rotas to new_bars
 

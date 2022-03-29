@@ -676,7 +676,7 @@ graphics_info_t::poke_the_refinement() {
          last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
          last_restraints->set_lennard_jones_epsilon(lennard_jones_epsilon);
          last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
-         last_restraints->set_rama_plot_weight(rama_restraints_weight);
+         last_restraints->set_rama_plot_weight(rama_plot_restraints_weight);
          thread_for_refinement_loop_threaded(); // restart refinement if it's not running
       }
    }
@@ -1303,7 +1303,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       *Geom_p(), flags,
 						       do_residue_internal_torsions,
 						       do_trans_peptide_restraints,
-						       rama_plot_restraint_weight,
+						       rama_plot_restraints_weight,
 						       do_rama_restraints,
 						       true, true, make_auto_h_bond_restraints_flag,
 						       pseudo_bonds_type);
@@ -1323,8 +1323,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
    last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
    last_restraints->set_rama_type(restraints_rama_type);
-   last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
-                                                                  // if planar peptide restraints are used
+   last_restraints->set_rama_plot_weight(rama_plot_restraints_weight); // >2? danger of non-convergence
+                                                                       // if planar peptide restraints are used
    // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
    // It's the planes, chiral and angles too. Possibly bonds too.
    // How about marking non-H atoms in restraints that contain H atoms as
