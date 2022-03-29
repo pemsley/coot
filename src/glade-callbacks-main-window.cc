@@ -790,6 +790,14 @@ on_menubar_rsr_chain_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
+on_menubar_rsr_residue_range_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                          gpointer     user_data) {
+
+   do_refine(1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_menubar_rsr_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
                                                    gpointer     user_data) {
    rsr_sphere_refine();

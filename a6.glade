@@ -13586,6 +13586,15 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                               </object>
                             </child>
                             <child>
+                              <object class="GtkMenuItem" id="menubar_rsr_residue_range">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RSR Pick Range by Hand</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_menubar_rsr_residue_range_activate_gtkbuilder_callback" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
                               <object class="GtkMenuItem" id="menubar_regularize_sphere">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
