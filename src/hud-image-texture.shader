@@ -7,8 +7,8 @@
 
 #version 330 core
 
-layout (location = 0) in vec2 vertex;
-layout (location = 1) in vec2 texCoord;
+layout (location = 0) in vec2 vertex;   // -1 to +1
+layout (location = 1) in vec2 texCoord; //  0 to 1
 
 out vec2 texCoord_transfer;
 
@@ -21,8 +21,8 @@ uniform vec2 scales;
 uniform vec2 window_resize_position_correction;
 uniform vec2 window_resize_scales_correction;
 
-uniform bool relative_to_right = true;
-uniform bool relative_to_top   = true;
+uniform bool relative_to_right;
+uniform bool relative_to_top;
 
 void main() {
 
@@ -30,8 +30,6 @@ void main() {
    vec2 p1 = scaled_vertices + position;
    vec2 p2 = p1 * window_resize_scales_correction;
    vec2 p3 = p2;
-   bool xx_relative_to_right = true;
-   bool xx_relative_to_top   = true;
    if (relative_to_right) p3.x += 1.0;
    if (relative_to_top)   p3.y += 1.0;
    vec2 p4 = p3 + window_resize_position_correction;

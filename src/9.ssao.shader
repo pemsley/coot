@@ -65,7 +65,7 @@ void main() {
 
       // range check & accumulate
       float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
-      occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
+      occlusion += (sampleDepth >= (samplePos.z + bias) ? 1.0 : 0.0) * rangeCheck;           
    }
 
    float occ = 1.0 - (occlusion / n_ssao_kernel_samples);
