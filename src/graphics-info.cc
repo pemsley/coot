@@ -1707,7 +1707,7 @@ graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
 #endif // GUILE
 #ifdef USE_PYTHON
    // turn this off for the moment.
-   // run_post_manipulation_hook_py(imol, mode);
+   run_post_manipulation_hook_py(imol, mode);
 #endif
 }
 
@@ -1741,34 +1741,47 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
-   // BL says:: we can do it all in python API or use the 'lazy' method
-   // and check in the python layer (which we will do...)
-   PyObject *v;
-   int ret;
    std::string pms = "post_manipulation_script";
-   std::string check_pms = "callable(";
-   check_pms += pms;
-   check_pms += ")";
-   v = safe_python_command_with_return(check_pms);
-   ret = PyLong_AsLong(v);
-   if (ret == 1) {
-     std::string ss = pms;
-     ss += "(";
-     ss += int_to_string(imol);
-     ss += ", ";
-     ss += int_to_string(mode);
-     ss += ")";
-     PyObject *res = safe_python_command_with_return(ss);
-     PyObject *fmt =  myPyString_FromString("result: \%s");
-     PyObject *tuple = PyTuple_New(1);
-     PyTuple_SetItem(tuple, 0, res);
-     //PyString_Format(p, tuple);
-     PyObject *msg = PyUnicode_Format(fmt, tuple);
+   // pms = "print";
+   std::string check_pms = "callable(" + pms + ")";
 
-     std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
-     Py_DECREF(msg);
+   const char *modulename = "__main__";
+   PyObject *pName = myPyString_FromString(modulename);
+   PyObject *pModule = PyImport_Import(pName);
+   pModule = PyImport_AddModule("__main__");
+   pModule = PyImport_AddModule("coot");
+   pModule = PyImport_AddModule("coot_utils");
+   pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
+   PyObject *globals = PyModule_GetDict(pModule);
+
+   PyObject *result = PyRun_String(check_pms.c_str(), Py_eval_input, globals, globals);
+
+   long ret = PyLong_AsLong(result);
+
+   if (false) {
+      std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with check_pms " << check_pms << std::endl;
+      std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with result " << result << std::endl;
+      std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with ret " << ret << std::endl;
    }
-   Py_XDECREF(v);
+
+   if (ret == 1) { // ingnore the above test for callable function
+      std::string ss = pms;
+      ss += "(";
+      ss += int_to_string(imol);
+      ss += ", ";
+      ss += int_to_string(mode);
+      ss += ")";
+      PyObject *res = safe_python_command_with_return(ss);
+      PyObject *fmt =  myPyString_FromString("result: \%s");
+      PyObject *tuple = PyTuple_New(1);
+      PyTuple_SetItem(tuple, 0, res);
+      //PyString_Format(p, tuple);
+      PyObject *msg = PyUnicode_Format(fmt, tuple);
+      // std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
+      Py_DECREF(msg);
+   }
+
+   // Py_XDECREF(v);
 }
 #endif
 

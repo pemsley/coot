@@ -6608,15 +6608,27 @@ int pyrun_simple_string(const char *python_command) {
 }
 
 #ifdef USE_PYTHON
+
 // BL says:: let's have a python command with can receive return values
 // we need to pass the script file containing the funcn and the funcn itself
 // returns a PyObject which can then be used further
 // returns NULL for failed run
 PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
-   PyObject *ret = NULL;
+   // 20220330-PE I think that this is super ricketty now!
+   // Does it only find things in dynamic_atom_overlaps_and_other_outliers module?
+   // this function was empty before today, returning NULL.
 
-   return ret;
+   const char *modulename = "__main__";
+   PyObject *pName = myPyString_FromString(modulename);
+   PyObject *pModule = PyImport_Import(pName);
+   pModule = PyImport_AddModule("__main__");
+   pModule = PyImport_AddModule("coot");
+   pModule = PyImport_AddModule("coot_utils");
+   pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
+   PyObject *globals = PyModule_GetDict(pModule);
+   PyObject *result = PyRun_String(python_cmd.c_str(), Py_eval_input, globals, globals);
+   return result;
 }
 #endif //PYTHON
 

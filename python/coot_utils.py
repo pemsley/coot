@@ -441,10 +441,10 @@ def pre_release_qm():
 def molecule_list(molecule_filter_function):
     ls = []
     for mol_no in range(coot.graphics_n_molecules()):
-        print("######## debug molecule_list()", mol_no, molecule_filter_function(mol_no))
+        # print("######## debug molecule_list()", mol_no, molecule_filter_function(mol_no))
         if molecule_filter_function(mol_no):
             ls.append(mol_no)
-    print("######### debug molecule_list() returning ls", ls)
+    # print("######### debug molecule_list() returning ls", ls)
     return ls
 
 # return a list of molecule numbers (closed and open)

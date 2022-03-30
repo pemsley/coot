@@ -193,13 +193,13 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
          }
          globfree(&myglob);
 
-         for(const auto script_fn : basic_scripts)
+         for(const auto &script_fn : basic_scripts)
             run_python_script(script_fn.c_str()); // bleugh
          if (! coot_preferences_py_script.empty())
             run_python_script(coot_preferences_py_script.c_str());
-         for(const auto script_fn : curlew_scripts)
+         for(const auto &script_fn : curlew_scripts)
             run_python_script(script_fn.c_str());
-         for(const auto script_fn : xenops_scripts)
+         for(const auto &script_fn : xenops_scripts)
             run_python_script(script_fn.c_str());
       }
 

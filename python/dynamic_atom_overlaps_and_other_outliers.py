@@ -408,8 +408,9 @@ if True:
             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
                 update_button = quick_test_validation_outliers_dialog(aa_imol)
                 global post_manipulation_script
-                def post_manipulation_script(*args):
+                def emit_update_button_clicked_script(*args):
                     update_button.emit("clicked")
+                post_manipulation_script = emit_update_button_clicked_script
 
         menu = coot_gui.coot_menubar_menu("Validate")
         coot_gui.add_simple_coot_menu_menuitem(menu, "Overlaps, Peptides, CBeta, Rama & Rota Outliers",

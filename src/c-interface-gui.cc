@@ -5622,7 +5622,7 @@ void sequence_view_old_style(int imol) {
 void
 add_on_sequence_view_choices() {
 
-   std::cout << "debug:: add_on_sequence_view_choices() " << std::endl;
+   // std::cout << "debug:: add_on_sequence_view_choices() " << std::endl;
    GtkWidget *menu_item = widget_from_builder("sequence_view1");
    add_on_validation_graph_mol_options(menu_item, "sequence_view");
 
