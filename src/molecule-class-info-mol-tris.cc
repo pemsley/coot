@@ -55,12 +55,9 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    std::string name = atom_selection + colour_scheme + style;
    Material material;
 
-   material.shininess = 150.0;        // 20210905-PE make these user settable. Perhaps they are? I should check.
-   material.specular_strength = 0.8;
-
-   // 20210905-PE Do I need the shader to make the mesh? I doubt it.
-   Shader molecular_triangles_shader;
-   molecular_triangles_shader.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   material.do_specularity = true;        // 20210905-PE make these user settable. Perhaps they are? I should check.
+   material.shininess = 256.0;
+   material.specular_strength = 0.96;
 
    if (colour_scheme == "Rainbow") {
 

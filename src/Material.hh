@@ -19,10 +19,10 @@ public:
       specular_strength = 1.0;
       do_specularity = false;
    }
-   Material() {
-      ambient  = glm::vec4(0.5, 0.5, 0.5, 1.0);
-      diffuse  = glm::vec4(0.5, 0.5, 0.5, 1.0);
-      specular = glm::vec4(0.5, 0.5, 0.5, 1.0);
+   Material() :
+      ambient(glm::vec4(0.5, 0.5, 0.5, 1.0)),
+      diffuse(glm::vec4(0.5, 0.5, 0.5, 1.0)),
+      specular(glm::vec4(0.5, 0.5, 0.5, 1.0)) {
       do_specularity = false;
       shininess = 64.0;
       specular_strength = 0.4;

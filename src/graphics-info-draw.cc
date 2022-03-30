@@ -1685,7 +1685,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    // convert these to shadow versions
 
-   draw_model_molecules_with_shadows();
+   draw_model_molecules_with_shadows(); // does symmetry
 
    draw_outlined_active_residue();
 
@@ -1930,11 +1930,13 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
                Mesh &mesh = m.meshes[jj];
-               // std::cout << "mesh jj " << jj << " of " << m.meshes.size()
-               // << " instanced" << m.meshes[jj].is_instanced << std::endl;
+
+               if (false)
+                  std::cout << "mesh jj " << jj << " of " << m.meshes.size()
+                            << " instanced: " << m.meshes[jj].is_instanced << std::endl;
+
                if (mesh.is_instanced) {
-                  // std::cout << "   drawing instanced " << jj << std::endl;
-                  // what a mess
+
                   mesh.draw_instanced(&shader_for_moleculestotriangles, mvp,
                                               model_rotation, lights, eye_position,
                                               bg_col, do_depth_fog);
@@ -1943,7 +1945,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
-                     m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                     m.meshes[jj].draw(&shader_for_meshes_with_shadows, mvp,
                                        model_rotation, lights, eye_position, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
                   }
