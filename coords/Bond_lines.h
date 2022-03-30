@@ -863,7 +863,7 @@ public:
 
    std::vector<coot::torus_description_t> rings; // for OpenGL rendering of aromaticity bonding.
    bool have_rings() const {
-      return rings.size();
+      return ! rings.empty();
    }
 
    class symmetry_atom_bond {
@@ -875,11 +875,9 @@ public:
       Cell_Translation ct;
       symmetry_atom_bond(mmdb::Atom *at_1_in, mmdb::Atom *at_2_in,
 			 const symm_trans_t &st_in,
-			 const Cell_Translation &ct_in) {
+			 const Cell_Translation &ct_in) : st(st_in), ct(ct_in) {
 	 at_1 = at_1_in;
 	 at_2 = at_2_in;
-	 ct = ct_in;
-	 st = st_in;
       }
       // modify m
       int GetTMatrix(mmdb::Manager *mol, mmdb::mat44 *m) const {
