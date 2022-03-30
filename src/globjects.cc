@@ -2451,7 +2451,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       was_a_double_click = true;
 
    int x_as_int, y_as_int;
-   GdkModifierType state;
+   GdkModifierType state = GDK_MODIFIER_RESERVED_19_MASK; // something
 
    GdkWindow *window = 0; // was: gtk_widget_get_window(GTK_WIDGET(widget));
 
