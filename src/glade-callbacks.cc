@@ -9226,7 +9226,10 @@ extern "C" G_MODULE_EXPORT
 void
 on_coords_filechooserdialog1_response_gtkbuilder_callback  (GtkDialog       *dialog,
                                         gint             response_id,
-                                        gpointer         user_data){
+                                        gpointer         user_data) {
+
+   // I don't think that this is used now - see
+   // on_coords_filechooser_dialog_response_gtkbuilder_callback()
 
  if (response_id == GTK_RESPONSE_OK) {
   const gchar *filename;
@@ -9238,11 +9241,10 @@ on_coords_filechooserdialog1_response_gtkbuilder_callback  (GtkDialog       *dia
   GSList *sel_files;
 /*   GFile  *gfile; for xxx_get_files(), which we don't use (too modern) */
 
-  coords_fileselection1 = widget_from_builder(
-                                        "coords_filechooserdialog1");
+  coords_fileselection1 = widget_from_builder( "coords_filechooserdialog1");
 
-  combobox = widget_from_builder(
-                              "coords_filechooserdialog1_recentre_combobox");
+  combobox = widget_from_builder("coords_filechooserdialog1_recentre_combobox");
+
   if (combobox) {
     active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(combobox));
     /* active items: 0: recentre view on new molecule
@@ -9272,7 +9274,7 @@ on_coords_filechooserdialog1_response_gtkbuilder_callback  (GtkDialog       *dia
 
     filename = (char *) sel_files->data;
 
-    printf("DEBUG:: filename: %s\n", filename);
+    // printf("DEBUG:: filename: %s\n", filename);
 
 /*     From here, we go into c++ (that's why the c++ function
        handle_read_draw needs to be declared external) and read the

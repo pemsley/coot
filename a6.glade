@@ -15384,6 +15384,7 @@ density (too big to be waters):
   <object class="GtkFileChooserDialog" id="map_name_filechooser_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <signal name="file-activated" handler="on_map_name_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
     <signal name="response" handler="on_map_name_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
