@@ -23,7 +23,8 @@ Texture::init(const std::string &file_name_in) {
 #ifdef THIS_IS_HMT
 #else
 
-   std::cout << "Texture::init() was passed file_name_in " << file_name_in << std::endl;
+   if (false)
+      std::cout << "Texture::init() was passed file_name_in " << file_name_in << std::endl;
    std::string pkg_data_dir = coot::package_data_dir();
    std::string default_directory = coot::util::append_dir_dir(pkg_data_dir, "textures");
 

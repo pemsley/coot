@@ -925,9 +925,9 @@ graphics_info_t::init_joey_ssao_stuff() {
    // up the framebuffer, but it doesn't seem to have a visual effect.
    unsigned int attachment_index_colour_texture = 0; // CHECKME
 
-   std::cout << "---------------------------------- init_joey_ssao_stuff() here 1 " << std::endl;
+   // std::cout << "---------------------------------- init_joey_ssao_stuff() here 1 " << std::endl;
    framebuffer_for_ssao_gbuffer.init(w, h, attachment_index_colour_texture, "SSAO-gBuffer-framebuffer");
-   std::cout << "---------------------------------- init_joey_ssao_stuff() here 2 " << std::endl;
+   // std::cout << "---------------------------------- init_joey_ssao_stuff() here 2 " << std::endl;
 
    framebuffer_for_ssao_gbuffer.do_gbuffer_stuff(w, h);
 

@@ -1133,7 +1133,9 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
+
+   if (false) // useful for me, not others
+      std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
 
    if (xmap_is_diff_map) {
       glm::vec4 diff_map_col(map_colour_negative_level.red, map_colour_negative_level.green, map_colour_negative_level.blue, 1.0f);
