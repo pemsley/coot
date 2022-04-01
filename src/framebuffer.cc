@@ -21,7 +21,7 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
    if (err)
       std::cout << "--- start framebuffer " << name << " init() err is " << err << std::endl;
 
-   if (true)
+   if (false)
       std::cout << "debug:: framebuffer::init() calling generate_framebuffer_object() " << name
                 << " with " << width << " " << height << std::endl;
 
@@ -29,7 +29,7 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
    generate_framebuffer_object(width, height, attachment_index_color_texture);
    // std::cout << "in framebuffer::init() Here 2 " << name_in << std::endl;
    err = glGetError();
-   if (err) std::cout << "done framebuffer::init() with error " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: finish framebuffer::init() with error " << err << std::endl;
 
 }
 

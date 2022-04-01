@@ -83,10 +83,11 @@ TextureMesh::setup_buffers() {
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   std::cout << "DEBUG:: in TextureMesh::setup_buffers() " << name << " n_vertices is " << n_vertices
-             << " buffer_id " << buffer_id << std::endl;
+   if (false)
+      std::cout << "DEBUG:: in TextureMesh::setup_buffers() " << name << " n_vertices is " << n_vertices
+                << " buffer_id " << buffer_id << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(TextureMeshVertex), &(vertices[0]), GL_STATIC_DRAW);
-   std::cout << "in TextureMesh::setup_buffers() " << name << " done glBufferData() " << std::endl;
+   // std::cout << "in TextureMesh::setup_buffers() " << name << " done glBufferData() " << std::endl;
 
    // position
    glEnableVertexAttribArray(0);

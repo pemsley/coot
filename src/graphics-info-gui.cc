@@ -2174,13 +2174,15 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 void
 graphics_info_t::residue_info_release_memory(GtkWidget *dialog) {
 
+   return; // 20220401-PE let's not delete anything for now
+
    GtkWidget *entry;
    for (int i=0; i<residue_info_n_atoms; i++) {
       std::string widget_name = "residue_info_b_factor_entry_";
       widget_name += int_to_string(i);
       // entry = lookup_widget(dialog, widget_name.c_str());
       entry = nullptr;
-      std::cout << "FIXME in residue_info_release_memory() look up entry correctly" << std::endl;
+      std::cout << "FIXME:: in residue_info_release_memory() look up entry correctly" << std::endl;
       if (entry) {
 	 coot::select_atom_info *sai_p =
 	    (coot::select_atom_info *) g_object_get_data(G_OBJECT(entry), "select_atom_info");
