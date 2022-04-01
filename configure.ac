@@ -27,7 +27,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 
 
-AC_INIT([coot],[1])
+AC_INIT([coot],[1.0.01-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
