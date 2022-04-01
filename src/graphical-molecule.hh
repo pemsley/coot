@@ -1,6 +1,8 @@
 
+#include <vector>
+
 #include "generic-vertex.hh"
-#include "gl-lights-info.hh"
+// #include "gl-lights-info.hh"
 #include "Shader.hh"
 #include "Material.hh"
 #include "g_triangle.hh"
@@ -43,7 +45,7 @@ public:
              const glm::mat4 &mvp,
              const glm::mat4 &world_rotation_matrix,
              const glm::mat4 &world_rotation_translation_matrix,
-             const std::map<unsigned int, gl_lights_info_t> &lights,
+             //             const std::map<unsigned int, gl_lights_info_t> &lights,
              const glm::vec3 &eye_position);
    void draw_normals(const glm::mat4 &mvp); // debugging
    Shader shader_for_draw_normals;

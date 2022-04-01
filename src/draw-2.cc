@@ -181,7 +181,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    int w = allocation.width;
    int h = allocation.height;
 
-   std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
+   // std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
    gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;

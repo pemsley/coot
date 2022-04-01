@@ -170,14 +170,15 @@ windows_set_error_mode() {
 GtkWidget*
 my_create_splash_screen_window (void) {
 
-   GtkWidget *splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
-   gtk_window_set_title (GTK_WINDOW (splash_screen_window), "Coot");
-   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
-   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+   GtkWidget *splash_screen_window = gtk_window_new(GTK_WINDOW_POPUP);
+   gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot");
+   gtk_window_set_position(GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
+   gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-   GtkWidget *image10854 = create_pixmap(splash_screen_window, "coot-0.9.9-pre.png");
-   gtk_widget_show (image10854);
-   gtk_container_add(GTK_CONTAINER(splash_screen_window), image10854);
+   // GtkWidget *image = create_pixmap(splash_screen_window, "coot-0.9.9-pre.png");
+   GtkWidget *image = create_pixmap(splash_screen_window, "coot-1.png");
+   gtk_widget_show(image);
+   gtk_container_add(GTK_CONTAINER(splash_screen_window), image);
 
    return splash_screen_window;
 }
@@ -221,7 +222,8 @@ setup_pixmap_directory() {
 
    // default location:
    std::string dir = coot::package_data_dir();
-   std::string pixmap_dir = coot::util::append_dir_dir(dir, "pixmaps");
+   std::string dir_2 = coot::util::append_dir_dir(dir, "glade");
+   std::string pixmap_dir = coot::util::append_dir_dir(dir_2, "pixmaps");
 
    // over-ridden by user?
    char *s = getenv("COOT_PIXMAPS_DIR");
@@ -671,8 +673,9 @@ void
 setup_splash_screen() {
 
    // default location:
-   std::string splash_screen_pixmap_dir = coot::package_data_dir();
-   splash_screen_pixmap_dir = coot::util::append_dir_dir(splash_screen_pixmap_dir, "pixmaps");
+   std::string data_dir = coot::package_data_dir();
+   std::string dir_2 = coot::util::append_dir_dir(data_dir, "glade");
+   std::string splash_screen_pixmap_dir = coot::util::append_dir_dir(dir_2, "pixmaps");
 
    // over-ridden by user?
    char *s = getenv("COOT_PIXMAPS_DIR");

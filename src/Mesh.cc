@@ -3145,8 +3145,9 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
       }
    }
 
-   std::cout << "sorting map triangles " << map_triangle_centres.size() << " triangles with eye position"
-             << glm::to_string(eye_position) << std::endl;
+   if (false)
+      std::cout << "sorting map triangles " << map_triangle_centres.size() << " triangles with eye position"
+                << glm::to_string(eye_position) << std::endl;
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    if (false) { // debug
@@ -3194,7 +3195,7 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   std::cout << "INFO:: sorting triangles " << d10 << " milliseconds" << std::endl;
+   // std::cout << "INFO:: sorting triangles " << d10 << " milliseconds" << std::endl;
 
 }
 

@@ -89,7 +89,7 @@ if [ -z $CLIBD_MON ] ; then
  export COOT_REFMAC_LIB_DIR
 fi
 COOT_STANDARD_RESIDUES=$COOT_PREFIX/share/coot/standard-residues.pdb
-COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
+# COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/glade/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
@@ -101,19 +101,6 @@ LC_NUMERIC=C
 export LANG
 export LC_ALL
 export LC_NUMERIC
-
-
-# this surely is not needed these days? 20210706-PE?
-# Reluctantly, I kludge in 1.8 to the GUILE_LOAD_PATH because I don't
-# know why it is failing to be set correctly from Coot's configure in
-# Kevin's Ubuntu.  Needless to say, it works fine on my Ubuntu
-# (Gutsy).  Must fix later.
-#
-# GUILE_LOAD_PATH=\
-# $COOT_PREFIX/share/guile/1.8:$COOT_PREFIX/share/guile/@GUILE_VERSION@:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
-# if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
-#    GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
-# fi
 
 export GUILE_WARN_DEPRECATED=no
 

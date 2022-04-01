@@ -28,7 +28,7 @@ cootpixmapdir = $(pkgdatadir)/glade/pixmaps
 # no longer use xpms.
 
 dist_cootpixmap_DATA = \
-coot-0.9.9-pre.png     \
+coot-1.png     \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \

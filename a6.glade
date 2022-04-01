@@ -28387,7 +28387,7 @@ distances more than:</property>
       <object class="GtkImage" id="pixmap1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="pixbuf">pixmaps/coot-0.9.9-pre.png</property>
+        <property name="pixbuf">pixmaps/coot-1.png</property>
       </object>
     </child>
     <child type="titlebar">

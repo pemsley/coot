@@ -442,7 +442,7 @@ libcootsumo_la_SOURCES = \
 	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
-	clippter-to-glm.hh       \
+	clipper-to-glm.hh        \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
@@ -547,7 +547,6 @@ libcootsumo_la_SOURCES = \
 	graphics-ligand-mesh-molecule.cc \
 	graphics-ligand-mesh-molecule.hh \
 	gl-matrix.cc 		 \
-	gl-lights-info.hh	 \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
@@ -675,7 +674,7 @@ libcootsumo_la_SOURCES = \
 	stb_image.h              \
 	stb_image_write.h        \
 	startup-scripts.hh       \
-	tiny_glhf.h              \
+	tiny_gltf.h              \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
