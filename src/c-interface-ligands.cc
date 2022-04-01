@@ -3983,7 +3983,8 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
          graphics_info_t g;
          coot::ligand lig;
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-	      lig.import_map_from(g.molecules[imol_map].xmap);
+         lig.set_map_atom_mask_radius(3.3);
+         lig.import_map_from(g.molecules[imol_map].xmap);
          float contour_level = g.molecules[imol_map].get_contour_level();
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps = lig.make_masked_maps_split_by_chain(mol);
          std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;

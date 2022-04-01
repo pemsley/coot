@@ -24265,6 +24265,9 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <signal name="delete-event" handler="on_run_script_filechooser_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="file-activated" handler="on_run_script_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_run_script_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -24312,6 +24315,10 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-6">run_script_filechooser_cancel_button</action-widget>
+      <action-widget response="-5">run_script_filechooser_ok_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkDialog" id="run_state_file_dialog">
     <property name="can_focus">False</property>

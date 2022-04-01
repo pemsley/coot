@@ -100,8 +100,8 @@ on_window1_destroy_gtkbuilder_callback (GtkWidget       *object,
 extern "C" G_MODULE_EXPORT
 gboolean
 on_window1_delete_event_gtkbuilder_callback                (GtkWidget       *widget,
-                                        GdkEvent        *event,
-                                        gpointer         user_data)
+                                                            GdkEvent        *event,
+                                                            gpointer         user_data)
 {
    printf("---------------------------- on_window1_delete_event() ------------------\n");
   /* coot_checked_exit() calls coot_real_exit() and that calls exit(),
@@ -1600,9 +1600,8 @@ on_test_thing1_activate_gtkbuilder_callback                (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_scripting_window_activate_gtkbuilder_callback           (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_scripting_window_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                                 gpointer         user_data) {
 }
 
 
@@ -3022,14 +3021,11 @@ void on_rotate_translate_obj_cancel_button_clicked_gtkbuilder_callback (GtkButto
 extern "C" G_MODULE_EXPORT
 void
 on_run_script1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
-                                             gpointer         user_data)
-{
-  GtkWidget *widget = coot_run_script_chooser();
-  add_sort_button_fileselection(widget);
-  add_filename_filter_button(widget, COOT_SCRIPTS_FILE_SELECTION);
-  add_ccp4i_project_optionmenu(widget,
-                               COOT_SCRIPTS_FILE_SELECTION);
-  gtk_widget_show(widget);
+                                             gpointer         user_data) {
+
+   GtkWidget *widget = coot_run_script_chooser();
+   add_filename_filter_button(widget, COOT_SCRIPTS_FILE_SELECTION);
+   gtk_widget_show(widget);
 }
 
 
@@ -9640,52 +9636,60 @@ on_cif_dictionary_filechooserdialog1_destroy_gtkbuilder_callback
 {
 
   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
-  GtkWidget *fileselection = widget_from_builder(
-                                                "cif_dictionary_filechooserdialog1");
-
+  GtkWidget *fileselection = widget_from_builder("cif_dictionary_filechooserdialog1");
   gtk_widget_hide(fileselection);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_run_script_filechooserdialog1_response_gtkbuilder_callback
-					(GtkDialog * dialog,
-					gint response_id,
-					gpointer user_data)
-{
+on_run_script_filechooser_dialog_response_gtkbuilder_callback(GtkDialog * dialog,
+                                                              gint response_id,
+                                                              gpointer user_data) {
 
-  if (response_id == GTK_RESPONSE_OK) {
-    GtkWidget *fileselection = widget_from_builder(
-					   "run_script_filechooserdialog1");
-
-    const char *script_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-    run_script(script_filename);
-    gtk_widget_hide(fileselection);
-
-  } else {
-    GtkWidget *fileselection = widget_from_builder(
-                                                "run_script_filechooserdialog1");
-
-    gtk_widget_hide(fileselection);
-  }
+   GtkWidget *file_chooser = widget_from_builder("run_script_filechooser_dialog");
+   if (response_id == GTK_RESPONSE_OK) {
+      const char *script_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser));
+      run_script(script_filename);
+      gtk_widget_hide(file_chooser);
+   }
+   gtk_widget_hide(file_chooser);
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_run_script_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
+                                                                    gpointer user_data) {
+
+   GtkWidget *file_chooser = widget_from_builder("run_script_filechooser_dialog");
+   const char *script_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser));
+   run_script(script_filename);
+   gtk_widget_hide(file_chooser);
+}
+
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_run_script_filechooserdialog1_destroy_gtkbuilder_callback
 					(GtkWidget * object,
-					gpointer user_data)
-{
+					gpointer user_data) {
 
-  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
-  GtkWidget *fileselection = widget_from_builder(
-                                                "run_script_filechooserdialog1");
-
-  gtk_widget_hide(fileselection);
+   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
+   GtkWidget *file_chooser = widget_from_builder("run_script_filechooser_dialog");
+   gtk_widget_hide(file_chooser);
 }
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_run_script_filechooser_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                  GdkEvent        *event,
+                                                                  gpointer         user_data) {
+
+   return gboolean(TRUE);
+}
+
 
 
 GtkFileChooserConfirmation
@@ -12015,7 +12019,7 @@ on_symmetry_always_on_checkbutton_toggled_gtkbuilder_callback (GtkToggleButton *
 extern "C" G_MODULE_EXPORT
 void
 on_curlew1_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
-                                  gpointer         user_data) {
+                                                      gpointer         user_data) {
   curlew();
 }
 

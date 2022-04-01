@@ -3003,8 +3003,7 @@ coot::ligand::make_masked_maps_split_by_chain(mmdb::Manager *mol) {
             std::string chain_id(chain_p->GetChainID());
             // is there a better way to select the atoms of this chain?
             std::string atom_selection_str = "/1/" +  chain_id;
-            mol->Select(sel_hnd, mmdb::STYPE_ATOM,
-               atom_selection_str.c_str(), mmdb::SKEY_NEW);
+            mol->Select(sel_hnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
             mask_map(mol, sel_hnd, true); // change xmap_cluster
             mol->DeleteSelection(sel_hnd);
             std::string name = "Masked Map for Chain " + chain_id;
