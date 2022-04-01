@@ -5091,6 +5091,30 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l31 = [] () {
+                 graphics_info_t g;
+                 g.decrease_clipping_front();
+                 return gboolean(TRUE);
+              };
+
+   auto l32 = [] () {
+                 graphics_info_t g;
+                 g.increase_clipping_front();
+                 return gboolean(TRUE);
+              };
+
+   auto l33 = [] () {
+                 graphics_info_t g;
+                 g.decrease_clipping_back();
+                 return gboolean(TRUE);
+              };
+
+   auto l34 = [] () {
+                 graphics_info_t g;
+                 g.increase_clipping_back();
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -5120,6 +5144,12 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
+
+   // clipping
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_1,      key_bindings_t(l31, "Clipping Front Expand")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_2,      key_bindings_t(l32, "Clipping Front Reduce")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_3,      key_bindings_t(l33, "Clipping Back Expand")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_4,      key_bindings_t(l34, "Clipping Back Reduce")));
 
    // control
    // meh - ugly and almost useless. Try again.
