@@ -27,8 +27,7 @@ import re
 import string
 import numbers
 import coot
-import coot_utils
-import coot_gui
+import coot_gui # circular dependency
 from redefine_functions import *
 
 # hack this in for now

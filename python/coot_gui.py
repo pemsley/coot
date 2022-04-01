@@ -42,6 +42,11 @@ import acedrg_link
 import sharpen_blur
 import redefine_functions as rf
 
+# thank you ebassi!
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
 try:
     import gobject
 except:

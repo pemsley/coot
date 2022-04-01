@@ -220,6 +220,7 @@ if True:
      # menuitem_pisa.show()
 
      # menuitem_7.set_submenu(submenu_settings)
+
      edit_settings_menu.set_submenu(submenu_settings)
      menu.append(menuitem_7)
      menuitem_7.show()
@@ -1620,17 +1621,17 @@ if True:
        lambda func: save_dialog_func())
 
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_settings, "Key Bindings...",
-       lambda func: coot_gui.key_bindings_gui())
+     #coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu_settings, "Key Bindings...",
+     #  lambda func: coot_gui.key_bindings_gui())
 
      def install_and_show_key_bindings():
           coot_utils.file_to_preferences("template_key_bindings.py") # copy and evaluate
           coot_gui.key_bindings_gui()
        
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_settings, "Python: Install Template Keybindings",
-       lambda func: install_and_show_key_bindings())
+     #coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu_settings, "Python: Install Template Keybindings",
+     #  lambda func: install_and_show_key_bindings())
 
      def quick_save_func(txt):
        try:
