@@ -590,13 +590,13 @@ Bernhard Lohkamp
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="add_OXT_ok_button">
-                    <property name="label" translatable="yes">  Add it  </property>
+                  <object class="GtkButton" id="add_OXT_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_add_OXT_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_add_OXT_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -606,13 +606,13 @@ Bernhard Lohkamp
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="add_OXT_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="add_OXT_ok_button">
+                    <property name="label" translatable="yes">  Add it  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_add_OXT_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_add_OXT_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1688,22 +1688,6 @@ any acceptable configuration here.</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="align_and_mutate_ok_button">
-                    <property name="label" translatable="yes">  Apply Sequence to Model  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_align_and_mutate_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="padding">6</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="align_and_mutate_cancel_button">
                     <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
@@ -1716,6 +1700,22 @@ any acceptable configuration here.</property>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="padding">10</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="align_and_mutate_ok_button">
+                    <property name="label" translatable="yes">  Apply Sequence to Model  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_align_and_mutate_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">6</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -2202,6 +2202,61 @@ any acceptable configuration here.</property>
             <property name="border_width">2</property>
             <property name="homogeneous">True</property>
             <child>
+              <object class="GtkButton" id="show_aniso_close_button">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="border_width">4</property>
+                <signal name="clicked" handler="on_show_aniso_close_button_clicked_gtkbuilder_callback" swapped="no"/>
+                <child>
+                  <object class="GtkAlignment" id="alignment30">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
+                    <child>
+                      <object class="GtkBox" id="hbox181">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">2</property>
+                        <child>
+                          <object class="GtkImage" id="image1499">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-close</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label355">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">  Close  </property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="show_aniso_ok_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -2239,61 +2294,6 @@ any acceptable configuration here.</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">   OK   </property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="show_aniso_close_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">4</property>
-                <signal name="clicked" handler="on_show_aniso_close_button_clicked_gtkbuilder_callback" swapped="no"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment30">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkBox" id="hbox181">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image1499">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-close</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label355">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  Close  </property>
                             <property name="use_underline">True</property>
                           </object>
                           <packing>
@@ -2820,6 +2820,23 @@ any acceptable configuration here.</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="baton_mode_calculate_skeleton_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">2</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_baton_mode_calculate_skeleton_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="baton_mode_calculate_skeleton_ok_button">
                     <property name="label" translatable="yes">   Calculate   </property>
                     <property name="visible">True</property>
@@ -2831,23 +2848,6 @@ any acceptable configuration here.</property>
                     <property name="border_width">2</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_baton_mode_calculate_skeleton_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="baton_mode_calculate_skeleton_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">2</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_baton_mode_calculate_skeleton_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -3378,13 +3378,13 @@ Calculate a skeleton now?
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="change_chains_rechain_button">
-                    <property name="label" translatable="yes">  Apply New Chain ID  </property>
+                  <object class="GtkButton" id="change_chain_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_change_chains_rechain_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_change_chain_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -3394,13 +3394,13 @@ Calculate a skeleton now?
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="change_chain_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="change_chains_rechain_button">
+                    <property name="label" translatable="yes">  Apply New Chain ID  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_change_chain_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_change_chains_rechain_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -3875,19 +3875,20 @@ Calculate a skeleton now?
           <object class="GtkButtonBox" id="dialog-action_area38">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkBox" id="hbox78">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="check_waters_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
+                  <object class="GtkButton" id="check_waters_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_check_waters_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_check_waters_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -3897,13 +3898,13 @@ Calculate a skeleton now?
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="check_waters_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="check_waters_ok_button">
+                    <property name="label" translatable="yes">  OK  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_check_waters_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_check_waters_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -4493,6 +4494,23 @@ Calculate a skeleton now?
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="check_waters_diff_map_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">4</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_check_waters_diff_map_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="check_waters_diff_map_ok_button">
                     <property name="label" translatable="yes">   Check Waters   </property>
                     <property name="visible">True</property>
@@ -4507,23 +4525,6 @@ Calculate a skeleton now?
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="check_waters_diff_map_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">4</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_check_waters_diff_map_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
                     <property name="fill">False</property>
                     <property name="position">1</property>
                   </packing>
@@ -5744,6 +5745,61 @@ the Ctrl key when moving the mouse.</property>
             <property name="can_focus">False</property>
             <property name="border_width">2</property>
             <child>
+              <object class="GtkButton" id="column_label_cancel_button">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <signal name="clicked" handler="on_column_label_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                <child>
+                  <object class="GtkAlignment" id="alignment36">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
+                    <child>
+                      <object class="GtkBox" id="hbox187">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">2</property>
+                        <child>
+                          <object class="GtkImage" id="image1505">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-cancel</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label361">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">  Cancel  </property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="padding">6</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="column_label_ok_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -5780,61 +5836,6 @@ the Ctrl key when moving the mouse.</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">  OK  </property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="padding">6</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="column_label_cancel_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">False</property>
-                <signal name="clicked" handler="on_column_label_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment36">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkBox" id="hbox187">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image1505">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-cancel</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label361">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  Cancel  </property>
                             <property name="use_underline">True</property>
                           </object>
                           <packing>
@@ -6307,8 +6308,8 @@ the Ctrl key when moving the mouse.</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="copy_fragment_OK_button">
-                <property name="label" translatable="yes">OK</property>
+              <object class="GtkButton" id="copy_fragment_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -6320,8 +6321,8 @@ the Ctrl key when moving the mouse.</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="copy_fragment_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
+              <object class="GtkButton" id="copy_fragment_OK_button">
+                <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -6419,8 +6420,8 @@ the Ctrl key when moving the mouse.</property>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-5">copy_fragment_OK_button</action-widget>
       <action-widget response="-6">copy_fragment_cancel_button</action-widget>
+      <action-widget response="-5">copy_fragment_OK_button</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>
@@ -7437,63 +7438,6 @@ that you wish to delete.               </property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkButton" id="dynarama_ok_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">6</property>
-                <signal name="clicked" handler="on_dynarama_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment37">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkBox" id="hbox188">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image1506">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-ok</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label362">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  OK  </property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkButton" id="dynarama_cancel_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -7529,6 +7473,65 @@ that you wish to delete.               </property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">  Cancel  </property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="dynarama_ok_button">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="has_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="border_width">6</property>
+                <signal name="clicked" handler="on_dynarama_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                <child>
+                  <object class="GtkAlignment" id="alignment37">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_right">2</property>
+                    <property name="margin_bottom">1</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
+                    <child>
+                      <object class="GtkBox" id="hbox188">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">2</property>
+                        <child>
+                          <object class="GtkImage" id="image1506">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-ok</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label362">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">  OK  </property>
                             <property name="use_underline">True</property>
                           </object>
                           <packing>
@@ -7729,6 +7732,22 @@ that you wish to delete.               </property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="edit_chi_angles_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_edit_chi_angles_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="edit_chi_angles_dialog_ok_button">
                     <property name="label" translatable="yes">  Accept  </property>
                     <property name="visible">True</property>
@@ -7739,22 +7758,6 @@ that you wish to delete.               </property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_edit_chi_angles_dialog_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="edit_chi_angles_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_edit_chi_angles_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -8353,6 +8356,61 @@ that you wish to delete.               </property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
+                      <object class="GtkButton" id="button4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="can_default">True</property>
+                        <property name="receives_default">False</property>
+                        <signal name="clicked" handler="on_find_ligand_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                        <child>
+                          <object class="GtkAlignment" id="alignment40">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xscale">0</property>
+                            <property name="yscale">0</property>
+                            <child>
+                              <object class="GtkBox" id="hbox191">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="spacing">2</property>
+                                <child>
+                                  <object class="GtkImage" id="image1509">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="stock">gtk-cancel</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label365">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Cancel</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="padding">2</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkButton" id="find_ligand_ok_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -8390,61 +8448,6 @@ that you wish to delete.               </property>
                                     <property name="can_focus">False</property>
                                     <property name="label" translatable="yes">Find Ligands</property>
                                     <property name="use_markup">True</property>
-                                    <property name="use_underline">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="padding">2</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="button4">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="can_default">True</property>
-                        <property name="receives_default">False</property>
-                        <signal name="clicked" handler="on_find_ligand_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                        <child>
-                          <object class="GtkAlignment" id="alignment40">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xscale">0</property>
-                            <property name="yscale">0</property>
-                            <child>
-                              <object class="GtkBox" id="hbox191">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="spacing">2</property>
-                                <child>
-                                  <object class="GtkImage" id="image1509">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="stock">gtk-cancel</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label365">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Cancel</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                   <packing>
@@ -8947,14 +8950,14 @@ that you wish to delete.               </property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="find_ligand_many_atoms_continue_button">
-                    <property name="label" translatable="yes">Continue</property>
+                  <object class="GtkButton" id="find_ligand_many_atoms_cancel_button">
+                    <property name="label" translatable="yes">Cancel</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="border_width">2</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_find_ligand_many_atoms_continue_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_find_ligand_many_atoms_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -8964,14 +8967,14 @@ that you wish to delete.               </property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="find_ligand_many_atoms_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
+                  <object class="GtkButton" id="find_ligand_many_atoms_continue_button">
+                    <property name="label" translatable="yes">Continue</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="border_width">2</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_find_ligand_many_atoms_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_find_ligand_many_atoms_continue_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -9050,6 +9053,61 @@ Do you want to continue?
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
+                  <object class="GtkButton" id="find_waters_cancel_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">2</property>
+                    <signal name="clicked" handler="on_find_waters_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment48">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox199">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1517">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-cancel</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label373">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">  Cancel  </property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="find_waters_ok_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -9087,61 +9145,6 @@ Do you want to continue?
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Find Waters  </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="find_waters_cancel_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">2</property>
-                    <signal name="clicked" handler="on_find_waters_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment48">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox199">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1517">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-cancel</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label373">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">  Cancel  </property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
@@ -10011,11 +10014,29 @@ Do you want to continue?
           <object class="GtkButtonBox" id="dialog-action_area78">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkBox" id="hbox116">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkButton" id="generate_diff_map_peaks_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">6</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child>
                   <object class="GtkButton" id="generate_diff_map_peaks_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
@@ -10027,23 +10048,6 @@ Do you want to continue?
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_generate_diff_map_peaks_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">6</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="generate_diff_map_peaks_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -11082,6 +11086,23 @@ Do you want to continue?
             <property name="can_focus">False</property>
             <property name="border_width">10</property>
             <child>
+              <object class="GtkButton" id="density_cancel">
+                <property name="label">gtk-close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_density_cancel_clicked_gtkbuilder_callback" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="padding">10</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="density_ok_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -11130,23 +11151,6 @@ Do you want to continue?
                     </child>
                   </object>
                 </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="padding">10</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="density_cancel">
-                <property name="label">gtk-close</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_density_cancel_clicked_gtkbuilder_callback" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -11590,6 +11594,62 @@ Do you want to continue?
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
+              <object class="GtkButton" id="go_to_atom_cancel_button">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="border_width">3</property>
+                <signal name="clicked" handler="on_go_to_atom_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                <child>
+                  <object class="GtkAlignment" id="alignment19">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
+                    <child>
+                      <object class="GtkBox" id="hbox170">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">2</property>
+                        <child>
+                          <object class="GtkImage" id="image349">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-close</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label344">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">  Close  </property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="padding">6</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="go_to_atom_apply_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -11643,62 +11703,6 @@ Do you want to continue?
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">5</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="go_to_atom_cancel_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">3</property>
-                <signal name="clicked" handler="on_go_to_atom_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment19">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkBox" id="hbox170">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image349">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-close</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label344">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  Close  </property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="padding">6</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -14431,6 +14435,23 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
+                  <object class="GtkButton" id="least_squares_cancel_button">
+                    <property name="label">gtk-close</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">2</property>
+                    <property name="use_stock">True</property>
+                    <property name="always_show_image">True</property>
+                    <signal name="clicked" handler="on_least_squares_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="least_squares_ok_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -14477,23 +14498,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         </child>
                       </object>
                     </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="least_squares_cancel_button">
-                    <property name="label">gtk-close</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">2</property>
-                    <property name="use_stock">True</property>
-                    <property name="always_show_image">True</property>
-                    <signal name="clicked" handler="on_least_squares_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -14894,6 +14898,24 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
               <object class="GtkBox" id="hbox81">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="libcheck_monomer_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_get_monomer_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">4</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child>
                   <object class="GtkButton" id="libcheck_monomer_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
@@ -14905,23 +14927,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_get_monomer_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">4</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="libcheck_monomer_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_get_monomer_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -17194,60 +17199,6 @@ into Molecule:
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="move_molecule_here_ok_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <signal name="clicked" handler="on_move_molecule_here_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment59">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox210">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1528">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-ok</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label384">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">   Move It   </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="padding">6</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="move_molecule_here_cancel_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -17281,6 +17232,60 @@ into Molecule:
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">   Cancel  </property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">6</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="move_molecule_here_ok_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <signal name="clicked" handler="on_move_molecule_here_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment59">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox210">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1528">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-ok</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label384">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">   Move It   </property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
@@ -17380,6 +17385,21 @@ Move Molecule Here:</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="mutate_sequence_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_mutate_sequence_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="mutate_sequence_ok_button">
                     <property name="label" translatable="yes">   Mutate   </property>
                     <property name="visible">True</property>
@@ -17391,7 +17411,7 @@ Move Molecule Here:</property>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">False</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -17401,21 +17421,6 @@ Move Molecule Here:</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_fit_loop_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="mutate_sequence_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_mutate_sequence_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -18186,13 +18191,13 @@ search (this may not work well)</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="ncs_maps_ok_button">
-                    <property name="label" translatable="yes">   OK   </property>
+                  <object class="GtkButton" id="ncs_maps_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_ncs_maps_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_ncs_maps_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -18202,13 +18207,13 @@ search (this may not work well)</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="ncs_maps_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
+                  <object class="GtkButton" id="ncs_maps_ok_button">
+                    <property name="label" translatable="yes">   OK   </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_ncs_maps_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_ncs_maps_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -18402,22 +18407,6 @@ search (this may not work well)</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="new_delete_molecules_ok_button">
-                    <property name="label" translatable="yes">  Delete Marked Molecules &amp; Maps  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">4</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_new_delete_molecules_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="new_delete_molecules_cancel_button">
                     <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
@@ -18426,6 +18415,22 @@ search (this may not work well)</property>
                     <property name="border_width">4</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_new_delete_molecules_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="new_delete_molecules_ok_button">
+                    <property name="label" translatable="yes">  Delete Marked Molecules &amp; Maps  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">4</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_new_delete_molecules_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -19315,59 +19320,6 @@ If you need symmetry, setup ccp4 before starting coot
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="ideal_rna_ok_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <signal name="clicked" handler="on_ideal_rna_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment61">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox212">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1530">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-ok</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label386">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">  OK  </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="ideal_rna_cancel_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -19401,6 +19353,59 @@ If you need symmetry, setup ccp4 before starting coot
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">  Cancel  </property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="ideal_rna_ok_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <signal name="clicked" handler="on_ideal_rna_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment61">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox212">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1530">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-ok</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label386">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">  OK  </property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
@@ -19848,8 +19853,8 @@ Nucleotide Builder
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="pepflips_by_difference_map_dialog_apply_button">
-                <property name="label" translatable="yes">Apply</property>
+              <object class="GtkButton" id="pepflips_by_difference_map_dialog_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -19861,8 +19866,8 @@ Nucleotide Builder
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="pepflips_by_difference_map_dialog_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
+              <object class="GtkButton" id="pepflips_by_difference_map_dialog_apply_button">
+                <property name="label" translatable="yes">Apply</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -19959,8 +19964,8 @@ Nucleotide Builder
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-10">pepflips_by_difference_map_dialog_apply_button</action-widget>
       <action-widget response="-6">pepflips_by_difference_map_dialog_cancel_button</action-widget>
+      <action-widget response="-10">pepflips_by_difference_map_dialog_apply_button</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>
@@ -20307,14 +20312,15 @@ just the cell and symmetry)
               <object class="GtkBox" id="hbox52">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="pointer_atom_type_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
+                  <object class="GtkButton" id="pointer_atom_type_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_pointer_atom_type_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_pointer_atom_type_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -20324,13 +20330,13 @@ just the cell and symmetry)
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="pointer_atom_type_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="pointer_atom_type_ok_button">
+                    <property name="label" translatable="yes">  OK  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_pointer_atom_type_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_pointer_atom_type_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -20982,6 +20988,23 @@ just the cell and symmetry)
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
+                  <object class="GtkButton" id="ramachandran_plot_differences_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">6</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_ramachandran_plot_differences_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="ramachandran_plot_differences_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
                     <property name="visible">True</property>
@@ -20992,23 +21015,6 @@ just the cell and symmetry)
                     <property name="border_width">6</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_ramachandran_plot_differences_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="ramachandran_plot_differences_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">6</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_ramachandran_plot_differences_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -21356,15 +21362,14 @@ just the cell and symmetry)
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="recover_coordinates_ok_button">
-                    <property name="label" translatable="yes">  Recover  </property>
+                  <object class="GtkButton" id="recover_coordinates_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
-                    <property name="has_default">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_recover_coordinates_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_recover_coordinates_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -21374,14 +21379,15 @@ just the cell and symmetry)
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="recover_coordinates_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="recover_coordinates_ok_button">
+                    <property name="label" translatable="yes">  Recover  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
+                    <property name="has_default">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_recover_coordinates_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_recover_coordinates_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -22070,13 +22076,13 @@ just the cell and symmetry)
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="renumber_residue_range_ok_button">
-                    <property name="label" translatable="yes">  Renumber  </property>
+                  <object class="GtkButton" id="renumber_residue_range_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_renumber_residue_range_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_renumber_residue_range_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -22086,13 +22092,13 @@ just the cell and symmetry)
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="renumber_residue_range_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="renumber_residue_range_ok_button">
+                    <property name="label" translatable="yes">  Renumber  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_renumber_residue_range_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_renumber_residue_range_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -22316,8 +22322,8 @@ just the cell and symmetry)
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
-                <property name="label" translatable="yes">OK</property>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -22329,8 +22335,8 @@ just the cell and symmetry)
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
+                <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -22387,8 +22393,8 @@ just the cell and symmetry)
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-5">residue_editor_select_monomer_type_ok_button</action-widget>
       <action-widget response="-6">residue_editor_select_monomer_type_cancel_button</action-widget>
+      <action-widget response="-5">residue_editor_select_monomer_type_ok_button</action-widget>
     </action-widgets>
     <child type="titlebar">
       <placeholder/>
@@ -22413,6 +22419,61 @@ just the cell and symmetry)
               <object class="GtkBox" id="hbox49">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkButton" id="residue_info_cancel_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">4</property>
+                    <signal name="clicked" handler="on_residue_info_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment54">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox205">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1523">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-close</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label379">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">  Close  </property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child>
                   <object class="GtkButton" id="residue_info_ok_button">
                     <property name="visible">True</property>
@@ -22450,61 +22511,6 @@ just the cell and symmetry)
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes"> Apply  </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="residue_info_cancel_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">4</property>
-                    <signal name="clicked" handler="on_residue_info_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment54">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox205">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1523">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-close</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label379">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">  Close  </property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
@@ -23354,6 +23360,24 @@ Sorry.
               <object class="GtkBox" id="hbox50">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="rotamer_selection_cancel_button">
+                    <property name="label">gtk-cancel</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_stock">True</property>
+                    <signal name="clicked" handler="on_rotamer_selection_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">6</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child>
                   <object class="GtkButton" id="rotamer_selection_ok_button">
                     <property name="label">gtk-ok</property>
@@ -23365,23 +23389,6 @@ Sorry.
                     <property name="receives_default">False</property>
                     <property name="use_stock">True</property>
                     <signal name="clicked" handler="on_rotamer_selection_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">6</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="rotamer_selection_cancel_button">
-                    <property name="label">gtk-cancel</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_stock">True</property>
-                    <signal name="clicked" handler="on_rotamer_selection_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -23505,6 +23512,60 @@ Sorry.
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="rotate_translate_obj_cancel_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <signal name="clicked" handler="on_rotate_translate_obj_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment42">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox193">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1511">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-cancel</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label367">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">  Cancel </property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="rotate_translate_obj_ok_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -23559,60 +23620,6 @@ Sorry.
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="padding">2</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="rotate_translate_obj_cancel_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <signal name="clicked" handler="on_rotate_translate_obj_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment42">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox193">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1511">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-cancel</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label367">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">  Cancel </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -23932,13 +23939,13 @@ Sorry.
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="run_refmac_run_button">
-                    <property name="label" translatable="yes">  Run Refmac  </property>
+                  <object class="GtkButton" id="run_refmac_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_run_refmac_run_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_run_refmac_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -23947,13 +23954,13 @@ Sorry.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="run_refmac_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="run_refmac_run_button">
+                    <property name="label" translatable="yes">  Run Refmac  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_run_refmac_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_run_refmac_run_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -24316,6 +24323,62 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="run_state_file_cancel_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">2</property>
+                    <signal name="clicked" handler="on_run_state_file_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment64">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox215">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1533">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-close</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label389">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">  No  </property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">2</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="run_state_file_ok_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -24353,62 +24416,6 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">  Yes  </property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">2</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="run_state_file_cancel_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">2</property>
-                    <signal name="clicked" handler="on_run_state_file_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment64">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox215">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1533">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-close</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label389">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">  No  </property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
@@ -24797,7 +24804,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
             </child>
             <child>
               <object class="GtkButton">
-                <property name="label" translatable="yes">button</property>
+                <property name="label" translatable="yes">Ugh</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -27541,19 +27548,20 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
           <object class="GtkButtonBox" id="dialog-action_area25">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkBox" id="hbox59">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="skeleton_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
+                  <object class="GtkButton" id="skeleton_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_skeleton_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_skeleton_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -27563,13 +27571,13 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="skeleton_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
+                  <object class="GtkButton" id="skeleton_ok_button">
+                    <property name="label" translatable="yes">  OK  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_skeleton_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_skeleton_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -27797,6 +27805,23 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="skel_box_radius_cancel_button">
+                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">4</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_skel_box_radius_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="skel_box_radius_ok_button">
                     <property name="label" translatable="yes">OK</property>
                     <property name="visible">True</property>
@@ -27807,23 +27832,6 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                     <property name="border_width">4</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_skel_box_radius_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="skel_box_radius_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">4</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_skel_box_radius_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -27926,6 +27934,23 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
             <property name="can_focus">False</property>
             <property name="border_width">6</property>
             <child>
+              <object class="GtkButton" id="skeletonization_level_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <signal name="clicked" handler="on_skeletonization_level_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="padding">6</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="skeletonization_level_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
@@ -27940,7 +27965,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="padding">6</property>
-                <property name="position">0</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -27952,23 +27977,6 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="receives_default">False</property>
                 <property name="use_underline">True</property>
                 <signal name="clicked" handler="on_skeletonization_level_apply_button_clicked_gtkbuilder_callback" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="padding">6</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="skeletonization_level_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_skeletonization_level_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -28009,13 +28017,13 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkButton" id="skeletonize_map_dialog_ok_button">
-                    <property name="label" translatable="yes">   Skeletonize   </property>
+                  <object class="GtkButton" id="skeletonize_map_dialog_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_skeletonize_map_dialog_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_skeletonize_map_dialog_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -28025,13 +28033,13 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="skeletonize_map_dialog_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
+                  <object class="GtkButton" id="skeletonize_map_dialog_ok_button">
+                    <property name="label" translatable="yes">   Skeletonize   </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_skeletonize_map_dialog_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_skeletonize_map_dialog_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -28746,6 +28754,24 @@ View Mode</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="superpose_dialog_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">2</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_superpose_dialog_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">2</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="superpose_dialog_superpose_button">
                     <property name="label" translatable="yes">  Superpose  </property>
                     <property name="visible">True</property>
@@ -28757,24 +28783,6 @@ View Mode</property>
                     <property name="border_width">2</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_superpose_dialog_superpose_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">2</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="superpose_dialog_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">2</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_superpose_dialog_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -29046,6 +29054,21 @@ View Mode</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
+                  <object class="GtkButton" id="superpose_nonsense_cancel_button">
+                    <property name="label" translatable="yes">   Cancel   </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_superpose_nonsense_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="superpose_nonsense_ok_button">
                     <property name="label" translatable="yes">   OK   </property>
                     <property name="visible">True</property>
@@ -29056,21 +29079,6 @@ View Mode</property>
                     <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
                     <signal name="clicked" handler="on_superpose_nonsense_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="superpose_nonsense_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_superpose_nonsense_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -29505,6 +29513,23 @@ Move a copy?</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="find_blobs_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <signal name="clicked" handler="on_find_blobs_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">4</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="find_blobs_ok_button">
                     <property name="label" translatable="yes">  Find Blobs  </property>
                     <property name="visible">True</property>
@@ -29519,22 +29544,7 @@ Move a copy?</property>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="find_blobs_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_find_blobs_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
+                    <property name="padding">4</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -29749,6 +29759,62 @@ Move a copy?</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="unsaved_changes_cancel_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="border_width">2</property>
+                    <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <child>
+                      <object class="GtkAlignment" id="alignment68">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkBox" id="hbox219">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image1829">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-cancel</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label393">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Cancel</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="padding">2</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="unsaved_changes_continue_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -29786,62 +29852,6 @@ Move a copy?</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Continue Exit</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">2</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="unsaved_changes_cancel_button">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="can_default">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="border_width">2</property>
-                    <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment68">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkBox" id="hbox219">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image1829">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="stock">gtk-cancel</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label393">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Cancel</property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
