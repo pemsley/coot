@@ -5047,12 +5047,10 @@ void do_rigid_body_refine(short int state);	/* set up for atom picking */
    where we set the atom selection
    holders according to the arguments and then call
    execute_rigid_body_refine() */
-void rigid_body_refine_zone(int reso_start, int resno_end,
-			    const char *chain_id, int imol);
+void rigid_body_refine_zone(int imol, const char *chain_id, int reso_start, int resno_end);
 
 void
-rigid_body_refine_by_atom_selection(int imol,
-				    const char *atom_selection_string);
+rigid_body_refine_by_atom_selection(int imol, const char *atom_selection_string);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

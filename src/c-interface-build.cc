@@ -4479,8 +4479,7 @@ void execute_rigid_body_refine(short int auto_range_flag){
    g.execute_rigid_body_refine(auto_range_flag);
 }
 
-void rigid_body_refine_zone(int resno_start, int resno_end,
-			    const char *chain_id, int imol) {
+void rigid_body_refine_zone(int imol, const char *chain_id, int resno_start, int resno_end) {
 
    graphics_info_t g;
    std::string altconf = ""; // should be passed?
@@ -4503,9 +4502,7 @@ void rigid_body_refine_zone(int resno_start, int resno_end,
 
 
 void
-rigid_body_refine_by_atom_selection(int imol,
-				    const char *atom_selection_string) {
-
+rigid_body_refine_by_atom_selection(int imol, const char *atom_selection_string) {
 
    graphics_info_t g;
    int imol_ref_map = g.Imol_Refinement_Map();
