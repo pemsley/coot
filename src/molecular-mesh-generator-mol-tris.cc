@@ -125,10 +125,11 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &colour_scheme,
                                                          const std::string &style) {
 
-   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() "
-             << " chain-id: " << chain_p->GetChainID() << " colour_sheme: "
-             << colour_scheme << " style " << style << std::endl;
-   
+   if (false)
+      std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() "
+                << " chain-id: " << chain_p->GetChainID() << " colour_sheme: "
+                << colour_scheme << " style " << style << std::endl;
+
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
    if (! mol) {
@@ -297,10 +298,33 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                   gv.color[i]  = 0.0037f * vcn.color[i];
                }
                gv.color[3] = 1.0;
-               // BoxSectionPrimitive have not had their colours scaled for some reason.
-               if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive) {
-                  // std::cout << "vertex iVertex " << iVertex << " " << glm::to_string(gv.color) << std::endl;
-                  for (int ii=0; ii<3; ii++) gv.color[ii] /= 255.0;
+
+               // 20220401-PE This is what the code used to say
+               //     // BoxSectionPrimitive have not had their colours scaled for some reason.
+               //     if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive) {
+               //        // std::cout << "vertex iVertex " << iVertex << " " << glm::to_string(gv.color) << std::endl;
+               //        for (int ii=0; ii<3; ii++) gv.color[ii] /= 255.0;
+               //     }
+
+               // But on Mac, we saw black strands. So maybe they *have* been scaled now, but not on my PC
+               // (where I am writng this).
+               // So add in a hack, looking for colours more than 2 (say). If they don't exist, then
+               // we don't need to scale down the colours.
+
+               bool do_scale_colours = false;
+               if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive)
+                  for (int ii=0; ii<3; ii++)
+                     if (gv.color[ii]  > 2.0) {
+                        do_scale_colours = true;
+                        break;
+                     }
+
+               if (do_scale_colours) {
+                  // BoxSectionPrimitive have not had their colours scaled for some reason.
+                  if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive) {
+                     // std::cout << "vertex iVertex " << iVertex << " " << glm::to_string(gv.color) << std::endl;
+                     for (int ii=0; ii<3; ii++) gv.color[ii] /= 255.0;
+                  }
                }
             }
 
