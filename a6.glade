@@ -12789,6 +12789,15 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="ribbons_colour_by_chain_menu_item">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Ribbons: By Chain</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_ribbons_colour_by_chain_menu_item_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkMenuItem" id="ribbons_colour_rainbow_menu_item">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -12798,12 +12807,12 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
-                          <object class="GtkMenuItem" id="ribbons_colour_by_chain_menu_item">
+                          <object class="GtkMenuItem" id="ribbons_colour_by_secondary_structure_menu_item">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Ribbons: By Chain</property>
+                            <property name="label" translatable="yes">Ribbons: Sec. Struct.</property>
                             <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_ribbons_colour_by_chain_menu_item_activate_gtkbuilder_callback" swapped="no"/>
+                            <signal name="activate" handler="on_ribbons_colour_by_secondary_structure_menu_item_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>

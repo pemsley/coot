@@ -674,6 +674,7 @@ on_map_name_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       is_diff_map = true;
    read_ccp4_map(fn, is_diff_map);
+
    gtk_widget_hide(GTK_WIDGET(dialog));
 
 }
@@ -965,6 +966,21 @@ on_ribbons_colour_rainbow_menu_item_activate_gtkbuilder_callback(GtkMenuItem *me
    if (pp.first) {
       int imol = pp.second.first;
       std::string colour_scheme = "colorRampChainsScheme";
+      std::string atom_selection = "//";
+      std::string style = "Ribbon";
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_ribbons_colour_by_secondary_structure_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+                                                                 gpointer     user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "colorBySecondaryScheme";
       std::string atom_selection = "//";
       std::string style = "Ribbon";
       graphics_info_t g;
