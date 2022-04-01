@@ -2445,7 +2445,8 @@ graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
    float d1 = distortion + 18.0; // 18.0 is carefully chosen (16 too small, 22 too big)
    float d2 = d1 / 6.0f;
    if (d2 < 0.0f) d2 = 0.0f;
-   float d3 = 0.07f * d2 * d2; // carefully chosen.
+   float d3 = 0.055f * d2 * d2; // carefully chosen.
+   if (d3 > 0.08) d3 = 0.08; // carefully chosen
 
    return d3;
 }
