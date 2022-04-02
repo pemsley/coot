@@ -66,12 +66,15 @@ framebuffer::reset(int width, int height) {
 void
 framebuffer::reset_test(int width, int height) {
 
+   // this function is called in graphics-info-draw.cc and graphics-info-opengl.cc
+   // it is not a test function and should be renamed
+
    GLenum err = glGetError();
    if (err)
       std::cout << "--- start framebuffer " << name << " init() err is " << err << std::endl;
 
-   if (true)
-      std::cout << "debug:: framebuffer::reset() calling generate_framebuffer_object() " << name
+   if (false)
+      std::cout << "debug:: framebuffer::reset_test() calling generate_framebuffer_object() " << name
                 << " with " << width << " " << height << std::endl;
 
    // 20220108-PE all my framebuffers only have 1 color attachment at the moment.
