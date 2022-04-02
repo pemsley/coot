@@ -309,11 +309,11 @@ Now click on a red spot - they may be many of them (maybe 50 or so):
    - Now flipping and back-flipping on This Peptide or the Next Peptide often fixes the
      problem.
    - If needed you can change the Ramachandran restraints weight using the menu items
-     in the Refine menu. (But note however, that _Coot_ often gets upset when the
+     in the Refine menu. (But note however, that _Coot_ refinement often gets upset when the
      Ramachandran weights are high.)
 
 9: Done
 -------
 
 You can check how well you did by comparing against the reference model - the accession code
-for that is 6oej `coot_tutorial_2/3eoj.pdb`
+for that is 6oej `coot_tutorial_2/6eoj.pdb`
