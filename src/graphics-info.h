@@ -3578,6 +3578,9 @@ public:
    static void set_model_fit_refine_button_names(GtkWidget *w);
    static void set_other_modelling_tools_button_names(GtkWidget *w);
 
+   static std::vector<keyboard_key_t> keyboard_key_history;
+   static void add_key_to_history(const keyboard_key_t &kk) { keyboard_key_history.push_back(kk); };
+   static void check_keyboard_history_for_easter_egg_codes();
 
    // -------- keyboard rotamer control: ---------
    static void rotamer_dialog_next_rotamer();
@@ -4678,6 +4681,8 @@ string   static std::string sessionid;
    static Shader shader_for_meshes_shadow_map;
    static Shader shader_for_shadow_map_image_texture_mesh;
    static Shader shader_for_effects; // colour balance or gamma ramp, say.
+   static float shadow_box_size; // 20220402-PE needs to be big enough to cover the molecule. How big is that? I don't know how to
+                                 // calculate it now, so let the user decide.
    // static bool show_shadow_map;
    enum { SHOW_SHADOW_MAP, SHOW_BASIC_SCENE, SHOW_SHADOWED_SCENE, SHOW_DEPTH_BLUR_SCENE, SHOW_AO_SCENE };
    static unsigned short int displayed_image_type;

@@ -882,6 +882,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
 
    keyboard_key_t kbk(event->keyval, control_is_pressed_flag);
+   g.add_key_to_history(kbk);
 
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
 
@@ -906,7 +907,8 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       if (! handled)
          std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
 
-   graphics_info_t::graphics_draw(); // queue
+   g.check_keyboard_history_for_easter_egg_codes();
+   g.graphics_draw(); // queue
 
    return handled;
 

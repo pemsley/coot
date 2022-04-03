@@ -475,8 +475,8 @@ graphics_info_t::get_mvp_for_shadow_map(const glm::vec3 &light_direction_eye_spa
 
    glm::mat4 model_matrix = glm::mat4(1.0);
 
-   float box_size = 11.0;
-   box_size = 66.0; // should depend on zoom or something.
+   float box_size = shadow_box_size; // user setable, default 66.
+   if (box_size < 0.0) box_size = 66.0;
    glm::mat4 projection_matrix = glm::ortho(-box_size, box_size, -box_size, box_size, -box_size, box_size);
 
    glm::vec3 rc = get_rotation_centre();

@@ -389,6 +389,13 @@ void set_shadow_resolution(int reso_multiplier) {
    graphics_draw();
 
 }
+//! \brief set shadow box size - default 66;
+void set_shadow_box_size(float size) {
+   graphics_info_t g;
+   g.shadow_box_size = size;
+   graphics_draw();
+}
+
 
 
 //! \brief set use fancy lighting (default 1 = true);

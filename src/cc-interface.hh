@@ -1525,6 +1525,9 @@ void set_shadow_strength(float s);
 //! \brief set the shadow resolution (1,2,3,4)
 void set_shadow_resolution(int reso_multiplier);
 
+//! \brief set shadow box size - default 66;
+void set_shadow_box_size(float size);
+
 //! \brief set SSAO kernel n samples
 void set_ssao_kernel_n_samples(unsigned int n_samples);
 

@@ -6653,5 +6653,33 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
          coot::colour_holder ch;
          glColor3f(ch.red, ch.green, ch.blue);
       }
-   }   
+   }
+}
+
+
+// static
+void
+graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
+
+   std::vector<std::pair<unsigned int, int> > idkfa_pairs = {std::make_pair(5, GDK_KEY_A),
+                                                             std::make_pair(4, GDK_KEY_F),
+                                                             std::make_pair(3, GDK_KEY_K),
+                                                             std::make_pair(2, GDK_KEY_D),
+                                                             std::make_pair(1, GDK_KEY_I), };
+
+   size_t l = keyboard_key_history.size();
+   if (l >= idkfa_pairs.size()) {
+      // bool all_matched = true;
+      // for (const auto &item : idkfa_pairs) {
+      // if (keyboard_key_history[item.first].gdk_key != item.second) {
+      // all_matched = false;
+      // break;
+      // }
+      if (std::any_of(idkfa_pairs.begin(), idkfa_pairs.end(),
+                      [&keyboard_key_history] (const std::pair<unsigned int, int> &item) { return keyboard_key_history[item.first].gdk_key == item.second; })) {
+         // no match
+      } else {
+         std::cout << "Now do something fun" << std::endl;
+      }
+   }
 }

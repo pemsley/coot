@@ -1347,6 +1347,7 @@ bool graphics_info_t::do_debug_refinement = false;
 std::atomic<bool> graphics_info_t::on_going_updating_map_lock(false);
 
 std::map<keyboard_key_t, key_bindings_t> graphics_info_t::key_bindings_map;
+std::vector<keyboard_key_t> graphics_info_t::keyboard_key_history;
 
 std::string graphics_info_t::mtz_file_for_refmac;
 
@@ -1649,6 +1650,7 @@ Shader graphics_info_t::shader_for_tmeshes;
 Shader graphics_info_t::shader_for_meshes_shadow_map;
 Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
+float graphics_info_t::shadow_box_size = 66.0;
 
 float graphics_info_t::SSAO_bias = 0.1;
 float graphics_info_t::SSAO_radius = 30.0;
