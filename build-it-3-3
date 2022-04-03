@@ -2602,6 +2602,12 @@ if test -n "$build_python" ; then
         $MAKE install
      fi
    fi
+   # test it
+   echo test thew new python
+   $install_top_dir/bin/python3 <<EOF
+import ctypes
+print('post ctypes test')
+EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
    (
