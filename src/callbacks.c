@@ -21,6 +21,10 @@
  * 02110-1301, USA
  */
 
+//  get rid of this file one day, but for now....
+#if GTK_MAJOR_VERSION > 3
+
+#else
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12965,3 +12969,4 @@ on_map_properties_dialog_fresnel_power_entry_activate
 
 }
 
+#endif // GTK_MAJOR_VERSION

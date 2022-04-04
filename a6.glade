@@ -4935,6 +4935,9 @@ the Ctrl key when moving the mouse.</property>
   <object class="GtkFileChooserDialog" id="cif_dictionary_filechooser_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <signal name="delete-event" handler="on_cif_dictionary_filechooser_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="file-activated" handler="on_cif_dictionary_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_cif_dictionary_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -4982,6 +4985,10 @@ the Ctrl key when moving the mouse.</property>
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-6">cif_dictionary_filechooser_cancel_button</action-widget>
+      <action-widget response="-5">cif_dictionary_filechooser_ok_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkDialog" id="close_molecule_dialog">
     <property name="can_focus">False</property>

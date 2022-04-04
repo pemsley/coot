@@ -7100,8 +7100,7 @@ void
 on_base_chooser_A_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = widget_from_builder(
-				"nucleic_acid_base_chooser_dialog");
+   GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
    gtk_widget_hide(w);
    do_base_mutation("A");
 }
@@ -7112,8 +7111,7 @@ void
 on_base_chooser_C_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = widget_from_builder(
-				"nucleic_acid_base_chooser_dialog");
+   GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
    gtk_widget_hide(w);
    do_base_mutation("C");
 }
@@ -7124,8 +7122,7 @@ void
 on_base_chooser_G_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = widget_from_builder(
-				"nucleic_acid_base_chooser_dialog");
+   GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
    gtk_widget_hide(w);
    do_base_mutation("G");
 }
@@ -7136,8 +7133,7 @@ void
 on_base_chooser_T_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = widget_from_builder(
-				"nucleic_acid_base_chooser_dialog");
+   GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
    gtk_widget_hide(w);
    do_base_mutation("T");
 }
@@ -7148,8 +7144,7 @@ void
 on_base_chooser_U_button_clicked_gtkbuilder_callback       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = widget_from_builder(
-				"nucleic_acid_base_chooser_dialog");
+   GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
    gtk_widget_hide(w);
    do_base_mutation("U");
 }
@@ -7161,8 +7156,7 @@ on_base_chooser_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
                                         gpointer         user_data)
 {
 
-   GtkWidget *w = widget_from_builder(
-				"nucleic_acid_base_chooser_dialog");
+   GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
    gtk_widget_hide(w);
 }
 
@@ -12345,3 +12339,50 @@ on_single_map_properties_step_size_entry_key_press_event_gtkbuilder_callback (Gt
    }
    return FALSE;
 }
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_cif_dictionary_filechooser_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                      GdkEvent        *event,
+                                                                      gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_cif_dictionary_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
+                                                                        gpointer user_data) {
+
+   // 20220319-PE shouldn't need to connect to this says the documentation - hmmm.....
+   const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   read_cif_dictionary(fn);
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_cif_dictionary_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+                                                                  gint             response_id,
+                                                                  gpointer         user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      if (fnc) {
+         read_cif_dictionary(fnc);
+      }
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
