@@ -6675,8 +6675,9 @@ graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
       // all_matched = false;
       // break;
       // }
-      if (std::any_of(idkfa_pairs.begin(), idkfa_pairs.end(),
-                      [&keyboard_key_history] (const std::pair<unsigned int, int> &item) { return keyboard_key_history[item.first].gdk_key == item.second; })) {
+      // if (std::any_of(idkfa_pairs.begin(), idkfa_pairs.end(),
+      // [&keyboard_key_history] (const std::pair<unsigned int, int> &item) { return keyboard_key_history[item.first].gdk_key == item.second; })) {
+      if (true) {
          // no match
       } else {
          std::cout << "Now do something fun" << std::endl;
