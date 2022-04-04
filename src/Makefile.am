@@ -242,17 +242,16 @@ AM_CPPFLAGS = \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
+        $(GLM_CXXFLAGS)                 \
+	$(SWIG_FLAGS)			\
+	$(GTKGL_CONTEXT_CFLAGS)		\
+	@GTK_CFLAGS@ 			\
+        $(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
 	$(GUILE_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
-        $(GLM_CXXFLAGS)                 \
-	$(SWIG_FLAGS)			\
-	$(GTKGL_CONTEXT_CFLAGS)		\
-        $(GOOCANVAS_CFLAGS)             \
-	@GTK_CFLAGS@ 			\
-	$(GLUT_CFLAGS)			\
 	$(MOLTRIANGLES_CPPFLAGS)	\
 	$(LIBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\

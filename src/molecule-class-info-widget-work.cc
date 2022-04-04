@@ -191,9 +191,13 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     s.c_str(),
 			     display_sphere_radiobutton_molecule_0, NULL);
    gtk_widget_show (display_sphere_radiobutton_molecule_0);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+   std::cout << "Use GTK_GRID fill_symmetry_control_frame" << std::endl;
+#else
    gtk_table_attach (GTK_TABLE (table4), display_sphere_radiobutton_molecule_0, 0, 1, 0, 1,
 		     (GtkAttachOptions) (GTK_FILL),
 		     (GtkAttachOptions) (0), 0, 0);
+#endif
 
    display_all_radiobutton_molecule_0 = gtk_radio_button_new_with_label (symm_display_mol_0_gr_group,
 									 _("Display Near Chains"));
@@ -209,9 +213,13 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     s.c_str(),
 			     display_all_radiobutton_molecule_0, NULL);
    gtk_widget_show (display_all_radiobutton_molecule_0);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+
+#else
    gtk_table_attach (GTK_TABLE (table4), display_all_radiobutton_molecule_0, 0, 1, 1, 2,
 		     (GtkAttachOptions) (GTK_FILL),
 		     (GtkAttachOptions) (0), 0, 0);
+#endif
 
    display_CA_radiobutton_molecule_0 = gtk_radio_button_new_with_label (symm_display_mol_0_gr_group, _("Display as CAs"));
    symm_display_mol_0_gr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (display_CA_radiobutton_molecule_0));
@@ -226,9 +234,13 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     s.c_str(),
 			     display_CA_radiobutton_molecule_0, NULL);
    gtk_widget_show (display_CA_radiobutton_molecule_0);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+
+#else
    gtk_table_attach (GTK_TABLE (table4), display_CA_radiobutton_molecule_0, 0, 1, 2, 3,
 		     (GtkAttachOptions) (GTK_FILL),
 		     (GtkAttachOptions) (0), 0, 0);
+#endif
 
    colour_symm_std_molecule_0 = gtk_radio_button_new_with_label (symm_colour_mol_0_gr_group, _("Standard Colouring"));
    symm_colour_mol_0_gr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (colour_symm_std_molecule_0));
@@ -239,9 +251,13 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     s.c_str(),
 			     colour_symm_std_molecule_0, NULL);
    gtk_widget_show (colour_symm_std_molecule_0);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+
+#else
    gtk_table_attach (GTK_TABLE (table4), colour_symm_std_molecule_0, 1, 2, 0, 1,
 		     (GtkAttachOptions) (GTK_FILL),
 		     (GtkAttachOptions) (0), 0, 0);
+#endif
 
    // set the colour radiobutton
    if (symmetry_colour_by_symop_flag == 0 && symmetry_rotate_colour_map_flag == 0)
@@ -257,9 +273,13 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     s.c_str(),
 			     colour_symm_by_symop_molecule_0, NULL);
    gtk_widget_show (colour_symm_by_symop_molecule_0);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+
+#else
    gtk_table_attach (GTK_TABLE (table4), colour_symm_by_symop_molecule_0, 1, 2, 1, 2,
 		     (GtkAttachOptions) (GTK_FILL),
 		     (GtkAttachOptions) (0), 0, 0);
+#endif
 
    // set the colour radiobutton
    if (symmetry_colour_by_symop_flag)
@@ -274,9 +294,13 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     s.c_str(),
 			     colour_symm_by_molecule_molecule_0, NULL);
    gtk_widget_show (colour_symm_by_molecule_molecule_0);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+
+#else
    gtk_table_attach (GTK_TABLE (table4), colour_symm_by_molecule_molecule_0, 1, 2, 2, 3,
 		     (GtkAttachOptions) (GTK_FILL),
 		     (GtkAttachOptions) (0), 0, 0);
+#endif
 
    // set the colour radiobutton
    if (symmetry_rotate_colour_map_flag)
@@ -387,7 +411,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 
 
    //
-   hseparator11 = gtk_hseparator_new ();
+   hseparator11 = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
    // gtk_widget_ref (hseparator11);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hseparator11", hseparator11, NULL);
    gtk_widget_show (hseparator11);

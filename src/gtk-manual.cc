@@ -56,9 +56,10 @@
 /* ------------------------------------------------------------------------ */
 
 void
-on_map_color_changed(GtkWidget *w,
-		     gpointer tmd) {
+on_map_color_changed(GtkWidget *w, gpointer tmd) {
 
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#else
    struct map_colour_data_type* t = static_cast<struct map_colour_data_type*> (tmd);
    GdkColor color;
    gtk_color_selection_get_current_color(t->color_selection, &color);
@@ -67,6 +68,7 @@ on_map_color_changed(GtkWidget *w,
    map_color.green = color.green  /65535.0;;
    map_color.blue  = color.blue   /65535.0;;
    handle_map_colour_change(t->imol, map_color);
+#endif
 
 }
 
@@ -124,9 +126,10 @@ create_symmetry_colour_selection_window() {
 }
 
 
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#else
 void
-on_symmetry_color_changed(GtkWidget *w,
-			  GtkColorSelection *colorsel) {
+on_symmetry_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
    gdouble color[4];
 
    // gtk_color_selection_get_color(colorsel,color);
@@ -134,6 +137,7 @@ on_symmetry_color_changed(GtkWidget *w,
    /* we pass back the model number */
    handle_symmetry_colour_change(1,color);
 }
+#endif
 
 /*  The colour selection dialog has had its OK button pressed */
 void
@@ -258,9 +262,11 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 
 #include "c-interface-widgets.hh"
 
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+
+#else
 void
-on_skeleton_color_changed(GtkWidget *w,
-			  GtkColorSelection *colorsel) {
+on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
    gdouble color[4];
    for (int i=0; i<4; i++) color[i] = 0.0;
 
@@ -271,6 +277,7 @@ on_skeleton_color_changed(GtkWidget *w,
    /* we pass back the model number */
    handle_skeleton_colour_change(1,color);
 }
+#endif
 
 
 

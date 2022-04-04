@@ -257,8 +257,13 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data);
 
-void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
-                                                          gpointer           user_data);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+// void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection, gpointer user_data);
+  // something else here
+#else
+void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection, gpointer user_data);
+#endif
+
 void
 on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
                                        gint response_id,

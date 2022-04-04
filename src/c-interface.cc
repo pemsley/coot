@@ -2392,6 +2392,9 @@ get_map_colour(int imol) {
    return colour;
 }
 
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#else
+   // can I remove this?
 void
 on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
                                                      gpointer           user_data) {
@@ -2399,6 +2402,7 @@ on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorsel
    // this is not used now, I think
    std::cout << "colour changed" << std::endl;
 }
+#endif
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,

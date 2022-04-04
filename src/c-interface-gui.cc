@@ -4307,6 +4307,8 @@ void my_delete_menu_items(GtkWidget *widget, void *data) {
 void show_map_colour_selector(int imol) {
 
    if (is_valid_map_molecule(imol)) {
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#else
       GtkWidget *color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
       GdkRGBA map_colour = get_map_colour(imol);
       struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
@@ -4325,6 +4327,7 @@ void show_map_colour_selector(int imol) {
       gtk_widget_show(color_selection_dialog);
       g_signal_connect(color_selection_dialog, "response", G_CALLBACK(on_map_color_selection_dialog_response), map_colour_p);
       g_object_set_data(G_OBJECT(color_selection_dialog), "imol", GINT_TO_POINTER(imol));
+#endif
    }
 }
 

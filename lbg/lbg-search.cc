@@ -317,7 +317,8 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	    g_object_set_data(G_OBJECT(button), "lbg", (gpointer) this);
 
 	    GtkWidget *label  = gtk_label_new(lab.c_str());
-	    GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+	    // GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+            GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	    gtk_container_add(GTK_CONTAINER(button), button_hbox);
 	    int imol = 0; // dummy
 

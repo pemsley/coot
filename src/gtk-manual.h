@@ -65,17 +65,27 @@ on_map_col_sel_cancel_button_clicked        (GtkButton       *button,
 struct map_colour_data_type {
    int imol;
    // GtkColorChooser* color_chooser;
+#if (GTK_MAJOR_VERSION < 4)
+#if GTK_DISABLE_DEPRECATED
+   GtkColorChooser* color_chooser;
+#else
    GtkColorSelection *color_selection;
+#endif
+#else
+   GtkColorChooser* color_chooser;
+#endif
+
 };
 
 GtkWidget* create_map_colour_selection_window(struct map_colour_data_type *mcdt);
 
 
 /* Symmetry Colour */
-
-void
-on_symmetry_color_changed(GtkWidget *w,
-		 GtkColorSelection *cs);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+void on_symmetry_color_changed(GtkWidget *w, GtkColorChooser *cs);
+#else
+void on_symmetry_color_changed(GtkWidget *w, GtkColorSelection *cs);
+#endif
 
 void
 on_symm_col_sel_ok_button_clicked        (GtkButton       *button,
@@ -129,8 +139,11 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 
 GtkWidget *create_skeleton_colour_selection_window();
 
-void on_skeleton_color_changed(GtkWidget *w,
-			       GtkColorSelection *colorsel);
+#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+void on_skeleton_color_changed(GtkWidget *w, GtkColorChooser *colorsel);
+#else
+void on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel);
+#endif
 
 void on_skeleton_col_sel_ok_button_clicked (GtkButton       *button,
 					    gpointer         user_data);
