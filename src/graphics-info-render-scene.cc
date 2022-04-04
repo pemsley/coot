@@ -710,6 +710,7 @@ graphics_info_t::render_scene() {
                                  draw_hud_fps();
                    };
 
+
    // crow variable conversion
    Shader *shader_for_tmeshes_p = &shader_for_texture_meshes;
    Shader *shader_for_meshes_p  = &shader_for_meshes;

@@ -3112,10 +3112,10 @@ void set_show_unit_cells_all(short int istate) {
 
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t::molecules[imol].show_unit_cell_flag = istate;
+	 graphics_info_t::molecules[imol].set_show_unit_cell(istate);
       }
       if (is_valid_map_molecule(imol)) {
-	 graphics_info_t::molecules[imol].show_unit_cell_flag = istate;
+	 graphics_info_t::molecules[imol].set_show_unit_cell(istate);
       }
    }
 
@@ -7325,7 +7325,10 @@ run_state_file_maybe() {
 	 } else {
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog(); // uses builder
-	       gtk_widget_show(dialog);
+               if (dialog)
+                  gtk_widget_show(dialog);
+               else
+                  std::cout << "ERROR:: missing dialog" << std::endl;
 	    }
 	 }
       }

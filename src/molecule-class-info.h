@@ -885,8 +885,9 @@ public:        //                      public
 
    // Unit Cell (should be one for each molecule)
    //
-   short int show_unit_cell_flag;
-   short int have_unit_cell;
+   void set_show_unit_cell(bool state);
+   bool show_unit_cell_flag;
+   bool have_unit_cell;
    void set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag);
 
    void draw_molecule(short int do_zero_occ_spots,
@@ -1078,7 +1079,7 @@ public:        //                      public
    // void draw_unit_cell_internal(float rsc[8][3]);
 
    LinesMesh lines_mesh_for_cell;
-   void setup_unit_cell(Shader *shader_p);
+   void setup_unit_cell();
    void draw_unit_cell(Shader *shader_p, const glm::mat4 &mvp);
 
    void draw_dots(); // 20211022-PE delete this old OpenGL function

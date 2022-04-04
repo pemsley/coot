@@ -1655,13 +1655,22 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 #endif
 }
 
+
 void
-molecule_class_info_t::setup_unit_cell(Shader *shader_p) {
+molecule_class_info_t::set_show_unit_cell(bool state) {
+
+   if (state)
+      setup_unit_cell();
+   show_unit_cell_flag = state;
+
+}
+
+void
+molecule_class_info_t::setup_unit_cell() {
 
    // modify the reference
    auto setup = [] (LinesMesh &lines_mesh_for_cell,
-                    const clipper::Cell &cell,
-                    Shader *shader_p) {
+                    const clipper::Cell &cell) {
                    lines_mesh_for_cell = LinesMesh(cell);
                    lines_mesh_for_cell.setup();
                 };
@@ -1681,11 +1690,11 @@ molecule_class_info_t::setup_unit_cell(Shader *shader_p) {
                                                 clipper::Util::d2rad(mmdb_cell[3]),
                                                 clipper::Util::d2rad(mmdb_cell[4]),
                                                 clipper::Util::d2rad(mmdb_cell[5])));
-         setup(lines_mesh_for_cell, cell, shader_p);
+         setup(lines_mesh_for_cell, cell);
       }
 
       if (! xmap.is_null()) {
-         setup(lines_mesh_for_cell, xmap.cell(), shader_p);
+         setup(lines_mesh_for_cell, xmap.cell());
       }
    }
 
@@ -1695,10 +1704,13 @@ void
 molecule_class_info_t::draw_unit_cell(Shader *shader_p,
                                       const glm::mat4 &mvp) {
 
+   // 20220404-PE I can't use graphics_draw() like that - it puts coot into continuous-draw mode
+   //             setup and draw need to be untangled. Another time.
+
    if (draw_it || draw_it_for_map) {
       if (show_unit_cell_flag) { // should be draw_it_for_unit_cell
-         if (lines_mesh_for_cell.empty())
-            setup_unit_cell(shader_p);
+         // if (lines_mesh_for_cell.empty())
+         // setup_unit_cell(shader_p);
          glm::mat4 dummy(1.0f);
          lines_mesh_for_cell.draw(shader_p, mvp, dummy);
       }
@@ -1709,7 +1721,8 @@ molecule_class_info_t::draw_unit_cell(Shader *shader_p,
    // That's not right - it should be setup before this draw call.
    // setup and draw need to be untangled - but for now let's add an extra draw.
    //
-   graphics_info_t::graphics_draw();
+   // graphics_info_t::graphics_draw();
+
 
 }
 
@@ -10227,4 +10240,5 @@ molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
    }
    return status;
 }
+
 
