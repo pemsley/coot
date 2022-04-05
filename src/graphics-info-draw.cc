@@ -4925,7 +4925,9 @@ graphics_info_t::setup_key_bindings() {
 
    auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
 
-   auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); return gboolean(TRUE); };
+   auto l18 = []() { graphics_info_t g; g.clear_hud_buttons(); g.accept_moving_atoms(); return gboolean(TRUE); };
+
+   auto l18_space = []() { graphics_info_t g; if (g.hud_button_info.size()) { g.clear_hud_buttons(); g.accept_moving_atoms(); return gboolean(TRUE); } };
 
    auto l19 = []() {
                  graphics_info_t g;

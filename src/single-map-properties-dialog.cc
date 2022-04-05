@@ -283,16 +283,17 @@ on_single_map_properties_cancel_button_clicked_gtkbuilder_callback (GtkButton   
 }
 
 // This function is currently in c-interface-gui.cc - should it be there?
-void show_map_colour_selector(int imol);
+void show_map_colour_selector_with_parent(int imol, GtkWidget *parent);
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_single_map_properties_colour_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                                                    gpointer         user_data)
-{
+                                                                    gpointer         user_data) {
+
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
    // std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
-   show_map_colour_selector(imol);
+   GtkWidget *parent = GTK_WIDGET(user_data); // set in glade.
+   show_map_colour_selector_with_parent(imol, parent);
 }
 

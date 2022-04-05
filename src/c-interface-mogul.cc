@@ -191,12 +191,17 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
 void
 show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
+   // 20220405-PE 
+   std::cout << "INFO:: show_mogul_geometry_dialog() has been removed for now (GTK4 port)" << std::endl;
+
+#if 0
    if (graphics_info_t::use_graphics_interface_flag) { 
       GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue); // results table
       if (w) { 
 	 gtk_widget_show(w);
       } 
    }
+#endif
 }
 
 GtkCellRenderer *
@@ -229,7 +234,10 @@ coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
 GtkWidget
 *wrapped_create_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
-   GtkWidget *w = create_mogul_geometry_results_table_dialog(); // results table
+   // GtkWidget *w = create_mogul_geometry_results_table_dialog(); // results table
+   GtkWidget *w = widget_from_builder("mogul_geometry_results_table_dialog"); // results table
+
+   if (! w) return 0;
 
    if (residue) { 
 

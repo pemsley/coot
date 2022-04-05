@@ -4262,29 +4262,29 @@ void set_map_colour(int imol, float red, float green, float blue) {
 }
 
 
-void add_on_map_colour_choices(GtkWidget *menu) {
+// void add_on_map_colour_choices(GtkWidget *menu) {
 
-   // GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
-   // GtkWidget *sub_menu = widget_from_builder(sub_menu_name); // No, because it's dynamically added
-   //                                                           // in create_initial_map_color_submenu()
+//    // GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
+//    // GtkWidget *sub_menu = widget_from_builder(sub_menu_name); // No, because it's dynamically added
+//    //                                                           // in create_initial_map_color_submenu()
 
-   GtkWidget *sub_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu));
-   if (!sub_menu) {
-      std::cout << "ERROR:: in add_on_map_colour_choices() sub menu map_colour1_menu not found in add_on_map_colour_choices()\n";
-   } else {
-      gtk_container_foreach(GTK_CONTAINER(sub_menu),
-                            my_delete_menu_items,
-                            (gpointer) sub_menu);
-      GCallback callback = G_CALLBACK(map_colour_mol_selector_activate);
-      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-         if (graphics_info_t::molecules[imol].has_xmap() ||
-             graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME
-            std::string name = graphics_info_t::molecules[imol].dotted_chopped_name();
-            add_map_colour_mol_menu_item(imol, name, sub_menu, callback);
-         }
-      }
-   }
-}
+//    GtkWidget *sub_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu));
+//    if (!sub_menu) {
+//       std::cout << "ERROR:: in add_on_map_colour_choices() sub menu map_colour1_menu not found in add_on_map_colour_choices()\n";
+//    } else {
+//       gtk_container_foreach(GTK_CONTAINER(sub_menu),
+//                             my_delete_menu_items,
+//                             (gpointer) sub_menu);
+//       GCallback callback = G_CALLBACK(map_colour_mol_selector_activate);
+//       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+//          if (graphics_info_t::molecules[imol].has_xmap() ||
+//              graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME
+//             std::string name = graphics_info_t::molecules[imol].dotted_chopped_name();
+//             add_map_colour_mol_menu_item(imol, name, sub_menu, callback);
+//          }
+//       }
+//    }
+// }
 
 void
 add_map_colour_mol_menu_item(int imol, const std::string &name,
@@ -4304,20 +4304,16 @@ void my_delete_menu_items(GtkWidget *widget, void *data) {
 }
 
 
-void show_map_colour_selector(int imol) {
+void show_map_colour_selector_with_parent(int imol, GtkWidget *parent_window) {
 
    if (is_valid_map_molecule(imol)) {
 #if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-      GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Map Colour Selection");
+      GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Map Colour Selection", GTK_WINDOW(parent_window));
       GdkRGBA map_colour = get_map_colour(imol);
       struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
       map_colour_data->imol = imol;
-      *map_colour_p = map_colour;
-      GdkColor map_gdk_color;      /* old style used by the Color Selection  */
-      map_gdk_color.red   = map_colour.red;
-      map_gdk_color.green = map_colour.green;
-      map_gdk_color.blue  = map_colour.blue;
-      // gtk_color_chooser_set_rgba());
+      GdkRGBA *map_colour_p = new GdkRGBA(map_colour);
+      gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_chooser_dialog), map_colour_p);
       gtk_widget_show(colour_chooser_dialog);
 #else
       GtkWidget *color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
@@ -4343,13 +4339,16 @@ void show_map_colour_selector(int imol) {
 }
 
 
-void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
-				       gpointer         user_data) {
+// where is this called from?
 
-   int imol = GPOINTER_TO_INT(user_data);
-   show_map_colour_selector(imol);
+// void map_colour_mol_selector_activate(GtkMenuItem     *menuitem,
+//                                       gpointer         user_data) {
 
-}
+//    int imol = GPOINTER_TO_INT(user_data);
+//    show_map_colour_selector(imol);
+
+// }
+
 
 // ---------------------------------------------------------
 // Scroll wheel, similar

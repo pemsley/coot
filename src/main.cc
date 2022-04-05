@@ -264,87 +264,6 @@ make_main_window_title() {
    return main_title;
 }
 
-void do_main_window(const command_line_data &cld) {
-
-   GtkWidget *window1 = create_window1();
-
-   graphics_info_t::set_main_window(window1);
-
-   if (true) {
-      std::string version_string = VERSION;
-      std::string main_title = "Coot " + version_string;
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-      main_title += " EL";
-#endif
-
-#ifdef COOT_MAIN_TITLE_EXTRA
-      main_title += COOT_MAIN_TITLE_EXTRA;
-#else
-      // if this is a pre-release, stick in the revision number too
-      if (version_string.find("-pre") != std::string::npos) {
-	 main_title += " (revision count ";
-	 main_title += coot::util::int_to_string(git_revision_count());
-	 main_title += ")";
-      }
-#endif
-
-#ifdef WINDOWS_MINGW
-      main_title = "Win" + main_title;
-#endif
-
-      GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar"); // in do_main_window()
-      gtk_widget_show(model_toolbar);
-
-      gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
-      GtkWidget *vbox = lookup_widget(window1, "main_window_vbox"); // in do_main_window()
-      // make this a grid, so that we can have 2x3 (say) graphics contexts
-      GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox"); // in do_main_window()
-
-      GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, false);
-      my_glarea_add_signals_and_events(glarea);
-      graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
-      
-      if (true) {
-	 // application icon:
-	 setup_application_icon(GTK_WINDOW(window1));
-	 // adjust screen size settings
-	 int small_screen = setup_screen_size_settings();
-
-         // this needs to be fixed. I don't want to touch cld in this function.
-         // Perhaps this function should return a flag for the small screen state?
-         // or set something in graphics_info_t?
-         //
-	 // if (!cld.small_screen_display)
-         //    cld.small_screen_display = small_screen;
-
-	 gtk_widget_show(glarea);
-
-         // other. Surely this never happens?
-	 if (graphics_info_t::glareas.size() > 1)
-	    gtk_widget_show(graphics_info_t::glareas[1]);
-
-	 // and setup (store) the status bar
-	 GtkWidget *sb = lookup_widget(window1, "main_window_statusbar"); // in do_main_window()
-	 graphics_info_t::statusbar = sb;
-	 graphics_info_t::statusbar_context_id =
-	    gtk_statusbar_get_context_id(GTK_STATUSBAR(sb), "picked atom info");
-
-	 gtk_widget_show (window1);
-
-         create_dynamic_menus(window1);
-
-         // OK, now we can import the python coot_gui and extensions
-         import_python_module("coot_gui",   0);
-         import_python_module("populate_python_menus", 0);
-
-      } else {
-	 std::cout << "CATASTROPHIC ERROR:: failed to create Gtk GL widget"
-		   << "  (Check that your X11 server is working and has (at least)"
-		   << "  \"Thousands of Colors\" and supports GLX.)" << std::endl;
-      }
-   }
-}
-
 int
 do_self_tests() {
 
@@ -463,7 +382,7 @@ bool init_from_gtkbuilder() {
 
 // This main is used for both python/guile useage and unscripted.
 int
-main (int argc, char *argv[]) {
+main(int argc, char *argv[]) {
 
    int shell_exit_code = 0;
    GtkWidget *window1 = NULL;
@@ -539,10 +458,6 @@ main (int argc, char *argv[]) {
       if (cld.use_gtkbuilder)
          old_way_flag = false;
 
-      if (! cld.use_gtkbuilder) {
-         do_main_window(cld);
-      }
-
       setup_pixmap_directory();
 
       if (cld.use_gtkbuilder) {
@@ -558,12 +473,12 @@ main (int argc, char *argv[]) {
 
             // We need to connect the submenu to the menus (which are
             // accessible via window1)
-            GtkWidget *main_window = widget_from_builder("main_window");
-            create_initial_map_color_submenu(main_window);
-            // create_initial_ramachandran_mol_submenu(main_window);
-            //  create_initial_sequence_view_mol_submenu(main_window);
+            // GtkWidget *main_window = widget_from_builder("main_window");
 
-            // std::cout << "------------------------- calling setup_python" << std::endl;
+            // create_initial_map_color_submenu(main_window);
+            // create_initial_ramachandran_mol_submenu(main_window);
+            // create_initial_sequence_view_mol_submenu(main_window);
+
             setup_python(argc, argv);
          } else {
             std::cout << "WARNING:: init_from_gtkbuilder() failed " << std::endl;

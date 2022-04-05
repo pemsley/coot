@@ -21,8 +21,10 @@
  * 02110-1301, USA
  */
 
+// #define GTK_DISABLE_DEPRECATED true
+
 //  get rid of this file one day, but for now....
-#if GTK_MAJOR_VERSION > 3
+#if (GTK_MAJOR_VERSION >= 4) || GTK_DISABLE_DEPRECATED == true
 
 #else
 
@@ -500,7 +502,7 @@ on_map_colour1_activate                (GtkMenuItem     *menuitem,
 {
   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "rotamer_analysis1");
   if (menu) {
-    add_on_map_colour_choices(menu);
+    /* add_on_map_colour_choices(menu); */
   } else {
     printf("ERROR:: failed to get menu in on_map_colour1_activate\n");
   }

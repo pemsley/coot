@@ -548,7 +548,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <signal name="clicked" handler="on_single_map_properties_colour_button_clicked_gtkbuilder_callback" swapped="no"/>
+                        <signal name="clicked" handler="on_single_map_properties_colour_button_clicked_gtkbuilder_callback" object="single_map_properties_dialog" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>

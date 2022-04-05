@@ -432,23 +432,24 @@ on_dragged_map1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    gtk_widget_show(active_map_window);
 }
 
+// Draw -> Map Colour has been removed.
+//
+// extern "C" G_MODULE_EXPORT
+// void
+// on_map_colour1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+//                                              gpointer         user_data)
+// {
+//    // GtkWidget *menu = widget_from_builder("rotamer_analysis1");
 
-extern "C" G_MODULE_EXPORT
-void
-on_map_colour1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
-                                             gpointer         user_data)
-{
-   // GtkWidget *menu = widget_from_builder("rotamer_analysis1");
+//    //std::cout << "::::::::::::::::::::::::: on_map_colour1_activate_gtkbuilder_callback() " << std::endl;
 
-   //std::cout << "::::::::::::::::::::::::: on_map_colour1_activate_gtkbuilder_callback() " << std::endl;
-
-   GtkWidget *menu = widget_from_builder("map_colour1");
-   if (menu) {
-      add_on_map_colour_choices(menu);
-   } else {
-      printf("ERROR:: failed to get map_colour1 menu in on_map_colour1_activate\n");
-   }
-}
+//    GtkWidget *menu = widget_from_builder("map_colour1");
+//    if (menu) {
+//       add_on_map_colour_choices(menu);
+//    } else {
+//       printf("ERROR:: failed to get map_colour1 menu in on_map_colour1_activate\n");
+//    }
+// }
 
 extern "C" G_MODULE_EXPORT
 void
@@ -7667,114 +7668,7 @@ on_symmetry_controller_ok_button_clicked_gtkbuilder_callback
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_molecule_0_checkbutton_toggled_gtkbuilder_callback      (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
 
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton))
-    set_show_symmetry_molecule(imol, 1);
-  else
-    set_show_symmetry_molecule(imol, 0);
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_display_sphere_radiobutton_molecule_0_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_symmetry_whole_chain(imol, 0);
-    symmetry_as_calphas(imol, 0); /* does an update_symmetry() */
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_display_all_radiobutton_molecule_0_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    symmetry_as_calphas(imol, 0);
-    set_symmetry_whole_chain(imol, 1);
-/*   } else { */
-/*     symmetry_as_calphas(imol, 1); */
-/*     printf("DEBUG:: all for molecule %d CA state 1\n", imol); */
-   }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_display_CA_radiobutton_molecule_0_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
-     symmetry_as_calphas(imol, 1);
-/*  } else { */
-/*     printf("DEBUG:: CA for molecule %d CA state 0\n", imol); */
-/*     symmetry_as_calphas(imol, 0); */
-  } /* the off toggle of this button is deal with by the active state
-       of other radio buttons. */
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_colour_symm_std_molecule_0_toggled_gtkbuilder_callback  (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_symmetry_colour_by_symop(imol, 0);
-    set_symmetry_molecule_rotate_colour_map(imol, 0);
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_colour_symm_by_symop_molecule_0_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_symmetry_molecule_rotate_colour_map(imol, 1); /* yes, I mean this */
-    set_symmetry_colour_by_symop(imol, 1);
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_colour_symm_by_molecule_molecule_0_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_symmetry_colour_by_symop(imol, 0);
-    set_symmetry_molecule_rotate_colour_map(imol, 1);
-  }
-}
 
 
 extern "C" G_MODULE_EXPORT
@@ -7785,67 +7679,6 @@ on_show_symmetry_molecule_control_button_clicked_gtkbuilder_callback
 {
   GtkWidget *w = symmetry_molecule_controller_dialog();
   gtk_widget_show(w);
-}
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  int imol = GPOINTER_TO_INT(user_data);
-  int state = 0;
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    state = 1;
-    make_ncs_ghosts_maybe(imol);
-  }
-  /*    printf("NCS_controller Display NCS ghosts for imol %d %d\n", imol, state); */
-  set_draw_ncs_ghosts(imol, state);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   int imol_chain = GPOINTER_TO_INT(user_data);
-   int imol = imol_chain/1000;
-   int ich = imol_chain - imol*1000;
-   int state = 0;
-   if (gtk_toggle_button_get_active(togglebutton)) {
-     state = 1;
-   }
-   printf("\nNCS_controller display chain toggled for imol %d chain %d state %d\n",
-	  imol, ich, state);
-   ncs_control_display_chain(imol, ich, state);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   GtkWidget *w = widget_from_builder("ncs_control_dialog");
-   int imol_chain = GPOINTER_TO_INT(user_data);
-   int imol = imol_chain/1000;
-   int ich = imol_chain - imol*1000;
-/*    printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n",  */
-/* 	  imol, gtk_toggle_button_get_active(ich, togglebutton)); */
-   if (gtk_toggle_button_get_active(togglebutton)) {
-/*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
-/* 	    imol_chain, imol, ich); */
-
-/*      ncs_control_change_ncs_master_to_chain(imol, ich); (done in the following function) */
-
-     ncs_control_change_ncs_master_to_chain_update_widget(w, imol, ich);
-   }
 }
 
 

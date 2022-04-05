@@ -36,6 +36,8 @@
 			// function, not in globjects.hh
 
 #include "widget-from-builder.hh"
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 
 extern "C" {
 #include "callbacks.h"
@@ -51,6 +53,166 @@ molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 {
    // or maybe not.
 }
+
+
+
+
+// extern "C" G_MODULE_EXPORT
+void
+on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  int state = 0;
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    state = 1;
+    make_ncs_ghosts_maybe(imol);
+  }
+  /*    printf("NCS_controller Display NCS ghosts for imol %d %d\n", imol, state); */
+  set_draw_ncs_ghosts(imol, state);
+}
+
+
+void
+on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   int imol_chain = GPOINTER_TO_INT(user_data);
+   int imol = imol_chain/1000;
+   int ich = imol_chain - imol*1000;
+   int state = 0;
+   if (gtk_toggle_button_get_active(togglebutton)) {
+     state = 1;
+   }
+   printf("\nNCS_controller display chain toggled for imol %d chain %d state %d\n",
+	  imol, ich, state);
+   ncs_control_display_chain(imol, ich, state);
+}
+
+
+void
+on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = widget_from_builder("ncs_control_dialog");
+   int imol_chain = GPOINTER_TO_INT(user_data);
+   int imol = imol_chain/1000;
+   int ich = imol_chain - imol*1000;
+/*    printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n",  */
+/* 	  imol, gtk_toggle_button_get_active(ich, togglebutton)); */
+   if (gtk_toggle_button_get_active(togglebutton)) {
+/*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
+/* 	    imol_chain, imol, ich); */
+
+/*      ncs_control_change_ncs_master_to_chain(imol, ich); (done in the following function) */
+
+     ncs_control_change_ncs_master_to_chain_update_widget(w, imol, ich);
+   }
+}
+
+
+void
+on_molecule_0_checkbutton_toggled_gtkbuilder_callback      (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton))
+    set_show_symmetry_molecule(imol, 1);
+  else
+    set_show_symmetry_molecule(imol, 0);
+
+}
+
+void
+on_colour_symm_std_molecule_0_toggled_gtkbuilder_callback  (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    set_symmetry_colour_by_symop(imol, 0);
+    set_symmetry_molecule_rotate_colour_map(imol, 0);
+  }
+}
+
+void
+on_display_sphere_radiobutton_molecule_0_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    set_symmetry_whole_chain(imol, 0);
+    symmetry_as_calphas(imol, 0); /* does an update_symmetry() */
+  }
+}
+
+
+void
+on_display_all_radiobutton_molecule_0_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    symmetry_as_calphas(imol, 0);
+    set_symmetry_whole_chain(imol, 1);
+/*   } else { */
+/*     symmetry_as_calphas(imol, 1); */
+/*     printf("DEBUG:: all for molecule %d CA state 1\n", imol); */
+   }
+}
+
+void
+on_colour_symm_by_symop_molecule_0_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    set_symmetry_molecule_rotate_colour_map(imol, 1); /* yes, I mean this */
+    set_symmetry_colour_by_symop(imol, 1);
+  }
+}
+
+void
+on_display_CA_radiobutton_molecule_0_toggled_gtkbuilder_callback
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+     symmetry_as_calphas(imol, 1);
+  }
+}
+
+void
+on_colour_symm_by_molecule_molecule_0_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                  gpointer         user_data) {
+
+  int imol = GPOINTER_TO_INT(user_data);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    set_symmetry_colour_by_symop(imol, 0);
+    set_symmetry_molecule_rotate_colour_map(imol, 1);
+  }
+}
+
+
+
+
+
+
+
+
 
 void
 molecule_class_info_t::handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag) {
@@ -306,26 +468,29 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    if (symmetry_rotate_colour_map_flag)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(colour_symm_by_molecule_molecule_0), TRUE);
 
+   // 20220405-PE Porting to GTK4:
+   // these callbacks are in glade-callbacks.cc - that's unusual and required glade-callbacks.hh
+
    g_signal_connect (G_OBJECT (molecule_0_checkbutton), "toggled",
-		       G_CALLBACK (on_molecule_0_checkbutton_toggled),
+		       G_CALLBACK (on_molecule_0_checkbutton_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
    g_signal_connect (G_OBJECT (display_sphere_radiobutton_molecule_0), "toggled",
-		       G_CALLBACK (on_display_sphere_radiobutton_molecule_0_toggled),
+		       G_CALLBACK (on_display_sphere_radiobutton_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
    g_signal_connect (G_OBJECT (display_all_radiobutton_molecule_0), "toggled",
-		       G_CALLBACK (on_display_all_radiobutton_molecule_0_toggled),
+		       G_CALLBACK (on_display_all_radiobutton_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
    g_signal_connect (G_OBJECT (display_CA_radiobutton_molecule_0), "toggled",
-		       G_CALLBACK (on_display_CA_radiobutton_molecule_0_toggled),
+		       G_CALLBACK (on_display_CA_radiobutton_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
    g_signal_connect (G_OBJECT (colour_symm_std_molecule_0), "toggled",
-		       G_CALLBACK (on_colour_symm_std_molecule_0_toggled),
+		       G_CALLBACK (on_colour_symm_std_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
    g_signal_connect (G_OBJECT (colour_symm_by_symop_molecule_0), "toggled",
-		       G_CALLBACK (on_colour_symm_by_symop_molecule_0_toggled),
+		       G_CALLBACK (on_colour_symm_by_symop_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
    g_signal_connect (G_OBJECT (colour_symm_by_molecule_molecule_0), "toggled",
-		       G_CALLBACK (on_colour_symm_by_molecule_molecule_0_toggled),
+		       G_CALLBACK (on_colour_symm_by_molecule_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
 
    gtk_widget_show(molecule_0_frame);
@@ -482,7 +647,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 	// 		    _("Show this chain as a ghost chain?"), NULL);
       g_signal_connect (G_OBJECT (ncs_controller_molecule_n_display_chain_ich_checkbutton),
 			  "toggled",
-			  G_CALLBACK (on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled),
+			  G_CALLBACK (on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled_gtkbuilder_callback),
 			  GINT_TO_POINTER(imol_no*1000 + ich));
 
       // we set the Displayed ghost chain to insensitive if it is the
@@ -555,7 +720,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 	// 		    _("The chain to which operators and ghosts are generated from other chains"), NULL);
       g_signal_connect (G_OBJECT (ncs_controller_ncs_master_chain_ich_radiobutton),
 			  "toggled",
-			  G_CALLBACK (on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled),
+			  G_CALLBACK (on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled_gtkbuilder_callback),
 			  GINT_TO_POINTER(imol_no*1000 + ich));
 
       if (chain_str == master) {
@@ -565,7 +730,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 
    g_signal_connect (G_OBJECT (ncs_controller_molecule_n_display_ncs_checkbutton),
 		       "toggled",
-		       G_CALLBACK (on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled),
+		       G_CALLBACK (on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
 
    gtk_widget_show(frame_molecule_N);
