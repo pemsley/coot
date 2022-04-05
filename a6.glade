@@ -12862,15 +12862,6 @@ Do you want to continue?
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkMenuItem" id="povray1">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Povray...</property>
-                                    <property name="use_underline">True</property>
-                                    <signal name="activate" handler="on_povray1_activate_gtkbuilder_callback" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
                                   <object class="GtkMenuItem" id="raster3d1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -24824,6 +24815,10 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   <object class="GtkFileChooserDialog" id="screendump_filechooser_dialog">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <property name="action">save</property>
+    <signal name="delete-event" handler="on_screendump_filechooser_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="file-activated" handler="on_screendump_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
+    <signal name="response" handler="on_screendump_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -24834,8 +24829,8 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">button</property>
+              <object class="GtkButton" id="button14">
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -24847,8 +24842,8 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Ugh</property>
+              <object class="GtkButton" id="button15">
+                <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -24871,6 +24866,10 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-6">button14</action-widget>
+      <action-widget response="-5">button15</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkDialog" id="select_fitting_map_dialog">
     <property name="can_focus">False</property>

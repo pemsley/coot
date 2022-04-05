@@ -4308,6 +4308,17 @@ void show_map_colour_selector(int imol) {
 
    if (is_valid_map_molecule(imol)) {
 #if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+      GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Map Colour Selection");
+      GdkRGBA map_colour = get_map_colour(imol);
+      struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
+      map_colour_data->imol = imol;
+      *map_colour_p = map_colour;
+      GdkColor map_gdk_color;      /* old style used by the Color Selection  */
+      map_gdk_color.red   = map_colour.red;
+      map_gdk_color.green = map_colour.green;
+      map_gdk_color.blue  = map_colour.blue;
+      // gtk_color_chooser_set_rgba());
+      gtk_widget_show(colour_chooser_dialog);
 #else
       GtkWidget *color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
       GdkRGBA map_colour = get_map_colour(imol);

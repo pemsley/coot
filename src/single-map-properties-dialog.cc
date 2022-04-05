@@ -250,3 +250,49 @@ on_single_map_properties_dialog_response_gtkbuilder_callback (GtkDialog *dialog,
    gtk_widget_destroy(GTK_WIDGET(dialog));
 }
 
+#include "gtk-manual.h"
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+
+extern "C" G_MODULE_EXPORT
+void
+on_single_map_properties_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
+                                                                gpointer         user_data) {
+
+   GtkWidget *window = widget_from_builder("single_map_properties_dialog");
+
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
+
+  if (is_valid_map_molecule(imol)) {
+    set_contour_by_sigma_step_maybe(window, imol);
+    skeletonize_map_single_map_maybe(window, imol);
+  }
+  gtk_widget_hide(window);
+
+}
+
+/* Not sure that this exists any more... */
+extern "C" G_MODULE_EXPORT
+void
+on_single_map_properties_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
+						gpointer         user_data)
+{
+  GtkWidget *window = widget_from_builder("single_map_properties_dialog");
+  gtk_widget_hide(window);
+
+}
+
+// This function is currently in c-interface-gui.cc - should it be there?
+void show_map_colour_selector(int imol);
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_single_map_properties_colour_button_clicked_gtkbuilder_callback (GtkButton       *button,
+                                                                    gpointer         user_data)
+{
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+   // std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
+   show_map_colour_selector(imol);
+}
+

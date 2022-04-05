@@ -177,6 +177,7 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
 identify_protein_bin_SOURCES = identify-protein.cc
 
 identify_protein_bin_LDADD = ./libcoot-ligand.la          \
+	$(top_builddir)/ideal/libcoot-ideal.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \

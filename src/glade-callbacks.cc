@@ -3741,50 +3741,6 @@ on_model_refine_dialog_refmac_button_clicked_gtkbuilder_callback (GtkButton     
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_single_map_properties_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                                                gpointer         user_data) {
-
-   GtkWidget *window = widget_from_builder("single_map_properties_dialog");
-
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
-
-  if (is_valid_map_molecule(imol)) {
-    set_contour_by_sigma_step_maybe(window, imol);
-    skeletonize_map_single_map_maybe(window, imol);
-  }
-  gtk_widget_hide(window);
-
-}
-
-/* Not sure that this exists any more... */
-extern "C" G_MODULE_EXPORT
-void
-on_single_map_properties_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
-						gpointer         user_data)
-{
-  GtkWidget *window = widget_from_builder("single_map_properties_dialog");
-  gtk_widget_hide(window);
-
-}
-
-#include "gtk-manual.h"
-
-// This function is currently in c-interface-gui.cc - should it be there?
-void show_map_colour_selector(int imol);
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_single_map_properties_colour_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                                                    gpointer         user_data)
-{
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-   // std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
-   show_map_colour_selector(imol);
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -7568,17 +7524,20 @@ on_model_refine_dialog_do_180_degree_sidechain_flip_togglebutton_toggled_gtkbuil
 
 extern "C" G_MODULE_EXPORT
 void
-on_simple1_activate_gtkbuilder_callback                    (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *fileselection = coot_screendump_chooser();
-   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
-   g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
+on_simple1_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+
+   GtkWidget *file_chooser = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser);
    /*    set_directory_for_fileselection(fileselection); */
    /*    set_filename_for_filechooserselection(fileselection, "coot.png"); */
    /*    set_file_selection_dialog_size(fileselection); */
-   add_ccp4i_project_optionmenu(fileselection, COOT_IMAGE_FILE_SELECTION);
-   gtk_widget_show(fileselection);
+
+   g_object_set_data(G_OBJECT(file_chooser), "image_type", GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
+
+   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), "coot-screendump.tga");
+
+   gtk_widget_show(file_chooser);
 
    check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
 
@@ -7595,9 +7554,6 @@ on_povray1_activate_gtkbuilder_callback                    (GtkMenuItem     *men
    set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
    /*    set_directory_for_fileselection(fileselection); */
-   /*    set_filename_for_filechooserselection(fileselection, "coot-povray"); */
-   /*    set_file_selection_dialog_size(fileselection); */
-   add_ccp4i_project_optionmenu(fileselection, COOT_IMAGE_FILE_SELECTION);
    gtk_widget_show(fileselection);
 }
 
@@ -7608,15 +7564,11 @@ on_raster3d1_activate_gtkbuilder_callback                  (GtkMenuItem     *men
                                         gpointer         user_data)
 {
 
-   GtkWidget *fileselection = coot_screendump_chooser();
-   set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
-   g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
-   /*    set_directory_for_fileselection(fileselection); */
-   /*    set_filename_for_filechooserselection(fileselection, "coot.png"); */
-   set_file_selection_dialog_size(fileselection);
-   add_ccp4i_project_optionmenu(fileselection,
-                                COOT_IMAGE_FILE_SELECTION);
-   gtk_widget_show(fileselection);
+   GtkWidget *file_chooser = coot_screendump_chooser();
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser);
+   g_object_set_data(G_OBJECT(file_chooser), "image_type", GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
+   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), "coot-screendump.png.r3d");
+   gtk_widget_show(file_chooser);
 }
 
 
@@ -7983,6 +7935,17 @@ on_ncs_ghost_control1_activate_gtkbuilder_callback         (GtkMenuItem     *men
 {
    GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
    gtk_widget_show(w);
+}
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_ncs_control_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                       GdkEvent        *event,
+                                                       gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
 }
 
 
@@ -8721,12 +8684,15 @@ on_save_state_fileselection_destroy_gtkbuilder_callback    (GtkWidget       *obj
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_screendump_fileselection_destroy_gtkbuilder_callback    (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
+gboolean
+on_screendump_filechooser_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                  GdkEvent        *event,
+                                                                  gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
 }
+
 
 extern "C" G_MODULE_EXPORT
 void
@@ -9800,19 +9766,15 @@ on_save_state_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget * object
 
 
 GtkFileChooserConfirmation
-on_screendump_filechooserdialog1_confirm_overwrite_gtkbuilder_callback
+on_screendump_filechooser_dialog_confirm_overwrite_gtkbuilder_callback
 					(GtkFileChooser * filechooser,
 					gpointer user_data)
 {
 
   if (file_chooser_overwrite_state() == 1) {
-
     return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
-
   } else {
-
     return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
-
   }
 
 }
@@ -9820,17 +9782,38 @@ on_screendump_filechooserdialog1_confirm_overwrite_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_screendump_filechooserdialog1_response_gtkbuilder_callback (GtkDialog * dialog,
-					gint response_id,
-					gpointer user_data)
-{
+on_screendump_filechooser_dialog_response_gtkbuilder_callback (GtkDialog * dialog,
+                                                               gint response_id,
+                                                               gpointer user_data) {
 
-  if (response_id == GTK_RESPONSE_OK) {
+   GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
+   if (response_id == GTK_RESPONSE_OK) {
 
-   GtkWidget *fileselection = widget_from_builder(
-					    "screendump_filechooserdialog1");
-   int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(fileselection), "image_type"));
-   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+      int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(file_chooser), "image_type"));
+      const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser));
+
+      if (image_type == COOT_SCREENDUMP_SIMPLE) {
+         screendump_tga(filename);
+      }
+      if (image_type == COOT_SCREENDUMP_POVRAY) { // I doubt that this will ever work again.
+         make_image_povray(filename);
+      }
+      if (image_type == COOT_SCREENDUMP_RASTER3D) {
+         make_image_raster3d(filename);
+      }
+   }
+   gtk_widget_hide(file_chooser);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_screendummp_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
+                                                                        gpointer user_data) {
+
+   GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
+   int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(file_chooser), "image_type"));
+   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser));
 
    if (image_type == COOT_SCREENDUMP_SIMPLE) {
       screendump_image(filename);
@@ -9841,18 +9824,11 @@ on_screendump_filechooserdialog1_response_gtkbuilder_callback (GtkDialog * dialo
    if (image_type == COOT_SCREENDUMP_RASTER3D) {
       make_image_raster3d(filename);
    }
-   gtk_widget_hide(fileselection);
-
-  } else {
-    GtkWidget *fileselection = widget_from_builder(
-                                                "screendump_filechooserdialog1");
-
-    gtk_widget_hide(fileselection);
-  }
-
+   gtk_widget_hide(file_chooser);
 }
 
 
+// not used now?
 extern "C" G_MODULE_EXPORT
 void
 on_screendump_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget * object,
@@ -9860,8 +9836,7 @@ on_screendump_filechooserdialog1_destroy_gtkbuilder_callback (GtkWidget * object
 {
 
   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
-  GtkWidget *fileselection = widget_from_builder(
-                                                "screendump_filechooserdialog1");
+  GtkWidget *fileselection = widget_from_builder("screendump_filechooserdialog1");
 
   gtk_widget_hide(fileselection);
 }

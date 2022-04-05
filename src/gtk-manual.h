@@ -52,27 +52,22 @@ on_map_color_changed(GtkWidget *w,   gpointer tmd);
 /* 		 GtkColorSelection *cs); */
 
 void
-on_map_col_sel_ok_button_clicked        (GtkButton       *button,
-				     gpointer         user_data);
+on_map_col_sel_ok_button_clicked(GtkButton       *button,
+                                 gpointer         user_data);
 
 void
-on_map_col_sel_cancel_button_clicked        (GtkButton       *button,
-					 gpointer         *tmd);
+on_map_col_sel_cancel_button_clicked(GtkButton       *button,
+                                     gpointer         *tmd);
 
 
 /* Map Colour */
 
 struct map_colour_data_type {
    int imol;
-   // GtkColorChooser* color_chooser;
-#if (GTK_MAJOR_VERSION < 4)
-#if GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION >= 4) || GTK_DISABLE_DEPRECATED
    GtkColorChooser* color_chooser;
 #else
    GtkColorSelection *color_selection;
-#endif
-#else
-   GtkColorChooser* color_chooser;
 #endif
 
 };
@@ -88,12 +83,12 @@ void on_symmetry_color_changed(GtkWidget *w, GtkColorSelection *cs);
 #endif
 
 void
-on_symm_col_sel_ok_button_clicked        (GtkButton       *button,
-				     gpointer         user_data);
+on_symm_col_sel_ok_button_clicked(GtkButton       *button,
+                                  gpointer         user_data);
 
 void
-on_symm_col_sel_cancel_button_clicked        (GtkButton       *button,
-					 gpointer         user_data);
+on_symm_col_sel_cancel_button_clicked(GtkButton       *button,
+                                      gpointer         user_data);
 
 GtkWidget *
 create_symmetry_colour_selection_window();

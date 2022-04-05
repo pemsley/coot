@@ -30,7 +30,9 @@ void set_framebuffer_scale_factor(unsigned int sf) {
 
 void screendump_tga_internal(std::string tga_file,
                              int widget_width, int widget_height, int image_scale_factor,
-                             unsigned int framebuffer_obj) { // care: pass by reference
+                             unsigned int framebuffer_obj) {
+
+   std::cout << "----------------- screendump_tga_internal() --- start ---" << std::endl;
 
    GLenum err = glGetError();
    if (err) std::cout << "error:: screendump_tga_internal() start " << err << std::endl;

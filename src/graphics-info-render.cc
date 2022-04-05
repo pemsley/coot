@@ -1200,9 +1200,13 @@ graphics_info_t::dump_a_movie_image() {
 }
 
 
+#include "cc-interface.hh"
+
 // static
 int
-graphics_info_t::screendump_image(const std::string &file_name) {
+graphics_info_t::screendump_image(const std::string &file_name_in) {
+
+#if 0
 
    GLint viewport[4];
    glGetIntegerv(GL_VIEWPORT, viewport);
@@ -1227,4 +1231,15 @@ graphics_info_t::screendump_image(const std::string &file_name) {
    }
    delete [] pixels; // does iinfo copy the data or the pointer? possible crash.
    return istatus;
+
+#endif
+
+   std::string file_name(file_name_in);
+   std::string ext = coot::util::file_name_extension(file_name);
+   if (ext != ".tga")
+      file_name += ".tga";
+
+   screendump_tga(file_name);
+   return 1;
+
 }
