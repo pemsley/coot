@@ -2374,9 +2374,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
       if (draw_it == 1) {
          if (true) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
             if (! molrepinsts.size()) {
-#endif
 #endif
           deuterium_spots();
           if (do_zero_occ_spots)
@@ -2386,7 +2384,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
           if (show_ghosts_flag) {
              if (ncs_ghosts.size() > 0) {
                 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-                   display_ghost_bonds(ighost);
+                   draw_ghost_bonds(ighost);
                 }
              }
           }
@@ -2394,9 +2392,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
              draw_cis_peptide_markups();
           draw_bad_CA_CA_dist_spots();
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
             }
-#endif
 #endif
          }
       }
@@ -2535,9 +2531,8 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
 }
 
 void
-molecule_class_info_t::display_ghost_bonds(int ighost) {
+molecule_class_info_t::draw_ghost_bonds(int ighost) {
 
-   std::cout << "old code FIXME in display_ghost_bonds() " << std::endl;
 #if 0
    // hack in a value
    bool against_a_dark_background = true;
@@ -2545,11 +2540,10 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
          glLineWidth(ghost_bond_width);
-         int c;
          for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
             mmdb::Atom *at = atom_sel.atom_selection[i];
             std::string ele(at->element);
-            c = get_atom_colour_from_element(ele);
+            int c = get_atom_colour_from_element(ele);
             if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
                set_bond_colour_by_mol_no(ighost, against_a_dark_background);
             glBegin(GL_LINES);
@@ -2566,6 +2560,20 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
       }
    }
 #endif
+
+   if (ighost<int(ncs_ghosts.size())) {
+      if (ncs_ghosts[ighost].display_it_flag) {
+         Shader *shader_p = &graphics_info_t::shader_for_meshes_with_shadows;
+         glm::mat4 mvp = graphics_info_t::get_molecule_mvp();
+         glm::mat4 model_rotation_matrix = graphics_info_t::get_model_rotation();
+         glm::vec4 background_colour = graphics_info_t::get_background_colour();
+         const auto &lights = graphics_info_t::lights;
+         const auto &eye_position = graphics_info_t::eye_position;
+         // mabye draw_with_shadows() should be used?
+         ncs_ghosts[ighost].draw(shader_p, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+      }
+   }
+
 }
 
 

@@ -147,9 +147,7 @@ GtkWidget *wrapped_create_ncs_maps_dialog() {
    int ifound;
 
    // Maps: 
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog,
-							"ncs_maps_maps",
-							diff_maps_only_flag);
+   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "ncs_maps_maps", diff_maps_only_flag);
    if (ifound == 0) {
       std::cout << "Error: you must have a difference map to analyse!" << std::endl;
       // GtkWidget *none_frame = lookup_widget(dialog, "no_maps_frame");

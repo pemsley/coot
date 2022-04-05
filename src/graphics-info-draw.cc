@@ -1616,6 +1616,8 @@ graphics_info_t::draw_molecules_with_shadows() {
             m.draw_dots(&shader_for_rama_balls, mvp, model_rotation_matrix, lights, eye_position,
                         bg_col_v4, shader_do_depth_fog_flag);
 
+            m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, bg_col_v4);
+
             glEnable(GL_BLEND);
             // good idea to not use shadows on atom labels?
 
@@ -1729,6 +1731,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
 
 }
+
 
 void
 graphics_info_t::draw_molecules_atom_labels() {

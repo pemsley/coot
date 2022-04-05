@@ -368,6 +368,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    GtkWidget *ncs_controller_ncs_master_chain_ich_radiobutton;
    // GtkTooltips *tooltips;
 
+   if (! ncs_control_dialog) return;
+
    // funny place to put this function...
    graphics_info_t::clear_out_container(ncs_control_vbox);
 

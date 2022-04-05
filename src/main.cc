@@ -387,7 +387,12 @@ bool init_from_gtkbuilder() {
 
    GtkBuilder *builder = gtk_builder_new();
 
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   gboolean add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   if (add_from_file_status == FALSE) {
+      std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
+      exit(0);
+   }
+
    if (false)
       std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << glade_file_full
                 << " add_from_file_status: " << add_from_file_status << std::endl;

@@ -2155,6 +2155,7 @@ public:
 
    // background colour
    static glm::vec3 background_colour;
+   static glm::vec4 get_background_colour() { return glm::vec4(background_colour, 1.0f); }
    static bool background_is_black_p();
 
    // dynarama: a list of dynarama canvases, each of which has
@@ -4417,6 +4418,7 @@ string   static std::string sessionid;
    static void draw_hud_buttons();
    static void draw_hud_fps();
    static void draw_measure_distance_and_angles();
+   static void draw_ncs_ghosts();
    static std::list<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_time_history_list;
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 

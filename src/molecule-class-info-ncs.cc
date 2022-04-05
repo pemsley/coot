@@ -56,8 +56,11 @@
 void
 molecule_class_info_t::update_ghosts() {
 
+   std::cout << "################## update_ghosts() " << std::endl;
+
    if (ncs_ghosts.size() > 0) {
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+
 	 if (ncs_ghosts[ighost].display_it_flag) 
 	    ncs_ghosts[ighost].update_bonds(atom_sel.mol);
       }
@@ -76,7 +79,7 @@ molecule_class_info_t::delete_ghost_selections() {
    //
    // So, let's not delete selection if ghosts are not being used.  I
    // use the is_empty() test (which seems to return 0 even if ghosts
-   // where not turned on! - oh dear?) and so also use the displayed? 
+   // where not turned on! - oh dear?) and so also use the displayed?
    // flag.
    //
    // Which means of course that the SelectionHandles of the NCS
@@ -84,7 +87,7 @@ molecule_class_info_t::delete_ghost_selections() {
    // (and not only in this function - *any* function that changes the
    // atom selection at all is suspect (moving atom coords/bfacs/occ
    // is fine of course)).
-   // 
+   //
    // fill_ghost_info has a ncs_ghosts.resize(0), which is a potential
    // memory leak, but that's not as bad as a crash (which would
    // happen if we tried to DeleteSelection on SelectionHandles of out
@@ -92,20 +95,20 @@ molecule_class_info_t::delete_ghost_selections() {
    // removed all atom manipulation functions must be checked for
    // proper operation with NCS ghosts atom selection.
    //
-   // Question: why is is_empty() 0 for a not-turned-on ghost? 
+   // Question: why is is_empty() 0 for a not-turned-on ghost?
    // (e.g. RNASA).
    //
    // Hmmm... reflection: NCS code is complex and crash-prone.
 
 //    std::cout << "::::::::::::::::::::;; wwwwwoooooo!  ghosts! ::::::"
 //  	     << std::endl;
-   
+
    if (ncs_ghosts.size() > 0) {
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-// 	 std::cout << "Ghost " << ighost << " state "
-// 		   << ncs_ghosts[ighost].is_empty() << std::endl;
+         // 	 std::cout << "Ghost " << ighost << " state "
+         // 		   << ncs_ghosts[ighost].is_empty() << std::endl;
 	 if (! ncs_ghosts[ighost].is_empty()) {
-	    if (ncs_ghosts[ighost].display_it_flag) { 
+	    if (ncs_ghosts[ighost].display_it_flag) {
 	       atom_sel.mol->DeleteSelection(ncs_ghosts[ighost].SelectionHandle);
 	    }
 	 }
@@ -117,6 +120,13 @@ molecule_class_info_t::delete_ghost_selections() {
 void
 coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
+   if (false) {
+      std::cout << "ghost_molecule_display_t::update_bonds() " << std::endl;
+      std::cout << "ghost_molecule_display_t::update_bonds() rtop " << std::endl;
+      std::cout << rtop.format() << std::endl;
+   }
+
+
    atom_selection_container_t asc;
    asc.mol = mol;
 
@@ -125,10 +135,10 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    // Bond_lines_container constructor below, which is given an atom
    // selection, it may well point to atoms that have been removed.
    // And then distaster [Bush was re-elected today].
-   // 
+   //
    // (I guess that we don't need to regenerate the transformation
    // matrix)
-   // 
+   //
    // (Note: trash the current selection first)
    //
 
@@ -136,15 +146,15 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    SelectionHandle = mol->NewSelection();
    // std::cout << "ghost:: update_bonds new SelectionHandle: " << SelectionHandle << std::endl;
    int imod = 1;
-   // 
+   //
    mol->SelectAtoms(SelectionHandle, imod,
-		    chain_id.c_str(),
-		    mmdb::ANY_RES, "*",
-		    mmdb::ANY_RES, "*",
-		    "*", "*", "*", "*");
-   
+                    chain_id.c_str(),
+                    mmdb::ANY_RES, "*",
+                    mmdb::ANY_RES, "*",
+                    "*", "*", "*", "*");
+
    asc.mol->GetSelIndex(SelectionHandle, asc.atom_selection,
-			asc.n_selected_atoms);
+                        asc.n_selected_atoms);
    asc.SelectionHandle = SelectionHandle;
 
    //    std::cout << "update_bonds ghost selection selected "
@@ -155,7 +165,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    float max_dist = 1.85;
 
 //    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
-// 	     << " selected atoms" << std::endl;
+//              << " selected atoms" << std::endl;
 
    Bond_lines_container bonds(asc, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds();
@@ -171,17 +181,17 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 //    for (int i=0; i<bonds_box.num_colours; i++)
 //       ilines += bonds_box.bonds_[i].num_lines;
 //     std::cout << "updating ghost bonds...(which has " << bonds_box.num_colours
-// 	      << " colours and " << ilines << " lines)\n";
+//               << " colours and " << ilines << " lines)\n";
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-   
+
    for (int i=0; i<bonds_box.num_colours; i++) {
       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
 	 clipper::Coord_orth a(bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
-	 
+
 	 clipper::Coord_orth b(bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
@@ -189,11 +199,68 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 	 clipper::Coord_orth at = a.transform(rtop);
 	 clipper::Coord_orth bt = b.transform(rtop);
 
+         if (false)
+            std::cout << "ghost-bond-a " << a.format() << " ghost-bond-b" << b.format() << " "
+                      << "ghost-bond-at " << at.format() << " ghost-bond-bt" << bt.format() << " "
+                      << std::endl;
+
 	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
 			       Cartesian(bt.x(), bt.y(), bt.z()));
 	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1, -1);
       }
    }
+
+   auto cartesian_to_clipper = [] (const Cartesian &p) {
+                                  return clipper::Coord_orth(p.x(), p.y(), p.z());
+                               };
+   auto clipper_to_cartesian = [] (const clipper::Coord_orth &co) {
+                                  return Cartesian(co.x(), co.y(), co.z());
+                               };
+   
+   for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+      for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+         graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
+         clipper::Coord_orth pos = cartesian_to_clipper(ai.position);
+         clipper::Coord_orth trans_pos = pos.transform(rtop);
+         ai.position = clipper_to_cartesian(trans_pos);
+      }
+   }
+
+   int bbt = coot::NORMAL_BONDS;
+   std::vector<glm::vec4> colour_table;
+   for (unsigned int i=0; i<15; i++) { colour_table.push_back(glm::vec4(0.4, 0.8, 0.2, 1.0)); }
+   graphics_info_t::attach_buffers();
+   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table);
+   if (false)
+      std::cout << "########################## ghost mesh v and ts: " << mesh.vertices.size() << " " << mesh.triangles.size()
+                << " with representation_type " << Mesh::BALL_AND_STICK << std::endl;
+}
+
+void
+molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
+                                       const glm::mat4 &mvp,
+                                       const glm::mat4 &model_rotation_matrix,
+                                       const std::map<unsigned int, lights_info_t> &lights,
+                                       const glm::vec3 &eye_position,
+                                       const glm::vec4 &background_colour) {
+
+   // std::cout << "draw_ncs_ghosts() " << std::endl;
+   for (auto &ghost : ncs_ghosts) {
+      ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+   }
+
+}
+
+void
+coot::ghost_molecule_display_t::draw(Shader *shader_p,
+                                     const glm::mat4 &mvp,
+                                     const glm::mat4 &view_rotation_matrix,
+                                     const std::map<unsigned int, lights_info_t> &lights,
+                                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                     const glm::vec4 &background_colour) {
+
+   // std::cout << "ncs_ghosts::draw() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
+   mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, 1.0f, background_colour, false, true, false);
 }
 
 // public interface

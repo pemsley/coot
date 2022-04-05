@@ -76,6 +76,9 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
    // udd_handle_bonded_type can be NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_BOND_TO_HYDROGEN
    // BONDED_WITH_HETATM_BOND.
 
+   auto cartesian_to_glm = [] (const coot::Cartesian &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
    GLenum err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() --start-- error "
                       << err << std::endl;
@@ -114,7 +117,7 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
             unsigned int idx_tri_base = triangles.size();
             float scale = 1.0;
             if (at_info.is_hydrogen_atom) scale *= 0.5;
-            glm::vec3 t(at->x, at->y, at->z);
+            glm::vec3 t = cartesian_to_glm(at_info.position);  // (at->x, at->y, at->z);
             float sar = scale * atom_radius * at_info.radius_scale;
             glm::vec3 sc(sar, sar, sar);
             glm::mat4 mm = glm::scale(unit, sc);
@@ -174,6 +177,10 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
                                  // glm::mat4 m = t * ori * sc;
                                  return ori;
                               };
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
 
    // ----------------------- setup the vertices and triangles ----------------------
 
@@ -263,7 +270,7 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
 
             float scale = 1.0;
             if (at_info.is_hydrogen_atom) scale *= 0.5;
-            glm::vec3 t(at->x, at->y, at->z);
+            glm::vec3 t = cartesian_to_glm(at_info.position); // (at->x, at->y, at->z);
             float sar = scale * atom_radius;
             glm::vec3 sc(sar, sar, sar);
 
@@ -347,10 +354,11 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
 
    // ----------------------- add the vertices and triangles ----------------------
 
-
+   // std::cout << "debug:: in make_graphical_bonds_bonds() there are " << gbc.num_colours << " colours " << std::endl;
    for (int icol=0; icol<gbc.num_colours; icol++) {
       glm::vec4 col = colour_table[icol];
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
+      // std::cout << "debug:: in make_graphical_bonds_bonds() colour icol " << icol  << " has " << ll.num_lines << " bond lines " << std::endl;
       for (int j=0; j<ll.num_lines; j++) {
          const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
          const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
@@ -362,6 +370,9 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
          glm::mat4 mm = get_bond_matrix(pos_1, pos_2, bond_radius);
+         if (false)
+            std::cout << "making bond between " << glm::to_string(pos_1) << " " << glm::to_string(pos_2) << " width " << bond_radius_this
+                      << std::endl;
          cylinder cc(std::make_pair(pos_1, pos_2), bond_radius_this, bond_radius_this, bl, col, n_slices, n_stacks);
          cc.set_unstubby_rounded_cap_factor(1.0);
 
