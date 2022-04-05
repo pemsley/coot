@@ -108,8 +108,11 @@ EXTRA_DIST = \
 	coot_wrap_guile_pre.cc dynarama.glade
 
 
-subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = dynarama.glade
+# subpkgdatadir = $(pkgdatadir)
+# subpkgdata_DATA = dynarama.glade geometry_graphs_builder.glade
+
+cootgladedir = $(pkgdatadir)/glade
+dist_cootglade_DATA = dynarama.glade geometry_graphs_builder.glade
 
 cootdatadir = $(pkgdatadir)/shaders
 dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
