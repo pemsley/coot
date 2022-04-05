@@ -17940,7 +17940,6 @@ search (this may not work well)</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -17996,7 +17995,6 @@ search (this may not work well)</property>
                                                 <property name="receives_default">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -18080,7 +18078,6 @@ search (this may not work well)</property>
                                                 <property name="receives_default">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -29240,7 +29237,6 @@ Move a copy?</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_molecule_0_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -29249,140 +29245,7 @@ Move a copy?</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame" id="frame162">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="border_width">4</property>
-                                    <property name="label_xalign">0</property>
-                                    <child>
-                                      <object class="GtkTable" id="table4">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="n_rows">3</property>
-                                        <property name="n_columns">2</property>
-                                        <child>
-                                          <object class="GtkRadioButton" id="colour_symm_by_molecule_molecule_0">
-                                            <property name="label" translatable="yes">Colour by Molecule</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <property name="group">colour_symm_std_molecule_0</property>
-                                            <signal name="toggled" handler="on_colour_symm_by_molecule_molecule_0_toggled_gtkbuilder_callback" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                            <property name="y_options"/>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="colour_symm_by_symop_molecule_0">
-                                            <property name="label" translatable="yes">Colour by Symop</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <property name="group">colour_symm_std_molecule_0</property>
-                                            <signal name="toggled" handler="on_colour_symm_by_symop_molecule_0_toggled_gtkbuilder_callback" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                            <property name="y_options"/>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="colour_symm_std_molecule_0">
-                                            <property name="label" translatable="yes">Standard Colouring</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_colour_symm_std_molecule_0_toggled_gtkbuilder_callback" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                            <property name="y_options"/>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="display_CA_radiobutton_molecule_0">
-                                            <property name="label" translatable="yes">Display as CAs</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <property name="group">display_sphere_radiobutton_molecule_0</property>
-                                            <signal name="toggled" handler="on_display_CA_radiobutton_molecule_0_toggled_gtkbuilder_callback" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                            <property name="y_options"/>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="display_all_radiobutton_molecule_0">
-                                            <property name="label" translatable="yes">Display All Molecule</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <property name="group">display_sphere_radiobutton_molecule_0</property>
-                                            <signal name="toggled" handler="on_display_all_radiobutton_molecule_0_toggled_gtkbuilder_callback" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                            <property name="y_options"/>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkRadioButton" id="display_sphere_radiobutton_molecule_0">
-                                            <property name="label" translatable="yes">Display Sphere</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_display_sphere_radiobutton_molecule_0_toggled_gtkbuilder_callback" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="x_options">GTK_FILL</property>
-                                            <property name="y_options"/>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="label320">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Display Options</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
+                                  <placeholder/>
                                 </child>
                               </object>
                             </child>

@@ -88,12 +88,6 @@
 
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // fuctions built by glade.
-
 #include <vector>
 #include <string>
 
@@ -7358,13 +7352,13 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
    w = widget_from_builder("run_state_file_dialog");
    vbox_mols = widget_from_builder("mols_vbox");
 
-   std::cout << "########333333333333333 debug:: w " << w << std::endl;
-   std::cout << "########333333333333333 debug:: vbox_mols " << vbox_mols << std::endl;
+   // std::cout << "########333333333333333 debug:: w " << w << std::endl;
+   // std::cout << "########333333333333333 debug:: vbox_mols " << vbox_mols << std::endl;
 
    if (w) {
       // std::cout << "wrapped_create_run_state_file_dialog():: got widget w " << w << std::endl;
    } else {
-      std::cout << "wrapped_create_run_state_file_dialog():: widget w was null " << std::endl;
+      std::cout << "ERROR:: wrapped_create_run_state_file_dialog():: widget w was null " << std::endl;
    }
 
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);

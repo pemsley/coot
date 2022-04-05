@@ -38,12 +38,6 @@
  
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // fuctions built by glade.
-
 #include <vector>
 #include <string>
 

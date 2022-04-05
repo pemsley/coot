@@ -436,7 +436,6 @@ libcootsumo_la_SOURCES = \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
-	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
         cfc.cc cfc.hh            \
         cfc-widgets.hh           \
@@ -559,7 +558,6 @@ libcootsumo_la_SOURCES = \
 	gtk-manual.h		 \
 	gtk-widget-conversion-utils.h  \
 	gtk-widget-conversion-utils.cc \
-	gtk2-interface.c	 \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
 	history_list.hh		 \

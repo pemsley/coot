@@ -39,18 +39,8 @@
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 
-extern "C" {
-#include "callbacks.h"
-}
-
-// "molecule_class_info_t"s don't know what their number is.
-// That is bizzare.
-//
-// Actually, I think that they do now.
-//
 void
-molecule_class_info_t::update_map_colour_menu_maybe(int imol)
-{
+molecule_class_info_t::update_map_colour_menu_maybe(int imol) {
    // or maybe not.
 }
 

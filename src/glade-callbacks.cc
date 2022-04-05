@@ -9639,10 +9639,12 @@ on_screendump_filechooser_dialog_response_gtkbuilder_callback (GtkDialog * dialo
 }
 
 
+
+
 extern "C" G_MODULE_EXPORT
 void
-on_screendummp_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
-                                                                        gpointer user_data) {
+on_screendump_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
+                                                                    gpointer user_data) {
 
    GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
    int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(file_chooser), "image_type"));
