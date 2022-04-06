@@ -20,6 +20,9 @@
  * 02110-1301, USA
  */
 
+#include <gtk/gtk.h>
+
+
 #include "coot-setup-python.hh"
 #include "python-classes.hh"
 
@@ -46,8 +49,6 @@
 // #endif
 // #ifdef DATADIR
 // #endif // DATADIR
-
-#include <gtk/gtk.h>
 
 // #include <GL/glut.h> // for glutInit()
 
@@ -173,7 +174,11 @@ my_create_splash_screen_window (void) {
    GtkWidget *splash_screen_window = gtk_window_new(GTK_WINDOW_POPUP);
    gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot");
    gtk_window_set_position(GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
+#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
+   gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
+#else
    gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+#endif
 
    // GtkWidget *image = create_pixmap(splash_screen_window, "coot-0.9.9-pre.png");
    GtkWidget *image = create_pixmap(splash_screen_window, "coot-1.png");
@@ -364,7 +369,11 @@ bool init_from_gtkbuilder() {
          if (false) {
             GtkWidget *w = gtk_label_new("Some Test Label");
             gtk_widget_show(w);
+#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
+            gtk_box_pack_start(GTK_BOX(graphics_hbox), w);
+#else
             gtk_box_pack_start(GTK_BOX(graphics_hbox), w, FALSE, FALSE, 2);
+#endif
          }
 
       } else {
@@ -385,7 +394,6 @@ int
 main(int argc, char *argv[]) {
 
    int shell_exit_code = 0;
-   GtkWidget *window1 = NULL;
 
    graphics_info_t graphics_info;
    graphics_info.coot_is_a_python_module = false;
@@ -426,7 +434,12 @@ main(int argc, char *argv[]) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       // load_gtk_resources();
-      gtk_init (&argc, &argv);
+#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
+      gtk_init();
+#else
+      gtk_init(&argc, &argv);
+#endif
+
       // activate to force icons in menus; cannot get it to work with
       // cootrc. Bug?
       // seems to be neccessary to make sure the type is realized

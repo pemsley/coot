@@ -273,11 +273,11 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 	       gtk_widget_show(w);
                gtk_widget_set_size_request(w, 20, -1);
                if (boxes[ibox].first != "Rama") {
-                  GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
+                  GdkRGBA color = colour_by_distortion(ref_results.lights[i_rest_type].value);
                   set_colour_accept_reject_event_box(w, &color);
                } else {
-                  GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value,
-                                                                  ref_results.lights[i_rest_type].rama_type);
+                  GdkRGBA color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value,
+                                                                 ref_results.lights[i_rest_type].rama_type);
                   set_colour_accept_reject_event_box(w, &color);
                }
 
@@ -306,7 +306,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 }
 
 
-void set_colour_accept_reject_event_box(GtkWidget *label, GdkColor *col) {
+void set_colour_accept_reject_event_box(GtkWidget *label, GdkRGBA *col) {
 
    // sigh - use css.
    // std::cout << "set_colour_accept_reject_event_box() set the label colour here " << std::endl;
@@ -407,7 +407,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
             std::cout << " set tip A " << std::endl;
 	    // gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
-	    GdkColor red = colour_by_distortion(1000.0);	// red
+	    GdkRGBA red = colour_by_distortion(1000.0);	// red
 	    set_colour_accept_reject_event_box(cis_eventbox, &red);
 	    gtk_widget_show(p);
 

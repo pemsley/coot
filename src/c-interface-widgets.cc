@@ -239,7 +239,7 @@ void remarks_dialog(int imol) {
 		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 		  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
-		  GdkColor colour = remark_number_to_colour(it->first);
+		  GdkRGBA colour = remark_number_to_colour(it->first);
 
                   std::cout << "fix the colour of the remarks view " << std::endl;
 		  // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
@@ -553,13 +553,13 @@ on_remarks_dialog_close_button_clicked     (GtkButton *button,
 }
 
 
-GdkColor remark_number_to_colour(int remark_number) {
+GdkRGBA remark_number_to_colour(int remark_number) {
 
-   GdkColor colour;
+   GdkRGBA colour;
    colour.red   = 65535;
    colour.green = 65535;
    colour.blue  = 65535;
-   colour.pixel = 65535;
+   colour.alpha = 65535;
    if (remark_number == 2) {
       colour.blue  = 60000;
    }

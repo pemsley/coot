@@ -189,10 +189,9 @@ void wrapped_create_run_refmac_dialog();
 void wrapped_create_simple_refmac_dialog();
 void simple_refmac_run_refmac(GtkWidget *dialog);
 
-void on_remarks_dialog_close_button_clicked     (GtkButton *button,
-						 gpointer         user_data);
-GdkColor remark_number_to_colour(int remark_number);
+void on_remarks_dialog_close_button_clicked(GtkButton *button, gpointer         user_data);
 
+GdkRGBA remark_number_to_colour(int remark_number);
 
 GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog();
 void fill_remarks_browswer_chooser(GtkWidget *w);
@@ -257,8 +256,7 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data);
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-// void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection, gpointer user_data);
+#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
   // something else here
 #else
 void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection, gpointer user_data);

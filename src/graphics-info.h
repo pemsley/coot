@@ -87,9 +87,26 @@
 #include "ideal/simple-restraint.hh"
 
 #include "history_list.hh"
+
+// 20220406-PE Temporarily remove GOOCANVAS-dependent functions
+#define DO_SEQUENCE_VIEW
+#define DO_RAMA_PLOT
+#define DO_GEOMETRY_GRAPHS
+#if (GTK_MAJOR_VERSION == 4) || (GTK_MINOR_VERSION == 94)
+#undef DO_SEQUENCE_VIEW
+#undef DO_RAMA_PLOT
+#undef DO_GEOMETRY_GRAPHS
+#endif
+#ifdef DO_SEQUENCE_VIEW
 #include "sequence-view.hh"
+#endif
+#ifdef DO_RAMA_PLOT
 #include "rama_plot.hh"
+#endif
+#ifdef DO_GEOMETRY_GRAPHS
 #include "geometry-graphs.hh"
+#endif
+
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
@@ -252,8 +269,10 @@ namespace coot {
 					  const std::vector<coot::command_arg_t> &args);
 
 
+#ifdef DO_GEOMETRY_GRAPHS
    void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
    GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type);
+#endif
 
    class coord_orth_triple {
    public:
@@ -779,10 +798,13 @@ class graphics_info_t {
 
    void check_and_warn_inverted_chirals_and_cis_peptides() const;
 
+#ifdef DO_RAMA_PLOT
    void handle_rama_plot_update(coot::rama_plot *plot);
+#endif
 
    // Geometry Graphs:
-   coot::geometry_graphs * geometry_graph_dialog_to_object(GtkWidget *w) const {
+#ifdef DO_GEOMETRY_GRAPHS
+   coot::geometry_graphs *geometry_graph_dialog_to_object(GtkWidget *w) const {
       coot::geometry_graphs *gr = NULL;
       if (!w) {
          std::cout << "geometry_graph_dialog_to_object case A" << std::endl;
@@ -802,6 +824,7 @@ class graphics_info_t {
       }
       return gr;
    }
+#endif
 
    std::vector<coot::geometry_distortion_info_container_t>
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
@@ -1408,8 +1431,10 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
 
+#ifdef DO_RAMA_PLOT
    void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                           const coot::residue_spec_t &res_spec);
+#endif
 
    float X() { return rotation_centre_x; };
    float Y() { return rotation_centre_y; };
@@ -2182,6 +2207,7 @@ public:
 /*    static GtkWidget **rotamer_graph; */
 /*    static GtkWidget **ncs_diffs_graph; */
 
+#ifdef DO_GEOMETRY_GRAPHS
    std::vector<coot::geometry_graph_block_info_generic>
    density_fit_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms,
 			int imol_for_map);
@@ -2189,10 +2215,12 @@ public:
    density_fit_from_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 			     int imol_moving_atoms,
 			     int imol_for_map) const;
+#endif
 
    coot::omega_distortion_info_container_t
      omega_distortions_from_mol(const atom_selection_container_t &asc, const std::string &chain_id);
 
+#ifdef DO_GEOMETRY_GRAPHS
    std::vector<coot::geometry_graph_block_info_generic>
      rotamers_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms);
    std::vector<coot::geometry_graph_block_info_generic>
@@ -2200,8 +2228,9 @@ public:
 				   int nSelResidues, int imol);
 
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
-   std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(int imol,
-								  const coot::ncs_chain_difference_t &d);
+   std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(int imol, const coot::ncs_chain_difference_t &d);
+
+#endif
 
    // now used for rotamer_score (from c-interface.h), so it is now not GTK2-only 20090817
    coot::rotamer_probability_info_t get_rotamer_probability(mmdb::Residue *res,
@@ -3018,7 +3047,11 @@ public:
    std::pair<int, int> get_closest_atom() const;
 
    //
+#if (GTK_MAJOR_VERSION >= 4)|| (GTK_MINOR_VERSION == 94)
+   static GdkCursor pick_cursor_index; // user setable
+#else
    static GdkCursorType pick_cursor_index; // user setable
+#endif
    static void pick_cursor_maybe();
    static void pick_cursor_real();
    static void normal_cursor();
@@ -3169,8 +3202,12 @@ public:
    // view)
    //
 
+#ifdef DO_SEQUENCE_VIEW
    coot::sequence_view *get_sequence_view(int imol);
+#endif
+#ifdef DO_RAMA_PLOT
    static coot::rama_plot *edit_phi_psi_plot;
+#endif
 
    // distances and angles displayed on screen
    // uses distance_objects vector
@@ -4859,9 +4896,9 @@ void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_r
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
 // return a pointer to a "new" object
-GdkColor colour_by_distortion(float dist);
-GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_plot_type);
-void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col);
+GdkRGBA colour_by_distortion(float dist);
+GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_plot_type);
+void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkRGBA *col);
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					      coot::accept_reject_text_type text_type,

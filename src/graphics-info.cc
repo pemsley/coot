@@ -164,13 +164,11 @@ graphics_info_t::post_recentre_update_and_redraw() {
 
 
 
+GdkRGBA colour_by_distortion(float dist) {
 
+   GdkRGBA col;
 
-GdkColor colour_by_distortion(float dist) {
-
-   GdkColor col;
-
-   col.pixel = 1;
+   col.alpha = 1;
    col.blue  = 0;
 
    if (dist < 0.0) {
@@ -200,7 +198,7 @@ GdkColor colour_by_distortion(float dist) {
    return col;
 }
 
-GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
+GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
    if (true)
       std::cout << "in colour_by_rama_plot_distortion plot_value "
@@ -215,17 +213,17 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    // if (rama_type == coot::RAMA_TYPE_ZO)
    //   plot_value = 20*plot_value -80;
 
-   GdkColor col;
+   GdkRGBA col;
 
-   col.pixel = 1;
+   col.alpha = 1;
    col.blue  = 0;
 
    auto rotation_size_raw_to_gdkcol = [] (float rotation_size_raw) {
                                          float rotation_size = -0.33f * rotation_size_raw; // cooked
                                          std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
                                          std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-                                         GdkColor col;
-                                         col.pixel = 1;
+                                         GdkRGBA col;
+                                         col.alpha = 1;
                                          col.red   = rgb_new[0] * 255.0 * 255.0;
                                          col.green = rgb_new[1] * 255.0 * 255.0;
                                          col.blue  = rgb_new[2] * 255.0 * 255.0;

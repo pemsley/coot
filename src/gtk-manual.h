@@ -64,7 +64,7 @@ on_map_col_sel_cancel_button_clicked(GtkButton       *button,
 
 struct map_colour_data_type {
    int imol;
-#if (GTK_MAJOR_VERSION >= 4) || GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION >= 4) || (GTK_MINOR_VERSION == 94) || GTK_DISABLE_DEPRECATED == true
    GtkColorChooser* color_chooser;
 #else
    GtkColorSelection *color_selection;
@@ -76,7 +76,7 @@ GtkWidget* create_map_colour_selection_window(struct map_colour_data_type *mcdt)
 
 
 /* Symmetry Colour */
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION >= 4) || (GTK_MINOR_VERSION == 94) || GTK_DISABLE_DEPRECATED == true
 void on_symmetry_color_changed(GtkWidget *w, GtkColorChooser *cs);
 #else
 void on_symmetry_color_changed(GtkWidget *w, GtkColorSelection *cs);
@@ -134,7 +134,7 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 
 GtkWidget *create_skeleton_colour_selection_window();
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION >= 4) || (GTK_MINOR_VERSION == 94) || GTK_DISABLE_DEPRECATED == true
 void on_skeleton_color_changed(GtkWidget *w, GtkColorChooser *colorsel);
 #else
 void on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel);
