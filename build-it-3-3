@@ -1129,7 +1129,7 @@ case $dist_name in
        m4
        g++
        git
-       openssl-dev
+       libssl-dev
        libxext-dev
        libxmu-dev
        libxt-dev
