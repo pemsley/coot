@@ -287,12 +287,12 @@ def set_amber_atom_types(mol):
         ('CZ',  'A=C=A', 1), # sp C
         ('CZ',  'C#A', 1), # sp C
 
-        ('O',  'O=C',  0) # carbonyl oxygen
-        ('OH',  'COH', 1) # alcohol oxygen
-        ('OS',  'C(=O)OA', 2) # ethyl or ester oxygen
-        ('OW',  'HOY', 1) # water oxygen
-        ('O2',  'O=CO', 1) # carboxyl oxygen
-        ('O2',  'O=PO', 1) # phosphate
+        ('O',  'O=C',  0), # carbonyl oxygen
+        ('OH',  'COH', 1), # alcohol oxygen
+        ('OS',  'C(=O)OA', 2), # ethyl or ester oxygen
+        ('OW',  'HOY', 1), # water oxygen
+        ('O2',  'O=CO', 1), # carboxyl oxygen
+        ('O2',  'O=PO', 1), # phosphate
 
         ('SI',   '[Si]',    0)  # Si any other
         ]
