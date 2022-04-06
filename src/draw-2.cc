@@ -930,24 +930,8 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->state & GDK_SHIFT_MASK) g.shift_is_pressed = true;
    if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
 
-   if (event->keyval == GDK_KEY_space) {
-      // g.reorienting_next_residue_mode = false; // hack
-      bool reorienting = graphics_info_t::reorienting_next_residue_mode;
-      if (reorienting) {
-         if (graphics_info_t::shift_is_pressed) {
-            g.reorienting_next_residue(false); // backwards
-         } else {
-            g.reorienting_next_residue(true); // forwards
-         }
-      } else {
-         // old/standard simple translation
-         if (graphics_info_t::shift_is_pressed) {
-            g.intelligent_previous_atom_centring(g.go_to_atom_window);
-         } else {
-            g.intelligent_next_atom_centring(g.go_to_atom_window);
-         }
-      }
-   }
+   // key release is a very special event  - normally we act on key-pres.
+
    return TRUE;
 }
 
