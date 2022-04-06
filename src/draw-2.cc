@@ -930,7 +930,7 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->state & GDK_SHIFT_MASK) g.shift_is_pressed = true;
    if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
 
-   // key release is a very special event  - normally we act on key-pres.
+   // key release is a very special event  - normally we act on key-press.
 
    return TRUE;
 }

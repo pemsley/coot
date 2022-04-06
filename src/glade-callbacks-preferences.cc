@@ -238,8 +238,11 @@ on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-
+#if (GTK_MAJOR_VERSION >= 4) || (GTK_MINOR_VERSION == 94)
+  GdkRGBA bg_colour;
+#else
   GdkColor bg_colour;
+#endif
   float fval1;
   float fval2;
   float fval3;

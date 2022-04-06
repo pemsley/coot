@@ -237,8 +237,7 @@ on_density_ok_button_clicked_gtkbuilder_callback           (GtkButton       *but
 
    /* As above, except a difference map */
 
-   entry = GTK_ENTRY(widget_from_builder(
-				   "diff_map_iso_level_increment_entry"));
+   entry = GTK_ENTRY(widget_from_builder("diff_map_iso_level_increment_entry"));
 
    text = gtk_entry_get_text(entry);
 
