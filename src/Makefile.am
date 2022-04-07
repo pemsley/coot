@@ -586,7 +586,7 @@ libcootsumo_la_SOURCES = \
 	matrix-utils.hh          \
 	matrix-utils.cc          \
         map-statistics.hh        \
-        Maaterial.hh             \
+        Material.hh              \
         map_triangle.hh          \
 	Mesh.cc Mesh.hh          \
 	Mesh-from-glTF.cc        \
