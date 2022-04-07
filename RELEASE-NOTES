@@ -1,5 +1,27 @@
 
-Coot 1
+   Release 1.0.01
+
+   o FEATURE:  Space during RSR clicks the OK button
+
+   o FEATURE:  NCS Ghosts now work again
+
+   o BUG-FIX:  Add missing header files [Hew Jenkins]
+
+   o BUG-FIX:  Don't rotate the view during RSR atom pull on Mac OS.
+
+   o BUG-FIX:  Fix Pyrogen Oxygen atom types
+
+   o BUG-FIX:  geometry_graphs_builder.glade installed correctly [Charles Ballard]
+
+   o BUG-FIX:  Calculate -> Run Script dialog now works
+
+   o BUG-FIX:  Draw -> Screenshot -> Simple now works (uses the "Plain" framebuffer)
+
+   o BUG-FIX:  Removed some debugging
+
+----
+
+    Coot 1
 
 18 years after the release of Coot 0 it's time that I actually released Coot 1.
 
@@ -84,7 +106,7 @@ major version every year or so.
 
 ----
 
-  Pre-Release 0.9.8
+  Release 0.9.8
 
   o BUG-FIX:  Fix python extension scripts
 
