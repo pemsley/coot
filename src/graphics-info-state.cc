@@ -65,18 +65,21 @@ graphics_info_t::save_state_file(const std::string &filename) {
 int
 graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
-   std::cout << "DEBUG:: ============================== saving state " << filename << " " << std::endl;
+   std::cout << "DEBUG:: saving state to filename " << filename << " " << std::endl;
 
    std::vector<std::string> commands;
 
    std::string comment_str;
    if (il == coot::SCHEME_SCRIPT) {
       comment_str = "; These commands are the saved state of coot.  You can evaluate them\n";
-      comment_str += "; using \"Calculate->Run Script...\".";
+      comment_str += "; using \"Calculate->Run Script...\".\n";
    } else {
       // python
-      comment_str = "# These commands are the saved state of coot.  You can evaluate them\n";
-      comment_str += "# using \"Calculate->Run Script...\".";
+      comment_str  = "# These commands are the saved state of coot.  You can evaluate them\n";
+      comment_str += "# using \"Calculate->Run Script...\".\n\n";
+      comment_str += "import coot\n";           // these are not really comments, but we
+      comment_str += "import coot_gui\n";       // don't want to munge them.
+      comment_str += "import coot_utils\n"; // a better organization would be "import coot.utils"
    }
    commands.push_back(comment_str);
 
