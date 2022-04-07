@@ -13,7 +13,7 @@
 
 // put these functions in init_coot_as_python_module.cc
 
-#include "coot-surface/rgbreps.h"
+// #include "coot-surface/rgbreps.h"
 
 void check_reference_structures_dir() {
 
@@ -65,7 +65,7 @@ void setup_symm_lib() {
 
       // using PKGDATADIR will work for those who compiler, not the
       // binary users:
-      std::string standard_file_name = PKGDATADIR; // xxx/share/coot
+      std::string standard_file_name = coot::package_data_dir();
       standard_file_name += "/";
       standard_file_name += "syminfo.lib";
 
