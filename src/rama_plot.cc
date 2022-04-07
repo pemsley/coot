@@ -193,22 +193,17 @@ coot::rama_plot::create_dynarama_window() {
    } else {
 
       int status = 0;
-      GtkBuilder *builder = NULL;
-      std::string glade_file = "dynarama.glade";
+      std::string glade_file_name = "dynarama.glade";
+      GtkBuilder *builder = gtk_builder_new();
 
-      std::string glade_file_full = coot::package_data_dir();
-      glade_file_full += "/";
-      glade_file_full += glade_file;
+      std::string pkg_data_dir = coot::package_data_dir();
+      std::string glade_dir = coot::util::append_dir_dir(pkg_data_dir, "glade");
+      std::string glade_file_full = coot::util::append_dir_file(glade_dir, glade_file_name);
+      if (coot::file_exists(glade_file_name))
+         glade_file_full = glade_file_name;
 
-      bool glade_file_exists = 0;
-      struct stat buf;
-      int err = stat(glade_file_full.c_str(), &buf);
-      if (! err)
-         glade_file_exists = 1;
-
-      if (! glade_file_exists) {
-         std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
-      } else {
+      guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+      if (add_from_file_status) {
 
          // If we are using the graphics interface then we want non-null from the builder.
          // add_from_file_status should be good or we are in trouble.
@@ -305,6 +300,7 @@ coot::rama_plot::create_dynarama_window() {
       }
       return status;
    }
+   return 0;
 }
 
 
