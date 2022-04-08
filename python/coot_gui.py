@@ -2040,8 +2040,8 @@ def add_view_to_views_panel(view_name, view_number):
 #
 
 
-def dialog_box_of_buttons(window_name, geometry, buttons,
-                          close_button_label, post_hook=None):
+def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label, post_hook=None):
+
     return dialog_box_of_buttons_with_check_button(window_name, geometry,
                                                    buttons, close_button_label,
                                                    False, False, False, post_hook)
@@ -2079,7 +2079,10 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     def close_cb_func(*args):
         if post_close_hook:
             post_close_hook()
-        window.destroy()
+        window.hide()
+
+    def hide_this_window(widget):
+        gtk_widget_hide(widget)
 
     # main line
     window = Gtk.Window()
@@ -2108,6 +2111,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     scrolled_win.add_with_viewport(inside_vbox)
 
     for button_info in buttons:
+        print("DEBUG:: in dialog_box_of_buttons_with_check_button(): button_info:", button_info)
         add_button_info_to_box_of_buttons_vbox(button_info, inside_vbox)
 
     outside_vbox.set_border_width(2)
@@ -2115,6 +2119,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     ok_button = Gtk.Button(close_button_label)
     outside_vbox.pack_end(ok_button, False, False, 0)
     ok_button.connect("clicked", close_cb_func, window, post_close_hook)
+    window.connect("delete-event", lambda widget : hide_this_window())
 
     window.show_all()
     return [inside_vbox, window]
@@ -2153,6 +2158,8 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
         text_buffer.insert_with_tags_by_name(start, description, "tag")
 
     # main line
+
+    print("debug:: add_button_info_to_box_of_buttons_vbox() button_info:", button_info)
 
     button_label = button_info[0]
     # print("debug in add_button_info_to_box_of_buttons_vbox with button bits", button_label, button_info[1])
@@ -2463,8 +2470,7 @@ def nudge_screen_centre_paule_gui():
         ["Nudge -Z", lambda func: nudge_screen_func(2, 1)],
     ]
 
-    dialog_box_of_buttons("Nudge Screen Centre", [
-                          200, 240], buttons, "  Close ")
+    dialog_box_of_buttons("Nudge Screen Centre", [200, 240], buttons, "  Close ")
 
 
 # nudge screen centre box.  Useful when Ctrl left-mouse has been
@@ -2503,8 +2509,7 @@ def nudge_screen_centre_gui():
         ["Nudge -Z", lambda func: nudge_screen_func(2, 1)],
     ]
 
-    dialog_box_of_buttons("Nudge Screen Centre", [
-                          200, 240], buttons, "  Close ")
+    dialog_box_of_buttons("Nudge Screen Centre", [200, 240], buttons, "  Close ")
 
 # as nudge_screen_centre_gui but with clipping and zoom control
 
@@ -2578,8 +2583,7 @@ def nudge_screen_centre_extra_gui():
 
     zoom_adj.connect("value_changed", change_zoom)
 
-    dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras",
-                                      [200, 400], buttons, vbox, "  Close ")
+    dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras", [200, 400], buttons, vbox, "  Close ")
 
 
 # A gui to make a difference map (from arbitrarily gridded maps
@@ -4103,8 +4107,7 @@ def alignment_mismatches_gui(imol):
             for alignment_text in alignments_as_text_list:
                info_dialog_with_markup(alignment_text)
 
-         dialog_box_of_buttons("Residue mismatches", [300, 300],
-                               buttons, "  Close  ")
+         dialog_box_of_buttons("Residue mismatches", [300, 300], buttons, "  Close  ")
 
 # Wrapper in that we test if there have been sequence(s) assigned to
 # imol before we look for the sequence mismatches
@@ -4629,14 +4632,13 @@ def user_mods_gui(imol, pdb_file_name):
         flip_buttons = make_flip_buttons(flips[0])
         no_adj_buttons = make_no_adj_buttons(flips[1])
         all_buttons = no_adj_buttons + flip_buttons
-        dialog_box_of_buttons_with_check_button(
-            " Flips ", [300, 300], all_buttons, "  Close  ",
-            "Clashes, Problems and Flips only",
-            lambda check_button, vbox: clear_and_add_back(
-                vbox, flips[0], flips[1], True)
-            if check_button.get_active() else
-            clear_and_add_back(vbox, flips[0], flips[1], False),
-            False)
+        dialog_box_of_buttons_with_check_button(" Flips ", [300, 300], all_buttons, "  Close  ",
+                                                "Clashes, Problems and Flips only",
+                                                lambda check_button, vbox: clear_and_add_back(
+                                                    vbox, flips[0], flips[1], True)
+                                                if check_button.get_active() else
+                                                clear_and_add_back(vbox, flips[0], flips[1], False),
+                                                False)
 
 
 def rename_residue_gui_simple():
@@ -5978,6 +5980,67 @@ def pukka_puckers_qm(imol):
             ls = [label, func]
             buttons.append(ls)
         dialog_box_of_buttons("Non-pukka puckers", [370, 250], buttons, "  Close  ")
+
+# A gui to list Ramachandran outliers etc.
+# May become more sophisticated at some point
+#
+def rama_outlier_gui():
+   """
+   A gui to list Ramachandran outliers etc.
+   A first draft, may become more sophisticated at some point
+   """
+
+   def list_rama_outliers(imol):
+
+      r = coot.all_molecule_ramachandran_region_py(imol)
+      outliers = []
+      allowed = []
+      for res in r:
+         if res[1] == 0:
+            outliers.append(res[0])
+         if res[1] == 1:
+            allowed.append(res[0])
+
+      def make_buttons(res_list, label_string):
+         ret = []
+         for res_spec in res_list:
+            chain_id = res_spec[1]
+            res_no = res_spec[2]
+            label = label_string + ": " + \
+                    chain_id + " " + str(res_no)
+            func = [cmd2str(set_go_to_atom_molecule, imol),
+                    cmd2str(set_go_to_atom_from_res_spec, res_spec)]
+            ret.append([label, func])
+
+         return ret
+
+      outlier_buttons = make_buttons(outliers, "Outlier")
+      allowed_buttons = make_buttons(allowed, "Allowed")
+      all_buttons = outlier_buttons + allowed_buttons
+
+      def clear_and_add_back(vbox, outliers_list, allowed_list, filter_flag):
+         # clear
+         children = vbox.get_children()
+         map(lambda c: c.destroy(), children)
+         # add back
+         if not filter_flag:
+            buttons = outliers_list + allowed_list
+         else:
+            # filter
+            buttons = outliers_list
+         map(lambda button_info: add_button_info_to_box_of_buttons_vbox(button_info, vbox),
+             buttons)
+
+      dialog_box_of_buttons_with_check_button(
+          " Ramachandran issues ", [300, 300], [], "  Close  ",
+          "Outliers only",
+          lambda check_button, vbox: clear_and_add_back(vbox, outlier_buttons, allowed_buttons, True)
+          if check_button.get_active() else
+          clear_and_add_back(vbox, outlier_buttons, allowed_buttons, False),
+          False)
+
+   molecule_chooser_gui("List Rama outliers for which molecule?", lambda imol: list_rama_outliers(imol))
+
 
 def model_map_diff_map_molecule_chooser_gui(callback_function):
 

@@ -32,6 +32,7 @@ import coot_gui
 import gui_add_linked_cho
 import gui_prosmart
 import shelx_extensions
+import find_baddies
 
 
 def add_coot_menu_separator(menu):
@@ -109,19 +110,16 @@ if True:
 
 
          def validation_outliers_func():
-             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
                  imol_map = coot.imol_refinement_map()
                  if not coot_utils.valid_map_molecule_qm(imol_map):
                      coot.info_dialog_and_text("Refinement Map is currently not set")
                  else:
                      find_baddies.validation_outliers_dialog(aa_imol, imol_map)
 
-         coot_gui.add_simple_coot_menu_menuitem(menu, "Validation Outliers",
-                                                lambda func: validation_outliers_func())
+         coot_gui.add_simple_coot_menu_menuitem(menu, "Validation Outliers", lambda func: validation_outliers_func())
 
-         coot_gui.add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
-                                                lambda func: rama_outlier_gui())
+         coot_gui.add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...", lambda func: coot_gui.rama_outlier_gui())
 
 
      # --------------------------------------------------
