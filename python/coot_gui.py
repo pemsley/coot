@@ -2418,11 +2418,11 @@ def views_panel_gui():
 
     for button_number in range(number_of_views):
         button_label = coot.view_name_py(button_number)
-        desciption = coot.view_description_py(button_number)
+        description = coot.view_description_py(button_number)
         # BL says:: add the description condition
         # func = "go_to_view_number(" + str(button_number) + ",0)" 20211115-PE no to string functions
         func = generator(button_number)
-        buttons.append([button_label, func, desciption])
+        buttons.append([button_label, func, description])
 
     if len(buttons) > 1:
         def view_button_func():
