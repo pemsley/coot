@@ -6845,6 +6845,7 @@ that you wish to delete.               </property>
     <property name="title" translatable="yes">Display Manager</property>
     <property name="default_width">700</property>
     <signal name="configure-event" handler="on_display_control_window_glade_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="delete-event" handler="on_display_control_window_glade_delete_event_gtkbuilder_callback" swapped="no"/>
     <signal name="destroy" handler="on_display_control_window_glade_destroy_gtkbuilder_callback" swapped="no"/>
     <child>
       <object class="GtkBox" id="vbox30">

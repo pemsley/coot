@@ -1518,10 +1518,30 @@ void
 on_display_control_window_glade_destroy_gtkbuilder_callback (GtkWidget       *object,
                                                              gpointer         user_data) {
 
+   // Do nothing the the poor old widget.
+
+   //    std::cout << "-------------------------------------------- on_display_control_window_glade_destroy_gtkbuilder_callback()"
+   // << std::endl;
+
    // we don't want to use the stored pointer in graphics_info_t any more. We just use
    // widget_from_builder() to get the display control dialog.
 
-   reset_graphics_display_control_window(); /* (also resets the scroll group) */
+   // reset_graphics_display_control_window(); /* (also resets the scroll group) */
+}
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_display_control_window_glade_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                 GdkEvent        *event,
+                                                                 gpointer         user_data) {
+
+   if (false)
+      std::cout << "------------------ on_display_control_window_glade_delete_event_gtkbuilder_callback()"
+                << std::endl;
+
+   gtk_widget_hide(widget);
+   return TRUE;
 }
 
 
