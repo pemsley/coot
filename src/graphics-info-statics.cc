@@ -180,7 +180,7 @@ int graphics_info_t::graphics_x_position = 0; // gets overwritten at start
 int graphics_info_t::graphics_y_position = 0;
 int graphics_info_t::model_fit_refine_dialog_stays_on_top_flag = 1;
 
-short int graphics_info_t::use_graphics_interface_flag = 1;
+bool graphics_info_t::use_graphics_interface_flag = false;
 
 // display control size and position and the vboxes for the maps and
 // the molecules in the display control

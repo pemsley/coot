@@ -1161,6 +1161,11 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
    coot::Cartesian current_centre = RotationCentre();
    set_old_rotation_centre(current_centre);
 
+   if (! use_graphics_interface_flag) {
+      setRotationCentreSimple(new_centre);
+      return true;
+   }
+
    // smooth_scroll_maybe
 
    // smooth_scroll_maybe now sets up a timeout to move
@@ -6667,18 +6672,15 @@ graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
 
    size_t l = keyboard_key_history.size();
    if (l >= idkfa_pairs.size()) {
-      // bool all_matched = true;
-      // for (const auto &item : idkfa_pairs) {
-      // if (keyboard_key_history[item.first].gdk_key != item.second) {
-      // all_matched = false;
-      // break;
-      // }
-      // if (std::any_of(idkfa_pairs.begin(), idkfa_pairs.end(),
-      // [&keyboard_key_history] (const std::pair<unsigned int, int> &item) { return keyboard_key_history[item.first].gdk_key == item.second; })) {
-      if (true) {
-         // no match
-      } else {
-         std::cout << "Now do something fun" << std::endl;
+
+      bool all_matched = true;
+      for (const auto &item : idkfa_pairs) {
+         if (keyboard_key_history[l-item.first].gdk_key != item.second) {
+            all_matched = false;
+            break;
+         }
+      }
+      if (all_matched) {
       }
    }
 }

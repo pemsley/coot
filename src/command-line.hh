@@ -26,7 +26,7 @@ public:
    std::string ccp4_project;
    std::string title;
    short int try_listener;
-   short int do_graphics;
+   bool do_graphics;
    short int small_screen_display;
    bool disable_state_script_writing;
    bool use_splash_screen;
@@ -40,7 +40,8 @@ public:
      port = 0;
      try_listener = 0;
      update_self = 0;
-     do_graphics = 1; // use graphics by default
+     do_graphics = 0; // 20220409-PE Don't use graphics by default - if there were no command line arguments
+                      // that were "--no-graphics" then turn it on.
      disable_state_script_writing = 0; // don't disable, by default
      script_is_python_flag = 0;
      small_screen_display  = 0; // default is no small screen

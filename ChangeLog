@@ -1,3 +1,15 @@
+2022-04-05  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.0.02
+
+2022-04-04  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.0.01
+
+2022-04-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1
+
 2022-01-24  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
 
 	* Release 0.9.7
@@ -369,13 +381,13 @@
 	* src/c-interface.cc: function to set the default bond thickness,
 	saved/used in save_state_file().
 
-	* src/c-interface-build.cc: (on_merge_molecules_check_button_toggled): 
+	* src/c-interface-build.cc: (on_merge_molecules_check_button_toggled):
 	  Use GPOINTER_TO_INT to type user data. LTE bug.
 
 	* src/c-interface-build.cc (execute_refmac): Use GPOINTER_TO_INT
 	to get user data from active item. LTE bug.
 
-	* src/c-interface.cc (on_filename_filter_toggle_button_toggled): 
+	* src/c-interface.cc (on_filename_filter_toggle_button_toggled):
 	  Use GPOINTER_TO_INT to type user data. LTE bug.
 
 	* src/graphics-info-modelling.cc: (rot_trans_adjustment_changed):
@@ -592,7 +604,7 @@
 	* src/c-interface.cc (safe-scheme-command).  Now returns a value,
 	SCM, which can be decoded in the calling function.  A good thing.
 	[This means that libguile.h had to be included in c-interface.h].	    
- 
+
 2006-04-15  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* coot-utils/peak-search.hh (coot): remove extra qualification for

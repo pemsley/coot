@@ -14434,6 +14434,53 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
       <placeholder/>
     </child>
   </object>
+  <object class="GtkDialog" id="keyboard_mutate_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="keyboard_mutate_entry">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="primary_icon_tooltip_text" translatable="yes">Type here the single letter code of the residue type - or press "Esc" to dismiss this dialog</property>
+            <signal name="delete-event" handler="on_keyboard_mutate_entry_delete_event_gtkbuilder_callback" swapped="no"/>
+            <signal name="key-press-event" handler="on_keyboard_mutate_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+            <signal name="key-release-event" handler="on_keyboard_mutate_entry_key_release_event_gtkbuilder_callback" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkDialog" id="least_squares_dialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Least Squares Fit</property>
@@ -28772,6 +28819,7 @@ View Mode</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">SSM Superpose</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox49">
         <property name="visible">True</property>
@@ -29303,6 +29351,7 @@ Move a copy?</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Choose molecule to Undo:</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox24">
         <property name="visible">True</property>
@@ -29394,6 +29443,7 @@ Move a copy?</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Find Unmodelled Blobs of density</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox68">
         <property name="visible">True</property>
@@ -29643,6 +29693,7 @@ Move a copy?</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Unsaved Changes</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox17">
         <property name="visible">True</property>
@@ -29868,6 +29919,7 @@ Move a copy?</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">validation dialog</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox28">
         <property name="visible">True</property>
@@ -30117,6 +30169,7 @@ Move a copy?</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Zoom Control</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox42">
         <property name="visible">True</property>

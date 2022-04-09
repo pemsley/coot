@@ -1138,7 +1138,7 @@ public:
 
    static int get_latest_model_molecule();
 
-   static short int use_graphics_interface_flag;
+   static bool use_graphics_interface_flag; // 20220409-PE now defaults is false!
 
    // Display size
    static int graphics_x_size;

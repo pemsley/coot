@@ -45,6 +45,8 @@
 
 #include "widget-from-builder.hh"
 
+#include "graphics-info.h" // 20220409-PE now we check use_graphics_interface_flag
+
 
 /* This is the signal handler for a color change event created when
    the colorseldialog has had its colour changed. */
@@ -126,7 +128,7 @@ create_symmetry_colour_selection_window() {
 }
 
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION >=4) || GTK_DISABLE_DEPRECATED
 #else
 void
 on_symmetry_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
@@ -716,6 +718,8 @@ void render_as_occupancy_representation_button_select(int imol) {
 /* n is the nth element in the molecule display VBox */
 void
 display_control_map_combo_box(const std::string &name, int imol) {
+
+   if (! graphics_info_t::use_graphics_interface_flag) return;
 
    GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);

@@ -410,17 +410,7 @@ main(int argc, char *argv[]) {
 #endif
 
    command_line_data cld = parse_command_line(argc, argv);
-   cld.handle_immediate_settings();
-
-#ifdef USE_PYTHON
-
-   // When using the builder, we need to setup python after setting up gtk (and storing the widgets)
-   if (! cld.use_gtkbuilder) {
-      setup_python(argc, argv);
-      // setup_python_classes();
-   }
-
-#endif
+   cld.handle_immediate_settings(); // sets graphics_info::use_graphics_interface_flag
 
 #ifdef WITH_SOUND
    // test_sound(argc, argv);
@@ -458,7 +448,10 @@ main(int argc, char *argv[]) {
 
    }
 
-   GtkWidget *splash = do_splash_screen(cld);
+   GtkWidget *splash = nullptr;
+
+   if (graphics_info_t::use_graphics_interface_flag)
+      splash = do_splash_screen(cld);
 
    setup_symm_lib();
    check_reference_structures_dir();

@@ -11432,11 +11432,10 @@ on_mutate_molecule_sequence_text_insert_at_cursor_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 gboolean
-on_mutate_molecule_sequence_text_key_release_event_gtkbuilder_callback
-                                        (GtkWidget       *widget,
-                                        GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+on_mutate_molecule_sequence_text_key_release_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                       GdkEventKey     *event,
+                                                                       gpointer         user_data) {
+
    GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
    GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
    GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");

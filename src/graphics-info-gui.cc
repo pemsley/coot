@@ -5022,7 +5022,7 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
    if (n_mesh == 0)
       gtk_widget_hide(f);
 
-   std::cout << "n_mesh " << n_mesh << std::endl;
+   std::cout << "DEBUG:: update_main_window_molecular_representation_widgets() n_mesh " << n_mesh << std::endl;
    
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
       for (unsigned int j=0; j<molecules[imol].meshes.size(); j++) {

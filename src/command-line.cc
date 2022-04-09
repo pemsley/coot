@@ -139,7 +139,9 @@ parse_command_line(int argc, char ** argv ) {
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
-   int option_index = 0; 
+   int option_index = 0;
+
+   bool found_no_graphics_in_the_command_line = false;
 
    while( -1 != 
 	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index) )) {
@@ -323,7 +325,8 @@ parse_command_line(int argc, char ** argv ) {
                                        graphics_info_t::run_startup_scripts_flag = false;
                                     } else {
                                        if (arg_str == "no-graphics") {
-                                          cld.do_graphics = 0;
+                                          cld.do_graphics = false; // 20220409-PE it's already false now
+                                          found_no_graphics_in_the_command_line = true;
                                        } else {
                                           if (arg_str == "em") {
                                              cld.em_mode = true;
@@ -412,7 +415,10 @@ parse_command_line(int argc, char ** argv ) {
    }
 
    if (cld.hostname != "" && cld.port != 0)
-      cld.try_listener = 1;
+      cld.try_listener = true;
+
+   if (! found_no_graphics_in_the_command_line) // we do this for "import coot" in Python, which doesn't use main()
+      cld.do_graphics = true;                   // and doesn't run this function.
 
    cld.roberto_pdbs(argc, argv);
 
