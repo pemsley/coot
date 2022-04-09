@@ -7802,12 +7802,23 @@ on_ncs_control_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
 
 
 extern "C" G_MODULE_EXPORT
+gboolean
+on_coords_colour_control_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                 GdkEvent        *event,
+                                                                 gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
+extern "C" G_MODULE_EXPORT
 void
 on_coords_colour_control_dialog_destroy_gtkbuilder_callback
                                         (GtkWidget       *object,
                                         gpointer         user_data)
 {
-
+   // do nothing!
 }
 
 
@@ -7831,7 +7842,9 @@ on_bond_colours1_activate_gtkbuilder_callback              (GtkMenuItem     *men
 
    // note on_coord_colour_control_ok_button_clicked_gtkbuilder_callback()
    // (above)
-   GtkWidget *w = wrapped_create_coords_colour_control_dialog(); // uses builder
+   GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
+   graphics_info_t g;
+   g.fill_bond_colours_dialog_internal(w);
    gtk_widget_show(w);
 
 }
@@ -8991,6 +9004,18 @@ on_calculate_scripting_python1_activate_gtkbuilder_callback (GtkMenuItem     *me
   post_python_scripting_window();
 
 }
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_python_window_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                  GdkEvent        *event,
+                                                  gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
 
 
 extern "C" G_MODULE_EXPORT
