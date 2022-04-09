@@ -4977,19 +4977,20 @@ graphics_info_t::setup_key_bindings() {
 
    // boids
    auto l23 = [] () {
-                 graphics_info_t g;
-                 if (! graphics_info_t::do_tick_boids)
-                    graphics_info_t::do_tick_boids = true;
-                 else
-                    graphics_info_t::do_tick_boids = false;
+      graphics_info_t g;
 
-                 g.setup_draw_for_boids();
-
-                 if (! graphics_info_t::do_tick_boids)
-                    std::cout << "--------- key press ----------- do_tick_boids "
-                           << graphics_info_t::do_tick_boids << std::endl;
-                 return gboolean(TRUE);
-              };
+      if (false) {
+         if (! graphics_info_t::do_tick_boids)
+            graphics_info_t::do_tick_boids = true;
+         else
+            graphics_info_t::do_tick_boids = false;
+         g.setup_draw_for_boids();
+         if (! graphics_info_t::do_tick_boids)
+            std::cout << "--------- key press ----------- do_tick_boids "
+                      << graphics_info_t::do_tick_boids << std::endl;
+      }
+      return gboolean(TRUE);
+   };
 
    auto l24 = [] () {
                  // using the C API
