@@ -660,6 +660,8 @@ namespace coot {
 
       std::string single_letter_to_3_letter_code(char code);
 
+      std::string single_letter_to_3_letter_code(const std::string &slc);
+
       short int is_nucleotide(mmdb::Residue *r); // by refmac restraint naming
                                             // e.g. Td Ur Gr Ad etc.
 

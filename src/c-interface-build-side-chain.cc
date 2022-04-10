@@ -638,6 +638,37 @@ void mutate_active_residue() {
    }
 }
 
+void
+mutate_active_residue_to_single_letter_code(const std::string &slc) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::atom_spec_t atom_spec = pp.second.second;
+      std::string u_slc = coot::util::upcase(slc);
+      std::string res_type = coot::util::single_letter_to_3_letter_code(u_slc);
+      std::cout << "debug:: single_letter_to_3_letter_code(): scl: " << u_slc << " res_type: " << res_type << std::endl;
+      if (! res_type.empty()) {
+         graphics_info_t g;
+         int ires = atom_spec.res_no;
+         std::string ins_code = atom_spec.ins_code;
+         std::string chain_id = atom_spec.chain_id;
+         g.molecules[imol].mutate(ires, ins_code, std::string(chain_id), res_type);
+         g.update_geometry_graphs(imol);
+         graphics_draw();
+      }
+   }
+}
+
+// \brief show keyboard mutate dialog
+void show_keyboard_mutate_dialog() {
+
+   GtkWidget *w = widget_from_builder("keyboard_mutate_dialog");
+   gtk_widget_show(w);
+
+}
+
+
 
 // return success on residue type match
 // success: 1, failure: 0.

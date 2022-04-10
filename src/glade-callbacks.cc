@@ -10936,6 +10936,17 @@ on_keyboard_go_to_residue_entry_key_press_event_gtkbuilder_callback
 }
 
 extern "C" G_MODULE_EXPORT
+gboolean
+on_keyboard_go_to_residue_window_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                                  GdkEvent        *event,
+                                                                  gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
+extern "C" G_MODULE_EXPORT
 void
 on_mogul_geometry_dialog_close_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
@@ -12239,3 +12250,41 @@ on_cif_dictionary_filechooser_dialog_response_gtkbuilder_callback(GtkDialog     
    }
 }
 
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_keyboard_mutate_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                           GdkEvent        *event,
+                                                           gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_keyboard_mutate_entry_key_press_event_gtkbuilder_callback (GtkWidget       *widget,
+                                                              GdkEventKey     *event,
+                                                              gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("keyboard_mutate_dialog");
+   GtkWidget *entry  = widget_from_builder("keyboard_mutate_entry");
+   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+      const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+      if (txt) {
+         std::string ss(txt);
+         gtk_entry_set_text(GTK_ENTRY(entry), ""); // for next time!
+         mutate_active_residue_to_single_letter_code(ss);
+      }
+      gtk_widget_hide(dialog);
+   }
+   return FALSE;
+}
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_keyboard_mutate_entry_key_release_event_gtkbuilder_callback (GtkWidget       *widget,
+                                                                GdkEventKey     *event,
+                                                                gpointer         user_data) {
+   return FALSE;
+}

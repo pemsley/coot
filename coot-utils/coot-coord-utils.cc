@@ -2314,6 +2314,35 @@ coot::util::single_letter_to_3_letter_code(char code) {
 }
 
 
+std::string
+coot::util::single_letter_to_3_letter_code(const std::string &code) {
+
+   if (code == "G") return std::string("GLY");
+   if (code == "A") return std::string("ALA");
+   if (code == "V") return std::string("VAL");
+   if (code == "S") return std::string("SER");
+   if (code == "N") return std::string("ASN");
+   if (code == "P") return std::string("PRO");
+   if (code == "D") return std::string("ASP");
+   if (code == "C") return std::string("CYS");
+   if (code == "Q") return std::string("GLN");
+   if (code == "E") return std::string("GLU");
+   if (code == "H") return std::string("HIS");
+   if (code == "I") return std::string("ILE");
+   if (code == "L") return std::string("LEU");
+   if (code == "K") return std::string("LYS");
+   if (code == "M") return std::string("MET");
+   if (code == "F") return std::string("PHE");
+   if (code == "T") return std::string("THR");
+   if (code == "W") return std::string("TRP");
+   if (code == "Y") return std::string("TYR");
+   if (code == "R") return std::string("ARG");
+
+   return std::string("");
+}
+
+
+
 // Match on graph
 // 
 // Return the orientation matrix moving res_moving to res_reference

@@ -133,6 +133,7 @@
     <property name="destroy_with_parent">True</property>
     <property name="icon">pixmaps/coot-icon.png</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <property name="version">0.4-pre</property>
     <property name="copyright" translatable="yes">Copyright 2000, 2007 by Paul Emsley
 Copyright 2002, 2003, 2004, 2005, 2006, 2007 
@@ -188,6 +189,7 @@ Bernhard Lohkamp
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Accept Refinement?</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <signal name="configure-event" handler="on_accept_reject_refinement_dialog_configure_event_gtkbuilder_callback" swapped="no"/>
     <signal name="destroy" handler="on_accept_reject_refinement_dialog_destroy_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
@@ -361,6 +363,7 @@ Bernhard Lohkamp
   <object class="GtkWindow" id="accession_code_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">PDB Accession Code </property>
+    <property name="deletable">False</property>
     <child>
       <object class="GtkFrame" id="frame34">
         <property name="visible">True</property>
@@ -437,6 +440,7 @@ Bernhard Lohkamp
   <object class="GtkWindow" id="active_map_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Active Map on Dragging?</property>
+    <property name="deletable">False</property>
     <child>
       <object class="GtkBox" id="vbox8">
         <property name="visible">True</property>
@@ -574,6 +578,7 @@ Bernhard Lohkamp
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">add OXT to chain</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox61">
         <property name="visible">True</property>
@@ -1605,6 +1610,7 @@ Bernhard Lohkamp
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">No Acceptable Terminal Residue </property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox51">
         <property name="visible">True</property>
@@ -1673,6 +1679,7 @@ any acceptable configuration here.</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Align and Mutate</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox82">
         <property name="visible">True</property>
@@ -1876,6 +1883,7 @@ any acceptable configuration here.</property>
   <object class="GtkWindow" id="aniso_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Anisotripic Atoms</property>
+    <property name="deletable">False</property>
     <child>
       <object class="GtkBox" id="vbox16">
         <property name="visible">True</property>
@@ -2331,6 +2339,7 @@ any acceptable configuration here.</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Antialiasing</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox74">
         <property name="visible">True</property>
@@ -2471,6 +2480,7 @@ any acceptable configuration here.</property>
     <property name="default_width">200</property>
     <property name="default_height">200</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <signal name="response" handler="on_bad_chiral_volumes_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox54">
@@ -2561,6 +2571,7 @@ any acceptable configuration here.</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Baton</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox18">
         <property name="visible">True</property>
@@ -2805,6 +2816,7 @@ any acceptable configuration here.</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Make Skeleton?</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox56">
         <property name="visible">True</property>
@@ -14420,6 +14432,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
   <object class="GtkWindow" id="keyboard_go_to_residue_window">
     <property name="can_focus">False</property>
     <property name="decorated">False</property>
+    <signal name="delete-event" handler="on_keyboard_go_to_residue_window_delete_event_gtkbuilder_callback" swapped="no"/>
     <child>
       <object class="GtkEntry" id="keyboard_go_to_residue_entry">
         <property name="visible">True</property>
@@ -14438,6 +14451,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
+    <signal name="delete-event" handler="on_keyboard_mutate_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -14465,7 +14479,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="primary_icon_tooltip_text" translatable="yes">Type here the single letter code of the residue type - or press "Esc" to dismiss this dialog</property>
-            <signal name="delete-event" handler="on_keyboard_mutate_entry_delete_event_gtkbuilder_callback" swapped="no"/>
             <signal name="key-press-event" handler="on_keyboard_mutate_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
             <signal name="key-release-event" handler="on_keyboard_mutate_entry_key_release_event_gtkbuilder_callback" swapped="no"/>
           </object>
@@ -29703,6 +29716,7 @@ Move a copy?</property>
           <object class="GtkButtonBox" id="dialog-action_area17">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkBox" id="hbox51">

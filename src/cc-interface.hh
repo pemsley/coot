@@ -1235,6 +1235,12 @@ int mutate_internal(int ires, const char *chain_id,
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
+// \brief mutate active residue to single letter code slc
+void mutate_active_residue_to_single_letter_code(const std::string &slc);
+
+// \brief show keyboard mutate dialog
+void show_keyboard_mutate_dialog();
+
 /*  ----------------------------------------------------------------------- */
 /*                  ligands                                                 */
 /*  ----------------------------------------------------------------------- */
