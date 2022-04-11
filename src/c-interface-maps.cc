@@ -2446,6 +2446,50 @@ PyObject *map_contours(int imol, float contour_level) {
 }
 // \}
 
+//! \brief return two lists: a list of vertices and a list of indices for connection
+PyObject *map_contours_as_triangles(int imol, float contour_level) {
+
+   PyObject *r_py = Py_False;
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].update_map_internal();
+      std::vector<glm::vec3> vertices = g.molecules[imol].map_as_mesh.just_vertices();
+      const std::vector<g_triangle> &tris    =  g.molecules[imol].map_as_mesh.triangles;
+
+      std::cout << "verticies size " << vertices.size() << std::endl;
+      std::cout << "tris size " << tris.size() << std::endl;
+
+      r_py = PyList_New(2);
+      PyObject *vertices_py = PyList_New(vertices.size());
+      PyObject *tris_py     = PyList_New(tris.size());
+      //#if 0
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         PyObject *vert_py = PyList_New(3);
+         PyList_SetItem(vert_py, 0, PyFloat_FromDouble(vertices[i][0]));
+         PyList_SetItem(vert_py, 1, PyFloat_FromDouble(vertices[i][1]));
+         PyList_SetItem(vert_py, 2, PyFloat_FromDouble(vertices[i][2]));
+         PyList_SetItem(vertices_py, i, vert_py);
+      }
+      for (unsigned int i=0; i<tris.size(); i++) {
+         PyObject *tri_py = PyList_New(3);
+         PyList_SetItem(tri_py, 0, PyLong_FromLong(tris[i][0]));
+         PyList_SetItem(tri_py, 1, PyLong_FromLong(tris[i][1]));
+         PyList_SetItem(tri_py, 2, PyLong_FromLong(tris[i][2]));
+         PyList_SetItem(tris_py, i, tri_py);
+      }
+      // #endif
+      PyList_SetItem(r_py, 0, vertices_py);
+      PyList_SetItem(r_py, 1, tris_py);
+   }
+
+   if (PyBool_Check(r_py))
+      Py_XINCREF(r_py);
+   return r_py;
+
+}
+
+
 int sharpen_blur_map(int imol_map, float b_factor) {
 
    int imol_new = -1;

@@ -643,7 +643,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 
    std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, n_reams);
 
-   if (false) { // debug
+   if (true) { // debug
       std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
       std::cout << "    box_radius " << box_radius << std::endl;
       std::cout << "    centre_point: " << centre_point << std::endl;

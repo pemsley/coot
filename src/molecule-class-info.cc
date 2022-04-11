@@ -3896,6 +3896,9 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
                    << std::endl;
       }
 
+      if (graphics_info_t::use_graphics_interface_flag)
+         molecule_as_mesh_bonds.set_is_headless();
+
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {
@@ -3989,7 +3992,7 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() -- start A --\n";
 
-   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0])); // is this needed? 20220226-PE yes it is.
+   graphics_info_t::attach_buffers(); // needed.
 
    // make_meshes_from_bonds_box(); // instanced meshes, that is. Not today.
 

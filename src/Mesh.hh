@@ -78,6 +78,7 @@ public:
    std::string name;
    unsigned int type; // from molecular triangles object type
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
+   bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
 
    Mesh() { init(); }
    // import from somewhere else
@@ -104,6 +105,7 @@ public:
    }
    bool empty() const { return (vertices.size() == 0); }
    void close();
+   void set_is_headless(); // gets called when graphical::use_graphics_interface_flag is false
    void set_draw_mesh_state(bool state) { if (this_mesh_is_closed) draw_this_mesh = false; else draw_this_mesh = state; }
    void set_name(const std::string &n) { name = n; }
    void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices,
@@ -358,6 +360,9 @@ public:
    std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres;
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
    void sort_map_triangles(const glm::vec3 &eye_position);
+
+   // export suitable for Blender - just the vertices.
+   std::vector<glm::vec3> just_vertices() const;
 
 };
 

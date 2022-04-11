@@ -4873,8 +4873,10 @@ string   static std::string sessionid;
    void read_test_gltf_models();
 
    static void attach_buffers() {
-      auto gl_area = glareas[0];
-      gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
+      if (use_graphics_interface_flag) {
+         auto gl_area = glareas[0];
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
+      }
    }
 
 };

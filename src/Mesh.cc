@@ -55,6 +55,7 @@ Mesh::init() {
    particle_draw_count = 0;
    gl_lines_mode = false;
    vao = VAO_NOT_SET;
+   is_headless = false;
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    time_constructed = now;
@@ -74,6 +75,11 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
    vertices  = mtm.vertices;
    triangles = mtm.triangles;
    name = mtm.name;
+}
+
+void
+Mesh::set_is_headless() {
+   is_headless = true;
 }
 
 void
@@ -616,6 +622,8 @@ Mesh::setup_debugging_instancing_buffers() {
 
 void
 Mesh::setup_buffers() {
+
+   if (is_headless) return;
 
    if (triangles.empty()) return;
    if (vertices.empty()) return;
@@ -3200,6 +3208,18 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
 }
 
 
+// export suitable for Blender - just the vertices.
+std::vector<glm::vec3>
+Mesh::just_vertices() const {
+
+   std::vector<glm::vec3> v(vertices.size());
+   for (unsigned int i=0; i<vertices.size(); i++) {
+      v[i] = vertices[i].pos;
+   }
+   return v;
+}
+
+
 
 
 void
@@ -3209,3 +3229,4 @@ Mesh::invert_normals() { // flip normals
       vertex.normal = -vertex.normal;
 
 }
+

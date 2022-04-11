@@ -1756,8 +1756,12 @@ int handle_drag_and_drop_string(const std::string &uri);
 
 #ifdef USE_PYTHON
 // \{
-//! \brief return two lists: a list of vertices and a list of indices for connection
+//! \brief return a list of pairs of vertices for the lines
 PyObject *map_contours(int imol, float contour_level);
+
+//! \brief return two lists: a list of vertices and a list of index-triples for connection
+PyObject *map_contours_as_triangles(int imol, float contour_level);
+
 // \}
 #endif // USE_PYTHON
 

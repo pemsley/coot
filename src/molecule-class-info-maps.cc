@@ -492,7 +492,7 @@ molecule_class_info_t::update_map_internal() {
 
    // duck out of doing map OpenGL map things if we are not in gui mode
    //
-   if (! graphics_info_t::use_graphics_interface_flag) return;
+   // if (! graphics_info_t::use_graphics_interface_flag) return;
 
    float radius = graphics_info_t::box_radius_xray;
 
@@ -658,11 +658,13 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
 
+   std::cout   << "DEBUG:: update_map_triangles() at center: " << centre << std::endl;
+
    // duck out of doing map OpenGL map things if we are not in gui mode
    // (for figure making, from jupyter (say) in the future, this is probably not the right
    // thing to do.
 
-   if (! graphics_info_t::use_graphics_interface_flag) return;
+   // if (! graphics_info_t::use_graphics_interface_flag) return;
 
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;
@@ -674,7 +676,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       is_em_map = true;
    }
 
-   // std::cout   << "DEBUG:: g.zoom: " << g.zoom << std::endl;
+   std::cout   << "DEBUG:: update_map_triangles() g.zoom: " << g.zoom << std::endl;
 
    if (g.dynamic_map_resampling == 1)
       // isample_step = 1 + int (0.009*g.zoom);
@@ -773,6 +775,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       }
 
       clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
+
+      std::cout << "calling setup_glsl_map_rendering() " << std::endl;
       setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
 
 
@@ -1158,6 +1162,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       }
    }
 
+   if (! graphics_info_t::use_graphics_interface_flag) {
+      map_as_mesh.set_is_headless();
+      map_as_mesh_gl_lines_version.set_is_headless();
+   }
    map_as_mesh.clear();
    map_as_mesh.import(vertices_and_triangles, map_triangle_centres);
    map_as_mesh.set_name(name_);
@@ -4323,11 +4331,12 @@ molecule_class_info_t::get_contours(float contour_level,
    int isample_step = 1;
    CIsoSurface<float> my_isosurface;
    // a pointer and a size
+
+   std::cout << "calling GenerateTriangles_from_Xmap with isample_step " << isample_step << std::endl;
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
                                                                        contour_level,
                                                                        radius, centre,
-                                                                       0,1,
-                                                                       isample_step, is_em_map_local);
+                                                                       isample_step, 0, 1, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {
          r.resize(v.size);
