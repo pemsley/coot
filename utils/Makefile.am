@@ -37,12 +37,18 @@ libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 	gdk-keysyms.cc hsv-rgb.cc dodec.cc win-compat.cc threads.cc align-utils.cc \
 	pir-alignment.cc split-indices.cc radix.cc logging.cc insertion-sort.cc
 
+libcoot_utils_la_LIBADD = \
+	$(GLOB_LIBS)
+
+
 if USE_BACKWARD
 libcoot_utils_la_SOURCES += backward.cpp
 endif
 
-libcoot_utils_la_LIBADD = \
-	$(GLOB_LIBS)
+# set this in configure ideally, but for now pass it as a command-line CXXFLAGS arg to configure.
+if BACKWARD_HAS_DW
+libcoot_utils_la_LIBADD += -ldw
+endif
 
 libcoot_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
