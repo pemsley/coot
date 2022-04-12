@@ -658,7 +658,8 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
 
-   std::cout   << "DEBUG:: update_map_triangles() at center: " << centre << std::endl;
+   // std::cout   << "DEBUG:: update_map_triangles() at center: " << centre << std::endl;
+   // std::cout   << "DEBUG:: update_map_triangles() g.zoom: " << g.zoom << std::endl;
 
    // duck out of doing map OpenGL map things if we are not in gui mode
    // (for figure making, from jupyter (say) in the future, this is probably not the right
@@ -676,7 +677,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       is_em_map = true;
    }
 
-   std::cout   << "DEBUG:: update_map_triangles() g.zoom: " << g.zoom << std::endl;
 
    if (g.dynamic_map_resampling == 1)
       // isample_step = 1 + int (0.009*g.zoom);
@@ -776,7 +776,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
 
-      std::cout << "calling setup_glsl_map_rendering() " << std::endl;
       setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
 
 

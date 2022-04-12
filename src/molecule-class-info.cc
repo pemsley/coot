@@ -3694,7 +3694,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = true;
+   bool debug = false;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
