@@ -1,4 +1,14 @@
 
+   Release 1.0.03
+
+----
+
+   Release 1.0.02
+
+   o BUG-FIX: sort out the coot_wrap*.cc files
+
+----
+
    Release 1.0.01
 
    o FEATURE:  Space during RSR clicks the OK button
@@ -103,6 +113,16 @@ major version every year or so.
 [8] the little testing I have done on a recent intel MacBook Pro shows unimpressive
     performance (Iris graphics, retina display)
 [9] Thanks to my Mac-using colleagues for their feedback.
+
+----
+
+  Release 0.9.8.1
+
+  o BUG-FIX:  Python test for averaged maps fixed
+
+  o BUG-FIX:  Pythonic and scheme get_drug() function fixed
+
+  o BUG-FIX: downloaded curlew files are now copied, not renamed.
 
 ----
 

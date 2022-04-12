@@ -4000,6 +4000,7 @@ INFO::
    o git commit -a
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag
+   o git push # push the actual release commit
    o Passes build (build-latest) on pc?
      cd build-for-release, configure it, make and make dist.
      So that works? Now use md...
@@ -10570,3 +10571,20 @@ Sat 26 Mar 14:10:12 GMT 2022
 Sat  9 Apr 18:47:03 BST 2022
 
    gtk_window_deiconify() - is this what I want to do when I get a dialog from builder?
+Wed  2 Mar 11:33:42 GMT 2022
+
+  Update CentOS7 compiler:
+
+   $ yum install centos-release-scl
+   $ yum install devtoolset-8
+
+   as a user, to use the new compiler:
+   $ scl enable devtoolset-8 tcsh
+
+   Thank you Charles.
+
+---
+Wed  2 Mar 16:52:53 GMT 2022
+
+  python with ctypes (libffi)
+https://unix.stackexchange.com/questions/631725/how-do-i-build-pkgconf-and-libffi-and-subsequently-python3-9-with-ctypes-support

@@ -3565,14 +3565,10 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 # of the mdl mol file from drugbank. Or False/undefined on fail.
 # Test result with string?.
 #
-
-
 def get_drug_via_wikipedia(drug_name_in):
 
-    import urllib.request
-    import urllib.error
-    import urllib.parse
-    import os
+
+    import urllib2, ssl, os
     from xml.etree import ElementTree
 
     def get_redirected_drug_name(xml):
