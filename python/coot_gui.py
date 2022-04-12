@@ -2111,7 +2111,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     scrolled_win.add_with_viewport(inside_vbox)
 
     for button_info in buttons:
-        print("DEBUG:: in dialog_box_of_buttons_with_check_button(): button_info:", button_info)
+        # print("DEBUG:: in dialog_box_of_buttons_with_check_button(): button_info:", button_info)
         add_button_info_to_box_of_buttons_vbox(button_info, inside_vbox)
 
     outside_vbox.set_border_width(2)
@@ -2159,7 +2159,7 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
 
     # main line
 
-    print("debug:: add_button_info_to_box_of_buttons_vbox() button_info:", button_info)
+    # print("debug:: add_button_info_to_box_of_buttons_vbox() button_info:", button_info)
 
     button_label = button_info[0]
     # print("debug in add_button_info_to_box_of_buttons_vbox with button bits", button_label, button_info[1])
@@ -2412,7 +2412,7 @@ def views_panel_gui():
     def generator(button_number):
         func = lambda button_number_c=button_number : coot.go_to_view_number(button_number_c, 0)
         def action(arg):
-            print("debug in action() arg is", arg, "button_number is", button_number)
+            print("DEBUG:: in views_panel_gui(): action() arg is", arg, "button_number is", button_number)
             func(button_number)
         return action
 
@@ -5985,23 +5985,25 @@ def pukka_puckers_qm(imol):
 # May become more sophisticated at some point
 #
 def rama_outlier_gui():
-   """
-   A gui to list Ramachandran outliers etc.
-   A first draft, may become more sophisticated at some point
-   """
 
-   def list_rama_outliers(imol):
+    """
+    A gui to list Ramachandran outliers etc.
+    A first draft, may become more sophisticated at some point
+    """
 
-      r = coot.all_molecule_ramachandran_region_py(imol)
-      outliers = []
-      allowed = []
-      for res in r:
-         if res[1] == 0:
-            outliers.append(res[0])
-         if res[1] == 1:
-            allowed.append(res[0])
+    def list_rama_outliers(imol):
 
-      def make_buttons(res_list, label_string):
+        r = coot.all_molecule_ramachandran_region_py(imol)
+        outliers = []
+        allowed = []
+        for res in r:
+            if res[1] == 0:
+                outliers.append(res[0])
+            if res[1] == 1:
+                allowed.append(res[0])
+
+    def make_buttons_old(res_list, label_string):
+
          ret = []
          for res_spec in res_list:
             chain_id = res_spec[1]
@@ -6014,11 +6016,35 @@ def rama_outlier_gui():
 
          return ret
 
-      outlier_buttons = make_buttons(outliers, "Outlier")
-      allowed_buttons = make_buttons(allowed, "Allowed")
-      all_buttons = outlier_buttons + allowed_buttons
+    def go_to_residue(res_spec):
+        print("Here in go_to_residue() with res_spec", res_spec)
 
-      def clear_and_add_back(vbox, outliers_list, allowed_list, filter_flag):
+    def generator(res_spec):
+        func = lambda res_spec_c=res_spec : go_to_residue(res_spec_c)
+        def action(arg):
+            func(res_spec)
+        return action
+
+    def make_buttons(res_list, label_prefix):
+
+        button_list = []
+        for res_spec in res_list:
+            chain_id = res_spec[1]
+            res_no   = res_spec[2]
+            ins_code = res_spec[3]
+            label = label_prefix + ": " + chain_id + " " + str(res_no)
+            if ins_code:
+                label += " " + ins_code
+            func = generator(res_spec)
+            buttons.append([label, func])
+
+        return button_list
+
+    outlier_buttons = make_buttons(outliers, "Outlier")
+    allowed_buttons = make_buttons(allowed, "Allowed")
+    all_buttons = outlier_buttons + allowed_buttons
+
+    def clear_and_add_back(vbox, outliers_list, allowed_list, filter_flag):
          # clear
          children = vbox.get_children()
          map(lambda c: c.destroy(), children)
@@ -6031,7 +6057,7 @@ def rama_outlier_gui():
          map(lambda button_info: add_button_info_to_box_of_buttons_vbox(button_info, vbox),
              buttons)
 
-      dialog_box_of_buttons_with_check_button(
+    dialog_box_of_buttons_with_check_button(
           " Ramachandran issues ", [300, 300], [], "  Close  ",
           "Outliers only",
           lambda check_button, vbox: clear_and_add_back(vbox, outlier_buttons, allowed_buttons, True)
@@ -6039,8 +6065,8 @@ def rama_outlier_gui():
           clear_and_add_back(vbox, outlier_buttons, allowed_buttons, False),
           False)
 
-   molecule_chooser_gui("List Rama outliers for which molecule?", lambda imol: list_rama_outliers(imol))
-
+    molecule_chooser_gui("List Rama outliers for which molecule?", lambda imol: list_rama_outliers(imol))
+   
 
 def model_map_diff_map_molecule_chooser_gui(callback_function):
 

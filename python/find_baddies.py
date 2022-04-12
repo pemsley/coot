@@ -142,22 +142,23 @@ def validation_outliers_dialog(imol, imol_map):
     def regenerate_button_fn(*args):
 
         def cb_func(button, callback):
-            for item in callback:
-                item[0](*item[1:])
+            callback("some-arg")
 
         if dialog_vbox:
-            buttons = make_buttons()
             old_buttons = dialog_vbox.get_children()
-            for button_spec in buttons:
-                button = gtk.Button(button_spec[0])
-                button.connect("clicked", cb_func, button_spec[1])
+            for butt in old_buttons:
+                butt.destroy()
+            buttons = make_buttons()
+            for button_parts in buttons:
+                # print("button parts 0", button_parts[0])
+                # print("button parts 1", button_parts[1])
+                button = Gtk.Button(button_parts[0])
+                button.connect("clicked", cb_func, button_parts[1])
                 dialog_vbox.pack_start(button, False, False, 2)
                 button.show()
             if window:
                 window.set_title(make_window_title(len(buttons)))
-            for butt in old_buttons:
-                butt.destroy()
-            validation_outliers_dialog(imol, imol_map)
+            # validation_outliers_dialog(imol, imol_map)
 
     def ok_to_do_density_correlations_qm():
         if poor_density_checkbutton:
@@ -177,6 +178,26 @@ def validation_outliers_dialog(imol, imol_map):
         except:
             return False
         return cg_torsion_diff_checkbutton.get_active()
+
+    def go_to_atom_in_molecule(imol, atom_spec):
+        coot.set_go_to_atom_molecule(imol)
+        rdf.set_go_to_atom_from_atom_spec(atom_spec)
+
+    def go_to_residue_in_molecule(imol, res_spec):
+        coot.set_go_to_atom_molecule(imol)
+        rdf.set_go_to_atom_from_res_spec(res_spec)
+
+    def generator(res_spec):
+        func = lambda res_spec_c=res_spec : go_to_residue_in_molecule(imol, res_spec_c)
+        def action(arg):
+            func(res_spec)
+        return action
+
+    def generator_for_atom_spec(atom_spec):
+        func = lambda atom_spec_c=atom_spec : go_to_atom_in_molecule(imol, atom_spec_c)
+        def action(arg):
+            func(atom_spec)
+        return action
 
     def make_buttons():
 
@@ -227,14 +248,6 @@ def validation_outliers_dialog(imol, imol_map):
                 return val[1]
         sorted_filtered_rotamer_baddies = filtered_rotamer_baddies.sort(key=get_rotamer_score)
 
-        def go_to_residue_in_molecule(imol, res_spec):
-            coot.set_go_to_atom_molecule(imol)
-            rdf.set_go_to_atom_from_res_spec(res_spec)
-
-        def go_to_atom_in_molecule(imol, atom_spec):
-            coot.set_go_to_atom_molecule(imol)
-            rdf.set_go_to_atom_from_atom_spec(atom_spec)
-
         rama_buttons = []
         for baddie in sorted_filtered_rama_baddies:
             spec, rama_prob = baddie
@@ -248,7 +261,7 @@ def validation_outliers_dialog(imol, imol_map):
                            coot_utils.residue_spec_to_residue_name(imol, spec) + \
                            " " + \
                            score_string
-            rama_buttons.append([button_label, lambda imol, spec: go_to_residue_in_molecule(imool, spec)])
+            rama_buttons.append([button_label, generator(spec)])
 
         c_beta_buttons = []
         for baddie in sorted_filtered_c_beta_baddies:
@@ -261,7 +274,7 @@ def validation_outliers_dialog(imol, imol_map):
                            coot_utils.residue_spec_to_residue_name(imol, spec) + \
                            " " + \
                            score_string + u'\u212B'.encode('utf-8')
-            c_beta_buttons.append([button_label, go_to_residue_in_molecule(imol,residue_spec)])
+            c_beta_buttons.append([button_label, generator(residue_spec)])
 
         non_pro_cis_peptide_buttons = []
         for baddie in non_pro_cis_peptide_baddies():
@@ -272,7 +285,7 @@ def validation_outliers_dialog(imol, imol_map):
                            residue_spec_to_string(spec_1) + \
                            " - " + \
                            residue_spec_to_string(spec_2)
-            non_pro_cis_peptide_buttons.append([button_label, lambda imol, spec_1 : go_to_residue_in_molecule(imol, spec_1)])
+            non_pro_cis_peptide_buttons.append([button_label, generator(spec_1)])
 
         twisted_trans_peptide_buttons = []
         for baddie in twisted_trans_peptide_baddies():
@@ -283,7 +296,7 @@ def validation_outliers_dialog(imol, imol_map):
                            residue_spec_to_string(spec_1) + \
                            " - " + \
                            residue_spec_to_string(spec_2)
-            twisted_trans_peptide_buttons.append([button_label, lambda imol, spec_1 : go_to_residue_in_molecule(imol, spec_1)])
+            twisted_trans_peptide_buttons.append([button_label, generator(spec_1)])
 
         rota_buttons = []
         for baddie in filtered_rotamer_baddies:
@@ -307,7 +320,7 @@ def validation_outliers_dialog(imol, imol_map):
                             " "
             button_label += rot_name if isinstance(rot_name, str) else " "
             button_label += "" if score == 0.0 else score_string
-            rota_buttons.append([button_label, lambda imol, spec : go_to_residue_in_molecule(imol, spec)])
+            rota_buttons.append([button_label, generator(spec)])
 
         density_baddies_buttons = []
         for baddie in density_baddies:
@@ -316,7 +329,7 @@ def validation_outliers_dialog(imol, imol_map):
                            residue_spec_to_string(spec) + \
                            " " + \
                            '{:5.2f}'.format(score)
-            density_baddies_buttons.append([button_label, lambda imol, spec : go_to_residue_in_molecule(imol, spec)])
+            density_baddies_buttons.append([button_label, generator(spec)])
 
         cg_torsion_buttons = []
         for baddie in cg_torsion_baddies:
@@ -325,12 +338,16 @@ def validation_outliers_dialog(imol, imol_map):
                            residue_spec_to_string(spec) + \
                            " " + \
                            '{:5.2f}'.format(score)
-            cg_torsion_buttons.append([button_label, lambda imol, spec : go_to_residue_in_molecule(imol, spec)])
+            cg_torsion_buttons.append([button_label, generator(spec)])
 
         chiral_volume_buttons = []
         for baddie_atom_spec in find_chiral_volume_baddies():
-            button_label = "Chiral Volume Error " + coot_utils.atom_spec_to_string(baddie_atom_spec)
-            chiral_volume_buttons.append([button_label, lambda imol_baddie_atom_spec_pair : go_to_atom_in_molecule(imol_baddie_atom_spec_pair[0], imol_baddie_atom_spec_pair[1])])
+            atom_spec = baddie_atom_spec
+            if len(atom_spec) == 6:
+                atom_spec = atom_spec[1:]
+            button_label = "Chiral Volume Error " + coot_utils.atom_spec_to_string(atom_spec)
+            func = generator_for_atom_spec(atom_spec)
+            chiral_volume_buttons.append([button_label, func])
 
         atom_overlap_buttons = []
         for baddie in filtered_mao_baddies:
@@ -343,7 +360,7 @@ def validation_outliers_dialog(imol, imol_map):
                            coot_utils.atom_spec_to_string(atom_spec_2) + \
                            " OV: " + \
                            '{:5.2f}'.format(overlap)
-            atom_overlap_buttons.append([button_label, lambda imol, atom_spec_1 : go_to_atom_in_molecule(imol, atom_spec_1)])
+            atom_overlap_buttons.append([button_label, generator_for_atom_spec(atom_spec_1)])
 
         buttons =  chiral_volume_buttons + \
                    rama_buttons + \
