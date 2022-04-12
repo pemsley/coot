@@ -541,16 +541,27 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
                                        // reverse the position
                                        float sf = rama_plot_scale * 0.23; // as in update_hud_tmeshes()
                                        glm::vec2 oowrsc_v2(1.0/window_resize_scales_correction.x, 1.0/window_resize_scales_correction.y);
-                                       glm::vec2 rpp_1 = glm::vec2(x_opengl, y_opengl) - window_resize_position_correction;
+                                       // the sign of these offset will depend on the corner that they're offset from
+                                       // this is lower-lefft of course.
+                                       glm::vec2 wrpc(window_resize_position_correction.x, -window_resize_position_correction.y);
+                                       glm::vec2 rpp_1 = glm::vec2(x_opengl, y_opengl) - wrpc; // window_resize_position_correction;
                                        glm::vec2 rpp_2 = rpp_1 * oowrsc_v2;
                                        glm::vec2 rpp_3 = rpp_2 - position;
                                        glm::vec2 rpp_4(rpp_3.x/scales.x, rpp_3.y/scales.y);
                                        glm::vec2 rpp_5(rpp_4.x/sf, rpp_4.y/sf);
 
+                                       glm::vec2 rpp_1a = glm::vec2(x_opengl, y_opengl);
+                                       glm::vec2 rpp_2a = rpp_1a * oowrsc_v2;
+                                       glm::vec2 rpp_3a = rpp_2a - position;
+                                       glm::vec2 rpp_4a(rpp_3a.x/scales.x, rpp_3a.y/scales.y);
+                                       glm::vec2 rpp_5a(rpp_4a.x/sf, rpp_4a.y/sf);
+
                                        if (false)
-                                          std::cout << "debug:: in " << x_widget << " " << y_widget
+                                          std::cout << "debug:: window-pos-corr " << glm::to_string(window_resize_position_correction)
+                                                    << " in " << x_widget << " " << y_widget
                                                     << " opengl " << x_opengl << " " << y_opengl << " "
-                                                    << "phi-psi-fake: " << rpp_5.x << " " << rpp_5.y <<std::endl;
+                                                    << "phi-psi-sans-win-res-pos-cor: " << rpp_5a.x << " " << rpp_5a.y << " "
+                                                    << "cursor-phi-psi: " << rpp_5.x << " " << rpp_5.y <<std::endl;
 
                                        rama_plot::phi_psi_t phi_psi_mouse_pos(rpp_5.x, rpp_5.y);
 
