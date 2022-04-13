@@ -45,10 +45,11 @@ if USE_BACKWARD
 libcoot_utils_la_SOURCES += backward.cpp
 endif
 
-# set this in configure ideally, but for now pass it as a command-line CXXFLAGS arg to configure.
-if BACKWARD_HAS_DW
-libcoot_utils_la_LIBADD += -ldw
-endif
+# This needs to be set this in configure.
+# comment out for now
+# if BACKWARD_HAS_DW
+# libcoot_utils_la_LIBADD += -ldw
+# endif
 
 libcoot_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
