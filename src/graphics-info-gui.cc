@@ -470,63 +470,72 @@ graphics_info_t::show_refinement_and_regularization_parameters_dialog() {
    GtkWidget *vbox_container = widget_from_builder("refinement_and_regularization_vbox_container");
    GtkWidget *vbox_outer     = widget_from_builder("refinement_and_regularization_vbox_outer"); // inside vbox_container
 
-   // 20211027-PE this is how the old dialog was filled.
-   // set_refine_params_toggle_buttons(dialog);
-   // set_refine_params_comboboxes(dialog);
+   // we don't want to gtk_overlay_add_overlay() for vbox_outer if it has already been added.
+   // The proxy for testing if that is the case is testing if it is realized:
+   //
+   if (gtk_widget_get_realized(vbox_outer)) {
+      // std::cout << "vbox_outer already realized" << std::endl;
+   } else {
 
-   // but let's do it in place here now. (There was a lot of widget frobbery that is not
-   // needed in the new dialog).
+      // 20211027-PE this is how the old dialog was filled.
+      // set_refine_params_toggle_buttons(dialog);
+      // set_refine_params_comboboxes(dialog);
 
-   GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
-   std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
-   graphics_info_t g;
-   float w = g.geometry_vs_map_weight;
-   for (auto m : mv) {
-      std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
-      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(overall_weight_combobox), t.c_str());
+      // but let's do it in place here now. (There was a lot of widget frobbery that is not
+      // needed in the new dialog).
+
+      GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
+      std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
+      graphics_info_t g;
+      float w = g.geometry_vs_map_weight;
+      for (auto m : mv) {
+         std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
+         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(overall_weight_combobox), t.c_str());
+      }
+      gtk_combo_box_set_active(GTK_COMBO_BOX(overall_weight_combobox), 4);
+
+      GtkWidget *use_torsions_checkbutton = widget_from_builder("refine_params_use_torsions_checkbutton");
+      GtkWidget *use_planepep_checkbutton = widget_from_builder("refine_params_use_planar_peptides_checkbutton");
+      GtkWidget *use_transpep_checkbutton = widget_from_builder("refine_params_use_trans_peptide_restraints_checkbutton");
+      GtkWidget *use_rama_restr_checkbutton = widget_from_builder("refine_params_use_ramachandran_goodness_torsions_checkbutton");
+
+      if (false) {
+         std::cout << "debug:: do_torsions " << g.do_torsion_restraints << std::endl;
+         std::cout << "debug:: do_trans_peptide_restraints " << g.do_trans_peptide_restraints << std::endl;
+         std::cout << "debug:: planar peptides " << Geom_p()->planar_peptide_restraint_state() << std::endl;
+      }
+
+      if (g.do_torsion_restraints)
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), TRUE);
+      else
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), FALSE);
+
+      if (g.do_trans_peptide_restraints)
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), TRUE);
+      else
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), FALSE);
+
+      if (Geom_p()->planar_peptide_restraint_state())
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), TRUE);
+      else
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), FALSE);
+
+      if (g.do_rama_restraints)
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), TRUE);
+      else
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), FALSE);
+
+
+      GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
+      gtk_container_remove(GTK_CONTAINER(vbox_container), vbox_outer);
+      gtk_widget_hide(dialog); // has nothing in it now.
+      gtk_widget_show_all(vbox_outer);
+      gtk_widget_set_halign(vbox_outer, GTK_ALIGN_END);
+      gtk_widget_set_valign(vbox_outer, GTK_ALIGN_START);
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox_outer);
+
+      // gtk_widget_show(dialog); // 20220413-PE not these days.
    }
-   gtk_combo_box_set_active(GTK_COMBO_BOX(overall_weight_combobox), 4);
-
-   GtkWidget *use_torsions_checkbutton = widget_from_builder("refine_params_use_torsions_checkbutton");
-   GtkWidget *use_planepep_checkbutton = widget_from_builder("refine_params_use_planar_peptides_checkbutton");
-   GtkWidget *use_transpep_checkbutton = widget_from_builder("refine_params_use_trans_peptide_restraints_checkbutton");
-   GtkWidget *use_rama_restr_checkbutton = widget_from_builder("refine_params_use_ramachandran_goodness_torsions_checkbutton");
-
-   if (false) {
-      std::cout << "debug:: do_torsions " << g.do_torsion_restraints << std::endl;
-      std::cout << "debug:: do_trans_peptide_restraints " << g.do_trans_peptide_restraints << std::endl;
-      std::cout << "debug:: planar peptides " << Geom_p()->planar_peptide_restraint_state() << std::endl;
-   }
-
-   if (g.do_torsion_restraints)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), TRUE);
-   else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), FALSE);
-
-   if (g.do_trans_peptide_restraints)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), TRUE);
-   else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), FALSE);
-
-   if (Geom_p()->planar_peptide_restraint_state())
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), TRUE);
-   else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), FALSE);
-
-   if (g.do_rama_restraints)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), TRUE);
-   else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), FALSE);
-
-
-   GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
-   gtk_container_remove(GTK_CONTAINER(vbox_container), vbox_outer);
-   gtk_widget_show_all(vbox_outer);
-   gtk_widget_set_halign(vbox_outer, GTK_ALIGN_END);
-   gtk_widget_set_valign(vbox_outer, GTK_ALIGN_START);
-   gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox_outer);
-
-   // gtk_widget_show(dialog);
 }
 
 

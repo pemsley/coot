@@ -1,6 +1,24 @@
 
    Release 1.0.03
 
+  o FEATURE: backward can be configured to use libdw if available
+    -DBACKWARD_HAS_DW=1 added to CXXFLAGS
+
+  o BUG-FIX: "Validation Outliers" dialog now works
+
+  o BUG-FIX: "Ramachandran Outliers" dialog now works
+
+  o BUG-FIX: GL Ramachandran Plot now clickable after window resize
+
+  o BUG-FIX: coot python module improved
+
+  o BUG-FIX: Views Panel improved
+
+  o BUG-FIX: Display Manager window no longer blank on re-opening
+
+  o BUG-FIX: Dynarama glade file now installed correctly - Ramachandran plots now
+             work [Charles Ballard]
+
 ----
 
    Release 1.0.02
