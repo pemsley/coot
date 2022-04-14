@@ -142,16 +142,18 @@ AM_PATH_SQLITE3
 dnl =========================== crystallographic libraries ================================
 dnl Check for gpp4
 
-# I had the syntax wrong - it was alway passing
+# I had the syntax wrong - it was allways passing
 AC_ARG_WITH([backward], AS_HELP_STRING([--with-backward Build with the backward header (better debugging info on GNU/Linux)]), with_backward=true, with_backward=false)
 if test "x$with_backward" = xtrue ; then
    USE_BACKWARD=use_backward
 fi
 AM_CONDITIONAL(USE_BACKWARD, [test x$USE_BACKWARD = xuse_backward])    # tested in utils/Makefile.am
 
-if test "x$with_gpp4" = "xyes"; then
-    PKG_CHECK_MODULES([CCP4], [gpp4])
+AC_ARG_WITH([libdw], AS_HELP_STRING([--with-libdw build backward with libdw support]), with_libdw=true, with_libdw=false)
+if test x$with_libdw == xtrue ; then
+   BACKWARD_HAS_DW=true
 fi
+AM_CONDITIONAL(BACKWARD_HAS_DW, [test x$with_libdw = xtrue])    # tested in utils/Makefile.am
 
 dnl Set platform-specific compilation flags - derived from clipper's configure
 test "${target:+set}" = set || target="$host_os"
