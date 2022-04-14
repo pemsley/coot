@@ -78,7 +78,7 @@ public:
    void import(const std::vector<TextureMeshVertex> &vertices, const std::vector<g_triangle> &triangles_in);
    bool have_instances() const { return is_instanced; }
    void setup_tbn(unsigned int n_vertices); // tangent bitangent normal, pass the n_vertices for validation of indices.
-   void setup_camera_facing_quad(Shader *shader_p, float scale_x, float scale_y);
+   void setup_camera_facing_quad(float scale_x, float scale_y);
    void setup_buffers();
    void set_colour(const glm::vec4 &col_in);
    void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data

@@ -372,6 +372,7 @@ void Shader::parse(const std::string &file_name_in) {
       if (! default_directory.empty())
          file_name = default_directory + "/" + file_name;
 
+   // std::cout << "Shader parse: file_name: " << file_name << std::endl;
    std::ifstream f(file_name.c_str());
    if (f) {
       VertexSource.clear();

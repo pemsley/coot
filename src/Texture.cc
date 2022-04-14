@@ -25,8 +25,11 @@ Texture::init(const std::string &file_name_in) {
 
    if (false)
       std::cout << "Texture::init() was passed file_name_in " << file_name_in << std::endl;
-   std::string pkg_data_dir = coot::package_data_dir();
-   std::string default_directory = coot::util::append_dir_dir(pkg_data_dir, "textures");
+
+   if (default_directory.empty()) {
+      std::string pkg_data_dir = coot::package_data_dir();
+      default_directory = coot::util::append_dir_dir(pkg_data_dir, "textures");
+   }
 
    if (! coot::file_exists(file_name)) {
       file_name = coot::util::append_dir_file(default_directory, file_name);

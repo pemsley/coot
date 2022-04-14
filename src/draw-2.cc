@@ -172,7 +172,7 @@ on_glarea_realize(GtkGLArea *glarea) {
                                 g.texture_for_camera_facing_quad.init("hud-label-rama.png");
                                 // camera facing quad test
                                 float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
-                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(&g.camera_facing_quad_shader, image_apect_ratio, 1.0);
+                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(image_apect_ratio, 1.0);
                                 GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
                                 g.tmesh_for_hud_image_testing.setup_quad();
                                 err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
@@ -311,7 +311,7 @@ on_glarea_realize(GtkGLArea *glarea) {
       float y_scale = 1.2;
       x_scale = 1.002;
       y_scale = 1.002;
-      g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels, x_scale, y_scale);
+      g.tmesh_for_labels.setup_camera_facing_quad(x_scale, y_scale);
 
       g.setup_hud_geometry_bars();
 

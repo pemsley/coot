@@ -36,9 +36,7 @@
 
 // for the moment make the scales explict, when fixed make the scales default
 void
-TextureMesh::setup_camera_facing_quad(Shader *shader_p, float scale_x, float scale_y) {
-
-   shader_p->Use();
+TextureMesh::setup_camera_facing_quad(float scale_x, float scale_y) {
 
    draw_this_mesh = true;
 
@@ -83,7 +81,7 @@ TextureMesh::setup_buffers() {
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   if (false)
+   if (true)
       std::cout << "DEBUG:: in TextureMesh::setup_buffers() " << name << " n_vertices is " << n_vertices
                 << " buffer_id " << buffer_id << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(TextureMeshVertex), &(vertices[0]), GL_STATIC_DRAW);
@@ -91,21 +89,21 @@ TextureMesh::setup_buffers() {
 
    // position
    glEnableVertexAttribArray(0);
-   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex), 0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex), 0);
 
    // normal
-   glEnableVertexAttribArray (1);
-   glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
                           reinterpret_cast<void *>(sizeof(glm::vec3)));
 
    // tangent
-   glEnableVertexAttribArray (2);
-   glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+   glEnableVertexAttribArray(2);
+   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
                           reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
    // bitangent
-   glEnableVertexAttribArray (3);
-   glVertexAttribPointer (3, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
+   glEnableVertexAttribArray(3);
+   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(TextureMeshVertex),
                           reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
 
    // colour
@@ -125,8 +123,9 @@ TextureMesh::setup_buffers() {
    err = glGetError(); if (err) std::cout << "GL ERROR:: setup_simple_triangles()\n";
    unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (false)
-      std::cout << "debug:: glBufferData for index buffer_id " << index_buffer_id
+   if (true)
+      std::cout << "debug:: in TextureMesh::setup_buffers(): " << name
+                << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
@@ -918,6 +917,8 @@ TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
    n_instances_allocated = n_happy_faces_max;
    is_instanced = true;
 
+   // in the layout this is 6 called "instance_translation"
+
    glBindVertexArray(vao);
    GLenum err = glGetError();
    if (err) std::cout << "GL error ####"
@@ -929,19 +930,21 @@ TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
    glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
    glBufferData(GL_ARRAY_BUFFER, n_bytes, nullptr, GL_DYNAMIC_DRAW);
    // prevous attributes are position, normal, colour, texCoords
-   glEnableVertexAttribArray(4);
+   glEnableVertexAttribArray(6);
 
    void *step_over_previous_attrib_bytes = 0; // for instanced attributes, we don't need to step
                                               // over the standard vertex attributes.
 
-   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), step_over_previous_attrib_bytes);
-   glVertexAttribDivisor(4, 1);
+   glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), step_over_previous_attrib_bytes);
+   glVertexAttribDivisor(6, 1);
    err = glGetError();
    if (err) std::cout << "GL error #####"
                       << " TextureMesh::setup_instancing_buffers() B " << err << std::endl;
 }
 
 
+// draw_count and draw_count_max are used to set the opactity (it counts the number of times drawn)
+//
 void
 TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
                             unsigned int draw_count, unsigned int draw_count_max) {
@@ -969,9 +972,11 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
 
    glEnableVertexAttribArray(0); // vertex positions
    glEnableVertexAttribArray(1); // vertex normal
-   glEnableVertexAttribArray(2); // vertex colours
-   glEnableVertexAttribArray(3); // texture coords
-   glEnableVertexAttribArray(4); // instanced position
+   glEnableVertexAttribArray(2); // tangent // not used for camera-facing textures
+   glEnableVertexAttribArray(3); // bitangent // not used
+   glEnableVertexAttribArray(4); // colour
+   glEnableVertexAttribArray(5); // texCoord
+   glEnableVertexAttribArray(6); // instanced position
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
@@ -985,6 +990,9 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
 
    shader_p->set_float_for_uniform("opacity", opacity);
 
+   float scale = 0.3; // the shader says:  // 0.8 for happy faces, 0.2 for anchored/fixed atoms
+   shader_p->set_float_for_uniform("canvas_scale", scale);
+
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "
                                           << err << std::endl;
@@ -994,7 +1002,11 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    unsigned int n_verts = 6;
-   // std::cout << "TextureMesh::draw_instances() C " << n_verts << " " << n_instances << std::endl;
+
+   if (false)
+      std::cout << "TextureMesh::draw_instances() C " << name << " shader: " << shader_p->name << " "
+                << "n_verts " <<  n_verts << " n_instances " << n_instances << std::endl;
+
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
 
    err = glGetError();
@@ -1007,6 +1019,8 @@ TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::m
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
    glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+   glDisableVertexAttribArray(6);
    
 }
 

@@ -1409,9 +1409,12 @@ graphics_info_t::draw_anchored_atom_markers()  {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
          glm::mat4 model_rotation = get_model_rotation();
+         unsigned int draw_count     = 100; // number of times drawn
+         unsigned int draw_count_max = 100;
+         // draw_count and draw_count_max are used to set the opacity - not the ideal interface for things
+         // that stay at full opacity. 100 and 1000 means opacity 1.0.
          texture_for_anchored_atom_markers.Bind(0);
-         // tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, view_rotation);
-         std::cout << "FIXME draw_anchored_atom_markers() merged code " << std::endl;
+         tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, model_rotation, draw_count, draw_count_max);
       }
    }
 }
@@ -1576,7 +1579,7 @@ graphics_info_t::draw_molecules() {
 
    // transparent things...
 
-   draw_map_molecules(true);
+   draw_map_molecules(true); // transparent
 
 }
 
@@ -1677,6 +1680,7 @@ graphics_info_t::draw_molecules_with_shadows() {
                                };
 
 
+
    for (int i=0; i<n_mols; i++) {
       if (is_valid_map_molecule(i)) {
          molecule_class_info_t &m = molecules[i];
@@ -1685,7 +1689,7 @@ graphics_info_t::draw_molecules_with_shadows() {
    }
 
 
-   // convert these to shadow versions
+   // convert these to read the shadow texture
 
    draw_model_molecules_with_shadows(); // does symmetry
 
@@ -1701,7 +1705,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_instanced_meshes();
 
-   draw_map_molecules(false); // transparency
+   // draw_map_molecules(false); // transparency
 
    draw_unit_cells();
 
@@ -1711,13 +1715,13 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_hydrogen_bonds_mesh(); // like boids
 
+   draw_anchored_atom_markers();
+
    draw_boids();
 
    draw_particles();
 
    draw_happy_face_residue_markers();
-
-   draw_anchored_atom_markers();
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
@@ -4255,11 +4259,11 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
                       << "Post attach buffers err is " << err << std::endl;
 
    // If not found in this directory, then try default directory.
-   texture_for_happy_face_residue_marker.set_default_directory(coot::package_data_dir());
+   // texture_for_happy_face_residue_marker.set_default_directory(coot::package_data_dir());
    texture_for_happy_face_residue_marker.init("happy-face-marker.png");
 
-   shader_for_happy_face_residue_markers.Use();
-   tmesh_for_happy_face_residues_markers.setup_camera_facing_quad(&shader_for_happy_face_residue_markers, 1.0, 1.0);
+   shader_for_happy_face_residue_markers.Use(); // needed?
+   tmesh_for_happy_face_residues_markers.setup_camera_facing_quad(1.0, 1.0);
    tmesh_for_happy_face_residues_markers.setup_instancing_buffers(max_happy_faces);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
 
@@ -4268,21 +4272,22 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
 void
 graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
 
-   // run this once - call from realize()
+   // run this once - called from realize()
 
-   const unsigned int max_anchored_atoms = 200; // surely enough?
-   
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   const unsigned int max_anchored_atoms = 200;
+
+   attach_buffers();
    GLenum err = glGetError();
    if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
-                      << "Post attach buffers err is " << err << std::endl;
+                      << "Post attach_buffers() err is " << err << std::endl;
 
    // If not found in this directory, then try default directory.
-   texture_for_anchored_atom_markers.set_default_directory(coot::package_data_dir());
-   texture_for_anchored_atom_markers.init("anchor-for-fixed-atoms.png");
 
-   shader_for_anchored_atom_markers.Use();
-   tmesh_for_anchored_atom_markers.setup_camera_facing_quad(&shader_for_happy_face_residue_markers, 1.0, 1.0);
+   texture_for_anchored_atom_markers.init("anchor-for-fixed-atoms.png");
+   texture_for_anchored_atom_markers.Bind(0); // why is this needed?
+
+   shader_for_anchored_atom_markers.Use(); // needed?
+   tmesh_for_anchored_atom_markers.setup_camera_facing_quad(1.0, 1.0);
    tmesh_for_anchored_atom_markers.setup_instancing_buffers(max_anchored_atoms);
    tmesh_for_anchored_atom_markers.draw_this_mesh = false;
 
@@ -4356,7 +4361,7 @@ graphics_info_t::setup_draw_for_anchored_atom_markers() {
       if (positions.empty()) {
          tmesh_for_anchored_atom_markers.draw_this_mesh = false;
       } else {
-         gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+         attach_buffers();
          tmesh_for_anchored_atom_markers.draw_this_mesh = true;
          tmesh_for_anchored_atom_markers.update_instancing_buffer_data(positions);
       }
