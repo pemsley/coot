@@ -27,6 +27,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(COOT_GSL_FLAGS)		\
 	$(GSL_CFLAGS)			\
+	$(BOOST_CPPFLAGS)		\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
 
 pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \

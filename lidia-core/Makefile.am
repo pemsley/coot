@@ -57,7 +57,7 @@ libcoot_lidia_core_la_LIBADD =                    \
 # interesting link failure when using -no-undefined.
 #
 # libcoot_lidia_core_la_LDFLAGS = $(SHARED_LDFLAGS) -no-undefined
-libcoot_lidia_core_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_lidia_core_la_LDFLAGS = $(SHARED_LDFLAGS) $(BOOST_LDFLAGS)
 
 # noinst_PROGRAMS = test-molfile
 

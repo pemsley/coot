@@ -36,6 +36,7 @@ pkgincludedir = $(includedir)/coot/ideal
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
+	$(BOOST_CPPFLAGS)          \
 	$(CLIPPER_CXXFLAGS)        \
 	$(MMDB_CXXFLAGS)
 
