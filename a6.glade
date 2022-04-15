@@ -22228,7 +22228,16 @@ just the cell and symmetry)
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="renumber_residue_range_molecule_combobox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <signal name="changed" handler="on_renumber_residues_molecule_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
                 <child>
                   <object class="GtkBox" id="hbox95">
@@ -22248,12 +22257,21 @@ just the cell and symmetry)
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkComboBoxText" id="renumber_residue_range_chain_id_combobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
+                    <property name="padding">4</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
@@ -22262,29 +22280,81 @@ just the cell and symmetry)
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkLabel" id="label194">
+                      <object class="GtkFrame">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">  Residue numbers:  </property>
-                        <property name="justify">center</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="renumber_residue_range_resno_1_entry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkAlignment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkRadioButton" id="renumber_residue_range_radiobutton_1">
+                                    <property name="label" translatable="yes">N-terminus</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkRadioButton" id="renumber_residue_range_radiobutton_2">
+                                    <property name="label" translatable="yes">Residue</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                    <property name="group">renumber_residue_range_radiobutton_1</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="renumber_residue_range_resno_1_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="width_chars">4</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="padding">4</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes"> Start Residue </property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="padding">2</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -22297,20 +22367,83 @@ just the cell and symmetry)
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">2</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="renumber_residue_range_resno_2_entry">
+                      <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkAlignment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="left_padding">12</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkRadioButton" id="renumber_residue_range_radiobutton_3">
+                                    <property name="label" translatable="yes">Residue</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="renumber_residue_range_resno_2_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="width_chars">4</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkRadioButton" id="renumber_residue_range_radiobutton_4">
+                                    <property name="label" translatable="yes">C-terminus </property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                    <property name="group">renumber_residue_range_radiobutton_3</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes"> End Residue </property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">3</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -22323,13 +22456,14 @@ just the cell and symmetry)
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">4</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
+                    <property name="padding">4</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
@@ -22341,7 +22475,7 @@ just the cell and symmetry)
                       <object class="GtkLabel" id="label197">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">  Offset:  </property>
+                        <property name="label" translatable="yes">  Apply Offset:  </property>
                         <property name="justify">center</property>
                       </object>
                       <packing>
@@ -22367,6 +22501,7 @@ just the cell and symmetry)
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
+                    <property name="padding">4</property>
                     <property name="position">4</property>
                   </packing>
                 </child>

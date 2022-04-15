@@ -477,7 +477,9 @@ void align_and_mutate_molecule_combobox_changed(GtkWidget *combobox, gpointer da
 void align_and_mutate_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
 GtkWidget *wrapped_create_renumber_residue_range_dialog();
-void renumber_residues_from_widget(GtkWidget *window);
+#ifdef __cplusplus // because read-phs.c uses this file
+bool renumber_residues_from_widget(GtkWidget *window);
+#endif
 
 GtkWidget *wrapped_create_change_chain_id_dialog();
 void change_chain_id_by_widget(GtkWidget *w);

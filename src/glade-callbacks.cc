@@ -5665,10 +5665,10 @@ on_renumber_residue_range_ok_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = widget_from_builder(
-			       "renumber_residue_range_dialog");
-  renumber_residues_from_widget(w);
-  gtk_widget_hide(w);
+  GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
+  bool status = renumber_residues_from_widget(w);
+  if (status)
+     gtk_widget_hide(w);
 
 }
 
@@ -5679,8 +5679,7 @@ on_renumber_residue_range_cancel_button_clicked_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = widget_from_builder(
-			       "renumber_residue_range_dialog");
+  GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
   gtk_widget_hide(w);
 
 }
@@ -5739,11 +5738,11 @@ on_model_refine_dialog_add_OXT_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_renumber_residues1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
-  gtk_widget_show(w);
+on_renumber_residues1_activate_gtkbuilder_callback(GtkMenuItem     *menuitem,
+                                                   gpointer         user_data) {
+
+   GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
+   gtk_widget_show(w);
 }
 
 

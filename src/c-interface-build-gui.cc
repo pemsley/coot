@@ -354,22 +354,59 @@ void baton_mode_calculate_skeleton(GtkWidget *window) {
 }
 
 
+void change_the_contents_of_the_chain_id_combobox(GtkWidget *w, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(w));
+   GtkWidget *chain_id_combobox = widget_from_builder("renumber_residue_range_chain_id_combobox");
+   std::cout << "::::::::::: change the contents of chain_id_combobox " << chain_id_combobox
+             << " using imol " << imol << std::endl;
+   GCallback null_func(NULL); // we don't do anything when the Chain ID changes. The chain-id combox is only interesting on *read*.
+   g.fill_combobox_with_chain_options(chain_id_combobox, imol, null_func);
+};
+
 GtkWidget *wrapped_create_renumber_residue_range_dialog() {
+
+   std::cout << "llllllllllllllllllllllllllllllllllll 0 start wrapped_create_renumber_residue_range_dialog() " << std::endl;
 
    // GtkWidget *w = create_renumber_residue_range_dialog();
    GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
+   GtkWidget      *mol_combobox = widget_from_builder("renumber_residue_range_molecule_combobox");
+   GtkWidget *chain_id_combobox = widget_from_builder("renumber_residue_range_chain_id_combobox");
+
+   std::cout << "llllllllllllllllllllllllllllllllllll 1 wrapped_create_renumber_residue_range_dialog() mol_combobox "
+             << mol_combobox << std::endl;
+   std::cout << "llllllllllllllllllllllllllllllllllll 2 wrapped_create_renumber_residue_range_dialog() chain_id_combobox "
+             << chain_id_combobox << std::endl;
+   
+
    int imol = first_coords_imol();
+
+   graphics_info_t g;
+
    graphics_info_t::renumber_residue_range_molecule = imol;
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t g;
-      g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
-      g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
+      GCallback func = G_CALLBACK(change_the_contents_of_the_chain_id_combobox);
+      g.new_fill_combobox_with_coordinates_options(mol_combobox, func, imol);
 
+      GCallback null_func(NULL); // we don't do anything when the Chain ID changes. The chain-id combox is only interesting on *read*.
+      // NULL is tested for in fill_combobox_with_chain_options().
+      g.fill_combobox_with_chain_options(chain_id_combobox, imol, null_func);
+   
+      std::cout << "llllllllllllllllllllllllllllllllllll 3 wrapped_create_renumber_residue_range_dialog() done fill mol combobox "
+                << std::endl;
+      // g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
+      // g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
+
+      std::cout << "llllllllllllllllllllllllllllllllllll 4 wrapped_create_renumber_residue_range_dialog() done fill_renumber_residue_range_internal "
+                << std::endl;
       // by default, now the N-term button is off for the first choice
       // (and C-term is on for the second)
       GtkWidget *entry_1 = widget_from_builder("renumber_residue_range_resno_1_entry");
       GtkWidget *entry_2 = widget_from_builder("renumber_residue_range_resno_2_entry");
-      gtk_widget_set_sensitive(entry_2, FALSE);
+
+      // gtk_widget_set_sensitive(entry_2, FALSE); pre-gtk3
+
       // but anyway, let's put the residue number of the active residue there, just in case
       // the user wanted to start from there.
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
@@ -378,10 +415,13 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
 	 gtk_entry_set_text(GTK_ENTRY(entry_1), coot::util::int_to_string(res_no).c_str());
       }
    }
+   std::cout << "llllllllllllllllllllllllllllllllllll done wrapped_create_renumber_residue_range_dialog() " << std::endl;
    return w;
 }
 
-void renumber_residues_from_widget(GtkWidget *window) {
+bool renumber_residues_from_widget(GtkWidget *window) {
+
+   bool status = true; // OK
 
    int imol = graphics_info_t::renumber_residue_range_molecule;
 
@@ -392,12 +432,13 @@ void renumber_residues_from_widget(GtkWidget *window) {
       GtkWidget *offent = widget_from_builder("renumber_residue_range_offset_entry");
       GtkWidget *rb1    = widget_from_builder("renumber_residue_range_radiobutton_1"); // N-term button
       GtkWidget *rb4    = widget_from_builder("renumber_residue_range_radiobutton_4"); // C-term button
+      GtkWidget *chain_id_combobox = widget_from_builder("renumber_residue_range_chain_id_combobox");
 
       std::pair<short int, int> r1  = int_from_entry(e1);
       std::pair<short int, int> r2  = int_from_entry(e2);
       std::pair<short int, int> off = int_from_entry(offent);
 
-      std::string chain_id = graphics_info_t::renumber_residue_range_chain;
+      std::string chain_id = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(chain_id_combobox));
       mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
 
       if (chain_p) {
@@ -438,7 +479,7 @@ void renumber_residues_from_widget(GtkWidget *window) {
 			s += "Maybe your selection overlaps with existing residues.\n";
 			s += "Please revise your selection.";
 			info_dialog(s.c_str());
-
+                        status = false;
 		     }
 
 		  }
@@ -446,11 +487,13 @@ void renumber_residues_from_widget(GtkWidget *window) {
 	    }
 	 } else {
 	    std::cout << "WARNING:: Sorry. Couldn't read residue or offset from entry widget\n";
+            // status = false; // hmmm.. maybe
 	 }
       } else {
 	 std::cout << "ERROR:: missing chain" << chain_id << std::endl;
       }
    }
+   return status;
 }
 
 

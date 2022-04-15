@@ -2295,6 +2295,8 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
 
    std::cout << "debug:: new_fill_combobox_with_coordinates_options() list_store " << store << std::endl;
 
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
+
    GtkTreeIter iter;
    for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
       const auto &imol = molecule_indices[ii];
@@ -2302,11 +2304,19 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       std::string ss = std::to_string(imol) + " " + m.name_for_display_manager();
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
-      std::cout << "comparing imol " << imol << " and imol_active " << imol_active << std::endl;
+   }
+
+   for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
+      const auto &imol = molecule_indices[ii];
+      const molecule_class_info_t &m = graphics_info_t::molecules[imol];
       if (imol == imol_active) {
+         // 20220415-PE this doesn't work (for renumber residues - annoying)
+         // std::cout << "setting active on a gtk combobox " << ii << std::endl;
          gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), ii);
+         // std::cout << "done setting active on a gtk combobox " << ii << std::endl;
       }
    }
+
    GtkTreeModel *model = GTK_TREE_MODEL(store);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);
@@ -4460,7 +4470,7 @@ graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
       const char *f_label_cstr = g_value_get_string(&f_label_as_value);
       f_label = f_label_cstr;
    } else {
-      std::cout << "in get_active_label_in_combobox(): Bad state for get_active_iter"
+      std::cout << "WARNING:: in get_active_label_in_combobox(): Bad state for get_active_iter"
 		<< std::endl;
    }
    return f_label;
@@ -4498,13 +4508,7 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox_text,
 
    GtkComboBoxText *cb_as_text = GTK_COMBO_BOX_TEXT(combobox_text);
 
-#if (GTK_MAJOR_VERSION > 2)
    gtk_combo_box_text_remove_all(cb_as_text);
-#else
-   GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
-   GtkListStore *store_from_model = GTK_LIST_STORE(model_from_combobox);
-   gtk_list_store_clear(store_from_model);
-#endif
 
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
