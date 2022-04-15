@@ -55,7 +55,7 @@ create_sequence_view_dialog (void)
   GtkWidget *sequence_view_dialog;
   GtkWidget *dialog_vbox1;
   GtkWidget *sequence_view_scrolledwindow;
-  GtkWidget *dialog_action_area1;
+  // GtkWidget *dialog_action_area1;
   GtkWidget *hbox1;
   GtkWidget *sequence_view_close_button;
 
@@ -93,7 +93,7 @@ create_sequence_view_dialog (void)
   g_object_ref (hbox1);
   g_object_set_data_full (G_OBJECT (sequence_view_dialog), "hbox1", hbox1, NULL);
   gtk_widget_show (hbox1);
-  gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbox1, TRUE, TRUE, 0);
+  // gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbox1, TRUE, TRUE, 0);
 
   sequence_view_close_button = gtk_button_new_with_label ("  Close ");
   g_object_ref(sequence_view_close_button);
