@@ -359,26 +359,18 @@ void change_the_contents_of_the_chain_id_combobox(GtkWidget *w, gpointer data) {
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(w));
    GtkWidget *chain_id_combobox = widget_from_builder("renumber_residue_range_chain_id_combobox");
-   std::cout << "::::::::::: change the contents of chain_id_combobox " << chain_id_combobox
-             << " using imol " << imol << std::endl;
+   // std::cout << "::::::::::: change the contents of chain_id_combobox " << chain_id_combobox
+   // << " using imol " << imol << std::endl;
    GCallback null_func(NULL); // we don't do anything when the Chain ID changes. The chain-id combox is only interesting on *read*.
    g.fill_combobox_with_chain_options(chain_id_combobox, imol, null_func);
 };
 
 GtkWidget *wrapped_create_renumber_residue_range_dialog() {
 
-   std::cout << "llllllllllllllllllllllllllllllllllll 0 start wrapped_create_renumber_residue_range_dialog() " << std::endl;
-
    // GtkWidget *w = create_renumber_residue_range_dialog();
    GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
    GtkWidget      *mol_combobox = widget_from_builder("renumber_residue_range_molecule_combobox");
    GtkWidget *chain_id_combobox = widget_from_builder("renumber_residue_range_chain_id_combobox");
-
-   std::cout << "llllllllllllllllllllllllllllllllllll 1 wrapped_create_renumber_residue_range_dialog() mol_combobox "
-             << mol_combobox << std::endl;
-   std::cout << "llllllllllllllllllllllllllllllllllll 2 wrapped_create_renumber_residue_range_dialog() chain_id_combobox "
-             << chain_id_combobox << std::endl;
-   
 
    int imol = first_coords_imol();
 
@@ -393,13 +385,6 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
       // NULL is tested for in fill_combobox_with_chain_options().
       g.fill_combobox_with_chain_options(chain_id_combobox, imol, null_func);
    
-      std::cout << "llllllllllllllllllllllllllllllllllll 3 wrapped_create_renumber_residue_range_dialog() done fill mol combobox "
-                << std::endl;
-      // g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
-      // g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
-
-      std::cout << "llllllllllllllllllllllllllllllllllll 4 wrapped_create_renumber_residue_range_dialog() done fill_renumber_residue_range_internal "
-                << std::endl;
       // by default, now the N-term button is off for the first choice
       // (and C-term is on for the second)
       GtkWidget *entry_1 = widget_from_builder("renumber_residue_range_resno_1_entry");
@@ -415,7 +400,6 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
 	 gtk_entry_set_text(GTK_ENTRY(entry_1), coot::util::int_to_string(res_no).c_str());
       }
    }
-   std::cout << "llllllllllllllllllllllllllllllllllll done wrapped_create_renumber_residue_range_dialog() " << std::endl;
    return w;
 }
 
