@@ -10571,6 +10571,8 @@ Sat 26 Mar 14:10:12 GMT 2022
 Sat  9 Apr 18:47:03 BST 2022
 
    gtk_window_deiconify() - is this what I want to do when I get a dialog from builder?
+
+----
 Wed  2 Mar 11:33:42 GMT 2022
 
   Update CentOS7 compiler:
@@ -10588,3 +10590,9 @@ Wed  2 Mar 16:52:53 GMT 2022
 
   python with ctypes (libffi)
 https://unix.stackexchange.com/questions/631725/how-do-i-build-pkgconf-and-libffi-and-subsequently-python3-9-with-ctypes-support
+
+---
+Fri 15 Apr 20:13:37 BST 2022
+
+   1781 occurrances of _gtkbuilder_callback in *.cc *.h *.hh ../a6.glade
+

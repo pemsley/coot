@@ -472,8 +472,10 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    if (event->type == GDK_2BUTTON_PRESS)
       was_a_double_click = true;
 
-
+   // 20220416-PE  I need the state because that tells me which button was pressed.
+   //              How do I do that if I don't use gdk_window_get_pointer()?
    GdkModifierType state;
+   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state); // deprecated.
 
    // if (true) { // check here for left-mouse click
    // if (event->state & GDK_BUTTON1_PRESS) {
@@ -503,7 +505,7 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
             if (rama_plot_hit.plot_was_clicked) {
                if (rama_plot_hit.residue_was_clicked) {
                   std::cout << "::::::::::::::::: click " << rama_plot_hit.residue_was_clicked << std::endl;
-                  std::string message = "Rama plot clicked residue: ";
+                  std::string message = "Ramachandran plot clicked residue: ";
                   message += rama_plot_hit.residue_spec.chain_id;
                   message += " ";
                   message += std::to_string(rama_plot_hit.residue_spec.res_no);
@@ -548,9 +550,25 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
          }
       }
 
+   GdkModifierType mouse_pick_button_mask        = GDK_BUTTON1_MASK;
+   GdkModifierType mouse_view_rotate_button_mask = GDK_BUTTON3_MASK;
+#ifdef __APPLE__  // this needs improvement
+   if (true) {
+      mouse_view_rotate_button_mask = GDK_BUTTON1_MASK;
+      mouse_pick_button_mask        = GDK_BUTTON3_MASK;
+   }
+#endif
+
       if (! handled) {
          // implicit type cast
-         handled = g.check_if_moving_atom_pull(was_a_double_click);
+         // std::cout << "debug event->state " << event->state << " mouse_pick_button_mask " << mouse_pick_button_mask << std::endl;
+
+         if (state & mouse_pick_button_mask) {
+            // std::cout << "yes, was a mouse pick button" << std::endl;
+            handled = g.check_if_moving_atom_pull(was_a_double_click);
+         } else {
+            // std::cout << "no, was not a mouse pick button" << std::endl;
+         }
 
          if (! handled) {
             if (was_a_double_click) {
@@ -580,9 +598,7 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
             }
          }
       }
-
    }
-
 
    g.check_if_in_range_defines(event, mask);
    return TRUE;
@@ -935,6 +951,23 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
    return TRUE;
 }
 
+void on_glarea_drag_begin(GtkGestureDrag *gesture,
+                          double          x,
+                          double          y,
+                          GtkWidget      *area) {
+
+   std::cout << "drag begin" << std::endl;
+}
+
+void on_glarea_drag_update(GtkGestureDrag *gesture,
+                          double          x,
+                          double          y,
+                          GtkWidget      *area) {
+
+   std::cout << "drag update" << std::endl;
+}
+
+
 void
 my_glarea_add_signals_and_events(GtkWidget *glarea) {
 
@@ -964,5 +997,20 @@ my_glarea_add_signals_and_events(GtkWidget *glarea) {
    g_signal_connect(glarea, "motion-notify-event",   G_CALLBACK(on_glarea_motion_notify),      NULL);
    g_signal_connect(glarea, "key-press-event",       G_CALLBACK(on_glarea_key_press_notify),   NULL);
    g_signal_connect(glarea, "key-release-event",     G_CALLBACK(on_glarea_key_release_notify), NULL);
+
+#if 0
+   // 20220415-PE new event controllers - this means turning off the motion and button press event callbacks above.
+   //             Another time.
+
+#if (GTK_MAJOR_VERSION >= 4)
+   GtkGesture *drag = gtk_gesture_drag_new();
+#else
+   GtkGesture *drag = gtk_gesture_drag_new(glarea);
+#endif
+
+   g_signal_connect(drag, "drag-begin",  G_CALLBACK(on_glarea_drag_begin),  glarea);
+   g_signal_connect(drag, "drag-update", G_CALLBACK(on_glarea_drag_update), glarea);
+
+#endif
 
 }
