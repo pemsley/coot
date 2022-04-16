@@ -80,13 +80,13 @@ glarea_tick_func(GtkWidget *widget,
    }
 
    if (graphics_info_t::do_tick_spin) {
-         float delta = 0.004;
-         // delta *= 10.0;
-         glm::vec3 EulerAngles(0, delta, 0);
-         glm::quat quat_delta(EulerAngles);
-         glm::quat normalized_quat_delta(glm::normalize(quat_delta));
-         glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
-         graphics_info_t::glm_quat = glm::normalize(product);
+      float delta = 0.004 * graphics_info_t::idle_function_rotate_angle;
+      // delta *= 10.0;
+      glm::vec3 EulerAngles(0, delta, 0);
+      glm::quat quat_delta(EulerAngles);
+      glm::quat normalized_quat_delta(glm::normalize(quat_delta));
+      glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
+      graphics_info_t::glm_quat = glm::normalize(product);
    }
 
    if (graphics_info_t::do_tick_rock) {
