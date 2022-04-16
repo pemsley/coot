@@ -38,7 +38,9 @@ void create_dynamic_menus(GtkWidget *window1) {
 	 // We need to somehow connect the submenu to the menu's (which are
 	 // accessible via window1)
 	 //
-	 create_initial_map_color_submenu(window1);
+         // No longer put map colours in the menus
+         // create_initial_map_color_submenu(window1);
+
 	 create_initial_ramachandran_mol_submenu(window1);
 	 create_initial_sequence_view_mol_submenu(window1);
 
