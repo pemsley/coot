@@ -2242,10 +2242,17 @@ gint idle_contour_function(gpointer data) {
            bool really_change_the_map_contours = true;
            if (! is_from_contour_level_change) really_change_the_map_contours = false;
 	   g.molecules[imol].update_map(really_change_the_map_contours);
+           float map_rmsd = g.molecules[imol].map_sigma();
 	   continue_status = 0;
-           std::cout << "--- idle_contour_function() imol: " << imol << " contour level: "
-                     << g.molecules[imol].contour_level << std::endl;
+           float cl = g.molecules[imol].contour_level;
+           float r = cl/map_rmsd;
+           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
+                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
+           std::string s = "Map " + std::to_string(imol) + "  contour_level " +
+              coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
+              coot::util::float_to_string_using_dec_pl(r, 3);
+           add_status_bar_text(s.c_str());
            g.display_density_level_this_image = 1;
            something_changed = true;
          }
