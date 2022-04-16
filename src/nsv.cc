@@ -111,6 +111,9 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 		bool use_graphics_interface_in,
 		int canvas_pixel_limit) {
 
+   // 20220416-PE Uses old style create and destroy - that's fine - it's
+   // not using the glade file.
+
    // if main_window_vbox is not null, then put this widget into the vbox rather than
    // create a new window.
 
@@ -180,12 +183,12 @@ exptl::nsv::nsv(mmdb::Manager *mol,
       gtk_box_pack_start(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
       gtk_widget_set_size_request(top_lev, -1, 80);
       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
-      GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(top_lev));
-      gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
-      g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_nsv_close_button_clicked), NULL);
+      GtkWidget *ca = gtk_dialog_get_content_area(GTK_DIALOG(top_lev));
+      gtk_box_pack_start(GTK_BOX(ca), close_button, FALSE, FALSE, 2);
+      g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_nsv_close_button_clicked), top_lev);
       g_signal_connect(G_OBJECT(top_lev), "destroy", G_CALLBACK(on_nsv_dialog_destroy), top_lev);
       gtk_widget_show(close_button);
-      gtk_widget_show(aa); // needed?
+      gtk_widget_show(ca); // needed?
       gtk_widget_show(top_lev);
       // used on destroy
       g_object_set_data(G_OBJECT(top_lev), "molecule_number", GINT_TO_POINTER(molecule_number));
@@ -241,8 +244,7 @@ void
 exptl::nsv::on_nsv_close_button_clicked(GtkButton *button,
 					gpointer user_data) {
 
-   // GtkWidget *window = lookup_widget(GTK_WIDGET(button), "nsv_dialog");
-   GtkWidget *window = widget_from_builder("nsv_dialog");
+   GtkWidget *window = GTK_WIDGET(user_data);
    if (! window) {
       std::cout << "ERROR:: window not found in on_nsv_close_button_clicked()" << std::endl;
    }
