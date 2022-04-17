@@ -388,7 +388,8 @@
 # 5.30 20180109 Update python version.
 # 6.00 20200812 include glm
 # 6.01 20210430 pkg-config tweak and no remove rdkit libs for coot configure
-script_version=6.01
+# 6.02 20220417 add ffi into Python setup.py
+script_version=6.02
 
 
 
@@ -1711,7 +1712,8 @@ else
       python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
       python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
       python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
-      python_libs="LIBS=-L$install_top_dir/lib64"
+      python_libs="LIBS=-L$install_top_dir/lib64"  # finds libffi
+      python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
       echo python_libs is $python_libs
 
    else
@@ -2034,7 +2036,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python3.9
-pver=3.9.5
+pver=3.9.12
 python_version_extension=3.9 # extract this
 
 
@@ -2582,6 +2584,9 @@ if test -n "$build_python" ; then
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
    cd Python-$pver
+
+   # stuff ffi into setup.py
+   sed -ibackup -e 's/def detect_decimal/    ext.libraries.append("ffi")\n\n    &/' setup.py
 
    # --with-ensurepip=install
    # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
