@@ -81,7 +81,7 @@ TextureMesh::setup_buffers() {
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   if (true)
+   if (false)
       std::cout << "DEBUG:: in TextureMesh::setup_buffers() " << name << " n_vertices is " << n_vertices
                 << " buffer_id " << buffer_id << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(TextureMeshVertex), &(vertices[0]), GL_STATIC_DRAW);
@@ -123,7 +123,7 @@ TextureMesh::setup_buffers() {
    err = glGetError(); if (err) std::cout << "GL ERROR:: setup_simple_triangles()\n";
    unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (true)
+   if (false)
       std::cout << "debug:: in TextureMesh::setup_buffers(): " << name
                 << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
