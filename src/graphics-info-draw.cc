@@ -5186,8 +5186,8 @@ graphics_info_t::setup_key_bindings() {
    // clipping
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_1,      key_bindings_t(l31, "Clipping Front Expand")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_2,      key_bindings_t(l32, "Clipping Front Reduce")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_3,      key_bindings_t(l33, "Clipping Back Expand")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_4,      key_bindings_t(l34, "Clipping Back Reduce")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_3,      key_bindings_t(l33, "Clipping Back Reduce")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_4,      key_bindings_t(l34, "Clipping Back Expand")));
 
    // control
    // meh - ugly and almost useless. Try again.
