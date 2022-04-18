@@ -5454,6 +5454,13 @@ def add_module_cryo_em_gui():
         add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                     lambda func: sharpen_blur_map_gui())
 
+    def make_masked_maps_using_active_atom():
+        active_atom = coot.active_residue_py()
+        print("active_atom:", active_atom)
+        if active_atom:
+            imol = active_atom[0]
+            coot.make_masked_maps_split_by_chain(imol, coot.imol_refinement_map())
+        
     def go_to_box_middle():
         m_list = coot_utils.map_molecule_list()
         if len(m_list) > 0:
@@ -5479,6 +5486,9 @@ def add_module_cryo_em_gui():
 
         add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
                                       lambda func: sharpen_blur_map_gui())
+
+        add_simple_coot_menu_menuitem(menu, "Mask Map by Chains",
+                                      lambda func: make_masked_maps_using_active_atom())
 
         add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
                                       lambda func: interactive_nudge_func())
