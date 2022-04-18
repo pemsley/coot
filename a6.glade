@@ -29695,7 +29695,15 @@ Move a copy?</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="unmodelled_blobs_map_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
@@ -29731,7 +29739,15 @@ Move a copy?</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkComboBoxText" id="unmodelled_blobs_model_combobox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
@@ -29775,6 +29791,7 @@ Move a copy?</property>
                               <object class="GtkEntry" id="find_blobs_peak_level_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="width_chars">6</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="secondary_icon_activatable">False</property>
                               </object>
@@ -29789,7 +29806,7 @@ Move a copy?</property>
                               <object class="GtkLabel" id="label214">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes"> sigma </property>
+                                <property name="label" translatable="yes"> standard deviations</property>
                                 <property name="justify">center</property>
                               </object>
                               <packing>

@@ -73,25 +73,46 @@
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog() { 
 
-   // GtkWidget *dialog = create_unmodelled_blobs_dialog();
-   GtkWidget *dialog = widget_from_builder("unmodelled_blobs_dialog");
-   int ifound; 
-   short int diff_maps_only_flag = 0;
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "find_blobs_map", diff_maps_only_flag);
-   if (ifound == 0) {
-      std::cout << "Error: you must have a map to search for blobs!"
-		<< std::endl;
-   } 
-   ifound = fill_ligands_dialog_protein_bits_by_dialog_name(dialog, "find_blobs_protein");
-   if (ifound == 0) {
-      std::cout << "Error: you must have a protein to mask the map to search for blobs!"
-		<< std::endl;
-   }
+   graphics_info_t g;
+   GtkWidget *dialog        = widget_from_builder("unmodelled_blobs_dialog");
+   GtkWidget *model_combobox = widget_from_builder("unmodelled_blobs_model_combobox");
+   GtkWidget *map_combobox   = widget_from_builder("unmodelled_blobs_map_combobox");
 
-   // fill sigma level
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
 
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto model_list = get_model_molecule_vector();
+   auto   map_list = get_map_molecule_vector();
+   if (! model_list.empty()) imol_mol_active = model_list[0];
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_mol_active, model_list);
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+
+   // fill sigma level entry
+   //
    GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
-
    char *txt = get_text_for_find_waters_sigma_cut_off();
    gtk_entry_set_text(GTK_ENTRY(entry), txt);
    free(txt);
@@ -101,15 +122,13 @@ GtkWidget *wrapped_create_unmodelled_blobs_dialog() {
 
 void execute_find_blobs_from_widget(GtkWidget *dialog) { 
 
-   int imol_model = -1;
-   int imol_for_map = -1;
    float sigma_cut_off = -1; 
 
    // GtkWidget *entry = lookup_widget(dialog, "find_blobs_peak_level_entry");
    GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
    const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
    if (txt) { 
-      float f = atof(txt);
+      float f = coot::util::string_to_float(txt);
       if (f > 0.0 && f < 1000.0) { 
 	 sigma_cut_off = f;
       }
@@ -117,66 +136,17 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
 
    if (sigma_cut_off > 0.0) {
 
-      // Find the first active map radiobutton
-      GtkWidget *map_button;
-      short int found_active_button_for_map = 0;
-      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_xmap()) { 
-	    std::string map_str = "find_blobs_map_radiobutton_";
-	    map_str += graphics_info_t::int_to_string(imol);
-	    // map_button = lookup_widget(dialog, map_str.c_str());
-	    map_button = 0;
-            // correctly set map_button
-            std::cout << "in execute_find_blobs_from_widget() correctly set map_button" << std::endl;
-	    if (map_button) { 
-	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) {
-		  imol_for_map = imol;
-		  found_active_button_for_map = 1;
-		  break;
-	       }
-	    } else {
-	       std::cout << "WARNING:: (error) " << map_str << " widget not found in "
-			 << "execute_get_mols_ligand_search" << std::endl;
-	    }
-	 }
-      }
+      GtkWidget *model_combobox = widget_from_builder("unmodelled_blobs_model_combobox");
+      GtkWidget *map_combobox   = widget_from_builder("unmodelled_blobs_map_combobox");
+      graphics_info_t g;
+      int imol_model   = g.combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+      int imol_for_map = g.combobox_get_imol(GTK_COMBO_BOX(map_combobox));
 
-      // Find the first active protein radiobutton
-      GtkWidget *protein_button;
-      short int found_active_button_for_protein = 0;
-      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    std::string protein_str = "find_blobs_protein_radiobutton_";
-	    protein_str += graphics_info_t::int_to_string(imol);
-	    // protein_button = lookup_widget(dialog, protein_str.c_str());
-            protein_button = 0;
-            std::cout << "in execute_find_blobs_from_widget() correctly set protein_button" << std::endl;
-	    if (protein_button) { 
-	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(protein_button))) {
-		  imol_model = imol;
-		  found_active_button_for_protein = 1;
-		  break;
-	       }
-	    } else {
-	       std::cout << "ERROR:: in execute_find_blobs_from_widget()" << protein_str
-                         << " widget not found in " << "execute_get_mols_ligand_search" << std::endl;
-	    }
-	 }
-      }
+      bool interactive_flag = true;
+      execute_find_blobs(imol_model, imol_for_map, sigma_cut_off, interactive_flag);
 
-      if (! found_active_button_for_map) { 
-	 std::cout << "INFO:: You need to have define a map to search for map blobs!\n";
-      } else { 
-	 if (! found_active_button_for_protein) { 
-	 std::cout << "INFO:: You need to have define coordinates for masking to search for map blobs!\n";
-	 } else { 
-	    short int interactive_flag = 1;
-	    execute_find_blobs(imol_model, imol_for_map, sigma_cut_off, interactive_flag);
-	 }
-      }
    } else { 
-      std::cout << "WARNING:: nonsense sigma level " << sigma_cut_off
-		<< " not doing search\n";
+      std::cout << "WARNING:: nonsense sigma level " << sigma_cut_off << " not doing search\n";
    }
 }
 
