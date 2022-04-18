@@ -5627,20 +5627,29 @@ on_draw_hydrogens_no_radiobutton_toggled_gtkbuilder_callback
   */
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_renumber_residues_molecule_combobox_changed_gtkbuilder_callback(GtkComboBox     *combobox,
+                                                                   gpointer         user_data) {
+
+   // This chaged signal is attached to the combobox items in new_fill_combobox_with_coordinates_options().
+   // We could do it here, I suppose, attached the the combobox, but renumber_residue_range is from old code
+   // and it seems to work.
+   
+}
+
 /* radio button is the N-terminal button */
 extern "C" G_MODULE_EXPORT
 void
-on_renumber_residue_range_radiobutton_1_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_renumber_residue_range_radiobutton_1_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                    gpointer         user_data) {
 
-  GtkWidget *entry_1 = widget_from_builder("renumber_residue_range_resno_1_entry");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-    gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
-  } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(entry_1), TRUE);
-  }
+   GtkWidget *entry_1 = widget_from_builder("renumber_residue_range_resno_1_entry");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+      gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
+   } else {
+      gtk_widget_set_sensitive(GTK_WIDGET(entry_1), TRUE);
+   }
 }
 
 extern "C" G_MODULE_EXPORT

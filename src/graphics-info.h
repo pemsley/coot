@@ -4367,7 +4367,7 @@ string   static std::string sessionid;
    static Shader shader_for_lines_pulse; // "you are here" pulse
    static Shader shader_for_ligand_view;
    static Shader shader_for_happy_face_residue_markers;
-   static Shader shader_for_anchored_atom_markers;
+   // static Shader shader_for_anchored_atom_markers; // this now uses the happy face residue marker shader
    static Shader shader_for_rama_plot_axes_and_ticks;
    static Shader shader_for_rama_plot_phi_phis_markers;
    static Shader shader_for_hud_lines; // actally in 3D because it uses LinesMesh class

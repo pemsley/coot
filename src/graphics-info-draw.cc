@@ -4281,12 +4281,9 @@ graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
    if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
                       << "Post attach_buffers() err is " << err << std::endl;
 
-   // If not found in this directory, then try default directory.
 
    texture_for_anchored_atom_markers.init("anchor-for-fixed-atoms.png");
-   texture_for_anchored_atom_markers.Bind(0); // why is this needed?
-
-   shader_for_anchored_atom_markers.Use(); // needed?
+   // texture_for_anchored_atom_markers.Bind(0); // why is this needed?
    tmesh_for_anchored_atom_markers.setup_camera_facing_quad(1.0, 1.0);
    tmesh_for_anchored_atom_markers.setup_instancing_buffers(max_anchored_atoms);
    tmesh_for_anchored_atom_markers.draw_this_mesh = false;

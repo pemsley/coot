@@ -7464,6 +7464,10 @@ fragment of loaders.cache:
 
    break set --name coot::restraints_container_t::bonded_flanking_residues_by_residue_vector
 
+   using gdb:
+
+   break Shader::Use()
+
 ----
 
    torsion fit this residue should do a rigid body refinement after each modification,

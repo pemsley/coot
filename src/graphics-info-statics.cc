@@ -1430,7 +1430,7 @@ Shader graphics_info_t::shader_for_dof_blur_by_texture_combination;
 Shader graphics_info_t::shader_for_effects;
 Shader graphics_info_t::shader_for_hud_lines;
 Shader graphics_info_t::shader_for_lines;
-Shader graphics_info_t::shader_for_anchored_atom_markers;
+// Shader graphics_info_t::shader_for_anchored_atom_markers; // use happy face markers instead
 Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_ligand_view;
