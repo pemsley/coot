@@ -733,7 +733,7 @@ bool      graphics_info_t::do_trans_peptide_restraints = true;
 
 //
 bool graphics_info_t::do_intermediate_atoms_rama_markup = true;
-bool graphics_info_t::do_intermediate_atoms_rota_markup = false;
+bool graphics_info_t::do_intermediate_atoms_rota_markup = true;
 
 //
 short int graphics_info_t::guile_gui_loaded_flag = FALSE;
