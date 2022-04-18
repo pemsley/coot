@@ -465,7 +465,7 @@ Shader::create() const {
       // good
       message = "success";
    } else {
-      std::cout << "WARNING:: valiation failed: " << name << " validation status " << status << std::endl;
+      std::cout << "WARNING:: validation failed: " << name << " validation status " << status << std::endl;
       message = "validation-failed";
    }
    glDeleteShader(vs);
