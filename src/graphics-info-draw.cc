@@ -2363,27 +2363,22 @@ graphics_info_t::setup_hud_geometry_bars() {
    mesh_for_hud_geometry.setup_instancing_buffer(500, sizeof(HUD_bar_attribs_t));
 
    // If not found in this directory, then try default directory.
-   texture_for_hud_geometry_labels_map["Rama"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["Rama"].init("hud-label-rama-small.png");
    // texture_for_hud_geometry_labels_map["Rama"].init("rama-plot-other-normal.png");
-   texture_for_hud_geometry_labels_map["NBC"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["NBC"].init("hud-label-NBC-small.png");
    //texture_for_hud_geometry_labels_map["NBC"].init("rama-plot-other-normal.png");
-   texture_for_hud_geometry_labels_map["Rota"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["Rota"].init("hud-label-rota-small.png");
    //texture_for_hud_geometry_labels_map["Rota"].init("rama-plot-other-normal.png");
-   texture_for_hud_geometry_labels_map["Pull"].set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels_map["Pull"].init("hud-label-pull-small.png");
    // texture_for_hud_geometry_labels_map["Pull"].init("rama-plot-other-normal.png");
 
-   texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
+   // texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
    texture_for_hud_tooltip_background.init("hud-tooltip.png"); // 94x47
-   float sc_x = 0.1 * static_cast<float>(103) / aspect_ratio;
-   float sc_y = 0.01 * static_cast<float>(50);
 
    // Do I need to Use() the shader_for_hud_geometry_labels here?
    shader_for_hud_geometry_labels.Use();
    mesh_for_hud_geometry_labels.setup_quad();
+
    // glm::vec2 position(-0.98, 0.903);
    // glm::vec2 position(-0.0, 0.0);
    // glm::vec2 scales(0.56/aspect_ratio, 0.56);
