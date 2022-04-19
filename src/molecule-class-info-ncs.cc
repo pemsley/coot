@@ -58,11 +58,14 @@ molecule_class_info_t::update_ghosts() {
 
    std::cout << "################## update_ghosts() " << std::endl;
 
-   if (ncs_ghosts.size() > 0) {
-      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+   if (show_ghosts_flag) {
 
-	 if (ncs_ghosts[ighost].display_it_flag) 
-	    ncs_ghosts[ighost].update_bonds(atom_sel.mol);
+      if (ncs_ghosts.size() > 0) {
+         for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+
+            if (ncs_ghosts[ighost].display_it_flag) 
+               ncs_ghosts[ighost].update_bonds(atom_sel.mol);
+         }
       }
    }
 }
@@ -245,8 +248,10 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
                                        const glm::vec4 &background_colour) {
 
    // std::cout << "draw_ncs_ghosts() " << std::endl;
-   for (auto &ghost : ncs_ghosts) {
-      ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+   if (show_ghosts_flag) {
+      for (auto &ghost : ncs_ghosts) {
+         ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+      }
    }
 
 }

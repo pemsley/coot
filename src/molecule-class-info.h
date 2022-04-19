@@ -482,7 +482,7 @@ class molecule_class_info_t {
    //
    std::vector<coot::ghost_molecule_display_t> ncs_ghosts;
    void update_ghosts();
-   short int show_ghosts_flag;
+   short int show_ghosts_flag; // i.e. draw_it_for_ncs_ghosts
    float ghost_bond_width;
    bool ncs_ghost_chain_is_a_target_chain_p(const std::string &chain_id) const;
    // throw an exception when the matrix is not defined (e.g. no atoms).
