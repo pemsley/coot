@@ -1090,7 +1090,7 @@ graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
    }
    gtk_box_pack_start(GTK_BOX(vbox_outer), scrolled_window, TRUE, TRUE, 2);
    gtk_container_add(GTK_CONTAINER(scrolled_window), vbox);
-   GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(dialog));
+   GtkWidget *aa = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
    gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
    // gtk_dialog_add_button(dialog, close_button, GTK_RESPONSE_CLOSE); // 20211014-PE for the future
    // GCallback cbc = G_CALLBACK(on_dialog_box_of_buttons_close_button_response);
