@@ -485,8 +485,10 @@ int make_updating_model_molecule(const char *filename) {
 
 void show_calculate_updating_maps_gui() {
 
+   std::cout << "debug:: in show_calculate_updating_maps_gui()" << std::endl;
 #ifdef USE_PYTHON
    std::string cmd = "import coot_gui ; coot_gui.show_updating_maps_chooser()";
+   std::cout << "debug:: in show_calculate_updating_maps_gui() calling safe_python_command() cmd " << cmd << std::endl;
    safe_python_command(cmd);
 #endif
 
@@ -6533,6 +6535,7 @@ void safe_scheme_command(const std::string &scheme_command) { /* do nothing */
 void safe_python_command(const std::string &python_cmd) {
 
 #ifdef USE_PYTHON
+   std::cout << "debug:: safe_python_command() PyRun_SimpleString() " << python_cmd << std::endl;
    PyRun_SimpleString(python_cmd.c_str());
 #endif
 }

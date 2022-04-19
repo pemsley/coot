@@ -846,7 +846,12 @@ difference_map_peaks(int imol, int imol_coords,
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       std::string title = "Difference Map Peaks Dialog From Map No. ";
 	       title += coot::util::int_to_string(imol);
-	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(imol_coords, centres, map_sigma, title);
+	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(imol, imol_coords, centres, map_sigma,
+                                                                                    n_sigma,
+                                                                                    do_positive_level_flag,
+                                                                                    do_negative_levels_flag,
+                                                                                    around_model_only_flag,
+                                                                                    title);
 	       gtk_widget_show(w);
 	    }
 
@@ -894,7 +899,6 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
 
    // c.f. wrapped_create_check_waters_diff_map_dialog()
 
-   // GtkWidget *dialog = create_generate_diff_map_peaks_dialog();
    GtkWidget *dialog = widget_from_builder("generate_diff_map_peaks_dialog");
 
    int ifound;

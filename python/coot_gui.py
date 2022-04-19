@@ -1483,11 +1483,12 @@ def coot_toolbar_button(button_label, cb_function,
         # otherwise only icon
 
         def cb_wrapper(widget, callback_function):
+            print("DEBUG:: in cb_wrapper() for coot_toolbar_button(): widget is", widget, "and callback_function is", callback_function)
             if True:
                 # have function as callable and maybe extra args (all in one list)
                 args = []
                 function = callback_function
-                if (type(callback_function) is list):
+                if type(callback_function) is list:
                     function = callback_function[0]
                     args = callback_function[1:]
                 # pass the widget/button as well? Maybe the cb function can
@@ -1495,6 +1496,7 @@ def coot_toolbar_button(button_label, cb_function,
                 if use_button:
                     args.append(widget)
                 if callable(function):
+                    print("DEBUG:: in cb_wrapper() was callable", function, "with args", *args)
                     function(*args)
                 else:
                     print("BL ERROR:: cannot evaluate or call function", function)

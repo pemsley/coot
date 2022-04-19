@@ -1223,10 +1223,9 @@ volatile bool graphics_info_t::socket_string_waiting_mutex_lock = false;
 
 
 // validation
-std::vector<clipper::Coord_orth> *graphics_info_t::diff_map_peaks =
-   new std::vector<clipper::Coord_orth>;
+std::vector<clipper::Coord_orth> *graphics_info_t::diff_map_peaks = new std::vector<clipper::Coord_orth>;
 int   graphics_info_t::max_diff_map_peaks = 0;
-float graphics_info_t::difference_map_peaks_sigma_level = 5.0;
+float graphics_info_t::difference_map_peaks_sigma_level = 5.6; // 20220419-PE 5.0 give too many peaks
 float graphics_info_t::difference_map_peaks_max_closeness = 2.0; // A
 
 // save state file name

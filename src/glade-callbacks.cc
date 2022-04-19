@@ -5914,8 +5914,7 @@ on_find_blobs_ok_button_clicked_gtkbuilder_callback        (GtkButton       *but
 extern "C" G_MODULE_EXPORT
 void
 on_find_blobs_cancel_button_clicked_gtkbuilder_callback    (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                                            gpointer         user_data) {
   GtkWidget *w = widget_from_builder("unmodelled_blobs_dialog");
   gtk_widget_hide(w);
 
@@ -6613,6 +6612,14 @@ on_diff_map_peaks_dialog_ok_button_clicked_gtkbuilder_callback
    gtk_widget_hide(dialog);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_diff_map_peaks_dialog_update_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                   gpointer         user_data) {
+   graphics_info_t g;
+   g.fill_difference_map_peaks_button_box();
+   
+}
 
 extern "C" G_MODULE_EXPORT
 void

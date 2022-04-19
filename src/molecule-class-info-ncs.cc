@@ -56,8 +56,6 @@
 void
 molecule_class_info_t::update_ghosts() {
 
-   std::cout << "################## update_ghosts() " << std::endl;
-
    if (show_ghosts_flag) {
 
       if (ncs_ghosts.size() > 0) {

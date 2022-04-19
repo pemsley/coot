@@ -251,6 +251,8 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 
    GtkWidget *find_ligand_map_vbox = widget_from_builder(vbox_name.c_str());
 
+   clear_out_container(find_ligand_map_vbox);
+
    std::cout << "DEBUG:: in fill_ligands_dialog_map_bits_by_dialog_name() found find_ligand_map_vbox "
              << find_ligand_map_vbox << std::endl;
 
@@ -339,6 +341,7 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
    if (find_ligand_protein_vbox == NULL) {
       std::cout << "disaster! find_ligand protein vbox not found " << std::endl;
    } else {
+      clear_out_container(find_ligand_protein_vbox);
       for (int imol=0; imol<g.n_molecules(); imol++) {
 	 if (g.molecules[imol].atom_sel.n_selected_atoms) {
 	    //
