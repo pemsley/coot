@@ -5126,9 +5126,12 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
          if (! w) {
             std::string label = name;
             w = gtk_check_button_new_with_label(label.c_str());
+            gtk_widget_set_can_focus(w, FALSE);
+            gtk_widget_set_can_default(w, FALSE);
             std::string widget_name = "main_window_meshes_dialog_mesh_button_" + std::to_string(imol) + "_" + std::to_string(j);
-            char *widget_name_cstr = new char[widget_name.length() + 1]; // bleugh!
-            strcpy(widget_name_cstr, widget_name.c_str());               // bleugh!
+            unsigned int l = widget_name.length();
+            char *widget_name_cstr = new char[l + 1];             // bleugh!
+            strncpy(widget_name_cstr, widget_name.c_str(), l+1);  // bleugh!
             g_object_set_data(G_OBJECT(w), "name", widget_name_cstr);
             g_object_set_data(G_OBJECT(w), "imol",     GINT_TO_POINTER(imol));
             g_object_set_data(G_OBJECT(w), "mesh_idx", GINT_TO_POINTER(j));
