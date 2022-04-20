@@ -25,7 +25,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include <mmdb2/mmdb_manager.h>
 
@@ -98,11 +97,8 @@ namespace coot {
       bool state;
       bool swap_needed;
       std::string link_type;
-      bonded_pair_match_info_t(bool state_in, bool swap_needed_in, const std::string &link_type_in) {
-	 state = state_in;
-	 swap_needed = swap_needed_in;
-	 link_type = link_type_in;
-      }
+      bonded_pair_match_info_t(bool state_in, bool swap_needed_in, const std::string &link_type_in) :
+         state(state_in), swap_needed(swap_needed_in), link_type(link_type_in) {}
    };
 	 
    class bonded_pair_container_t {

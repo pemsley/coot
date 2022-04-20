@@ -2,7 +2,6 @@
 #define FRAGMENT_INFO_HH
 
 #include <vector>
-#include <iostream>
 #include "geometry/residue-and-atom-specs.hh"
 
 namespace coot {

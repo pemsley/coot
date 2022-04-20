@@ -2,7 +2,6 @@
 #define SCORED_NODE_HH
 
 #include <utility>
-#include <iostream>
 
 namespace coot {
    class scored_node_t {

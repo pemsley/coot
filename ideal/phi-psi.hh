@@ -2,7 +2,7 @@
 #ifndef PHI_PSI_T
 #define PHI_PSI_T
 
-#include <iostream>
+#include <iosfwd>
 
 namespace coot {
 

@@ -1,5 +1,4 @@
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -38,13 +37,7 @@ namespace coot {
 	    set_string = set_string_in;
 	    score = score_in;
 	 }
-	 void print() const {
-	    std::cout << "flip " << atom_spec
-		      << " " << set_string
-		      << " " << info_string
-		      << " " << residue_type
-		      << " " << score << std::endl;
-	 }
+	 void print() const;
       };
 
       class no_adjust {

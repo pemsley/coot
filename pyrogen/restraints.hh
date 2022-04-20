@@ -26,7 +26,6 @@
 #include <Python.h>
 #include <cstddef>
 #include <string>
-#include <iostream>
 #include <vector>
 
 #include "compat/coot-sysdep.h"

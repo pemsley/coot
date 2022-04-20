@@ -37,8 +37,6 @@
 #include <vector>
 #endif
 
-#include <iostream>
-
 #include "math.h"
 
 #ifndef MMDB_MANAGER_H

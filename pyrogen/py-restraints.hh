@@ -21,7 +21,6 @@
 
 #include "Python.h"
 #include <string>
-#include <iostream>
 #include <vector>
 
 #include <GraphMol/GraphMol.h>

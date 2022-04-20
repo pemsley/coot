@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include "zo-rama.hh"
 
 void

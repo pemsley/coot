@@ -2076,6 +2076,17 @@ coot::simple_restraint::format(mmdb::PAtom *atoms_vec, double distortion) const 
    return s;
 }
 
+void
+coot::refinement_results_t::show() const {
+
+   std::cout << "Refinement Ressults " << info_text << " " << found_restraints_flag
+             << " " << progress << std::endl;
+   for (const auto &l : lights) {
+      std::cout << " " << l.name << " " << l.label << " " << l.value << std::endl;
+   }
+}
+
+
 std::string
 coot::simple_restraint::type() const {
 

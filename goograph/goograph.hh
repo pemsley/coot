@@ -23,7 +23,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include <gtk/gtk.h>
 #include <goocanvas.h>
@@ -185,8 +184,9 @@ namespace coot {
 
 	 lig_build::pos_t pos((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
 			      (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
-	 if (false)
-	    std::cout << "world_to_canvas() input: " << p << " returning " << pos << std::endl;
+#if 0 // no iostream in headers
+         std::cout << "world_to_canvas() input: " << p << " returning " << pos << std::endl;
+#endif
 	 return pos;
       }
       void draw_title();

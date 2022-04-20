@@ -23,7 +23,6 @@
 #ifndef CARTESIAN_H
 #define CARTESIAN_H
 
-#include <iostream>
 #include <fstream>
 #include <vector>
 

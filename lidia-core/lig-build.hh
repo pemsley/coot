@@ -24,10 +24,8 @@
 #define LIG_BUILD_HH
 
 #include <math.h>  // for fabs, cos, sin
-#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 #include <algorithm>
 #include <set>
 #include <stdexcept>
@@ -647,7 +645,7 @@ namespace lig_build {
 		     // bond_from_3rd_atom_extension   -= b * 0.05;
 		     // bond_from_3rd_atom_contraction -= b * 0.05;
 		  }
-
+#ifdef HAVE_IOSTREAM_HEADER
 		  if (false) {
 		     std::cout << " pos_1           " << pos_1 << std::endl;
 		     std::cout << " pos_2           " << pos_2 << std::endl;
@@ -659,7 +657,7 @@ namespace lig_build {
 		     std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
 		     std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
 		  }
-
+#endif
 		  // is bfrom3rd_2 in the same direction as buv_90?
 		  // If not, then we need to swap around sharp_point_1 and sharp_point_2.
 		  //
@@ -895,6 +893,7 @@ namespace lig_build {
 	       }
 	    }
 
+#ifdef HAVE_IOSTREAM_HEADER
 	    if (0) {  // debug;
 	       std::cout << "     atom index " << this_atom_index << " has "
 			 << atoms_bonded_to_atom_index_start.size()
@@ -903,7 +902,7 @@ namespace lig_build {
 		  std::cout << local_no_pass_atoms[i] << " ";
 	       std::cout << ")\n";
 	    }
-	 
+#endif	 
 	    for (unsigned int iat=0; iat<atoms_bonded_to_atom_index_start.size(); iat++) { 
 	       std::pair<bool, std::vector<unsigned int> > r =
 		  find_bonded_atoms_with_no_pass(start_atom_index,
@@ -919,12 +918,14 @@ namespace lig_build {
       
 	 } // end depth test
 
+#ifdef HAVE_IOSTREAM_HEADER
 	 if (0) { 
 	    std::cout << "returning 0 with this depth " << depth << " no-pass-list: (";
 	    for (unsigned int i=0; i<local_no_pass_atoms.size(); i++)
 	       std::cout << local_no_pass_atoms[i] << " ";
 	    std::cout << ")\n";
 	 }
+#endif
 	 std::vector<unsigned int> empty;
 	 return std::pair<bool, std::vector<unsigned int> > (0, empty);
       }
@@ -1268,6 +1269,7 @@ namespace lig_build {
 			    unsigned int depth,
 			    const std::vector<unsigned int> &local_no_pass_atoms) const {
 
+#ifdef HAVE_IOSTREAM_HEADER
 	 std::cout << "    found atom index " << atom_index_start << " from this atom: "
 		   << this_atom_index
 		   << ", at depth " << depth << " no-pass-atoms: (";
@@ -1275,12 +1277,13 @@ namespace lig_build {
 	    std::cout << local_no_pass_atoms[i] << " ";
 	 }
 	 std::cout << ")" << std::endl;
+#endif
       }
 
       void debug_pass_atoms(unsigned int atom_index_start, unsigned int this_atom_index,
 			    unsigned int depth,
 			    const std::set<unsigned int> &local_no_pass_atoms) const {
-
+#ifdef HAVE_IOSTREAM_HEADER
 	 std::cout << "    debug_pass_atoms(): found atom index "
 		   << atom_index_start << " from this atom: "
 		   << this_atom_index
@@ -1289,6 +1292,7 @@ namespace lig_build {
 	 for (it=local_no_pass_atoms.begin(); it!=local_no_pass_atoms.end(); ++it)
 	    std::cout << *it << " ";
 	 std::cout << ")" << std::endl;
+#endif
       }
       
 
@@ -1307,10 +1311,12 @@ namespace lig_build {
 	    if (! bonds[ib].have_centre_pos() || force) {
 	       unsigned int atom_index     = bonds[ib].get_atom_1_index();
 	       unsigned int atom_idx_other = bonds[ib].get_atom_2_index();
+#ifdef HAVE_IOSTREAM_HEADER
 	       if (debug_this)
 		  std::cout << "=============== checking bond " << ib
 			    << " for rings for atom index "
 			    << atom_index << " ===============" << std::endl;
+#endif
 
 	       // all the rings for atom_index that pass throught atom_idx_other (because
 	       // for a double bond connected to a fused ring atom we want the ring that contains
@@ -1318,6 +1324,7 @@ namespace lig_build {
 	       // 
 	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index, atom_idx_other);
 
+#ifdef HAVE_IOSTREAM_HEADER
 	       if (debug_this) {
 		  std::cout << "   constructor of widgeted_bond_t atom " << atom_index
 			    << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
@@ -1329,8 +1336,8 @@ namespace lig_build {
 			std::cout << " " << *it;
 		     std::cout << std::endl;
 		  }
-
 	       }
+#endif
 	       if (rings.size() > 0) {
 		  lig_build::pos_t centre_pos_sum;
 		  unsigned int fav_ring_id = favourite_ring_id(rings);
@@ -1341,6 +1348,7 @@ namespace lig_build {
 		  lig_build::pos_t centre_pos =
 		     centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
 		  bonds[ib].add_centre(centre_pos, rings[fav_ring_id].size());
+#ifdef HAVE_IOSTREAM_HEADER
 		  if (debug_this) {
 		     std::cout << "   adding centre at " << centre_pos
 			       << " generated from (";
@@ -1352,6 +1360,7 @@ namespace lig_build {
 			       << " connecting " << bonds[ib].get_atom_1_index() << " to "
 			       << bonds[ib].get_atom_2_index() << std::endl;
 		  }
+#endif
 	       }
 	    }
 	 }
@@ -1378,10 +1387,12 @@ namespace lig_build {
 	    std::vector<unsigned int> ring_bonds = ring_atoms_to_ring_bonds(rings[i]);
 	    unsigned int n_bonds_double = 0;
 	    for (std::size_t ib=0; ib<ring_bonds.size(); ib++) {
+#ifdef HAVE_IOSTREAM_HEADER
 	       if (false)
 		  std::cout << "in favourite_ring_id() iring " << i << " ib " << ib
 			    << " ring_bonds[ " << ib << "] = " << ring_bonds[ib]
 			    << " " << bonds[ring_bonds[ib]] << std::endl;
+#endif
 	       if (bonds[ring_bonds[ib]].get_bond_type() == bond_t::DOUBLE_BOND ||
 		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::AROMATIC_BOND ||
 		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::DOUBLE_OR_AROMATIC ||
@@ -2493,6 +2504,7 @@ namespace lig_build {
       // write out the atom and bond tables:
       // 
       void debug() const {
+#ifdef HAVE_IOSTREAM_HEADER
 	 for (unsigned int i=0; i<atoms.size(); i++) {
 	    std::cout << "Atom " << i << ": " << atoms[i].element << " "
 		      << atoms[i].atom_id << " at "
@@ -2505,10 +2517,10 @@ namespace lig_build {
 	       std::cout << " centre_pos: " << bonds[i].centre_pos();
 	    std::cout << " type " << bonds[i].get_bond_type() << std::endl;
 	 }
-      } 
-      
+#endif
+      }
    }; // end of molecule_t class
-   
+
    class polygon_position_info_t {
    public:
       bool apply_internal_angle_offset_flag;

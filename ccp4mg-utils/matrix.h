@@ -47,7 +47,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 
 class Quat;
 
@@ -55,19 +54,19 @@ class matrix {
   std::vector<std::vector<double> > mat;
 
 public:
-  matrix(){/*std::cout << "matrix default constructor\n"; std::cout.flush();*/};
-  ~matrix();
-  matrix(const matrix &a);
-  matrix(const Quat &q);
-  matrix& operator=(const matrix &a);
-  matrix(int unsigned x,unsigned int y);
-  matrix(int unsigned x,unsigned int y, double *array);
-  matrix(unsigned int x,unsigned int y, const std::vector<double> &mat_in);
-  matrix(const std::vector<std::vector<double> > &mat_in) {mat = mat_in;};
-  matrix(unsigned int x,double(*fun)(int i,int j,int k));
+   matrix(){/*std::cout << "matrix default constructor\n"; std::cout.flush();*/};
+   ~matrix();
+   matrix(const matrix &a);
+   matrix(const Quat &q);
+   matrix& operator=(const matrix &a);
+   matrix(int unsigned x,unsigned int y);
+   matrix(int unsigned x,unsigned int y, double *array);
+   matrix(unsigned int x,unsigned int y, const std::vector<double> &mat_in);
+   explicit matrix(const std::vector<std::vector<double> > &mat_in) : mat(mat_in) {};
+   matrix(unsigned int x,double(*fun)(int i,int j,int k));
 
-  double *to_dp();
-  void Zero();
+   double *to_dp();
+   void Zero();
 
   unsigned int get_rows() const;
   unsigned int  get_columns() const;

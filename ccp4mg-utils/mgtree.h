@@ -78,7 +78,7 @@ class TreeVertex{
    Cartesian GetExternalChild(int i) const {return ext_children[i];};
    int GetNumberOfChildren() const {return children.size();};
    int GetNumberOfExternalChildren() const {return ext_children.size();};
-   void PrintTree(void) const {std::cout << *this;};
+   void PrintTree(void) const; // {std::cout << *this;};
    friend std::ostream& operator<<(std::ostream &c, TreeVertex a);
    int FindDepth(void) const ;
    double GetParentDistance() const {return parent_dist;};
@@ -129,7 +129,7 @@ class Tree{
    void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<int> > &forced_connections);
    void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
    friend std::ostream& operator<<(std::ostream &c, Tree a);
-   void Print(void){ std::cout << *this;};
+   void Print(void); // { std::cout << *this;};
    int FindMaxDepth(void);
    std::vector<std::pair<int,int> > extra_bonded_pairs;
    void PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels, const std::string &separater=",");

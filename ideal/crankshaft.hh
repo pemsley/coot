@@ -3,7 +3,6 @@
 #define CRANKSHAFT_HH
 
 #include <vector>
-#include <iostream>
 #include "gsl/gsl_multimin.h"
 
 #include <clipper/core/coords.h>

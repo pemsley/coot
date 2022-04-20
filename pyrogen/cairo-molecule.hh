@@ -5,7 +5,6 @@
 #include "Python.h"
 #endif
 
-#include <iostream> // for lig-build.hh - hmm.
 #include <cairo/cairo.h>
 #include "lidia-core/lig-build.hh"
 #include "utils/coot-utils.hh"

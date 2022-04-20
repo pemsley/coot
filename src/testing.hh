@@ -20,7 +20,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 #include <stdexcept>
 
 #include "coords/mmdb-extras.h"

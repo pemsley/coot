@@ -28,6 +28,7 @@
 // and "mmdb-extras.h" for atom_selection_container_t
 #include "Cartesian.h"
 
+#include "coot-utils/atom-selection-container.hh"
 
 coot::Cartesian
 centre_of_molecule(atom_selection_container_t SelAtom); 
@@ -68,7 +69,6 @@ namespace coot {
 }
 
 
-// needs <iostream>
 // 
 std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom);
 

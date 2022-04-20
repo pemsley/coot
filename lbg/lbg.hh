@@ -30,7 +30,6 @@ n * This program is distributed in the hope that it will be useful, but
 #include "lidia-core/rdkit-interface.hh"
 #endif 
 
-#include <iostream>
 #include <map>
 #include <queue>
 
@@ -483,36 +482,44 @@ public:
 	 coordinates(float f, int i) {
             x_y_axis = true;
 	    if (f>1.0)
+#ifdef HAVE_IOSTREAM_HEADER
 	       std::cout << "-----> Bad frac " << f << std::endl;
 	    if (f<0.0)
 	       std::cout << "-----> Bad frac " << f << std::endl;
+#endif
 	    frac_x = f;
 	    i_ax = i;
 	    if (i == X_AXIS_LOW)
 	       frac_y = 0.0;
 	    else
 	       frac_y = 1.0;
+#ifdef HAVE_IOSTREAM_HEADER
 	    if (i_ax != X_AXIS_LOW)
 	       if (i_ax != X_AXIS_HIGH)
 		  std::cout << "Bad axis to coordinates(f, i) f: "
 			    << f << "  i: " << i << std::endl;
+#endif
 	 } 
 	 coordinates(int i, float f) {
             x_y_axis = true;
+#ifdef HAVE_IOSTREAM_HEADER
 	    if (f>1.0)
 	       std::cout << "----->  Bad frac " << f << std::endl;
 	    if (f<0.0)
 	       std::cout << "----->  Bad frac " << f << std::endl;
+#endif
 	    frac_y = f;
 	    i_ax = i;
 	    if (i == Y_AXIS_LOW)
 	       frac_x = 0.0;
 	    else
 	       frac_x = 1.0;
+#ifdef HAVE_IOSTREAM_HEADER
 	    if (i_ax != Y_AXIS_LOW)
 	       if (i_ax != Y_AXIS_HIGH)
 		  std::cout << "Bad axis to coordinates(i, f) i: "
 			    << i << "  f: " << f << std::endl;
+#endif
 	 }
 	 float get_frac_x() { return frac_x; } 
 	 float get_frac_y() { return frac_y; } 
@@ -904,9 +911,11 @@ public:
    lbg_info_t(int imol_in, coot::protein_geometry *geom_p_in) : geom_p(geom_p_in) {
       init_internal();
       imol = imol_in;
+#ifdef HAVE_IOSTREAM_HEADER
       if (false)
 	 std::cout << "in lbg_info_t(imol) mdl_file_name is now :"
 		   << mdl_file_name << ":" << std::endl;
+#endif
    }
       
    // toggle button modes, mutually exclusive

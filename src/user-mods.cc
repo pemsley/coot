@@ -5,6 +5,7 @@
 #endif
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include <sstream>
 
@@ -320,3 +321,14 @@ coot::flips_container::user_mods_py() const {
    return r;
 }
 #endif // USE_PYTHON
+
+
+void
+coot::flips_container::flip::print() const {
+
+   std::cout << "flip " << atom_spec
+             << " " << set_string
+             << " " << info_string
+             << " " << residue_type
+             << " " << score << std::endl;
+}

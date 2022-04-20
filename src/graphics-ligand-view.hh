@@ -18,7 +18,6 @@
  * 02110-1301, USA
  */
 
-#include <iostream>
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "geometry/protein-geometry.hh"

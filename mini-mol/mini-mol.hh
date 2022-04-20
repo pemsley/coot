@@ -22,7 +22,6 @@
 #ifndef HAVE_MINIMOL
 #define HAVE_MINIMOL
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -140,9 +139,11 @@ namespace coot {
 	 const residue& operator[](int i) const {
 	    int itmp = residues.size() + residues_offset;
 	    if (i>= itmp) {
+#ifdef HAVE_IOSTREAM_HEADER
 	       std::cout << "ERROR:: can't resize const residues: request for " << i
 			 << " with residues size: " << residues.size()
 			 << " and offset: " << residues_offset << std::endl;
+#endif
 	       std::string s = "can't resize const residues: request for ";
 	       s += util::int_to_string(i);
 	       s += " with residues size: ";

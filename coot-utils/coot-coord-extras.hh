@@ -23,7 +23,6 @@
 #ifndef HAVE_COOT_COORD_EXTRAS_HH
 #define HAVE_COOT_COORD_EXTRAS_HH
 
-#include <iostream>
 #include <fstream>
 #include <map>
 #include "tree.hh" // Kasper Peeters tree

@@ -2,7 +2,6 @@
 #ifndef LOGGING_HH
 #define LOGGING_HH
 
-#include <iostream>
 #include <ctime>
 #include <string>
 #include <vector>
