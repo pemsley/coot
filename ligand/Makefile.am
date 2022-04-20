@@ -24,10 +24,13 @@ lib_LTLIBRARIES=libcoot-ligand.la libcoot-res-tracer.la
 EXTRA_DIST = Makefile.simple read-dunbrack.awk side-chain-data.tar.gz
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(COOT_GSL_FLAGS)		\
-	$(GSL_CFLAGS)			\
-	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
+	-I$(top_srcdir)         \
+	$(COOT_GSL_FLAGS)	\
+	$(GSL_CFLAGS)		\
+	$(CLIPPER_CXXFLAGS)     \
+	$(RDKIT_CXXFLAGS)       \
+        $(BOOST_CPPFLAGS)       \
+        $(MMDB_CXXFLAGS)
 
 pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \

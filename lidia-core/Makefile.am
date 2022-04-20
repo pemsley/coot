@@ -32,7 +32,7 @@ AM_CPPFLAGS = \
 	$(RDKIT_CXXFLAGS) 		  \
 	$(BOOST_CPPFLAGS) 	          \
 	$(SQLITE3_CFLAGS)                 \
-        $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
+        $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS) $(BOOST_CPPFLAGS)
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 	rdkit-interface.cc cod-types.cc atom-types.cc bond-record-container-t.cc \
@@ -49,7 +49,8 @@ libcoot_lidia_core_la_LIBADD =                    \
    $(top_builddir)/utils/libcoot-utils.la         \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la   \
    $(CLIPPER_LIBS)                                \
-   $(RDKIT_LIBS) \
+   $(RDKIT_LIBS)                                  \
+   $(BOOST_LDFLAGS)                               \
    $(SQLITE3_LIBS)
 
 #   -lRDKitmaeparser

@@ -35,12 +35,13 @@ pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
 pkgincludedir = $(includedir)/coot/ideal
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(CLIPPER_CXXFLAGS)        \
+	-I$(top_srcdir)     \
+	$(CLIPPER_CXXFLAGS) \
+        $(BOOST_CPPFLAGS)   \
 	$(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
-     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) $(LIBPNG_CFLAGS)
+     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
 
 AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
