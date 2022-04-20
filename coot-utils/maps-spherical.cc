@@ -73,7 +73,7 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
       // calculate structure factors
       hkl_info = clipper::HKL_info(spacegroup, cell, reso);
       hkl_info.generate_hkl_list();
-      std::cout << "P1-sfs: num_reflections: " << hkl_info.num_reflections() << std::endl;
+      std::cout << "DEBUG:: P1-sfs: num_reflections: " << hkl_info.num_reflections() << std::endl;
 
       // with bulking
       // clipper::SFcalc_obs_bulk<float> sfcb;
@@ -83,22 +83,22 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
 
       // debug
       //
-      std::cout << "P1-sfs: cell " << cell.format() << std::endl;
-      std::cout << "P1-sfs: resolution limit " << reso.limit() << std::endl;
+      std::cout << "DEBUG:: P1-sfs: cell " << cell.format() << std::endl;
+      std::cout << "DEBUG:: P1-sfs: resolution limit " << reso.limit() << std::endl;
 
       clipper::MMDBAtom_list atoms(atom_selection, n_selected_atoms);
-      std::cout << "P1-sfs: n_selected_atoms: " << n_selected_atoms << std::endl;
+      std::cout << "DEBUG:: P1-sfs: n_selected_atoms: " << n_selected_atoms << std::endl;
 
       fc_from_model = clipper::HKL_data<clipper::data32::F_phi>(hkl_info, cell);
 
       clipper::SFcalc_aniso_fft<float> sfc;
       sfc(fc_from_model, atoms);
-      std::cout << "P1-sfs: done sfs calculation " << std::endl;
+      std::cout << "DEBUG:: P1-sfs: done sfs calculation " << std::endl;
 
       if (0) { // debug
 	 clipper::HKL_info::HKL_reference_index hri;
 	 for (hri = fc_from_model.first(); !hri.last(); hri.next()) {
-	    std::cout << "fc " << hri.hkl().format() << " "
+	    std::cout << "DEBUG:: fc " << hri.hkl().format() << " "
 		      << fc_from_model[hri].f()   << " "
 		      << fc_from_model[hri].phi() << "\n";
 	 }
@@ -137,11 +137,11 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 
    clipper::Range<double>    fc_range = fc_from_model.invresolsq_range();
    clipper::Range<double> map_f_range = map_fphidata.invresolsq_range();
-   std::cout << "fc from model resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
-   std::cout << "fc from model resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
+   std::cout << "DEBUG:: fc from model resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
+   std::cout << "DEBUG:: fc from model resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
 	     << std::endl;
-   std::cout << "SFs from map  resolution ranges " << map_f_range.min() << " " << map_f_range.max() << std::endl;
-   std::cout << "SFs from map  resolution ranges " << 1/sqrt(map_f_range.min()) << " " << 1/sqrt(map_f_range.max())
+   std::cout << "DEBUG:: SFs from map  resolution ranges " << map_f_range.min() << " " << map_f_range.max() << std::endl;
+   std::cout << "DEBUG:: SFs from map  resolution ranges " << 1/sqrt(map_f_range.min()) << " " << 1/sqrt(map_f_range.max())
 	     << std::endl;
 
 
@@ -175,13 +175,13 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 	 float x = 2*M_PI*x_gl*r_k; // was r - hmm!
 	 float y = gsl_sf_bessel_J0(x);
 	 if (false)
-	    std::cout << r_k_i <<  " for " << hri.hkl().format() << " y: " << y << std::endl;
+	    std::cout << "DEBUG:: " << r_k_i <<  " for " << hri.hkl().format() << " y: " << y << std::endl;
 
 	 std::complex<float> t = fc_from_model[hri];
 	 std::complex<double> yt(y*t.real(), y*t.imag());
 	 std::complex<double> yt_friedel(y*t.real(), -y*t.imag());
 	 if (false)
-	    std::cout << r_k_i <<  " for " << hri.hkl().format() << " x: " << x << " r: " << r
+	    std::cout << "DEBUG:: " << r_k_i <<  " for " << hri.hkl().format() << " x: " << x << " r: " << r
 		      << " adding " << yt << std::endl;
 	 T[r_k_i] += yt;          // sum now (then multiply after looping over reflection list)
 	 T[r_k_i] += yt_friedel; 
@@ -190,9 +190,9 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
       T[r_k_i] *= w_k * func_r_k * r_k *r_k;
    }
 
-   std::cout << "---- T(k) table ----- " << std::endl;
+   std::cout << "DEBUG:: " << "---- T(k) table ----- " << std::endl;
    for (float r_k_i=1; r_k_i<=N; r_k_i++) {
-      std::cout << "   rki " << r_k_i << "  val: " << T[r_k_i] << std::endl;
+      std::cout << "DEBUG:: " << "   rki " << r_k_i << "  val: " << T[r_k_i] << std::endl;
    }
 
    clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata;
@@ -213,7 +213,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
       }
       A_data[hri] = std::complex<double>(map_fphidata[hri]) * sum;
       if (false)
-	 std::cout << "   A_data: " << hri.hkl().format()
+	 std::cout << "DEBUG:: " << "   A_data: " << hri.hkl().format()
 		   << " f: " << A_data[hri].f() << " phi: " << A_data[hri].phi()
 		   << " sum_abs: " << std::abs(sum) << " sum_arg: " << std::arg(sum)
 		   << "\n";
@@ -226,7 +226,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    // compare phases:
    if (false)
       for (hri = map_fphidata.first(); !hri.last(); hri.next())
-	 std::cout << "  A_phase vs map phase " << hri.hkl().format() << " "
+	 std::cout << "DEBUG:: " << "  A_phase vs map phase " << hri.hkl().format() << " "
 		   << clipper::Util::rad2d(map_fphidata[hri].phi()) << " "
 		   << clipper::Util::rad2d(      A_data[hri].phi()) << std::endl;
    
@@ -254,9 +254,10 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    peak_search ps(A_map);
    float n_sigma = 3;
    std::vector<std::pair<clipper::Coord_grid, float> > peaks = ps.get_peak_grid_points(A_map, n_sigma);
-   std::cout << "==== peaks ==== " << std::endl;
+   std::cout << "DEBUG:: ==== peaks ==== " << std::endl;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
-      std::cout << ipeak << " "
+      std::cout << "DEBUG:: "
+                << ipeak << " "
 		<< peaks[ipeak].second << " "
 		<< peaks[ipeak].first.format() << "  "
 		<< peaks[ipeak].second/rmsd
@@ -290,11 +291,11 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
 
    clipper::Range<double>    fc_range = fc_from_model.invresolsq_range();
    clipper::Range<double> map_f_range = map_fphidata.invresolsq_range();
-   std::cout << "fc from model resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
-   std::cout << "fc from model resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
+   std::cout << "DEBUG:: fc from model resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
+   std::cout << "DEBUG:: fc from model resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
 	     << std::endl;
-   std::cout << "SFs from map  resolution ranges " << map_f_range.min() << " " << map_f_range.max() << std::endl;
-   std::cout << "SFs from map  resolution ranges " << 1/sqrt(map_f_range.min()) << " " << 1/sqrt(map_f_range.max())
+   std::cout << "DEBUG:: SFs from map  resolution ranges " << map_f_range.min() << " " << map_f_range.max() << std::endl;
+   std::cout << "DEBUG:: SFs from map  resolution ranges " << 1/sqrt(map_f_range.min()) << " " << 1/sqrt(map_f_range.max())
 	     << std::endl;
 
    clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata; 
@@ -334,9 +335,9 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
    peak_search ps(A_map);
    float n_sigma = 3;
    std::vector<std::pair<clipper::Coord_grid, float> > peaks = ps.get_peak_grid_points(A_map, n_sigma);
-   std::cout << "==== peaks ==== " << std::endl;
+   std::cout << "DEBUG:: ==== peaks ==== " << std::endl;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
-      std::cout << ipeak << " "
+      std::cout << "DEBUG:: " << ipeak << " "
 		<< peaks[ipeak].second << " "
 		<< peaks[ipeak].first.format() << "  "
 		<< peaks[ipeak].second/rmsd
@@ -372,8 +373,8 @@ coot::util::emma::f(const clipper::HKL_info::HKL_reference_index &hri_model,
 void
 coot::util::emma::test() const {
 
-   std::cout << "--------------------- start test -------------" << std::endl;
-   std::cout << "--------------------- done test -------------" << std::endl;
+   std::cout << "DEBUG:: --------------------- start test -------------" << std::endl;
+   std::cout << "DEBUG:: --------------------- done test -------------" << std::endl;
 }
 
 
@@ -417,7 +418,7 @@ coot::util::spherically_averaged_molecule(const atom_selection_container_t &asc,
       float dist = std::sqrt((co - c).lengthsq());
       int bin_id = dist / angstroms_per_bin;
       if (bin_id >= n_bins) {
-	 std::cout << "bin error! " << std::endl;
+	 std::cout << "ERROR:: bin error! " << std::endl;
       } else {
 	 vp[bin_id].second += 1.0;
       }
