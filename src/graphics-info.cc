@@ -1644,6 +1644,10 @@ graphics_info_t::accept_moving_atoms() {
    if (do_coot_probe_dots_during_refine_flag)
       do_interactive_coot_probe(); // in accept_moving_atoms() to turn off the dots
 
+   // Hmm... this won't work as expected because the difference map is not updated yet!
+   // I need to hook into the end of a difference map update.
+   // fill_difference_map_peaks_button_box(); // update the difference map peaks if the dialog is open
+
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
 
@@ -6516,6 +6520,9 @@ graphics_info_t::sfcalc_genmap(int imol_model,
                            molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
                            molecules[imol_updating_difference_map].set_mean_and_sigma(false, ignore_pseudo_zeros_for_map_stats);
                            molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
+
+                           fill_difference_map_peaks_button_box(); // do nothing if widget not realized.
+
                         }
                         on_going_updating_map_lock = false;
                      } else {
@@ -6683,4 +6690,66 @@ graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
       if (all_matched) {
       }
    }
+}
+
+
+GtkWidget *
+graphics_info_t::wrapped_create_display_control_window() {
+
+
+   auto add_map_display_control_widgets = [] () {
+                                             GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
+                                             clear_out_container(map_vbox);
+
+                                             for (int ii=0; ii<n_molecules(); ii++)
+                                                if (molecules[ii].has_xmap() || molecules[ii].has_nxmap())
+                                                   molecules[ii].update_map_in_display_control_widget();
+                                          };
+
+   auto add_mol_display_control_widgets = [] () {
+
+                                             GtkWidget *molecule_vbox = widget_from_builder("display_molecule_vbox");
+                                             clear_out_container(molecule_vbox);
+                                             for (int ii=0; ii<n_molecules(); ii++) {
+                                                if (molecules[ii].has_model()) {
+                                                   molecules[ii].new_coords_mol_in_display_control_widget();
+                                                }
+                                             }
+                                          };
+
+   GtkWidget *widget = widget_from_builder("display_control_window_glade");
+
+   if (widget) {
+
+#if (GTK_MAJOR_VERSION < 4)
+      if (!gtk_widget_get_mapped(widget))
+         gtk_widget_show(widget);
+      else
+         gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(widget)));
+#endif
+
+      // OK, so create (then store) a new one.
+
+      save_display_control_widget_in_graphics(widget);
+      add_mol_display_control_widgets();
+      add_map_display_control_widgets();
+
+      // set the size and shape of the window and paned components:
+      if (graphics_info_t::display_manager_x_size != -1) {
+         gtk_window_set_default_size(GTK_WINDOW(widget),
+                                     graphics_info_t::display_manager_x_size,
+                                     graphics_info_t::display_manager_y_size);
+         if (graphics_info_t::display_manager_paned_position != -1) {
+            // GtkPaned *paned = GTK_PANED(lookup_widget(widget, "display_control_vpaned"));
+            GtkPaned *paned = GTK_PANED(widget_from_builder("display_control_vpaned"));
+            gtk_paned_set_position(paned, graphics_info_t::display_manager_paned_position);
+         }
+      }
+      if (graphics_info_t::display_manager_x_position != -1) {
+         std::cout << "GTK-FIXME no gtk_widget_set_uposition H" << std::endl;
+         // GtkWindowPosition position = GTK_WIN_POS_NONE; // what's the point of that?
+         // gtk_window_set_position(GTK_WINDOW(widget), position);
+      }
+   }
+   return widget;
 }

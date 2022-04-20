@@ -6178,13 +6178,13 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     vbox.pack_start(combobox_model, True, True,  2)
     vbox.pack_start(label_for_map,  False,False, 5)
     vbox.pack_start(combobox_map,   True, True,  2)
-    vbox.pack_start(label_for_diff_map,  False,False, 5)
-    vbox.pack_start(combobox_diff_map,   True, True,  2)
+    vbox.pack_start(label_for_diff_map, False, False, 5)
+    vbox.pack_start(combobox_diff_map,  True,  True,  2)
     vbox.pack_start(auto_update_checkbutton, False, False, 2)
     vbox.pack_start(h_sep,True,False, 2)
     vbox.pack_start(hbox_buttons,False, False,5)
-    hbox_buttons.pack_start(ok_button, True,False,5)
-    hbox_buttons.pack_start(cancel_button, True, False,5)
+    hbox_buttons.pack_start(cancel_button, True, False, 5)
+    hbox_buttons.pack_start(    ok_button, True, False, 5)
 
     # button callbacks:
     ok_button.connect("clicked", on_ok_clicked)

@@ -464,14 +464,15 @@ def model_molecule_number_list():
 
 def display_all_maps():
     map_list = map_molecule_list()
-    map(lambda imol: set_map_displayed(imol, 1), map_list)
+    # 20220420-PE this map doesn't work - I don't understand why
+    # map(lambda imol: coot.set_map_displayed(imol, 1), map_list)
+    for m in map_list:
+        coot.set_map_displayed(m, 1)
 
 # c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
 
 
 def undisplay_all_maps_except(imol_map):
-
-    print("BL INFO:: undisplay_all_maps_except imol_map:", imol_map)
 
     map_list = map_molecule_list()
     for imol in map_list:
@@ -488,36 +489,31 @@ def display_cycle_through_maps():
         except:
             current_idx = -1
         l = len(map_number_list)
-        print("BL INFO:: current_idx: %s from list %s" % (current_idx,
-                                                          map_number_list))
         if current_idx > -1:
             next_index = 0 if current_idx + 1 == l else current_idx + 1
             return map_number_list[next_index]
         return map_number_list[0]
 
+    # main line
+
     map_list = map_molecule_list()
-    current_displayed_maps = [
-        imol for imol in map_list if coot.map_is_displayed(imol) == 1]
+    current_displayed_maps = [imol for imol in map_list if coot.map_is_displayed(imol) == 1]
     n_displayed = len(current_displayed_maps)
 
-    # if nothing is displayed, display the first map in map-list
-    # if one map is displayed, display the next map in map-list
-    # if more than one map is displayed, display only the last map
-    # in the current-displayed-maps
-
-    if n_displayed == 0:
-        if len(map_list) > 0:
-            undisplay_all_maps_except(map_list[0])
-    elif n_displayed == 1:
-        if len(map_list) > 1:
-            nm = next_map(current_displayed_maps[0], map_list)
-            currently_displayed_map = current_displayed_maps[0]
-            if nm > currently_displayed_map:
-                undisplay_all_maps_except(nm)
-            else:
-                display_all_maps()
+    if not current_displayed_maps:
+       if map_list:
+          undisplay_all_maps_except(map_list[0])
     else:
-        undisplay_all_maps_except(current_displayed_maps[0])
+       if n_displayed == 1:
+          cm = current_displayed_maps[0]
+          if cm == map_list[-1]:
+             # show all
+             display_all_maps()
+          else:
+             n = next_map(cm, map_list)
+             undisplay_all_maps_except(n)
+       else:
+          undisplay_all_maps_except(map_list[0])
 
 # is isn't quite because one of the options is "all"
 # legacy for installed key bindings:

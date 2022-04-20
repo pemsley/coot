@@ -6617,7 +6617,7 @@ void
 on_diff_map_peaks_dialog_update_button_clicked_gtkbuilder_callback(GtkButton       *button,
                                                                    gpointer         user_data) {
    graphics_info_t g;
-   g.fill_difference_map_peaks_button_box();
+   g.fill_difference_map_peaks_button_box(true); // force fill.
    
 }
 

@@ -224,7 +224,7 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
       w += coot::util::int_to_string(go_to_atom_residue());
       w += " ";
       w += go_to_atom_chain();
-      w += " not found in molecule";
+      w += " not found in molecule ";
       w += coot::util::int_to_string(go_to_atom_molecule());
       add_status_bar_text(w);
    }

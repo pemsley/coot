@@ -5151,6 +5151,12 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l35 = [] () {
+                 graphics_info_t g;
+                 g.wrapped_create_display_control_window();
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -5188,6 +5194,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_2,      key_bindings_t(l32, "Clipping Front Reduce")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_3,      key_bindings_t(l33, "Clipping Back Reduce")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_4,      key_bindings_t(l34, "Clipping Back Expand")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_F8,     key_bindings_t(l35, "Show Display Manager")));
 
    // control
    // meh - ugly and almost useless. Try again.

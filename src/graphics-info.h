@@ -3651,11 +3651,10 @@ public:
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
    static void diff_map_peaks_dialog_update_button_clicked_func(GtkButton *button, gpointer user_data); // called by below
-   static void fill_difference_map_peaks_button_box();
+   static void fill_difference_map_peaks_button_box(bool force_fill=false);
    
    static GtkWidget *wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coords,
                                                           const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
-                                                          float map_sigma,
                                                           float n_sigma,
                                                           bool do_positive_level_flag,
                                                           bool do_negative_level_flag,
@@ -3773,6 +3772,8 @@ public:
    static short int brief_atom_labels_flag;
    //          and some people want seg-ids in their atom labels (Francesca)
    static short int seg_ids_in_atom_labels_flag;
+
+   GtkWidget *wrapped_create_display_control_window();
 
    void delete_molecule_from_from_display_manager(int imol, bool was_map_flag);
 

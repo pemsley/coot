@@ -4644,15 +4644,11 @@ graphics_info_t::renumber_residue_range_chain_combobox_changed(GtkWidget *combob
 #include "coot-utils/peak-search.hh"
 
 // static
+// force_fill default false
 void
-graphics_info_t::diff_map_peaks_dialog_update_button_clicked_func(GtkButton *button, gpointer user_data) {
+graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
 
-   fill_difference_map_peaks_button_box();
-}
-
-// static
-void
-graphics_info_t::fill_difference_map_peaks_button_box() {
+   // does nothing if the diff map peaks dialog is not realized.
 
    auto make_label = [] (unsigned int i_peak, const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                          float map_sigma) {
@@ -4679,33 +4675,33 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
-                                            clear_out_container(button_vbox);
-                                            // a cutn'paste jobby from fill_rotamer_selection_buttons().
-                                            for (unsigned int i=0; i<centres.size(); i++) {
-                                               std::string label = make_label(i, centres, map_sigma);
-                                               GtkWidget *radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
-                                               std::string button_name = "difference_map_peaks_button_";
-                                               button_name += int_to_string(i);
+                                                  clear_out_container(button_vbox);
+                                                  // a cutn'paste jobby from fill_rotamer_selection_buttons().
+                                                  for (unsigned int i=0; i<centres.size(); i++) {
+                                                     std::string label = make_label(i, centres, map_sigma);
+                                                     GtkWidget *radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
+                                                     std::string button_name = "difference_map_peaks_button_";
+                                                     button_name += int_to_string(i);
 
-                                               diff_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (radio_button));
+                                                     diff_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (radio_button));
 
-                                               g_object_set_data_full(G_OBJECT(dialog), button_name.c_str(), radio_button, NULL);
+                                                     g_object_set_data_full(G_OBJECT(dialog), button_name.c_str(), radio_button, NULL);
 
-                                               coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
-                                               hd->ipeak = i;
-                                               hd->pos = centres[i].first;
+                                                     coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
+                                                     hd->ipeak = i;
+                                                     hd->pos = centres[i].first;
 
-                                               g_signal_connect(G_OBJECT (radio_button), "toggled",
-                                                                G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
+                                                     g_signal_connect(G_OBJECT (radio_button), "toggled",
+                                                                      G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
 
-                                               gtk_widget_show(radio_button);
-                                               GtkWidget *frame = gtk_frame_new(NULL);
-                                               gtk_container_add(GTK_CONTAINER(frame), radio_button);
-                                               gtk_box_pack_start(GTK_BOX (button_vbox), frame, FALSE, FALSE, 0);
-                                               gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
-                                               gtk_widget_show(frame);
-                                            }
-                                         };
+                                                     gtk_widget_show(radio_button);
+                                                     GtkWidget *frame = gtk_frame_new(NULL);
+                                                     gtk_container_add(GTK_CONTAINER(frame), radio_button);
+                                                     gtk_box_pack_start(GTK_BOX (button_vbox), frame, FALSE, FALSE, 0);
+                                                     gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
+                                                     gtk_widget_show(frame);
+                                                  }
+                                               };
 
    auto make_diff_map_peaks = [] (GtkWidget *dialog) {
 
@@ -4740,13 +4736,15 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    GtkWidget *dialog      = widget_from_builder("diff_map_peaks_dialog");
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
-   std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(dialog);
-   GSList *diff_map_group = NULL;  // Hmm.
-   float map_sigma = 0.5;
-   int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_map"));
-   if (is_valid_map_molecule(imol_map))
-      map_sigma = molecules[imol_map].map_sigma();
-   fill_difference_map_button_box_inner(dialog, button_vbox, diff_map_group, centres, map_sigma);
+   if (gtk_widget_get_realized(dialog) || force_fill) {
+      std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(dialog);
+      GSList *diff_map_group = NULL;  // Hmm.
+      float map_sigma = 0.5;
+      int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_map"));
+      if (is_valid_map_molecule(imol_map))
+         map_sigma = molecules[imol_map].map_sigma();
+      fill_difference_map_button_box_inner(dialog, button_vbox, diff_map_group, centres, map_sigma);
+   }
 
 }
 
@@ -4757,7 +4755,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 GtkWidget *
 graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coords,
                                                       const std::vector<std::pair<clipper::Coord_orth, float> > &centres_in,
-                                                      float map_sigma,
                                                       float n_sigma,
                                                       bool do_positive_level_flag,
                                                       bool do_negative_level_flag,
@@ -4768,7 +4765,6 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
 
    // GtkWidget *w = create_diff_map_peaks_dialog();
    GtkWidget *dialog        = widget_from_builder("diff_map_peaks_dialog");
-   GtkWidget *update_button = widget_from_builder("diff_map_peaks_dialog_update_button");
 
    gtk_window_set_title(GTK_WINDOW(dialog), dialog_title.c_str());
 
@@ -4790,12 +4786,10 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
    // if there is already a signal attached to this button?  Why not just do it in glade?
    // g_signal_connect(G_OBJECT(update_button), "clicked", G_CALLBACK(diff_map_peaks_dialog_update_button_clicked_func), nullptr);
 
-   GSList *diff_map_group = NULL;
-
    // for . and , synthetic clicking.
    g_object_set_data(G_OBJECT(dialog), "centres_size", GINT_TO_POINTER(centres.size()));
 
-   fill_difference_map_peaks_button_box(); // with position buttons
+   fill_difference_map_peaks_button_box(true); // with position buttons
 
    // not used in the callback now that the button contains a pointer
    // to this info:
