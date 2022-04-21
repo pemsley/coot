@@ -450,7 +450,7 @@ graphics_info_t::increase_clipping_back() {
 
    if (perspective_projection_flag) {
       float szfp_start = screen_z_far_perspective;
-      screen_z_far_perspective *= 1.05;
+      screen_z_far_perspective *= 1.02;
       std::cout << "increase_clipping_back() was " << szfp_start << " now " << screen_z_far_perspective << std::endl;
    } else {
       float d = 0.05;
@@ -485,7 +485,7 @@ graphics_info_t::decrease_clipping_back() {
    
    if (perspective_projection_flag) {
       float szfp = screen_z_far_perspective;
-      float v = screen_z_far_perspective * 0.95;
+      float v = screen_z_far_perspective * 0.98;
       if (v > eye_position.z) {
          screen_z_far_perspective = v;
          std::cout << "decrease_clipping_back() was " << szfp << " now " << screen_z_near_perspective << std::endl;
