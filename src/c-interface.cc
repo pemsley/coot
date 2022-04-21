@@ -6629,6 +6629,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
    PyObject *globals = PyModule_GetDict(pModule);
    PyObject *result = PyRun_String(python_cmd.c_str(), Py_eval_input, globals, globals);
+
    return result;
 }
 #endif //PYTHON

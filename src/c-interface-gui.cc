@@ -861,6 +861,8 @@ void fill_about_window(GtkWidget *widget) {
 
 void add_coot_references_button(GtkWidget *widget) {
 
+   if (! widget) return;
+
    // hbox = GTK_DIALOG(widget)->action_area;
    GtkWidget *hbox = gtk_dialog_get_header_bar(GTK_DIALOG(widget));
    GtkWidget *button = gtk_button_new_with_label("References");

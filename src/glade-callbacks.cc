@@ -184,18 +184,6 @@ on_column_label_cancel_button_clicked_gtkbuilder_callback  (GtkButton       *but
 
 extern "C" G_MODULE_EXPORT
 void
-on_about1_activate_gtkbuilder_callback                     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   // GtkWidget *about_window = create_aboutdialog();
-   GtkWidget *about_window = widget_from_builder("aboutdialog");
-   add_coot_references_button(about_window);
-   gtk_widget_show(about_window);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_clipping_button_clicked_gtkbuilder_callback             (GtkButton       *button,
                                         gpointer         user_data)
 {

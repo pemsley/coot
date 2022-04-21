@@ -1001,3 +1001,14 @@ on_draw_perspective_orthographic_menu_item_activate_gtkbuilder_callback(GtkMenuI
                                                                         gpointer     user_data) {
    set_use_perspective_projection(0);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_about1_activate_gtkbuilder_callback                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+   // GtkWidget *about_window = create_aboutdialog();
+   GtkWidget *about_window = widget_from_builder("aboutdialog");
+   add_coot_references_button(about_window);
+   gtk_widget_show(about_window);
+}
