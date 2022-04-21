@@ -4946,6 +4946,8 @@ the Ctrl key when moving the mouse.</property>
   </object>
   <object class="GtkFileChooserDialog" id="cif_dictionary_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
+    <property name="title" translatable="yes">Coot: Select mmCIF Dictionary Filename</property>
     <property name="type_hint">dialog</property>
     <signal name="delete-event" handler="on_cif_dictionary_filechooser_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <signal name="file-activated" handler="on_cif_dictionary_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
@@ -6217,8 +6219,11 @@ the Ctrl key when moving the mouse.</property>
   </object>
   <object class="GtkFileChooserDialog" id="coords_filechooser_dialog">
     <property name="width_request">600</property>
+    <property name="use-header-bar"> 0 </property>
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Coot: Select Coordinate Filename</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <signal name="file-activated" handler="on_coords_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
     <signal name="response" handler="on_coords_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
@@ -6449,6 +6454,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
   <object class="GtkFileChooserDialog" id="dataset_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
     <property name="type_hint">dialog</property>
     <signal name="response" handler="on_dataset_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
@@ -8324,7 +8330,10 @@ that you wish to delete.               </property>
   </object>
   <object class="GtkFileChooserDialog" id="export_map_file_chooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
+    <property name="title" translatable="yes">Coot: Select Filename for Map Export</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <property name="action">save</property>
     <signal name="response" handler="on_export_map_file_chooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
@@ -15495,7 +15504,10 @@ density (too big to be waters):
   </object>
   <object class="GtkFileChooserDialog" id="map_name_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
+    <property name="title" translatable="yes">Coot: Select Map File Name</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <signal name="file-activated" handler="on_map_name_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
     <signal name="response" handler="on_map_name_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
@@ -20176,6 +20188,8 @@ Nucleotide Builder
   </object>
   <object class="GtkFileChooserDialog" id="phs_coordinates_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
+    <property name="title" translatable="yes">Coot: Select PHS</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox">
@@ -24496,6 +24510,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   </object>
   <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
     <property name="type_hint">dialog</property>
     <signal name="delete-event" handler="on_run_script_filechooser_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <signal name="file-activated" handler="on_run_script_filechooser_dialog_file_activated_gtkbuilder_callback" swapped="no"/>
@@ -24785,6 +24800,8 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   </object>
   <object class="GtkFileChooserDialog" id="save_coordinates_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Coot: Select Filename for Saving Coordinates</property>
+    <property name="use-header-bar"> 0 </property>
     <property name="type_hint">dialog</property>
     <property name="action">save</property>
     <signal name="response" handler="on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
@@ -24976,6 +24993,8 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   </object>
   <object class="GtkFileChooserDialog" id="save_symmety_coords_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
+    <property name="title" translatable="yes">Coot: Select Filename for Saving Symmetry Coordinates</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox">
@@ -25027,6 +25046,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   </object>
   <object class="GtkFileChooserDialog" id="screendump_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
     <property name="type_hint">dialog</property>
     <property name="action">save</property>
     <signal name="delete-event" handler="on_screendump_filechooser_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
@@ -27353,6 +27373,8 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   </object>
   <object class="GtkFileChooserDialog" id="simple_refmac_filechooser_dialog">
     <property name="can_focus">False</property>
+    <property name="use-header-bar"> 0 </property>
+    <property name="title" translatable="yes">Coot: Refmac File Chooser</property>
     <property name="type_hint">dialog</property>
     <signal name="response" handler="on_simple_refmac_filechooser_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
