@@ -8273,8 +8273,10 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 
                         found = 1;
                         r = cis_trans_conversion(at, false, standard_residues_mol);
-                        if (r)
+                        if (r) {
                            make_bonds_type_checked();
+                           have_unsaved_changes_flag = true;
+                        }
                      }
                      if (found)
                         break;
@@ -8299,11 +8301,15 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 int
 molecule_class_info_t::cis_trans_conversion(mmdb::Atom *at, short int is_N_flag, mmdb::Manager *standard_residues_mol) {
 
+   // called from graphics_info_t::cis_trans_conversion()
+
    make_backup();
    mmdb::Manager *mol = atom_sel.mol;
    int status = coot::util::cis_trans_conversion(at, is_N_flag, mol, standard_residues_mol);
-   if (status)
+   if (status) {
+      make_bonds_type_checked();
       have_unsaved_changes_flag = true; // draw bonds in caller
+   }
    return status;
 }
 
