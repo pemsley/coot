@@ -1,19 +1,22 @@
 
+#include <sys/time.h>
+
 #include <iostream>
 #include "logging.hh"
 
-void logging::log(const std::string &type, const std::string &s) {
-
-   log_item l(type, s);
-   history.push_back(l);
-
-}
-
 void
-logging::log(const std::string &s) {
+logging::log(logging::type_t type, const std::string &s) {
 
-   log_item l(s);
+   // use:  add_log_item_to_history(log_time(type, s));
+   log_item l(type, s);
+
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   
    history.push_back(l);
+
 }
 
 
@@ -28,23 +31,3 @@ logging::show() const {
 
 }
 
-#if 0
-
-//friend
-logging2&
-logging2::operator<<(const float &li) {
-
-   std::cout << "--------  put the float here " << li << std::endl;
-   return this;
-   
-}
-
-
-logging2&
-logging2::operator<<(const std::string &li) {
-
-   std::cout << "--------  put the string here " << li << std::endl;
-   return this;
-}
-
-#endif
