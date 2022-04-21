@@ -21,13 +21,7 @@
  * 02110-1301, USA
  */
 
-// #define ANALYSE_REFINEMENT_TIMING
-
 #include <string.h> // for strcmp
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-#include <sys/time.h>
-#endif // ANALYSE_REFINEMENT_TIMING
 
 // we don't want to compile anything if we don't have gsl
 

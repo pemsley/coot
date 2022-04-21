@@ -21,16 +21,10 @@
  * 02110-1301, USA
  */
 
-// #define ANALYSE_REFINEMENT_TIMING
-
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
 #include <string.h> // for strcmp
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-#include <sys/time.h> // for gettimeofday()
-#endif // ANALYSE_REFINEMENT_TIMING
 
 #include <fstream>
 #include <algorithm> // for sort
