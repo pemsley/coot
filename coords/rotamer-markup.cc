@@ -93,6 +93,8 @@ rotamer_markup_container_t
 Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, mmdb::Atom *> &ra,
 					      coot::rotamer_probability_tables *rpt) {
 
+   bool use_deuteranomaly_mode = false; // pass this? - or set it in/after the constructor?
+
    rotamer_markup_container_t rmc;
    coot::residue_spec_t res_spec(ra.first);
    rmc.spec = res_spec;
@@ -116,7 +118,6 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 	       // OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
 	       clipper::Coord_orth pos = coot::co(ra.second);
 	       double z = 0;
-               bool use_deuteranomaly_mode = false;
 	       coot::colour_holder col(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
 	       if (pr.state == coot::rotamer_probability_info_t::OK) {
 
@@ -133,10 +134,14 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 		  // z = 1.0 - sqrt(pr.probability*0.01);
 
                   // 20220319-PE let's try another function
-		  z = 1.0 - pr.probability*0.01;
+                  // 20220421-PE function tweaked.
+		  z = 1.0 - pr.probability*0.06;
                   if (z < 0.0) z = 0.0;
                   if (z > 1.0) z = 1.0;
-                  z = z * z;
+                  z = z * z * z;
+
+                  // If z ~0, we want ~green
+                  // if z ~1, we want ~red
 
 		  // args fraction, min, max, dummy-not-colour-triple-flag
 		  col = coot::colour_holder(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
