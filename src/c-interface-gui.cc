@@ -4273,6 +4273,15 @@ void set_map_colour(int imol, float red, float green, float blue) {
    }
 }
 
+/*! \brief set the colour of the imolth map using a (7-character) hex colour */
+void set_map_hexcolour(int imol, const char *hex_colour) {
+
+   coot::colour_holder ch(hex_colour);
+   set_map_colour(imol, ch.red, ch.green, ch.blue);
+
+}
+
+
 
 // void add_on_map_colour_choices(GtkWidget *menu) {
 

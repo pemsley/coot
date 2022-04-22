@@ -1269,8 +1269,12 @@ short int get_active_map_drag_flag();
 
 /*! \brief set the colour of the last (highest molecule number) map */
 void set_last_map_colour(double f1, double f2, double f3);
+
 /*! \brief set the colour of the imolth map */
 void set_map_colour(int imol, float red, float green, float blue);
+
+/*! \brief set the colour of the imolth map using a (7-character) hex colour */
+void set_map_hexcolour(int imol, const char *hex_colour);
 
 /*! \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
