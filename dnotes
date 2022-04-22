@@ -4017,9 +4017,9 @@ INFO::
                    cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
                    cd ~/fuse/ftp/coot/binaries/release/
                    give-read-permission to the new files
-
    o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
-   o on charybdis: Update latest version info on coot web page, Projects/coot/web/index.html
+   o on charybdis: Update latest version info on coot web page:
+                   cd Projects/coot/web/index.html
                    bash transfer-the-file.sh
    o Blog post
    o Mail mailing list

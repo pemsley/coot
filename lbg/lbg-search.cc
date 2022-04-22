@@ -217,7 +217,7 @@ lbg_info_t::get_search_similarity() const {
 
    double r = search_similarity;
 
-   gchar *txt = gtk_combo_box_get_active_text(GTK_COMBO_BOX(lbg_search_combobox));
+   gchar *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(lbg_search_combobox));
    if (txt) {
       try { 
 	 r = lig_build::string_to_float(txt);
@@ -229,7 +229,7 @@ lbg_info_t::get_search_similarity() const {
    } 
    return r;
 }
-#endif 
+#endif
 
 
 
