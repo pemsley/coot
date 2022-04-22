@@ -1168,8 +1168,8 @@ case $dist_name in
       ;;
 
     debian)
-      # python is needed to configure ninja. Sigh.
-      dep_list='libncurses5-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev python m4'
+      # python is needed to configure ninja. Sigh. flex and bison are needed for gobject-introspection
+      dep_list='libncurses5-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev python flex bison m4'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
 
@@ -2735,7 +2735,7 @@ if [ "$build_glib" = true ] ; then
     # ninja and meson then it finds the *right* libz.so (/usr/lib64/libz.so). I don't have the time to
     # find out why now, so I installed ninja from the "hand-built" build.
     #
-    if meson -Dprefix=$HOME/autobuild/Linux-charybdis-gtk3 build ; then
+    if meson -Dprefix=$install_top_dir build ; then
        cd build
        ninja
        ninja install
@@ -3739,7 +3739,8 @@ if [ "$build_libffi" = true ] ; then
          exit
       fi
       cd libffi-$libffi_version
-      if ./configure --prefix=$install_top_dir ; then
+      # if ./configure --prefix=$install_top_dir --disable-multi-os-directory --enable-portable-binary --enable-shared --disable-static ; then
+      if ./configure --prefix=$install_top_dir --enable-portable-binary --enable-shared --disable-static ; then
          if $MAKE ; then
             make install
          fi
