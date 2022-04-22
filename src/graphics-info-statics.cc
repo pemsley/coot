@@ -247,7 +247,7 @@ coot::Cartesian graphics_info_t::angle_tor_pos_4 = coot::Cartesian(0.0, 0.0, 0.0
 
 // Shall we have file name filtering (i.e. before fileselection is
 // displayed) on by default?
-int graphics_info_t::filter_fileselection_filenames_flag = 0; // no
+int graphics_info_t::filter_fileselection_filenames_flag = 1; // yes
 int graphics_info_t::file_chooser_dialog_x_size = -1; // unset
 int graphics_info_t::file_chooser_dialog_y_size = -1;
 

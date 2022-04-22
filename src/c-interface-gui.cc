@@ -1681,8 +1681,7 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 // 3 cif dictionary
 // 4 scripting files
 //
-void add_filechooser_filter_button(GtkWidget *fileselection,
-				      short int data_type) {
+void add_filechooser_filter_button(GtkWidget *filechooser, short int data_type) {
 
   int d = data_type;
 
@@ -1694,6 +1693,8 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
 
   gtk_file_filter_set_name(filterall, "All Files");
   gtk_file_filter_add_pattern(filterall, "*");
+
+  // actually only Choosers - I should change the define.
 
   if (d == COOT_COORDS_FILE_SELECTION || d == COOT_SAVE_COORDS_FILE_SELECTION) {
 
@@ -1736,6 +1737,7 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
 #endif // USE_GUILE
 
     gtk_file_filter_set_name(filterselect, "scripting-files");
+    g_object_set_data(G_OBJECT(filechooser), "filter", filterselect);
 
     globs = script_glob_extension;
 
@@ -1748,35 +1750,33 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
     gtk_file_filter_add_pattern (filterselect, s.c_str());
   };
 
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
-                              GTK_FILE_FILTER (filterall));
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
-                              GTK_FILE_FILTER (filterselect));
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (filechooser), GTK_FILE_FILTER (filterall));
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (filechooser), GTK_FILE_FILTER (filterselect));
 
+  // 20220422-PE now defaults to 1
   if (filter_fileselection_filenames_state() == 1) {
-    // filter automatically
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (fileselection),
-				GTK_FILE_FILTER (filterselect));
+     // filter automatically
+     gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (filechooser), GTK_FILE_FILTER (filterselect));
   } else {
     // show all
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (fileselection),
-				GTK_FILE_FILTER (filterall));
+     gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (filechooser), GTK_FILE_FILTER (filterall));
   }
 
 }
 
 // and lets have a function for extra custom filters//
 
-void add_filechooser_extra_filter_button(GtkWidget *fileselection,
+void add_filechooser_extra_filter_button(GtkWidget *filechooser,
 				      const gchar *filtername,
                                       const gchar *globname) {
 
-  GtkFileFilter *filter = gtk_file_filter_new ();
+  GtkFileFilter *filter = gtk_file_filter_new();
 
-  gtk_file_filter_set_name (filter, filtername);
-  gtk_file_filter_add_pattern (filter, globname);
-  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-			       GTK_FILE_FILTER (filter));
+  gtk_file_filter_set_name(filter, filtername);
+  gtk_file_filter_add_pattern(filter, globname);
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(filechooser), GTK_FILE_FILTER(filter));
+
+  g_object_set_data(G_OBJECT(filechooser), "extra-filter", filter);
 
 }
 
@@ -1846,12 +1846,22 @@ std::string pre_directory_file_selection(GtkWidget *sort_button) {
 
 
 
-void push_the_buttons_on_fileselection(GtkWidget *filter_button,
-				       GtkWidget *sort_button,
-				       GtkWidget *fileselection) {
+void push_the_buttons_on_filechooser(GtkWidget *filechooser) {
 
-   std::cout << "GTK-FIXME no fileselection C push the buttons" << std::endl;
+   if (! filechooser) return;
+
+   GtkWidget *filter = GTK_WIDGET(g_object_get_data(G_OBJECT(filechooser), "filter"));
+
+   if (! filter) return;
+
+   // g_signal_emit_by_name(G_OBJECT(filter_button), "clicked");
+
+   // How do I make the filter actually filter?
+
+   // gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(filechooser), GTK_FILE_FILTER(filter));
+
 }
+
 
 void
 filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v) {
