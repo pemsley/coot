@@ -33,7 +33,6 @@ class Mesh {
    Material material;
    void setup_instanced_balls( Shader *shader_p, const Material &material_in);
    void setup_instanced_dodecs(Shader *shader_p, const Material &material_in);
-   void setup_buffers();
    // rts rotation, translation & scale
    void setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
    // this is when we learning/testing/playing - I don't want to delete it (yet) just in case I want
@@ -106,6 +105,7 @@ public:
    bool empty() const { return (vertices.size() == 0); }
    void close();
    void set_is_headless(); // gets called when graphical::use_graphics_interface_flag is false
+   void setup_buffers();
    void set_draw_mesh_state(bool state) { if (this_mesh_is_closed) draw_this_mesh = false; else draw_this_mesh = state; }
    void set_name(const std::string &n) { name = n; }
    void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices,

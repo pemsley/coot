@@ -1766,7 +1766,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
    long ret = PyLong_AsLong(result);
 
-   if (true) {
+   if (false) {
       std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with check_pms \"" << check_pms << "\"" << std::endl;
       std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with result " << result << std::endl;
       std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with ret " << ret << std::endl;

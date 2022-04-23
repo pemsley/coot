@@ -291,6 +291,53 @@ make_octasphere_dish(unsigned int num_subdivisions, const glm::vec3 &centre,
    return r;
 }
 
+ortep_t
+tessellate_sphere_sans_octant(unsigned int num_subdivisions) {
+
+   ortep_t ortep;
+
+   std::vector<glm::vec3> &verts      = ortep.vertices;
+   std::vector<g_triangle> &triangles = ortep.triangles;
+
+   verts.push_back(glm::vec3(0,0,0));
+
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > t =
+      tessellate_octasphere_patch(num_subdivisions);
+
+   // rotate t 4 times to make a hemisphere
+   // rotate that 2 times to make a sphere
+
+   glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
+   glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
+   for (unsigned int ih=0; ih<2; ih++) {
+      for (unsigned int irot=0; irot<4; irot++) {
+         if (ih==1 && irot==3) {
+            // skip this octant
+         } else {
+            // happy path
+            float angle = 0.5f * M_PI * static_cast<float>(irot);
+            unsigned int idx_base = verts.size();
+            unsigned int idx_triangle_base = triangles.size();
+            for (unsigned int i=0; i<t.first.size(); i++) {
+               glm::vec3 v = glm::rotate(t.first[i], angle, z_axis);
+               if (ih==1)
+                  v = glm::rotate(v, static_cast<float>(M_PI), x_axis);
+               verts.push_back(v);
+            }
+            // reindex the triangles
+            triangles.insert(triangles.end(), t.second.begin(), t.second.end());
+            for (unsigned int i=idx_triangle_base; i<triangles.size(); i++)
+               triangles[i].rebase(idx_base);
+         }
+      }
+   }
+
+   // now I want 3 fans, in XY, YZ and XZ to the origin.
+
+   triangles.push_back(g_triangle(0,1,2));
+
+   return ortep;
+}
 
 
 #if 0

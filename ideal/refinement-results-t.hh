@@ -35,6 +35,7 @@ namespace coot {
       bool found_restraints_flag; // if we found restraints or not.
       int progress; // GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
       std::string info_text;
+      int n_restraints;
       std::vector<refinement_lights_info_t> lights;
       bool refinement_results_contain_overall_nbc_score;
       bool refinement_results_contain_overall_rama_plot_score;
@@ -77,6 +78,7 @@ namespace coot {
          overall_rama_plot_score = 0.0;
          overall_atom_pull_score = 0.0;
          progress = 27; // GSL_ENOPROG
+         n_restraints = -1; // unset
       }
       void show() const;
       std::pair<bool, std::string> hooray() const;

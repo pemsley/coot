@@ -2121,6 +2121,7 @@ public:
 			     const std::vector<mmdb::Residue *> &residues,
 			     const std::string &alt_conf,
 			     mmdb::Manager *mol);
+   coot::refinement_results_t triple_refine_auto_accept();
 
    coot::refinement_results_t refine_molecule(int imol, mmdb::Manager *mol);
    coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);

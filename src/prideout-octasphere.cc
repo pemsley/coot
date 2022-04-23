@@ -57,8 +57,8 @@ compute_geodesic(const glm::vec3 &point_a, const glm::vec3 &point_b,
 
 std::pair<std::vector<glm::vec3>, std::vector<g_triangle> >
 tessellate_octasphere_patch(unsigned int num_subdivisions) {
+
    unsigned int n = std::pow(2, num_subdivisions) + 1;
-   unsigned int num_verts = n * (n + 1); // 2
    std::vector<glm::vec3> verts;
    std::vector<g_triangle> triangles;
    for (unsigned int i=0; i<n; i++) {

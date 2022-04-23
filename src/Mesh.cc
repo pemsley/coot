@@ -1557,7 +1557,9 @@ Mesh::draw(Shader *shader_p,
 
    if (false)
       std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
-                << " draw_this_mesh: " << draw_this_mesh << " n-tris:" << triangles.size()
+                << " draw_this_mesh: " << draw_this_mesh
+                << " n-vertices:" << vertices.size()
+                << " n-tris:" << triangles.size()
                 << " is_instanced " <<  is_instanced
                 << " is_instanced_colours " <<  is_instanced_colours
                 << " is_instanced_with_rts_matrix " <<  is_instanced_with_rts_matrix

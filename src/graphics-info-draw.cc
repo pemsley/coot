@@ -2486,6 +2486,8 @@ graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortio
 void
 graphics_info_t::draw_hud_buttons() {
 
+   // If you can't see them, then there are no buttons to draw.
+
    auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                            const glm::vec2 &offset_natural,
                                            float scale_x_natural, float scale_y_natural,
@@ -5157,6 +5159,12 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l36 = [] () {
+                 graphics_info_t g;
+                 g.triple_refine_auto_accept();
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -5165,6 +5173,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::make_pair(GDK_KEY_a, key_bindings_t(l13l, "step left")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_h,      key_bindings_t(l36, "Triple Refine with Auto-accept")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_i,      key_bindings_t(l6, "spin")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_plus,   key_bindings_t(l8, "increase contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));

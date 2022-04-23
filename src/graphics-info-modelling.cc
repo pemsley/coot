@@ -574,9 +574,10 @@ graphics_info_t::refinement_loop_threaded() {
          }
       }
 
+      // std::cout << "Here in refinement_loop_threaded() with rr.progress " << rr.progress << std::endl;
+
       if (rr.progress == GSL_SUCCESS) {
-         graphics_info_t g;
-         g.continue_update_refinement_atoms_flag = false; // not sure what this does
+         continue_update_refinement_atoms_flag = false; // not sure what this does
          rr = g.saved_dragged_refinement_results;
          continue_threaded_refinement_loop = false;
          refinement_has_finished_moving_atoms_representation_update_needed_flag = true;
@@ -1096,6 +1097,51 @@ graphics_info_t::refine_residues_vec(int imol,
 }
 
 coot::refinement_results_t
+graphics_info_t::triple_refine_auto_accept() {
+
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      int imol = active_atom.second.first;
+      coot::residue_spec_t res_spec(active_atom.second.second);
+      molecule_class_info_t &m = molecules[imol];
+      mmdb::Residue *r_this = m.get_residue(res_spec);
+      if (r_this) {
+         std::string alt_conf(active_atom.second.second.alt_conf);
+         mmdb::Manager *mol = m.atom_sel.mol;
+         float dist_crit = 2.2;
+         std::vector<coot::residue_spec_t> rnr = molecules[imol].residues_near_residue(res_spec, dist_crit);
+         std::vector<mmdb::Residue *> residues;
+         residues.push_back(r_this);
+         for (unsigned int i=0; i<rnr.size(); i++) {
+            mmdb::Residue *r = m.get_residue(rnr[i]);
+            if (r)
+               residues.push_back(r);
+         }
+         int saved_state = refinement_immediate_replacement_flag;
+         refinement_immediate_replacement_flag = true;
+         refine_residues_vec(imol, residues, alt_conf, mol);
+         if (last_restraints) {
+#if 0 // 20220423-PE - this crashes. Although get_refinement_results() calls setup_minimize()
+      // there is a failure to set *something* up correctly when the restraints and density fit
+      // is being calculated.
+            coot::refinement_results_t rr_start = last_restraints->get_refinement_results(); // calls setup_minimize()
+            conditionally_wait_for_refinement_to_finish();
+            std::cout << "---------- pre ------" << std::endl;
+            rr_start.show();
+            std::cout << "---------- post ------" << std::endl;
+            rr.show();
+#endif
+            accept_moving_atoms();
+         }
+         refinement_immediate_replacement_flag = saved_state;
+      }
+   }
+   return rr;  // nothing interesting now.
+}
+
+
+coot::refinement_results_t
 graphics_info_t::regularize_residues_vec(int imol,
 					 const std::vector<mmdb::Residue *> &residues,
 					 const std::string &alt_conf,
@@ -1362,10 +1408,12 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       found_restraints_flag = true;
       // rr.found_restraints_flag = true;
 
+      // are you looking for conditionally_wait_for_refinement_to_finish() ?
+
       if (refinement_immediate_replacement_flag) {
          // wait until refinement finishes
          while (restraints_lock) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            std::this_thread::sleep_for(std::chrono::milliseconds(7));
             std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
                       << restraints_locking_function_name << std::endl;
          }
@@ -1521,6 +1569,11 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 								 residues_mol_and_res_vec.first,
 								 fixed_atom_specs,
 								 flags, use_map_flag, xmap_p);
+
+               if (last_restraints) {
+                  // 20220423-PE I can't do this here because setup_minimize() has not been called yet
+                  // rr = last_restraints->get_refinement_results();
+               }
 	       rr.found_restraints_flag = found_restraints_flag;
 
 	    }
@@ -2636,7 +2689,8 @@ graphics_info_t::get_refinement_results() const {
 
    coot::refinement_results_t rr;
 
-   std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   std::this_thread::sleep_for(std::chrono::milliseconds(20)); // 20220423-PE why is this sleeping at all?
+                                                               // was 200 ms.
 
    if (last_restraints)
       rr = last_restraints->get_refinement_results();

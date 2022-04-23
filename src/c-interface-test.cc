@@ -162,7 +162,6 @@ int test_function(int i, int j) {
    if (true) {
       if (is_valid_model_molecule(i)) {
          if (is_valid_map_molecule(j)) {
-            graphics_info_t g;
             const clipper::Xmap<float> &xmap(g.molecules[j].xmap);
             float scale_factor = 4;
             float offset = 3;
@@ -173,7 +172,6 @@ int test_function(int i, int j) {
    }
 
    if (false) {
-      graphics_info_t g;
       g.setup_draw_for_happy_face_residue_markers();
    }
 
@@ -1179,7 +1177,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-
+#include "oct.hh"
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
 
@@ -1193,10 +1191,42 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    if (true) {
 
+      g.attach_buffers();
+      std::string object_name("Ortep Testing");
+      int obj_mesh = new_generic_object_number(object_name);
+      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      Mesh &mesh = obj.mesh;
 
+      unsigned int num_subdivisions = 2;
+      ortep_t o = tessellate_sphere_sans_octant(num_subdivisions);
+      glm::vec4 col(0.7, 0.2, 0.8, 1.0);
+
+      std::vector<s_generic_vertex> vertices(o.vertices.size());
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         auto &v = vertices[i];
+         v.pos    = o.vertices[i];
+         v.normal = o.vertices[i];
+         v.color  = col;
+      }
+      mesh.import(vertices, o.triangles);
+      std::cout << "n vertices " << vertices.size() << " n tris " << o.triangles.size() << std::endl;
+      mesh.set_draw_mesh_state(true);
+
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         auto &v = vertices[i];
+         std::cout << i << " " << glm::to_string(v.pos) << std::endl;
+      }
+
+      for (unsigned int i=0; i<o.triangles.size(); i++) {
+         auto &t = o.triangles[i];
+         std::cout << "tri " << i << " " << t << std::endl;
+      }
+
+      mesh.setup_buffers();
+      graphics_draw();
    }
 
-   if (true) {
+   if (false) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
       Mesh mesh;
       // mesh.load_from_glTF("blue-eyelashes-1.glb");

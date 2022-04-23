@@ -1703,6 +1703,8 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    std::vector<refinement_results_for_rama_t> all_ramas;
    all_ramas.reserve(100);
 
+   rr->n_restraints = n_restraints;
+
    for (int i=0; i<n_restraints; i++) {
       const simple_restraint &restraint = restraints_vec[i];
 
@@ -2079,8 +2081,15 @@ coot::simple_restraint::format(mmdb::PAtom *atoms_vec, double distortion) const 
 void
 coot::refinement_results_t::show() const {
 
-   std::cout << "Refinement Ressults " << info_text << " " << found_restraints_flag
-             << " " << progress << std::endl;
+   std::string progress_str = "other";
+   if (progress == GSL_CONTINUE) progress_str = "GSL_CONTINUE";
+   if (progress == GSL_SUCCESS)  progress_str = "GSL_SUCCESS";
+   if (progress == GSL_ENOPROG)  progress_str = "GSL_NO_PROGRESS";
+   if (progress == GSL_FAILURE)  progress_str = "GSL_FAILURE";
+   std::cout << "Refinement Ressults: " << info_text
+             << " n_restraints " << n_restraints
+             << " found_restraints_flag: " << found_restraints_flag
+             << " progress_status " << progress_str << std::endl;
    for (const auto &l : lights) {
       std::cout << " " << l.name << " " << l.label << " " << l.value << std::endl;
    }
