@@ -334,8 +334,9 @@ GtkWidget *lookup_file_selection_widgets(GtkWidget *item, int file_selector_type
 void fileselection_sort_button_clicked( GtkWidget *sort_button,
 					GtkWidget *file_list);
 
-void push_the_buttons_on_filechooser(GtkWidget *fileselection);
-
+void push_the_buttons_on_fileselection(GtkWidget *filter_button,
+				       GtkWidget *sort_button,
+				       GtkWidget *fileselection);
 GtkWidget *wrapped_create_run_state_file_dialog();
 #ifdef USE_PYTHON
 GtkWidget *wrapped_create_run_state_file_dialog_py();
