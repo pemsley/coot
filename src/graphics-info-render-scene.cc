@@ -724,8 +724,8 @@ graphics_info_t::render_scene() {
    if (show_basic_scene_state) {
       render_scene_basic();
    } else {
-      if (shader_do_depth_of_field_blur_flag) {
-         render_scene_with_depth_blur(shader_for_tmeshes_p,
+      if (shader_do_depth_of_field_blur_flag || shader_do_outline_flag) {
+         render_scene_with_depth_blur(shader_for_tmeshes_p, // or outline
                                       shader_for_meshes_p,
                                       shader_for_tmeshes_with_shadows_p,
                                       shader_for_meshes_with_shadows_p,

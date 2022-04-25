@@ -663,8 +663,8 @@ Mesh::setup_buffers() {
 
    unsigned int n_vertices = vertices.size();
 
-   std::cout << "setup_buffers() n_vertices " << n_vertices << std::endl;
-   std::cout << "setup_buffers() setup_buffers_for_gl_lines " << setup_buffers_for_gl_lines << std::endl;
+   // std::cout << "setup_buffers() n_vertices " << n_vertices << std::endl;
+   // std::cout << "setup_buffers() setup_buffers_for_gl_lines " << setup_buffers_for_gl_lines << std::endl;
 
    if (first_time) {
       glGenBuffers(1, &buffer_id);

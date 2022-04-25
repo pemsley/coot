@@ -3992,6 +3992,8 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
    // uniform sampler2D screenTexture2;
    // uniform sampler2D screenDepth;
 
+   shader_for_dof_blur_by_texture_combination.set_bool_for_uniform("do_outline_mode", shader_do_outline_flag);
+
    shader_for_dof_blur_by_texture_combination.set_float_for_uniform("focus_blur_z_depth",  focus_blur_z_depth);
    shader_for_dof_blur_by_texture_combination.set_float_for_uniform("focus_blur_strength", focus_blur_strength);
 

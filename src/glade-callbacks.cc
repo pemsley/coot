@@ -9227,6 +9227,16 @@ on_dataset_filechooserdialog1_response_gtkbuilder_callback (GtkDialog       *dia
 
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_dataset_filechooser_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                               GdkEvent        *event,
+                                                               gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
 
 extern "C" G_MODULE_EXPORT
 void

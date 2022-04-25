@@ -64,6 +64,46 @@ on_shader_settings_do_depth_blur_checkbutton_toggled_gtkbuilder_callback(GtkTogg
 
 extern "C" G_MODULE_EXPORT
 void
+on_shader_settings_depth_blur_outline_off_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                                  gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      std::cout << "off activated " << std::endl;
+      set_use_outline(0);
+      set_use_depth_blur(0);
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                                         gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      std::cout << "blur activated " << std::endl;
+      set_use_outline(0);
+      set_use_depth_blur(1);
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_shader_settings_depth_blur_outline_outline_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                                      gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      std::cout << "outline activated " << std::endl;
+      set_use_outline(1);
+      set_use_depth_blur(0);
+   }
+}
+
+
+
+extern "C" G_MODULE_EXPORT
+void
 on_shader_settings_depth_blur_strength_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
                                                                                gpointer         user_data) {
 
@@ -257,8 +297,10 @@ on_shader_settings_fancy_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleB
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
       set_use_fancy_lighting(1);
-      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
-      gtk_widget_set_sensitive(fancy_vbox, TRUE);
+      GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+      GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
+      gtk_widget_set_sensitive(fancy_vbox1, TRUE);
+      gtk_widget_set_sensitive(fancy_vbox2, TRUE);
    }
 }
 
@@ -271,15 +313,20 @@ on_shader_settings_standard_mode_radiobutton_toggled_gtkbuilder_callback(GtkTogg
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
       set_use_fancy_lighting(0);
-      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
-      gtk_widget_set_sensitive(fancy_vbox, FALSE);
+      GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+      GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
+      gtk_widget_set_sensitive(fancy_vbox1, FALSE);
+      gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    } else {
       GtkWidget    *basic_mode_checkbutton = widget_from_builder("shader_settings_basic_mode_radiobutton");
-      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+      GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
       bool is_fancy_mode = true;
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_checkbutton))) is_fancy_mode = false;
-      if (! is_fancy_mode)
-         gtk_widget_set_sensitive(fancy_vbox, FALSE);
+      if (! is_fancy_mode) {
+         gtk_widget_set_sensitive(fancy_vbox1, FALSE);
+         gtk_widget_set_sensitive(fancy_vbox2, FALSE);
+      }
    }
 }
 
@@ -307,14 +354,19 @@ on_shader_settings_basic_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleB
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(1);
       set_use_fancy_lighting(0);
-      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
-      gtk_widget_set_sensitive(fancy_vbox, FALSE);
+      GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+      GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
+      gtk_widget_set_sensitive(fancy_vbox1, FALSE);
+      gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    } else {
       GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_radiobutton");
-      GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+      GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+      GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
       bool is_fancy_mode = true;
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton))) is_fancy_mode = false;
-      if (! is_fancy_mode)
-         gtk_widget_set_sensitive(fancy_vbox, FALSE);
+      if (! is_fancy_mode) {
+         gtk_widget_set_sensitive(fancy_vbox1, FALSE);
+         gtk_widget_set_sensitive(fancy_vbox2, FALSE);
+      }
    }
 }
