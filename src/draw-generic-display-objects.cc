@@ -104,9 +104,6 @@ graphics_info_t::draw_generic_objects() {
    
    if (! generic_display_objects.empty()) {
 
-      bool draw_meshes = true;
-      bool draw_mesh_normals = false;
-
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 model_rotation = get_model_rotation();
@@ -138,10 +135,14 @@ graphics_info_t::draw_generic_objects() {
                } else {
                   // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
                   bool show_just_shadows = false;
-                  bool wireframe_mode = false;
                   float opacity = 1.0f;
-                  obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity,
-                                bg_col, wireframe_mode, do_depth_fog, show_just_shadows);
+                  if (obj.wireframe_mode) {
+                     obj.mesh.draw(&shader_for_lines, mvp, model_rotation, lights, eye_position, opacity,
+                                   bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
+                  } else {
+                     obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity,
+                                   bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
+                  }
                }
             }
          }

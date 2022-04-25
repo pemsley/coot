@@ -1192,37 +1192,59 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    if (true) {
 
       g.attach_buffers();
-      std::string object_name("Ortep Testing");
-      int obj_mesh = new_generic_object_number(object_name);
-      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
-      Mesh &mesh = obj.mesh;
 
-      unsigned int num_subdivisions = 2;
-      ortep_t o = tessellate_sphere_sans_octant(num_subdivisions);
-      glm::vec4 col(0.7, 0.2, 0.8, 1.0);
+      // unsigned int num_subdivisions = 3; // tessellate_sphere_sans_octant is built based on 3
+      ortep_t o = tessellate_sphere_sans_octant();
+      glm::vec4 col(0.5, 0.5, 0.98, 1.0);
 
-      std::vector<s_generic_vertex> vertices(o.vertices.size());
-      for (unsigned int i=0; i<vertices.size(); i++) {
-         auto &v = vertices[i];
-         v.pos    = o.vertices[i];
-         v.normal = o.vertices[i];
-         v.color  = col;
-      }
-      mesh.import(vertices, o.triangles);
-      std::cout << "n vertices " << vertices.size() << " n tris " << o.triangles.size() << std::endl;
-      mesh.set_draw_mesh_state(true);
+      // ------------------------------------ solid -----------------------------------------
 
-      for (unsigned int i=0; i<vertices.size(); i++) {
-         auto &v = vertices[i];
-         std::cout << i << " " << glm::to_string(v.pos) << std::endl;
-      }
+      { 
+         std::string object_name("Ortep Testing Solid");
+         int obj_index = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_index];
 
-      for (unsigned int i=0; i<o.triangles.size(); i++) {
-         auto &t = o.triangles[i];
-         std::cout << "tri " << i << " " << t << std::endl;
+         std::vector<s_generic_vertex> vertices(o.vertices.size());
+         for (unsigned int i=0; i<vertices.size(); i++) {
+            auto &v = vertices[i];
+            v.pos    = o.vertices[i];
+            v.normal = o.normals[i];
+            v.color  = col;
+         }
+         obj.mesh.import(vertices, o.triangles);
+         obj.mesh.set_draw_mesh_state(true);
+         obj.mesh.setup_buffers();
       }
 
-      mesh.setup_buffers();
+      // ------------------------------------ lines -----------------------------------------
+
+      {
+         g.attach_buffers();
+         std::string object_name = std::string("Ortep Testing Lines");
+         int obj_index = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_index];
+
+         std::vector<s_generic_vertex> vertices = std::vector<s_generic_vertex>(o.vertices_for_lines.size());
+         glm::vec4 black(0.1, 0.1, 0.1, 1.0);
+         for (unsigned int i=0; i<vertices.size(); i++) {
+            auto &v  = vertices[i];
+            v.pos    = o.vertices_for_lines[i];
+            v.normal = o.vertices_for_lines[i]; // not used
+            v.color  = black;
+         }
+         std::vector<unsigned int> lvi(o.indices_for_lines.size() * 2);
+         for (unsigned int i=0; i<o.indices_for_lines.size(); i++) {
+            lvi[2 * i    ] = o.indices_for_lines[i].first;
+            lvi[2 * i + 1] = o.indices_for_lines[i].second;
+         }
+         obj.wireframe_mode = true;
+         obj.mesh.set_draw_mesh_state(true);
+         obj.mesh.import_lines(vertices, lvi);
+         obj.mesh.setup_buffers();
+      }
+
+      // ----------------- now draw it --------------------------
+
       graphics_draw();
    }
 
@@ -1317,7 +1339,6 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    }
 
    if (false) {
-      graphics_info_t g;
       int imol = g.create_molecule();
 
       std::string mtz_file_name = "coot-download/r1ucssf.mtz";

@@ -3868,7 +3868,7 @@ public:
             }
          }
       }
-     return index;
+      return index;
    }
 
    static void myglLineWidth(int n_pixels);

@@ -10600,3 +10600,10 @@ Fri 15 Apr 20:13:37 BST 2022
 
    1781 occurrances of _gtkbuilder_callback in *.cc *.h *.hh ../a6.glade
 
+
+---
+Sat 23 Apr 22:56:05 BST 2022
+
+  In the Makefile
+  CXXLD = $(CXX) -fuse-ld=gold
+

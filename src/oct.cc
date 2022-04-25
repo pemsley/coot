@@ -292,17 +292,19 @@ make_octasphere_dish(unsigned int num_subdivisions, const glm::vec3 &centre,
 }
 
 ortep_t
-tessellate_sphere_sans_octant(unsigned int num_subdivisions) {
+tessellate_sphere_sans_octant() {
 
    ortep_t ortep;
 
-   std::vector<glm::vec3> &verts      = ortep.vertices;
+   std::vector<glm::vec3>  &verts     = ortep.vertices;
+   std::vector<glm::vec3>  &normals   = ortep.normals;
    std::vector<g_triangle> &triangles = ortep.triangles;
 
-   verts.push_back(glm::vec3(0,0,0));
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > t = tessellate_octasphere_patch(3);
 
-   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > t =
-      tessellate_octasphere_patch(num_subdivisions);
+   const auto &patch_vertices = t.first;
+
+   // std::cout << ":::::::::::::::::::::: t " << t.first.size() << " " << t.second.size() << std::endl;
 
    // rotate t 4 times to make a hemisphere
    // rotate that 2 times to make a sphere
@@ -311,8 +313,8 @@ tessellate_sphere_sans_octant(unsigned int num_subdivisions) {
    glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
    for (unsigned int ih=0; ih<2; ih++) {
       for (unsigned int irot=0; irot<4; irot++) {
-         if (ih==1 && irot==3) {
-            // skip this octant
+         if (ih==1 && irot==30) {
+            // skip this octant (the last one)
          } else {
             // happy path
             float angle = 0.5f * M_PI * static_cast<float>(irot);
@@ -323,9 +325,15 @@ tessellate_sphere_sans_octant(unsigned int num_subdivisions) {
                if (ih==1)
                   v = glm::rotate(v, static_cast<float>(M_PI), x_axis);
                verts.push_back(v);
+               normals.push_back(v);
+            }
+            // add the vertices, but not the triangles for the missing quadrant.
+            // (I will use the vertices for the quadrant planes)
+            if (ih==1 && irot==3) {
+            } else {
+               triangles.insert(triangles.end(), t.second.begin(), t.second.end());
             }
             // reindex the triangles
-            triangles.insert(triangles.end(), t.second.begin(), t.second.end());
             for (unsigned int i=idx_triangle_base; i<triangles.size(); i++)
                triangles[i].rebase(idx_base);
          }
@@ -334,9 +342,218 @@ tessellate_sphere_sans_octant(unsigned int num_subdivisions) {
 
    // now I want 3 fans, in XY, YZ and XZ to the origin.
 
-   triangles.push_back(g_triangle(0,1,2));
+   unsigned int ps = patch_vertices.size();
+
+   // ------------------- XZ Plane wedge/quadrant --------------------------
+
+   if (true) {
+      unsigned int b = patch_vertices.size() * 4;
+
+      unsigned int idx_base = verts.size();
+      unsigned int idx_triangle_base = triangles.size();
+      glm::vec3 v0 = glm::vec3(0,0,0);
+      glm::vec3 v1 = verts[b  ];  // starts at the north pole
+      glm::vec3 v2 = verts[b+1];
+      glm::vec3 v3 = verts[b+2];
+      glm::vec3 v4 = verts[b+3];
+      glm::vec3 v5 = verts[b+4];
+      glm::vec3 v6 = verts[b+5];
+      glm::vec3 v7 = verts[b+6];
+      glm::vec3 v8 = verts[b+7];
+      glm::vec3 v9 = verts[b+8];
+
+      verts.push_back(v0);
+      verts.push_back(v1);
+      verts.push_back(v2);
+      verts.push_back(v3);
+      verts.push_back(v4);
+      verts.push_back(v5);
+      verts.push_back(v6);
+      verts.push_back(v7);
+      verts.push_back(v8);
+      verts.push_back(v9);
+
+      for (unsigned int i=0; i<10; i++) normals.push_back(glm::vec3(0,1,0));
+
+      triangles.push_back(g_triangle(0, 1, 2));
+      triangles.push_back(g_triangle(0, 2, 3));
+      triangles.push_back(g_triangle(0, 3, 4));
+      triangles.push_back(g_triangle(0, 4, 5));
+      triangles.push_back(g_triangle(0, 5, 6));
+      triangles.push_back(g_triangle(0, 6, 7));
+      triangles.push_back(g_triangle(0, 7, 8));
+      triangles.push_back(g_triangle(0, 8, 9));
+      for (unsigned int i=idx_triangle_base; i<triangles.size(); i++)
+         triangles[i].rebase(idx_base);
+   }
+
+   // ------------------- YZ Plane wedge/quadrant --------------------------
+
+   {
+
+      unsigned int b = ps * 7;
+
+      unsigned int idx_base = verts.size();
+      unsigned int idx_triangle_base = triangles.size();
+      glm::vec3 v0 = glm::vec3(0,0,0);
+      glm::vec3 v1 = verts[b  ];
+      glm::vec3 v2 = verts[b+1];
+      glm::vec3 v3 = verts[b+2];
+      glm::vec3 v4 = verts[b+3];
+      glm::vec3 v5 = verts[b+4];
+      glm::vec3 v6 = verts[b+5];
+      glm::vec3 v7 = verts[b+6];
+      glm::vec3 v8 = verts[b+7];
+      glm::vec3 v9 = verts[b+8];
+
+      verts.push_back(v0);
+      verts.push_back(v1);
+      verts.push_back(v2);
+      verts.push_back(v3);
+      verts.push_back(v4);
+      verts.push_back(v5);
+      verts.push_back(v6);
+      verts.push_back(v7);
+      verts.push_back(v8);
+      verts.push_back(v9);
+
+      for (unsigned int i=0; i<10; i++) normals.push_back(glm::vec3(1,0,0));
+
+      triangles.push_back(g_triangle(0, 1, 2));
+      triangles.push_back(g_triangle(0, 2, 3));
+      triangles.push_back(g_triangle(0, 3, 4));
+      triangles.push_back(g_triangle(0, 4, 5));
+      triangles.push_back(g_triangle(0, 5, 6));
+      triangles.push_back(g_triangle(0, 6, 7));
+      triangles.push_back(g_triangle(0, 7, 8));
+      triangles.push_back(g_triangle(0, 8, 9));
+      for (unsigned int i=idx_triangle_base; i<triangles.size(); i++)
+         triangles[i].rebase(idx_base);
+   }
+
+   // ------------------- XY Plane wedge/quadrant --------------------------
+
+   {
+
+      unsigned int idx_base = verts.size();
+      unsigned int idx_triangle_base = triangles.size();
+      glm::vec3 v0 = glm::vec3(0,0,0);
+      glm::vec3 v1 = verts[ 8];
+      glm::vec3 v2 = verts[16];
+      glm::vec3 v3 = verts[23];
+      glm::vec3 v4 = verts[29];
+      glm::vec3 v5 = verts[34];
+      glm::vec3 v6 = verts[38];
+      glm::vec3 v7 = verts[41];
+      glm::vec3 v8 = verts[43];
+      glm::vec3 v9 = verts[44];
+
+      verts.push_back(v0);
+      verts.push_back(v1);
+      verts.push_back(v2);
+      verts.push_back(v3);
+      verts.push_back(v4);
+      verts.push_back(v5);
+      verts.push_back(v6);
+      verts.push_back(v7);
+      verts.push_back(v8);
+      verts.push_back(v9);
+
+      for (unsigned int i=0; i<10; i++) normals.push_back(glm::vec3(0,0,-1));
+
+      triangles.push_back(g_triangle(0, 1, 2));
+      triangles.push_back(g_triangle(0, 2, 3));
+      triangles.push_back(g_triangle(0, 3, 4));
+      triangles.push_back(g_triangle(0, 4, 5));
+      triangles.push_back(g_triangle(0, 5, 6));
+      triangles.push_back(g_triangle(0, 6, 7));
+      triangles.push_back(g_triangle(0, 7, 8));
+      triangles.push_back(g_triangle(0, 8, 9));
+      for (unsigned int i=idx_triangle_base; i<triangles.size(); i++)
+         triangles[i].rebase(idx_base);
+   }
+
+   ortep.make_lines(); // better (clearer) to factor out the above function into its own function
 
    return ortep;
+}
+
+#include <iomanip>
+
+void
+ortep_t::make_lines() {
+
+   // I don't like the way the lines sit over the surface. Maybe a thin box ring would be better.
+
+
+   const unsigned int n_steps = 64;
+
+   indices_for_lines.reserve(2*n_steps);
+
+   for (unsigned int i=0; i<n_steps; i++) {
+      float theta_this = ((0.5 + static_cast<float>(i)) / static_cast<float>(n_steps)) * (2.0 * M_PI);
+      float c_this = cosf(theta_this);
+      float s_this = sinf(theta_this);
+      glm::vec3 pt1(c_this, s_this, 0.0);
+      vertices_for_lines.push_back(1.008f * pt1);
+   }
+
+   for (unsigned int i=0; i<n_steps; i++) {
+      float theta_this = ((0.5 + static_cast<float>(i))) / static_cast<float>(n_steps) * (2.0 * M_PI);
+      float c_this = cosf(theta_this);
+      float s_this = sinf(theta_this);
+      glm::vec3 pt1(c_this, 0.0, -s_this);
+      vertices_for_lines.push_back(1.008f * pt1);
+   }
+
+   for (unsigned int i=0; i<n_steps; i++) {
+      float theta_this = ((0.5 + static_cast<float>(i)) / static_cast<float>(n_steps)) * (2.0 * M_PI);
+      float c_this = cosf(theta_this);
+      float s_this = sinf(theta_this);
+      glm::vec3 pt1(0.0f, c_this, s_this);
+      vertices_for_lines.push_back(1.008f * pt1);
+   }
+
+   for (unsigned int i=0; i<n_steps; i++) {
+      int i_next = i+1;
+      if (i == (n_steps-1)) i_next = 0;
+      indices_for_lines.push_back(std::pair<unsigned int, unsigned int>(i, i_next));
+   }
+
+   for (unsigned int i=0; i<n_steps; i++) {
+      int i_next = i+1;
+      if (i == (n_steps-1)) i_next = 0;
+      indices_for_lines.push_back(std::pair<unsigned int, unsigned int>(i+n_steps, i_next+n_steps));
+   }
+   for (unsigned int i=0; i<n_steps; i++) {
+      int i_next = i+1;
+      if (i == (n_steps-1)) i_next = 0;
+      indices_for_lines.push_back(std::pair<unsigned int, unsigned int>(i + 2 * n_steps, i_next + 2 * n_steps));
+   }
+
+}
+
+void ortep_t::transform(const glm::mat4 &m) {
+
+   for (unsigned int i=0; i<vertices.size(); i++) {
+      glm::vec4 v_4_b(       vertices[i], 1.0f);
+      glm::vec4 v_4_e(1.4f * vertices[i], 1.0f);
+      glm::vec4 t_b = m * v_4_b;
+      glm::vec4 t_e = m * v_4_e;
+      glm::vec3 t1(t_b);
+      glm::vec3 t2(t_e);
+      glm::vec3 diff = t2 - t1;
+      glm::vec3 n = glm::normalize(diff);
+      vertices[i] = t1;
+      normals[i] = n;
+   }
+
+   for (unsigned int i=0; i<vertices_for_lines.size(); i++) {
+      glm::vec4 v(vertices_for_lines[i], 1.0f);
+      glm::vec4 t = m * v;
+      vertices_for_lines[i] = glm::vec3(t);
+   }
+
 }
 
 

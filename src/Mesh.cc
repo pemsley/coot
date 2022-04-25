@@ -197,6 +197,19 @@ Mesh::import(const std::vector<position_normal_vertex> &verts, const std::vector
 }
 
 void
+Mesh::import_lines(const std::vector<s_generic_vertex> &v,
+                   const std::vector<unsigned int> &line_indices) {
+
+   vertices = v;
+
+   std::cout << "::::::::::::::::::: import_lines vertices.size " << vertices.size() << std::endl;
+   std::cout << "::::::::::::::::::: import_lines lines_indices .size " << line_indices.size() << std::endl;
+   lines_vertex_indices = line_indices;
+   gl_lines_mode = true;
+}
+
+
+void
 Mesh::apply_scale(float s) {
 
    glm::vec3 sf(s, s, s);
@@ -625,8 +638,8 @@ Mesh::setup_buffers() {
 
    if (is_headless) return;
 
-   if (triangles.empty()) return;
    if (vertices.empty()) return;
+   if (triangles.empty() && lines_vertex_indices.empty()) return;
 
    bool setup_buffers_for_gl_lines = false;
    if (! lines_vertex_indices.empty())
@@ -649,6 +662,9 @@ Mesh::setup_buffers() {
       std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << err << std::endl;
 
    unsigned int n_vertices = vertices.size();
+
+   std::cout << "setup_buffers() n_vertices " << n_vertices << std::endl;
+   std::cout << "setup_buffers() setup_buffers_for_gl_lines " << setup_buffers_for_gl_lines << std::endl;
 
    if (first_time) {
       glGenBuffers(1, &buffer_id);
@@ -687,6 +703,7 @@ Mesh::setup_buffers() {
 
    unsigned int n_triangles = triangles.size();
    unsigned int n_bytes_for_triangles = n_triangles * 3 * sizeof(unsigned int);
+   unsigned int n_bytes_for_lines = lines_vertex_indices.size() * sizeof(unsigned int);
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
@@ -707,7 +724,9 @@ Mesh::setup_buffers() {
                 << " allocating with size: " << n_bytes_for_triangles << " bytes_for_triangles" << std::endl;
 
    if (setup_buffers_for_gl_lines) {
-      unsigned int n_bytes_for_gl_lines = n_bytes_for_triangles * 2;
+      // unsigned int n_bytes_for_gl_lines = n_bytes_for_triangles * 2; // 20220424-PE was this until now
+      unsigned int n_bytes_for_gl_lines = n_bytes_for_lines;
+      std::cout << "setup_buffers() allocating " << n_bytes_for_gl_lines << " bytes for gl-lines " << std::endl;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_gl_lines, &lines_vertex_indices[0], GL_STATIC_DRAW);
       err = glGetError(); if (err) std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
    } else {
@@ -1543,6 +1562,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
    glDisable(GL_BLEND);
 }
 
+// set the glLineWidth before this draw call (if drawing with lines)
 void
 Mesh::draw(Shader *shader_p,
            const glm::mat4 &mvp,
@@ -1551,7 +1571,7 @@ Mesh::draw(Shader *shader_p,
            const glm::vec3 &eye_position,
            float opacity, // map_opacity
            const glm::vec4 &background_colour,
-           bool gl_lines_mode, // or surface mesh
+           bool draw_as_lines_flag, // or surface mesh
            bool do_depth_fog,
 	   bool show_just_shadows) {
 
@@ -1563,6 +1583,7 @@ Mesh::draw(Shader *shader_p,
                 << " is_instanced " <<  is_instanced
                 << " is_instanced_colours " <<  is_instanced_colours
                 << " is_instanced_with_rts_matrix " <<  is_instanced_with_rts_matrix
+                << " draw_as_lines_flag " << draw_as_lines_flag
                 << std::endl;
 
    if (! draw_this_mesh) return;
@@ -1572,7 +1593,7 @@ Mesh::draw(Shader *shader_p,
 
    // At the moment, I don't think that it's an error to come here if there are no triangles (yet)
    // Just quietly do nothing and return.
-   if (n_triangles == 0) return;
+   if (n_triangles == 0 && lines_vertex_indices.empty()) return;
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
@@ -1739,18 +1760,26 @@ Mesh::draw(Shader *shader_p,
       if (false)
          std::cout << "debug:: Mesh::draw() " << name << " shader " << shader_p->name
                    << " vao " << vao
-                   << " drawing " << n_verts << " triangle vertices"  << std::endl;
+                   << " drawing " << n_verts << " vertices from triangles with gl_lines_mode " << gl_lines_mode
+                   << std::endl;
 
-      if (gl_lines_mode) {
+      if (draw_as_lines_flag) {
 
          unsigned int n_verts_for_gl_lines = lines_vertex_indices.size();
+
+         if (false)
+            std::cout << "debug:: Mesh::draw() " << name << " shader " << shader_p->name
+                      << " vao " << vao
+                      << " drawing " << n_verts_for_gl_lines << " indices "
+                      << std::endl;
+
          glDrawElements(GL_LINES, n_verts_for_gl_lines, GL_UNSIGNED_INT, nullptr);
          err = glGetError();
          if (err) std::cout << "GL ERROR:: draw() glDrawElements()"
                             << " of Mesh \"" << name << "\""
                             << " shader: " << shader_p->name
                             << " vao " << vao
-                            << " n_vertes_for_gl_lines " << n_verts_for_gl_lines
+                            << " n_verts_for_gl_lines " << n_verts_for_gl_lines
                             << " with GL err " << err << std::endl;
       } else {
 

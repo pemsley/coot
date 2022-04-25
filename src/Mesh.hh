@@ -117,10 +117,13 @@ public:
    void import(const std::vector<position_normal_vertex> &verts,
                const std::vector<g_triangle> &indexed_vertices,
                const glm::vec4 &colour);
+   void import_lines(const std::vector<s_generic_vertex> &v,
+                     const std::vector<unsigned int> &line_indices);
    // void setup(Shader *shader_p, const Material &material_in);  I don't need the shader, do I?
    void setup(const Material &material_in);
    void set_material(const Material &material_in) { material = material_in; }
    // can be considered as "draw_self()"
+   // if drawing with lines, set the glLineWidth before this draw call.
    void draw(Shader *shader,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
