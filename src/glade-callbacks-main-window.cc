@@ -535,8 +535,8 @@ on_open_dataset1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                                            gpointer         user_data) {
+
    int is_auto_read_fileselection = 1;
    int is;
    GtkWidget *file_filter_button;
@@ -546,7 +546,8 @@ on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *men
    // add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
 
    file_filter_button = add_filename_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
-   sort_button = add_sort_button_fileselection(dataset_chooser);
+
+   // sort_button = add_sort_button_fileselection(dataset_chooser);
    /*   set_directory_for_fileselection(dataset_fileselection1); */
 
    /* stuff in user data saying if this is autoread or not... */
@@ -555,11 +556,13 @@ on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *men
 
    // set_file_selection_dialog_size(dataset_chooser);
 
+   g_object_set_data(G_OBJECT(dataset_chooser), "is_auto", GINT_TO_POINTER(is_auto_read_fileselection));
+
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
    gtk_widget_show(dataset_chooser);
 
    // what does this do?
-   push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_chooser);
+   // push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_chooser);
 }
 
 
@@ -625,8 +628,13 @@ on_dataset_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dial
    if (response_id == GTK_RESPONSE_OK) {
       const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       if (fnc) {
+         int is_auto = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_auto"));
          std::string fn(fnc);
-         manage_column_selector(fnc); // move the function declaration into a c++ header one day
+         if (is_auto == 1) {
+            auto_read_make_and_draw_maps_from_mtz(fnc);
+         } else {
+            manage_column_selector(fnc); // move the function declaration into a c++ header one day
+         }
       }
       gtk_widget_hide(GTK_WIDGET(dialog));
    }

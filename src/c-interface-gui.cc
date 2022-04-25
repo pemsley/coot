@@ -1681,12 +1681,10 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 // 3 cif dictionary
 // 4 scripting files
 //
-void add_filechooser_filter_button(GtkWidget *fileselection,
-				      short int data_type) {
+void add_filechooser_filter_button(GtkWidget *filechooser, short int data_type) {
 
   int d = data_type;
 
-  int i = 0;
   std::vector<std::string> globs;
 
   GtkFileFilter *filterall    = gtk_file_filter_new();
@@ -1694,6 +1692,8 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
 
   gtk_file_filter_set_name(filterall, "All Files");
   gtk_file_filter_add_pattern(filterall, "*");
+
+  // actually only Choosers - I should change the define.
 
   if (d == COOT_COORDS_FILE_SELECTION || d == COOT_SAVE_COORDS_FILE_SELECTION) {
 
@@ -1736,6 +1736,7 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
 #endif // USE_GUILE
 
     gtk_file_filter_set_name(filterselect, "scripting-files");
+    g_object_set_data(G_OBJECT(filechooser), "filter", filterselect);
 
     globs = script_glob_extension;
 
@@ -1748,18 +1749,18 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
     gtk_file_filter_add_pattern (filterselect, s.c_str());
   };
 
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (filechooser),
                               GTK_FILE_FILTER (filterall));
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (filechooser),
                               GTK_FILE_FILTER (filterselect));
 
   if (filter_fileselection_filenames_state() == 1) {
     // filter automatically
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (fileselection),
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (filechooser),
 				GTK_FILE_FILTER (filterselect));
   } else {
     // show all
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (fileselection),
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (filechooser),
 				GTK_FILE_FILTER (filterall));
   }
 

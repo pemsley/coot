@@ -726,7 +726,7 @@ Mesh::setup_buffers() {
    if (setup_buffers_for_gl_lines) {
       // unsigned int n_bytes_for_gl_lines = n_bytes_for_triangles * 2; // 20220424-PE was this until now
       unsigned int n_bytes_for_gl_lines = n_bytes_for_lines;
-      std::cout << "setup_buffers() allocating " << n_bytes_for_gl_lines << " bytes for gl-lines " << std::endl;
+      // std::cout << "setup_buffers() allocating " << n_bytes_for_gl_lines << " bytes for gl-lines " << std::endl;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_gl_lines, &lines_vertex_indices[0], GL_STATIC_DRAW);
       err = glGetError(); if (err) std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
    } else {
