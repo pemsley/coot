@@ -1885,6 +1885,17 @@ on_residue_info1_activate_gtkbuilder_callback              (GtkMenuItem     *men
   do_residue_info_dialog();
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_residue_info_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                        GdkEvent        *event,
+                                                        gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
 /* the model fit refine menu item was activated */
 extern "C" G_MODULE_EXPORT
 void
@@ -3572,6 +3583,16 @@ on_show_symmetry_as_calphas_checkbutton_toggled_gtkbuilder_callback (GtkToggleBu
   }
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_show_symmetry_window_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                         GdkEvent        *event,
+                                                         gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
 
 
 extern "C" G_MODULE_EXPORT
@@ -4335,6 +4356,17 @@ on_run_state_file_cancel_button_clicked_gtkbuilder_callback (GtkButton       *bu
 
 
 extern "C" G_MODULE_EXPORT
+gboolean
+on_run_state_file_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                          GdkEvent        *event,
+                                                          gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
+extern "C" G_MODULE_EXPORT
 void
 on_edit_backbone_torsions_dialog_destroy_gtkbuilder_callback
                                         (GtkWidget       *object,
@@ -4580,6 +4612,17 @@ on_select_map_for_fitting_button_clicked_gtkbuilder_callback
  // gtk_widget_hide(widget);
 
 }
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_select_fitting_map_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                              GdkEvent        *event,
+                                                              gpointer         user_data) {
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
 
 
 extern "C" G_MODULE_EXPORT
@@ -12019,6 +12062,17 @@ on_simple_refmac_dialog_close_gtkbuilder_callback (GtkDialog       *dialog,
 {
    /* Do I need to do anything here? */
 }
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_simple_refmac_dialog_delete_event_gtkbuilder_callback(GtkWidget       *widget,
+                                                         GdkEvent        *event,
+                                                         gpointer         user_data) {
+
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
 
 
 extern "C" G_MODULE_EXPORT
