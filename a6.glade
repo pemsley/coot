@@ -14275,7 +14275,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="pack_type">end</property>
                     <property name="position">9</property>
                   </packing>
                 </child>

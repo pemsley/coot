@@ -183,6 +183,9 @@ on_glarea_realize(GtkGLArea *glarea) {
    int w = allocation.width;
    int h = allocation.height;
 
+   // 1 and 1 here!
+   // std::cout << "in on_glarea_realize() " << w << " " << h << std::endl;
+
    // std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
    gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
@@ -358,6 +361,14 @@ on_glarea_realize(GtkGLArea *glarea) {
       std::vector<g_triangle> outline_empty_triangles(1000);
       g.mesh_for_outline_of_active_residue.import(outline_empty_vertices, outline_empty_triangles);
       g.mesh_for_outline_of_active_residue.setup(dummy_material);
+
+      // Is this the place to set the window as unresizable?
+      // No, it isn't. As far as I can see gtk_window_set_resizable() expands
+      // the window in Y fully.  That's not what I want, of course.
+      if (false) {
+         GtkWidget *window = widget_from_builder("main_window");
+	 gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+      }
 
    } else {
       std::cout << "ERROR:: Shader compilation (init_shaders()) failed " << std::endl;

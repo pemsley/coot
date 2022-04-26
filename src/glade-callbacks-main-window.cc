@@ -1031,8 +1031,12 @@ on_main_window_resize_window_up_arrow_clicked_gtkbuilder_callback(GtkButton     
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
    int h = allocation.height;
-   int h_new = h - 8;
+   int h_new = h - 30;
+   gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
    gtk_window_resize(GTK_WINDOW(window), w, h_new);
+   // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+
+   // Note to self gtk_window_set_resizable() also expands the window fully in Y. Bleugh.
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1044,8 +1048,10 @@ on_main_window_resize_window_down_arrow_clicked_gtkbuilder_callback(GtkButton   
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
    int h = allocation.height;
-   int h_new = h + 8;
+   int h_new = h + 30;
+   gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
    gtk_window_resize(GTK_WINDOW(window), w, h_new);
+   // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1057,8 +1063,10 @@ on_main_window_resize_window_left_arrow_clicked_gtkbuilder_callback(GtkButton   
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
    int h = allocation.height;
-   int w_new = w - 8;
+   int w_new = w - 30;
+   gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
+   // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1071,6 +1079,8 @@ on_main_window_resize_window_right_arrow_clicked_gtkbuilder_callback(GtkButton  
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
    int h = allocation.height;
-   int w_new = w + 8;
+   int w_new = w + 30;
+   gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
+   // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 }
