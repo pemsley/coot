@@ -14207,6 +14207,78 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="position">8</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkBox" id="main_window_resize_window_button_box">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkButton" id="main_window_resize_window_up_arrow">
+                        <property name="label" translatable="yes">↥</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="receives_default">True</property>
+                        <property name="relief">half</property>
+                        <signal name="clicked" handler="on_main_window_resize_window_up_arrow_clicked_gtkbuilder_callback" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="main_window_resize_window_down_arrow">
+                        <property name="label" translatable="yes">↧</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="receives_default">True</property>
+                        <property name="relief">half</property>
+                        <signal name="clicked" handler="on_main_window_resize_window_down_arrow_clicked_gtkbuilder_callback" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="main_window_resize_window_left_arrow">
+                        <property name="label" translatable="yes">↤</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="receives_default">True</property>
+                        <property name="relief">half</property>
+                        <signal name="clicked" handler="on_main_window_resize_window_left_arrow_clicked_gtkbuilder_callback" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="main_window_resize_window_right_arrow">
+                        <property name="label" translatable="yes"> ↦</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="receives_default">True</property>
+                        <property name="relief">half</property>
+                        <signal name="clicked" handler="on_main_window_resize_window_right_arrow_clicked_gtkbuilder_callback" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">9</property>
+                  </packing>
+                </child>
               </object>
             </child>
           </object>

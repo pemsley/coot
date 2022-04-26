@@ -393,6 +393,18 @@ bool init_from_gtkbuilder() {
 int
 main(int argc, char *argv[]) {
 
+   auto do_window_resizing_widgets = [] () {
+
+                                        GtkWidget *box = widget_from_builder("main_window_resize_window_button_box");
+#ifdef __APPLE__
+                                        gtk_widget_show(box);
+                                        GtkWidget *window = widget_from_builder("main_window");
+                                        gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+#else
+                                        gtk_widget_hide(box);
+#endif
+                                     };
+
    int shell_exit_code = 0;
 
    graphics_info_t graphics_info;
@@ -469,9 +481,11 @@ main(int argc, char *argv[]) {
       if (cld.use_gtkbuilder) {
          bool success = init_from_gtkbuilder();
          if (success) {
-            GtkWidget *glarea = graphics_info_t::glareas[0];
             setup_application_icon(GTK_WINDOW(graphics_info_t::get_main_window()));
 
+            do_window_resizing_widgets();
+
+            GtkWidget *glarea = graphics_info_t::glareas[0];
             gtk_widget_show(glarea);
             my_glarea_add_signals_and_events(glarea);
             on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called

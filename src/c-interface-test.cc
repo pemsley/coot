@@ -1190,6 +1190,26 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    PyObject *r = Py_False;
 
    if (true) {
+     int i = PyLong_AsLong(i_py);
+     int j = PyLong_AsLong(j_py);
+
+     GtkWidget *gl_area = graphics_info_t::glareas[0];
+
+     GtkAllocation allocation;
+     gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+     int w = allocation.width;
+     int h = allocation.height;
+     int w_new = w + 8;
+     if (i < 0) w_new = w - 8;
+
+     GtkWidget *main_window = widget_from_builder("main_window");
+
+     gtk_window_set_resizable(GTK_WINDOW(main_window), TRUE);
+     gtk_widget_set_size_request(GTK_WIDGET(gl_area), w_new, h);
+     gtk_window_set_resizable(GTK_WINDOW(main_window), FALSE);
+   }
+
+   if (false) {
 
       g.attach_buffers();
 

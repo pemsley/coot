@@ -69,8 +69,7 @@ typedef const char entry_char_type;
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_refine_control_button_clicked_gtkbuilder_callback(GtkButton       *button,
-                                                                   gpointer         user_data)
-{
+                                                                   gpointer         user_data) {
    graphics_info_t g;
    g.show_refinement_and_regularization_parameters_dialog();
 }
@@ -1019,4 +1018,59 @@ on_about1_activate_gtkbuilder_callback                     (GtkMenuItem     *men
    GtkWidget *about_window = widget_from_builder("aboutdialog");
    add_coot_references_button(about_window);
    gtk_widget_show(about_window);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_main_window_resize_window_up_arrow_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                  gpointer         user_data) {
+
+   GtkWidget *window = widget_from_builder("main_window");
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(window, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   int h_new = h - 8;
+   gtk_window_resize(GTK_WINDOW(window), w, h_new);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_main_window_resize_window_down_arrow_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                  gpointer         user_data) {
+   GtkWidget *window = widget_from_builder("main_window");
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(window, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   int h_new = h + 8;
+   gtk_window_resize(GTK_WINDOW(window), w, h_new);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_main_window_resize_window_left_arrow_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                  gpointer         user_data) {
+   GtkWidget *window = widget_from_builder("main_window");
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(window, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   int w_new = w - 8;
+   gtk_window_resize(GTK_WINDOW(window), w_new, h);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_main_window_resize_window_right_arrow_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                     gpointer         user_data) {
+
+   GtkWidget *window = widget_from_builder("main_window");
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(window, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   int w_new = w + 8;
+   gtk_window_resize(GTK_WINDOW(window), w_new, h);
 }
