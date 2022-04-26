@@ -2804,8 +2804,8 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    int w = allocation.width;
    int h = allocation.height;
 
-   HUD_button_info_t button_1("OK");
-   HUD_button_info_t button_2("Cancel");
+   HUD_button_info_t button_1("Accept");
+   HUD_button_info_t button_2("Reject");
    HUD_button_info_t button_3("Sidechain 180"); // failure to lookup glyph for degree symbol ° :-(
    HUD_button_info_t button_4("Pep-Flip This");
    HUD_button_info_t button_5("Pep-Flip Next");
