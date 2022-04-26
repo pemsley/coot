@@ -226,19 +226,22 @@ on_glarea_realize(GtkGLArea *glarea) {
    }
 
    graphics_info_t g;
-   bool status = g.init_shaders();
+   bool status = true; // was g.init_shaders();
 
    if (status == true) {
       // happy path
 
       g.init_buffers();
+
       err = glGetError();
       if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
-      graphics_info_t::shader_for_screen.Use(); // needed?
+      // graphics_info_t::shader_for_screen.Use(); // needed?
 
       err = glGetError();
       if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
+
+      // g.init_shaders(); // here are errors
 
       if (graphics_info_t::use_framebuffers) {
          unsigned int index_offset = 0;
@@ -262,20 +265,24 @@ on_glarea_realize(GtkGLArea *glarea) {
          err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
                                                 << err << std::endl;
 
-         graphics_info_t::shader_for_screen.Use();
+	 g.init_shaders();
+
+         // graphics_info_t::shader_for_screen.Use();
          err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
          err = glGetError(); if (err) std::cout << "on_glarea_realize() C screen framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
          err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
 
-         graphics_info_t::shader_for_blur.Use();
+         // graphics_info_t::shader_for_blur.Use();
          err = glGetError(); if (err) std::cout << "on_glarea_realize() blur B shader-framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_blur.set_int_for_uniform("screenTexture", 0);
          err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
          graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
          err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
       }
+
+      // g.init_shaders();  - no validation failure here
 
       // std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_hud_text.name << std::endl;
       setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);

@@ -104,7 +104,7 @@ graphics_info_t::init_blur_quads() {
 
    // This is the 2020 version - this function can be deleted when the new version works.
 
-   graphics_info_t::shader_for_blur.Use();
+   // graphics_info_t::shader_for_blur.Use(); // setting up buffers doesn't need a shader
    // screen quad VAO
    unsigned int quadVBO;
    glGenVertexArrays(1, &graphics_info_t::blur_quad_vertex_array_id);
@@ -125,8 +125,11 @@ graphics_info_t::init_blur_quads() {
 
 void
 graphics_info_t::init_buffers() {
+   // std::cout << "debug:: init_buffers() init_central_cube" << std::endl;
    init_central_cube();
+   // std::cout << "debug:: init_buffers() init_screen_quads" << std::endl;
    init_screen_quads();
+   // std::cout << "debug:: init_buffers() init_blur_quads" << std::endl;
    init_blur_quads();
 }
 
@@ -153,7 +156,7 @@ graphics_info_t::init_central_cube() {
                                      0.0f,  0.0f,  0.5
    };
 
-   graphics_info_t::shader_for_central_cube.Use();
+   // graphics_info_t::shader_for_central_cube.Use(); setting up buffers doesn't need a shader
    GLenum err = glGetError();
    if (err) std::cout << "init_central_cube() glUseProgram() err is " << err << std::endl;
 
