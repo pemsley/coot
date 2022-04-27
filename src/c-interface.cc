@@ -1700,9 +1700,9 @@ set_directory_for_filechooser(GtkWidget *fileselection1) {
 }
 
 void
-save_directory_from_filechooser(const GtkWidget *fileselection) {
+save_directory_from_filechooser(const GtkWidget *filechooser) {
    graphics_info_t g;
-   g.save_directory_from_filechooser(fileselection);
+   g.save_directory_from_filechooser(filechooser);
 }
 
 void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) {
