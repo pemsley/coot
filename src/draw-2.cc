@@ -570,11 +570,10 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    GdkModifierType mouse_pick_button_mask        = GDK_BUTTON1_MASK;
    GdkModifierType mouse_view_rotate_button_mask = GDK_BUTTON3_MASK;
-#ifdef __APPLE__  // this needs improvement
-   if (true) {
-      mouse_view_rotate_button_mask = GDK_BUTTON1_MASK;
-      mouse_pick_button_mask        = GDK_BUTTON3_MASK;
-   }
+
+#ifdef __APPLE__
+   mouse_view_rotate_button_mask = GDK_BUTTON1_MASK;
+   mouse_pick_button_mask        = GDK_BUTTON1_MASK;
 #endif
 
       if (! handled) {
