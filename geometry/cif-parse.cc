@@ -28,6 +28,7 @@
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
 
+#include "compat/coot-sysdep.h"
 #include "mini-mol/atom-quads.hh"
 #include "geometry/protein-geometry.hh"
 #include "utils/coot-utils.hh"
@@ -35,20 +36,7 @@
 // #include <sys/types.h> // for stating
 // #include <sys/stat.h>
 
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define DATADIR "C:/coot/share"
-#define PKGDATADIR DATADIR
-// stop using these, use win-compat functions
-// #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-// #define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#endif
-
 #include "clipper/core/clipper_util.h"
-
-#include "compat/coot-sysdep.h"
-#include "utils/win-compat.hh"
 
 #include "lbg-graph.hh"
 
@@ -1893,7 +1881,7 @@ coot::protein_geometry::init_standard() {
    
    char *s = getenv("COOT_REFMAC_LIB_DIR");
    if (s) {
-      if (! is_dir_or_link(s)) { 
+      if (!is_link(s) && !is_dir(s)) {
 	 env_dir_fails = 1;
 	 std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR"
 		   << "failed to find a dictionary " << s << std::endl;
@@ -1920,7 +1908,7 @@ coot::protein_geometry::init_standard() {
 
 	 std::string ss(s); // might have trailing "/"
 	 ss = coot::util::remove_trailing_slash(ss);
-	 if (! is_dir_or_link(ss)) { 
+	 if (!is_dir(ss) && !is_link(ss)) {
 	    env_dir_fails = 1;
 	 } else {
 	    env_dir_fails = 0;
@@ -1953,7 +1941,7 @@ coot::protein_geometry::init_standard() {
 	    // OK, CCP4 failed to give us a dictionary, now try the
 	    // version that comes with Coot:
 
-	    if (is_dir_or_link(hardwired_default_place)) {
+	    if (is_dir(hardwired_default_place) || is_link(hardwired_default_place)) {
 	       mon_lib_dir = hardwired_default_place;
 	    } else {
 
@@ -1965,7 +1953,7 @@ coot::protein_geometry::init_standard() {
 		  std::string lib_dir = util::append_dir_dir(s, "share");
 		  lib_dir = util::append_dir_dir(lib_dir, "coot");
 		  lib_dir = util::append_dir_dir(lib_dir, "lib");
-		  if (is_dir_or_link(lib_dir)) {
+		  if (is_dir(lib_dir) || is_link(lib_dir)) {
 		     mon_lib_dir = lib_dir;
 		  } else {
 		     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";

@@ -30,20 +30,15 @@
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define DATADIR "C:/coot/share"
-#define PKGDATADIR DATADIR
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#endif
-
 #include "clipper/core/clipper_util.h"
+
+#include "lbg-graph.hh"
 
 #include "compat/coot-sysdep.h"
 
-#include "lbg-graph.hh"
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::chem_mod_atom &a) {
@@ -718,4 +713,4 @@ coot::protein_geometry::debug_mods() const {
 	 std::cout << "   " << it->second.chir_mods[i] << std::endl;
       } 
    }
-} 
+}

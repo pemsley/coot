@@ -23,30 +23,14 @@
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include "compat/coot-sysdep.h"
-
-
 #include <algorithm>
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define S_IRUSR S_IREAD
-#define S_IWUSR S_IWRITE
-#define S_IXUSR S_IEXEC
-#include <windows.h>
-#include <direct.h>
-#endif // _MSC_VER
 
 #ifdef USE_GUILE
 #include <cstdio>  // for std::FILE
 #include <libguile.h>
 #endif 
-
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
-#include <glob.h> // for globbing.
-#endif
 
 #include <iostream>
 #include <string>

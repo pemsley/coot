@@ -26,13 +26,6 @@
 
 #include "compat/coot-sysdep.h"
 
-#if defined(_MSC_VER)
-#if defined _MSC_VER
-#include <windows.h>
-#endif
-#endif
-
-
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -63,6 +56,10 @@
 #include "cc-interface.hh"  // for statusbar_text
 
 #include "widget-from-builder.hh"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // After this function, we call try_centre_from_new_go_to_atom();
 void graphics_info_t::set_go_to_atom_chain_residue_atom_name(const gchar *t1,

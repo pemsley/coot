@@ -24,6 +24,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <algorithm>
+#include <cctype>
 #include <cstring>
 
 #include "compat/coot-sysdep.h"
@@ -43,10 +45,61 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include <sys/stat.h>
-#include <glob.h>
 
+template <typename T, typename U>
+static
+bool contains(const T &what, const U &where) {
+    return std::find(where.cbegin(), where.cend(), what) != where.cend();
+}
+
+static
+const std::vector<std::string> EXLCUDED_PY_FILES_NOGRAPHICS = {
+    "coot_toolbuttons.py",
+    "template_key_bindings.py"
+};
+
+class PreferenceFiles {
+public:
+    std::vector<std::string> basic_scripts;
+    std::vector<std::string> xenops_scripts;
+    std::vector<std::string> curlew_scripts;
+    std::string coot_preferences_py_script;
+};
+
+static
+PreferenceFiles gather_preferences_files(const std::string &preferences_dir, bool use_graphics) {
+    const auto &excluded_py_files = use_graphics ? std::vector<std::string>{} : EXLCUDED_PY_FILES_NOGRAPHICS;
+    auto candidates = coot::gather_files_by_patterns(preferences_dir, { "*.py" });
+
+    PreferenceFiles prefs{};
+    for (auto &file : candidates) {
+        if (contains(file, excluded_py_files))
+            continue;
+
+        if (file.length() > 6) {
+            auto prefix = file.substr(0, 6);
+            std::transform(prefix.begin(), prefix.end(), prefix.begin(), [](unsigned char ch) { return std::tolower(ch); });
+
+            if (prefix == "xenops") {
+                prefs.xenops_scripts.push_back(std::move(file));
+                continue;
+            } else if (prefix == "curlew") {
+                prefs.curlew_scripts.push_back(std::move(file));
+                continue;
+            }
+        }
+
+        prefs.basic_scripts.push_back(std::move(file));
+
+        if (file == "coot_preferences.py")
+            prefs.coot_preferences_py_script = std::move(file);
+    }
+
+    return prefs;
+}
 
 void setup_python_basic(int argc, char **argv) {
 
@@ -211,8 +264,6 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
 
    if (graphics_info_t::run_startup_scripts_flag) {
 
-      short int use_graphics_flag = use_graphics_interface_state();
-
       // load preferences file .coot_preferences.py
       // std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
       //
@@ -227,62 +278,16 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
          std::cout << "INFO:: preferences directory " << startup_scripts_dir
                    << " does not exist. Won't read preferences." << std::endl;;
       } else {
-	 // load all .py files
-	 glob_t myglob;
-	 int flags = 0;
-	 //std::string glob_patt = "/*.py";
-	 std::string glob_file = startup_scripts_dir;
-	 glob_file += "/*.py";
-	 glob(glob_file.c_str(), flags, 0, &myglob);
-	 // dont load the coot_toolbuttons.py if no graphics
-	 // same for key_bindings (and potentially others)
-	 std::set<std::string> exclude_py_files;
-         if (! use_graphics_flag) {
-            exclude_py_files.insert("coot_toolbuttons.py");
-            exclude_py_files.insert("template_key_bindings.py");
-         }
+        const auto prefs = gather_preferences_files(startup_scripts_dir, use_graphics_interface_state());
 
-         // make this split so that we can run curlew scripts after, and xenops scripts after that.
-         //
-         std::vector<std::string> basic_scripts;
-         std::vector<std::string> xenops_scripts;
-         std::vector<std::string> curlew_scripts;
-         std::string coot_preferences_py_script;
-
-         for (char **p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
-            std::string preferences_script(*p);
-            std::string psf = coot::util::file_name_non_directory(preferences_script);
-            if (exclude_py_files.find(psf) == exclude_py_files.end()) {
-               bool done = false;
-               if (preferences_script.length() > 6) {
-                  if (psf.substr(0,6) == "xenops") {
-                     done = true;
-                     xenops_scripts.push_back(preferences_script);
-                  }
-               }
-               if (psf.length() > 6) {
-                  if (preferences_script.substr(0,6) == "curlew") {
-                     done = true;
-                     curlew_scripts.push_back(preferences_script);
-                  }
-               }
-               if (! done)
-                  basic_scripts.push_back(preferences_script);
-               if (preferences_script == "coot_preferences.py")
-                  coot_preferences_py_script = preferences_script;
-            }
-         }
-         globfree(&myglob);
-
-         for(const auto &script_fn : basic_scripts)
+         for(const auto &script_fn : prefs.basic_scripts)
             run_python_script(script_fn.c_str()); // bleugh
-         if (! coot_preferences_py_script.empty())
-            run_python_script(coot_preferences_py_script.c_str());
-         for(const auto &script_fn : curlew_scripts)
+         if (!prefs.coot_preferences_py_script.empty())
+            run_python_script(prefs.coot_preferences_py_script.c_str());
+         for(const auto &script_fn : prefs.curlew_scripts)
             run_python_script(script_fn.c_str());
-         for(const auto &script_fn : xenops_scripts) {
+         for(const auto &script_fn : prefs.xenops_scripts)
             run_python_script(script_fn.c_str());
-         }
       }
 
       // update the preferences

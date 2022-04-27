@@ -3,6 +3,10 @@
 #include "coot-coord-utils.hh"
 #include "bonded-atoms.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 // called for atoms in different residues - we already know
 // that at_2 will be in a different residue to at_1.
 //

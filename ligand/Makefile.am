@@ -150,7 +150,7 @@ res_tracer_LDADD = ./libcoot-res-tracer.la            \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-if OS_WIN32
+if COOT_BUILD_WINDOWS
 bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
 else
 libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db identify-protein-bin

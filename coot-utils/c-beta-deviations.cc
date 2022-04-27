@@ -5,6 +5,10 @@
 
 #include "geometry/residue-and-atom-specs.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 // return a map or a list at some stage.
 // I am not sure that we want a map. Maybe we want a vector.
 // We the value of the outside map is a map on the alt confs of the residue

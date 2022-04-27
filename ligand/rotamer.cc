@@ -34,6 +34,10 @@
 #include "coot-utils/coot-coord-extras.hh"
 #include "coot-utils/atom-tree.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 std::ostream &
 coot::operator<<(std::ostream &s, const coot::rotamer_probability_info_t &rpi) {
 
@@ -1219,4 +1223,3 @@ coot::rotamer::get_closest_rotamer(const std::string &residue_name) const {
    return cr;
 
 }
-

@@ -45,18 +45,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#endif
-
 #include  <gtk/gtk.h> /* needed for c-interface.h */
 #include "c-interface.h" /* needed for set_guile_gui_loaded_flag() and run_command_line_scripts() */
 #include "c-inner-main.h"
 #include "c-interface-preferences.h"
-
-#include <glob.h>
 
 
 #if defined (USE_GUILE) || defined (USE_PYTHON)
@@ -254,8 +246,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   directory = getenv("HOME"); 
 #endif
   if (directory) {
-    /* first the preferences  (but only if not on windows)*/
-#if defined COOT_USE_GTK2_INTERFACE && !defined WINDOWS_MINGW
+#if defined COOT_USE_GTK2_INTERFACE
     /* don't forget null termination (+1) */
     tmp_str = (char *) malloc (strlen(directory) + 18 + 1);
     strcpy (tmp_str, directory);
@@ -268,30 +259,22 @@ c_inner_main(void *closure, int argc, char** argv) {
     if (istat != 0) { 
       printf("INFO:: preferences directory %s \n", preferences_dir);
       printf("       does not exist. Won't read preferences.\n");
-     } else {
-       /* load all .scm files */
-       /* need an extra char for null termination, I think */
-       tmp_str = (char *) malloc (strlen(preferences_dir) + 6 + 1);
-       strcpy (tmp_str, preferences_dir);
-       strcat (tmp_str, "/");	/* something else for Windwoes? */
-       strcat (tmp_str, "*.scm");
-       glob_file = tmp_str;
-       glob(glob_file, flags, 0, &myglob);
+    } else {
+      /* load all .scm files */
+      char patterns[] = { "*.scm" };
+      Coot_C_Found found = coot_c_gather_files_by_patterns(preferences_dir, patterns, 1);
+      for (size_t idx = 0; idx < found.n_found; idx++) {
+        const char *file = found.found[idx];
+        if (!strstr(file, preferences_filename) || !prefer_python()) {
+          printf("INFO:: loading preferences file %s \n", preferences_file);
+          scm_c_primitive_load(file);
+        }
+      }
+      coot_c_free_found(&found);
 
-       for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-         preferences_file = (*p);
-         char *found = strstr(preferences_file, preferences_filename);
-         // only load coot-preferences.scm if not python prefered and 
-         if ((!found) || (!prefer_python())) {
-            printf("INFO:: loading preferences file %s \n", preferences_file);
-            scm_c_primitive_load(preferences_file);
-         }
-
-       }
-       globfree(&myglob);
-     }
-     /* update the preferences */;
-     make_preferences_internal();
+      /* update the preferences */
+      make_preferences_internal();
+    }
 #endif
 
      /* now the own code */

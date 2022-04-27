@@ -119,7 +119,6 @@ dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
 dnl test for LIBPNG (Windows only - maybe shouif here rather than in macro?)
 if test "$have_windows_mingw" = yes; then
-  AM_PATH_GLOB
   AC_CONFIG_FILES(pyrogen/pyrogen.bat)
 fi
 
@@ -156,10 +155,24 @@ fi
 AM_CONDITIONAL(BACKWARD_HAS_DW, [test x$with_libdw = xtrue])    # tested in utils/Makefile.am
 
 dnl Set platform-specific compilation flags - derived from clipper's configure
+coot_build_posix=no
+coot_build_windows=no
 test "${target:+set}" = set || target="$host_os"
 case "$target" in
-   *linux* ) ;;
+   *mingw* )
+        CXXFLAGS="$CXXFLAGS -DCOOT_BUILD_WINDOWS -DWIN32_LEAN_AND_MEAN -DNOMINMAX=1"
+        CFLAGS="$CFLAGS -DCOOT_BUILD_WINDOWS -DWIN32_LEAN_AND_MEAN -DNOMINMAX=1"
+        coot_build_windows=yes
+   ;;
+   *linux* )
+        CXXFLAGS="$CXXFLAGS -DCOOT_BUILD_POSIX"
+        CFLAGS="$CFLAGS -DCOOT_BUILD_POSIX"
+        coot_build_posix=yes
+   ;;
    *irix* )
+        CXXFLAGS="$CXXFLAGS -DCOOT_BUILD_POSIX"
+        CFLAGS="$CFLAGS -DCOOT_BUILD_POSIX"
+        coot_build_posix=yes
 	if test "`basename $CXX`" = CC; then
 	   case "$CXXFLAGS" in
 	      *LANG::std* ) ;;
@@ -175,6 +188,8 @@ case "$target" in
 	fi
     ;;
 esac
+AM_CONDITIONAL([COOT_BUILD_POSIX], [test "$coot_build_posix" = "yes"])
+AM_CONDITIONAL([COOT_BUILD_WINDOWS], [test "$coot_build_windows" = "yes"])
 
 
 dnl Check for MMDB.

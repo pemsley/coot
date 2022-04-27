@@ -1,7 +1,12 @@
+#include "compat/coot-sysdep.h"
 
 #include "loop-path.hh"
-#include "compat/coot-sysdep.h"
 #include "coot-utils/coot-coord-utils.hh"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 std::pair<bool, std::vector<coot::CartesianPair> >
 coot::loop_path(mmdb::Atom *start_back_2,

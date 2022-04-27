@@ -21,8 +21,7 @@
  * 02110-1301, USA
  */
 
-// Portability (to Windows, particularly) functions go here.
-//
+#include "coot-utils.hh"
 
 #include <iostream>
 #include <algorithm>
@@ -35,18 +34,6 @@
 #include <math.h>  // for fabs
 
 #include "compat/coot-sysdep.h"
-#if defined _MSC_VER
-#include <direct.h>
-#include <windows.h>
-#include <lm.h>
-#else
-#if !defined(WINDOWS_MINGW)
-#include <unistd.h>
-#include <pwd.h>
-#endif // MINGW
-#endif
-
-#include <glob.h>
 
 #include <ctype.h>  // for toupper
 
@@ -54,8 +41,9 @@
 #include <sys/stat.h>   // for mkdir
 #include <unistd.h> // Also needed for mkdir on Fedora?
 
-#include "coot-utils.hh"
-
+#ifdef COOT_BUILD_POSIX
+#include <pwd.h>
+#endif // COOT_BUILD_POSIX
 
 std::string
 coot::util::append_dir_dir (const std::string &s1, const std::string &dir) {
@@ -663,13 +651,7 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 
 std::string
 coot::util::current_working_dir() {
-   std::string s = "";
-   unsigned long l = 2480;
-   char b[l];
-   char *x = getcwd(b,l);
-   if (x)
-      s = std::string(b);
-   return s;
+   return coot::current_working_dir();
 }
 
 // If cwd is a substring of f (starting at 0), then return the
@@ -1472,25 +1454,10 @@ coot::sequence::is_sequence_triplet(const std::string &s) {
    return r;
 }
 
-
-// return a set of string that match the glob, with the directory name pre-appended
 std::vector<std::string>
 coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) {
-
-   std::vector<std::string> r;
-   glob_t myglob;
-   std::string glob_files = append_dir_file(dir, glob_pattern);
-   int flags = 0;
-   glob(glob_files.c_str(), flags, 0, &myglob);
-   size_t count = myglob.gl_pathc;
-   for (char **p = myglob.gl_pathv; count ; p++, count--) {
-      char *file(*p);
-      r.push_back(file);
-   }
-   globfree(&myglob);
-   return r;
+   return coot::gather_files_by_patterns(dir, { glob_pattern });
 }
-
 
 coot::gauss_legendre_t::gauss_legendre_t() {
    fill_weight_abscicca(16);

@@ -23,17 +23,11 @@
 
 // #define ANALYSE_REFINEMENT_TIMING
 
-#include <string.h> // for strcmp
+#include <iomanip>
 
 #ifdef ANALYSE_REFINEMENT_TIMING
 #include <sys/time.h>
 #endif // ANALYSE_REFINEMENT_TIMING
-
-
-#include <fstream>
-#include <algorithm> // for sort
-#include <stdexcept>
-#include <iomanip>
 
 #ifdef HAVE_CXX_THREAD
 #include <thread>
@@ -48,11 +42,12 @@
 //
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
 
-// #include "mmdb.h" // for printing of mmdb::Atom pointers as info not raw
-                     // pointers.  Removed. Too much (linking issues in)
-                     // Makefile pain.
-
 #include "compat/coot-sysdep.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 
 zo::rama_table_set coot::restraints_container_t::zo_rama;
 std::atomic<bool> coot::restraints_container_t::print_lock(false);

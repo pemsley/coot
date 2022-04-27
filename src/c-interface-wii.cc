@@ -12,6 +12,8 @@
 
 #include "globjects.h"
 
+#include "compat/coot-sysdep.h"
+
 #ifdef WII_INTERFACE_WIIUSE
 
 #include "wiiuse.h"
@@ -161,12 +163,8 @@ int setup_wii() {
 
   wiiuse_rumble(g.wiimotes[0], 1);
   wiiuse_rumble(g.wiimotes[1], 1);
-  
-#ifndef WIN32
-  usleep(200000);
-#else
-  Sleep(200);
-#endif
+
+  coot::usleep(200000);
 
   wiiuse_rumble(g.wiimotes[0], 0);
   wiiuse_rumble(g.wiimotes[1], 0);

@@ -27,16 +27,9 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include "compat/coot-sysdep.h"
-
-
-#ifdef _MSC_VER
-#include <windows.h>
-#endif
-
 #include <stdexcept>
 #include <algorithm>
-#include <string.h>  // strncpy
+#include <string.h>  // strcpy
 
 
 #include <mmdb2/mmdb_manager.h>

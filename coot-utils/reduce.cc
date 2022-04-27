@@ -1,12 +1,19 @@
-//
-#include <algorithm>
 #include <iomanip>
-#include <string.h>
+
 #include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "reduce.hh"
 #include "atom-overlaps.hh"
+
+#include "compat/coot-sysdep.h"
+
+#include <cstring>
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 
    // Spin-search: OH, SH, NH3, MET methyls
 
@@ -584,7 +591,7 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    new_H->SetElementName(" H"); // PDBv3 FIXME
    new_H->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
    if (! altconf.empty())
-      strncpy(new_H->altLoc, altconf.c_str(), 18); // 19 is mmdb limit, I think
+      std::strncpy(new_H->altLoc, altconf.c_str(), 18); // 19 is mmdb limit, I think
 
    // now test if the atom is there already.
    //

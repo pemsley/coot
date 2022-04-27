@@ -1,10 +1,11 @@
 
 #include <string>
 #include <iostream>
-#include <glob.h>
 #include <sys/stat.h>
 #include <gtk/gtk.h>
 #include "utils/coot-utils.hh"
+
+#include "compat/coot-sysdep.h"
 
 // this returns the effective screen height if possible otherwise an estimate
 int
@@ -153,8 +154,6 @@ void setup_application_icon(GtkWindow *window) {
    const char *stock_id;
    GdkPixbuf* pixbuf;
 
-   glob_t myglob;
-   int flags = 0;
    std::string glob_dir = splash_screen_pixmap_dir;
    std::string glob_file = glob_dir;
    glob_file += "/*.svg";

@@ -29,9 +29,6 @@
 #endif
 #endif
 
-#include "compat/coot-sysdep.h"
-
-
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>
@@ -41,24 +38,6 @@
 #define HAVE_STRING
 #include <string>
 #endif // HAVE_STRING
-
-#include <string.h> // strlen, strncpy
-#include <sys/types.h> // for stating
-#include <sys/stat.h>
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define S_IRUSR S_IREAD
-#define S_IWUSR S_IWRITE
-#define S_IXUSR S_IEXEC
-#define snprintf _snprintf
-#include <windows.h>
-#include <direct.h>
-#endif // _MSC_VER
-
-#if !defined(_MSC_VER)
-#include <glob.h> // for globbing.
-#endif
 
 #include "guile-fixups.h"
 
@@ -83,7 +62,6 @@
 #include "clipper/core/clipper_instance.h"
 
 #include "c-interface-gui.hh"
-#include "utils/win-compat.hh"
 
 #include "c-interface-widgets.hh"
 
@@ -6297,13 +6275,11 @@ curlew_uninstall_extension_file(const std::string &file_name) {
       std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
       std::string renamed_file_name = preferences_file_name + "_uninstalled";
       if (coot::file_exists(preferences_file_name)) {
-#ifndef WINDOWS_MINGW
-         int status = rename(preferences_file_name.c_str(), renamed_file_name.c_str());
-#else
-          int status = coot::rename_win(preferences_file_name.c_str(), renamed_file_name.c_str());
-#endif
-         if (status != 0) {
-            std::cout << "WARNING:: rename status " << status << " failed to uninstall " << file_name << std::endl;
+         std::string rename_error;
+         bool status = coot::rename(preferences_file_name.c_str(), renamed_file_name.c_str(), rename_error);
+         if (!status) {
+            std::cout << "WARNING:: failed to uninstall " << file_name << std::endl;
+            std::cout << "WARNING:: rename error: " << rename_error << std::endl;
          } else {
             // OK
             r_status = true;
@@ -6390,13 +6366,11 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
 				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
-#ifndef WINDOWS_MINGW
-				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
-#else
-                 int status = coot::rename_win(dl_fn.c_str(), preferences_file_name.c_str());
-#endif
-				 if (status != 0) {
-				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
+				 std::string rename_error;
+				 bool status = coot::rename(dl_fn.c_str(), preferences_file_name.c_str(), rename_error);
+				 if (!status) {
+				    std::cout << "WARNING:: failed to install " << file_name << std::endl;
+				    std::cout << "WARNING:: rename error: " << rename_error << std::endl;
 				 } else {
                                     std::cout << "debug:: AA  renaming successful" << std::endl;
 				    std::cout << "debug:: AA run_script() on " << preferences_file_name << std::endl;

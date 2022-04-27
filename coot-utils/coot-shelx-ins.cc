@@ -20,9 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
-
-#include <string.h>
-#include <string>
+#include "compat/coot-sysdep.h"
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/spacegroup.h"
@@ -31,11 +29,16 @@
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-shelx.hh"
+
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 
-#include "compat/coot-sysdep.h"
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 enum { NONE=0, ONE_HALF=6, ONE_THIRD=4, ONE_QUARTER=3, ONE_SIXTH=2, TWO_THIRDS=8,
        THREE_QUARTERS=9, FIVE_SIXTHS=10, MINUS_ONE_HALF= -6, MINUS_ONE_THIRD = -4,
@@ -607,7 +610,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
             // std::cout << "INFO:: set space group to \"" << space_group.descr().symbol_xhm() << "\""
             // << std::endl;
             char spacegroup_c[40];
-            strcpy(spacegroup_c, space_group.descr().symbol_xhm().c_str());
+	    std::strcpy(spacegroup_c, space_group.descr().symbol_xhm().c_str());
             // mmdb::cpstr sg = space_group.descr().symbol_xhm().c_str();
             mol->SetSpaceGroup(spacegroup_c);
             char *spg = mol->GetSpaceGroup();
@@ -2748,4 +2751,4 @@ coot::operator<<(std::ostream &s, const symm_card_composition_t &sc) {
      << sc.trans_frac(2) << std::endl;
 
    return s;
-} 
+}

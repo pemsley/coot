@@ -675,7 +675,14 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
 //static
 bool
 graphics_info_t::get_exta_annotation_state() {
+#ifdef COOT_BUILD_WINDOWS
+    SYSTEMTIME time;
+    GetLocalTime(&time);
 
+    return
+        (time.wDay == 1 && time.wMonth ==  4 && (time.wSecond % 5 == 0)) ||
+        (time.wDay > 15 && time.wMonth == 10 && (time.wSecond % 5 == 0));
+#else
    bool extra_annotation = false;
    time_t times = time(NULL);
    struct tm result;
@@ -690,6 +697,7 @@ graphics_info_t::get_exta_annotation_state() {
          if (result.tm_sec%5==0)
             extra_annotation = true;
    return extra_annotation;
+#endif // COOT_BUILD_WINDOWS
 }
 
 

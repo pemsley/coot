@@ -29,7 +29,7 @@
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
 
-#include "utils/win-compat.hh"
+#include "compat/coot-sysdep.h"
 #include "mini-mol/atom-quads.hh"
 #include "geometry/protein-geometry.hh"
 #include "utils/coot-utils.hh"
@@ -37,20 +37,13 @@
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define DATADIR "C:/coot/share"
-#define PKGDATADIR DATADIR
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#endif
-
 #include "clipper/core/clipper_util.h"
 
-#include "compat/coot-sysdep.h"
-
 #include "lbg-graph.hh"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // std::string 
 // coot::basic_dict_restraint_t::atom_id_1_4c() const {
@@ -639,17 +632,12 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 int istat = stat(filename.c_str(), &buf);
 	 if (istat == 0) {
 	    if (coot::is_regular_file(filename)) {
-
 	       coot::read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(filename, read_number);
 	       success = rmit.success;
+	    } else if (coot::is_dir(filename) || coot::is_link(filename)) {
+	       std::cout << "ERROR: dictionary " << filename << " is not a regular file" << std::endl;
 	    } else {
-
-	       // error/warning
-	       if (! coot::is_dir_or_link(filename)) {
-		  std::cout << "WARNING: " << filename << ": no such file (or directory)\n";
-	       } else {
-		  std::cout << "ERROR: dictionary " << filename << " is not a regular file" << std::endl;
-	       }
+	       std::cout << "WARNING: " << filename << ": no such file (or directory)\n";
 	    }
 	 } else { 
 	    
@@ -2635,4 +2623,3 @@ void coot::protein_geometry::delete_plane_restraints() {
    }
 
 }
-

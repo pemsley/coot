@@ -21,16 +21,9 @@
  * 02110-1301, USA
  */
 
-#include <string.h> // for strcmp
-
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
-
-
-// #include <fstream>
-// #include <algorithm> // for sort
-// #include <stdexcept>
 
 #include "simple-restraint.hh"
 

@@ -27,8 +27,6 @@
 #include "python-3-interface.hh"
 #endif
 
-#include "compat/coot-sysdep.h"
-
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -47,12 +45,6 @@
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
-
-#if !defined _MSC_VER && !defined WINDOWS_MINGW
-#include <unistd.h>
-#else
-//#include "coot-sysdep.h"
-#endif
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
@@ -96,6 +88,10 @@
 #endif
 
 #include "geometry/dict-utils.hh"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // static
 GtkWidget *

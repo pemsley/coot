@@ -29,10 +29,6 @@
 #endif
 
 
-#ifdef _MSC_VER
-#define snprintf _snprintf
-#endif
-
 #include <string.h>
 #include <iostream>
 #include <algorithm>
@@ -41,7 +37,6 @@
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
 #include "utils/coot-utils.hh" // int to string
-#include "utils/win-compat.hh"  // for fix_font
 
 #include "rama_plot.hh" // has gtk/gtk.h which interface.h needs
 

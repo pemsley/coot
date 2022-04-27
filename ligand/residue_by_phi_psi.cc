@@ -31,6 +31,10 @@
 #include "coot-utils/coot-coord-utils.hh" // for co()
 #include "mini-mol/mini-mol-utils.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 coot::residue_by_phi_psi::residue_by_phi_psi(const std::string &terminus,
 					     mmdb::Residue *res_p,
 					     const std::string &chain_id_in, 

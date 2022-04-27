@@ -81,6 +81,10 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 // Validation stuff	    //
 
 

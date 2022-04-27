@@ -1,11 +1,15 @@
 
 
 #include <algorithm> // for std::find
+#include "compat/coot-sysdep.h"
 
 #include "plane-utils.hh"
 #include "coot-coord-utils.hh"
 
-#include <compat/coot-sysdep.h>
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // the vector points towards the ring
 std::pair<bool, double>

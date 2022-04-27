@@ -3,8 +3,6 @@
 #include <Python.h>
 #endif // USE_PYTHON
 
-#include "compat/coot-sysdep.h"
-
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
@@ -29,6 +27,11 @@
 #include "cylinder-with-rotation-translation.hh"
 
 #include "screendump-tga.hh"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef near
+# undef far
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 

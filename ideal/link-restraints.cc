@@ -21,7 +21,6 @@
  * 02110-1301, USA
  */
 
-
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 

@@ -1,20 +1,22 @@
-
 #include <fstream>
-#include <iomanip>
+//#include <iomanip>
 #include <thread>
 #include <chrono>
-
-#include "compat/coot-sysdep.h"
 
 #include <boost/math/distributions/skew_normal.hpp>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 
-#include "compat/coot-sysdep.h"
 #include "analysis/stats.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
 #include "side-chain-densities.hh"
 #include "richardson-rotamer.hh"
+
+#include "compat/coot-sysdep.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 coot::density_box_t::density_box_t(float *density_box_in,
                                    mmdb::Residue *residue_p_in,
@@ -2572,4 +2574,3 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
 
    return results_vec; // results for each range/fragment
 }
-

@@ -36,9 +36,8 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#if !defined _MSC_VER
-#include <unistd.h>
-#endif
+
+#include "compat/coot-sysdep.h"
 
 #include "utils/coot-utils.hh"
 #include "scm-boot-guile.hh"
@@ -51,7 +50,6 @@
 #include "coot-init-glue.hh"
 #include "pre-load.hh"
 
-#include <glob.h>
 #include "graphics-info.h"
 
 #include "command-line-extern.hh"
@@ -148,32 +146,19 @@ void try_load_dot_coot_and_preferences() {
 	    std::cout << "INFO:: preferences directory " << preferences_dir 
 		      << " does not exist. Won't read .scm preferences." << std::endl;;
 	 } else {
-
-	    char **p;
-	    size_t count;
-	    int flags = 0;
-	    glob_t myglob;
-	    std::string glob_file = preferences_dir + "/*.scm";
-	    
-	    glob(glob_file.c_str(), flags, 0, &myglob);
-
-	    for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-	       char *preferences_file = (*p);
-	       if (preferences_file) {
-		  std::string preferences_file_str(preferences_file);
-		  // if python prefered, don't load coot-preferences.scm
-		  if (preferences_file_str == full_path_coot_pref_scm) {
-		     if (prefer_python()) {
-			// std::cout << "skip coot-prefences.scm " << std::endl;
-		     } else {
-			std::cout << "load " << preferences_file_str << std::endl;
-			scm_c_primitive_load(preferences_file);
-		     }
-		  } else {
-		     // happy path
-		     std::cout << "load " << preferences_file << std::endl;
-		     scm_c_primitive_load(preferences_file);
-		  } 
+	    auto found = coot::gather_files_by_patterns(preferences_dir, { "*.scm" });
+	    for (const auto &file : found) {
+	       if (file == full_path_coot_pref_scm) {
+	          if (prefer_python()) {
+		     // std::cout << "skip coot-prefences.scm " << std::endl;
+	          } else {
+	             std::cout << "load " << file << std::endl;
+		     scm_c_primitive_load(file);
+	          }
+	       } else {
+	          // happy path
+	          std::cout << "load " << file << std::endl;
+	          scm_c_primitive_load(file);
 	       }
 	    }
 	 }

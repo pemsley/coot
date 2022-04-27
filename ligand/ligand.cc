@@ -28,28 +28,12 @@
 // #include <stdio.h> // for snprintf
 
 #include <fstream>
-
 #include <queue> // new fangled idea from Kevin (to do the flood
 		 // filling and keeping the ligand centres via
 		 // Coord_grids).
-
 #include <algorithm>
 
-#include <sys/types.h> // for stating
-#include <sys/stat.h>
-
-#if defined _MSC_VER
-// #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-// #define S_IWUSR S_IWRITE
-#define snprintf _snprintf
-#else
-#include <unistd.h>
-#endif
-
-// #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
-// #include <pwd.h>
-// #include <sys/types.h>
-// #endif
+#include "compat/coot-sysdep.h"
 
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
@@ -62,7 +46,6 @@
 
 #include <mmdb2/mmdb_coormngr.h> // for GetMassCenter()
 
-#include "utils/win-compat.hh"
 #include "utils/coot-utils.hh"
 
 #include "coords/mmdb-extras.h"   // 220403

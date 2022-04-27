@@ -1,4 +1,3 @@
-
 #include "side-chain.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -7,6 +6,10 @@
 #include "chi-angles.hh"
 
 #include "compat/coot-sysdep.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 void
 coot::do_180_degree_side_chain_flip(const coot::residue_spec_t &spec,

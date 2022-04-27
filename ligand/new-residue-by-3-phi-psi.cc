@@ -6,6 +6,9 @@
 
 #include "new-residue-by-3-phi-psi.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 coot::new_residue_by_3_phi_psi::new_residue_by_3_phi_psi(const std::string &terminus_type_in, mmdb::Residue *residue_p_in,
                                                          mmdb::Chain *chain_p_in) {

@@ -27,16 +27,7 @@
 
 #include <epoxy/gl.h>
 
-#include "compat/coot-sysdep.h"
-
 #include <stdlib.h>
-
-#ifndef _MSC_VER
-#include <unistd.h>
-#else
-#include <windows.h>
-#include <direct.h>
-#endif
 
 #include <iostream>
 #include <iomanip>
@@ -46,7 +37,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-const double pi = M_PI;
+static const double pi = M_PI;
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
@@ -56,6 +47,8 @@ const double pi = M_PI;
 
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>
+
+#include "compat/coot-sysdep.h"
 
 #include <clipper/ccp4/ccp4_mtz_io.h>
 #include <clipper/ccp4/ccp4_map_io.h>
@@ -75,10 +68,6 @@ const double pi = M_PI;
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
 #include "gtk-manual.hh"
-
-// For stat, mkdir:
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include "coords/Bond_lines.h"
 
@@ -110,6 +99,10 @@ const double pi = M_PI;
 #include "molecular-mesh-generator.hh"
 #include "make-a-dodec.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef AddAtom
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 glm::vec3
 cartesian_to_glm(const coot::Cartesian &c) {

@@ -21,8 +21,6 @@
  */
 
 #include <iostream>
-#include <string>
-#include <stdexcept>
 #include <algorithm> // for remove_if
 #include <string.h> // for strncpy
 
@@ -39,13 +37,16 @@
 #include "clipper/clipper-cif.h"
 #include "clipper/contrib/sfcalc.h"
 
-#include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
 
 #include "read-sm-cif.hh"
 
+#include "compat/coot-sysdep.h"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // This can throw a std::runtime_error.
 // 
@@ -1218,8 +1219,6 @@ coot::smcif::sigmaa_maps() {
    }
    return std::pair<clipper::Xmap<float>, clipper::Xmap<float> > (xmap, xmap_diff);
 }
-
-
 
 
 // int main(int argc, char **argv) {

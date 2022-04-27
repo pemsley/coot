@@ -70,7 +70,7 @@ extern int getopt ();
 
 #include "model-bond-deltas.hh"
 
-#include "compat/coot-sysdep.h"
+//#include "compat/coot-sysdep.h"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled

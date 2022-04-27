@@ -33,8 +33,6 @@
 
 #include <deque>
 
-#include "compat/coot-sysdep.h"
-
 enum {CONTOUR_UP, CONTOUR_DOWN};
 
 // needs:

@@ -28,7 +28,6 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
-#include "compat/coot-sysdep.h"
 // need gtk things
 #include <gtk/gtk.h>
 
@@ -69,7 +68,6 @@
 #include "ccp4mg-utils/mgtree.h"
 #include "pick.hh"
 
-#include "compat/coot-sysdep.h"
 #include "command-arg.hh"
 
 #include "ligand/rotamer.hh"
@@ -171,6 +169,13 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "gl-rama-plot.hh"
 
 #include "glarea_tick_function.hh"
+
+#include "compat/coot-sysdep.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef IGNORE
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -5037,6 +5042,5 @@ GtkWidget *wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pa
 // Some currently useless Perspective View definition
 //
 #define VIEW_ASPECT 1.3
-
 
 #endif // GRAPHICS_INFO_H

@@ -21,38 +21,19 @@
  * 02110-1301, USA
  */
 
-#include <string.h>
 #include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <map>
-#include <algorithm>  // needed for sort? Yes.
-#include <stdexcept>  // Thow execption.
+#include <set>
 
-#include "utils/win-compat.hh"
 #include "mini-mol/atom-quads.hh"
-#include "geometry/protein-geometry.hh"
 #include "utils/coot-utils.hh"
-
-#include <sys/types.h> // for stating
-#include <sys/stat.h>
-
-#if !defined _MSC_VER
-#include <unistd.h>
-#else
-#define DATADIR "C:/coot/share"
-#define PKGDATADIR DATADIR
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#endif
-
-#include "clipper/core/clipper_util.h"
+#include "lbg-graph.hh"
+#include "geometry/protein-geometry.hh"
 
 #include "compat/coot-sysdep.h"
 
-#include "lbg-graph.hh"
-
-
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // for mmdb::math::Graph mmdb::math::Edge usage
 //

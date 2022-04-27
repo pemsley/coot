@@ -26,38 +26,15 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include <stdlib.h>
-
-#if !defined WINDOWS_MINGW && !defined _MSC_VER
-#  include <glob.h>
-#  include <unistd.h>
-#else
-#   ifdef _MSC_VER
-#     include <windows.h>
-#   else
-#     include <unistd.h>
-#     include <glob.h>
-#   endif
-#endif
-
 #include <string.h>  // strncpy
-#include <sys/types.h>  // for stating
-#include <sys/stat.h>
 
 #include <iostream>
 #include <vector>
 #include <queue>
 
-#include "compat/coot-sysdep.h"
-
 #include "clipper/core/xmap.h"
 #include "clipper/cns/cns_hkl_io.h"
 #include "clipper/minimol/minimol_io.h"
-
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-#undef V_UNKNOWN
-#define V_UNKNOWNA V_UNKNOWN
-#endif
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
@@ -94,6 +71,10 @@
 
 #include "rotamer-search-modes.hh"
 
+static
+std::vector<std::string> files_to_backup(const std::string &dir_path) {
+    return coot::gather_files_by_patterns(dir_path, { "*.pdb", "*.pdb.gz" });
+}
 
 std::vector<std::pair<mmdb::Atom *, float> >
 coot::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager *mol) const {
@@ -3885,20 +3866,27 @@ molecule_class_info_t::recent_backup_file_info() const {
 
    coot::backup_file_info info;
 
-#if !defined(_MSC_VER)
    if (has_model()) {
       std::string t_name_glob = name_;
       // convert "/" to "_"
       // and in Windows the ":" to "_" as well
       int slen = t_name_glob.length();
-      for (int i=0; i<slen; i++)
-#ifdef WINDOWS_MINGW
-         if (t_name_glob[i] == '/' || t_name_glob[i] == ':')
-            t_name_glob[i] = '_';
+
+      std::transform(
+         t_name_glob.begin(),
+         t_name_glob.end(),
+         t_name_glob.begin(),
+         [](char ch) {
+#ifdef COOT_BUILD_WINDOWS
+            if (ch == '/' || ch == ':')
+               return '_';
 #else
-         if (t_name_glob[i] == '/')
-            t_name_glob[i] = '_';
-#endif // MINGW
+            if (ch == '/')
+               return '_';
+#endif // COOT_BUILD_WINDOWS
+            return ch;
+         }
+      );
 
       // Let's make a string that we can glob:
       // "coot-backup/thing.pdb*.pdb.gz"
@@ -3908,47 +3896,22 @@ molecule_class_info_t::recent_backup_file_info() const {
       std::string backup_name_glob = "coot-backup/";
       // very first check if COOT_BACKUP_DIR is defined
       if (es) {
-        // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
-        struct stat buf;
-        int err = stat(es, &buf);
-        if (!err) {
-          if (! S_ISDIR(buf.st_mode)) {
-            es = NULL;
-          }
-        } else {
-          es = NULL;
-        }
+         // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
+         if (!coot::is_dir(es))
+            es = nullptr;
       }
       if (es) {
          backup_name_glob = es;
          // on windows we somehow need to add an /
-#ifdef WINDOWS_MINGW
+#ifdef COOT_BUILD_WINDOWS
          backup_name_glob += "/";
-#endif // MINGW
+#endif // COOT_BUILD_WINDOWS
       }
       backup_name_glob += t_name_glob;
 
-      // First only the ones withwout gz
-      backup_name_glob += "*.pdb";
+      std::vector<std::string> backup_list = files_to_backup(backup_name_glob);
 
-      glob_t myglob;
-      int flags = 0;
-      glob(backup_name_glob.c_str(), flags, 0, &myglob);
-      // And finally the ones with gz
-      backup_name_glob += ".gz";
-      flags = GLOB_APPEND;
-      glob(backup_name_glob.c_str(), flags, 0, &myglob);
-      size_t count;
-
-      char **p;
-      std::vector<std::string> v;
-      for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
-         std::string f(*p);
-         v.push_back(f);
-      }
-      globfree(&myglob);
-
-      if (v.size() > 0) {
+      if (backup_list.size() > 0) {
 
          struct stat buf;
 
@@ -3965,14 +3928,14 @@ molecule_class_info_t::recent_backup_file_info() const {
             short int set_something = 0;
             std::string backup_filename;
 
-            for (unsigned int i=0; i<v.size(); i++) {
-               status = stat(v[i].c_str(),&buf);
+            for (const auto &file : backup_list) {
+               status = stat(file.c_str(),&buf);
                if (status == 0) {
                   mtime = buf.st_mtime;
                   if (mtime > mtime_youngest) {
                      set_something = 1;
                      mtime_youngest = mtime;
-                     backup_filename = v[i];
+                     backup_filename = file;
                   }
                }
             }
@@ -3988,7 +3951,7 @@ molecule_class_info_t::recent_backup_file_info() const {
          }
       }
    }
-#endif
+
    return info;
 }
 

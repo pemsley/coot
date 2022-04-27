@@ -19,12 +19,13 @@
  * 02110-1301, USA.
  */
 
-#include <string.h>  // for strcpy
+#include "monomer-utils.hh"
 
 #include "compat/coot-sysdep.h"
 
-#include "monomer-utils.hh"
-
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 mmdb::Residue *
 coot::deep_copy_residue(mmdb::Residue *residue) {
@@ -51,7 +52,6 @@ coot::deep_copy_residue(mmdb::Residue *residue) {
    return rres;
 }
 
-			     
 void
 coot::monomer_utils::add_torsion_bond_by_name(const std::string &atom_name_1,
 					      const std::string &atom_name_2) {

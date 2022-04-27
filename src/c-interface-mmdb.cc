@@ -29,7 +29,6 @@
 #include <string>
 #include <string.h>
 
-#include "compat/coot-sysdep.h"
 
 #include "c-interface-mmdb.hh"
 
@@ -38,6 +37,13 @@
 #include "guile-fixups.h"
 
 #include "graphics-info.h"
+
+#include "compat/coot-sysdep.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
 
 #ifdef USE_GUILE
 

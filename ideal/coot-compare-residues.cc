@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-
 #include "simple-restraint.hh"
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -108,4 +107,3 @@ coot::compare_residue_torsion_atom_names(const std::vector<torsion_atom_quad> &t
    }
    return status;
 }
-   

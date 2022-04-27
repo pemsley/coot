@@ -24,10 +24,11 @@
 #include <Python.h>
 
 #include <iostream>
-#include "utils/win-compat.hh"
-#include "lbg-drag-and-drop.hh"
 
+#include "lbg-drag-and-drop.hh"
 #include "lbg.hh"
+
+#include "coot-utils/helpers.h"
 
 extern "C" G_MODULE_EXPORT gboolean
 on_lbg_drag_drop (GtkWidget *widget,

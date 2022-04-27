@@ -40,10 +40,6 @@
 #include <iomanip>
 #include <fstream>
 
-#if !defined(_MSC_VER)
-#include <glob.h> // for globbing.  Needed here?
-#endif
-
 #ifdef USE_GUILE
 #include <libguile.h>
 #include "c-interface-scm.hh"
@@ -59,7 +55,6 @@
 #undef DATADIR
 #endif // DATADIR
 #endif /* MINGW */
-#include "compat/sleep-fixups.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.

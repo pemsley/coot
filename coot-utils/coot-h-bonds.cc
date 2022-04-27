@@ -23,6 +23,10 @@
 
 #include "coot-h-bonds.hh"
 
+#ifdef GetAtomName
+#undef GetAtomName
+#endif
+
 
 std::ostream &
 coot::operator<<(std::ostream &s, h_bond hb) {

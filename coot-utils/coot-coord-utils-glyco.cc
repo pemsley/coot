@@ -26,6 +26,9 @@
 #include "utils/coot-utils.hh"
 #include "coot-coord-extras.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // Note: this is a simple-minded hack.  The right way of doing this
 // is to define a bonding tree that includes atoms from both

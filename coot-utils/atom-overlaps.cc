@@ -20,10 +20,9 @@
  * 02110-1301, USA
  */
 
-#include <stdlib.h> // needed from abs()
-
 #include <iomanip>
 
+#include "compat/coot-sysdep.h"
 
 #ifdef HAVE_CXX_THREAD
 #include <thread>
@@ -34,6 +33,11 @@
 #include "atom-overlaps.hh"
 #include "coot-coord-utils.hh"
 #include "geometry/main-chain.hh"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
                                                            const std::vector<mmdb::Residue *> &neighbours_in,

@@ -26,7 +26,6 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include "utils/win-compat.hh"
 #include "coot-utils/coot-coord-utils.hh" // compilation error on MacOSX if this
                                // doesn't come before the next 3 lines
                                // (for gtk/gtk-canvas) (I suspect
@@ -46,6 +45,10 @@
 #include "c-interface.h" // for the coot graphics callbacks in button_press()
 #include "cc-interface.hh"
 #include "graphics-info.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 // "Molecule 2: " (for example) gets prepended to the graph_label_in
 // before becoming at GtkLabel.

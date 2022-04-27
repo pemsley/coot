@@ -40,7 +40,8 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh exp-fit.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
 	pepflip-using-difference-map.hh \
-	polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh
+	polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh \
+	helpers.h
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -71,7 +72,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
-	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc
+	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc \
+	helpers.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la

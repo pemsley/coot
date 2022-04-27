@@ -47,8 +47,6 @@
 
 #include <epoxy/gl.h>
 
-#include "compat/sleep-fixups.h"
-
 #include <string.h> // strncmp
 
 #include <math.h>
@@ -94,6 +92,12 @@
 
 #include "draw.hh"
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
+
+std::vector<molecule_class_info_t> graphics_info_t::molecules;
+std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
 
 // Initialize the graphics_info_t mouse positions
 // and rotation centre.

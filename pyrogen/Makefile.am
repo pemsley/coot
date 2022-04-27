@@ -137,7 +137,7 @@ pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
 
 libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 
-if OS_WIN32
+if COOT_BUILD_WINDOWS
 # need to dist pyrogen.bat too
 dist_bin_SCRIPTS = pyrogen.bat pyrogen
 else
@@ -151,7 +151,7 @@ dist_pkgpython_PYTHON = pyrogen.py atom_types.py jay_util.py tautomer.py pyrogen
 # on $ bash autogen.sh, I get:
 # pyrogen/Makefile.am:79: OS_WIN32 does not appear in AM_CONDITIONAL
 #
-if OS_WIN32
+if COOT_BUILD_WINDOWS
 # Python .pyd modules are simply DLLs, but they have to be called .pyd for
 # python to find them, and libtool only creates .dll.
 install-exec-hook:

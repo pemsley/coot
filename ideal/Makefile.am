@@ -87,7 +87,7 @@ libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 check_PROGRAMS =  crankshaft-test test-rama-plot
 # removed for now: with-geometry logramatest
 
-if OS_WIN32
+if COOT_BUILD_WINDOWS
 bin_PROGRAMS = mini-rsr-bin
 else
 libexec_PROGRAMS = mini-rsr-bin coot-ligand-validation-bin

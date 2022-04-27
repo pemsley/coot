@@ -56,6 +56,9 @@
 
 #include "cc-interface.hh" // for add_animated_ligand_interactions
 
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef GetAtomName
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 int
 sprout_hydrogens(int imol,

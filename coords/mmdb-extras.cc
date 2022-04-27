@@ -19,21 +19,25 @@
  * 02110-1301, USA
  */
 
-#include <stdlib.h>  // for getenv()
-#include <string.h>  // for memcpy()
+//#include <stdlib.h>  // for getenv()
+//#include <string.h>  // for memcpy()
 #include <string>
 #include <vector> // for Cartesian
-#include <map>
-#include <algorithm>
+//#include <map>
+//#include <algorithm>
 
+#include "compat/coot-sysdep.h"
+
+#ifdef COOT_ENABLE_WINAPI_SUSPENSION
+# undef AddAtom
+#endif // COOT_ENABLE_WINAPI_SUSPENSION
 
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "mmdb-extras.h" 
 #include "mmdb.h"
 
-#include "compat/coot-sysdep.h"
-
+#include <cstring>
 
 float max_bond_length(const std::string &element) { 
 
@@ -210,8 +214,8 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
    chain_p->SetChainID(chain_id1.c_str());
    rres->seqNum = ((mmdb::Residue *)residue)->GetSeqNum();
    /* Copy insertion code - a char[10] */
-   memcpy(rres->insCode, residue->insCode, sizeof(mmdb::InsCode));
-   memcpy(rres->name, residue->name, sizeof(mmdb::ResName));
+   std::memcpy(rres->insCode, residue->insCode, sizeof(mmdb::InsCode));
+   std::memcpy(rres->name, residue->name, sizeof(mmdb::ResName));
    
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
