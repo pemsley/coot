@@ -1642,8 +1642,6 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
 
    } else {
 
-      std::cout << "--------------------------- here A in output_residue_info_dialog -------------------" << std::endl;
-
       if (imol <graphics_info_t::n_molecules()) {
          if (graphics_info_t::molecules[imol].has_model()) {
             if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) {
@@ -1712,12 +1710,6 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
    GtkWidget *label_widget        = widget_from_builder("residue_info_residue_label");
    GtkWidget *residue_name_widget = widget_from_builder("residue_info_residue_name_label");
 
-   std::string label = "Molecule: ";
-   label += int_to_string(imol);
-   label += " ";
-   label += molecules[imol].name_;
-
-   gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
    // GtkWidget *table = lookup_widget(widget, "residue_info_atom_table");
    GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
 
@@ -1734,6 +1726,28 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
    residue_info_n_atoms = n_atoms;
    for (int i=0; i<n_atoms; i++)
       graphics_info_t::fill_output_residue_info_widget_atom(grid, imol, atoms[i], i);
+
+   if (n_atoms > 0) {
+
+      std::string chain_id = atoms[0]->GetChainID();
+      int res_no = atoms[0]->GetSeqNum();
+      std::string ins_code = atoms[0]->residue->GetInsCode();
+
+      std::string label = "Molecule: ";
+      label += int_to_string(imol);
+      label += " ";
+      label += molecules[imol].name_;
+      label += "\n";
+      label += chain_id;
+      label += " ";
+      label += std::to_string(res_no);
+      label += " ";
+      label += ins_code;
+
+      gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+
+   }
+   
 }
 
 void

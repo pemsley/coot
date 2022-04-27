@@ -113,7 +113,7 @@ float get_fog_amount(float depth_in) {
          float d4 = d * d * d * d;
          // d4 = 0.25 * d; // 20220202-PE crow m,v,p matrices
          d4 = d * d * d * d;
-         return d4;
+         return 0.75 * d4;
       }
    } else {
       return 0.0;

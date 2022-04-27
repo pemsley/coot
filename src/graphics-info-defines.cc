@@ -316,7 +316,8 @@ graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
 	 int im = nearest_atom_index_info.imol; 
 	 // std::cout << "info: clicked on imol: " << im << std::endl;
 	 // a c-interface-info function...
-         std::cout << "--------------- debug:: in check_if_in_residue_info_define() calling output_residue_info_dialog() " << std::endl;
+         std::cout << "debug:: in check_if_in_residue_info_define() calling output_residue_info_dialog() "
+                   << std::endl;
 	 output_residue_info_dialog(im, nearest_atom_index_info.atom_index); 
 	 info.in_residue_info_define = 0;
 	 normal_cursor();

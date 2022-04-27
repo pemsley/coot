@@ -22731,6 +22731,7 @@ just the cell and symmetry)
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Residue Info</property>
     <property name="type_hint">dialog</property>
+    <signal name="delete-event" handler="on_residue_info_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <signal name="destroy" handler="on_residue_info_dialog_destroy_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox14">
@@ -24643,6 +24644,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot Previously-Saved State</property>
     <property name="type_hint">dialog</property>
+    <signal name="delete-event" handler="on_run_state_file_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox29">
         <property name="visible">True</property>
@@ -25180,6 +25182,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Select Map for Fitting</property>
     <property name="type_hint">dialog</property>
+    <signal name="delete-event" handler="on_select_fitting_map_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox32">
         <property name="visible">True</property>
@@ -26796,6 +26799,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
   <object class="GtkWindow" id="show_symmetry_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Show Symmetry?</property>
+    <signal name="delete-event" handler="on_show_symmetry_window_delete_event_gtkbuilder_callback" swapped="no"/>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="visible">True</property>
@@ -27371,6 +27375,7 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot: Refine with Refmac</property>
     <property name="type_hint">dialog</property>
+    <signal name="delete-event" handler="on_simple_refmac_dialog_delete_event_gtkbuilder_callback" swapped="no"/>
     <signal name="response" handler="on_simple_refmac_dialog_response_gtkbuilder_callback" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">

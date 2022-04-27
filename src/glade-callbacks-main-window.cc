@@ -522,12 +522,12 @@ void
 on_open_dataset1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
                                                gpointer         user_data) {
 
-  GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
-  set_directory_for_filechooser(dataset_chooser);
-  set_file_selection_dialog_size(dataset_chooser);
-  add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
-  gtk_widget_show(dataset_chooser);
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
+   GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
+   set_directory_for_filechooser(dataset_chooser);
+   set_file_selection_dialog_size(dataset_chooser);
+   add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
+   gtk_widget_show(dataset_chooser);
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
 
 }
 
@@ -539,8 +539,9 @@ on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *men
    int is_auto_read_fileselection = 1;
    int is;
    GtkWidget *file_filter_button;
-   GtkWidget *sort_button;
    GtkWidget *dataset_chooser = coot_dataset_chooser();
+
+   set_directory_for_filechooser(dataset_chooser);
 
    // add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
 
@@ -635,6 +636,7 @@ on_dataset_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dial
             manage_column_selector(fnc); // move the function declaration into a c++ header one day
          }
       }
+      save_directory_from_filechooser(GTK_WIDGET(dialog));
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
 
@@ -713,6 +715,7 @@ on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialo
 #endif
 
       const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      save_directory_from_filechooser(GTK_WIDGET(dialog));
 
       bool recentre_on_read_pdb_flag = false;
       bool move_molecule_here_flag = false;
@@ -745,9 +748,13 @@ void
 on_coords_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
                                                                 gpointer user_data) {
 
+   // 20220427-PE I am not sure that this is needed now. Double click on a filename
+   // seems to work for datasets - and they don't have a file_activated callback.
+
    // 20220319-PE shouldn't need to connect to this says the documentation - hmmm.....
-   const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-   handle_read_draw_molecule_with_recentre(fn, 1);
+   // const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   //  handle_read_draw_molecule_with_recentre(fn, 1);
+   save_directory_from_filechooser(GTK_WIDGET(dialog));
    gtk_widget_hide(GTK_WIDGET(dialog));
 
 }
