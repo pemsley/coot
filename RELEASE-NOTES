@@ -1,4 +1,56 @@
 
+
+   Release 1.0.05
+
+   o FEATURE: Contour level is now added to the status bar
+
+   o FEATURE: spin speed is now user-settable
+
+   o FEATURE: "mask by chain" added to Cryo-EM module
+
+   o FEATURE: Difference Map Peaks now has an "Update" button (should your difference
+              map change) [Sam Horrell]
+
+   o FEATURE: ability to change map colour by hexcolour
+
+   o FEATURE: triple-refine auto-accept key-binding added (H)
+
+   o FEATURE: "Outline" mode added to shader
+
+   o FEATURE: Window resize buttons added to the interface for Mac OS - don't pull on
+              the window, use these instead
+
+   o CHANGE: Rotamer markup during RSR now on by default
+
+   o CHANGE: Remove map colour change menu items
+
+   o CHANGE: Residue Info dialog now reports the chain-id and residue number
+
+   o CHANGE: Shaders are initialized after framebuffer - should now validate correctly
+             on Mac OS
+
+   o CHANGE: clipping plane adjustment step size decreased in perspective mode
+
+   o CHANGE: dialogs now filter files by default and save/restore previous directory
+
+   o BUG-FIX: Renumber residue range dialog fixed
+
+   o BUG-FIX: Ribbon representation checkbuttons no longer can grab focus
+
+   o BUG-FIX: right-mouse during refinement no longer picks atoms
+
+   o BUG-FIX: anchored atoms now displayed correctly
+
+   o BUG-FIX: Unmodelled blobs dialog fixed
+
+----
+
+   Release 1.0.04
+
+   o configure of backward improved
+
+----
+
    Release 1.0.03
 
   o FEATURE: backward can be configured to use libdw if available
