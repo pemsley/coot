@@ -2284,8 +2284,10 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
       std::string e2s(e2);
       opengl_minor_version = std::stoi(e2s);
    }
-   std::cout << "DEBUG:: setting OpenGL required version to "
-             << opengl_major_version << " " << opengl_minor_version << std::endl;
+
+   if (false) // 20220501-PE we don't need to see on startup this anymore
+      std::cout << "DEBUG:: setting OpenGL required version to "
+                << opengl_major_version << " " << opengl_minor_version << std::endl;
 
    gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
 
