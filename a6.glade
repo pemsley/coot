@@ -11854,12 +11854,12 @@ Do you want to continue?
   <object class="GtkImage" id="image16">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-media-play</property>
+    <property name="icon_name">forward</property>
   </object>
   <object class="GtkImage" id="image17">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-delete</property>
+    <property name="icon_name">gtk-delete</property>
   </object>
   <object class="GtkImage" id="image18">
     <property name="visible">True</property>
@@ -11959,6 +11959,11 @@ Do you want to continue?
     <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/reset-view.png</property>
     <property name="use_fallback">True</property>
+  </object>
+  <object class="GtkImage" id="image37">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/broom.png</property>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
@@ -13994,7 +13999,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Clear Pending Picks</property>
                         <property name="use_underline">True</property>
-                        <property name="stock_id">gtk-clear</property>
+                        <property name="icon_widget">image37</property>
                         <signal name="clicked" handler="on_model_toolbar_clear_pending_picks_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
