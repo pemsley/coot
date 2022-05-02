@@ -441,7 +441,17 @@ void set_use_simple_lines_for_model_molecules(short int state) {
 void read_test_gltf_models() {
    graphics_info_t g;
    g.read_test_gltf_models();
+   g.graphics_draw();
 }
+
+//! \brief load a gltf model
+void load_gltf_model(const std::string &gltf_file_name) {
+   graphics_info_t g;
+   g.load_gltf_model(gltf_file_name);
+   g.graphics_draw();
+}
+
+
 
 
 /*  ----------------------------------------------------------------------- */
