@@ -46,8 +46,23 @@ void main() {
 uniform sampler2D face;
 in vec2 texCoord_transfer;
 uniform float opacity;
+vec4 background_colour;
+bool is_perspective_projection;
 
 out vec4 outputColor;
+
+float get_fog_amount(float depth_in) {
+
+   if (! is_perspective_projection) {
+      return depth_in * depth_in;
+   } else {
+      // needs tweaking
+      float d = depth_in;
+      float d4 = d * d * d * d;
+      return d4;
+   }
+}
+
 
 void main() {
 
@@ -56,12 +71,13 @@ void main() {
    if (sampled.a < 0.1)
       discard;
 
-   // sampled.a *= opacity; // opacity not correct for anchored atoms marker?
+   float fog_amount = get_fog_amount(gl_FragCoord.z);
+   sampled.a *= opacity; // opacity not correct for anchored atoms marker?
    outputColor = sampled;
+
+   outputColor = mix(outputColor, background_colour, fog_amount);
 
    // outputColor = vec4(1,0,1,1);
 
 }
-
-// user defined colouring for Rangana
 

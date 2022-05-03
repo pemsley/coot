@@ -480,6 +480,8 @@ graphics_info_t::clear_up_moving_atoms_wrapper() {
 
       clear_hud_buttons();
 
+      draw_bad_nbc_atom_pair_markers_flag = false;
+
       // remove this at some stage
 
       if (accept_reject_dialog) {
@@ -545,23 +547,24 @@ graphics_info_t::refinement_loop_threaded() {
       bool pr_chi_sqds = false; // print inital chi squareds
       int spf = dragged_refinement_steps_per_frame;
 
-      if (graphics_info_t::refinement_of_last_restraints_needs_reset_flag) {
+      if (refinement_of_last_restraints_needs_reset_flag) {
          g.last_restraints->set_needs_reset();
-         graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
+         refinement_of_last_restraints_needs_reset_flag = false;
       }
 
       // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
       coot::refinement_results_t rr = g.last_restraints->minimize(imol_moving_atoms, flags,
 								  spf, pr_chi_sqds, *Geom_p());
-      graphics_info_t::saved_dragged_refinement_results = rr;
+      saved_dragged_refinement_results = rr;
 
       if (false) {
          if (rr.refinement_results_contain_overall_nbc_score) {
             std::cout << "-------------- nbc baddies " << std::endl;
             for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++)
                std::cout << "       nbc number " << i
-                         << ":  " << rr.sorted_nbc_baddies[i].first
-                         << " "  << rr.sorted_nbc_baddies[i].second << std::endl;
+                         << ":  " << rr.sorted_nbc_baddies[i].atom_spec_1
+                         << ":  " << rr.sorted_nbc_baddies[i].atom_spec_2
+                         << " "  << rr.sorted_nbc_baddies[i].score << std::endl;
          }
       }
       if (false) {
@@ -612,6 +615,10 @@ graphics_info_t::refinement_loop_threaded() {
          }
       }
 
+      // 20220503-PE we do this every time the refinement updates - is that right?
+      //             No. Becuase this is not the same thread as the graphics thread.
+      // update_bad_nbc_atom_pair_marker_positions();
+
       graphics_info_t::threaded_refinement_loop_counter++;
 
       if (false)
@@ -650,7 +657,10 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
             if (threaded_refinement_redraw_timeout_fn_id == -1) {
                GSourceFunc cb = GSourceFunc(regenerate_intermediate_atoms_bonds_timeout_function_and_draw);
 	       // int id = gtk_timeout_add(15, cb, NULL);
-	       int id = g_timeout_add(15, cb, NULL);
+
+               int timeout_ms = 15;
+               timeout_ms = 30; // 20220503-PE try this value
+	       int id = g_timeout_add(timeout_ms, cb, NULL);
                threaded_refinement_redraw_timeout_fn_id = id;
             }
          }
@@ -857,10 +867,6 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(g
          if (glareas[0])
             gtk_widget_remove_tick_callback(glareas[0], wait_for_hooray_refinement_tick_id);
 
-         if (accept_reject_dialog_docked_flag == coot::DIALOG) {
-	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
-	       gtk_widget_destroy(accept_reject_dialog);
-         }
       }
 
       // no need to do this if Esc is pressed.
@@ -982,12 +988,12 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
          g.do_interactive_coot_probe();
          graphics_draw(); // 20220316-PE is this what I want?
       }
+
+      update_bad_nbc_atom_pair_marker_positions();
+
       moving_atoms_bonds_lock = 0;
       moving_atoms_lock = false;
 
-      if (accept_reject_dialog)
-	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,
-						  saved_dragged_refinement_results);
    }
 
    if (! restraints_lock)

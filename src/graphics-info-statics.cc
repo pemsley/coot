@@ -1571,9 +1571,14 @@ TextureMesh graphics_info_t::tmesh_for_camera_facing_quad;
 Shader graphics_info_t::camera_facing_quad_shader;
 HUDTextureMesh graphics_info_t::tmesh_for_hud_image_testing = HUDTextureMesh("tmesh_for_hud_image_testing");
 
+bool graphics_info_t::draw_bad_nbc_atom_pair_markers_flag = false;
 TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers = TextureMesh("tmesh-for-happy-faces");
 Texture graphics_info_t::texture_for_happy_face_residue_marker;
 std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_positions;
+
+TextureMesh graphics_info_t::tmesh_for_bad_nbc_atom_pair_markers = TextureMesh("tmesh-for-angry-diego");
+Texture graphics_info_t::texture_for_bad_nbc_atom_pair_markers;
+std::vector<glm::vec3> graphics_info_t::bad_nbc_atom_pair_marker_positions;
 
 TextureMesh graphics_info_t::tmesh_for_anchored_atom_markers = TextureMesh("tmesh-for-anchored-atoms");
 Texture graphics_info_t::texture_for_anchored_atom_markers;

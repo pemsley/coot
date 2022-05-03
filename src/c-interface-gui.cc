@@ -156,14 +156,9 @@ open_cif_dictionary_file_selector_dialog() {
 
       if (true) {
 
-	 // GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
-
-	 std::cout << "GTK-FIXME open_cif_dictionary_file_selector_dialog() no action area"
-                   << std::endl;
-
-	 GtkWidget *aa_hbutton_box = gtk_dialog_get_header_bar(GTK_DIALOG(filechooser));
+	 GtkWidget *aa_hbutton_box = gtk_dialog_get_content_area(GTK_DIALOG(filechooser));
 	 // if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
-         if (true) { // check the button type
+         if (aa_hbutton_box) { // check the button type
 	    add_cif_dictionary_selector_molecule_selector(filechooser, aa_hbutton_box);
 	    add_cif_dictionary_selector_create_molecule_checkbutton(filechooser, aa_hbutton_box);
 	 }

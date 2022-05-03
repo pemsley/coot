@@ -36,7 +36,7 @@
 
 // for the moment make the scales explict, when fixed make the scales default
 void
-TextureMesh::setup_camera_facing_quad(float scale_x, float scale_y) {
+TextureMesh::setup_camera_facing_quad(float scale_x, float scale_y, float offset_x, float offset_y) {
 
    draw_this_mesh = true;
 
@@ -51,6 +51,11 @@ TextureMesh::setup_camera_facing_quad(float scale_x, float scale_y) {
    vertices.push_back(TextureMeshVertex(glm::vec3( scale_x,  scale_y, 0.0f), n, col, glm::vec2(1,0)));
    vertices.push_back(TextureMeshVertex(glm::vec3( scale_x, -scale_y, 0.0f), n, col, glm::vec2(1,1)));
    vertices.push_back(TextureMeshVertex(glm::vec3(-scale_x, -scale_y, 0.0f), n, col, glm::vec2(0,1)));
+
+   // angry_diego has y = 0 at the bottom of the image
+   //
+   for (unsigned int i=0; i<vertices.size(); i++)
+      vertices[i].position += glm::vec3(offset_x, offset_y, 0.0f);
 
    triangles.push_back(g_triangle(0,1,2));
    triangles.push_back(g_triangle(2,3,0));
@@ -855,6 +860,9 @@ TextureMesh::import(const IndexedModel &ind_model, float scale) {
 void
 TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positions) {
 
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forget to setup this TextureMesh in update_instancing_buffer_data() "
+                << name << std::endl;
    glBindVertexArray(vao);
    glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
    int n_positions = positions.size();
@@ -946,8 +954,91 @@ TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
 // draw_count and draw_count_max are used to set the opactity (it counts the number of times drawn)
 //
 void
-TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
-                            unsigned int draw_count, unsigned int draw_count_max) {
+TextureMesh::draw_instances(Shader *shader_p,
+                            const glm::mat4 &mvp,
+                            const glm::mat4 &view_rotation,
+                            const glm::vec4 &background_colour,
+                            bool is_perspective_projection) {
+
+   if (false)
+      std::cout << "TextureMesh::draw_instances() A " << name << " n_instances: " << n_instances
+                << " n_triangles: " << triangles.size() <<std::endl;
+
+   if (! draw_this_mesh) return;
+   // this can happen when all the particles have life 0 - and have been removed.
+   if (n_instances == 0) return;
+   if (triangles.empty()) return;
+
+   shader_p->Use();
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_instances() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glEnableVertexAttribArray(0); // vertex positions
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // tangent // not used for camera-facing textures
+   glEnableVertexAttribArray(3); // bitangent // not used
+   glEnableVertexAttribArray(4); // colour
+   glEnableVertexAttribArray(5); // texCoord
+   glEnableVertexAttribArray(6); // instanced position
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
+                      << " draw_instances() post mvp uniform " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
+                      << " draw_instances() post view_rotation uniform " << err << std::endl;
+
+   shader_p->set_bool_for_uniform("is_perspective_projection", is_perspective_projection);
+   shader_p->set_vec4_for_uniform("background_colour", background_colour);
+
+   shader_p->set_float_for_uniform("opacity", 1.0);
+
+   float scale = 1.0; // the shader says:  // 0.8 for happy faces, 0.2 for anchored/fixed atoms
+   // the scale should be set in the arguments to setup_camera_facing_quad() function.
+   shader_p->set_float_for_uniform("canvas_scale", scale);
+
+   glActiveTexture(GL_TEXTURE0);
+   err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "
+                                          << err << std::endl;
+
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   unsigned int n_verts = 6;
+
+   if (false)
+      std::cout << "TextureMesh::draw_instances() C " << name << " shader: " << shader_p->name << " "
+                << "n_verts " <<  n_verts << " n_instances " << n_instances << std::endl;
+
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+   err = glGetError();
+   if (err) std::cout << "error draw_instances() on glDrawElementsInstanced() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+   glDisableVertexAttribArray(6);
+
+}
+
+// draw_count and draw_count_max are used to set the opactity (it counts the number of times drawn)
+//
+void
+TextureMesh::draw_fading_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
+                                   unsigned int draw_count, unsigned int draw_count_max) {
 
    // std::cout << "TextureMesh::draw_instances() A " << n_instances << " " << triangles.size()
    // <<std::endl;

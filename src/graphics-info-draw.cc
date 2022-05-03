@@ -1397,9 +1397,9 @@ graphics_info_t::draw_happy_face_residue_markers() {
          texture_for_happy_face_residue_marker.Bind(0);
          unsigned int draw_count = draw_count_for_happy_face_residue_markers;
          unsigned int draw_count_max = g.draw_count_max_for_happy_face_residue_markers;
-         tmesh_for_happy_face_residues_markers.draw_instances(&shader_for_happy_face_residue_markers,
-                                                              mvp, model_rotation,
-                                                              draw_count, draw_count_max);
+         tmesh_for_happy_face_residues_markers.draw_fading_instances(&shader_for_happy_face_residue_markers,
+                                                                     mvp, model_rotation,
+                                                                     draw_count, draw_count_max);
       }
    }
 }
@@ -1411,13 +1411,13 @@ graphics_info_t::draw_anchored_atom_markers()  {
    if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
-         glm::mat4 model_rotation = get_model_rotation();
+         glm::mat4 view_rotation = get_model_rotation();
          unsigned int draw_count     = 100; // number of times drawn
          unsigned int draw_count_max = 100;
-         // draw_count and draw_count_max are used to set the opacity - not the ideal interface for things
-         // that stay at full opacity. 100 and 1000 means opacity 1.0.
+         glm::vec4 bg_col(background_colour, 1.0);
          texture_for_anchored_atom_markers.Bind(0);
-         tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers, mvp, model_rotation, draw_count, draw_count_max);
+         tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers,
+                                                        mvp, view_rotation, bg_col, perspective_projection_flag);
       }
    }
 }
@@ -1572,6 +1572,8 @@ graphics_info_t::draw_molecules() {
 
    draw_happy_face_residue_markers();
 
+   draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
+
    draw_anchored_atom_markers();
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
@@ -1725,6 +1727,8 @@ graphics_info_t::draw_molecules_with_shadows() {
    draw_particles();
 
    draw_happy_face_residue_markers();
+
+   draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
@@ -2833,6 +2837,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.accept_moving_atoms();
                            g.hud_button_info.clear();
                            g.hide_atom_pull_toolbar_buttons();
+                           // g.draw_bad_nbc_atom_pair_markers = false;
                            g.clear_gl_rama_plot();
                            g.graphics_draw();
                            return true;
@@ -2844,6 +2849,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
                            g.hud_button_info.clear();
+                           // g.draw_bad_nbc_atom_pair_markers = false;
                            g.rebond_molecule_corresponding_to_moving_atoms();
                            g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
@@ -3012,7 +3018,8 @@ graphics_info_t::draw_hud_geometry_bars() {
                                                // we want to rotate to red (which is negative direction) but
                                                // rotate() doesn't work with negative rotations, so make it
                                                // 1.0 - amount (1.0 being a full rotation).
-                                               float rotation_amount = 1.0 - 0.012 * distortion;
+                                               float fac = 0.02; // 20220503-PE was 0.012; - I want the colours to be less green now
+                                               float rotation_amount = 1.0 - fac * distortion;
                                                if (rotation_amount < 0.68) rotation_amount = 0.68;
                                                return rotation_amount;
                                             };
@@ -3187,10 +3194,23 @@ graphics_info_t::draw_hud_geometry_bars() {
             moving_atoms_active_residue, x_base_for_hud_geometry_bars,
             distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
 
-   if (rr.refinement_results_contain_overall_nbc_score)
-      add_bars(rr.sorted_nbc_baddies, 1, &new_bars, moving_atoms_active_residue,
+
+   if (rr.refinement_results_contain_overall_nbc_score) {
+
+      // 20220503-PE add_bars() take the argument std::vector<std::pair<coot::atom_spec_t, float> > &baddies
+      // but now rr.sorted_nbc_baddies is std::vector<refinement_results_nbc_baddie_t>
+      // so now I need to convert
+
+      std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size());
+      for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++) {
+         const auto &bip = rr.sorted_nbc_baddies[i];
+         std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
+         converted_baddies[i] = p;
+      }
+      add_bars(converted_baddies, 1, &new_bars, moving_atoms_active_residue,
                x_base_for_hud_geometry_bars, distortion_to_rotation_amount_nbc,
                hud_geometry_distortion_to_bar_size_nbc);
+   }
 
    if (rr.refinement_results_contain_overall_rama_plot_score) {
       // std::cout << "add_bars() for rama with " << rr.sorted_rama_baddies.size() << " sorted baddies" << std::endl;
@@ -3415,10 +3435,25 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
    status_pair = check_blocks(rr.sorted_atom_pulls, 0, x_base_for_hud_geometry_bars,
                               hud_geometry_distortion_to_bar_size_atom_pull, act_on_hit);
 
-   if (!status_pair.first)
-      if (rr.refinement_results_contain_overall_nbc_score)
-         status_pair = check_blocks(rr.sorted_nbc_baddies, 1, x_base_for_hud_geometry_bars,
+   if (!status_pair.first) {
+
+      if (rr.refinement_results_contain_overall_nbc_score) {
+
+         // 20220503-PE add_bars() take the argument std::vector<std::pair<coot::atom_spec_t, float> > &baddies
+         // but now rr.sorted_nbc_baddies is std::vector<refinement_results_nbc_baddie_t>
+         // so now I need to convert
+
+         std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size());
+         for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++) {
+            const auto &bip = rr.sorted_nbc_baddies[i];
+            std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
+            converted_baddies[i] = p;
+         }
+      
+         status_pair = check_blocks(converted_baddies, 1, x_base_for_hud_geometry_bars,
                                     hud_geometry_distortion_to_bar_size_nbc, act_on_hit);
+      }
+   }
 
    if (!status_pair.first)
       if (rr.refinement_results_contain_overall_rama_plot_score)
@@ -4266,8 +4301,8 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
    // texture_for_happy_face_residue_marker.set_default_directory(coot::package_data_dir());
    texture_for_happy_face_residue_marker.init("happy-face-marker.png");
 
-   shader_for_happy_face_residue_markers.Use(); // needed?
-   tmesh_for_happy_face_residues_markers.setup_camera_facing_quad(1.0, 1.0);
+   // shader_for_happy_face_residue_markers.Use(); // needed?
+   tmesh_for_happy_face_residues_markers.setup_camera_facing_quad(0.8, 0.8, 0.0, 0.0);
    tmesh_for_happy_face_residues_markers.setup_instancing_buffers(max_happy_faces);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
 
@@ -4288,7 +4323,7 @@ graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
 
    texture_for_anchored_atom_markers.init("anchor-for-fixed-atoms.png");
    // texture_for_anchored_atom_markers.Bind(0); // why is this needed?
-   tmesh_for_anchored_atom_markers.setup_camera_facing_quad(1.0, 1.0);
+   tmesh_for_anchored_atom_markers.setup_camera_facing_quad(0.3, 0.3, 0.0, 0.0);
    tmesh_for_anchored_atom_markers.setup_instancing_buffers(max_anchored_atoms);
    tmesh_for_anchored_atom_markers.draw_this_mesh = false;
 
@@ -4301,7 +4336,7 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers() {
 
    std::vector<glm::vec3> positions = get_happy_face_residue_marker_positions();
    happy_face_residue_marker_starting_positions = positions;
-   
+
    glm::vec3 up_uv = get_screen_y_uv();
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
 
@@ -4451,6 +4486,65 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
 
    return v;
 }
+
+// static
+void
+graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+
+         bad_nbc_atom_pair_marker_positions.clear();
+         std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
+         for (unsigned int i=0; i<baddies.size(); i++) {
+            bad_nbc_atom_pair_marker_positions.push_back(coord_orth_to_glm(baddies[i].mid_point));
+         }
+      }
+      attach_buffers();
+      tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
+      tmesh_for_bad_nbc_atom_pair_markers.update_instancing_buffer_data(bad_nbc_atom_pair_marker_positions);
+      if (! bad_nbc_atom_pair_marker_positions.empty())
+         draw_bad_nbc_atom_pair_markers_flag = true;
+   }
+}
+
+// static
+void
+graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
+
+   attach_buffers();
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: start of setup_draw_bad_nbc_atom_pair_markers() "  << err << std::endl;
+
+   texture_for_bad_nbc_atom_pair_markers.init("angry-diego.png");
+   float ts = 13.0; // relative texture size
+   tmesh_for_bad_nbc_atom_pair_markers.setup_camera_facing_quad(0.7, 0.7, 0.0, 0.7);
+   tmesh_for_bad_nbc_atom_pair_markers.setup_instancing_buffers(200);
+   tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
+
+}
+
+// static
+void
+graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
+
+   if (draw_bad_nbc_atom_pair_markers_flag) {
+      if (! bad_nbc_atom_pair_marker_positions.empty()) {
+
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+         texture_for_bad_nbc_atom_pair_markers.Bind(0);
+
+         if (pass_type == PASS_TYPE_STANDARD)
+            tmesh_for_bad_nbc_atom_pair_markers.draw_instances(&shader_for_happy_face_residue_markers,
+                                                               mvp, model_rotation, bg_col, perspective_projection_flag);
+      }
+   }
+}
+
 
 
 //static

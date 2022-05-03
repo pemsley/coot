@@ -172,7 +172,7 @@ on_glarea_realize(GtkGLArea *glarea) {
                                 g.texture_for_camera_facing_quad.init("hud-label-rama.png");
                                 // camera facing quad test
                                 float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
-                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(image_apect_ratio, 1.0);
+                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(image_apect_ratio, 1.0, 0.0, 0.0);
                                 GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
                                 g.tmesh_for_hud_image_testing.setup_quad();
                                 err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
@@ -321,7 +321,7 @@ on_glarea_realize(GtkGLArea *glarea) {
       float y_scale = 1.2;
       x_scale = 1.002;
       y_scale = 1.002;
-      g.tmesh_for_labels.setup_camera_facing_quad(x_scale, y_scale);
+      g.tmesh_for_labels.setup_camera_facing_quad(x_scale, y_scale, 0.0, 0.0);
 
       g.setup_hud_geometry_bars();
 
@@ -336,6 +336,8 @@ on_glarea_realize(GtkGLArea *glarea) {
                                                       // and allow it to be set in the API
 
       g.setup_draw_for_happy_face_residue_markers_init();
+
+      g.setup_draw_for_bad_nbc_atom_pair_markers();
 
       g.setup_draw_for_anchored_atom_markers_init();
 

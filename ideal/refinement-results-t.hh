@@ -5,6 +5,7 @@
 #include <vector>
 #include "refinement-lights.hh"
 
+#include <clipper/core/coords.h>
 #include "geometry/residue-and-atom-specs.hh"
 
 namespace coot {
@@ -30,8 +31,17 @@ namespace coot {
                                     float distortion_in);
    };
 
+   class refinement_results_nbc_baddie_t {
+   public:
+      atom_spec_t atom_spec_1;
+      atom_spec_t atom_spec_2;
+      clipper::Coord_orth mid_point;
+      float score;
+   };
+
    class refinement_results_t {
    public:
+
       bool found_restraints_flag; // if we found restraints or not.
       int progress; // GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
       std::string info_text;
@@ -40,7 +50,8 @@ namespace coot {
       bool refinement_results_contain_overall_nbc_score;
       bool refinement_results_contain_overall_rama_plot_score;
       float overall_nbc_score;
-      std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies;
+      // std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies;
+      std::vector<refinement_results_nbc_baddie_t> sorted_nbc_baddies;
       float overall_rama_plot_score;
       std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies;
       std::vector<refinement_results_for_rama_t> all_ramas;

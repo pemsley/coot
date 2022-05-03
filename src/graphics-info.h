@@ -3258,6 +3258,17 @@ public:
    static Texture texture_for_anchored_atom_markers;
    static TextureMesh tmesh_for_anchored_atom_markers;
 
+
+   static bool draw_bad_nbc_atom_pair_markers_flag; // user can turn them off
+   static void setup_draw_for_bad_nbc_atom_pair_markers();
+   static void draw_bad_nbc_atom_pair_markers(unsigned int pass_type);
+   static void update_bad_nbc_atom_pair_marker_positions();
+   static Texture texture_for_bad_nbc_atom_pair_markers;
+   static TextureMesh tmesh_for_bad_nbc_atom_pair_markers;
+   static std::vector<glm::vec3> bad_nbc_atom_pair_marker_positions;
+   const unsigned int draw_count_max_for_bad_nbc_atom_pair_markers = 100; // needed?
+
+
    static bool find_hydrogen_torsions_flag;
 
    // pickable moving atoms molecule

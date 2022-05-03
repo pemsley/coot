@@ -53,8 +53,9 @@ graphics_info_t::draw_molecules_for_ssao() {
    }
 
    draw_intermediate_atoms(PASS_TYPE_SSAO);
-   draw_intermediate_atoms_rama_balls(PASS_TYPE_SSAO); // currently rama ballas are part of intermediate atoms
+   draw_intermediate_atoms_rama_balls(PASS_TYPE_SSAO); // currently rama balls are part of intermediate atoms
    draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_SSAO);
+   draw_bad_nbc_atom_pair_markers(PASS_TYPE_SSAO);
 
 #if 0 // Nice things to have, but they need to work with shader_for_meshes_for_ssao.
    draw_atom_pull_restraints();

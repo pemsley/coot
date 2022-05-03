@@ -1688,7 +1688,20 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
    int n_restraints = size();
-   std::map<int, float> nbc_baddies;
+
+   class nbc_baddie_atom_index_pair_t {
+   public:
+      int index_1;
+      int index_2;
+      float distortion;
+      nbc_baddie_atom_index_pair_t(const simple_restraint &restraint, float dist_in) : distortion(dist_in) {
+         index_1 = restraint.atom_index_1;
+         index_2 = restraint.atom_index_2;
+      }
+   };
+   std::vector<nbc_baddie_atom_index_pair_t> nbc_baddie_atom_index_pair_vec;
+
+   std::map<int, float> nbc_baddies; // atom index to badness-score
    std::map<int, float> rama_baddies;
    unsigned int n_non_bonded_restraints = 0;
    unsigned int n_rama_restraints = 0;
@@ -1722,13 +1735,17 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             n_non_bonded_restraints++;
             double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
-            if (dist > 0.05) {
+            if (dist > 0.15) { // 20220503-PE was 0.05 - we want to see angy diego only when the
+                               // atom are really too close
                nbc_distortion_score_sum += dist;
                nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
                nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
+               nbc_baddie_atom_index_pair_t bip(restraint, dist);
+               nbc_baddie_atom_index_pair_vec.push_back(bip);
             }
          }
       }
+
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
          if (restraint.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
             n_rama_restraints++;
@@ -1807,17 +1824,60 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    std::sort(nbc_baddies_vec.begin(), nbc_baddies_vec.end(), sorter);
    if (nbc_baddies_vec.size() > 20)
       nbc_baddies_vec.resize(20);
-   std::vector<std::pair<atom_spec_t, float> > nbc_baddies_with_spec_vec(nbc_baddies_vec.size());
+
+   // now sort the baddie index pairs (which are needed to find the positions for the bad NBC markers)
+   //
+   auto sorter_2 = [] (const nbc_baddie_atom_index_pair_t &b1, const nbc_baddie_atom_index_pair_t &b2) {
+                      return b2.distortion < b1.distortion;
+                   };
+   std::sort(nbc_baddie_atom_index_pair_vec.begin(), nbc_baddie_atom_index_pair_vec.end(), sorter_2);
+
+   if (true) {
+      for (unsigned int i=0; i<nbc_baddie_atom_index_pair_vec.size(); i++) {
+         const auto &bip = nbc_baddie_atom_index_pair_vec[i];
+         std::cout << "sorted baddie index pair " << std::setw(4) << bip.index_1 << " "
+                   << std::setw(4) << bip.index_2 << " " << bip.distortion << std::endl;
+      }
+   }
+
+   std::vector<refinement_results_nbc_baddie_t> nbc_baddies_with_spec_vec(nbc_baddie_atom_index_pair_vec.size());
+
+#if 0
+   // std::vector<std::pair<atom_spec_t, float> > nbc_baddies_with_spec_vec(nbc_baddies_vec.size());
    for (unsigned int i=0; i<nbc_baddies_vec.size(); i++) {
       int atom_index = nbc_baddies_vec[i].first;
-      nbc_baddies_with_spec_vec[i].first  = atom_spec_t(atom[atom_index]);
-      nbc_baddies_with_spec_vec[i].second = nbc_baddies_vec[i].second;
+      nbc_baddies_with_spec_vec[i].atom_spec_1  = atom_spec_t(atom[atom_index]);
+      nbc_baddies_with_spec_vec[i].atom_spec_2  = atom_spec_t(atom[atom_index]); // hmm.. It gets lost
+      nbc_baddies_with_spec_vec[i].score = nbc_baddies_vec[i].second;
       // set user data meaning "is_in_a_moving_atoms_residue"
       if (fixed_atom_indices.find(atom_index) != fixed_atom_indices.end())
-         nbc_baddies_with_spec_vec[i].first.int_user_data = 0;
+         nbc_baddies_with_spec_vec[i].atom_spec_1.int_user_data = 0;
       else
-         nbc_baddies_with_spec_vec[i].first.int_user_data = 1;
+         nbc_baddies_with_spec_vec[i].atom_spec_1.int_user_data = 1;
    }
+#endif
+
+   auto atom_to_coord_orth = [] (mmdb::Atom *at) {
+                                return clipper::Coord_orth(at->x, at->y, at->z);
+                             };
+
+   // 20220503-PE now fill nbc_baddies_with_spec_vec using nbc_baddie_atom_index_pair_vec
+   unsigned int n_baddies = nbc_baddie_atom_index_pair_vec.size();
+   for (unsigned int i=0; i<n_baddies; i++) {
+      const auto &bip = nbc_baddie_atom_index_pair_vec[i];
+      mmdb::Atom *at_1 = atom[bip.index_1];
+      mmdb::Atom *at_2 = atom[bip.index_2];
+      clipper::Coord_orth p_1 = atom_to_coord_orth(at_1);
+      clipper::Coord_orth p_2 = atom_to_coord_orth(at_2);
+      clipper::Coord_orth p_m = 0.5 * (p_1 + p_2);
+      nbc_baddies_with_spec_vec[i].atom_spec_1 = atom_spec_t(at_1);
+      nbc_baddies_with_spec_vec[i].atom_spec_2 = atom_spec_t(at_2);
+      nbc_baddies_with_spec_vec[i].mid_point = p_m;
+      nbc_baddies_with_spec_vec[i].score = bip.distortion;
+   }
+   
+   std::cout << "done filling nbc baddies" << std::endl;
+
    rr->overall_nbc_score = nbc_distortion_score_sum;
    rr->sorted_nbc_baddies = nbc_baddies_with_spec_vec;
    rr->refinement_results_contain_overall_nbc_score = true;
