@@ -1717,6 +1717,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    all_ramas.reserve(100);
 
    rr->n_restraints = n_restraints;
+   rr->nbc_baddies_atom_index_map.clear();
 
    for (int i=0; i<n_restraints; i++) {
       const simple_restraint &restraint = restraints_vec[i];
@@ -1742,6 +1743,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
                nbc_baddie_atom_index_pair_t bip(restraint, dist);
                nbc_baddie_atom_index_pair_vec.push_back(bip);
+               rr->nbc_baddies_atom_index_map[restraint.atom_index_1].push_back(restraint.atom_index_2);
             }
          }
       }

@@ -741,6 +741,8 @@ class graphics_info_t {
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
    // the mode flag is public:
+   // 20220504-PE so that I can check for cleared/removed non-bonded contact baddies
+   static std::map<int, std::vector<int> > previous_round_nbc_baddies_atom_index_map;
 
    // return the state of having found restraints.
    bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_resiudes,

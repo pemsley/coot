@@ -3,6 +3,7 @@
 #define REFINEMENT_RESULTS_T_HH
 
 #include <vector>
+#include <map>
 #include "refinement-lights.hh"
 
 #include <clipper/core/coords.h>
@@ -41,6 +42,13 @@ namespace coot {
       float score;
    };
 
+   // to animate the bad NBC contacts removal, I need to know if a contact has
+   // disappeared, so I want to store a list of bad NBC contacts which I can
+   // use for round-to-round comparison to see if any have disappeared.
+   // std::map<mmdb::Atom *, mmdb::Atom *> - I  don't need to check both ways
+   // round. Actually, I can do this with indices, can't I?
+   // std::map<int, std::vector<int> > nbc_baddies_atom_index_map
+
    class refinement_results_t {
    public:
 
@@ -54,6 +62,7 @@ namespace coot {
       float overall_nbc_score;
       // std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies;
       std::vector<refinement_results_nbc_baddie_t> sorted_nbc_baddies;
+      std::map<int, std::vector<int> > nbc_baddies_atom_index_map;
       float overall_rama_plot_score;
       std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies;
       std::vector<refinement_results_for_rama_t> all_ramas;

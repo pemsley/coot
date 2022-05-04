@@ -4492,6 +4492,46 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
 void
 graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 
+   auto gone_contacts_from_nbc_baddies = [] (const coot::refinement_results_t &rr_c) {
+
+                                            // 20220505-PE note to self: previous_round_nbc_baddies_atom_index_map needs to be updated
+                                            // every round - before we do a last_restraints->minimize(). Worry about these vectors
+                                            // going out of scope. This may need locking? This function needs to be called from the main
+                                            // thread of course.
+
+                                            std::vector<std::pair<int, int> > gone_atom_pairs;
+
+                                            const std::map<int, std::vector<int> > &current_round_nbc_baddies_atom_index_map = rr_c.nbc_baddies_atom_index_map;
+
+                                            std::map<int, std::vector<int> >::const_iterator it_1;
+                                            for (it_1=previous_round_nbc_baddies_atom_index_map.begin();
+                                                 it_1!=previous_round_nbc_baddies_atom_index_map.end(); ++it_1) {
+                                               const int &index_1 = it_1->first;
+                                               const std::vector<int> &v_1(it_1->second);
+                                               std::vector<int>::const_iterator it_2;
+                                               for (it_2=v_1.begin(); it_2!=v_1.end(); ++it_2) {
+                                                  std::cout << "debug *it_2 " << *it_2 << std::endl;
+                                                  int index_2 = *it_2;
+                                                  // can I find that index_1, index_2 pair in the current set?
+                                                  std::map<int, std::vector<int> >::const_iterator it_3 = current_round_nbc_baddies_atom_index_map.find(index_1);
+                                                  if (it_3 == current_round_nbc_baddies_atom_index_map.end()) {
+                                                     std::pair<int, int> p(index_1, index_2);
+                                                     gone_atom_pairs.push_back(p);
+                                                  } else {
+                                                     const std::vector<int> v_2(it_3->second);
+                                                     // so the first atom was there - what about the second atom?
+                                                     std::vector<int>::const_iterator it_4 = std::find(v_2.begin(), v_2.end(), index_2);
+                                                     if (it_4 == v_2.end()) {
+                                                        std::pair<int, int> p(index_1, index_2);
+                                                        gone_atom_pairs.push_back(p);
+                                                     }
+                                                  }
+                                               }
+                                            }
+                                            return gone_atom_pairs;
+                                         };
+
+
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
          coot::refinement_results_t &rr = saved_dragged_refinement_results;
@@ -4501,13 +4541,22 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
          for (unsigned int i=0; i<baddies.size(); i++) {
             bad_nbc_atom_pair_marker_positions.push_back(coord_orth_to_glm(baddies[i].mid_point));
          }
+
+         attach_buffers();
+         tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
+         tmesh_for_bad_nbc_atom_pair_markers.update_instancing_buffer_data(bad_nbc_atom_pair_marker_positions);
+         if (! bad_nbc_atom_pair_marker_positions.empty())
+            draw_bad_nbc_atom_pair_markers_flag = true;
+
+         if (false) {
+            std::vector<std::pair<int, int> > gone_atom_pairs = gone_contacts_from_nbc_baddies(rr);
+            for (unsigned int i=0; i<gone_atom_pairs.size(); i++) {
+               std::cout << "       gone " << gone_atom_pairs[i].first << " " << gone_atom_pairs[i].second << std::endl;
+            }
+         }
       }
-      attach_buffers();
-      tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
-      tmesh_for_bad_nbc_atom_pair_markers.update_instancing_buffer_data(bad_nbc_atom_pair_marker_positions);
-      if (! bad_nbc_atom_pair_marker_positions.empty())
-         draw_bad_nbc_atom_pair_markers_flag = true;
    }
+
 }
 
 // static

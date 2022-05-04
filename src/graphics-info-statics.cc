@@ -1088,6 +1088,9 @@ double    graphics_info_t::refinement_drag_elasticity = 0.25;
 //
 #ifdef HAVE_GSL
 coot::restraints_container_t *graphics_info_t::last_restraints = 0;
+// 20220504-PE so that I can check for cleared/removed non-bonded contact baddies
+std::map<int, std::vector<int> > graphics_info_t::previous_round_nbc_baddies_atom_index_map;
+
 // clipper::Xmap<float> blank_dummy_xmap;
 // ref version: coot::restraints_container_t(blank_dummy_xmap);
 #endif // HAVE_GSL
