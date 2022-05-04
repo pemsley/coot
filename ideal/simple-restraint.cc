@@ -1735,7 +1735,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             n_non_bonded_restraints++;
             double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
-            if (dist > 0.15) { // 20220503-PE was 0.05 - we want to see angy diego only when the
+            if (dist > 0.25) { // 20220503-PE was 0.05 - we want to see angy diego only when the
                                // atom are really too close
                nbc_distortion_score_sum += dist;
                nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
@@ -1811,7 +1811,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
 
    // --- non-bonded contacts ---
 
-   std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size());
+   std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size()); // 20220504-PE is this used now?
    std::map<int, float>::const_iterator it;
    unsigned int idx = 0;
    for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); ++it)
@@ -1832,7 +1832,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                    };
    std::sort(nbc_baddie_atom_index_pair_vec.begin(), nbc_baddie_atom_index_pair_vec.end(), sorter_2);
 
-   if (true) {
+   if (false) {
       for (unsigned int i=0; i<nbc_baddie_atom_index_pair_vec.size(); i++) {
          const auto &bip = nbc_baddie_atom_index_pair_vec[i];
          std::cout << "sorted baddie index pair " << std::setw(4) << bip.index_1 << " "
@@ -1873,10 +1873,12 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
       nbc_baddies_with_spec_vec[i].atom_spec_1 = atom_spec_t(at_1);
       nbc_baddies_with_spec_vec[i].atom_spec_2 = atom_spec_t(at_2);
       nbc_baddies_with_spec_vec[i].mid_point = p_m;
+      nbc_baddies_with_spec_vec[i].atom_1_pos = p_1;
+      nbc_baddies_with_spec_vec[i].atom_2_pos = p_2;
       nbc_baddies_with_spec_vec[i].score = bip.distortion;
    }
    
-   std::cout << "done filling nbc baddies" << std::endl;
+   // std::cout << "done filling nbc baddies" << std::endl;
 
    rr->overall_nbc_score = nbc_distortion_score_sum;
    rr->sorted_nbc_baddies = nbc_baddies_with_spec_vec;

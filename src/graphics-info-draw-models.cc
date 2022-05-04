@@ -52,19 +52,21 @@ graphics_info_t::draw_molecules_for_ssao() {
       }
    }
 
+   glEnable(GL_DEPTH_TEST);
    draw_intermediate_atoms(PASS_TYPE_SSAO);
    draw_intermediate_atoms_rama_balls(PASS_TYPE_SSAO); // currently rama balls are part of intermediate atoms
    draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_SSAO);
    draw_bad_nbc_atom_pair_markers(PASS_TYPE_SSAO);
 
 #if 0 // Nice things to have, but they need to work with shader_for_meshes_for_ssao.
-   draw_atom_pull_restraints();
-   draw_instanced_meshes();
-   draw_environment_graphics_object();
-   draw_generic_objects();
+   draw_atom_pull_restraints(PASS_TYPE_SSAO);
+   draw_instanced_meshes(PASS_TYPE_SSAO);
+   draw_environment_graphics_object(PASS_TYPE_SSAO);
+   draw_generic_objects(PASS_TYPE_SSAO);
 #endif
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_SSAO); // draws the meshes in a molecules std::vector<Messh> meshes;
+   glDisable(GL_BLEND);
 
 }
 

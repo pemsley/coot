@@ -356,6 +356,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
             di.draw_particles();
 
+            // 20220504-PE Either way round there is text texture masking problems over angry diego.
+            //             Is the atom label shader not discarding the pixels correctly?
+            draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
             draw_molecules_atom_labels();
 
             if (show_fps_flag)

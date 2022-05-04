@@ -1034,6 +1034,52 @@ TextureMesh::draw_instances(Shader *shader_p,
 
 }
 
+void
+TextureMesh::draw_instances_for_ssao(Shader *shader_p,
+                                     const glm::mat4 &model,
+                                     const glm::mat4 &view,
+                                     const glm::mat4 &projection) {
+
+   if (! draw_this_mesh) return;
+   if (n_instances == 0) return;
+   if (triangles.empty()) return;
+
+   shader_p->Use();
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_instances() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glEnableVertexAttribArray(0); // vertex positions
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // tangent // not used for camera-facing textures
+   glEnableVertexAttribArray(3); // bitangent // not used
+   glEnableVertexAttribArray(4); // colour
+   glEnableVertexAttribArray(5); // texCoord
+   glEnableVertexAttribArray(6); // instanced position
+
+
+   shader_p->set_mat4_for_uniform("model",      model);
+   shader_p->set_mat4_for_uniform("view",       view);
+   shader_p->set_mat4_for_uniform("projection", projection);
+
+   unsigned int n_verts = 6;
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+   glDisableVertexAttribArray(6);
+
+}
+
+
+
 // draw_count and draw_count_max are used to set the opactity (it counts the number of times drawn)
 //
 void

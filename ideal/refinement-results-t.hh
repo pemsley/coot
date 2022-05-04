@@ -35,6 +35,8 @@ namespace coot {
    public:
       atom_spec_t atom_spec_1;
       atom_spec_t atom_spec_2;
+      clipper::Coord_orth atom_1_pos;
+      clipper::Coord_orth atom_2_pos;
       clipper::Coord_orth mid_point;
       float score;
    };

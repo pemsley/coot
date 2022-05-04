@@ -1436,6 +1436,7 @@ Shader graphics_info_t::shader_for_ligand_view;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 Shader graphics_info_t::shader_for_happy_face_residue_markers;
+Shader graphics_info_t::shader_for_happy_face_residue_markers_for_ssao;
 Shader graphics_info_t::shader_for_rama_plot_axes_and_ticks;
 Shader graphics_info_t::shader_for_rama_plot_phi_phis_markers;
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;

@@ -1728,7 +1728,8 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_happy_face_residue_markers();
 
-   draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
+   // now drawn later, like atom labels
+   // draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
@@ -4541,6 +4542,19 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
          if (pass_type == PASS_TYPE_STANDARD)
             tmesh_for_bad_nbc_atom_pair_markers.draw_instances(&shader_for_happy_face_residue_markers,
                                                                mvp, model_rotation, bg_col, perspective_projection_flag);
+
+         if (pass_type == PASS_TYPE_SSAO) {
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+            int w = allocation.width;
+            int h = allocation.height;
+            bool do_orthographic_projection = ! perspective_projection_flag;
+            auto model_matrix = get_model_matrix();
+            auto view_matrix = get_view_matrix();
+            auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+            tmesh_for_bad_nbc_atom_pair_markers.draw_instances_for_ssao(&shader_for_happy_face_residue_markers_for_ssao,
+                                                                        model_matrix, view_matrix, projection_matrix);
+         }
       }
    }
 }

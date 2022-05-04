@@ -1,6 +1,6 @@
 
 #shader vertex
-// ---------------- 9.ssao.shader ---------------------
+// ---------------- 9.ssao.shader shaderGeometryPass ---------------------
 
 #version 330 core
 layout (location = 0) in vec3 aPos;
@@ -15,7 +15,7 @@ void main()
 }
 
 #shader fragment
-// ---------------- 9.ssao.shader ---------------------
+// ---------------- 9.ssao.shader shaderGeometryPass ---------------------
 
 #version 330 core
 out float FragColor;

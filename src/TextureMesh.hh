@@ -130,6 +130,11 @@ public:
    void draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
                        const glm::vec4 &bg_col, bool is_perspective_projection);
 
+   void draw_instances_for_ssao(Shader *shader_p,
+                                const glm::mat4 &model,
+                                const glm::mat4 &view,
+                                const glm::mat4 &projection);
+
    void draw_fading_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
                               unsigned int draw_count, unsigned int draw_count_max);
 
