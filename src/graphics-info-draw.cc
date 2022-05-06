@@ -3704,8 +3704,6 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    draw_origin_cube(gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-   draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
-
    draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
                      // so rename this function? Or just bring everything here?  Put this render() function
                      // into new file graphics-info-opengl-render.cc
@@ -3744,7 +3742,7 @@ graphics_info_t::render_3d_scene_with_shadows() {
    draw_origin_cube(gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-   draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
+   // draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
 
    draw_molecules_with_shadows(); // includes particles, happy-faces and boids (should they be there (maybe not))
                                   // so rename this function? Or just bring everything here?  Put this render() function

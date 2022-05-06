@@ -360,6 +360,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             //             Is the atom label shader not discarding the pixels correctly?
             draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
             draw_molecules_atom_labels();
+            draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
 
             if (show_fps_flag)
                draw_hud_fps();
@@ -661,21 +662,23 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
             di.draw_particles();
 
-           GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+            draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
+            draw_molecules_atom_labels();
+            draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
 
-           blur_x_framebuffer.bind();
-           render_scene_with_y_blur();
+            blur_x_framebuffer.bind();
+            render_scene_with_y_blur();
 
-           combine_textures_using_depth_framebuffer.bind();
-           render_scene_with_x_blur();
+            combine_textures_using_depth_framebuffer.bind();
+            render_scene_with_x_blur();
 
-           gtk_gl_area_attach_buffers(gl_area);
+            gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
 
-           render_scene_with_texture_combination_for_depth_blur();
+            render_scene_with_texture_combination_for_depth_blur();
 
-           // this does not belong here - is it rendered twice?
-           if (di.show_fps_flag)
-              di.draw_hud_fps();
+            // this does not belong here - is it rendered twice?
+            if (di.show_fps_flag)
+               di.draw_hud_fps();
 
         }
       }
