@@ -1689,6 +1689,28 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    auto tp_1 = std::chrono::high_resolution_clock::now();
    int n_restraints = size();
 
+   // close in terms of seqnum that is
+   auto is_close_main_chain_nbc = [] (const simple_restraint &restraint, mmdb::PPAtom atom) {
+
+                                     std::vector<std::string> main_chain_atom_names = { " CA ", " C  ", " N  ", " H  ", " O  ", " HA" };
+                                     mmdb::Atom *at_1 = atom[restraint.atom_index_1];
+                                     mmdb::Atom *at_2 = atom[restraint.atom_index_2];
+                                     int seq_num_1 = at_1->GetSeqNum();
+                                     int seq_num_2 = at_2->GetSeqNum();
+                                     if (abs(seq_num_1 - seq_num_2) < 2) {
+                                        if (at_1->GetChain() == at_2->GetChain()) {
+                                           std::string atom_name_1(at_1->GetAtomName());
+                                           std::string atom_name_2(at_2->GetAtomName());
+                                           if (std::find(main_chain_atom_names.begin(),
+                                                         main_chain_atom_names.end(), atom_name_1) != main_chain_atom_names.end() ||
+                                               std::find(main_chain_atom_names.begin(),
+                                                         main_chain_atom_names.end(), atom_name_2) != main_chain_atom_names.end())
+                                              return true;
+                                        }
+                                     }
+                                     return false;
+                                  };
+
    class nbc_baddie_atom_index_pair_t {
    public:
       int index_1;
@@ -1738,12 +1760,18 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
             if (dist > 0.25) { // 20220503-PE was 0.05 - we want to see angy diego only when the
                                // atom are really too close
-               nbc_distortion_score_sum += dist;
-               nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
-               nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
-               nbc_baddie_atom_index_pair_t bip(restraint, dist);
-               nbc_baddie_atom_index_pair_vec.push_back(bip);
-               rr->nbc_baddies_atom_index_map[restraint.atom_index_1].push_back(restraint.atom_index_2);
+
+               // if this is slow, add the result of this test as a boolean as the restraint
+               // is being created, is_close_main_chain_nbc_flag is part of a simple_restraint;
+               //
+               if (! is_close_main_chain_nbc(restraint, atom)) {
+                  nbc_distortion_score_sum += dist;
+                  nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
+                  nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
+                  nbc_baddie_atom_index_pair_t bip(restraint, dist);
+                  nbc_baddie_atom_index_pair_vec.push_back(bip);
+                  rr->nbc_baddies_atom_index_map[restraint.atom_index_1].push_back(restraint.atom_index_2);
+               }
             }
          }
       }
@@ -1813,19 +1841,15 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
 
    // --- non-bonded contacts ---
 
-   std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size()); // 20220504-PE is this used now?
+   auto atom_to_coord_orth = [] (mmdb::Atom *at) { return clipper::Coord_orth(at->x, at->y, at->z); };
+
    std::map<int, float>::const_iterator it;
    unsigned int idx = 0;
-   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); ++it)
-      nbc_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
 
    auto sorter = [] (const std::pair<int, float> &v1,
                      const std::pair<int, float> &v2) {
                     return v2.second < v1.second;
                  };
-   std::sort(nbc_baddies_vec.begin(), nbc_baddies_vec.end(), sorter);
-   if (nbc_baddies_vec.size() > 20)
-      nbc_baddies_vec.resize(20);
 
    // now sort the baddie index pairs (which are needed to find the positions for the bad NBC markers)
    //
@@ -1843,25 +1867,6 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    }
 
    std::vector<refinement_results_nbc_baddie_t> nbc_baddies_with_spec_vec(nbc_baddie_atom_index_pair_vec.size());
-
-#if 0
-   // std::vector<std::pair<atom_spec_t, float> > nbc_baddies_with_spec_vec(nbc_baddies_vec.size());
-   for (unsigned int i=0; i<nbc_baddies_vec.size(); i++) {
-      int atom_index = nbc_baddies_vec[i].first;
-      nbc_baddies_with_spec_vec[i].atom_spec_1  = atom_spec_t(atom[atom_index]);
-      nbc_baddies_with_spec_vec[i].atom_spec_2  = atom_spec_t(atom[atom_index]); // hmm.. It gets lost
-      nbc_baddies_with_spec_vec[i].score = nbc_baddies_vec[i].second;
-      // set user data meaning "is_in_a_moving_atoms_residue"
-      if (fixed_atom_indices.find(atom_index) != fixed_atom_indices.end())
-         nbc_baddies_with_spec_vec[i].atom_spec_1.int_user_data = 0;
-      else
-         nbc_baddies_with_spec_vec[i].atom_spec_1.int_user_data = 1;
-   }
-#endif
-
-   auto atom_to_coord_orth = [] (mmdb::Atom *at) {
-                                return clipper::Coord_orth(at->x, at->y, at->z);
-                             };
 
    // 20220503-PE now fill nbc_baddies_with_spec_vec using nbc_baddie_atom_index_pair_vec
    unsigned int n_baddies = nbc_baddie_atom_index_pair_vec.size();
