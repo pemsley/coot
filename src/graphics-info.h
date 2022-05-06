@@ -160,24 +160,6 @@
 #include <libguile.h>
 #endif
 
-#ifdef HAVE_GSL
-#else
-namespace coot {
-   enum geometry_graph_type {GEOMETRY_GRAPH_GEOMETRY,
-                             GEOMETRY_GRAPH_B_FACTOR,
-                             GEOMETRY_GRAPH_DENSITY_FIT,
-                             GEOMETRY_GRAPH_OMEGA_DISTORTION,
-                             GEOMETRY_GRAPH_ROTAMER,
-                             GEOMETRY_GRAPH_NCS_DIFFS,
-                             SEQUENCE_VIEW,
-                             RAMACHANDRAN_PLOT,
-////BEGIN RICHARD
-			     GEOMETRY_GRAPH_CALC_B_FACTOR
-////  END RICHARD
-   };
-}
-#endif // HAVE_GSL
-
 enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "old-generic-display-object.hh"
@@ -738,7 +720,7 @@ class graphics_info_t {
    static void    add_moving_atoms_dragged_atom_index(int idx);
    // make unset_moving_atoms_currently_dragged_atom_index() public
 
-#ifdef  HAVE_GSL
+#ifdef HAVE_GSL
    static coot::restraints_container_t *last_restraints;
    // the mode flag is public:
    // 20220504-PE so that I can check for cleared/removed non-bonded contact baddies

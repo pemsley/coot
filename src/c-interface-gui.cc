@@ -1395,8 +1395,8 @@ void graphics_window_size_and_position_to_preferences() {
 	 file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.py");
 	 std::ofstream fp(file_name.c_str());
 	 if (fp) {
-	    fp << "set_graphics_window_position(" << x  << ", " << y << ")\n";
-	    fp << "set_graphics_window_size(" << xs << ", " << ys << ")\n";
+	    fp << "coot.set_graphics_window_position(" << x  << ", " << y << ")\n";
+	    fp << "coot.set_graphics_window_size(" << xs << ", " << ys << ")\n";
 	 }
 	 fp.close();
       }
@@ -5111,8 +5111,6 @@ void fill_chi_angles_vbox(GtkWidget *vbox) {
    g.fill_chi_angles_vbox(vbox, strval, graphics_info_t::EDIT_CHI);
 }
 
-
-
 GtkWidget *wrapped_create_add_additional_representation_gui() {
 
    // 20220309-PE what should this function do these days?
@@ -6160,6 +6158,7 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
    return std::pair<bool, std::string> (state, message);
 }
 
+#include "cc-interface.hh"
 
 // 20200302 Be'er Sheva new style extension installation
 // Put these in c-interface-curlew?

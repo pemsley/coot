@@ -120,16 +120,16 @@ namespace coot {
       void setup_canvas(int n_chains, int max_chain_length);
       void plot_block(const geometry_graph_block_info &block_info,
 		      int offset, int chain_number);
-      void plot_blocks(const std::map<coot::residue_spec_t, std::pair<double, std::string> > &residue_distortions,
+      void plot_blocks(const std::map<residue_spec_t, std::pair<double, std::string> > &residue_distortions,
 		       int chain_number);
-      std::string make_distortion_string(const coot::geometry_distortion_info_t &extra_distortion,
-					 const coot::geometry_distortion_info_container_t &dc) const;
+      std::string make_distortion_string(const geometry_distortion_info_t &extra_distortion,
+					 const geometry_distortion_info_container_t &dc) const;
 
       void label_chain(const std::string &label, int ichain) const;
       void draw_chain_axis(int nres, int ichain) const;
       void draw_chain_axis_tick_and_tick_labels(int min_resno, int max_resno, int chain_number) const;
       void delete_block(int chain_number, int resno);
-      void delete_block(int chain_number, const coot::residue_spec_t &rs);
+      void delete_block(int chain_number, const residue_spec_t &rs);
       std::vector<std::string> colour_list;
       std::string distortion_to_colour(const double &distortion) const;
       double distortion_max;
