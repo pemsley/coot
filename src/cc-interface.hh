@@ -1573,6 +1573,9 @@ void set_fps_timing_scale_factor(float f);
 // testing function
 void read_test_gltf_models();
 
+//! \brief load a gltf model
+void load_gltf_model(const std::string &gltf_file_name);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */

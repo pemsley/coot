@@ -4866,6 +4866,8 @@ string   static std::string sessionid;
 
    void read_test_gltf_models();
 
+   void load_gltf_model(const std::string &gltf_file_name);
+
    static void attach_buffers() {
       if (use_graphics_interface_flag) {
          auto gl_area = glareas[0];

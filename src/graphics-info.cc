@@ -3227,7 +3227,8 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
                                                           const glm::vec4 &col) {
                                         clipper::Coord_orth mid_point(0.5 * (sdo.start_pos + sdo.end_pos));
                                         glm::vec3 offset_mid_point = coord_orth_to_glm(mid_point) + glm::vec3(0.15, 0.05, 0.05);
-                                        std::string label_str = float_to_string_using_dec_pl(static_cast<float>(dist), 2);
+                                        unsigned int n_dec_pl = 3; // 20220503-PE was 2
+                                        std::string label_str = float_to_string_using_dec_pl(static_cast<float>(dist), 3);
                                         // label_str += "ÅAÅ"; A-ring How to do this!?
                                         // degree symbol: &#176; A-ring symbol: &#197
                                         unsigned char c = 197;
