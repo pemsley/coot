@@ -1389,7 +1389,7 @@ void try_load_scheme_extras_dir() {
 			   if (S_ISREG(buf2.st_mode)) {
 			      if (coot::util::file_name_extension(sub_part) == ".scm") {
 				 std::cout << "loading extra: " << fp << std::endl;
-				 scm_c_primitive_load(fp.c_str()); 
+				 scm_c_primitive_load(fp.c_str());
 			      }
 			   }
 			}
@@ -1398,7 +1398,7 @@ void try_load_scheme_extras_dir() {
 	       }
 	    }
 	 }
-      }      
+      }
    }
 }
 #endif // USE_GUILE
@@ -1414,7 +1414,7 @@ void try_load_python_extras_dir() {
 #else
       std::vector<std::string> dirs = coot::util::split_string(s, ":");
 #endif
-      for (unsigned int i=0; i<dirs.size(); i++) { 
+      for (unsigned int i=0; i<dirs.size(); i++) {
 	 struct stat buf;
 	 int status = stat(dirs[i].c_str(), &buf);
 	 if (status != 0) {
