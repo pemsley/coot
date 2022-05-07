@@ -37,6 +37,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_particles,
                                                            shader_for_instanced_objects,
                                                            shader_for_happy_face_residue_markers,
+                                                           shader_for_happy_face_residue_markers_for_ssao,
                                                            shader_for_rama_plot_phi_phis_markers,
                                                            shader_for_rama_plot_axes_and_ticks,
                                                            shader_for_ligand_view,
