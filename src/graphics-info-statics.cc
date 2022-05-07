@@ -1424,10 +1424,8 @@ Shader graphics_info_t::shader_for_hud_buttons;
 Shader graphics_info_t::shader_for_hud_image_texture;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_rama_balls;
-Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_x_blur;
 Shader graphics_info_t::shader_for_y_blur;
-Shader graphics_info_t::shader_for_blur;  // old
 Shader graphics_info_t::shader_for_dof_blur_by_texture_combination;
 Shader graphics_info_t::shader_for_effects;
 Shader graphics_info_t::shader_for_hud_lines;

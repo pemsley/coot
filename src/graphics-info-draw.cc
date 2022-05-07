@@ -3831,12 +3831,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          frame_time_history_list.pop_front();
    }
 
-   // 20220405-PE the control flow is confusing/unconentional here - I should make it more clear
-
-   bool use_crow_code = true;
-   if (to_screendump_framebuffer_flag) use_crow_code = false;
-
-   if (use_crow_code) {
+   if (! to_screendump_framebuffer_flag) {
       gboolean state = render_scene();
 
       draw_hud_elements();
@@ -3844,66 +3839,29 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       glFlush();
       update_fps_statistics();
       return state;
-   }
 
-   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
-   int w = allocation.width;
-   int h = allocation.height;
+   } else {
 
-   bool make_image_for_screen = ! to_screendump_framebuffer_flag;
+      GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
 
 #ifdef __APPLE__
-   use_framebuffers = false;
+      use_framebuffers = false;
 #endif
 
-   if (use_framebuffers) { // static class variable
+      if (use_framebuffers) { // static class variable
 
-      glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
-      GLenum err = glGetError();
-      if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
-      screen_framebuffer.bind(); // screen_ao, that is
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
+         glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
+         GLenum err = glGetError();
+         if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
+         screen_framebuffer.bind(); // screen_ao, that is
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
 
-      render_3d_scene(gl_area);
-
-      if (make_image_for_screen) { // a normal draw
-
-         glViewport(0, 0, w, h);
-
-         // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
-         // gtk_gl_area_attach_buffers(gl_area);
-
-         if (shader_do_depth_of_field_blur_flag) {
-
-            blur_y_framebuffer.bind();
-            render_scene_with_screen_ao_shader();
-            blur_x_framebuffer.bind();
-            render_scene_with_y_blur();
-
-            combine_textures_using_depth_framebuffer.bind();
-
-            render_scene_with_x_blur();
-
-            gtk_gl_area_attach_buffers(gl_area);
-
-            render_scene_with_texture_combination_for_depth_blur();
-
-            // And finally draw the HUD elements to the GTK framebuffer
-            draw_hud_elements();
-
-         } else {
-
-            gtk_gl_area_attach_buffers(gl_area);
-            render_scene_with_screen_ao_shader();
-            // And finally draw the HUD elements to the GTK framebuffer
-            draw_hud_elements();
-
-         }
-
-      } else {
+         render_3d_scene(gl_area);
 
          // screendump
          glDisable(GL_DEPTH_TEST);
@@ -3918,59 +3876,30 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          gtk_gl_area_attach_buffers(gl_area);
          screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
+      } else {
+
+         // simple/direct - for debugging framebuffers
+         gtk_gl_area_attach_buffers(gl_area);
+         render_3d_scene(gl_area);
+         draw_hud_elements();
+
       }
-   } else {
 
-      // simple/direct - for debugging framebuffers
-      gtk_gl_area_attach_buffers(gl_area);
-      render_3d_scene(gl_area);
-      draw_hud_elements();
+      // 20211112-PE
+      // This seems to do bad things to the frame-rate on the PC (although fullscreen mode seems
+      // unaffected and looks to be *faster* than windowed mode (could be a gtk thing)).
+      // This is vital to see anything sane on the Mac.
+      glFlush();
 
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
+
+      // std::cout << "calling update_fps_statistics() " << std::endl;
+      update_fps_statistics();
+
+      return FALSE;
    }
-
-   // 20211112-PE
-   // This seems to do bad things to the frame-rate on the PC (although fullscreen mode seems
-   // unaffected and looks to be *faster* than windowed mode (could be a gtk thing)).
-   // This is vital to see anything sane on the Mac.
-   glFlush();
-
-   // auto tp_1 = std::chrono::high_resolution_clock::now();
-   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
-
-   // std::cout << "calling update_fps_statistics() " << std::endl;
-   update_fps_statistics();
-
-   return FALSE;
-}
-
-void
-graphics_info_t::render_scene_with_screen_ao_shader() {
-
-   glEnable(GL_DEPTH_TEST);
-   shader_for_screen.Use();
-   glBindVertexArray(screen_quad_vertex_array_id);
-
-   const glm::vec3 &bg = background_colour;
-   glClearColor(bg[0], bg[1], bg[2], 1.0); // this can be seen
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-   glActiveTexture(GL_TEXTURE0 + 0);
-   glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_colour());
-   glActiveTexture(GL_TEXTURE0 + 1);
-   glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_depth());
-   shader_for_screen.set_int_for_uniform("screenTexture", 0);
-   shader_for_screen.set_int_for_uniform("screenDepth", 1);
-   GLenum err = glGetError(); if (err) std::cout << "render() D err " << err << std::endl;
-   shader_for_screen.set_bool_for_uniform("do_ambient_occlusion", shader_do_ambient_occlusion_flag);
-   shader_for_screen.set_bool_for_uniform("do_outline", shader_do_outline_flag);
-   glm::vec4 background_col(background_colour, 1.0);
-   bool background_is_black = background_is_black_p();
-   shader_for_screen.set_bool_for_uniform("background_is_dark", background_is_black);
-
-   glDrawArrays(GL_TRIANGLES, 0, 6);
-   err = glGetError(); if (err) std::cout << "render() E err " << err << std::endl;
-
 }
 
 void
