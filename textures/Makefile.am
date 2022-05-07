@@ -34,4 +34,5 @@ dist_coottexture_DATA = \
 	hud-label-NBC-small.png hud-label-pull-small.png \
 	hud-label-rama-small.png hud-label-rota-small.png \
 	anchor-for-fixed-atoms.png \
-	refinement-dialog-arrrow-highlighted.png refinement-dialog-arrrow.png
+	refinement-dialog-arrrow-highlighted.png refinement-dialog-arrrow.png \
+        angry-diego.svg angry-diego.png
