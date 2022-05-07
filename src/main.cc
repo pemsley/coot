@@ -399,9 +399,10 @@ main(int argc, char *argv[]) {
 #ifdef __APPLE__
                                         gtk_widget_show(box);
                                         GtkWidget *window = widget_from_builder("main_window");
-                                        gtk_window_set_has_resize_grip(GTK_WINDOW(main_window), FALSE);
+                                        // 20220407-PE this causes a crash
+                                        // gtk_window_set_has_resize_grip(GTK_WINDOW(main_window), FALSE);
 
-					// this expands the window fully in height - I don't want that.
+					                         // this expands the window fully in height - I don't want that.
                                         // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 #else
                                         gtk_widget_hide(box);
