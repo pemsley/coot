@@ -1062,7 +1062,7 @@ public:
    // accept/reject window, now controlled by keyboarding in main window.
    static GtkWidget *accept_reject_dialog;
    static GtkWidget *refine_params_dialog;
-   
+
    void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog);
 
    // flag to display the accept/reject dialog in the toolbar
