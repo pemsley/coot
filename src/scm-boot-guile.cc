@@ -77,6 +77,7 @@ void inner_main(void *closure, int argc, char **argv) {
 
    scm_catch(SCM_BOOL_T, thunk, handler);
 
+
   if (run_startup_scripts_state()) {
      try_load_scheme_extras_dir();
      try_load_dot_coot_and_preferences();
@@ -166,13 +167,16 @@ void try_load_dot_coot_and_preferences() {
 
          // update preferences
          make_preferences_internal();
+
 	 // Now ~/.coot
 
+#if 0 // 20220507-PE old code, when coot was a file. Can be deleted when startup code works properly
 	 std::string fn = coot::util::append_dir_file(directory, ".coot");
 	 if (coot::file_exists(fn)) {
 	    std::cout << "Loading ~/.coot" << std::endl;
 	    scm_c_primitive_load(fn.c_str()); 
 	 }
+#endif
       }
    }
 }

@@ -1249,7 +1249,7 @@ void set_graphics_window_position(int x_pos, int y_pos) {
       graphics_info_t g;
       GtkWidget *main = g.get_main_window();
       if (main) {
-	 gtk_widget_set_size_request(main, x_pos, y_pos);
+         gtk_window_move(GTK_WINDOW(main), x_pos, y_pos); // window manager can ignore this
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
       }
@@ -1369,7 +1369,8 @@ void graphics_window_size_and_position_to_preferences() {
    // Note to self: is there a "get preferences dir" function?
    std::string h = coot::get_home_dir();
    if (!h.empty()) {
-      std::string pref_dir = coot::util::append_dir_dir(h, ".coot-preferences");
+      // 20220507-PE pref_dir is now .coot
+      std::string pref_dir = coot::util::append_dir_dir(h, ".coot");
       if (! coot::is_directory_p(pref_dir)) {
          // make it
 	 // pref_dir = coot::get_directory(pref_dir); // oops not in this branch.
@@ -1377,6 +1378,12 @@ void graphics_window_size_and_position_to_preferences() {
 	 int fstat = stat(pref_dir.c_str(), &s);
 	 if (fstat == -1 ) { // file not exist
 	    int status = coot::util::create_directory(pref_dir);
+            if (status != 0) {
+               std::cout << "status " << status << std::endl;
+               std::string m("WARNING:: failed to create directory ");
+               m += pref_dir;
+               info_dialog(m.c_str()); // 20220507-PE make this argument a string one rainy day
+            }
 	 }
       }
       if (coot::is_directory_p(pref_dir)) {
@@ -1385,22 +1392,32 @@ void graphics_window_size_and_position_to_preferences() {
          int y  = g.graphics_y_position;
          int xs = g.graphics_x_size;
          int ys = g.graphics_y_size;
-	 std::string file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.scm");
-	 std::ofstream f(file_name.c_str());
-	 if (f) {
-	    f << "(set-graphics-window-position " << x  << " " << y  << ")\n";
-	    f << "(set-graphics-window-size     " << xs << " " << ys << ")\n";
-	 }
-	 f.close();
-	 file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.py");
-	 std::ofstream fp(file_name.c_str());
-	 if (fp) {
-	    fp << "coot.set_graphics_window_position(" << x  << ", " << y << ")\n";
-	    fp << "coot.set_graphics_window_size(" << xs << ", " << ys << ")\n";
-	 }
-	 fp.close();
-      }
 
+         GtkWidget *main_window = g.get_main_window();
+         if (main_window) {
+            gtk_window_get_position(GTK_WINDOW(main_window), &x, &y);
+            gtk_window_get_size(GTK_WINDOW(main_window), &xs, &ys);
+
+            std::string file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.scm");
+            std::ofstream f(file_name.c_str());
+            if (f) {
+               f << "(set-graphics-window-position " << x  << " " << y  << ")\n";
+               f << "(set-graphics-window-size     " << xs << " " << ys << ")\n";
+            }
+            f.close();
+            file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.py");
+            std::ofstream fp(file_name.c_str());
+            if (fp) {
+               fp << "import coot\n";
+               fp << "coot.set_graphics_window_position(" << x  << ", " << y << ")\n";
+               fp << "coot.set_graphics_window_size(" << xs << ", " << ys << ")\n";
+            }
+            fp.close();
+         }
+      } else {
+         std::cout << "WARNING:: $HOME/.coot is not a directory - settings not saved" << std::endl;
+         info_dialog("WARNING:: $HOME/.coot is not a directory - settings not saved");
+      }
    }
 
 }

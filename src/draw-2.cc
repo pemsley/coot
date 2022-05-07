@@ -398,6 +398,8 @@ void
 on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
    graphics_info_t g;
+
+   // for the GL widget, not the window.
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 

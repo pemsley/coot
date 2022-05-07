@@ -1614,9 +1614,9 @@ if True:
 
        window.show_all()
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_settings, "Save Dialog Positions...",
-       lambda func: save_dialog_func())
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #   submenu_settings, "Save Dialog Positions...",
+     #   lambda func: save_dialog_func())
 
 
      #coot_gui.add_simple_coot_menu_menuitem(

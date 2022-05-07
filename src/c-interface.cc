@@ -1078,7 +1078,7 @@ void mono_mode() {
                if ((previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
                    (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
                    (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
-                 set_graphics_window_size(x_size/2, y_size);
+                  set_graphics_window_size(x_size/2, y_size);
                }
 	       // std::cout << "DEBUG:: mono_mode() update maps and draw\n";
 	       graphics_info_t g;

@@ -123,6 +123,8 @@ void setup_python(int argc, char **argv) {
       PyImport_ImportModule("extensions");
    }
    PyErr_PrintEx(0);
+   std::string home_directory = coot::get_home_dir();
+   try_load_dot_coot_py_and_python_scripts(home_directory);
 
 #endif // USE_PYTHON
 
@@ -145,19 +147,24 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
       short int use_graphics_flag = use_graphics_interface_state();
 
       // load preferences file .coot_preferences.py
-      std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
+      // std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
+      //
+      // now coot startup scripts will be read from and written to the ~/.coot directory
+      // (if it is not a file already)
+      //
+      std::string startup_scripts_dir = graphics_info_t::add_dir_file(home_directory, ".coot");
       struct stat buff;
-      int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
+      int preferences_dir_status = stat(startup_scripts_dir.c_str(), &buff);
 
       if (preferences_dir_status != 0) {
-         std::cout << "INFO:: preferences directory " << preferences_dir
+         std::cout << "INFO:: preferences directory " << startup_scripts_dir
                    << " does not exist. Won't read preferences." << std::endl;;
       } else {
 	 // load all .py files
 	 glob_t myglob;
 	 int flags = 0;
 	 //std::string glob_patt = "/*.py";
-	 std::string glob_file = preferences_dir;
+	 std::string glob_file = startup_scripts_dir;
 	 glob_file += "/*.py";
 	 glob(glob_file.c_str(), flags, 0, &myglob);
 	 // dont load the coot_toolbuttons.py if no graphics
@@ -177,15 +184,16 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
 
          for (char **p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
             std::string preferences_script(*p);
-            if (exclude_py_files.find(preferences_script) == exclude_py_files.end()) {
+            std::string psf = coot::util::file_name_non_directory(preferences_script);
+            if (exclude_py_files.find(psf) == exclude_py_files.end()) {
                bool done = false;
                if (preferences_script.length() > 6) {
-                  if (preferences_script.substr(0,6) == "xenops") {
+                  if (psf.substr(0,6) == "xenops") {
                      done = true;
                      xenops_scripts.push_back(preferences_script);
                   }
                }
-               if (preferences_script.length() > 6) {
+               if (psf.length() > 6) {
                   if (preferences_script.substr(0,6) == "curlew") {
                      done = true;
                      curlew_scripts.push_back(preferences_script);
@@ -205,13 +213,15 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
             run_python_script(coot_preferences_py_script.c_str());
          for(const auto &script_fn : curlew_scripts)
             run_python_script(script_fn.c_str());
-         for(const auto &script_fn : xenops_scripts)
+         for(const auto &script_fn : xenops_scripts) {
             run_python_script(script_fn.c_str());
+         }
       }
 
       // update the preferences
       make_preferences_internal();
 
+#if 0
       // load personal coot file .coot.py
       std::string filename = ".coot.py";
       if (! home_directory.empty()) {
@@ -221,5 +231,6 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
 	    run_python_script(coot_py_file_name.c_str());
 	 }
       }
+#endif
    }
 }
