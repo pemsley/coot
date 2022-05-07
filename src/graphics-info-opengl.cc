@@ -86,7 +86,7 @@ graphics_info_t::init_shaders() {
    shader_for_shadow_map_image_texture_mesh.init("shadow-map-image-texture.shader", Shader::Entity_t::MAP);
    shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
    shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
-   shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);   
+   shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
 
    shader_for_outline_of_active_residue.init("outline-of-active-residue.shader", Shader::Entity_t::MODEL);
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
@@ -480,7 +480,7 @@ graphics_info_t::decrease_clipping_front() {
 
 void
 graphics_info_t::decrease_clipping_back() {
-   
+
    if (perspective_projection_flag) {
       float szfp = screen_z_far_perspective;
       float v = screen_z_far_perspective * 0.98;
@@ -773,7 +773,7 @@ graphics_info_t::generate_ssao_kernel_samples() {
    std::default_random_engine generator;
    ssaoKernel.clear();
 
-   std::cout << "debug:: generating " << n_ssao_kernel_samples << " SSAO kernel samples" << std::endl;
+   // std::cout << "debug:: generating " << n_ssao_kernel_samples << " SSAO kernel samples" << std::endl;
 
    for (unsigned int i = 0; i < n_ssao_kernel_samples; ++i) {
       glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
@@ -890,8 +890,6 @@ graphics_info_t::init_joey_ssao_stuff() {
          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
          err = glGetError();
          if (err) std::cout << "init_screen_quads() D err is " << err << std::endl;
-
-      
       }
 
 
