@@ -2230,7 +2230,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       if (molecules[imol_moving_atoms].draw_hydrogens())
          draw_hydrogens_flag = 1;
       std::set<int> dummy;
-      bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
+      bool do_sticks_for_waters = false; // 20220508-PE Now we have modern waters.
       bool draw_missing_loops_flag_local = false;
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
                                  do_disulphide_flag, draw_hydrogens_flag,

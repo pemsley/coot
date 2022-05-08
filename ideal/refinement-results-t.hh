@@ -63,6 +63,7 @@ namespace coot {
       // std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies;
       std::vector<refinement_results_nbc_baddie_t> sorted_nbc_baddies;
       std::map<int, std::vector<int> > nbc_baddies_atom_index_map;
+      std::vector<std::pair<int, int> > hydrogen_bond_atom_index_vec;
       float overall_rama_plot_score;
       std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies;
       std::vector<refinement_results_for_rama_t> all_ramas;

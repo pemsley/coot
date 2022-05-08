@@ -990,6 +990,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       }
 
       update_bad_nbc_atom_pair_marker_positions();
+      update_hydrogen_bond_positions(); // if the intermediate atoms had hydrogen bond restraints
 
       moving_atoms_bonds_lock = 0;
       moving_atoms_lock = false;

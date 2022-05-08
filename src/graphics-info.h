@@ -3252,6 +3252,8 @@ public:
    static std::vector<glm::vec3> bad_nbc_atom_pair_marker_positions;
    const unsigned int draw_count_max_for_bad_nbc_atom_pair_markers = 100; // needed?
 
+   static void update_hydrogen_bond_positions(); // if the intermediate atoms had hydrogen bond restraints, we can have dynamic
+                                                 // hydrogen bonds. c.f. update_bad_nbc_atom_pair_marker_positions()
 
    static bool find_hydrogen_torsions_flag;
 
@@ -4677,6 +4679,7 @@ string   static std::string sessionid;
    void setup_draw_for_hydrogen_bonds();
    // this can be made more sophisticated later
    static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs;
+   static void update_hydrogen_bond_mesh(const std::string &label);
 
    static float focus_blur_z_depth;
    static float focus_blur_strength;

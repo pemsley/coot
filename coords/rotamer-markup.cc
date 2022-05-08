@@ -162,8 +162,10 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 	 }
       }
       catch (const std::runtime_error &rte) {
-	 std::cout << "exception caught in get_rotamer_dodecs() " << std::endl;
-	 std::cout << "    " << rte.what() << std::endl;
+
+         // 20220508-PE too noisy
+	 // std::cout << "exception caught in get_rotamer_probability() " << std::endl;
+	 // std::cout << rte.what() << std::endl;
       }
    }
 

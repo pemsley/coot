@@ -4539,6 +4539,43 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
 }
 
 
+// static
+void
+graphics_info_t::update_hydrogen_bond_positions() {
+
+   auto atom_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+         if (! rr.hydrogen_bond_atom_index_vec.empty()) {
+
+            // fill hydrogen_bonds_atom_position_pairs
+            unsigned int n = rr.hydrogen_bond_atom_index_vec.size();
+            hydrogen_bonds_atom_position_pairs.clear();
+            hydrogen_bonds_atom_position_pairs.reserve(n);
+
+            for (unsigned int i=0; i<rr.hydrogen_bond_atom_index_vec.size(); i++) {
+               const int &idx_1 = rr.hydrogen_bond_atom_index_vec[i].first;
+               const int &idx_2 = rr.hydrogen_bond_atom_index_vec[i].second;
+               if (idx_1 < moving_atoms_asc->n_selected_atoms) {
+                  if (idx_2 < moving_atoms_asc->n_selected_atoms) {
+                     mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
+                     mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
+                     glm::vec3 p_1 = atom_to_glm(at_1);
+                     glm::vec3 p_2 = atom_to_glm(at_2);
+                     hydrogen_bonds_atom_position_pairs.push_back(std::make_pair(p_1, p_2));
+                  }
+               }
+            }
+
+            std::string label = "Hydrogen Bonds";
+            update_hydrogen_bond_mesh(label);
+         }
+      }
+   }
+}
+
 
 //static
 gboolean
@@ -4682,6 +4719,37 @@ graphics_info_t::draw_boids() {
 }
 
 void
+graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
+
+   // caller fills static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs
+   // before this function
+
+   Material material;
+   material.shininess = 10.0;
+   material.specular_strength = 0.02;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   Mesh mesh(label);
+   mesh_for_hydrogen_bonds = mesh;
+   Shader &shader = shader_for_instanced_objects;
+   mesh_for_hydrogen_bonds.setup_hydrogen_bond_cyclinders(&shader, material);
+
+   std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+   std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev = tick_hydrogen_bond_mesh_t_previous;
+   auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_prev);
+   float theta = 0.002 * delta.count();
+   // std::cout << "delta from time " << delta.count() << " theta " << theta << std::endl;
+   std::vector<glm::mat4> mats;
+   for (unsigned int i=0; i<hydrogen_bonds_atom_position_pairs.size(); i++) {
+      const std::pair<glm::vec3, glm::vec3> &p = hydrogen_bonds_atom_position_pairs[i];
+      mats.push_back(Mesh::make_hydrogen_bond_cylinder_orientation(p.first, p.second, theta));
+   }
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // Needed? Yes! Vital
+   mesh_for_hydrogen_bonds.update_instancing_buffer_data_standard(mats);
+   add_a_tick();
+   do_tick_hydrogen_bonds_mesh = true;
+}
+
+void
 graphics_info_t::draw_hydrogen_bonds_mesh() {
 
    // 20210827-PE  each molecule should have its own hydrogen bond mesh. Not just one of them.
@@ -4693,8 +4761,6 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
-      // 20211210-PE  note that we are not calling the draw_instanced() - that seems perverse to me.
-      // Hmm.
       mesh_for_hydrogen_bonds.draw_instanced(&shader_for_instanced_objects,
                                              mvp, model_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, false, true, 0, 0, 0, 0.2);
@@ -4727,7 +4793,7 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    // gboolean delete_item_pulse_func(GtkWidget *widget,
    //                                 GdkFrameClock *frame_clock,
    //                                 gpointer data)
-   // 
+   //
    auto delete_item_pulse_func = [] (GtkWidget *widget,
                                      GdkFrameClock *frame_clock,
                                      gpointer data) {

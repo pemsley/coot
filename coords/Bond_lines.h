@@ -533,7 +533,9 @@ public:
    //
    // if model_number is 0, display all models. If it is not 0 then
    // display only the given model_number (if possible, of course).
-   // 
+   //
+   // 20220508-PE This is the constructor used by make_moving_atoms_graphics_object()
+   //
    Bond_lines_container(const atom_selection_container_t &asc,
 			int imol,
 			const std::set<int> &no_bonds_to_these_atoms,
@@ -578,17 +580,17 @@ public:
 			float max_dist);
 
    // same as above, except this does symmetry contacts too.
-   // 
+   //
    Bond_lines_container(const atom_selection_container_t &SelAtom,
 			mmdb::PPAtom residue_atoms,
 			int n_residue_atoms,
 			float min_dist,
-			float max_dist, 
+			float max_dist,
 			bool draw_env_distances_to_hydrogens_flag,
 			short int do_symmetry);
 
    // This is the one for user-defined, occupancy and B-factor representation
-   // 
+   //
    Bond_lines_container (const atom_selection_container_t &SelAtom,
 			 int imol, bond_representation_type br_type);
 
@@ -659,7 +661,7 @@ public:
       udd_has_ca_handle = -1;
       do_sticks_for_waters = true;
       init();
-      if (bonds.size() == 0) { 
+      if (bonds.size() == 0) {
 	 for (int i=0; i<13; i++) { // 13 colors now in bond_colours
 	    Bond_lines a(i);
 	    bonds.push_back(a);

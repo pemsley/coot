@@ -2431,6 +2431,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		     if (! residue_p)
 			std::cout << "ERROR:: catched condition for crashetty crash!" << std::endl;
 
+                     std::string res_name(residue_p->GetResName());
+                     if (res_name == "HOH")
+                        if (! do_sticks_for_waters)
+                           continue;
+
 		     col = atom_colour(Hydrogen_atoms[i], atom_colour_type);
 		     coot::Cartesian atom(Hydrogen_atoms[i]->x,
 					  Hydrogen_atoms[i]->y,
@@ -2656,7 +2661,7 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
    if (!bond_added_flag) {
       // bond it like a single atom then:
 
-      float star_size = 0.22;
+      float star_size = 0.3;
       coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
       coot::Cartesian small_vec_y(0.0, star_size, 0.0);
       coot::Cartesian small_vec_z(0.0, 0.0, star_size);
@@ -6577,14 +6582,13 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
          if (ic == graphical_bonds_container::NO_BOND) {
             mmdb::Residue *residue_p = at->residue;
             std::string res_name(residue_p->GetResName());
-            if (res_name == "HOH") {
+            if (res_name == "HOH")
                if (! do_sticks_for_waters)
                   continue;
-            }
 
             // extract this to own function
             {
-               float star_size = 0.22;
+               float star_size = 0.3;
                coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
                coot::Cartesian small_vec_y(0.0, star_size, 0.0);
                coot::Cartesian small_vec_z(0.0, 0.0, star_size);
@@ -7050,6 +7054,10 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	    if (atom_selection[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 	       if (ic == graphical_bonds_container::NO_BOND) {
 		  // no contact found
+		  std::string res_name(atom_selection[i]->residue->GetResName());
+		  if (res_name == "HOH")
+		     if (! do_sticks_for_waters)
+			continue;
 		  col = atom_colour(atom_selection[i], atom_colour_type);
 		  std::string ele = atom_selection[i]->element;
 		  if (!is_hydrogen(ele) || draw_hydrogens_flag) {
@@ -7306,6 +7314,10 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	       if (ic == graphical_bonds_container::NO_BOND) {
 		  // no contact found
 		  mmdb::Residue *residue_p = atom_selection[i]->residue;
+		  std::string res_name(residue_p->GetResName());
+		  if (res_name == "HOH")
+		     if (! do_sticks_for_waters)
+			continue;
 		  col = atom_colour(atom_selection[i], atom_colour_type);
 		  std::string ele = atom_selection[i]->element;
 		  // if (ele != " H" || draw_hydrogens_flag) {
@@ -7713,7 +7725,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 
 	 if (uddHnd>=0) {
 
-	    float star_size = 0.22;
+	    float star_size = 0.3;
 	    // for atoms with no neighbour (contacts):
 	    coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
 	    coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -7724,6 +7736,12 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	    for (int i=0; i<n_selected_atoms; i++) {
 	       if ( atom_selection[i]->GetUDData(uddHnd,ic) == mmdb::UDDATA_Ok ) { // uddHnd for bond state
 		  if (ic == 0) {
+
+                     std::string res_name(atom_selection[i]->residue->GetResName());
+                     if (res_name == "HOH")
+                        if (! do_sticks_for_waters)
+                           continue;
+
 		     std::string segid(atom_selection[i]->GetChainID());
 		     col = atom_colour_map.index_for_chain(segid);
 		     bonds_size_colour_check(col);
