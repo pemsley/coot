@@ -695,14 +695,21 @@ graphics_info_t::render_scene() {
    auto render_scene_basic = [] () {
 
                               // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
+                              // auto tp_0 = std::chrono::high_resolution_clock::now();
 
                               GtkAllocation allocation;
                               auto gl_area = graphics_info_t::glareas[0];
                               gtk_widget_get_allocation(gl_area, &allocation);
                               int width = allocation.width;
                               int height = allocation.height;
-
-                              glViewport(0, 0, width, height);
+                              // auto tp_1 = std::chrono::high_resolution_clock::now();
+                              // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+                              // std::cout << "Timings for window allocation " << d10 << " microseconds" << std::endl;  // 0
+                              int sf = 1;
+#ifdef __APPLE__
+                              sf = 2;
+#endif
+                              glViewport(0, 0, sf * width, sf * height);
                               attach_buffers(); // just GTK things
                               glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
                               glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -3832,11 +3832,14 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
    }
 
    if (! to_screendump_framebuffer_flag) {
+
       gboolean state = render_scene();
-
       draw_hud_elements();
-
+#ifdef __APPLE__
+      glFinish();
+#else
       glFlush();
+#endif
       update_fps_statistics();
       return state;
 
@@ -3848,9 +3851,9 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       int w = allocation.width;
       int h = allocation.height;
 
-#ifdef __APPLE__
-      use_framebuffers = false;
-#endif
+// #ifdef __APPLE__
+//      use_framebuffers = false;
+// #endif
 
       if (use_framebuffers) { // static class variable
 
