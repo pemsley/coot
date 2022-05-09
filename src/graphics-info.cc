@@ -2007,6 +2007,8 @@ graphics_info_t::clear_up_moving_atoms() {
    // 20220220-PE I will comment this out (because I think the answer to the below question is "yes"
    // graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
 
+   draw_gl_ramachandran_plot_flag = false;
+
 }
 
 

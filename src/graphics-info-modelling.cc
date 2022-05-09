@@ -1414,6 +1414,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       thread_for_refinement_loop_threaded();
       found_restraints_flag = true;
       // rr.found_restraints_flag = true;
+      draw_gl_ramachandran_plot_flag = true;
 
       // are you looking for conditionally_wait_for_refinement_to_finish() ?
 

@@ -4468,7 +4468,9 @@ string   static std::string sessionid;
 
    static gl_rama_plot_t gl_rama_plot;
    static void draw_hud_ramachandran_plot(); // OpenGL rama plot
-   void clear_gl_rama_plot();
+   void clear_gl_rama_plot();  // why not static also?
+   static bool draw_gl_ramachandran_plot_flag;    // used for RSR vs translation or rotamers
+   static bool draw_gl_ramachandran_plot_user_control_flag; // used for user not wanting to see it during RSR
 
    void reset_frame_buffers(int width, int height);
    void setup_lights();

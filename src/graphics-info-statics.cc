@@ -1637,6 +1637,9 @@ bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 
 gl_rama_plot_t graphics_info_t::gl_rama_plot;
+bool graphics_info_t::draw_gl_ramachandran_plot_flag = false;
+bool graphics_info_t::draw_gl_ramachandran_plot_user_control_flag = true;
+
 
 float graphics_info_t::focus_blur_z_depth = 0.15;
 float graphics_info_t::focus_blur_strength = 1.0;
