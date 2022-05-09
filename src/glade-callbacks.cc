@@ -6505,7 +6505,9 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    GtkWidget *strm_5 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_5_radiobutton");
    GtkWidget *strm_6 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_6_radiobutton");
 
-   GtkWidget *do_blur_checkbutton = widget_from_builder("shader_settings_do_depth_blur_checkbutton");
+   GtkWidget *do_blur_checkbutton         = widget_from_builder("shader_settings_depth_blur_outline_depth_blur_radiobutton");
+   GtkWidget *do_outline_checkbutton      = widget_from_builder("shader_settings_depth_blur_outline_outline_radiobutton");
+   GtkWidget *do_blur_outline_checkbutton = widget_from_builder("shader_settings_depth_blur_outline_off_radiobutton");
 
    GtkWidget    *basic_mode_checkbutton = widget_from_builder("shader_settings_basic_mode_radiobutton");
    GtkWidget    *fancy_mode_checkbutton = widget_from_builder("shader_settings_fancy_mode_radiobutton");
@@ -6534,10 +6536,14 @@ on_shader_preferences_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
    if (g.shadow_texture_multiplier == 5) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_5), TRUE);
    if (g.shadow_texture_multiplier == 6) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_6), TRUE);
 
+   if (! g.shader_do_outline_flag && !g.shader_do_depth_of_field_blur_flag)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_outline_checkbutton), TRUE);
+
    if (g.shader_do_depth_of_field_blur_flag) // not shader_do_depth_blur_flag (what's that used for? - delete it)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), TRUE);
-   else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), FALSE);
+
+   if (g.shader_do_outline_flag)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_outline_checkbutton), TRUE);
 
    if (graphics_info_t::shader_do_depth_fog_flag)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_depth_fog_checkbutton), TRUE);
