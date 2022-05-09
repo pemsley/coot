@@ -4486,7 +4486,11 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
                std::cout << "       gone " << gone_atom_pairs[i].first << " " << gone_atom_pairs[i].second << std::endl;
             }
          }
+      } else {
+         bad_nbc_atom_pair_marker_positions.clear();
       }
+   } else {
+      bad_nbc_atom_pair_marker_positions.clear();
    }
 
 }

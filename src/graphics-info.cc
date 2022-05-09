@@ -2009,6 +2009,13 @@ graphics_info_t::clear_up_moving_atoms() {
 
    draw_gl_ramachandran_plot_flag = false;
 
+   hydrogen_bonds_atom_position_pairs.clear();
+   update_hydrogen_bond_mesh("");
+
+   // now the diegos
+   bad_nbc_atom_pair_marker_positions.clear();
+   update_bad_nbc_atom_pair_marker_positions();
+
 }
 
 
