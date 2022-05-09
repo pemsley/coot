@@ -486,11 +486,11 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    GdkModifierType state;
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state); // deprecated.
 
+   bool handled = false;
+
    // if (true) { // check here for left-mouse click
    // if (event->state & GDK_BUTTON1_PRESS) {
    if (true) { // check here for left-mouse click
-
-      bool handled = false;
 
       if (false)
          std::cout << "click event: " << event->x << " " << event->y << " "
@@ -608,7 +608,8 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       }
    }
 
-   g.check_if_in_range_defines(event, mask);
+   if (! handled)
+      g.check_if_in_range_defines(event, mask);
    return TRUE;
 }
 

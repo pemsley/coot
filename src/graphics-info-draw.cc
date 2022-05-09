@@ -4499,8 +4499,8 @@ graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
       std::cout << "GL ERROR:: start of setup_draw_bad_nbc_atom_pair_markers() "  << err << std::endl;
 
    texture_for_bad_nbc_atom_pair_markers.init("angry-diego.png");
-   float ts = 13.0; // relative texture size
-   tmesh_for_bad_nbc_atom_pair_markers.setup_camera_facing_quad(0.7, 0.7, 0.0, 0.7);
+   float ts = 0.7; // relative texture size
+   tmesh_for_bad_nbc_atom_pair_markers.setup_camera_facing_quad(ts, ts, 0.0, 0.7);
    tmesh_for_bad_nbc_atom_pair_markers.setup_instancing_buffers(200);
    tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
 
@@ -4569,6 +4569,7 @@ graphics_info_t::update_hydrogen_bond_positions() {
                }
             }
 
+            attach_buffers();
             std::string label = "Hydrogen Bonds";
             update_hydrogen_bond_mesh(label);
          }
