@@ -2569,13 +2569,12 @@ def res_spec_to_ins_code(res_spec):
 #
 def residue_spec_to_atom_for_centre(imol, chain_id, res_no, ins_code):
 
-    from types import ListType
     # residue-info can return False
     atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
 
     centre_atom_name_alt_conf = False
 
-    if type(atom_ls) is ListType:
+    if atom_ls:
         for i in range(len(atom_ls)):
             alt_conf_str = atom_ls[i][0][1]
             atom = atom_ls[i][0][0]

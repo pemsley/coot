@@ -1405,7 +1405,7 @@ def zero_occ_atoms_gui(imol):
 #
 def interesting_residues_gui(imol, title, interesting_residues):
 
-    from types import ListType
+    # from types import ListType
     centre_atoms = []
     if coot_utils.valid_model_molecule_qm(imol):
         residues = interesting_residues
@@ -1416,23 +1416,25 @@ def interesting_residues_gui(imol, title, interesting_residues):
                 residues[i] = sp[1:]
 
         for spec in residues:
-            if (type(spec) is ListType):
-                centre_atoms.append(
-                    coot_utils.residue_spec_to_atom_for_centre(imol, *spec))
+            if spec:
+                centre_atoms.append(coot_utils.residue_spec_to_atom_for_centre(imol, *spec)) # debracket spec
             else:
                 centre_atoms.append([False])
 
-        interesting_things_gui(
-            title,
-            list(map(lambda residue_cpmd, centre_atom:
-                     [residue_cpmd[0] + " " +
-                      str(residue_cpmd[1]) + " " +
-                      residue_cpmd[2] + " " +
-                      centre_atom[0] + " " + centre_atom[1],
-                      imol, residue_cpmd[0], residue_cpmd[1], residue_cpmd[2],
-                      centre_atom[0], centre_atom[1]] if centre_atom else
-                     ["[oops - why did this happen?]", 0, 0, 0, 0, 0, 0],
-                     residues, centre_atoms)))
+        interesting_things_gui(title,
+                    list(map(lambda residue_cpmd, centre_atom:
+                             [residue_cpmd[0] + " " +
+                              str(residue_cpmd[1]) + " " +
+                              residue_cpmd[2] + " " +
+                              centre_atom[0] + " " + centre_atom[1],
+                              imol,
+                              residue_cpmd[0],
+                              residue_cpmd[1],
+                              residue_cpmd[2],
+                              centre_atom[0],
+                              centre_atom[1]] if centre_atom else
+                             ["[oops - why did this happen?]", 0, 0, 0, 0, 0, 0],
+                             residues, centre_atoms)))
     else:
         print("BL WARNING:: no valid molecule", imol)
 
