@@ -1019,10 +1019,10 @@ graphics_info_t::get_preferences_directory() const {
    std::string fn;
 
    if (!home.empty()) {
-      fn = coot::util::append_dir_file(home, ".coot-preferences");
+      fn = coot::util::append_dir_file(home, ".coot");
    }
    if (fn.empty()) {
-      fn = coot::util::append_dir_file(pkgdatadir, ".coot-preferences");
+      fn = coot::util::append_dir_file(pkgdatadir, ".coot");
    }
 
    return fn;

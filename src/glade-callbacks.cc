@@ -7753,6 +7753,7 @@ on_show_symmetry_molecule_control_button_clicked_gtkbuilder_callback
 }
 
 
+
 extern "C" G_MODULE_EXPORT
 void
 on_ncs_control_ok_button_clicked_gtkbuilder_callback       (GtkButton       *button,

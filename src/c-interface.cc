@@ -1762,7 +1762,7 @@ void add_symmetry_on_to_preferences_and_apply() {
 
    graphics_info_t g;
    g.add_to_preferences("xenops-symmetry.scm", "(set-show-symmetry-master 1)");
-   g.add_to_preferences("xenops_symmetry.py",   "set_show_symmetry_master(1)");
+   g.add_to_preferences("xenops_symmetry.py",   "coot.set_show_symmetry_master(1)");
 
 }
 

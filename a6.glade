@@ -26877,6 +26877,21 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
                             <property name="position">1</property>
                           </packing>
                         </child>
+                        <child>
+                          <object class="GtkCheckButton" id="symmetry_always_on_checkbutton">
+                            <property name="label" translatable="yes"> Symmetry Always On</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_symmetry_always_on_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
                       </object>
                     </child>
                     <child type="label">
