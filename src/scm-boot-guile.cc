@@ -180,6 +180,24 @@ void my_wrap_scm_boot_guile(int argc, char** argv) {
 
 void try_load_dot_coot_and_preferences() {
 
+   auto file_is_directory = [] (const std::string &file_name) {
+                               struct stat s;
+                               int status = stat(file_name.c_str(), &s);
+                               if (status == 0) {            /* the file existed */
+                                  std::cout << "file-is_directory here a" << std::endl;
+                                  if (S_ISDIR(s.st_mode)) {
+                                     std::cout << "file-is_directory here B" << std::endl;
+                                     return true;
+                                  } else {
+                                  }
+                               } else {
+                                  std::cout << "file-is_directory here C" << std::endl;
+                                  std::cout << "oops stating " << file_name << " return non-zero status" << std::endl;
+                               }
+                               std::cout << "file-is_directory here D" << std::endl;
+                               return false;
+                            };
+
    // python versionn in coot-setup-python.cc
 
    bool run_startup_scripts_flag = run_startup_scripts_state();
@@ -236,8 +254,12 @@ void try_load_dot_coot_and_preferences() {
 
 	 std::string fn = coot::util::append_dir_file(directory, ".coot");
 	 if (coot::file_exists(fn)) {
-	    std::cout << "Loading ~/.coot" << std::endl;
-	    scm_c_primitive_load(fn.c_str()); 
+            if (file_is_directory(fn)) {
+               std::cout << "INFO:: Not Loading ~/.coot - it's a directory " << std::endl;
+            } else {
+               std::cout << "asdfasdfLoading ~/.coot" << std::endl;
+               scm_c_primitive_load(fn.c_str());
+            }
 	 }
       }
    }

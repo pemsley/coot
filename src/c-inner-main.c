@@ -76,8 +76,7 @@ does_file_exist                      (const char     *directory,
   struct stat s;
   gint status;
 
-  full_filename = (gchar*) g_malloc (strlen (directory) + 1
-                                     + strlen (filename) + 1);
+  full_filename = (gchar*) g_malloc (strlen (directory) + 1 + strlen (filename) + 1);
   strcpy (full_filename, directory);
   /*  strcat (full_filename, G_DIR_SEPARATOR_S); */
   strcat (full_filename, "/");
@@ -88,6 +87,20 @@ does_file_exist                      (const char     *directory,
     return full_filename;
   g_free (full_filename);
   return NULL;
+}
+
+short int
+file_is_directory(const char *file_name) {
+
+  struct stat s;
+  int status = stat(file_name, &s);
+  if (status == 0) {            /* the file existed */
+    if (s.st_mode == S_IFDIR) {
+      return 1;
+    }
+  }
+  return 0;
+
 }
 
 
@@ -282,12 +295,18 @@ c_inner_main(void *closure, int argc, char** argv) {
 #endif
 
      /* now the own code */
-     check_file = does_file_exist(directory, filename); 
+     check_file = does_file_exist(directory, filename); /* return NULL or full file-name */
      
      if (check_file) {
-       printf("Loading ~/.coot..."); 
-       scm_c_primitive_load(check_file); 
-/*        printf("done.\n"); */
+
+       if (file_is_directory(check_file)) {
+         printf("INFO:: ~/.coot is a directory - not loading it\n");
+       } else {
+         /* Happy Path */
+         printf("Loading ~/.coot...");
+         scm_c_primitive_load(check_file);
+       }
+       /*        printf("done.\n"); */
      }
      
      run_command_line_scripts();	/* this may turn off run-state-file */
