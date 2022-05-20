@@ -101,11 +101,11 @@ void main() {
 
    vec4 bg_col = background_colour;
    vec4 sum_col = vec4(0,0,0,0);
+   outputColor = vec4(0,0,0,0);
 
    float specular_strength = 1.0 * material.specular_strength;
    //specular_strength = 0.0;
    vec4 specular_light_colour = material.specular;
-
 
    // if (gl_FragCoord.z < 0.5) discard; // useful later maybe (in another shader)
 

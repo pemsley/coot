@@ -86,6 +86,7 @@ void main() {
 
    vec4 bg_col = background_colour;
    vec4 sum_col = vec4(0,0,0,0);
+   outputColor = vec4(0,0,0,0);
 
    float specular_strength = material.specular_strength;
    float shininess = material.shininess;
