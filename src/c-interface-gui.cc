@@ -1271,14 +1271,17 @@ store_window_position(int window_type, GtkWidget *widget) {
    // GTK_WIDGET(object) to get the 'widget' of this function, then
    // widget->window is NULL, and gdk_window_get_root_origin fails.
 
-   gint upositionx, upositiony;
+   gint upositionx = 0, upositiony = 0;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
    graphics_info_t::file_chooser_dialog_x_size = allocation.width;
    graphics_info_t::file_chooser_dialog_y_size = allocation.height;
 
-   gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
+   if (window_type != COOT_DISPLAY_CONTROL_MAPS_VBOX)
+      if (window_type != COOT_DISPLAY_CONTROL_MOLECULES_VBOX)
+         if (window_type != COOT_DISPLAY_CONTROL_PANE)
+            gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
 
    if (window_type == COOT_MODEL_REFINE_DIALOG) {
       graphics_info_t::model_fit_refine_x_position = upositionx;
@@ -1330,11 +1333,10 @@ store_window_position(int window_type, GtkWidget *widget) {
       graphics_info_t::display_manager_molecules_vbox_y_size = allocation.height;
    }
    if (window_type == COOT_DISPLAY_CONTROL_PANE) {
-      // This is a klude because this version of gtk doesn't seem to
+      // This is a kludge because this version of gtk doesn't seem to
       // have a nice accessor such as gtk_pane_get_position()
       GtkPaned *paned = GTK_PANED(widget);
 
-      std::cout << "GTK-FIXME no child1_size A" << std::endl;
       // graphics_info_t::display_manager_paned_position = paned->child1_size;
    }
 

@@ -1484,12 +1484,12 @@ on_display_control_ok_button_clicked_gtkbuilder_callback   (GtkButton       *but
       maps_vbox      = widget_from_builder("display_map_vbox");
       molecules_vbox = widget_from_builder("display_molecule_vbox");
       pane           = widget_from_builder("display_control_vpaned");
+
       /* store the size, actually */
       if (maps_vbox)
          store_window_position(COOT_DISPLAY_CONTROL_MAPS_VBOX, maps_vbox);
       if (molecules_vbox)
-         store_window_position(COOT_DISPLAY_CONTROL_MOLECULES_VBOX,
-                               molecules_vbox);
+         store_window_position(COOT_DISPLAY_CONTROL_MOLECULES_VBOX, molecules_vbox);
       if (pane)
          store_window_position(COOT_DISPLAY_CONTROL_PANE, pane);
 
