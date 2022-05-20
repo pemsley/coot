@@ -126,18 +126,19 @@ void main() {
          vec4 diffuse = 5.5 * light_sources[i].diffuse * dp * material.diffuse * colour_transfer;
 
          // specular
-         float shininess = material.shininess;
-         vec3 eye_pos = eye_position * transpose(model_rotation_transfer);
-         vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz); // frag_pos_transfer is a vec3 in model.shader
-         vec3 reflect_dir = reflect(-light_dir, norm_2);
-         reflect_dir = normalize(reflect_dir); // belt and braces, needed?
-         float dp_view_reflect = dot(view_dir, reflect_dir);
-         dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
-         float spec = pow(dp_view_reflect, shininess);
+         // float shininess = material.shininess;
+         // vec3 eye_pos = eye_position * transpose(model_rotation_transfer);
+         // vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz); // frag_pos_transfer is a vec3 in model.shader
+         // vec3 reflect_dir = reflect(-light_dir, norm_2);
+         // reflect_dir = normalize(reflect_dir); // belt and braces, needed?
+         // float dp_view_reflect = dot(view_dir, reflect_dir);
+         // dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
+         // float spec = pow(dp_view_reflect, shininess);
          // vec4 specular = specular_strength * spec * light_sources[i].specular;
-         vec4 col_specular = 3.0 * specular_strength * spec * specular_light_colour * light_sources[i].specular;
+         // vec4 col_specular = 3.0 * specular_strength * spec * specular_light_colour * light_sources[i].specular;
+         // sum_col += ambient + diffuse + col_specular;
 
-         sum_col += ambient + diffuse + col_specular;
+         sum_col += ambient + diffuse;
 
       }
    }

@@ -976,6 +976,13 @@ void on_glarea_drag_update(GtkGestureDrag *gesture,
    std::cout << "drag update" << std::endl;
 }
 
+void
+on_glarea_swipe(GtkGestureSwipe *gesture,
+          gdouble          velocity_x,
+          gdouble          velocity_y,
+          GtkWidget        *widget) {
+   std::cout << "swipe" << std::endl;
+}
 
 void
 my_glarea_add_signals_and_events(GtkWidget *glarea) {
@@ -1006,6 +1013,10 @@ my_glarea_add_signals_and_events(GtkWidget *glarea) {
    g_signal_connect(glarea, "motion-notify-event",   G_CALLBACK(on_glarea_motion_notify),      NULL);
    g_signal_connect(glarea, "key-press-event",       G_CALLBACK(on_glarea_key_press_notify),   NULL);
    g_signal_connect(glarea, "key-release-event",     G_CALLBACK(on_glarea_key_release_notify), NULL);
+
+   // testing
+   GtkGesture *swipe = gtk_gesture_swipe_new(glarea);
+   g_signal_connect(swipe, "swipe", G_CALLBACK(on_glarea_swipe), NULL);
 
 #if 0
    // 20220415-PE new event controllers - this means turning off the motion and button press event callbacks above.
