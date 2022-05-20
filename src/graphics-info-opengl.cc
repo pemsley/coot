@@ -106,8 +106,8 @@ graphics_info_t::init_shaders() {
    shader_for_particles.init("particles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
-   shader_for_happy_face_residue_markers.init("happy-face-residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
-   shader_for_happy_face_residue_markers_for_ssao.init("happy-face-residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_happy_face_residue_markers.init("residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_happy_face_residue_markers_for_ssao.init("residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_ligand_view.init("ligand-view.shader", Shader::Entity_t::NONE);
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
    shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
