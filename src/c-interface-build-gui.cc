@@ -1507,14 +1507,14 @@ show_fix_nomenclature_errors_gui(int imol,
 
 /* Libcheck monomer code */
 void
-handle_get_libcheck_monomer_code(GtkWidget *widget) {
+handle_get_libcheck_monomer_code(GtkWidget *entry_widget) {
 
    // This function needs a name change FIXME - it doesn't use LIBCHECK any more
    // but is the "Get Monomer" dialog
 
    // GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
    GtkWidget *frame = widget_from_builder("get_monomer_no_entry_frame");
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry_widget));
 
    int no_entry_frame_shown = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "shown"));
 
@@ -1526,7 +1526,7 @@ handle_get_libcheck_monomer_code(GtkWidget *widget) {
 
 	 GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
 	 if (window)
-	    gtk_widget_destroy(window);
+	    gtk_widget_hide(window);
 	 else
 	    std::cout << "failed to lookup window in handle_get_libcheck_monomer_code"
 		      << std::endl;
