@@ -194,8 +194,10 @@ void to_generic_object_add_point_internal(int object_number,
 
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
 
-      std::cout << "......... to_generic_object_add_point_internal() " << object_number
-                << " " << colour << " " << pt.format() << std::endl;
+      if (false)
+         std::cout << "......... to_generic_object_add_point_internal() " << object_number
+                   << " " << colour << " " << pt.format() << std::endl;
+
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       unsigned int object_number_u(object_number);
       if (object_number_u < g.generic_display_objects.size()) {
