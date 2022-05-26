@@ -166,8 +166,6 @@ windows_set_error_mode() {
 #endif // MINGW
 }
 
-
-
 GtkWidget*
 my_create_splash_screen_window (void) {
 

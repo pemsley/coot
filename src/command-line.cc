@@ -285,11 +285,14 @@ parse_command_line(int argc, char ** argv ) {
 			   enableds.push_back("Boost-based-thread-pool");
 #endif
 #ifdef USE_MOLECULES_TO_TRIANGLES
-			   enableds.push_back("Molecular-triangles");
+			   enableds.push_back("MoleculesToTriangles");
 #endif
 			   enableds.push_back("Goocanvas");
 #ifdef HAVE_GSL
 			   enableds.push_back("GSL");
+#endif
+#ifdef USE_GEMMI
+                           enableds.push_back("GEMMI");
 #endif
 #ifdef USE_SQLITE3
 			   enableds.push_back("SQLite3");

@@ -171,18 +171,18 @@ get_atom_selection(std::string pdb_name,
           if (! err) {
              // we read the coordinate file OK.
              //
-        /*
-             switch (MMDBManager->GetFileType())  {
-             case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
-             break;
-             case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
-             break;
-             case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
-             break;
-             default:
-             std::cout << " Unknown\n";
-             }
-        */
+             /*
+               switch (MMDBManager->GetFileType())  {
+               case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
+               break;
+               case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
+               break;
+               case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
+               break;
+               default:
+               std::cout << " Unknown\n";
+               }
+             */
 
              MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
@@ -192,6 +192,10 @@ get_atom_selection(std::string pdb_name,
 
              // atom_selection_container.read_error_message = NULL; // its a string
              asc.mol = MMDBManager;
+          } else {
+#ifdef USE_GEMMI
+             
+#endif
           }
        }
 

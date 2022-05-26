@@ -2478,6 +2478,30 @@ else
 fi
 
 
+
+###############################################################################
+# GEMMI is frequently updated and uses git not releases - so always install it.
+###############################################################################
+
+if true ; then
+      echo BUILDING gemmi \(installing GEMMI\)
+      (
+          if [ -e gemmi ] ; then
+              cd gemmi
+              git fetch
+              git merge
+              cd -
+          else
+              git clone https://github.com/project-gemmi/gemmi.git
+          fi
+          cd gemmi/include
+          # note to self: fix this for Darwin - which has a crippled cp
+          cp -a -r gemmi $install_top_dir/include
+          cd -
+      ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+fi
+
+
 #######################################################################
 # readline is a dependency of python and guile
 #######################################################################

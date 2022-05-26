@@ -214,14 +214,13 @@ dnl test for GSL
 AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
 AC_SUBST(COOT_GSL_FLAGS)
 
-dnl =========================== GTK, GNOMECANVAS ===========================
-
 #GLM
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(GLM headers are required.))
 AC_LANG_POP
 
 
+dnl =========================== GTK, GOOCANVAS ===========================
 
 AC_ARG_WITH(gtk4, [  --gtk4 build coot with gtk4 ], with_gtk4="yes", with_gtk4="no")
 
@@ -366,6 +365,15 @@ dnl check for GSL
 dnl AC_CHECK_LIB(m,main)
 dnl AC_CHECK_LIB(gslcblas,main)
 dnl AC_CHECK_LIB(gsl,main)
+
+#GEMMI
+AC_LANG_PUSH(C++)
+AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
+if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
+   GEMMI_CXXFLAGS=-DUSE_GEMMI
+fi
+AC_SUBST(GEMMI_CXXFLAGS)
+AC_LANG_POP
 
 
 AM_WITH_MYSQL_DATABASE

@@ -268,6 +268,7 @@ AM_CPPFLAGS = \
 	$(WITH_SOUND)                   \
 	$(VORBISFILE_CFLAGS)            \
 	$(SQLITE3_CFLAGS)               \
+	$(GEMMI_CXXFLAGS)               \
 	$(CURL_CFLAGS)
 
 #	$(WITH_SCRIPT_CFLAGS)
