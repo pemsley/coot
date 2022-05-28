@@ -231,7 +231,7 @@ else
 fi
 
 # goocanvas for GTK4?
-PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0])
+# PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0]) # not for the moment - while trying to compile vs GTK4
 
 
 # this needs a rethink
@@ -440,7 +440,6 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-goograph/Makefile
 lbg/Makefile
 doc/Makefile
 src/Makefile

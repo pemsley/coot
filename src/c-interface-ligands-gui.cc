@@ -289,8 +289,13 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 				GINT_TO_POINTER(imol));
 
 	       gtk_widget_show(find_ligand_map_radiobutton_imol);
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+               // 20220528-PE FIXME box packing
+#else
 	       gtk_box_pack_start (GTK_BOX (find_ligand_map_vbox),
 				   find_ligand_map_radiobutton_imol, FALSE, FALSE, 0);
+#endif
 	    }
 	 }
       }
@@ -363,8 +368,12 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
             //                (GDestroyNotify) NULL);
             g_object_set_data(G_OBJECT(find_ligand_protein_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
 	    gtk_widget_show (find_ligand_protein_radiobutton_imol);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+            // 20220528-PE FIXME box packing
+#else
 	    gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
+#endif
 	 }
       }
    }
@@ -414,8 +423,12 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 					 find_ligand_protein_radiobutton_imol,
 					 (GDestroyNotify) NULL);
 	       gtk_widget_show (find_ligand_protein_radiobutton_imol);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+               // 20220528-PE FIXME box packing
+#else
 	       gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				   find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
+#endif
 	    }
 	 }
       }
@@ -479,11 +492,15 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    gtk_widget_show (find_ligand_wligands_checkbutton_imol);
 	    gtk_widget_show (find_ligand_ligands_checkbutton_imol);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+            // 20220528-PE FIXME box packing
+#else
 	    gtk_box_pack_start (GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol, FALSE, FALSE, 0);
 	    gtk_box_pack_start (GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol, FALSE, FALSE, 0);
 
 	    // pack the hbox into the ligands vbox
 	    gtk_box_pack_start (GTK_BOX(find_ligand_ligands_vbox), hbox, FALSE, FALSE, 0);
+#endif
 	    gtk_widget_show(hbox);
 
 	 }
@@ -1010,6 +1027,7 @@ start_ligand_builder_gui() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
+#ifdef HAVE_GOOCANVAS
       lig_build::molfile_molecule_t mm;
       mmdb::Manager *mol = NULL;
       std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
@@ -1033,6 +1051,9 @@ start_ligand_builder_gui() {
 	  sbase_import_function,
 	  get_drug_mdl_via_wikipedia_and_drugbank
 	  );
+#else
+      std::cout << "No goocanvas" << std::endl;
+#endif // HAVE_GOOCANVAS
 
    }
 }
@@ -1407,8 +1428,11 @@ setup_ligands_progress_bar() {
    GtkWidget *label = gtk_label_new("  Installing Ligand Conformers  ");
 
    gtk_window_set_title(GTK_WINDOW (window), "Fitting Ligands");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    gtk_container_set_border_width(GTK_CONTAINER (window), 0);
    gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
+#endif
    gtk_container_add(GTK_CONTAINER (window), vbox);
 
    graphics_info_t g;
@@ -1420,8 +1444,12 @@ setup_ligands_progress_bar() {
    gtk_widget_show(progress_bar);
    gtk_widget_show(label);
    gtk_widget_show(window);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(vbox), progress_bar, FALSE, FALSE, 5);
    gtk_box_pack_start(GTK_BOX(vbox), label,        FALSE, FALSE, 5);
+#endif
 
    // std::pair<GtkWidget *, GtkWidget *> p(progress_bar, window);
 

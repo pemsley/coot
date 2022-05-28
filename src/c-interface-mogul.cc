@@ -53,7 +53,9 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 	 std::cout << "WARNING:: no such residue" << std::endl;
       } else { 
 	 if (m.n_items() > 0) {
+#ifdef HAVE_GOOCANVAS
 	    show_mogul_geometry_dialog(m, residue_p);
+#endif	    
 	    int new_obj = new_generic_object_number("Mogul Validation");
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
@@ -196,10 +198,12 @@ show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
 #if 0
    if (graphics_info_t::use_graphics_interface_flag) { 
+#ifdef HAVE_GOOCANVAS
       GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue); // results table
       if (w) { 
 	 gtk_widget_show(w);
       } 
+#endif // HAVE_GOOCANVAS
    }
 #endif
 }
@@ -258,8 +262,10 @@ GtkWidget
       coot::fill_mogul_angles_tab(    mogul_angles_treeview, w, m, residue);
       coot::fill_mogul_torsions_tab(mogul_torsions_treeview, w, m, residue);
    }
+#ifdef HAVE_GOOCANVAS
    coot::goograph *goograph = new coot::goograph;
    g_object_set_data(G_OBJECT(w), "goograph", goograph);
+#endif   
    return w;
 }
 
@@ -734,6 +740,8 @@ coot::update_mogul_histogram_dialog(GtkWidget *mogul_geometry_results_table_dial
 				    coot::minimol::residue *r,
 				    const std::string &altconf) {
 
+#ifdef HAVE_GOOCANVAS   
+
    int ifound = 0;
       
    // bonds
@@ -853,8 +861,12 @@ coot::update_mogul_histogram_dialog(GtkWidget *mogul_geometry_results_table_dial
 	 } 
       } 
    }
+
+   
+#endif // HAVE_GOOCANVAS   
 }
 
+#ifdef HAVE_GOOCANVAS
 void
 coot::mogul_histogram_for_item(coot::goograph *gg, const coot::mogul_item &item,
 			       const std::string &x_axis_label, const std::string &title) {
@@ -921,6 +933,8 @@ coot::mogul_histogram_for_item(coot::goograph *gg, const coot::mogul_item &item,
       }
    }
 }
+
+#endif // HAVE_GOOCANVAS
 
 
 void set_mogul_max_badness(float b) {

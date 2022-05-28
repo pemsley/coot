@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS
+
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>
@@ -3175,3 +3177,5 @@ lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a
 
    return r;
 } 
+
+#endif // HAVE_GOOCANVAS

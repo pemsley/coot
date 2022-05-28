@@ -194,11 +194,13 @@ namespace coot {
       GtkWidget *kleywegt_chain_combobox2;
       GtkWidget *dialog; // the container for the canvas
       //std::vector<GtkCanvasItem *> canvas_item_vec; // we save them so that
+#ifdef HAVE_GOOCANVAS
       std::vector<GooCanvasItem *> canvas_item_vec; // we save them so that
       // we can destroy them.
       //GtkCanvasItem *big_box_item; 
       GooCanvasItem *green_box_item;
       GooCanvasItem *root;
+#endif // HAVE_GOOCANVAS
       float step; // the "angular" size of the background blocks
       std::vector<int> ifirst_res; // offset between actual residue number and
       // position in the phi_psi vector
@@ -266,7 +268,9 @@ namespace coot {
       bool green_box_is_sensible(util::phi_psi_t gb) const; // have the phi and psi been set to
       // something sensible?
       void recentre_graphics_maybe(mouse_util_t t);
+#ifdef HAVE_GOOCANVAS
       void recentre_graphics_maybe(GooCanvasItem *item);
+#endif
       mouse_util_t mouse_point_check_differences(double worldx, double worldy) const;
 
       void find_phi_psi_differences();
@@ -319,11 +323,13 @@ namespace coot {
       GtkWidget *selection_checkbutton;
 
       rama_plot() {
+#ifdef HAVE_GOOCANVAS
          green_box_item = NULL;
          current_bg = NULL;
          current_residue = NULL;
          residues_grp = NULL;
          arrow_grp = NULL;
+#endif
          dynawin = NULL;
          canvas = NULL;
          stand_alone_flag = 0;
@@ -392,6 +398,7 @@ namespace coot {
 
       void basic_white_underlay(); // Not const because we modify canvas_item_vec. 
       void display_background();   // Likewise.
+#ifdef HAVE_GOOCANVAS
       guint get_intermediate_bg_colour(guint start_colour[4], guint end_colour[4],
                                        float prob_min, float prob_max, float probability,
                                        int quad_channel=-1);
@@ -403,15 +410,18 @@ namespace coot {
       GooCanvasItem *bg_gly;
       GooCanvasItem *bg_pro;
       GooCanvasItem *bg_non_gly_pro;
+#ifdef CLIPPER_HAS_TOP8000
       GooCanvasItem *bg_ileval;
       GooCanvasItem *bg_pre_pro;
       GooCanvasItem *bg_non_gly_pro_pre_pro_ileval;
+#endif
       GooCanvasItem *current_bg;
       GooCanvasItem *residues_grp;
       GooCanvasItem *current_residue;
       GooCanvasItem *arrow_grp;
       void make_isolines(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
       void show_background(GooCanvasItem *new_bg);
+#endif
       guint *current_colour;
       void hide_all_background();
       void setup_background(bool blocks=1, bool isolines=1, bool print_image=0);
@@ -438,9 +448,11 @@ namespace coot {
       void draw_zero_lines();
 
       int draw_phi_psi_point(const util::phi_psi_t &phi_psi, bool as_white_flag);
+#ifdef HAVE_GOOCANVAS
       void draw_kleywegt_arrow(const util::phi_psi_t &phi_psi_primary,
                                const util::phi_psi_t &phi_psi_secondary,
                                GooCanvasPoints *points);
+#endif
       rama_kleywegt_wrap_info test_kleywegt_wrap(const util::phi_psi_t &phi_psi_primary,
                                                  const util::phi_psi_t &phi_psi_secondary)
          const;
@@ -449,13 +461,15 @@ namespace coot {
                                       bool as_white_flag, int box_size);
 
       // which calls
-
+#ifdef HAVE_GOOCANVAS
       void set_data_for_phi_psi_point_item(const std::string &label,
                                            const coot::util::phi_psi_t &phi_psi,
                                            GooCanvasItem *item);
       void set_data_for_phi_psi_point_item_other(const std::string &label,
                                                  const coot::util::phi_psi_t &phi_psi,
                                                  GooCanvasItem *item);
+#endif
+
       rama_stats_container_t draw_phi_psi_points();
       rama_stats_container_t draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set); 
 
@@ -577,8 +591,10 @@ namespace coot {
    
       void write_pdf(std::string &file_name);
       void write_png(std::string &file_name);
+#ifdef HAVE_GOOCANVAS
       void write_png_simple(std::string &file_name, GooCanvasItem *item = NULL);
       void write_svg(std::string &file_name, GooCanvasItem *item = NULL);
+#endif
       void make_bg_images();
 
       void fill_kleywegt_comboboxes(int imol);

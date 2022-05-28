@@ -1572,6 +1572,7 @@ void set_ignore_pseudo_zeros_for_map_stats(short int state) {
 
 void map_histogram(int imol_map) {
 
+#if HAVE_GOOCANVAS
    if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_map_molecule(imol_map)) {
 
@@ -1637,6 +1638,7 @@ void map_histogram(int imol_map) {
          }
       }
    }
+# endif // HAVE_GOOCANVAS
 }
 
 
@@ -2300,6 +2302,8 @@ SCM qq_plot_map_and_model_scm(int imol,
 
    SCM r = SCM_BOOL_F;
 
+#ifdef HAVE_GOOCANVAS
+
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
@@ -2333,11 +2337,13 @@ SCM qq_plot_map_and_model_scm(int imol,
          }
       }
    }
+#endif // HAVE_GOOCANVAS
    return r;
 }
 #endif
 
 
+#ifdef USE_PYTHON
 PyObject *
 map_to_model_correlation_per_residue_py(int imol, PyObject *specs_py, unsigned short int atom_mask_mode, int imol_map) {
 
@@ -2364,7 +2370,7 @@ PyObject *qq_plot_map_and_model_py(int imol,
                                    int imol_map) {
 
    PyObject *r = Py_False;
-
+#ifdef HAVE_GOOCANVAS
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
@@ -2399,6 +2405,7 @@ PyObject *qq_plot_map_and_model_py(int imol,
       }
    }
 
+#endif // HAVE_GOOCANVAS
    // BL wonders:: always return false?,
    // PE:: Yes for the moment, nothing interesting is returned.
    if (PyBool_Check(r)) {
@@ -2407,7 +2414,9 @@ PyObject *qq_plot_map_and_model_py(int imol,
    return r;
 }
 
+#endif // USE_PYTHON
 
+#ifdef USE_PYTHON
 //! \brief return two lists: a list of vertices and a list of indices for connection
 PyObject *map_contours(int imol, float contour_level) {
 
@@ -2445,6 +2454,7 @@ PyObject *map_contours(int imol, float contour_level) {
    return r;
 }
 // \}
+#endif // USE_PYTHON
 
 //! \brief return two lists: a list of vertices and a list of indices for connection
 PyObject *map_contours_as_triangles(int imol, float contour_level) {

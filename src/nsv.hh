@@ -22,6 +22,7 @@
 #ifndef NSV_HH
 #define NSV_HH
 
+#ifdef HAVE_GOOCANVAS
 
 #include <string>
 #include <goocanvas.h>
@@ -144,6 +145,7 @@ namespace exptl {
    };
 }
 
+#endif // HAVE_GOOCANVAS
 
 
 #endif // NSV_HH

@@ -238,11 +238,12 @@ on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION >= 4) || (GTK_MINOR_VERSION == 94)
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   GdkRGBA bg_colour;
+  // 20220528-PE more here
 #else
   GdkColor bg_colour;
-#endif
   float fval1;
   float fval2;
   float fval3;
@@ -255,6 +256,7 @@ on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback
 
   preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
   set_background_colour(fval1, fval2, fval3);
+#endif
 
 }
 
@@ -263,8 +265,10 @@ extern "C" G_MODULE_EXPORT
 void
 on_preferences_bg_colour_colorbutton_color_set_gtkbuilder_callback
                                         (GtkColorButton  *colorbutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    // GtkWidget *w = lookup_widget(GTK_WIDGET(colorbutton), "preferences_bg_colour_own_radiobutton");
    GtkWidget *w = widget_from_preferences_builder("preferences_bg_colour_own_radiobutton");
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w))) {
@@ -280,6 +284,7 @@ on_preferences_bg_colour_colorbutton_color_set_gtkbuilder_callback
       preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
       set_background_colour(fval1, fval2, fval3);
    }
+#endif
 
 }
 
@@ -1247,10 +1252,12 @@ on_preferences_font_colour_default_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+                                                                       gpointer         user_data) {
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
+#else
    GdkColor font_colour;
    float fval1;
    float fval2;
@@ -1274,6 +1281,7 @@ on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback
          preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
       }
    }
+#endif
 }
 
 
@@ -1285,6 +1293,9 @@ on_preferences_font_colorbutton_color_set_gtkbuilder_callback
                                         gpointer         user_data)
 {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
+#else
    GdkColor font_colour;
    float fval1;
    float fval2;
@@ -1308,6 +1319,7 @@ on_preferences_font_colorbutton_color_set_gtkbuilder_callback
       GtkWidget *w = widget_from_preferences_builder("preferences_font_colour_own_radiobutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
    }
+#endif
 }
 
 extern "C" G_MODULE_EXPORT

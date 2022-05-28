@@ -229,14 +229,22 @@ void curlew() {
                                  gtk_label_set_markup(GTK_LABEL(w), "   <b>Installed</b>");
                                  // gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
                                  std::cout << "set the alignment (deprecated)"  << std::endl;
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                                 // 20220528-PE-FIXME box packing
+#else
                                  gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
+#endif
                                  gtk_widget_show(w);
                               }
                            } else {
                               if (n_available > 0) {
                                  GtkWidget *w = gtk_label_new(NULL);
                                  gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                                 // 20220528-PE-FIXME box packing
+#else
                                  gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
+#endif
                                  gtk_label_set_markup(GTK_LABEL(w), "   <b>Available</b>");
                                  // gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
                                  std::cout << "set the alignment (deprecated)"  << std::endl;
@@ -501,12 +509,16 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 
    gtk_container_add(GTK_CONTAINER(  install_frame),   install_button);
    gtk_container_add(GTK_CONTAINER(uninstall_frame), uninstall_button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(item_hbox), icon_widget,       FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), description_label, TRUE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), version_label,     FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), date_label,        TRUE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), install_frame,     FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), uninstall_frame,   FALSE, FALSE, 0);
+#endif
 
    gtk_widget_show(icon_widget);
    gtk_widget_show(description_label);
@@ -521,7 +533,11 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    else
       gtk_widget_show(install_button);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(vbox), item_hbox, TRUE, TRUE, 6);
+#endif
 
    g_signal_connect(  install_button, "clicked", G_CALLBACK(curlew_install_extension),   NULL);
    g_signal_connect(uninstall_button, "clicked", G_CALLBACK(curlew_uninstall_extension), install_button);

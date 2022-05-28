@@ -84,6 +84,7 @@ PyObject *go_to_ligand_py() {
       PyList_SetItem(r, i, PyFloat_FromDouble(new_pos[i]));
    return r;
 }
+#endif
 
 clipper::Coord_orth
 go_to_ligand_inner() {
@@ -2106,6 +2107,7 @@ std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type) {
 
    std::vector<std::string> centres;
+#ifdef HAVE_GOOCANVAS
 
    graphics_info_t g;
 
@@ -2129,6 +2131,7 @@ topological_equivalence_chiral_centres(const std::string &residue_type) {
       std::cout << "-------------------" << std::endl;
    }
 
+#endif // HAVE_GOOCANVAS
    return centres;
 }
 

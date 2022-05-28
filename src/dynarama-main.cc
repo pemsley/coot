@@ -24,6 +24,8 @@
                     // comes before Coot's one
 #endif
 
+#ifdef HAVE_GOOCANVAS
+
 #ifdef __GNU_LIBRARY__
 #include "compat/coot-getopt.h"
 #else
@@ -38,7 +40,9 @@
 
 #include <gtk/gtk.h>
 
+#ifdef HAVE_GOOCANVAS
 #include <goocanvas.h>
+#endif
 
 #include "utils/coot-utils.hh"
 #include "rama_plot.hh"
@@ -490,4 +494,32 @@ main(int argc, char *argv[]) {
    return 0;
 
 }
+
+#else
+
+#include <gtk/gtk.h>
+// Dummy definitions for stand alone version
+extern "C" {
+   void set_dynarama_is_displayed(GtkWidget *dynarama_widget, int imol) {}
+   void set_go_to_atom_molecule(int imol) {}
+   int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, const char *t3_atom_name)
+   { return 0;}
+   short int is_valid_model_molecule(int imol) { return 0;}
+   void set_moving_atoms(double phi, double psi) {}
+   void accept_phi_psi_moving_atoms() {}
+   void clear_moving_atoms_object() {}
+}
+
+#include <iostream>
+
+int
+main(int argc, char *argv[]) {
+
+   std::cout << "No goo canvas at compile-time, no dynarama " << std::endl;
+   return 0;
+}
+
+
+
+#endif
 

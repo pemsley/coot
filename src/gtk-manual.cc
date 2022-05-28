@@ -281,6 +281,7 @@ on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
 }
 #endif
 
+#ifdef HAVE_GOOCANVAS
 
 
 /*  The colour selection dialog has had its OK button pressed */

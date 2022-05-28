@@ -766,8 +766,12 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 			  G_CALLBACK(checkbox_callback_func),
 			  GINT_TO_POINTER(i));
 	 gtk_widget_show(checkbutton);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
 	 gtk_box_pack_start(GTK_BOX(molecules_vbox), checkbutton, FALSE, FALSE, 0);
 	 gtk_container_set_border_width(GTK_CONTAINER(checkbutton), 2);
+#endif
       }
    }
 }
@@ -1488,7 +1492,11 @@ show_fix_nomenclature_errors_gui(int imol,
 	       s += " ";
 	       s += nomenclature_errors[i].second.format();
 	       GtkWidget *l = gtk_label_new(s.c_str());
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+               // 20220528-PE-FIXME box packing
+#else
 	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(l), FALSE, FALSE, 2);
+#endif
 	       gtk_widget_show(GTK_WIDGET(l));
 	    }
 	 }
@@ -1679,7 +1687,11 @@ void  do_edit_copy_fragment() {
                                     gtk_container_remove(GTK_CONTAINER(data), widget); };
    gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
    GtkWidget *combobox = gtk_combo_box_new();
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+#endif
    gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
    g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);

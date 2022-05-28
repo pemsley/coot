@@ -127,6 +127,4 @@ gboolean rama_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpoin
 
 END_C_DECLS
 
-
-#endif // RAMA_MOUSEY_HH
-
+#endif // HAVE_GOOCANVAS

@@ -23,6 +23,7 @@ n * This program is distributed in the hope that it will be useful, but
 #define LBG_HH
 
 // Don't compile any of this if we don't have the canvas.
+#ifdef HAVE_GOOCANVAS
 
 #include <Python.h>
 
@@ -66,6 +67,7 @@ bool save_togglebutton_widgets(GtkBuilder *builder);
 void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode);
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 
+#ifdef HAVE_GOOCANVAS
 
 void lbg_scale_adj_changed( GtkWidget *widget, GtkSpinButton *spinbutton);
 
@@ -1346,6 +1348,10 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		void (*sbase_import_function_pointer) (std::string comp_id),
 		std::string (*get_drug_mdl_file_function_pointer) (std::string drug_name)
 		);
+
+#endif // HAVE_GOOCANVAS
+
+#endif // HAVE_GOOCANVAS - the top one
 
 #endif // LBG_HH
 

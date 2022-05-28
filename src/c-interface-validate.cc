@@ -1378,6 +1378,8 @@ void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *comb
 
 void do_ramachandran_plot(int imol) {
 
+#ifdef HAVE_GOOCANVAS
+
    if (is_valid_model_molecule(imol)) {
 
       coot::rama_plot *rama = new coot::rama_plot;
@@ -1399,6 +1401,7 @@ void do_ramachandran_plot(int imol) {
          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
       }
    }
+#endif // HAVE_GOOCANVAS
 }
 
 void set_kleywegt_plot_n_diffs(int ndiffs) {
@@ -1675,18 +1678,24 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
 void set_ramachandran_psi_axis_mode(int mode) {
 
+#if HAVE_GOOCANVAS
    graphics_info_t g;
    if (mode == 1)
       g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
    else
       g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+#endif
 }
 
 int
 ramachandran_psi_axis_mode() {
 
    graphics_info_t g;
+#ifdef HAVE_GOOCANVAS
    return g.rama_psi_axis_mode;
+#else
+   return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------------
@@ -2432,6 +2441,7 @@ int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char
 //! B-factor distribution histogram
 void b_factor_distribution_graph(int imol) {
 
+#if HAVE_GOOCANVAS
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::b_factor_histogram b(mol);
@@ -2460,6 +2470,7 @@ void b_factor_distribution_graph(int imol) {
       g->show_dialog();
 
    }
+#endif // HAVE_GOOCANVASHAVE_GOOCANVAS
 }
 
 

@@ -21,6 +21,8 @@
 #ifndef HAVE_SEQUENCE_VIEW
 #define HAVE_SEQUENCE_VIEW
 
+#ifdef HAVE_GOOCANVAS
+
 #include <gtk/gtk.h>
 #include <goocanvas.h>
 
@@ -111,4 +113,5 @@ namespace coot {
    
 }
 
+#endif // HAVE_GOOCANVAS
 #endif //  HAVE_SEQUENCE_VIEW

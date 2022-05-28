@@ -4424,6 +4424,7 @@ on_edit_backbone_torsion_rotate_peptide_button_motion_notify_event_gtkbuilder_ca
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    int ix, iy;
    GdkModifierType state;
    GdkWindow *window = gtk_widget_get_window(widget);
@@ -4442,6 +4443,7 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_pressed_gtkbuilder_callb
 {
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    int ix, iy;
    GdkModifierType state;
    GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
@@ -4469,6 +4471,7 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_motion_notify_event_gtkb
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
   int ix, iy;
   GdkModifierType state;
   GdkWindow *window = gtk_widget_get_window(widget);
@@ -8424,16 +8427,22 @@ on_lsq_superpose1_activate_gtkbuilder_callback             (GtkMenuItem     *men
 }
 
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
+   // no GtkStateType
+#else
+
 extern "C" G_MODULE_EXPORT
 void
 on_goto_atom_window_state_changed_gtkbuilder_callback      (GtkWidget       *widget,
-                                        GtkStateType     state,
-                                        gpointer         user_data)
+                                                            GtkStateType     state,
+                                                            gpointer         user_data)
 {
   /* how does this window get a state changed event?  Not at all, as
      far as I can see.  Nothing happens here. */
   printf("Go To Atom window state changed!\n");
 }
+#endif
 
 
 extern "C" G_MODULE_EXPORT
@@ -8792,6 +8801,10 @@ void
 on_symmetry_colorbutton_color_set_gtkbuilder_callback      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
+   // need to update color usage
+#else
   GdkColor colour;
   gdouble color[4]; // use first 3
   double r = 1.0 / 65535.0;
@@ -8800,6 +8813,7 @@ on_symmetry_colorbutton_color_set_gtkbuilder_callback      (GtkColorButton  *col
   color[1] = colour.green * r;
   color[2] = colour.blue  * r;
   handle_symmetry_colour_change(1,color);
+#endif
 
 }
 
@@ -8921,15 +8935,21 @@ on_model_toolbar_style_changed_gtkbuilder_callback         (GtkToolbar      *too
 extern "C" G_MODULE_EXPORT
 gboolean
 on_model_toolbar_button_press_event_gtkbuilder_callback    (GtkWidget       *widget,
-                                        GdkEventButton  *event,
-                                        gpointer         user_data)
+                                                            GdkEventButton  *event,
+                                                            gpointer         user_data)
 {
+
+   // maybe this #if should be outside this function?
+   
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
 
    if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
       GdkEventButton *eb = static_cast<GdkEventButton *>(user_data);
       toolbar_popup_menu(GTK_TOOLBAR(widget), eb, event);
       return TRUE;
    }
+#endif
 
    return FALSE;
 }

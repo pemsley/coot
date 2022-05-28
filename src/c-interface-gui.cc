@@ -263,7 +263,11 @@ add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection
    GCallback callback_func =
       G_CALLBACK(on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
+#endif
    gtk_container_add(GTK_CONTAINER(frame), checkbutton);
    gtk_widget_show(checkbutton);
    gtk_widget_show(frame);
@@ -861,7 +865,11 @@ void add_coot_references_button(GtkWidget *widget) {
    // hbox = GTK_DIALOG(widget)->action_area;
    GtkWidget *hbox = gtk_dialog_get_header_bar(GTK_DIALOG(widget));
    GtkWidget *button = gtk_button_new_with_label("References");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+#endif
    gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(hbox), button, TRUE);
    gtk_box_reorder_child(GTK_BOX(hbox), button, 2);
    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(wrapped_create_coot_references_dialog), NULL);
@@ -1197,8 +1205,11 @@ void set_graphics_window_size(int x_size, int y_size) {
 
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
-	 while (gdk_events_pending())
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
+	 while (gdk_events_pending()) // not a thing in GTK4
 	    gtk_main_iteration();
+#endif
       }
       graphics_draw();
    }
@@ -1817,9 +1828,13 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
    //    { // Tab is not good.  It takes you to the next widget too,
    //    which is not want we want.  It's confusing, so let's just use
    //    return.
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    if (event->keyval == GDK_KEY_Return) {
       handle_filename_filter_gtk2(widget);
    }
+#endif
    return FALSE;
 }
 
@@ -1915,6 +1930,9 @@ on_python_window_entry_key_press_event(GtkWidget   *entry,
                                        GdkEventKey *event,
                                        gpointer     user_data) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME key press event
+#else
    if (event->keyval == GDK_KEY_Up) {
       graphics_info_t g;
       std::string t = g.command_history.get_previous_command();
@@ -1928,6 +1946,7 @@ on_python_window_entry_key_press_event(GtkWidget   *entry,
       gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
       return TRUE;
    }
+#endif
 
    return FALSE;
 }
@@ -2451,7 +2470,11 @@ void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
       // g.fill_combobox_with_molecule_options(combobox, callback_func, imol_first, molecule_indices);
       GtkWidget *combobox_new = gtk_combo_box_new();
       gtk_widget_show(combobox_new);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox), combobox_new, FALSE, FALSE, 4);
+#endif
       g.new_fill_combobox_with_coordinates_options(combobox_new, callback_func, imol_first);
    }
 
@@ -2475,8 +2498,12 @@ pepflips_by_difference_map_dialog() {
    // create new comboboxes
    GtkWidget *model_combobox = gtk_combo_box_new();
    GtkWidget *map_combobox   = gtk_combo_box_new();
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(vbox),   map_combobox, FALSE, FALSE, 6);
    gtk_box_pack_start(GTK_BOX(vbox), model_combobox, FALSE, FALSE, 6);
+#endif
    gtk_widget_show(model_combobox);
    gtk_widget_show(map_combobox);
    graphics_info_t g;
@@ -3774,7 +3801,11 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
 	 // g_object_set_data(G_OBJECT(w), button_name.c_str(), (gpointer)checkbutton);
          g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
 	 gtk_widget_show(checkbutton);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE FIXME box packing
+#else
 	 gtk_box_pack_start (GTK_BOX (vbox), checkbutton, FALSE, FALSE, 0);
+#endif
       }
    }
 
@@ -4333,14 +4364,17 @@ void my_delete_menu_items(GtkWidget *widget, void *data) {
 void show_map_colour_selector_with_parent(int imol, GtkWidget *parent_window) {
 
    if (is_valid_map_molecule(imol)) {
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-      GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Map Colour Selection", GTK_WINDOW(parent_window));
-      GdkRGBA map_colour = get_map_colour(imol);
-      struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
-      map_colour_data->imol = imol;
-      GdkRGBA *map_colour_p = new GdkRGBA(map_colour);
-      gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_chooser_dialog), map_colour_p);
-      gtk_widget_show(colour_chooser_dialog);
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME color
+      // #if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+      // GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Map Colour Selection", GTK_WINDOW(parent_window));
+      // GdkRGBA map_colour = get_map_colour(imol);
+      // struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
+      // map_colour_data->imol = imol;
+      // GdkRGBA *map_colour_p = new GdkRGBA(map_colour);
+      // gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_chooser_dialog), map_colour_p);
+      // gtk_widget_show(colour_chooser_dialog);
 #else
       GtkWidget *color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
       GdkRGBA map_colour = get_map_colour(imol);
@@ -4503,7 +4537,11 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
    GtkWidget *combobox = gtk_combo_box_new();
    gtk_widget_show(combobox);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+#endif
    gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
 
    g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
@@ -4685,7 +4723,9 @@ GtkWidget *wrapped_create_goto_atom_window() {
    GtkWidget *widget = graphics_info_t::go_to_atom_window;
    if (widget) {
 
-#if (GTK_MAJOR_VERSION < 4)
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME widget raise
+#else
       if (!gtk_widget_get_mapped(widget))
 	 gtk_widget_show(widget);
       else
@@ -5478,6 +5518,8 @@ void set_sequence_view_is_docked(short int state) {
 
 void nsv(int imol) {
 
+#ifdef HAVE_GOOCANVAS
+
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
@@ -5542,6 +5584,7 @@ void nsv(int imol) {
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
+#endif // GOOCANVAS
 }
 
 void set_nsv_canvas_pixel_limit(int cpl) {
@@ -5647,6 +5690,7 @@ void set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    toolbar. It's still here for completeness. */
 void toolbar_multi_refine_stop() {
 
+#if (GTK_MAJOR_VERSION > 1)
 
 #ifdef USE_GUILE
 
@@ -5674,12 +5718,14 @@ void toolbar_multi_refine_stop() {
    toolbar_multi_refine_button_set_sensitive("stop",     0); // it's already stopped.
 #endif // USE_PYTHON
 #endif // USE_GUILE
+#endif // GTK_MAJOR_VERSION
 
 }
 
 
 void toolbar_multi_refine_continue() {
 
+#if (GTK_MAJOR_VERSION > 1)
 
 #ifdef USE_GUILE
 
@@ -5705,11 +5751,13 @@ void toolbar_multi_refine_continue() {
 
 #endif // USE_PYTHON
 #endif // USE_GUILE
+#endif // GTK_MAJOR_VERSION
 
 }
 
 void toolbar_multi_refine_cancel() {
 
+#if (GTK_MAJOR_VERSION > 1)
 #ifdef USE_GUILE
 
    // the idle function looks at this value
@@ -5734,6 +5782,7 @@ void toolbar_multi_refine_cancel() {
 
 #endif // USE_PYTHON
 #endif // USE_GUILE
+#endif // GTK_MAJOR_VERSION
 
 }
 

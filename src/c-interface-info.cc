@@ -119,7 +119,13 @@ PyObject *coot_has_guile() {
 bool coot_can_do_lidia_p() {
 
    bool r = false;
+
+#ifdef HAVE_GOOCANVAS
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    r = true;
+#endif
+#endif
+
    return r;
 
 }
@@ -1948,6 +1954,7 @@ void update_go_to_atom_from_current_position() {
 
       graphics_info_t g;
 
+#ifdef HAVE_GOOCANVAS
       auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom, GtkWidget *svc) {
                                                       if (svc) {
                                                          if (next_atom) {
@@ -1963,6 +1970,7 @@ void update_go_to_atom_from_current_position() {
 
       mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
       sequence_view_highlight_residue_maybe(at, g.get_sequence_view_is_displayed(imol));
+#endif
    }
 }
 
@@ -1971,6 +1979,7 @@ update_sequence_view_current_position_highlight_from_active_atom() {
 
    // maybe put this function in graphics_info_t?
 
+#ifdef HAVE_GOOCANVAS
    auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom, GtkWidget *svc) {
                                                    if (svc) {
                                                       if (next_atom) {
@@ -1992,6 +2001,7 @@ update_sequence_view_current_position_highlight_from_active_atom() {
       mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
       sequence_view_highlight_residue_maybe(at, g.get_sequence_view_is_displayed(imol));
    }
+#endif
 
 }
 
@@ -2689,13 +2699,17 @@ int  show_pointer_distances_state() {
    return graphics_info_t::show_pointer_distances_flag;
 }
 
-
+#ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
+#endif
+
 #include "coot-utils/xmap-stats.hh"
 
 
 void
 fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
+
+#ifdef HAVE_GOOCANVAS
 
    if (is_valid_map_molecule(imol)) {
       // set_and_get_histogram_values(); surely?
@@ -2812,6 +2826,9 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
          }
       }
    }
+#else
+   gtk_widget_hide(map_contour_frame);
+#endif
 }
 
 /*  ----------------------------------------------------------------------- */
