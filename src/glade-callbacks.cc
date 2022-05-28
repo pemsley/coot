@@ -1683,6 +1683,8 @@ on_accession_code_entry_key_press_event_gtkbuilder_callback (GtkWidget       *wi
                                                              gpointer         user_data)
 {
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
+
  /* go somewhere if keypress was a carriage return  */
 
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
@@ -1690,6 +1692,7 @@ on_accession_code_entry_key_press_event_gtkbuilder_callback (GtkWidget       *wi
      GtkWidget *dialog = widget_from_builder("accession_code_window");
      handle_get_accession_code(dialog, entry);
   }
+#endif
 
   return FALSE;
 }
@@ -3366,9 +3369,12 @@ on_go_to_atom_chain_entry_key_press_event_gtkbuilder_callback
                                         GdkEventKey     *event,
                                         gpointer         user_data)
 {
+
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     apply_go_to_atom_values(widget_from_builder("goto_atom_window"));
   }
+#endif
   return FALSE;
 }
 
@@ -3381,9 +3387,11 @@ on_go_to_atom_residue_entry_key_press_event_gtkbuilder_callback (GtkWidget      
 {
 
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     apply_go_to_atom_values(widget_from_builder("goto_atom_window"));
   }
+#endif
   return FALSE;
 }
 
@@ -3395,9 +3403,11 @@ on_go_to_atom_atom_name_entry_key_press_event_gtkbuilder_callback (GtkWidget    
 					       gpointer         user_data)
 {
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     apply_go_to_atom_values(widget_from_builder("goto_atom_window"));
   }
+#endif
 
   return FALSE;
 }
@@ -4384,13 +4394,15 @@ on_edit_backbone_torsion_rotate_peptide_button_pressed_gtkbuilder_callback
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION < 4)
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    int ix, iy;
    GdkModifierType state;
    GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
    gdk_window_get_pointer(window, &ix, &iy, &state);
    set_backbone_torsion_peptide_button_start_pos(ix, iy);
-#endif 
+#endif
 }
 
 
@@ -4411,14 +4423,14 @@ on_edit_backbone_torsion_rotate_peptide_button_motion_notify_event_gtkbuilder_ca
                                         GdkEventMotion  *event,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION < 4)
-  int ix, iy;
-  GdkModifierType state;
-  GdkWindow *window = gtk_widget_get_window(widget);
-  gdk_window_get_pointer(window, &ix, &iy, &state);
-  change_peptide_peptide_by_current_button_pos(ix, iy);
-  return FALSE;
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   int ix, iy;
+   GdkModifierType state;
+   GdkWindow *window = gtk_widget_get_window(widget);
+   gdk_window_get_pointer(window, &ix, &iy, &state);
+   change_peptide_peptide_by_current_button_pos(ix, iy);
 #endif
+   return FALSE;
 }
 
 
@@ -4428,12 +4440,13 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_pressed_gtkbuilder_callb
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION < 4)
-  int ix, iy;
-  GdkModifierType state;
-  GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
-  gdk_window_get_pointer(window, &ix, &iy, &state);
-  set_backbone_torsion_carbonyl_button_start_pos(ix, iy);
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   int ix, iy;
+   GdkModifierType state;
+   GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(button));
+   gdk_window_get_pointer(window, &ix, &iy, &state);
+   set_backbone_torsion_carbonyl_button_start_pos(ix, iy);
 #endif
 }
 
@@ -4455,7 +4468,7 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_motion_notify_event_gtkb
                                         GdkEventMotion  *event,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION < 4)
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   int ix, iy;
   GdkModifierType state;
   GdkWindow *window = gtk_widget_get_window(widget);
@@ -5087,9 +5100,12 @@ on_libcheck_monomer_entry_key_press_event_gtkbuilder_callback (GtkWidget       *
 					   GdkEventKey     *event,
 					   gpointer         user_data)
 {
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+
+#ifdef FIX_THE_KEY_PRESS_EVENTS
+   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     handle_get_libcheck_monomer_code(widget);
   }
+#endif
 
   return FALSE;
 }
@@ -5359,11 +5375,13 @@ on_map_properties_dialog_fresnel_bias_entry_key_press_event_gtkbuilder_callback 
                                                                                  gpointer         user_data)
 {
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
       handle_map_properties_fresnel_change(imol, togglebutton);
    }
+#endif
    return FALSE;
 }
 
@@ -5374,11 +5392,13 @@ on_map_properties_dialog_fresnel_scale_entry_key_press_event_gtkbuilder_callback
                                                                                   gpointer         user_data)
 {
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
       handle_map_properties_fresnel_change(imol, togglebutton);
    }
+#endif
    return FALSE;
 }
 
@@ -5389,11 +5409,13 @@ on_map_properties_dialog_fresnel_power_entry_key_press_event_gtkbuilder_callback
                                                                                   GdkEventKey     *event,
                                                                                   gpointer         user_data)
 {
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
       handle_map_properties_fresnel_change(imol, togglebutton);
    }
+#endif
    return FALSE;
 }
 
@@ -7936,10 +7958,12 @@ on_coot_online_doc_search_entry_key_press_event_gtkbuilder_callback
 
   const char *text;
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     text = gtk_entry_get_text(GTK_ENTRY(widget));
     handle_online_coot_search_request(text);
   }
+#endif
 
   return FALSE;
 }
@@ -8015,9 +8039,11 @@ on_entry1_key_press_event_gtkbuilder_callback(GtkWidget       *widget,
 
    GtkEntry *entry = (GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry")));
    const char *text = gtk_entry_get_text(entry);
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       set_density_size_from_widget(text);
    }
+#endif
    return FALSE;
 }
 
@@ -8316,12 +8342,14 @@ on_monomer_search_entry_key_press_event_gtkbuilder_callback
    GtkWidget *viewport = widget_from_builder("monomer_search_results_viewport");
 
    if (entry) {
+#ifdef FIX_THE_KEY_PRESS_EVENTS
       if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
          text = gtk_entry_get_text(GTK_ENTRY(entry));
          if (text) {
             handle_make_monomer_search(text, viewport);
          }
       }
+#endif
    }
    return FALSE;
 }
@@ -10687,12 +10715,13 @@ gboolean
 on_environment_distance_max_entry_key_press_event_gtkbuilder_callback
                                         (GtkWidget       *widget,
                                         GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+#ifdef FIX_THE_KEY_PRESS_EVENTS
+   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
        execute_environment_settings(widget);
   }
+#endif
   return FALSE;
 }
 
@@ -10703,9 +10732,11 @@ on_environment_distance_min_entry_key_press_event_gtkbuilder_callback
                                         GdkEventKey     *event,
                                         gpointer         user_data) {
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
        execute_environment_settings(widget);
   }
+#endif
   return FALSE;
 }
 
@@ -10986,6 +11017,7 @@ on_keyboard_go_to_residue_entry_key_press_event_gtkbuilder_callback
 
    GtkWidget *w = widget_from_builder("keyboard_go_to_residue_window");
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       handle_go_to_residue_keyboarding_mode(text);
       gtk_widget_hide(w);
@@ -10995,6 +11027,7 @@ on_keyboard_go_to_residue_entry_key_press_event_gtkbuilder_callback
       gtk_widget_hide(w);
       return TRUE;
    }
+#endif
    return FALSE;
 }
 
@@ -11978,10 +12011,12 @@ on_symmetry_radius_entry_key_release_event_gtkbuilder_callback
 {
 
   const char *text;
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     text = gtk_entry_get_text(GTK_ENTRY(widget));
     set_symmetry_size_from_widget(text);
   }
+#endif
   return TRUE;
 }
 
@@ -12033,8 +12068,10 @@ on_map_radius_em_entry_key_press_event_gtkbuilder_callback (GtkWidget       *wid
 
   GtkEntry *entry = (GTK_ENTRY(widget_from_builder("map_radius_em_entry")));
   const char *text = gtk_entry_get_text(entry);
+#ifdef FIX_THE_KEY_PRESS_EVENTS
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
     set_density_size_em_from_widget(text);
+#endif
   return FALSE;
 }
 
@@ -12163,10 +12200,12 @@ on_residue_type_chooser_entry_key_press_event_gtkbuilder_callback
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
       istate = 1;
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       handle_residue_type_chooser_entry_chose_type(entry_text, istate);
       gtk_widget_hide(window);
    }
+#endif
    return FALSE;
 }
 
@@ -12221,8 +12260,8 @@ on_map_properties_dialog_specularity_strength_entry_key_press_event_gtkbuilder_c
                                                                                          gpointer         user_data)
 {
 
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    std::cout << "strength entry key press callback" << std::endl;
-
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       // the g_object_set_data() for these is done in fill_single_map_properties_dialog_gtk3()
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
@@ -12230,6 +12269,7 @@ on_map_properties_dialog_specularity_strength_entry_key_press_event_gtkbuilder_c
       std::cout << "call handle_map_properties_specularity_change() " << std::endl;
       handle_map_properties_specularity_change(imol, togglebutton);
    }
+#endif
    return FALSE; // otherwise the text can't edited!
 }
 
@@ -12239,11 +12279,13 @@ on_map_properties_dialog_specularity_shininess_entry_key_press_event_gtkbuilder_
                                                                                           GdkEventKey     *event,
                                                                                           gpointer         user_data)
 {
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "specularity_checkbutton"));
       handle_map_properties_specularity_change(imol, togglebutton);
    }
+#endif
    return FALSE;
 }
 
@@ -12265,6 +12307,7 @@ on_single_map_properties_step_size_entry_key_press_event_gtkbuilder_callback (Gt
                                                                               GdkEventKey     *event,
                                                                               gpointer         user_data)
 {
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       std::string t = gtk_entry_get_text(GTK_ENTRY(widget));
@@ -12275,6 +12318,7 @@ on_single_map_properties_step_size_entry_key_press_event_gtkbuilder_callback (Gt
          std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }
+#endif
    return FALSE;
 }
 
@@ -12343,6 +12387,7 @@ on_keyboard_mutate_entry_key_press_event_gtkbuilder_callback (GtkWidget       *w
 
    GtkWidget *dialog = widget_from_builder("keyboard_mutate_dialog");
    GtkWidget *entry  = widget_from_builder("keyboard_mutate_entry");
+#ifdef FIX_THE_KEY_PRESS_EVENTS
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
       if (txt) {
@@ -12352,6 +12397,7 @@ on_keyboard_mutate_entry_key_press_event_gtkbuilder_callback (GtkWidget       *w
       }
       gtk_widget_hide(dialog);
    }
+#endif
    return FALSE;
 }
 
