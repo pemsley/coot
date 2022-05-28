@@ -43,6 +43,10 @@ on_gl_canvas_drag_drop(GtkWidget *widget,
 		       guint time,
 		       gpointer user_data) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+   return 0;
+#else
    gboolean is_valid_drop_site = TRUE;
    // Request the data from the source.
    GList *targets = gdk_drag_context_list_targets(context);
@@ -56,6 +60,7 @@ on_gl_canvas_drag_drop(GtkWidget *widget,
       std::cout << "ERROR:: null dnd context" << std::endl;
    } 
    return  is_valid_drop_site;
+#endif
 }
 
 void
@@ -67,6 +72,9 @@ on_drag_data_received (GtkWidget *widget,
 		       guint time,
 		       gpointer data) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+#else
    gboolean dnd_success = FALSE;
    gboolean delete_selection_data = FALSE;
    
@@ -112,6 +120,7 @@ on_drag_data_received (GtkWidget *widget,
       
    }
    gtk_drag_finish (context, dnd_success, delete_selection_data, time);
+#endif
 }
 
 

@@ -36,7 +36,9 @@
 #include "skeleton/graphical_skel.h"
 #include "coot-utils/xmap-stats.hh"
 
+#ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
+#endif
 
 #include "c-interface-mmdb.hh"
 #include "c-interface-python.hh"
@@ -753,31 +755,31 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name
       std::string s = r.f_cols[i].column_label;
       std::string::size_type idx = s.find(".F_phi.F");
       if (idx != std::string::npos) {
-    std::string prefix = s.substr(0, idx);
-    std::string trial_phi_col = prefix + ".F_phi.phi";
-    for (unsigned int j=0; j<r.phi_cols.size(); j++) {
-       if (r.phi_cols[j].column_label == trial_phi_col) {
-          std::string f_col   = r.f_cols[i].column_label;
-          std::string phi_col = r.phi_cols[j].column_label;
-          int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name,
-    f_col.c_str(),
-    phi_col.c_str(),
-    "",
-    0,     //   use_weights
-    0,     //   is_diff_map,
-    0,     //   short int have_refmac_params,
-    "",    //   const char *fobs_col,
-    "",    //   const char *sigfobs_col,
-    "",    //   const char *r_free_col,
-    0,     //   short int sensible_f_free_col,
-    0,     //   short int is_anomalous_flag,
-    0,     //   short int use_reso_limits,
-    0,     //   float low_reso_limit,
-                                                                     0);    //   float high_reso_limit
-           if (is_valid_map_molecule(imol))
-              imols.push_back(imol);
-       }
-    }
+         std::string prefix = s.substr(0, idx);
+         std::string trial_phi_col = prefix + ".F_phi.phi";
+         for (unsigned int j=0; j<r.phi_cols.size(); j++) {
+            if (r.phi_cols[j].column_label == trial_phi_col) {
+               std::string f_col   = r.f_cols[i].column_label;
+               std::string phi_col = r.phi_cols[j].column_label;
+               int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name,
+                                                                         f_col.c_str(),
+                                                                         phi_col.c_str(),
+                                                                         "",
+                                                                         0,     //   use_weights
+                                                                         0,     //   is_diff_map,
+                                                                         0,     //   short int have_refmac_params,
+                                                                         "",    //   const char *fobs_col,
+                                                                         "",    //   const char *sigfobs_col,
+                                                                         "",    //   const char *r_free_col,
+                                                                         0,     //   short int sensible_f_free_col,
+                                                                         0,     //   short int is_anomalous_flag,
+                                                                         0,     //   short int use_reso_limits,
+                                                                         0,     //   float low_reso_limit,
+                                                                         0);    //   float high_reso_limit
+               if (is_valid_map_molecule(imol))
+                  imols.push_back(imol);
+            }
+         }
       }
    }
 

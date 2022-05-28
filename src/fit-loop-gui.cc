@@ -54,8 +54,12 @@ fill_mutate_sequence_dialog_gtkbuilder_version() {
    GtkWidget *combobox_molecule = gtk_combo_box_new();   // number and name
    GtkWidget *combobox_chain = gtk_combo_box_text_new(); // just the chain id
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox_mol),   combobox_molecule, FALSE, FALSE, 6);
    gtk_box_pack_start(GTK_BOX(hbox_chain), combobox_chain,    FALSE, FALSE, 6);
+#endif
    gtk_widget_show(combobox_molecule);
    gtk_widget_show(combobox_chain);
 

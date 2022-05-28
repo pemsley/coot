@@ -411,7 +411,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 gboolean
 on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
-
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
    int direction = 1;
    if (event->direction == GDK_SCROLL_UP)
       direction = -1;
@@ -448,6 +449,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
          g.contour_level_scroll_scrollable_map(direction);
       }
    }
+#endif
    return TRUE;
 }
 
@@ -467,6 +469,9 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
                                                               return gboolean(handled);
                                                            };
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+#else
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);
    g.SetMouseClicked(event->x, event->y);
@@ -610,12 +615,16 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    if (! handled)
       g.check_if_in_range_defines(event, mask);
+#endif
    return TRUE;
 }
 
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
+   // 20220528-PE FIXME mouse
    graphics_info_t g;
    if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
       g.unset_moving_atoms_currently_dragged_atom_index();
@@ -653,6 +662,7 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
          }
       }
    }
+#endif
    return TRUE;
 }
 
@@ -696,6 +706,9 @@ do_drag_pan_gtk3(GtkWidget *widget) {
 gboolean
 on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME mouse
+#else
 
    auto check_for_hud_bar_tooltip = [widget] (double event_x, double event_y) {
                                graphics_info_t g;
@@ -892,12 +905,18 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.SetMouseBegin(event->x,event->y);
    // gtk_widget_queue_draw(widget);
    g.graphics_draw(); // queue
+#endif
    return TRUE;
 }
 
 
 gboolean
 on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+   return 1;
+#else
 
    // move this function into graphics_info_t?
 
@@ -941,12 +960,17 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    g.graphics_draw(); // queue
 
    return handled;
+#endif
 
 }
 
 gboolean
 on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+   return 1;
+#else
    graphics_info_t g;
 
    // We need to check the GDK_KEY_Shift_R also, I guess. Not clear
@@ -957,6 +981,7 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
 
    // key release is a very special event  - normally we act on key-press.
 
+#endif
    return TRUE;
 }
 
@@ -986,6 +1011,10 @@ on_glarea_swipe(GtkGestureSwipe *gesture,
 
 void
 my_glarea_add_signals_and_events(GtkWidget *glarea) {
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME events
+#else
 
    gtk_widget_add_events(glarea, GDK_SCROLL_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);
@@ -1031,6 +1060,8 @@ my_glarea_add_signals_and_events(GtkWidget *glarea) {
    g_signal_connect(drag, "drag-begin",  G_CALLBACK(on_glarea_drag_begin),  glarea);
    g_signal_connect(drag, "drag-update", G_CALLBACK(on_glarea_drag_update), glarea);
 
-#endif
+#endif // commented code
+
+#endif // GTK VERSION
 
 }

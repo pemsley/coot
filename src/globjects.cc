@@ -27,6 +27,10 @@
 // draw, reshape, init, mouse_move and mouse_button press
 // (and animate(for idle)).
 
+// 20220528-PE question to self - is there actually anything in this file that we now need?
+//             .. let's presume not for now
+#if 0 
+
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -89,9 +93,6 @@
 #include "rotamer-search-modes.hh"
 
 #include "draw.hh"
-
-std::vector<molecule_class_info_t> graphics_info_t::molecules;
-std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
 
 
 // Initialize the graphics_info_t mouse positions
@@ -652,12 +653,6 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) { return 0; }
 #define DEG_TO_RAD .01745327
 gint expose(GtkWidget *widget, GdkEventExpose *event) { return 0; }
 
-void
-update_things_on_move_and_redraw() {
-
-   graphics_info_t g;
-   g.update_things_on_move_and_redraw();
-}
 
 void myWireCube(float size) {
 
@@ -3099,3 +3094,6 @@ void set_skeleton_bond_colour_random(int i, const std::vector<std::vector<float>
 // 		 combine_colour(0.8, 2));
 //    }
 // }
+
+#endif // 0
+

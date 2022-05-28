@@ -60,9 +60,11 @@
 void
 on_map_color_changed(GtkWidget *w, gpointer tmd) {
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-#else
    struct map_colour_data_type* t = static_cast<struct map_colour_data_type*> (tmd);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME color
+   GdkRGBA colour;
+#else
    GdkColor color;
    gtk_color_selection_get_current_color(t->color_selection, &color);
    GdkRGBA map_color;
@@ -128,7 +130,7 @@ create_symmetry_colour_selection_window() {
 }
 
 
-#if (GTK_MAJOR_VERSION >=4) || GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
 void
 on_symmetry_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
@@ -207,7 +209,9 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
       do_ramachandran_plot(imol);
    } else {
       gtk_widget_show(rama_widget);
-#if (GTK_MAJOR_VERSION < 4)
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME window raise
+#else
       gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
 #endif
    }
@@ -264,8 +268,7 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 
 #include "c-interface-widgets.hh"
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
 void
 on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
@@ -280,8 +283,6 @@ on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel) {
    handle_skeleton_colour_change(1,color);
 }
 #endif
-
-#ifdef HAVE_GOOCANVAS
 
 
 /*  The colour selection dialog has had its OK button pressed */
@@ -464,7 +465,11 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
    GtkWidget *display_control_molecule_vbox = widget_from_builder("display_molecule_vbox");
    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
    g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(display_control_molecule_vbox), hbox, FALSE, FALSE, 0);
+#endif
    gtk_widget_show(hbox);
 
    // We need to add thesee items:
@@ -479,34 +484,54 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
    std::string imol_str = std::to_string(imol);
    GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
    gtk_widget_show(molecule_number_label);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), molecule_number_label, FALSE, FALSE, 10);
+#endif
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
    gtk_entry_set_text(GTK_ENTRY(entry), name.c_str());
    gtk_widget_show(entry);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
+#endif
 
    // 3: "Display" checkbutton
    GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
    gtk_widget_show(display_checkbutton);
    g_object_set_data(G_OBJECT(display_checkbutton), "imol", GINT_TO_POINTER(imol));
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), display_checkbutton, FALSE, FALSE, 2);
+#endif
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), mol_is_displayed(imol));
 
    // 4: "Active" checkbutton
    GtkWidget *active_checkbutton = gtk_check_button_new_with_label("Active");
    gtk_widget_show(active_checkbutton);
    g_object_set_data(G_OBJECT(active_checkbutton), "imol", GINT_TO_POINTER(imol));
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), active_checkbutton, FALSE, FALSE, 2);
+#endif
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_checkbutton), mol_is_active(imol));
    // when Display is untoggled we need to untoggle this active_checkbutton too
    g_object_set_data(G_OBJECT(display_checkbutton), "active_toggle_button", active_checkbutton);
 
    // 5: Drawing mode
    GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(imol);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), sel_and_col_combobox, FALSE, FALSE, 2);
    gtk_container_set_border_width(GTK_CONTAINER(sel_and_col_combobox), 2);
+#endif
 
    // when Display is untoggled via the API, we need to get to the buttons to change
    // the state in the gui (give the hbox) (see set_display_control_button_state()).
@@ -536,8 +561,12 @@ void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
       button_string = "Delete Map";
    GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
    gtk_widget_show(delete_button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start (GTK_BOX (hbox32), delete_button, FALSE, FALSE, 0);
    gtk_container_set_border_width (GTK_CONTAINER (delete_button), 2);
+#endif
    g_signal_connect(G_OBJECT(delete_button), "clicked",
 		      G_CALLBACK(on_display_control_delete_molecule_button_clicked),
 		      GINT_TO_POINTER(imol));
@@ -563,7 +592,11 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    GtkWidget *all_on_check_button = gtk_check_button_new_with_label(arl.c_str());
    if (show_add_reps_frame_flag)
       gtk_widget_show(all_on_check_button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox_for_single_molecule), all_on_check_button, FALSE, FALSE, 2);
+#endif
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
    std::string widget_name = "add_rep_all_on_check_button_";
    widget_name += coot::util::int_to_string(imol_no);
@@ -725,7 +758,11 @@ display_control_map_combo_box(const std::string &name, int imol) {
    GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
    g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(display_map_vbox), hbox, FALSE, FALSE, 0);
+#endif
    gtk_widget_show(hbox);
 
    // Do I need to clear_out_container(display_map_vbox) here?
@@ -742,18 +779,30 @@ display_control_map_combo_box(const std::string &name, int imol) {
    std::string imol_str = std::to_string(imol);
    GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
    gtk_widget_show(molecule_number_label);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), molecule_number_label, FALSE, FALSE, 10);
+#endif
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
    gtk_entry_set_text(GTK_ENTRY(entry), name.c_str());
    gtk_widget_show(entry);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
+#endif
 
    // 3: "Display" checkbutton
    GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
    gtk_widget_show(display_checkbutton);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), display_checkbutton, FALSE, FALSE, 2);
+#endif
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), map_is_displayed(imol));
    g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_checkbutton); // for set_display_control_button_state()
 
@@ -765,12 +814,20 @@ display_control_map_combo_box(const std::string &name, int imol) {
    else
       scroll_button = gtk_radio_button_new_with_label(NULL, "Scroll");
    gtk_widget_show(scroll_button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), scroll_button, FALSE, FALSE, 2);
+#endif
 
    // 5: "Properties" button
    GtkWidget *properties_button = gtk_button_new_with_label("Properties");
    gtk_widget_show(properties_button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(hbox), properties_button, FALSE, FALSE, 2);
+#endif
 
    // 6: "Delete" map button
    display_control_add_delete_molecule_button(imol, hbox, true);
@@ -968,13 +1025,14 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   gtk_container_add(GTK_CONTAINER(widget_thing), widget);
 
   // printf("gdk_gc_new\n");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
   GdkWindow *window = 0;
-#if (GTK_MAJOR_VERSION < 4)
   window = gtk_widget_get_window(widget);
-#endif
-
   if (! window)
      return;
+#endif
+
 
   // gc = gdk_gc_new(window);
 
@@ -1099,8 +1157,12 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "hbox33", hbox33,
 			  NULL);
   gtk_widget_show (hbox33);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (phs_cell_chooser_vbox), hbox33, TRUE, TRUE, 4);
   gtk_container_set_border_width (GTK_CONTAINER (hbox33), 6);
+#endif
 
   strcpy(widget_name, "phs_cell_radiobutton_");
   tmp_name = widget_name + strlen(widget_name);
@@ -1116,14 +1178,21 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_radiobutton_1), FALSE);
 
   gtk_widget_show (phs_cell_radiobutton_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_radiobutton_1, FALSE, FALSE, 4);
+#endif
 
   label53 = gtk_label_new (_("Symm"));
   // gtk_widget_ref (label53);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label53", label53,
-			  NULL);
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label53", label53, NULL);
   gtk_widget_show (label53);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label53, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_symm_entry_");
@@ -1137,7 +1206,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_symm_entry_1,
 			  NULL);
   gtk_widget_show (phs_cell_symm_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_symm_entry_1, TRUE, TRUE, 0);
+#endif
 
   gtk_widget_set_size_request(GTK_WIDGET(phs_cell_symm_entry_1), 80, -2);
 
@@ -1146,7 +1219,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label54", label54,
 			  NULL);
   gtk_widget_show (label54);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label54, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_a_entry_");
@@ -1160,7 +1237,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_a_entry_1, NULL);
 
   gtk_widget_show (phs_cell_a_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_a_entry_1, TRUE, TRUE, 0);
+#endif
   gtk_widget_set_size_request (phs_cell_a_entry_1, 65, -2);
 
   label55 = gtk_label_new (_("b"));
@@ -1168,7 +1249,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label55", label55,
 			  NULL);
   gtk_widget_show (label55);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label55, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_b_entry_");
@@ -1181,7 +1266,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_b_entry_1, NULL);
   gtk_widget_show (phs_cell_b_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_b_entry_1, TRUE, TRUE, 0);
+#endif
   gtk_widget_set_size_request (phs_cell_b_entry_1, 65, -2);
 
   label56 = gtk_label_new (_("c"));
@@ -1189,7 +1278,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label56", label56,
 			  NULL);
   gtk_widget_show (label56);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label56, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_c_entry_");
@@ -1202,7 +1295,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_c_entry_1, NULL);
   gtk_widget_show (phs_cell_c_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_c_entry_1, TRUE, TRUE, 0);
+#endif
   gtk_widget_set_size_request (phs_cell_c_entry_1, 65, -2);
 
   label57 = gtk_label_new (_("alpha"));
@@ -1210,7 +1307,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label57", label57,
 			  NULL);
   gtk_widget_show (label57);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label57, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_alpha_entry_");
@@ -1224,7 +1325,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_alpha_entry_1,
 			  NULL);
   gtk_widget_show (phs_cell_alpha_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_alpha_entry_1, TRUE, TRUE, 0);
+#endif
   gtk_widget_set_size_request (phs_cell_alpha_entry_1, 60, -2);
 
   label58 = gtk_label_new (_("beta"));
@@ -1232,7 +1337,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label58", label58,
 			  NULL);
   gtk_widget_show (label58);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label58, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_beta_entry_");
@@ -1245,7 +1354,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_beta_entry_1, NULL);
   gtk_widget_show (phs_cell_beta_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_beta_entry_1, TRUE, TRUE, 0);
+#endif
   gtk_widget_set_size_request (phs_cell_beta_entry_1, 60, -2);
 
   label59 = gtk_label_new (_("gamma"));
@@ -1253,7 +1366,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label59", label59,
 			  NULL);
   gtk_widget_show (label59);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), label59, FALSE, FALSE, 2);
+#endif
 
 
   strcpy(widget_name, "phs_cell_gamma_entry_");
@@ -1266,7 +1383,11 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_gamma_entry_1, NULL);
   gtk_widget_show (phs_cell_gamma_entry_1);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_gamma_entry_1, TRUE, TRUE, 0);
+#endif
   gtk_widget_set_size_request (phs_cell_gamma_entry_1, 60, -2);
 
   return phs_cell_group;
@@ -1292,8 +1413,12 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (hbox34);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "hbox34", hbox34, NULL);
   gtk_widget_show (hbox34);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (phs_cell_chooser_vbox), hbox34, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox34), 6);
+#endif
 
   phs_cell_none_radiobutton = gtk_radio_button_new_with_label (phs_cell_group, _("None of the Above"));
   phs_cell_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (phs_cell_none_radiobutton));
@@ -1305,7 +1430,12 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_none_radiobutton), TRUE);
 
   gtk_widget_show (phs_cell_none_radiobutton);
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox34), phs_cell_none_radiobutton, FALSE, FALSE, 4);
+#endif
 
 }
 
@@ -1404,7 +1534,11 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
 
       GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
       // gtk_widget_ref (hbox);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(add_rep_vbox), hbox, FALSE, FALSE, 0);
+#endif
       std::string label = name;
       GtkWidget *toggle_button_show_it = gtk_check_button_new_with_label(label.c_str());
       // gtk_widget_ref (toggle_button_show_it);
@@ -1418,7 +1552,11 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
       g_signal_connect(G_OBJECT(toggle_button_show_it), "toggled",
 			 G_CALLBACK(add_rep_toggle_button_toggled),
 			 GINT_TO_POINTER(cc));
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(hbox), toggle_button_show_it, FALSE, FALSE, 0);
+#endif
 
       gtk_widget_show(toggle_button_show_it);
       gtk_widget_show(hbox);
@@ -1447,7 +1585,11 @@ create_splash_screen_window_for_file(const char *file_name) {
    gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
    gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
+#else
    gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+#endif
 
    GtkWidget *image6807 = create_pixmap(splash_screen_window, file_name); // create_pixmap() I can keep/copy over
    gtk_widget_show (image6807);

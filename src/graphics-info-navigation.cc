@@ -394,7 +394,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
          ai = atom_info_as_text_for_statusbar(atom_index, imol);
          add_status_bar_text(ai);
 
-         // #if GTK3_CAN_DO_SEQUENCE_VIEW
+// #if GTK3_CAN_DO_SEQUENCE_VIEW
+#ifdef HAVE_GOOCANVAS
          auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom,
                                                           GtkWidget *svc) {
                                                          if (svc) {
@@ -408,7 +409,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
                                                       };
 
          sequence_view_highlight_residue_maybe(next_atom, get_sequence_view_is_displayed(imol));
-         // #endif
+#endif
       }
    }
    return 1;
@@ -1283,6 +1284,7 @@ void graphics_info_t::register_user_defined_interesting_positions(const std::vec
 void
 graphics_info_t::sequence_view_highlight_residue_maybe(mmdb::Atom *atom, GtkWidget *svc) {
 
+#ifdef HAVE_GOOCANVAS
    if (svc) {
       if (atom) {
          mmdb::Residue *residue_p = atom->residue;
@@ -1294,4 +1296,5 @@ graphics_info_t::sequence_view_highlight_residue_maybe(mmdb::Atom *atom, GtkWidg
          }
       }
    }
+#endif // HAVE_GOOCANVAS
 }

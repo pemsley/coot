@@ -22,6 +22,8 @@
 #ifndef HAVE_GEOMETRY_GRAPHS_HH
 #define HAVE_GEOMETRY_GRAPHS_HH
 
+#ifdef HAVE_GOOCANVAS
+
 #include "goograph/goograph.hh"
 
 #include "ideal/simple-restraint.hh"
@@ -230,6 +232,7 @@ namespace coot {
    };
 }
 
+#endif // HAVE_GOOCANVAS
 
 #endif // HAVE_GEOMETRY_GRAPHS_HH
 

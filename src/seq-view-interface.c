@@ -50,8 +50,8 @@ seq_lookup_widget(GtkWidget       *widget,
 }
 
 GtkWidget*
-create_sequence_view_dialog (void)
-{
+create_sequence_view_dialog (void) {
+
   GtkWidget *sequence_view_dialog;
   GtkWidget *dialog_vbox1;
   GtkWidget *sequence_view_scrolledwindow;
@@ -78,7 +78,11 @@ create_sequence_view_dialog (void)
 			 sequence_view_scrolledwindow,
 			 NULL);
   gtk_widget_show (sequence_view_scrolledwindow);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+  // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (dialog_vbox1), sequence_view_scrolledwindow, TRUE, TRUE, 0);
+#endif
 
   // dialog_action_area1 = GTK_DIALOG (sequence_view_dialog)->action_area;
   // use gtk_dialog_add_button (), no need to extract the action area first
@@ -109,7 +113,11 @@ create_sequence_view_dialog (void)
                       sequence_view_dialog);
 
   gtk_widget_show (sequence_view_close_button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
   gtk_box_pack_start (GTK_BOX (hbox1), sequence_view_close_button, TRUE, TRUE, 0);
+#endif
 
   return sequence_view_dialog;
 }

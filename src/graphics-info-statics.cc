@@ -1013,11 +1013,15 @@ short int graphics_info_t::in_edit_phi_psi_define = 0;
 int graphics_info_t::edit_phi_psi_atom_index = -1;
 int graphics_info_t::edit_phi_psi_imol = -1;
 short int graphics_info_t::in_backbone_torsion_define = 0;
+#ifdef DO_RAMA_PLOT // is this the right test?
 coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
+#endif
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
 float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
+#ifdef DO_RAMA_PLOT // is this the right test?
 int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+#endif
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
@@ -1277,7 +1281,11 @@ int graphics_info_t::ncs_prev_chain_skip_key = GDK_KEY_O;
 int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_KEY_p;
 
 //
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+// 20220528-PE FIXME
+#else
 GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
+#endif
 
 // update self?
 bool graphics_info_t::update_self = 0;  // Set by command line arg --update-self
@@ -1461,7 +1469,9 @@ float graphics_info_t::screen_z_far_perspective  = 125.0;
 
 std::map<unsigned int, lights_info_t> graphics_info_t::lights;
 
+std::vector<molecule_class_info_t> graphics_info_t::molecules;
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;
+std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
 
 bool graphics_info_t::vera_font_loaded = false;
 

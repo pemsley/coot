@@ -22,6 +22,8 @@
 #ifndef RAMA_PLOT_HH
 #define RAMA_PLOT_HH
 
+#ifdef HAVE_GOOCANVAS
+
 #include <map>
 #include <string>
 
@@ -614,4 +616,5 @@ namespace coot {
 
 } // namespace coot
 
+#endif // HAVE_GOOCANVAS
 #endif //  RAMA_PLOT_HH

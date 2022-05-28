@@ -456,8 +456,12 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  GtkWidget *frame = gtk_frame_new(NULL);
 		  gtk_container_add(GTK_CONTAINER(frame), button);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                  // 20220528-PE FIXME box packing
+#else
 		  gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
 		  gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
+#endif
 		  gtk_widget_show(button);
 		  gtk_widget_show(frame);
 	       }
@@ -658,6 +662,7 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 						 to update the
 						 widget*/
 #ifdef HAVE_GSL
+#ifdef HAVE_GOOCANVAS
 
    int imol;
    if (dialog) {
@@ -706,6 +711,7 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
    }
    // std::cout << "Done unset_geometry_graph\n";
 
+#endif // HAVE_GOOCANVAS
 #endif // HAVE_GSL
 }
 
@@ -1591,10 +1597,12 @@ GtkWidget *dynarama_is_displayed_state(int imol) {
 
    GtkWidget *w = NULL;
 
+#ifdef HAVE_GOOCANVAS
    if (is_valid_model_molecule(imol)) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
+#endif
 
    return w;
 }
@@ -1605,7 +1613,9 @@ GtkWidget *dynarama_widget(int imol) {
    GtkWidget *w = NULL;
    if (imol < graphics_info_t::n_molecules()) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
+#ifdef HAVE_GOOCANVAS
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+#endif
    }
    return w;
 }
@@ -1621,7 +1631,7 @@ int get_mol_from_dynarama(GtkWidget *window) {
 
    std::cout << "ERROR:: using unconverted get_mol_from_dynarama() FIXME " << std::endl;
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
    // graphics_info_t g;
    if (window) {
 
@@ -1643,7 +1653,7 @@ int get_mol_from_dynarama(GtkWidget *window) {
 	 std::cout << "ERROR:: failed to find canvas in window" << std::endl;
       }
    }
-#endif // HAVE_GTK_CANVAS
+#endif // HAVE_GOOCANVAS
    return imol;
 }
 
@@ -1651,14 +1661,17 @@ int get_mol_from_dynarama(GtkWidget *window) {
 void
 resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 
+#ifdef HAVE_GOOCANVAS
     coot::rama_plot rp;
     rp.resize_rama_canvas_internal(widget, event);
+#endif
 
 }
 
 
 void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
+#ifdef HAVE_GOOCANVAS
    int imol = get_mol_from_dynarama(window);
    // GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
    GtkWidget *canvas = widget_from_builder("canvas");
@@ -1674,6 +1687,7 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 	 }
       }
    }
+#endif
 }
 
 void set_ramachandran_psi_axis_mode(int mode) {
@@ -2436,12 +2450,15 @@ int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char
 }
 
 #include "analysis/b-factor-histogram.hh"
+
+#ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
+#endif
 
 //! B-factor distribution histogram
 void b_factor_distribution_graph(int imol) {
 
-#if HAVE_GOOCANVAS
+#ifdef HAVE_GOOCANVAS
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::b_factor_histogram b(mol);

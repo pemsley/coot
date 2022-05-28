@@ -21,8 +21,8 @@
  * 02110-1301, USA
  */
 
-#ifndef RAMA_PLOT
-#define RAMA_PLOT
+
+#ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -32,8 +32,6 @@
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
-
-#ifdef HAVE_GOOCANVAS
 
 #include <string.h>
 #include <iostream>
@@ -2085,12 +2083,14 @@ coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
 }
 
 
+#ifdef HAVE_GOOCANVAS
 gint
 coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) {
 
    gchar *res_name  = static_cast<gchar *> (g_object_get_data(G_OBJECT(item), "res_name"));
    gint *is_pre_pro = static_cast<gint *>  (g_object_get_data(G_OBJECT(item), "is_pre_pro"));
 
+#ifdef CLIPPER_HAS_TOP8000
    // for clarity all copied
    if (strcmp(res_name, "GLY") == 0) {
       show_background(bg_gly);
@@ -3990,4 +3990,3 @@ coot::rama_plot::set_rama_psi_axis(int state) {
 // 
 
 #endif // HAVE_GTK_CANVAS
-#endif // RAMA_PLOT

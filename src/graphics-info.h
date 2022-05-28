@@ -1411,11 +1411,11 @@ public:
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
+
+#ifdef DO_RAMA_PLOT
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
-
-#ifdef DO_RAMA_PLOT
    void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                           const coot::residue_spec_t &res_spec);
 #endif

@@ -309,10 +309,12 @@ bool init_from_gtkbuilder() {
 
    GtkBuilder *builder = gtk_builder_new();
 
-   gboolean add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   GError* error = NULL;
+   gboolean add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
    if (add_from_file_status == FALSE) {
       std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
-      exit(0);
+      std::cout << "ERROR:: " << error->message << std::endl;
+      exit(1);
    }
 
    if (false)

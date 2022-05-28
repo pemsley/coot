@@ -781,8 +781,9 @@ void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem
    
    int imol = GPOINTER_TO_INT(user_data);
    graphics_info_t g;
+#ifdef HAVE_GOOCANVAS
    g.ncs_diffs_from_mol(imol);
-   std::cout << "fixme in validation_graph_ncs_diffs_mol_selector_activate() " << std::endl;
+#endif
 
 }
 

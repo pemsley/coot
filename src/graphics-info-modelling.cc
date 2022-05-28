@@ -4619,10 +4619,13 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
 	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
       }
 
-
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME events
+#else
       /* Events for widget must be set before X Window is created */
-      gtk_widget_set_events(GTK_WIDGET(dialog),
-			    GDK_KEY_PRESS_MASK);
+      gtk_widget_set_events(GTK_WIDGET(dialog), GDK_KEY_PRESS_MASK);
+#endif
+
       /* Capture keypress events */
       //    rotamer_key_press_event is not defined (yet)
       //    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
@@ -4795,9 +4798,12 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
        gtk_widget_show (rotamer_selection_radio_button);
        frame = gtk_frame_new(NULL);
        gtk_container_add(GTK_CONTAINER(frame), rotamer_selection_radio_button);
-       gtk_box_pack_start (GTK_BOX (rotamer_selection_button_vbox),
-			   frame, FALSE, FALSE, 0);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
+       gtk_box_pack_start (GTK_BOX (rotamer_selection_button_vbox), frame, FALSE, FALSE, 0);
        gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
+#endif
        gtk_widget_show(frame);
    }
 }

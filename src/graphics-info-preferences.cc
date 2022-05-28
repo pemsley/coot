@@ -785,7 +785,7 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
   GtkTreeModel *model = GTK_TREE_MODEL(gtk_list_store_new(4, 
                         G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT));
   GtkTreeIter toplevel;
-  GdkPixbuf *icon;
+  GdkPixbuf *icon = 0;
   GtkCellRenderer *icon_renderer;
   GtkCellRenderer *button_renderer;
   GtkCellRenderer *text_renderer;
@@ -815,11 +815,14 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
 
        
        GtkIconLookupFlags icon_flags = GTK_ICON_LOOKUP_USE_BUILTIN;
-       icon = gtk_icon_theme_load_icon(icon_theme,
-                                item.icon_filename.c_str(),
-                                GTK_ICON_SIZE_SMALL_TOOLBAR, icon_flags, NULL);
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME icons
+#else
+       icon = gtk_icon_theme_load_icon(icon_theme, item.icon_filename.c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR, icon_flags, NULL);
+#endif
        if (icon == NULL) {
-          g_print("BL ERROR:: something went wrong, icon is NULL\n");
+          g_print("ERROR:: in fill_preferences_toolbar_icons() something went wrong, icon is NULL\n");
           // try to read as filename (although then should be registered and
           // read in already, but let's try
           std::string splash_screen_pixmap_dir = PKGDATADIR;  

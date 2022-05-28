@@ -724,16 +724,20 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 }
 
 // update the green square, where we are.
+#if DO_RAMA_PLOT
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom) {
 
    coot::residue_spec_t r(atom->residue);
    update_ramachandran_plot_point_maybe(imol, r);
 }
+#endif
 
+#if DO_RAMA_PLOT
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec) {
 
+#ifdef HAVE_GOOCANVAS
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(w), "rama_plot"));
@@ -743,15 +747,15 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
       // background by passing residue spec.
       update_ramachandran_plot_background_from_res_spec(plot, imol, res_spec);
    }
+#endif
 
 }
+#endif // DO_RAMA_PLOT
 
 #ifdef HAVE_GOOCANVAS
 void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
-
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
                                        res_spec.ins_code);
@@ -798,10 +802,10 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
    }
 #endif // CLIPPER_HAS_TOP8000
 
-#endif // HAVE_GTK_CANVAS
 }
 #endif // HAVE_GOOCANVAS
 
+#ifdef DO_RAMA_PLOT
 // called from accept_moving_atoms()
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms) {
@@ -815,6 +819,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_c
       update_ramachandran_plot_point_maybe(imol, r);
    }
 }
+#endif
 
 
 
@@ -1634,6 +1639,7 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
+#ifdef HAVE_GOOCANVAS
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = static_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
@@ -1641,6 +1647,7 @@ graphics_info_t::accept_moving_atoms() {
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
    }
+#endif
 
    clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
@@ -2058,6 +2065,7 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
+#ifdef HAVE_GOOCANVAS
 
    // first delete the old plot for this molecule (if it exists)
    //
@@ -2074,6 +2082,7 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       std::cout << "DEBUG:: in graphics_info_t::set_dynarama_is_displayed() imol " << imol
                 << " is not valid" << std::endl;
    }
+#endif
 }
 
 void
@@ -4402,11 +4411,13 @@ graphics_info_t::apply_undo() {
 
                   // update the ramachandran, if there was one
 
+#ifdef HAVE_GOOCANVAS
                   GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
                   if (w) {
                      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
                      handle_rama_plot_update(plot);
                   }
+#endif
                   // now update the geometry graphs, so get the asc
                   atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
@@ -4471,11 +4482,13 @@ graphics_info_t::apply_redo() {
             // BL says:: from undo, maybe more should be updated!?!
             // update the ramachandran, if there was one
 
+#ifdef HAVE_GOOCANVAS
             GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
             if (w) {
                coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
                handle_rama_plot_update(plot);
             }
+#endif
             // now update the geometry graphs, so get the asc
             atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
@@ -4595,48 +4608,54 @@ graphics_info_t::pick_cursor_maybe() {
 void
 graphics_info_t::pick_cursor_real() {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME cursor
+#else
    if (use_graphics_interface_flag) {
       //    GdkCursorType c = GDK_CROSSHAIR;
       GdkCursorType c = pick_cursor_index;
       GdkCursor *cursor;
       // cursor = gdk_cursor_new (c);
       cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
-#if (GTK_MAJOR_VERSION < 4)
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
-#endif
    }
+#endif
 }
 
 // static
 void
 graphics_info_t::normal_cursor() {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME cursor
+#else
    if (use_graphics_interface_flag) {
       if (control_key_for_rotate_flag) {
          GdkCursorType c = GDK_LEFT_PTR;
          GdkCursor *cursor;
          //cursor = gdk_cursor_new (c);
-#if (GTK_MAJOR_VERSION < 4)
          cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
          GdkWindow *window = gtk_widget_get_window(glareas[0]);
          gdk_window_set_cursor(window, cursor);
          // gdk_cursor_destroy (cursor);
-#endif
       }
    }
+#endif
 }
 
 // static
 void
 graphics_info_t::watch_cursor() {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME cursor
+#else
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
       // cursor = gdk_cursor_new (c);
-#if (GTK_MAJOR_VERSION < 4)
       cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
@@ -4644,25 +4663,27 @@ graphics_info_t::watch_cursor() {
       while (gtk_events_pending()) {
          gtk_main_iteration();
       }
-#endif
    }
+#endif
 }
 
 // static
 void
 graphics_info_t::fleur_cursor() {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME cursor
+#else
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
       // cursor = gdk_cursor_new (c);
-#if (GTK_MAJOR_VERSION < 4)
       cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy (cursor);
-#endif
    }
+#endif
 }
 
 
@@ -4683,7 +4704,7 @@ graphics_info_t::alt_conf_split_type_number() {
 void
 graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 
-
+#ifdef HAVE_GOOCANVAS
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4707,13 +4728,14 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
    } else {
       std::cout << "Can't find ramachandran angles for this residue" << std::endl;
    }
+#endif
 
 }
 
 void
 graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 
-
+#ifdef HAVE_GOOCANVAS
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4735,12 +4757,14 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
       edit_phi_psi_plot->draw_it(phipsi);
 
    }
+#endif
 
 }
 
 void
 graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 
+#ifdef HAVE_GOOCANVAS
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4762,6 +4786,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
       edit_phi_psi_plot->draw_it(phipsi);
 
    }
+#endif
 
 }
 
@@ -4771,6 +4796,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 void
 graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
+#ifdef HAVE_GOOCANVAS
    printf("start graphics_info_t::destroy_edit_backbone_rama_plot()\n");
 
    if (edit_phi_psi_plot) {
@@ -4780,6 +4806,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
    } else {
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";
    }
+#endif
 
 }
 
@@ -4798,6 +4825,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 void
 graphics_info_t::set_edit_phi_psi_to(double phi, double psi) {
 
+#ifdef HAVE_GOOCANVAS
    // tinker with the coordinates of the moving_atoms_asc
 
    short int istat = molecules[imol_moving_atoms].residue_edit_phi_psi(*moving_atoms_asc, edit_phi_psi_atom_index, phi, psi);
@@ -4812,6 +4840,7 @@ graphics_info_t::set_edit_phi_psi_to(double phi, double psi) {
       regularize_object_bonds_box = bonds.make_graphical_bonds();
       graphics_draw();
    }
+#endif
 }
 
 
@@ -6751,7 +6780,10 @@ graphics_info_t::wrapped_create_display_control_window() {
 
    if (widget) {
 
-#if (GTK_MAJOR_VERSION < 4)
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME mapped widget
+      gtk_widget_show(widget);
+#else
       if (!gtk_widget_get_mapped(widget))
          gtk_widget_show(widget);
       else

@@ -470,7 +470,11 @@ void update_preference_gui() {
        fval2 = g.preferences_internal[i].fvalue2;  // green
        fval3 = g.preferences_internal[i].fvalue3;  // blue
        colour_button = widget_from_preferences_builder("preferences_bg_colour_colorbutton");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+       GdkRGBA bg_colour;
+#else
        GdkColor bg_colour;
+#endif
        if (fval1 < 0.01 && fval2 < 0.01 && fval3 < 0.01) {
           // black
           w = widget_from_preferences_builder("preferences_bg_colour_black_radiobutton");
@@ -499,10 +503,14 @@ void update_preference_gui() {
        else
           std::cout << "about to gtk_color_button_set_color() null colour_button: "
                     << " bg_colour " << bg_colour.red << " " << bg_colour.green << " " << bg_colour.blue << std::endl;
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+          // 20220528-PE FIXME color
+#else
        if (colour_button)
           gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
        else
           std::cout << "ERROR:: update_preference_gui() null colour_button bg_colour" << std::endl;
+#endif
        break;
 
     case PREFERENCES_ANTIALIAS:
@@ -590,7 +598,11 @@ void update_preference_gui() {
       fval2 = g.preferences_internal[i].fvalue2;  // green
       fval3 = g.preferences_internal[i].fvalue3;  // blue
       colour_button = widget_from_preferences_builder("preferences_font_colorbutton");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      GdkRGBA font_colour;
+#else
       GdkColor font_colour;
+#endif
       if (fval1 >= 0.999 && 
 	  fval2 >= 0.799 && fval2 <= 0.801 &&
 	  fval3 >= 0.799 && fval3 <= 0.801) {
@@ -618,10 +630,14 @@ void update_preference_gui() {
          std::cout << "about to gtk_color_button_set_color() null colour_button: "
                    << " font_colour " << font_colour.red << " " << font_colour.green << " " << font_colour.blue << std::endl;
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+          // 20220528-PE FIXME color
+#else
       if (colour_button)
          gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &font_colour);
       else
          std::cout << "ERROR:: update_preference_gui() null colour_button font_colour" << std::endl;
+#endif
 
       break;
 

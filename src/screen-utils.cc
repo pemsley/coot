@@ -19,6 +19,11 @@ get_max_effective_screen_height() {
     int max_height;
     max_height = -1;
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME window height - needs a complete overhaul
+#else
+
+
 // no gdk_property get on windows (at the moment)
 #if !defined WINDOWS_MINGW && !defined _MSC_VER
     ok = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
@@ -62,6 +67,7 @@ get_max_effective_screen_height() {
             g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
         }
     }
+#endif
     return max_height;
 }
 
@@ -101,6 +107,10 @@ setup_screen_size_settings() {
 
 
 void setup_application_icon(GtkWindow *window) {
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME icons
+#else
 
    std::string splash_screen_pixmap_dir = coot::package_data_dir();
    splash_screen_pixmap_dir += "/";
@@ -181,5 +191,7 @@ void setup_application_icon(GtkWindow *window) {
       }
    }
    globfree(&myglob);
+
+#endif
 
 }

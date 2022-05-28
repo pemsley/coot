@@ -245,11 +245,13 @@ graphics_info_t::handle_delete_item_curor_change(GtkWidget *widget) {
       if (delete_item_water) {
          graphics_info_t g;
 	 pick_info naii = g.atom_pick_gtk3(false);
+
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME 
+#else
          GdkDisplay *display = gdk_display_get_default();
          GdkWindow *window = 0;
-#if (GTK_MAJOR_VERSION < 4)
          window = gtk_widget_get_window(GTK_WIDGET(widget));
-#endif
          if (window) {
             // GdkCursor *current_cursor = gdk_window_get_cursor(window);
             // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
@@ -272,6 +274,7 @@ graphics_info_t::handle_delete_item_curor_change(GtkWidget *widget) {
                gdk_window_set_cursor(window, c);
             }
          }
+#endif
       }
    }
 }
@@ -2303,7 +2306,11 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
    gtk_widget_set_size_request(w,
                                gl_widget_dimension_scale_factor * dimensions,
                                gl_widget_dimension_scale_factor * dimensions);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
+#endif
    return w;
 }
 

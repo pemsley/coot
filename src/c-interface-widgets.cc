@@ -194,7 +194,11 @@ void remarks_dialog(int imol) {
 	    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 	    //     				  GTK_WIDGET(vbox_inner));
 	    gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                  // 20220528-PE FIXME box packing
+#else
 	    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+#endif
 	    gtk_widget_show(scrolled_window);
 	    gtk_widget_show(vbox_inner);
 
@@ -224,7 +228,11 @@ void remarks_dialog(int imol) {
 		  std::string remark_name = "REMARK ";
 		  remark_name += coot::util::int_to_string(it->first);
 		  GtkWidget *frame = gtk_frame_new(remark_name.c_str());
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                  // 20220528-PE FIXME box packing
+#else
 		  gtk_box_pack_start(GTK_BOX(vbox_inner), frame, FALSE, FALSE, 1);
+#endif
 		  gtk_widget_show(frame);
 		  // std::cout << "REMARK number " << it->first << std::endl;
 		  GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
@@ -291,14 +299,22 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       title += "</b>";
       GtkWidget *label = gtk_label_new(title.c_str());
       gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                  // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 4);
+#endif
       gtk_widget_show(label);
    }
 
    if (compound_lines.size() > 0) {
       std::string compound_label = "Compound";
       GtkWidget *frame = gtk_frame_new(compound_label.c_str());
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                  // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+#endif
       gtk_widget_show(frame);
       // this doesn't look right - needs checking.
       std::string s;
@@ -356,7 +372,11 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
    // std::cout << "---------------- have " << author_lines.size() << " author lines" << std::endl;
    if (author_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Author");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+#endif
       gtk_widget_show(frame);
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
@@ -369,11 +389,16 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
-      GdkColor colour;
-      colour.red   = 63535;
-      colour.green = 59535;
-      colour.blue  = 53535;
-      colour.pixel = 65535;
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+       // 20220528-PE FIXME color
+       GdkRGBA colour;
+#else
+       GdkColor colour;
+       colour.red   = 63535;
+       colour.green = 59535;
+       colour.blue  = 53535;
+       colour.pixel = 65535;
+#endif
 
       // see CSS comment above
       // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
@@ -410,7 +435,11 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
    // std::cout << "---------------- have " << journal_lines.size() << " journal_lines" << std::endl;
    if (journal_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Journal");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+#endif
       gtk_widget_show(frame);
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
@@ -423,11 +452,16 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+       // 20220528-PE FIXME color
+       GdkRGBA colour;
+#else
       GdkColor colour;
       colour.red   = 45535;
       colour.green = 49535;
       colour.blue  = 53535;
       colour.pixel = 65535;
+#endif
       // see CSS comment above
       // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
@@ -454,7 +488,11 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 
       if (n_links > 0) {
 	 GtkWidget *frame = gtk_frame_new("Links");
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                  // 20220528-PE FIXME box packing
+#else
 	 gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+#endif
 	 gtk_widget_show(frame);
 
 	 GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
@@ -470,11 +508,16 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	 gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 	 gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+       // 20220528-PE FIXME color
+         GdkRGBA colour;
+#else
 	 GdkColor colour;
 	 colour.red   = 45535;
 	 colour.green = 53535;
 	 colour.blue  = 63535;
 	 colour.pixel = 65535;
+#endif
          // see CSS comment above
 	 // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
@@ -610,7 +653,11 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
       // GTK_WIDGET(vbox_inner));
       gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+#endif
       gtk_widget_show(scrolled_window);
       gtk_widget_show(vbox_inner);
 

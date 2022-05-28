@@ -21,7 +21,6 @@
  * 02110-1301, USA
  */
 
-
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -87,6 +86,7 @@
 
 // this should be a wrapper - and the real function be in graphics_info_t
 //
+#ifdef HAVE_GOOCANVAS
 void
 coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog) {
 
@@ -142,8 +142,10 @@ coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *
 		<< imol << std::endl;
    }
 }
+#endif
 
 
+#ifdef HAVE_GOOCANVAS
 GtkWidget *
 coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 
@@ -183,6 +185,7 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
    }
    return w;
 }
+#endif
 
 
 // convenience function
@@ -199,6 +202,7 @@ graphics_info_t::update_geometry_graphs(int imol) {
 void
 graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs? Check the next function also
 
+#ifdef HAVE_GOOCANVAS
    GtkWidget *graph = coot::get_validation_graph(imol, coot::GEOMETRY_GRAPH_ROTAMER);
    if (graph) {
       coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
@@ -210,7 +214,7 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
 	 gr->update_residue_blocks(dv);
       }
    }
-
+#endif
 }
 
 #include "nsv.hh"
@@ -221,6 +225,7 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 					int imol_moving_atoms) {
 
 
+#ifdef HAVE_GOOCANVAS
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
       // get deviations and replace those positions in the graph:
@@ -343,12 +348,14 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
    // Let's add an explicit function to update the rama plot (taking an imol)
 
    // update_ramachandran_plot(imol_moving_atoms);
+#endif // HAVE_GOOCANVAS
 
 }
 
 void
 graphics_info_t::update_ramachandran_plot(int imol) {
 
+#ifdef HAVE_GOOCANVAS
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
       // this object get data has been changed - the set needs to changed too - whereever that is.
@@ -358,17 +365,19 @@ graphics_info_t::update_ramachandran_plot(int imol) {
    } else {
       std::cout << "debug:: in update_ramachandran_plot() failed to find plot widget" << std::endl;
    }
+#endif
 
 }
 
 void
 graphics_info_t::update_validation_graphs(int imol) {
 
+#ifdef HAVE_GOOCANVAS
    update_ramachandran_plot(imol);
    // now update the geometry graphs, so get the asc
    atom_selection_container_t u_asc = molecules[imol].atom_sel;
    update_geometry_graphs(u_asc, imol);
-
+#endif
 }
 
 
@@ -376,6 +385,7 @@ graphics_info_t::update_validation_graphs(int imol) {
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
 
+#ifdef HAVE_GOOCANVAS
    std::vector<coot::geometry_graph_type> graph_types;
    graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
    graph_types.push_back(coot::GEOMETRY_GRAPH_GEOMETRY);
@@ -406,11 +416,13 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spe
 	 sequence_view->regenerate(mol);
       }
    }
+#endif
 }
 
 void
 graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
 
+#ifdef HAVE_GOOCANVAS
 
    std::vector<coot::geometry_graph_type> graph_types;
    graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
@@ -435,11 +447,13 @@ graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vecto
 	 }
       }
    }
+#endif
 }
 
 void
 graphics_info_t::delete_chain_from_geometry_graphs(int imol, const std::string &chain_id) {
 
+#ifdef HAVE_GOOCANVAS
 
    std::vector<coot::geometry_graph_type> graph_types;
    graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
@@ -461,11 +475,14 @@ graphics_info_t::delete_chain_from_geometry_graphs(int imol, const std::string &
 	 }
       }
    }
+#endif
 }
 
 
 void
 graphics_info_t::geometric_distortion(int imol) {
+
+#ifdef HAVE_GOOCANVAS
 
    // we need to assign these
 //    int resno_1;
@@ -533,7 +550,7 @@ graphics_info_t::geometric_distortion(int imol) {
 	 }
       }
    }
-
+#endif
 }
 
 #ifdef HAVE_GSL
@@ -766,6 +783,8 @@ graphics_info_t::print_geometry_distortion(const std::vector<coot::geometry_dist
 void
 graphics_info_t::calc_b_factor_graphs(int imol) {
 
+#ifdef HAVE_GOOCANVAS
+
    if (imol<n_molecules()) {
       if (imol >= 0) {
 	 if (molecules[imol].has_model()) {
@@ -884,11 +903,14 @@ graphics_info_t::calc_b_factor_graphs(int imol) {
 	 }
       }
    }
+#endif
 }
 ////E
 
 void
 graphics_info_t::b_factor_graphs(int imol) {
+
+#ifdef HAVE_GOOCANVAS
 
    if (imol<n_molecules()) {
       if (imol >= 0) {
@@ -955,10 +977,13 @@ graphics_info_t::b_factor_graphs(int imol) {
 	 }
       }
    }
+#endif
 }
 
 void
 graphics_info_t::omega_graphs(int imol) {
+
+#ifdef HAVE_GOOCANVAS
 
    if (imol >= 0) {
       if (imol < n_molecules()) {
@@ -1026,6 +1051,7 @@ graphics_info_t::omega_graphs(int imol) {
 	 }
       }
    }
+#endif // HAVE_GOOCANVAS
 }
 
 coot::omega_distortion_info_container_t
@@ -1042,7 +1068,9 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
 coot::rotamer_graphs_info_t
 graphics_info_t::rotamer_graphs(int imol) {
 
-   coot::rotamer_graphs_info_t info;
+   coot::rotamer_graphs_info_t info; // return value
+
+#ifdef HAVE_GOOCANVAS
 
    if (imol >= 0) {
       if (imol < n_molecules()) {
@@ -1186,9 +1214,11 @@ graphics_info_t::rotamer_graphs(int imol) {
 	 }
       }
    }
+#endif // HAVE_GOOCANVAS
    return info;
 }
 
+#ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 				  int imol_moving_atoms) {
@@ -1294,8 +1324,9 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
    }
    return dv;
 }
+#endif
 
-
+#ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
 						 int nSelResidues, int imol) {
@@ -1360,10 +1391,12 @@ graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
    }
    return v;
 }
-
+#endif
 
 void
 graphics_info_t::density_fit_graphs(int imol) {
+
+#ifdef HAVE_GOOCANVAS
 
    if (imol >= 0) {
       if (imol < n_molecules()) {
@@ -1448,6 +1481,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 	 }
       }
    }
+#endif // HAVE_GOOCANVAS
 }
 
 
@@ -1458,6 +1492,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 // We pass imol_moving_atoms because we will be updating a graph and
 // we want to know which graph to update.
 //
+#ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 				      int imol_moving_atoms,
@@ -1522,11 +1557,12 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
    }
    return drv;
 }
-
+#endif
 
 
 // To be called for each chain in the molecule (or atom selection).
 //
+#ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 					   int imol,
@@ -1593,7 +1629,9 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
    }
    return v;
 }
+#endif
 
+#ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
    std::vector<coot::geometry_graph_block_info_generic> v;
@@ -1628,7 +1666,9 @@ graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
    }
    return v;
 }
+#endif
 
+#ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::ncs_diffs_from_mol(int imol) {
 
@@ -1689,3 +1729,4 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
    }
    return drv;
 }
+#endif

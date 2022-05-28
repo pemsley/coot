@@ -201,8 +201,12 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 				       G_CALLBACK(on_big_blob_button_clicked),
 				       c);
 		     gtk_widget_show(button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
 		     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 		     gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+#endif
 		  }
 	       }
 	       gtk_widget_show(dialog);
@@ -458,8 +462,12 @@ void find_waters(int imol_for_map,
 					 G_CALLBACK(on_big_blob_button_clicked),
 					 c);
 			gtk_widget_show(button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                        // 20220528-PE FIXME box packing
+#else
 			gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 			gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+#endif
 		     }
 		  }
 		  gtk_widget_show(dialog);

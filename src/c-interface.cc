@@ -453,6 +453,115 @@ void run_generic_script(const std::vector<std::string> &cmd_strings) {
 
 
 
+//  20220528-PE from globjects.cc
+// ################################ put this in globjects-new.cc ? #############################
+
+// amount is not in degrees, it is in fractions of a circle, e.g. 10/360.
+//
+std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
+
+#if 0
+   if (true) { // print a rotation to colour table
+      int n_cols = 100; // either side
+      for (int i = -n_cols; i<n_cols; i++) {
+         float rotation_size = 0.01f * static_cast<float>(i);
+         std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+         std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+         std::cout << "debug colours::" << rgb_new[0] << " " << rgb_new[1] << " " << rgb_new[2]
+                   << " using rotation_size " << rotation_size << std::endl;
+      }
+
+      // Result:
+      //
+      // if we start at solid green then rotation_size for "no rotation" is 0.0
+      //                                 rotation_size for full rotation is -0.33 (solid red)
+   }
+#endif
+
+   std::vector<float> hsv = coot::convert_rgb_to_hsv(rgb);
+
+   // add 20 degrees to hue (or whatever)
+   // std::cout << "adding " << amount << " to hue " << std::endl;
+   hsv[0] += amount;
+   while  (hsv[0] > 1.0) {
+      hsv[0] -= 1.0;
+   }
+
+   std::vector<float> r = coot::convert_hsv_to_rgb(hsv);
+   //     std::cout << "rotate from ("
+   // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n"
+   //  	     << "         to ("
+   // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n";
+   return r;
+   // return convert_hsv_to_rgb(hsv);
+
+}
+
+
+// ################################ put this in globjects-new.cc ? #############################
+
+//  20220528-PE from globjects.cc
+gint idle_contour_function(gpointer data) {
+
+   gint continue_status = 0;
+   bool something_changed = false;
+
+   bool is_from_contour_level_change(GPOINTER_TO_INT(data));
+
+   // when there's nothing else to do, update the contour levels
+   //
+   // then update maps
+
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
+         int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
+
+         if (cc != 0) {
+
+	          if (cc < 0) {
+	             while (cc != 0) {
+	                cc++;
+	                graphics_info_t::molecules[imol].change_contour(-1);
+	             }
+	          }
+
+	          if (cc > 0) {
+	              while (cc != 0) {
+	                 cc--;
+	                 graphics_info_t::molecules[imol].change_contour(1);
+	              }
+	          }
+
+           graphics_info_t g;
+           bool really_change_the_map_contours = true;
+           if (! is_from_contour_level_change) really_change_the_map_contours = false;
+	   g.molecules[imol].update_map(really_change_the_map_contours);
+           float map_rmsd = g.molecules[imol].map_sigma();
+	   continue_status = 0;
+           float cl = g.molecules[imol].contour_level;
+           float r = cl/map_rmsd;
+           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
+                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+           g.set_density_level_string(imol, g.molecules[imol].contour_level);
+           std::string s = "Map " + std::to_string(imol) + "  contour_level " +
+              coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
+              coot::util::float_to_string_using_dec_pl(r, 3);
+           add_status_bar_text(s.c_str());
+           g.display_density_level_this_image = 1;
+           something_changed = true;
+         }
+      }
+   }
+   // std::cout << "Here with something_changed: " << something_changed << std::endl;
+
+   // is this needed?
+   // if (something_changed)
+   //    graphics_draw();
+   // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
+   return continue_status;
+}
+
+
 
 
 //
@@ -463,6 +572,13 @@ int handle_read_draw_molecule(const char *filename) {
 
    int r = graphics_info_t::recentre_on_read_pdb;
    return handle_read_draw_molecule_with_recentre(filename, r);
+}
+
+void
+update_things_on_move_and_redraw() {
+
+   graphics_info_t g;
+   g.update_things_on_move_and_redraw();
 }
 
 int make_updating_model_molecule(const char *filename) {
@@ -998,8 +1114,7 @@ void zalman_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-         GtkWidget *gl_area = graphics_info_t::glareas[0];
-	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
+
 	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
@@ -1015,6 +1130,7 @@ void zalman_stereo_mode() {
 	       }
 	    }
 
+#if 0 // 20220528-PE Graphics no longer works like this
 	    short int try_hardware_stereo_flag = 5;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
@@ -1033,6 +1149,7 @@ void zalman_stereo_mode() {
 	       std::cout << "WARNING:: switch to zalman_stereo_mode failed\n";
 	       graphics_info_t::display_mode = previous_mode;
 	    }
+#endif
 	 }
       } else {
 	 std::cout << "Already in zalman stereo mode" << std::endl;
@@ -1059,6 +1176,7 @@ void mono_mode() {
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
+#if 0 // 20220528-PE Graphics no longer works like this
 	    short int try_hardware_stereo_flag = 0;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
@@ -1090,6 +1208,7 @@ void mono_mode() {
 	       graphics_info_t::display_mode = previous_mode;
 	       std::cout << "WARNING:: switch to mono mode failed\n";
 	    }
+#endif
 	 }
       } else {
 	 // std::cout << "Already in mono mode" << std::endl; // we know.
@@ -1123,6 +1242,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
          if (use_wall_eye_flag)
             stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
          // GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+#if 0 // 20220528-PE Graphics no longer works like this
          GtkWidget *vbox = widget_from_builder("vbox1"); // 20220309-PE is this what you really want? - needs testing
          GtkWidget *glarea = gl_extras(vbox, stereo_mode);
          if (glarea) {
@@ -1142,7 +1262,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
          }
-
+#endif
       } else {
 
          if (use_wall_eye_flag == 1) {
@@ -1175,6 +1295,7 @@ void set_dti_stereo_mode(short int state) {
             stereo_mode = coot::SIDE_BY_SIDE_STEREO;
          }
          // GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+#if 0 // 20220528-PE Graphics no longer works like this
          GtkWidget *vbox = widget_from_builder("vbox1"); // 20220309-PE is this right?
          GtkWidget *glarea = gl_extras(vbox, stereo_mode);
          if (graphics_info_t::use_graphics_interface_flag) {
@@ -1190,6 +1311,7 @@ void set_dti_stereo_mode(short int state) {
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
          }
+#endif
       }
    }
    // add_to_history_simple("dti-side-by-side-stereo-mode");
@@ -1545,12 +1667,12 @@ void set_flev_idle_ligand_interactions(int state) {
    } else {
       // turn them on if they were off.
       if (g.idle_function_ligand_interactions_token == 0) {
-	 g.idle_function_ligand_interactions_token =
-	    gdk_threads_add_timeout(100,
-				    animate_idle_ligand_interactions,
-				    NULL); // Hmm.
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         std::cout << "FIXME toggle_flev_idle_ligand_interactions() timer\n";
+#else
+	 g.idle_function_ligand_interactions_token = gdk_threads_add_timeout(100, animate_idle_ligand_interactions, NULL); // Hmm.
 	 // g.time_holder_for_ligand_interactions = glutGet(GLUT_ELAPSED_TIME);
-   std::cout << "Fix this timer\n";
+#endif
       }
    }
    g.graphics_draw();
@@ -2388,9 +2510,8 @@ get_map_colour(int imol) {
    return colour;
 }
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
-   // can I remove this?
 void
 on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
                                                      gpointer           user_data) {
@@ -7373,7 +7494,11 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 
       gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
+#endif
 
       gtk_widget_show(label);
    }
@@ -7400,7 +7525,11 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
       GtkWidget *label = gtk_label_new(s.c_str());
       std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()" << std::endl;
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
+#endif
       gtk_widget_show(label);
    }
    return w;
@@ -8316,9 +8445,14 @@ void set_do_anti_aliasing(int state) {
 
 
 void set_do_GL_lighting(int state) {
+
+   // no longer meaningful
+
+#if 0
    graphics_info_t::do_lighting_flag = state;
    setup_lighting(state);
    graphics_draw();
+#endif
 }
 
 
@@ -8383,7 +8517,11 @@ void rotate_cursor() {
 }
 
 void set_pick_cursor_index(int i) {
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   std::cout << "FIXME in set_pick_cursor_index() " << std::endl;
+#else
    graphics_info_t::pick_cursor_index = GdkCursorType(i);
+#endif
 }
 
 

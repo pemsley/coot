@@ -19,7 +19,10 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS // don't compile anything if we don't have GOOCANVAS
+
 #ifdef USE_PYTHON
+
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
@@ -33,6 +36,7 @@
 
 #include <gtk/gtk.h>
 // #include <gdk_imlib.h>
+
 #include <goocanvas.h>
 
 #include "geometry-graphs.hh"
@@ -1500,3 +1504,5 @@ coot::geometry_graphs::close_yourself() {
    // is part of the destroy callback of the window which is called by
    // that callback.
 }
+
+#endif // HAVE_GOOCANVAS // dont' compile anything if we don't have GOOCANVAS

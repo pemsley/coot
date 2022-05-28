@@ -68,8 +68,10 @@
 #include "get-monomer.hh"
 
 
+#ifdef HAVE_GOOCANVAS
 #include <goocanvas.h>
 #include "lbg/wmolecule.hh"
+#endif
 
 #include "c-interface-bonds.hh"
 
@@ -84,7 +86,6 @@ PyObject *go_to_ligand_py() {
       PyList_SetItem(r, i, PyFloat_FromDouble(new_pos[i]));
    return r;
 }
-#endif
 
 clipper::Coord_orth
 go_to_ligand_inner() {
@@ -1481,9 +1482,17 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
       if (wp) {
 	 gtk_widget_show(wp);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE FIXME box packing
+#else
 	 gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
+#endif
       }
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+#endif
       gtk_widget_show(label);
       gtk_widget_show(button_hbox);
 
@@ -1495,8 +1504,12 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       std::cout << "GTK-FIXME widget_ref b" << std::endl;
       // gtk_widget_ref (button);
       g_object_set_data(G_OBJECT (dialog), button_name.c_str(), button);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME box packing
+#else
       gtk_box_pack_start(GTK_BOX (vbox), button, FALSE, FALSE, 0);
       gtk_container_set_border_width(GTK_CONTAINER (button), 2);
+#endif
 
       if (! use_sbase_molecules)
 	 g_signal_connect(G_OBJECT(button), "clicked",
