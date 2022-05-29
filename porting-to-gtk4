@@ -1,0 +1,17 @@
+
+Compile with GTK4.
+   Fix box packing, 
+       widget raising,
+       colour picker usage,
+       mouse and keyboard event controllers
+       GtkTable to GtkGrid
+
+Rework the ui glade file so that it works with GTK4
+   Remove no-longer-used attribute (including GtkAdjustment)
+   Convert GtkMenu to GtkPopoverMenu
+           Replace GtkMenuItems (there are ~200 of these in Coot, including the Python and guile modules)
+           GtkMenuBar to GtkPopoverMenuBar
+           GtkToolbar to GtkBox
+
+Bring guile widgets into action again using guile-gnome
+

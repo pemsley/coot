@@ -63,6 +63,7 @@ EXTRA_DIST = 		\
 	TODO 		\
 	count-loc 	\
 	a6.glade        \
+	coot-gtk4.ui    \
 	single-map-properties-dialog.glade \
 	syminfo.lib	\
 	colours.def	\
@@ -112,7 +113,7 @@ subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
 	mtrix-to-ncs-matrix.awk syminfo.lib
 
 cootgladedir = $(pkgdatadir)/glade
-dist_cootglade_DATA = a6.glade preferences-gtk3.glade single-map-properties-dialog.glade
+dist_cootglade_DATA = coot-gtk4.ui a6.glade preferences-gtk3.glade single-map-properties-dialog.glade
 
 appdatadir = ${datarootdir}/appdata
 dist_appdata_DATA = coot.appdata.xml
