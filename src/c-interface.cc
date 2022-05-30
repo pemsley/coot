@@ -562,6 +562,32 @@ gint idle_contour_function(gpointer data) {
 }
 
 
+// ################################ put this in globjects-new.cc ? #############################
+
+//  20220528-PE from globjects.cc
+double
+get_idle_function_rock_target_angle() {
+#if 0
+   graphics_info_t g;
+
+   long t = 0; // glutGet(GLUT_ELAPSED_TIME);
+   long delta_t = t - g.time_holder_for_rocking;
+   double rock_sf = 0.001 * g.idle_function_rock_freq_scale_factor;
+
+   double theta = delta_t * rock_sf;
+
+   while (theta > 2 * M_PI)
+      theta -= 2*M_PI;
+   while (theta < -2 * M_PI)
+      theta += 2*M_PI;
+
+   double target_angle = g.idle_function_rock_amplitude_scale_factor *
+      0.015 * 2 * M_PI * sin(theta);
+
+   return target_angle;
+#endif
+   return 0.0;
+}
 
 
 //

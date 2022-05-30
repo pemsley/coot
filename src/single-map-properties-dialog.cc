@@ -24,7 +24,7 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
       single_map_properties_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "single_map_properties_dialog"));
       gtk_builder_connect_signals(builder, single_map_properties_dialog); // if "nothing happens" then you've missed this call
    } else {
-      std::cout << "ERROR:: failed to get builder file for single-map-properties dialog" << std::endl;
+      std::cout << "ERROR:: create_single_map_properties_dialog_gtk3() failed to get builder file for single-map-properties dialog" << std::endl;
    }
 
    return std::make_pair(single_map_properties_dialog, builder);

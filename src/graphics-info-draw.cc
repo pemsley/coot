@@ -2308,6 +2308,7 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
                                gl_widget_dimension_scale_factor * dimensions);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
+   gtk_box_pack_start(GTK_BOX(vbox), w);
 #else
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
 #endif

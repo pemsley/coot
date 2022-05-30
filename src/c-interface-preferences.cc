@@ -86,16 +86,20 @@ GtkBuilder *get_builder_for_preferences_dialog() {
    if (coot::file_exists(glade_file_name))
       glade_file_full = glade_file_name;
 
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   GError *error = NULL;
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
 
-   if (add_from_file_status) {
+   std::cout << "debug in get_builder_for_preferences_dialog() glade_file_full is " << glade_file_full << std::endl;
+
+   if (add_from_file_status == 1) {
       GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder, "preferences_dialog"));
       // std::cout << "############################ in get_builder_for_preferences_dialog() dialog " << dialog << std::endl;
       gtk_builder_connect_signals(builder, dialog); // if "nothing happens" then you've missed this call
       graphics_info_t::set_preferences_gtkbuilder(builder);
       return builder;
    } else {
-      std::cout << "ERROR:: failed to get builder file for single-map-properties dialog" << std::endl;
+      std::cout << "ERROR:: get_builder_for_preferences_dialog() failed to find or parse builder file for preferences dialog" << std::endl;
+      std::cout << "ERROR::" << error->message << std::endl;
       return nullptr;
    }
 

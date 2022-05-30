@@ -455,7 +455,9 @@ main(int argc, char *argv[]) {
       // not sure what this does, but it's deprecated now
       // g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
 
-      g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
+      // 20220528-PE goodbye
+      // GLib-GObject-WARNING **: 13:33:53.701: g_object_set_is_valid_property: object class 'GtkSettings' has no property named 'gtk-menu-images'
+      // g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
       g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 
    } else {
@@ -503,7 +505,9 @@ main(int argc, char *argv[]) {
             // create_initial_ramachandran_mol_submenu(main_window);
             // create_initial_sequence_view_mol_submenu(main_window);
 
+            // 20220529-PE setting up python hangs at the moment
             setup_python(argc, argv);
+
          } else {
             std::cout << "WARNING:: init_from_gtkbuilder() failed " << std::endl;
          }
