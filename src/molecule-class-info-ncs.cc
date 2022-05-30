@@ -2520,13 +2520,11 @@ molecule_class_info_t::chain_centre_and_radius(const std::string &chain_id) cons
 	 if (chain_id_this == chain_id) {
 	    std::vector<clipper::Coord_orth> chain_atoms_positions;
 	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::Residue *residue_p;
-	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
-	       residue_p = chain_p->GetResidue(ires);
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
 	       for (int iat=0; iat<n_atoms; iat++) {
-		  at = residue_p->GetAtom(iat);
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
 		  chain_atoms_positions.push_back(coot::co(at));
 	       }
 	    }
@@ -2593,12 +2591,12 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 			   if (parts[4] == "CHAINS:") {
 			      unsigned int n = parts.size();
 			      for (unsigned int ii=5; ii<n; ii++) {
-				 unsigned int l = parts[ii].length();
+				 unsigned int ll = parts[ii].length();
 				 if (l > 1) {
-				    std::string chain_id = parts[ii].substr(0,l-1);
+				    std::string chain_id = parts[ii].substr(0,ll-1);
 				    biomt_chain_ids.push_back(chain_id);
 				 } else {
-				    if (l == 1) {
+				    if (ll == 1) {
 				       // no comma
 				       std::string chain_id = parts[ii];
 				       biomt_chain_ids.push_back(chain_id);
@@ -2621,8 +2619,8 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	       
 		  try {
 		     int matrix_id = coot::util::string_to_int(parts[1]);
-		     int l = parts[0].length();
-		     char c = parts[0][l-1];
+		     int ll = parts[0].length();
+		     char c = parts[0][ll-1];
 		     int biomt_idx = c - 48;
 
 		     double x = coot::util::string_to_double(parts[2]);
