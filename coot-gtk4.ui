@@ -6423,30 +6423,35 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="open_coordinates1">
                             <property name="label" translatable="yes">Open Coordinates...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_open_coordinates1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="auto_open_mtz">
                             <property name="label" translatable="yes">Auto Open MTZ...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_auto_open_mtz_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="open_dataset1">
                             <property name="label" translatable="yes">Open MTZ, mmCIF, fcf or phs...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_open_dataset1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="open_map1">
                             <property name="label" translatable="yes">Open Map...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_open_map1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="import_cif_dictionary1">
                             <property name="label" translatable="yes">Import CIF dictionary...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_import_cif_dictionary1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -6463,6 +6468,7 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="search_monomer_library1">
                             <property name="label" translatable="yes">Search Monomer Library...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_search_monomer_library1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -6493,24 +6499,28 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="save_coordinates1">
                             <property name="label" translatable="yes">Save Coordinates...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_save_coordinates1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="save_symmetry_coordinates1">
                             <property name="label" translatable="yes">Save Symmetry Coordinates...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_save_symmetry_coordinates1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="save_state1">
                             <property name="label" translatable="yes">Save State...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_save_state1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="recover_session1">
                             <property name="label" translatable="yes">Recover Session...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_recover_session1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -6537,6 +6547,7 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="close_molecule1">
                             <property name="label" translatable="yes">Delete Molecules and Maps...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_close_molecule1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -6557,6 +6568,7 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="exit1">
                             <property name="label" translatable="yes">Exit</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_exit1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -6573,6 +6585,7 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="change_chain_ids2">
                             <property name="label" translatable="yes">Change Chain IDs...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_change_chain_ids2_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -6587,12 +6600,14 @@ Do you want to continue?
                             <property name="label" translatable="yes">Copy Fragment...</property>
                             <property name="use-underline">1</property>
                             <signal name="activate" handler="on_edit_copy_fragment_activate_gtkbuilder_callback" swapped="no"/>
+                            <signal name="activate" handler="on_edit_copy_molecule_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="merge_molecules1">
                             <property name="label" translatable="yes">Merge Molecules...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_merge_molecules1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -6627,12 +6642,14 @@ Do you want to continue?
                           <object class="GtkMenuItem" id="renumber_residues1">
                             <property name="label" translatable="yes">Renumber Residues...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_renumber_residues1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkMenuItem" id="residue_info2">
                             <property name="label" translatable="yes">Residue Info...</property>
                             <property name="use-underline">1</property>
+                            <signal name="activate" handler="on_residue_info2_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                         <child>
