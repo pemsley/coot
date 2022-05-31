@@ -184,17 +184,12 @@ void try_load_dot_coot_and_preferences() {
                                struct stat s;
                                int status = stat(file_name.c_str(), &s);
                                if (status == 0) {            /* the file existed */
-                                  std::cout << "file-is_directory here a" << std::endl;
                                   if (S_ISDIR(s.st_mode)) {
-                                     std::cout << "file-is_directory here B" << std::endl;
                                      return true;
-                                  } else {
                                   }
                                } else {
-                                  std::cout << "file-is_directory here C" << std::endl;
-                                  std::cout << "oops stating " << file_name << " return non-zero status" << std::endl;
+                                  std::cout << "WARNING:: oops - stating " << file_name << " return non-zero status" << std::endl;
                                }
-                               std::cout << "file-is_directory here D" << std::endl;
                                return false;
                             };
 
@@ -257,7 +252,6 @@ void try_load_dot_coot_and_preferences() {
             if (file_is_directory(fn)) {
                std::cout << "INFO:: Not Loading ~/.coot - it's a directory " << std::endl;
             } else {
-               std::cout << "asdfasdfLoading ~/.coot" << std::endl;
                scm_c_primitive_load(fn.c_str());
             }
 	 }
