@@ -206,7 +206,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
          }
       }
 
-      std::cout << "bond restraint " << i << " " << rest.bond_restraint[i] << " " << idx1 << " " << idx2 << std::endl;
+      // std::cout << "bond restraint " << i << " " << rest.bond_restraint[i] << " " << idx1 << " " << idx2 << std::endl;
 
       if ((idx1 != -1) && (idx2 != -1)) {
          bonds.push_back(std::pair<int,int>(idx1, idx2));
@@ -990,7 +990,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 double
 coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool reversed_flag) {
 
-   bool debug = true;
+   bool debug = false;
    double new_torsion = 0.0;
 
    // throw exception if not sane passed indices
