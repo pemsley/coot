@@ -446,8 +446,7 @@ std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
 
 // for picking intermediate atoms
-bool      graphics_info_t::moving_atoms_have_hydrogens_displayed = false;
-
+bool      graphics_info_t::moving_atoms_have_hydrogens_displayed = true; // 20220531-PE was false - why was that?
 
 std::string graphics_info_t::model_fit_refine_place_atom_at_pointer_string = "";
 std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
@@ -3941,7 +3940,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
       } else {
 
-	 // Left mouse, but not shift-left-mouse:
+	 // Left mouse, and not shift-left-mouse:
 
 	 // (this is the conventional case)
 	 //
@@ -3953,6 +3952,8 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    info.check_if_moving_atom_pull(false); // and if so, set it up (it
 	                                           // executes on *motion* not a button press event).  Also,
                                                    // remove any on-going drag-refine-idle-function.
+                                                   // Note that this doesn't only apply while pulling on
+                                                   // an atom during refinement, it is for Rotation/Translation too
 
 	 // check_if_moving_atom_pull sets in_moving_atoms_drag_atom_mode_flag.
 

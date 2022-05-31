@@ -417,6 +417,7 @@ graphics_info_t::moving_atoms_atom_pick(short int pick_mode) const {
 			    << std::endl;
 
 	       if (dist < m_limit) {
+
 		  if (close_score < close_score_best) {
 
 		     close_score_best = close_score;
@@ -461,8 +462,11 @@ void
 graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
    short int atom_pick_mode = PICK_ATOM_ALL_ATOM;
-   if (! moving_atoms_have_hydrogens_displayed)
+
+   if (! moving_atoms_have_hydrogens_displayed) {
       atom_pick_mode = PICK_ATOM_NON_HYDROGEN;
+   }
+
    pick_info pi = moving_atoms_atom_pick(atom_pick_mode);
    if (pi.success == GL_TRUE) {
 

@@ -91,7 +91,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 		  if (((pick_mode == PICK_ATOM_NON_HYDROGEN) && (ele != " H")) ||
 		      (pick_mode != PICK_ATOM_NON_HYDROGEN)) {
 
-		     bool allow_pick = 1;
+		     bool allow_pick = true;
 
 		     // std::cout << "pick_mode: " << pick_mode << std::endl;
 		     
@@ -105,19 +105,20 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 			if (coot::util::is_standard_residue_name(res_name))
 			   // no CAs in RNA/DNA and no Ps in protein.
 			   if ((atom_name != " CA ") && (atom_name != " P  "))
-			      allow_pick = 0;
+			      allow_pick = false;
 		     }
 
-             if (pick_mode == PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND) {
+                     if (pick_mode == PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND) {
 			std::string res_name = SelAtom.atom_selection[i]->GetResName();
 			std::string atom_name(SelAtom.atom_selection[i]->name);
 			// std::cout << "res_name: " << res_name << std::endl;
 			if (coot::util::is_standard_residue_name(res_name))
 			   // no CAs in RNA/DNA and no Ps in protein.
-               // Ignoring NA at the moment
-			   if ((atom_name == " C  ") && (atom_name == " O  ") &&
-                   (atom_name == " N  "))
-			      allow_pick = 0;
+                           // Ignoring NA at the moment
+			   if ((atom_name == " C  ") || (atom_name == " O  ") ||
+                               (atom_name == " N  ") || (atom_name == " H  ") ||
+                               (atom_name == " D  ") || (atom_name == " HA "))
+			      allow_pick = false;
 		     }
 
 
