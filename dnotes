@@ -3972,8 +3972,8 @@ INFO::
 	How to do a release
 	How to make a release
 
-   o make check
    o Run the damn tests - don't be lazy
+   o make check
    o try the build on the virtual machines - ubuntu at work, debian at home.
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top

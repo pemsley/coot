@@ -8556,7 +8556,7 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
             std::pair<short int, float> istat = chi_ang.change_by(nth_chi, diff, contact_indices);
 
             if (istat.first) { // failure
-               std::cout << "Failure to flip" << std::endl;
+               std::cout << "WARNING:: Failure to flip" << std::endl;
             } else {
                istatus = 1;
                // OK, we need transfer the coordinates of the
