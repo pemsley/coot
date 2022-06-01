@@ -5,6 +5,7 @@
 #include <string>
 
 #include <gtk/gtk.h>
+#include <epoxy/gl.h>
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
@@ -87,8 +88,11 @@ namespace coot {
 
 enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND, PICK_ATOM_NON_HYDROGEN, PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND };
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 // a NULL event can be passed - in that case the check for CTRL press is not made.
 pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
+#endif
 
 
 // pick_info atom_pick_gtk3(); // and that wraps the below function:

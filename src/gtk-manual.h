@@ -100,9 +100,13 @@ create_initial_map_color_submenu(GtkWidget *widget);
 void
 update_map_colour_menu_manual(int imol, const char *label);
 
+
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void
 my_map_colour_activate (GtkMenuItem     *menuitem,
                         gpointer         user_data);
+#endif
 
 /* similar stuff for the scroll wheel */
 void
@@ -112,21 +116,30 @@ create_initial_map_scroll_wheel_submenu(GtkWidget *widget);
 void
 update_map_scroll_wheel_menu_manual(int imol, const char *name);
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void
 my_map_scroll_wheel_activate(GtkMenuItem     *menuitem,
 			     gpointer         user_data);
+#endif
 
 /* And similar for ramachandran plot: */
 void create_initial_ramachandran_mol_submenu(GtkWidget *widget);
 void update_ramachandran_plot_menu_manual(int imol, const char *name);
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 				      gpointer         user_data);
+#endif
 
 /* And similar for sequence view: */
 void create_initial_sequence_view_mol_submenu(GtkWidget *widget);
 void update_sequence_view_menu_manual(int imol, const char *name);
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 					  gpointer         user_data);
+#endif
 
 
 /* skeleton colour */
@@ -134,7 +147,7 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 
 GtkWidget *create_skeleton_colour_selection_window();
 
-#if (GTK_MAJOR_VERSION >= 4) || (GTK_MINOR_VERSION == 94) || GTK_DISABLE_DEPRECATED == true
+#if (GTK_MAJOR_VERSION >= 4)
 void on_skeleton_color_changed(GtkWidget *w, GtkColorChooser *colorsel);
 #else
 void on_skeleton_color_changed(GtkWidget *w, GtkColorSelection *colorsel);
@@ -207,9 +220,15 @@ void
 on_display_control_map_scroll_radio_button_toggled (GtkToggleButton    *button,
 						    gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION >= 4)
+void
+on_display_control_map_scroll_radio_button_group_changed (GtkToggleButton *button,
+							  gpointer         user_data);
+#else
 void
 on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
 							  gpointer         user_data);
+#endif
 
 
 void fill_map_colour_patch(GtkWidget *patch_frame, int imol);

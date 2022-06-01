@@ -814,6 +814,8 @@ class graphics_info_t {
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
    int  check_if_in_regularize_define(GdkEventButton *event);
    int  check_if_in_refine_define(GdkEventButton *event);
    int  check_if_in_rigid_body_define(GdkEventButton *event);
@@ -846,6 +848,8 @@ class graphics_info_t {
    void check_if_in_fixed_atom_define(GdkEventButton *event,
 				      const GdkModifierType &state); // can use Ctrl key
    void check_if_in_user_defined_define(GdkEventButton *event);
+#endif
+
    static std::vector<std::string> model_fit_refine_toggle_button_name_list();
    static std::vector<std::string> model_fit_refine_button_name_list();
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
@@ -2628,7 +2632,9 @@ public:
 					       mmdb::PPAtom atoms, int n_atoms);
    static void fill_output_residue_info_widget_atom(GtkWidget *widget,
 						    int imol, mmdb::PAtom atom, int iat);
-   // and the keypres callbacks for the above
+   // and the keypress callbacks for the above
+#if (GTK_MAJOR_VERSION >= 4)
+#else
    static gboolean on_residue_info_occ_entry_key_release_event (GtkWidget       *widget,
 								GdkEventKey     *event,
 								gpointer         user_data);
@@ -2639,6 +2645,7 @@ public:
    static gboolean on_residue_info_master_atom_b_factor_changed (GtkWidget       *widget,
 								 GdkEventKey     *event,
 								 gpointer         user_data);
+#endif
 
    // Return the molecule number of the selected map (I mean, top of
    // the list, in the option menu)
@@ -2921,8 +2928,11 @@ public:
 
    // used in globjects:
    //
-   int check_if_in_range_defines(GdkEventButton *event,
-				 const GdkModifierType &state);
+#if (GTK_MAJOR_VERSION >= 4)
+#else
+   int check_if_in_range_defines(GdkEventButton *event, const GdkModifierType &state);
+#endif
+
    bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 
    bool check_if_hud_bar_clicked(double x, double y); // if true, set draw_hud_tooltip_flag
@@ -3111,8 +3121,11 @@ public:
 						    gpointer user_data);
    static void on_change_current_chi_button_entered(GtkButton *button,
 						    gpointer user_data);
+#if (GTK_MAJOR_VERSION >= 4)
+#else
    static void on_change_current_chi_motion_notify(GtkWidget *widget,
 						   GdkEventMotion *event);
+#endif
 
    static short int moving_atoms_move_chis_flag;
    void setup_flash_bond_using_moving_atom_internal(int ibond);

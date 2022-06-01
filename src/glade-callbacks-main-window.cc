@@ -153,11 +153,9 @@ on_model_toolbar_select_map_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_refine_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+on_model_toolbar_refine_togglebutton_toggled_gtkbuilder_callback (GtkToggleButton *toggletoolbutton,
+                                                                  gpointer         user_data) {
+  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active)
     do_refine(1);
   else
@@ -167,11 +165,10 @@ on_model_toolbar_refine_togglebutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                     gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active)
       do_regularize(1);
    else
@@ -181,9 +178,8 @@ on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_fixed_atoms_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
+                                        (GtkToggleButton *toggletoolbutton,
+                                        gpointer         user_data) {
    GtkWidget *w = wrapped_create_fixed_atom_dialog();
    gtk_widget_show(w);
 }
@@ -192,10 +188,10 @@ on_model_toolbar_fixed_atoms_togglebutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_rigid_body_fit_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+                                        (GtkToggleButton *toggletoolbutton,
+                                        gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active) {
       printf("Rigid Body:\n");
       do_rigid_body_refine(1);
@@ -208,10 +204,10 @@ on_model_toolbar_rigid_body_fit_togglebutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_rot_trans_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active) {
       do_rot_trans_setup(1);
    } else {
@@ -221,25 +217,23 @@ on_model_toolbar_rot_trans_togglebutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_auto_fit_rotamer_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
-  if (active)
-     setup_auto_fit_rotamer(1);
-  else
-    setup_auto_fit_rotamer(0);
+on_model_toolbar_auto_fit_rotamer_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                           gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
+   if (active)
+      setup_auto_fit_rotamer(1);
+   else
+      setup_auto_fit_rotamer(0);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_rotamers_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+on_model_toolbar_rotamers_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                   gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active)
       setup_rotamers(1);
    else
@@ -249,11 +243,10 @@ on_model_toolbar_rotamers_togglebutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_edit_chi_angles_togglebutton_toggled_gtkbuilder_callback
-                                              (GtkToggleToolButton *toggletoolbutton,
-                                               gpointer         user_data)
-{
-   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+on_model_toolbar_edit_chi_angles_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                          gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active) {
       setup_edit_chi_angles(1);
    } else {
@@ -265,12 +258,10 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_torsion_general_toggletoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
+on_model_toolbar_torsion_general_toggletoolbutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                              gpointer         user_data) {
 
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active) {
     setup_torsion_general(1);
   } else {
@@ -281,25 +272,23 @@ on_model_toolbar_torsion_general_toggletoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_flip_peptide_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
-  if (active)
-    do_pepflip(1);
-  else
-     do_pepflip(0);
+on_model_toolbar_flip_peptide_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                       gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
+   if (active)
+      do_pepflip(1);
+   else
+      do_pepflip(0);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_sidechain_180_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+on_model_toolbar_sidechain_180_togglebutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                        gpointer         user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active)
     setup_180_degree_flip(1);
   else
@@ -309,12 +298,10 @@ on_model_toolbar_sidechain_180_togglebutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
+on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled_gtkbuilder_callback(GtkToggleButton *toggletoolbutton,
+                                                                                     gpointer         user_data) {
 
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active) {
     setup_backbone_torsion_edit(1);
   } else {
@@ -327,10 +314,10 @@ on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled_gtkbuilder_call
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_mutate_and_autofit_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active)
     setup_mutate_auto_fit(1);
   else
@@ -341,10 +328,10 @@ on_model_toolbar_mutate_and_autofit_togglebutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_simple_mutate_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active)
       setup_mutate(1);
    else
@@ -355,10 +342,10 @@ on_model_toolbar_simple_mutate_togglebutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active)
     do_add_terminal_residue(1);
   else
@@ -370,39 +357,32 @@ on_model_toolbar_add_terminal_residue_togglebutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_add_alt_conf_toolbutton_clicked_gtkbuilder_callback
-                                        (GtkToolButton   *toolbutton,
-                                        gpointer         user_data)
-{
+                                        (GtkToggleButton   *toolbutton,
+                                         gpointer         user_data) {
   altconf();
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_add_atom_button_clicked_gtkbuilder_callback
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_model_toolbar_add_atom_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                             gpointer         user_data) {
    place_atom_at_pointer();
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_clear_pending_picks_button_clicked_gtkbuilder_callback
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_model_toolbar_clear_pending_picks_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                                        gpointer         user_data) {
    clear_pending_picks();
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_delete_button_clicked_gtkbuilder_callback
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_model_toolbar_delete_button_clicked_gtkbuilder_callback(GtkButton       *button,
+                                                           gpointer         user_data) {
   GtkWidget *widget = wrapped_create_delete_item_dialog();
   gtk_widget_show(widget);
 }
@@ -411,8 +391,7 @@ on_model_toolbar_delete_button_clicked_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_undo_button_clicked_gtkbuilder_callback   (GtkButton       *button,
-                                                            gpointer         user_data)
-{
+                                                            gpointer         user_data) {
    apply_undo();
 }
 
@@ -428,7 +407,7 @@ on_model_toolbar_redo_button_clicked_gtkbuilder_callback (GtkButton       *butto
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_refmac_button_clicked_gtkbuilder_callback (GtkToolButton   *toolbutton,
+on_model_toolbar_refmac_button_clicked_gtkbuilder_callback (GtkToggleButton   *toolbutton,
                                                             gpointer         user_data)
 {
   /* wrapped_create_run_refmac_dialog(); */
@@ -461,9 +440,8 @@ on_refine_params_rama_restraints_combobox_changed_gtkbuilder_callback (GtkComboB
 
 extern "C" G_MODULE_EXPORT
 void
-on_ssm_superposition1_activate_gtkbuilder_callback         (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_ssm_superposition1_activate_gtkbuilder_callback         (GMenuItem     *menuitem,
+                                                            gpointer         user_data) {
    GtkWidget *w = wrapped_create_superpose_dialog(); // uses builder
 
    /* we get returned w = 0 when there is no MMDBSSM. (We are doing it
@@ -510,7 +488,7 @@ on_ssm_superposition1_activate_gtkbuilder_callback         (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_open_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
+on_open_coordinates1_activate_gtkbuilder_callback          (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   open_coords_dialog();
@@ -519,7 +497,7 @@ on_open_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_open_dataset1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+on_open_dataset1_activate_gtkbuilder_callback (GMenuItem     *menuitem,
                                                gpointer         user_data) {
 
    GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
@@ -533,7 +511,7 @@ on_open_dataset1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
+on_auto_open_mtz_activate_gtkbuilder_callback              (GMenuItem     *menuitem,
                                                             gpointer         user_data) {
 
    int is_auto_read_fileselection = 1;
@@ -568,7 +546,7 @@ on_auto_open_mtz_activate_gtkbuilder_callback              (GtkMenuItem     *men
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_coordinates1_activate_gtkbuilder_callback          (GtkMenuItem     *menuitem,
+on_save_coordinates1_activate_gtkbuilder_callback          (GMenuItem     *menuitem,
                                                             gpointer         user_data)
 {
    GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
@@ -602,7 +580,13 @@ on_save_coordinates_filechooser_dialog_response_gtkbuilder_callback(GtkDialog   
                                                                     gint             response_id,
                                                                     gpointer         user_data) {
    if (response_id == GTK_RESPONSE_OK) {
-      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      GError *error = NULL;
+      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
+      const char *fnc = g_file_info_get_name(file_info);
       if (fnc) {
 
          // imol set in
@@ -626,7 +610,12 @@ on_dataset_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dial
                                                            gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_OK) {
-      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      GError *error = NULL;
+      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
+      const char *fnc = g_file_info_get_name(file_info);
       if (fnc) {
          int is_auto = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_auto"));
          std::string fn(fnc);
@@ -652,7 +641,12 @@ on_map_name_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dia
                                                             gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_OK) {
-      const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      GError *error = NULL;
+      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
+      const char *fnc = g_file_info_get_name(file_info);
       if (fnc) {
          std::string fn(fnc);
          // std::cout << "Now do something with " << fn << std::endl;
@@ -677,12 +671,17 @@ on_map_name_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser
                                                                   gpointer user_data) {
 
    // 20220319-PE shouldn't need to connect to this says the documentation - hmmm.....
-   const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   // const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+   GError *error = NULL;
+   GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                            G_FILE_QUERY_INFO_NONE, NULL, &error);
+   const char *fnc = g_file_info_get_name(file_info);
    bool is_diff_map = false;
    GtkWidget *checkbutton = widget_from_builder("map_filechooser_is_difference_map_button");
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       is_diff_map = true;
-   read_ccp4_map(fn, is_diff_map);
+   read_ccp4_map(fnc, is_diff_map);
 
    gtk_widget_hide(GTK_WIDGET(dialog));
 
@@ -701,6 +700,8 @@ on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialo
       GtkWidget *recentre_combobox = widget_from_builder("coords_filechooserdialog_recentre_combobox");
       int active_item_index = gtk_combo_box_get_active(GTK_COMBO_BOX(recentre_combobox));
 
+      // 20220601-PE I should read multiple GFiles here, I suppose
+
 #if 0
       GSList *files_list = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
       while (files_list) {
@@ -714,7 +715,12 @@ on_coords_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dialo
       }
 #endif
 
-      const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      GError *error = NULL;
+      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
+      const char *fn = g_file_info_get_name(file_info);
       save_directory_from_filechooser(GTK_WIDGET(dialog));
 
       bool recentre_on_read_pdb_flag = false;
@@ -764,7 +770,7 @@ on_coords_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* 
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_regularize_residue_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_regularize_residue_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                            gpointer     user_data) {
 
    regularize_residue();
@@ -772,21 +778,21 @@ on_menubar_regularize_residue_activate_gtkbuilder_callback(GtkMenuItem *menuitem
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_regularize_tandem_3_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_regularize_tandem_3_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                             gpointer     user_data) {
    regularize_tandem_3();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_regularize_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_regularize_sphere_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                           gpointer     user_data) {
    regularize_sphere();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_single_residue_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_single_residue_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                            gpointer     user_data) {
 
    rsr_refine_residue();
@@ -794,7 +800,7 @@ on_menubar_rsr_single_residue_activate_gtkbuilder_callback(GtkMenuItem *menuitem
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_tandem_5_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_tandem_5_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                      gpointer     user_data) {
 
    rsr_refine_tandem_5();
@@ -802,14 +808,14 @@ on_menubar_rsr_tandem_5_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_tandem_3_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_tandem_3_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                      gpointer     user_data) {
    rsr_refine_tandem_3();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_sphere_plus_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_sphere_plus_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                         gpointer     user_data) {
 
    rsr_sphere_refine_plus();
@@ -817,7 +823,7 @@ on_menubar_rsr_sphere_plus_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_chain_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_chain_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                   gpointer     user_data) {
 
    rsr_refine_chain();
@@ -825,7 +831,7 @@ on_menubar_rsr_chain_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_residue_range_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_residue_range_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                           gpointer     user_data) {
 
    do_refine(1);
@@ -833,7 +839,7 @@ on_menubar_rsr_residue_range_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_menubar_rsr_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_menubar_rsr_sphere_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                    gpointer     user_data) {
    rsr_sphere_refine();
 }
@@ -841,14 +847,14 @@ on_menubar_rsr_sphere_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_atom_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_atom_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                       gpointer     user_data) {
    set_delete_atom_mode();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_water_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_water_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                       gpointer     user_data) {
 
    set_delete_water_mode();
@@ -856,21 +862,21 @@ on_delete_item_water_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_sidechain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_sidechain_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                            gpointer     user_data) {
    set_delete_sidechain_mode();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_sidechains_in_residue_range_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_sidechains_in_residue_range_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                              gpointer     user_data) {
    set_delete_sidechain_range_mode();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_residue_hydrogen_atoms_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_residue_hydrogen_atoms_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                         gpointer     user_data) {
 
    set_delete_residue_hydrogens_mode();
@@ -878,7 +884,7 @@ on_delete_item_residue_hydrogen_atoms_item_activate_gtkbuilder_callback(GtkMenuI
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_residue_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_residue_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                          gpointer     user_data) {
 
    set_delete_residue_mode();
@@ -886,14 +892,14 @@ on_delete_item_residue_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_residue_range_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_residue_range_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                gpointer     user_data) {
    set_delete_residue_zone_mode();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_delete_item_chain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_delete_item_chain_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                        gpointer     user_data) {
 
    set_delete_chain_mode();
@@ -901,7 +907,7 @@ on_delete_item_chain_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_calculate_updating_maps1_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_calculate_updating_maps1_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                          gpointer     user_data) {
 
    show_calculate_updating_maps_gui();
@@ -912,53 +918,53 @@ on_calculate_updating_maps1_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_icons_menubar_icons_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_model_toolbar_icons_menubar_icons_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                        gpointer     user_data) {
 
    GtkWidget *tb;
 
    tb = widget_from_builder("main_window_model_toolbar_second_top");
-   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
+   // gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
    tb = widget_from_builder("main_window_model_toolbar_lower");
-   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
+   // gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
    tb = widget_from_builder("main_window_model_toolbar_bottom");
-   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
+   // gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_ICONS);
 
    GtkWidget *mi = widget_from_builder("rotate_translate_item_menu_item_top");
-   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
+   // gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
    mi = widget_from_builder("menubar_for_rsr_item_menuitem");
-   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
+   // gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
    mi = widget_from_builder("menubar_for_delete_items_menu_item_top");
-   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
+   // gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "");
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_icons_menubar_icons_and_text_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_model_toolbar_icons_menubar_icons_and_text_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                                 gpointer     user_data) {
 
    GtkWidget *tb;
 
    tb = widget_from_builder("main_window_model_toolbar_second_top");
-   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
+   // gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
    tb = widget_from_builder("main_window_model_toolbar_lower");
-   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
+   // gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
    tb = widget_from_builder("main_window_model_toolbar_bottom");
-   gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
+   // gtk_toolbar_set_style(GTK_TOOLBAR(tb), GTK_TOOLBAR_BOTH_HORIZ);
 
    GtkWidget *mi = widget_from_builder("rotate_translate_item_menu_item_top");
-   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "Rotate/Translate");
+   // gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "Rotate/Translate");
    mi = widget_from_builder("menubar_for_rsr_item_menuitem");
-   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "Real Space Refinement");
+   // gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "Real Space Refinement");
    mi = widget_from_builder("menubar_for_delete_items_menu_item_top");
-   gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "   Delete");
+   // gtk_menu_item_set_label(GTK_MENU_ITEM(mi), "   Delete");
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_ribbons_colour_by_chain_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_ribbons_colour_by_chain_menu_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                   gpointer     user_data) {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
@@ -974,7 +980,7 @@ on_ribbons_colour_by_chain_menu_item_activate_gtkbuilder_callback(GtkMenuItem *m
 
 extern "C" G_MODULE_EXPORT
 void
-on_ribbons_colour_rainbow_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_ribbons_colour_rainbow_menu_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                  gpointer     user_data) {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -989,7 +995,7 @@ on_ribbons_colour_rainbow_menu_item_activate_gtkbuilder_callback(GtkMenuItem *me
 
 extern "C" G_MODULE_EXPORT
 void
-on_ribbons_colour_by_secondary_structure_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_ribbons_colour_by_secondary_structure_menu_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                  gpointer     user_data) {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -1004,23 +1010,23 @@ on_ribbons_colour_by_secondary_structure_menu_item_activate_gtkbuilder_callback(
 
 extern "C" G_MODULE_EXPORT
 void
-on_draw_perspective_perspective_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_draw_perspective_perspective_menu_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                        gpointer     user_data) {
    set_use_perspective_projection(1);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_draw_perspective_orthographic_menu_item_activate_gtkbuilder_callback(GtkMenuItem *menuitem,
+on_draw_perspective_orthographic_menu_item_activate_gtkbuilder_callback(GMenuItem *menuitem,
                                                                         gpointer     user_data) {
    set_use_perspective_projection(0);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_about1_activate_gtkbuilder_callback                     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_about1_activate_gtkbuilder_callback(GMenuItem     *menuitem,
+                                       gpointer         user_data) {
+
    // GtkWidget *about_window = create_aboutdialog();
    GtkWidget *about_window = widget_from_builder("aboutdialog");
    add_coot_references_button(about_window);
@@ -1040,7 +1046,11 @@ on_main_window_resize_window_up_arrow_clicked_gtkbuilder_callback(GtkButton     
    int h = allocation.height;
    int h_new = h - 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "fix the resizing here " << std::endl;
+#else
    gtk_window_resize(GTK_WINDOW(window), w, h_new);
+#endif
    // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 
    // Note to self gtk_window_set_resizable() also expands the window fully in Y. Bleugh.
@@ -1057,7 +1067,11 @@ on_main_window_resize_window_down_arrow_clicked_gtkbuilder_callback(GtkButton   
    int h = allocation.height;
    int h_new = h + 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "fix the resizing here " << std::endl;
+#else
    gtk_window_resize(GTK_WINDOW(window), w, h_new);
+#endif
    // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 }
 
@@ -1072,7 +1086,11 @@ on_main_window_resize_window_left_arrow_clicked_gtkbuilder_callback(GtkButton   
    int h = allocation.height;
    int w_new = w - 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "fix the resizing here " << std::endl;
+#else
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
+#endif
    // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 }
 
@@ -1088,6 +1106,10 @@ on_main_window_resize_window_right_arrow_clicked_gtkbuilder_callback(GtkButton  
    int h = allocation.height;
    int w_new = w + 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "fix the resizing here " << std::endl;
+#else
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
+#endif
    // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 }

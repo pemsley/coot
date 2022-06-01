@@ -48,7 +48,11 @@ void show_preferences();
 void clear_preferences();
 void set_mark_cis_peptides_as_bad(int istate); /* in geometry graph */
 int show_mark_cis_peptides_as_bad_state();
+#if (GTK_MAJOR_VERSION >= 4)
+void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preference_type);
+#else
 void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type);
+#endif
 void update_preference_gui();
 void make_preferences_internal();
 void make_preferences_internal_default();

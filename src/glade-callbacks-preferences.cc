@@ -60,9 +60,8 @@ typedef const char entry_char_type;
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_general_radiotoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
-                                        gpointer         user_data)
-{
+                                        (GtkToggleButton *toggletoolbutton,
+                                         gpointer         user_data) {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GENERAL_PREFERENCES);
 }
 
@@ -70,7 +69,7 @@ on_preferences_general_radiotoolbutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_bond_radiotoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_BOND_PREFERENCES);
@@ -80,7 +79,7 @@ on_preferences_bond_radiotoolbutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_map_radiotoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_MAP_PREFERENCES);
@@ -91,7 +90,7 @@ on_preferences_map_radiotoolbutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_geometry_radiotoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GEOMETRY_PREFERENCES);
@@ -103,7 +102,7 @@ on_preferences_geometry_radiotoolbutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_colour_radiotoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_COLOUR_PREFERENCES);
@@ -115,7 +114,7 @@ on_preferences_colour_radiotoolbutton_toggled_gtkbuilder_callback
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_other_radiotoolbutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+                                        (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_OTHER_PREFERENCES);
@@ -309,7 +308,7 @@ on_preferences_map_radius_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
 					 gpointer         user_data)
 {
-   const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float fval = 0;
    fval = atof(text);
    if ((fval > 0) && (fval <1000)) {
@@ -330,7 +329,7 @@ on_preferences_map_radius_entry_changed_gtkbuilder_callback
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_radius_entry"));
    std::cout << "debug:: on_preferences_map_radius_entry_changed_gtkbuilder_callback() entry " << entry << std::endl;
    if (entry) {
-      const gchar *text = gtk_entry_get_text(entry);
+      const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
       float fval = 0;
       fval = atof(text);
       if ((fval > 0) && (fval <200)) {
@@ -351,13 +350,13 @@ on_preferences_map_increment_size_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
 					 gpointer         user_data)
 {
-  const gchar *text = gtk_entry_get_text(entry);
-  float fval = 0;
-  fval = atof(text);
-  if (fval > 0) {
-    preferences_internal_change_value_float(PREFERENCES_MAP_ISOLEVEL_INCREMENT, fval);
-    set_iso_level_increment(fval);
-  }
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   float fval = 0;
+   fval = atof(text);
+   if (fval > 0) {
+      preferences_internal_change_value_float(PREFERENCES_MAP_ISOLEVEL_INCREMENT, fval);
+      set_iso_level_increment(fval);
+   }
 
 }
 
@@ -370,7 +369,7 @@ on_preferences_map_increment_size_entry_changed_gtkbuilder_callback
 {
    // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_increment_size_entry"));
   GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_increment_size_entry"));
-  const gchar *text = gtk_entry_get_text(entry);
+  const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   float fval = 0;
   fval = atof(text);
   if (fval > 0) {
@@ -387,7 +386,7 @@ on_preferences_map_diff_increment_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
-  const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   float fval = 0;
   fval = atof(text);
   if (fval > 0) {
@@ -406,7 +405,7 @@ on_preferences_map_diff_increment_entry_changed_gtkbuilder_callback
 {
    // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_diff_increment_entry"));
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_diff_increment_entry"));
-   const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float fval = 0;
    fval = atof(text);
    if (fval > 0) {
@@ -423,7 +422,7 @@ on_preferences_map_sampling_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
-  const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   float fval = 0;
   fval = atof(text);
   if ((fval < 100) && (fval > 1)) {
@@ -442,7 +441,7 @@ on_preferences_map_sampling_entry_changed_gtkbuilder_callback
 {
    // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_sampling_entry"));
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_sampling_entry"));
-   const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float fval = 0;
    fval = atof(text);
    if ((fval < 100) && (fval > 1)) {
@@ -564,7 +563,7 @@ on_preferences_smooth_scroll_steps_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
-  const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   int ival = 0;
   ival = atoi(text);
   if ((ival < 10000000) && (ival > 0)) {
@@ -583,7 +582,7 @@ on_preferences_smooth_scroll_steps_entry_changed_gtkbuilder_callback
 {
    // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_steps_entry"));
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_smooth_scroll_steps_entry"));
-   const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    int ival = 0;
    ival = atoi(text);
    if ((ival < 10000000) && (ival > 0)) {
@@ -600,7 +599,7 @@ on_preferences_smooth_scroll_limit_entry_activate_gtkbuilder_callback
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
-  const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   float fval = 0;
   fval = atof(text);
   if ((fval < 1000) && (fval > 0)) {
@@ -619,7 +618,7 @@ on_preferences_smooth_scroll_limit_entry_changed_gtkbuilder_callback
 {
    // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_limit_entry"));
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_smooth_scroll_limit_entry"));
-   const gchar *text = gtk_entry_get_text(entry);
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float fval = 0;
    fval = atof(text);
    if ((fval < 1000) && (fval > 0)) {
@@ -1060,18 +1059,18 @@ on_preferences_refinement_speed_own_radiobutton_toggled_gtkbuilder_callback
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *w = widget_from_preferences_builder("preferences_refinement_speed_entry");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-    int val;
-    val = atoi(entry_text);
-    if ((val > 10000) || (val < 1)) {
-      printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
-      val  = 80;
-      gtk_entry_set_text(GTK_ENTRY(w), "80");
-    }
-    preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
-    set_dragged_refinement_steps_per_frame(val);
+   GtkWidget *w = widget_from_preferences_builder("preferences_refinement_speed_entry");
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      const gchar* entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
+      int val;
+      val = atoi(entry_text);
+      if ((val > 10000) || (val < 1)) {
+         printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
+         val  = 80;
+         gtk_editable_set_text(GTK_EDITABLE(w), "80");
+      }
+      preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
+      set_dragged_refinement_steps_per_frame(val);
   }
 
 }
@@ -1087,12 +1086,12 @@ on_preferences_refinement_speed_entry_activate_gtkbuilder_callback
    int val;
    GtkWidget *w = widget_from_preferences_builder("preferences_refinement_speed_own_radiobutton");
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-   entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+   entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
    val = atoi(entry_text);
    if ((val > 10000) || (val < 1)) {
       printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
       val  = 80;
-      gtk_entry_set_text(entry, "80");
+      gtk_editable_set_text(GTK_EDITABLE(entry), "80");
    }
    preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
    set_dragged_refinement_steps_per_frame(val);
@@ -1113,12 +1112,12 @@ on_preferences_refinement_speed_entry_changed_gtkbuilder_callback
 
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
 
-  entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+  entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
   val = atoi(entry_text);
   if ((val > 10000) || (val < 1)) {
     printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
     val  = 80;
-    gtk_entry_set_text(GTK_ENTRY(w), "80");
+    gtk_editable_set_text(GTK_EDITABLE(w), "80");
   }
   preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
   set_dragged_refinement_steps_per_frame(val);
@@ -1133,12 +1132,12 @@ on_preferences_spin_speed_entry_activate_gtkbuilder_callback
                                         gpointer         user_data)
 {
   float fval;
-  const gchar* entry_text = gtk_entry_get_text(entry);
+  const gchar* entry_text = gtk_editable_get_text(GTK_EDITABLE(entry));
   fval = atof(entry_text);
   if ((fval > 360) || (fval < 0)) {
     printf("Cannot interpret: %s Assuming default 1.0 \n", entry_text);
     fval  = 1.0;
-    gtk_entry_set_text(entry, "1.0");
+    gtk_editable_set_text(GTK_EDITABLE(entry), "1.0");
   }
   preferences_internal_change_value_float(PREFERENCES_SPIN_SPEED, fval);
   set_idle_function_rotate_angle(fval);
@@ -1153,12 +1152,12 @@ on_preferences_spin_speed_entry_changed_gtkbuilder_callback
 {
    float fval;
    GtkWidget *w = widget_from_preferences_builder("preferences_spin_speed_entry");
-   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+   const gchar* entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
    fval = atof(entry_text);
    if ((fval > 360) || (fval < 0)) {
       printf("Cannot interpret: %s Assuming default 1.0 \n", entry_text);
       fval  = 1.0;
-      gtk_entry_set_text(GTK_ENTRY(w), "1.0");
+      gtk_editable_set_text(GTK_EDITABLE(w), "1.0");
    }
    preferences_internal_change_value_float(PREFERENCES_SPIN_SPEED, fval);
    set_idle_function_rotate_angle(fval);
@@ -1339,12 +1338,12 @@ on_preferences_pink_pointer_entry_activate_gtkbuilder_callback
                                         gpointer         user_data)
 {
   float fval;
-  const gchar* entry_text = gtk_entry_get_text(entry);
+  const gchar* entry_text = gtk_editable_get_text(GTK_EDITABLE(entry));
   fval = atof(entry_text);
   if ((fval > 1000) || (fval < 0)) {
     printf("Invalid cube size: %s Assuming default 0.1 A \n", entry_text);
     fval  = 0.1;
-    gtk_entry_set_text(entry, "0.1");
+    gtk_editable_set_text(GTK_EDITABLE(entry), "0.1");
   }
   preferences_internal_change_value_float(PREFERENCES_PINK_POINTER, fval);
   set_rotation_centre_size(fval);
@@ -1359,12 +1358,12 @@ on_preferences_pink_pointer_entry_changed_gtkbuilder_callback
 {
   float fval;
   GtkWidget *w = widget_from_preferences_builder("preferences_pink_pointer_entry");
-  const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+  const gchar* entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
   fval = atof(entry_text);
   if ((fval > 1000) || (fval < 0)) {
     printf("Invalid cube size: %s Assuming default 0.1 A \n", entry_text);
     fval  = 0.1;
-    gtk_entry_set_text(GTK_ENTRY(w), "0.1");
+    gtk_editable_set_text(GTK_EDITABLE(w), "0.1");
   }
   preferences_internal_change_value_float(PREFERENCES_PINK_POINTER, fval);
   set_rotation_centre_size(fval);

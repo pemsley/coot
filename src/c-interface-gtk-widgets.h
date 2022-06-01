@@ -115,9 +115,12 @@ void add_filechooser_extra_filter_button(GtkWidget *fileselection,
 				      const gchar *name,
                                       const gchar *name2);
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
 					     GdkEventKey     *event,
 					     gpointer         user_data);
+#endif
 
 /* a c callable wrapper to the graphics_info_t function */
 void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
@@ -202,7 +205,11 @@ void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
 GtkWidget *wrapped_create_coot_references_dialog();
 
+#if (GTK_MAJOR_VERSION >= 4)
+void fill_references_notebook(GtkButton *toolbutton, int reference_id);
+#else
 void fill_references_notebook(GtkToolButton *toolbutton, int reference_id);
+#endif
 
  void add_is_difference_map_checkbutton(GtkWidget *fileselection);
 /* the callback for the above: */
@@ -216,9 +223,12 @@ void
 on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 					       gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void toolbar_popup_menu(GtkToolbar *toolbar,
 		    GdkEventButton *event_button,
 		    gpointer user_data);
+#endif
 
 void set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data);
 
@@ -268,14 +278,21 @@ on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
                                        gpointer user_data);
 
 /* the callback set on the submenu items in the above function */
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
 				       gpointer         user_data);
+#endif
+
 void my_delete_menu_items(GtkWidget *widget, void *data);
 
 /* similarly for the scrollwheel */
 void add_on_map_scroll_wheel_choices(GtkWidget *menu);
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 					     gpointer         user_data);
+#endif
 
 void handle_map_colour_change     (int map_no, GdkRGBA col);
 void handle_symmetry_colour_change(int mol,    gdouble[4]);
@@ -582,6 +599,8 @@ void unset_geometry_graph(GtkWidget *dialog); /* set the graphics info
 						 widget*/
 
 void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data);
 ////B
@@ -603,6 +622,7 @@ void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuit
 
 void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 				  gpointer         user_data);
+#endif
 
 /* These are called right at the beginning (main) */
 /* old style not-generic menu initialization */
@@ -638,7 +658,10 @@ void toggle_dynarama_outliers(GtkWidget *window, int state);
 /* ../../coot/src/callbacks.c: In function ‘on_dynarama_window_configure_event’: */
 /* ../../coot/src/callbacks.c:9682:4: warning: passing argument 2 of ‘resize_rama_canvas’ from incompatible pointer type [enabled by default] */
 /* ../../coot/src/c-interface.h:4083:6: note: expected ‘union GdkEvent *’ but argument is of type ‘struct GdkEventConfigure *’ */
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
+#endif
 
 
 GtkWidget *wrapped_ramachandran_plot_differences_dialog();
@@ -826,8 +849,11 @@ void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
 void store_fixed_atom_dialog(GtkWidget *w);
 GtkWidget *wrapped_create_fixed_atom_dialog();
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 void start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
 				       gpointer         user_data);
+#endif
 
 void set_file_selection_dialog_size(GtkWidget *w);
 

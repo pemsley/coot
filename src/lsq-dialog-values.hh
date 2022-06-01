@@ -56,10 +56,11 @@ public:
 	 GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
 	 GtkWidget *mov_res_range_2 = widget_from_builder("least_squares_moving_range_2_entry");
 
-	 const char *txt_r_1 = gtk_entry_get_text(GTK_ENTRY(ref_res_range_1));
-	 const char *txt_r_2 = gtk_entry_get_text(GTK_ENTRY(ref_res_range_2));
-	 const char *txt_m_1 = gtk_entry_get_text(GTK_ENTRY(mov_res_range_1));
-	 const char *txt_m_2 = gtk_entry_get_text(GTK_ENTRY(mov_res_range_2));
+	 const char *txt_r_1 = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_1));
+	 const char *txt_r_2 = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_2));
+	 const char *txt_m_1 = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_1));
+	 const char *txt_m_2 = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_2));
+
 	 int ir1 = clipper::String(txt_r_1).i();
 	 int ir2 = clipper::String(txt_r_2).i();
 	 int im1 = clipper::String(txt_m_1).i();

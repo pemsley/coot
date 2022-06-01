@@ -70,7 +70,8 @@
 #define PKGDATADIR "C:/coot/share"
 #endif
 
-#include "globjects.h"
+// not in the world of GTK4
+// #include "globjects.h"
 
 #include <vector>
 #include <string>
@@ -169,19 +170,28 @@ windows_set_error_mode() {
 GtkWidget*
 my_create_splash_screen_window (void) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+   GtkWidget *splash_screen_window = gtk_window_new();
+#else
    GtkWidget *splash_screen_window = gtk_window_new(GTK_WINDOW_POPUP);
-   gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot");
    gtk_window_set_position(GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
-#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
-   gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
+#endif
+   gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot");
+
+#if (GTK_MAJOR_VERSION >=4)
+   // gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
 #else
    gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 #endif
 
-   // GtkWidget *image = create_pixmap(splash_screen_window, "coot-0.9.9-pre.png");
    GtkWidget *image = create_pixmap(splash_screen_window, "coot-1.png");
    gtk_widget_show(image);
+
+#if (GTK_MAJOR_VERSION >=4)
+   // 20220531-PE How do I do this simple thing!?
+#else
    gtk_container_add(GTK_CONTAINER(splash_screen_window), image);
+#endif
 
    return splash_screen_window;
 }
@@ -210,11 +220,14 @@ GtkWidget *do_splash_screen(const command_line_data &cld) {
             std::cout << "ERROR:: in main() splash is null " << std::endl;
          }
 
+#if (GTK_MAJOR_VERSION >=4)
+#else
          while(gtk_main_iteration() == FALSE);
          while (gtk_events_pending()) {
             usleep(3000);
             gtk_main_iteration();
          }
+#endif
       }
    }
    return splash_screen;
@@ -337,7 +350,7 @@ bool init_from_gtkbuilder() {
       GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
 
       GtkWidget *main_window_deletable_label = widget_from_builder("main_window_deletable_label");
-      gtk_widget_destroy(main_window_deletable_label);
+      gtk_widget_hide(main_window_deletable_label); // 20220531-PE GTK4: can't delete it.
 
       if (false) {
          std::cout << "debug:: main_window "   << main_window << std::endl;
@@ -363,14 +376,18 @@ bool init_from_gtkbuilder() {
          if (err)
             std::cout << "ERROR:: GL error in init_from_gtkbuilder()" << err << std::endl;
 
+#if (GTK_MAJOR_VERSION >=4)
+         // happens automatically now (sensible)
+#else
          gtk_builder_connect_signals(builder, main_window);
+#endif
          gtk_widget_show(main_window);
 
          if (false) {
             GtkWidget *w = gtk_label_new("Some Test Label");
             gtk_widget_show(w);
-#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
-            gtk_box_pack_start(GTK_BOX(graphics_hbox), w);
+#if (GTK_MAJOR_VERSION >=4)
+            gtk_box_append(GTK_BOX(graphics_hbox), w);
 #else
             gtk_box_pack_start(GTK_BOX(graphics_hbox), w, FALSE, FALSE, 2);
 #endif
@@ -524,7 +541,7 @@ main(int argc, char *argv[]) {
 #endif
 
    if (splash)
-      gtk_widget_destroy(splash);
+      gtk_window_destroy(GTK_WINDOW(splash));
 
    // before we run the scripting, let's make default preferences
    make_preferences_internal_default();
@@ -573,16 +590,27 @@ main(int argc, char *argv[]) {
 #if ! defined (USE_GUILE)
 #ifdef USE_PYTHON
 
-   if (graphics_info_t::use_graphics_interface_flag)
+   if (graphics_info_t::use_graphics_interface_flag) {
+#if (GTK_MAJOR_VERSION >=4)
+
+      std::cout << "-------------------------------------------------------------------" << std::endl;
+      std::cout << "                 a replacement for gtk_main() here " << std::endl;
+      std::cout << "-------------------------------------------------------------------" << std::endl;
+#else      
       gtk_main();
-   else {
+#endif
+
+   } else {
       start_command_line_python_maybe(true, argc, argv);
    }
 
 #else
    // not python or guile
    if (graphics_info_t::use_graphics_interface_flag)
+#if (GTK_MAJOR_VERSION >=4)
+#else      
       gtk_main();
+#endif
 #endif // USE_PYTHON
 
 #endif // ! USE_GUILE

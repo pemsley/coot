@@ -24,6 +24,8 @@
 // contains the c interface for the graphics, i.e. those 
 // needed in main.c, used by 
 
+#if 0 // 20220601-PE is there anything in this file worth keeping?
+
 #include <string>
 #include <vector>
 
@@ -148,5 +150,7 @@ void keypad_translate_xyz(short int axis, short int direction);
 void test_object();
 
 gint idle_contour_function(gpointer data);
+
+#endif
 
 #endif // GLOBJECTS_H
