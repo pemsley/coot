@@ -106,17 +106,10 @@
 #include "ligand/richardson-rotamer.hh"
 #endif
 
+#if 0 // 20220601-PE don't use this function - kept for linking failure diagnostics
 void do_regularize_kill_delete_dialog() {
-   graphics_info_t g;
-   if (g.delete_item_widget) {
-      gtk_widget_destroy(g.delete_item_widget);
-      g.delete_item_widget = NULL;
-      // hopefully superfluous:
-      g.delete_item_atom = 0;
-      g.delete_item_residue = 0;
-      g.delete_item_residue_hydrogens = 0;
-   }
 }
+#endif
 
 
 /* moving gtk functionn out of build functions, delete_atom() updates
@@ -287,7 +280,7 @@ void fill_place_atom_molecule_combobox(GtkWidget *combobox) {
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
 void set_refinement_weight_from_entry(GtkWidget *entry) {
 
-   const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    try {
       float f = coot::util::string_to_float(text);
       graphics_info_t::geometry_vs_map_weight = f;
@@ -304,7 +297,7 @@ void add_estimated_map_weight_to_entry(GtkWidget *entry) {
       float v = estimate_map_weight(imol_map);
       graphics_info_t::geometry_vs_map_weight = v;
       std::string t = coot::util::float_to_string(v);
-      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
    }
 
 }
@@ -397,7 +390,7 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
 	 int res_no = pp.second.second.res_no;
-	 gtk_entry_set_text(GTK_ENTRY(entry_1), coot::util::int_to_string(res_no).c_str());
+	 gtk_editable_set_text(GTK_EDITABLE(entry_1), coot::util::int_to_string(res_no).c_str());
       }
    }
    return w;
@@ -981,11 +974,11 @@ void do_mutate_sequence(GtkWidget *dialog) {
    int res1 = -9999, res2 = -99999;
    graphics_info_t g;
 
-   const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry1));
+   const gchar *entry_text = gtk_editable_get_text(GTK_EDITABLE(entry1));
    t = atoi(entry_text);
    if ((t > -999) && (t < 9999))
       res1 = t;
-   entry_text = gtk_entry_get_text(GTK_ENTRY(entry2));
+   entry_text = gtk_editable_get_text(GTK_EDITABLE(entry2));
    t = atoi(entry_text);
    if ((t > -999) && (t < 9999))
       res2 = t;
@@ -1391,7 +1384,7 @@ change_chain_id_by_widget(GtkWidget *w) {
 	 to_resno = p2.second;
    }
 
-   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(change_chains_new_chain_entry));
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(change_chains_new_chain_entry));
 
    if (txt) {
 
@@ -1446,7 +1439,8 @@ set_rigid_body_fit_acceptable_fit_fraction(float f) {
 
 void
 my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
-   gtk_container_remove(GTK_CONTAINER(data), widget);
+   // gtk_container_remove(GTK_CONTAINER(data), widget);
+   std::cout << "FIXME in my_delete_ramachandran_mol_option() " << std::endl;
 }
 
 
@@ -1522,7 +1516,7 @@ handle_get_libcheck_monomer_code(GtkWidget *entry_widget) {
 
    // GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
    GtkWidget *frame = widget_from_builder("get_monomer_no_entry_frame");
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry_widget));
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry_widget));
 
    int no_entry_frame_shown = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "shown"));
 
@@ -1683,21 +1677,29 @@ void  do_edit_copy_fragment() {
    int imol = g.get_active_atom().first;
 
    auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                 if (GTK_IS_COMBO_BOX(widget))
-                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+#if (GTK_MAJOR_VERSION >= 4)
+#else
+      if (GTK_IS_COMBO_BOX(widget))
+         gtk_container_remove(GTK_CONTAINER(data), widget);
+#endif
+   };
+
+
+#if (GTK_MAJOR_VERSION >= 4)
+         // 20220528-PE-FIXME box packing
+
+   std::cout << "FIXME in do_edit_copy_fragment() " << std::endl;
+#else
    gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
    GtkWidget *combobox = gtk_combo_box_new();
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE-FIXME box packing
-#else
    gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-#endif
    gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
    g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
    g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
    gtk_widget_show(combobox);
    gtk_widget_show(dialog);
+#endif
 
    // the dialog response callback for this is on_copy_fragment_dialog_response_gtkbuilder_callback()
 
