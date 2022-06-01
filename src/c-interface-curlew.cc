@@ -470,7 +470,10 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    ucb_name += coot::util::int_to_string(idx);
    gtk_button_set_label(GTK_BUTTON(uninstall_button), "Uninstall");
    gtk_widget_set_size_request(uninstall_frame, 100, -1);
-   gtk_frame_set_shadow_type(GTK_FRAME(uninstall_frame), GTK_SHADOW_NONE);
+
+   std::cout << "FIXME set uninstall frame shadow " << std::endl;
+   // gtk_frame_set_shadow_type(GTK_FRAME(uninstall_frame), GTK_SHADOW_NONE);
+
    // --------------- Install -----------------
    GtkWidget *install_frame = gtk_frame_new(NULL);
    GtkWidget *install_button = gtk_button_new();
@@ -478,7 +481,8 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    icb_name += coot::util::int_to_string(idx);
    gtk_button_set_label(GTK_BUTTON(install_button), "Install");
    gtk_widget_set_size_request(install_frame, 100, -1);
-   gtk_frame_set_shadow_type(GTK_FRAME(install_frame), GTK_SHADOW_NONE);
+   std::cout << "FIXME set install frame shadow " << std::endl;
+   // gtk_frame_set_shadow_type(GTK_FRAME(install_frame), GTK_SHADOW_NONE);
    // --------------------------------------
 
    // question to self: does strcpy() set the ending \0? Yes, it does.
@@ -507,8 +511,13 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    // gtk_widget_override_background_color(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, color_green);
    // gtk_widget_override_background_color(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, color_blue);
 
+#if (GTK_MAJOR_VERSION >= 4)
+   gtk_frame_set_child(GTK_FRAME(  install_frame),   install_button);
+   gtk_frame_set_child(GTK_FRAME(uninstall_frame), uninstall_button);
+#else
    gtk_container_add(GTK_CONTAINER(  install_frame),   install_button);
    gtk_container_add(GTK_CONTAINER(uninstall_frame), uninstall_button);
+#endif
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
          // 20220528-PE-FIXME box packing
 #else
