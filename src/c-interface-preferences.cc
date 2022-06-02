@@ -93,8 +93,7 @@ GtkBuilder *get_builder_for_preferences_dialog() {
 
    if (add_from_file_status == 1) {
       GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder, "preferences_dialog"));
-      // std::cout << "############################ in get_builder_for_preferences_dialog() dialog " << dialog << std::endl;
-      gtk_builder_connect_signals(builder, dialog); // if "nothing happens" then you've missed this call
+      // gtk_builder_connect_signals(builder, dialog); // happens automatically now.
       graphics_info_t::set_preferences_gtkbuilder(builder);
       return builder;
    } else {
@@ -162,7 +161,7 @@ int show_mark_cis_peptides_as_bad_state() {
 
 }
 
-void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type) {
+void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preference_type) {
 
 
    std::vector<std::string> preferences_tabs;
@@ -189,7 +188,7 @@ void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int prefe
    for (unsigned int i=0; i<preferences_tabs.size(); i++) {
       GtkWidget *frame = widget_from_preferences_builder(preferences_tabs[i].c_str());
       if (frame) {
-         if (gtk_toggle_tool_button_get_active(toggletoolbutton)){
+         if (gtk_toggle_button_get_active(toggletoolbutton)){
             gtk_widget_show(frame);
          } else {
             gtk_widget_hide(frame);
@@ -202,7 +201,7 @@ void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int prefe
 #include "c-interface-preferences.h"
 
 void make_preferences_internal() {
-  
+
   graphics_info_t g;
   g.make_preferences_internal();
 }
@@ -370,25 +369,25 @@ void update_preference_gui() {
     case PREFERENCES_MAP_RADIUS:
       w = widget_from_preferences_builder("preferences_map_radius_entry");
       text = graphics_info_t::float_to_string(g.preferences_internal[i].fvalue1);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_MAP_ISOLEVEL_INCREMENT:
       w = widget_from_preferences_builder("preferences_map_increment_size_entry");
       text = graphics_info_t::float_to_string_using_dec_pl(g.preferences_internal[i].fvalue1, v);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT:
       w = widget_from_preferences_builder("preferences_map_diff_increment_entry");
       text = graphics_info_t::float_to_string_using_dec_pl(g.preferences_internal[i].fvalue1, v);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_MAP_SAMPLING_RATE:
       w = widget_from_preferences_builder("preferences_map_sampling_entry");
       text = graphics_info_t::float_to_string_using_dec_pl(g.preferences_internal[i].fvalue1, v);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_DYNAMIC_MAP_SAMPLING:
@@ -439,13 +438,13 @@ void update_preference_gui() {
     case PREFERENCES_SMOOTH_SCROLL_STEPS:
       w = widget_from_preferences_builder("preferences_smooth_scroll_steps_entry");
       text = graphics_info_t::int_to_string(g.preferences_internal[i].ivalue1);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_SMOOTH_SCROLL_LIMIT:
       w = widget_from_preferences_builder("preferences_smooth_scroll_limit_entry");
       text = graphics_info_t::float_to_string(g.preferences_internal[i].fvalue1);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_MAP_DRAG:
@@ -567,14 +566,14 @@ void update_preference_gui() {
 	   ivalue = 80;
 	 }
 	 text = graphics_info_t::int_to_string(ivalue);
-	 gtk_entry_set_text(GTK_ENTRY(entry), text.c_str());
+	 gtk_editable_set_text(GTK_EDITABLE(entry), text.c_str());
       }
       break;
 
     case PREFERENCES_SPIN_SPEED:
       w = widget_from_preferences_builder("preferences_spin_speed_entry");
       text = graphics_info_t::float_to_string(g.preferences_internal[i].fvalue1);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_FONT_SIZE:
@@ -648,7 +647,7 @@ void update_preference_gui() {
     case PREFERENCES_PINK_POINTER:
       w = widget_from_preferences_builder("preferences_pink_pointer_entry");
       text = graphics_info_t::float_to_string(g.preferences_internal[i].fvalue1);
-      gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
       break;
 
     case PREFERENCES_MODEL_TOOLBAR_SHOW:

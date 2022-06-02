@@ -776,8 +776,8 @@ PyObject *ncs_ghosts_py(int imol) {
 
 
 // This should be  in c-interface-ncs-gui.cc
-void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data) {
+void validation_graph_ncs_diffs_mol_selector_activate (GMenuItem     *menuitem,
+                                                       gpointer         user_data) {
    
    int imol = GPOINTER_TO_INT(user_data);
    graphics_info_t g;
