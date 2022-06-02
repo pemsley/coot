@@ -378,8 +378,9 @@ GtkWidget *wrapped_create_superpose_dialog() {
    GtkWidget *chain_ref_cb = widget_from_builder("superpose_dialog_reference_chain_combobox");
    GtkWidget *chain_mov_cb = widget_from_builder("superpose_dialog_moving_chain_combobox");
 
-   GtkWidget *chain_ref_menu = gtk_menu_new();
-   GtkWidget *chain_mov_menu = gtk_menu_new();
+   // 20220602-PE why are these here - what do they do? Nothing AFAICS.
+   // GtkWidget *chain_ref_menu = gtk_menu_new();
+   // GtkWidget *chain_mov_menu = gtk_menu_new();
 
 #endif // HAVE_SSMLIB
    return w;
@@ -709,10 +710,10 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    gtk_widget_set_size_request(mov_res_range_2, 80, -1);
 
    // fill with 1 to 999
-   gtk_entry_set_text(GTK_ENTRY(ref_res_range_1), clipper::String(g.lsq_dialog_values.ref_res_range_start).c_str());
-   gtk_entry_set_text(GTK_ENTRY(ref_res_range_2), clipper::String(g.lsq_dialog_values.ref_res_range_end).c_str());
-   gtk_entry_set_text(GTK_ENTRY(mov_res_range_1), clipper::String(g.lsq_dialog_values.mov_res_range_start).c_str());
-   gtk_entry_set_text(GTK_ENTRY(mov_res_range_2), clipper::String(g.lsq_dialog_values.mov_res_range_end).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(ref_res_range_1), clipper::String(g.lsq_dialog_values.ref_res_range_start).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(ref_res_range_2), clipper::String(g.lsq_dialog_values.ref_res_range_end).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(mov_res_range_1), clipper::String(g.lsq_dialog_values.mov_res_range_start).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(mov_res_range_2), clipper::String(g.lsq_dialog_values.mov_res_range_end).c_str());
 
    std::string chain_id_ref = g.lsq_dialog_values.chain_id_ref;
    std::string chain_id_mov = g.lsq_dialog_values.chain_id_mov;
@@ -791,13 +792,13 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    
    const char *txt = 0;
 
-   txt = gtk_entry_get_text(GTK_ENTRY(ref_res_range_1));
+   txt = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_1));
    ref_start_resno = atoi(txt);
-   txt = gtk_entry_get_text(GTK_ENTRY(ref_res_range_2));
+   txt = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_2));
    ref_end_resno = atoi(txt);
-   txt = gtk_entry_get_text(GTK_ENTRY(mov_res_range_1));
+   txt = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_1));
    mov_start_resno = atoi(txt);
-   txt = gtk_entry_get_text(GTK_ENTRY(mov_res_range_2));
+   txt = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_2));
    mov_end_resno = atoi(txt);
 
    // These are calculated on the fly now.

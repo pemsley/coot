@@ -155,23 +155,23 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // b-factor
    entry = widget_from_builder("check_waters_b_factor_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_b_factor_limit);
-   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), text_str.c_str());
 
 
    // map sigma
    entry = widget_from_builder("check_waters_map_sigma_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_map_sigma_limit);
-   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), text_str.c_str());
 
    // min_dist
    entry = widget_from_builder("check_waters_min_dist_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_min_dist_limit);
-   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), text_str.c_str());
 
    // max_dist
    entry = widget_from_builder("check_waters_max_dist_entry");
    text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_max_dist_limit);
-   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), text_str.c_str());
 
    // 20100131 We have put the variance map check into this dialog
    // too, to better organise the menus.
@@ -180,8 +180,6 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // widget_from_builder("check_water_by_difference_map_optionmenu");
 
    GtkWidget *diff_map_combobox = widget_from_builder("check_waters_by_difference_map_combobox");
-
-   std::cout << "debug:: diff_map_combobox " << diff_map_combobox << std::endl;
 
    if (diff_map_combobox) {
       // set imol_active to the first difference map.
@@ -194,8 +192,6 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 	    }
 	 }
       }
-
-      std::cout << "debug:: diff_map imol_active " << imol_active << std::endl;
 
       if (imol_active != -1) {
 	 graphics_info_t::check_waters_by_difference_map_map_number = imol_active;
@@ -437,8 +433,13 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  button_label += baddies[i].string_user_data;
 		  button_label += " " ;
 
+#if (GTK_MAJOR_VERSION >= 4)
+		  button = gtk_check_button_new_with_label(button_label.c_str());
+		  // gr_group = gtk_check_button_get_group(GTK_RADIO_BUTTON(button)); // or something
+#else
 		  button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
 		  gr_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
+#endif
 		  coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
 		  atom_spec->int_user_data = imol;
 
@@ -454,7 +455,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 				   atom_spec);
 
 		  GtkWidget *frame = gtk_frame_new(NULL);
-		  gtk_container_add(GTK_CONTAINER(frame), button);
+		  gtk_frame_set_child(GTK_FRAME(frame), button);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
                   // 20220528-PE FIXME box packing
@@ -790,7 +791,7 @@ PyObject *rotamer_graphs_py(int imol) {
 
 void
 my_delete_validaton_graph_mol_option(GtkWidget *widget, void *data) {
-   gtk_container_remove(GTK_CONTAINER(data), widget);
+   // gtk_container_remove(GTK_CONTAINER(data), widget);
 }
 
 
@@ -928,7 +929,7 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
    GtkWidget *entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
    graphics_info_t g;
    std::string s = g.float_to_string(g.difference_map_peaks_sigma_level);
-   gtk_entry_set_text(GTK_ENTRY(entry), s.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), s.c_str());
 
    return dialog;
 
@@ -959,7 +960,12 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    if (GTK_IS_BOX(map_vbox)) {
       int imol_map = -1;
       void *imol_ptr = &imol_map;
+#if (GTK_MAJOR_VERSION >= 4)
+      // 20220602-PE FIXME difference_map_peaks_by_widget()
+      std::cout << "in difference_map_peaks_by_widget() FIXME " << std::endl;
+#else
       gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
+#endif
       if (is_valid_map_molecule(imol_map)) {
          imol_diff_map = imol_map;
       }
@@ -967,7 +973,12 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    if (GTK_IS_BOX(protein_vbox)) {
       int imol_protein = -1;
       void *imol_ptr = &imol_protein;
+#if (GTK_MAJOR_VERSION >= 4)
+      // 20220602-PE FIXME difference_map_peaks_by_widget()
+      std::cout << "in difference_map_peaks_by_widget() FIXME " << std::endl;
+#else
       gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
+#endif
       if (is_valid_model_molecule(imol_protein)) {
          imol_coords = imol_protein;
       }
@@ -977,7 +988,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    // Check the level:
 
    GtkWidget *sigma_entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
-   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(sigma_entry));
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(sigma_entry));
    float v = coot::util::string_to_float(txt);
 
    bool good_sigma = false;
@@ -1658,6 +1669,8 @@ int get_mol_from_dynarama(GtkWidget *window) {
 }
 
 // resize
+#if 0
+// 20220602-PE this is no longer the way to handle resize events.
 void
 resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 
@@ -1667,6 +1680,7 @@ resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 #endif
 
 }
+#endif
 
 
 void toggle_dynarama_outliers(GtkWidget *window, int state) {
