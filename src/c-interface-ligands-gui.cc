@@ -170,12 +170,12 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 	 GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
 	 GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
 	 if (entry_1) {
-	    gtk_entry_set_text(GTK_ENTRY(entry_1),
-			       coot::util::float_to_string(g.find_ligand_score_by_correl_frac_limit).c_str());
+	    gtk_editable_set_text(GTK_EDITABLE(entry_1),
+                                  coot::util::float_to_string(g.find_ligand_score_by_correl_frac_limit).c_str());
 	 }
 	 if (entry_2) {
-	    gtk_entry_set_text(GTK_ENTRY(entry_2),
-			       coot::util::float_to_string(g.find_ligand_score_correl_frac_interesting_limit).c_str());
+	    gtk_editable_set_text(GTK_EDITABLE(entry_2),
+                                  coot::util::float_to_string(g.find_ligand_score_correl_frac_interesting_limit).c_str());
 	 }
       }
    }
@@ -204,18 +204,18 @@ void fill_ligands_sigma_level_entry(GtkWidget *dialog) {
 
    // GtkWidget *entry = lookup_widget(dialog, "find_ligand_sigma_level_entry");
    GtkWidget *entry = widget_from_builder("find_ligand_sigma_level_entry");
-   gtk_entry_set_text(GTK_ENTRY(entry), graphics_info_t::float_to_string(graphics_info_t::ligand_cluster_sigma_level).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), graphics_info_t::float_to_string(graphics_info_t::ligand_cluster_sigma_level).c_str());
 
 }
 
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog) {
 
    GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
-   gtk_entry_set_text(GTK_ENTRY(entry),
+   gtk_editable_set_text(GTK_EDITABLE(entry),
 		      graphics_info_t::int_to_string(graphics_info_t::ligand_wiggly_ligand_n_samples).c_str());
 
    entry = widget_from_builder("ligand_n_top_ligands_entry");
-   gtk_entry_set_text(GTK_ENTRY(entry),
+   gtk_editable_set_text(GTK_EDITABLE(entry),
 		      graphics_info_t::int_to_string(graphics_info_t::find_ligand_n_top_ligands).c_str());
 
 }
@@ -273,22 +273,19 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 	       map_button_label += " ";
 	       map_button_label += g.molecules[imol].name_;
 
-	       GtkWidget *find_ligand_map_radiobutton_imol =
-		  gtk_radio_button_new_with_label (find_ligand_map_group, map_button_label.c_str());
-	       find_ligand_map_group =
-		  gtk_radio_button_get_group(GTK_RADIO_BUTTON (find_ligand_map_radiobutton_imol));
-	       // gtk_widget_ref (find_ligand_map_radiobutton_imol);
-	       // g_object_set_data_full (G_OBJECT (find_ligand_dialog),
-               //                         map_str.c_str(),
-               // 			  find_ligand_map_radiobutton_imol,
-               //                        (GDestroyNotify) NULL);
+#if (GTK_MAJOR_VERSION >= 4)
+               // 20220602-PE FIXME radio buttons
+               std::cout << "in fill_ligands_dialog_map_bits_by_dialog_name() FIXME radiobuttons" << std::endl;
+#else
+	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_radio_button_new_with_label(find_ligand_map_group, map_button_label.c_str());
+	       find_ligand_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(find_ligand_map_radiobutton_imol));
                g_object_set_data(G_OBJECT(find_ligand_map_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
-
 	       g_signal_connect(G_OBJECT(find_ligand_map_radiobutton_imol), "toggled",
 				G_CALLBACK(on_find_ligand_map_radiobutton_imol_toggled),
 				GINT_TO_POINTER(imol));
-
 	       gtk_widget_show(find_ligand_map_radiobutton_imol);
+#endif
+
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
                // 20220528-PE FIXME box packing
@@ -313,9 +310,9 @@ on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
       GtkWidget *w = widget_from_builder("find_ligand_sigma_level_entry");
       if (w) {
 	 if (map_is_difference_map(imol)) {
-	    gtk_entry_set_text(GTK_ENTRY(w), "3.0");
+	    gtk_editable_set_text(GTK_EDITABLE(w), "3.0");
 	 } else {
-	    gtk_entry_set_text(GTK_ENTRY(w), "1.0");
+	    gtk_editable_set_text(GTK_EDITABLE(w), "1.0");
 	 }
       }
    }
@@ -357,6 +354,10 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
 	    std::string protein_button_label = g.int_to_string(imol);
 	    protein_button_label += " ";
 	    protein_button_label += g.molecules[imol].name_;
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+            // 20220602-PE FIXME radio buttons
+            std::cout << "in fill_ligands_dialog_protein_bits_by_dialog_name() FIXME radiobuttons " << std::endl;
+#else
 	    GtkWidget *find_ligand_protein_radiobutton_imol =
 	       gtk_radio_button_new_with_label (find_ligand_protein_group, protein_button_label.c_str());
 	    find_ligand_protein_group =
@@ -368,9 +369,7 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
             //                (GDestroyNotify) NULL);
             g_object_set_data(G_OBJECT(find_ligand_protein_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
 	    gtk_widget_show (find_ligand_protein_radiobutton_imol);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
             // 20220528-PE FIXME box packing
-#else
 	    gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
 #endif
@@ -411,6 +410,10 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 	       std::string protein_button_label = g.int_to_string(imol);
 	       protein_button_label += " ";
 	       protein_button_label += g.molecules[imol].name_;
+
+#if (GTK_MAJOR_VERSION >= 4)
+               // 20220528-PE FIXME box packing and radio buttons
+#else
 	       GtkWidget *find_ligand_protein_radiobutton_imol =
 		  gtk_radio_button_new_with_label (find_ligand_protein_group,
 						   protein_button_label.c_str());
@@ -423,9 +426,6 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 					 find_ligand_protein_radiobutton_imol,
 					 (GDestroyNotify) NULL);
 	       gtk_widget_show (find_ligand_protein_radiobutton_imol);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-               // 20220528-PE FIXME box packing
-#else
 	       gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				   find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
 #endif
@@ -518,6 +518,14 @@ std::pair<int, bool>
 execute_get_mols_ligand_search_get_item_pair(GtkWidget *ligand_item_hbox) {
 
    std::pair<int, bool> ligand_mol_info(-1, false);
+
+#if (GTK_MAJOR_VERSION >= 4)
+
+   // 20220602-PE FIXME container children
+   std::cout << "in execute_get_mols_ligand_search_get_item_pair() FIXME container children" << std::endl;
+
+#else
+   
    if (GTK_IS_CONTAINER(ligand_item_hbox)) {
 
       GList *dlist = gtk_container_get_children(GTK_CONTAINER(ligand_item_hbox));
@@ -563,6 +571,8 @@ execute_get_mols_ligand_search_get_item_pair(GtkWidget *ligand_item_hbox) {
       std::cout << "ERROR:: in execute_get_mols_ligand_search_get_item_pair() hbox_item is NOT a container " << ligand_item_hbox << std::endl;
    }
 
+#endif
+
    return ligand_mol_info;
 }
 
@@ -605,9 +615,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
    auto get_ligands_for_find_ligands = [] (GtkWidget *ligand_item_hbox, void *data) {
                                           // the items in the ligands vbox is a hbox with
                                           // a button for the ligand and another button for the wiggly flag (first)
-                                          if (GTK_IS_CONTAINER(ligand_item_hbox)) {
-                                             std::cout << "item_cont is a container " << ligand_item_hbox << std::endl;
-                                             if (GTK_IS_BOX(ligand_item_hbox)) {
+                                                if (GTK_IS_BOX(ligand_item_hbox)) {
                                                 std::cout << "item_cont is a box " << ligand_item_hbox << std::endl;
                                                 std::pair<int, bool> item_pair = execute_get_mols_ligand_search_get_item_pair(ligand_item_hbox);
                                                 if (item_pair.first != -1) {
@@ -615,12 +623,15 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
                                                    ligs_ptr->push_back(item_pair); // phew!
                                                 }
                                              }
-                                          }
-                                       };
+                                         };
 
    int imol_map = -1;
    int imol_protein = -1;
 
+#if (GTK_MAJOR_VERSION >= 4)
+
+   std::cout << "in execute_get_mols_ligand_search() FIXME container foreach " << std::endl;
+#else
    if (GTK_IS_CONTAINER(map_vbox)) {
       void *imol_ptr = &imol_map;
       gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_ligands, imol_ptr);
@@ -637,6 +648,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
          for (unsigned int i=0; i<wiggly_ligand_info.size(); i++)
             std::cout << "    " << wiggly_ligand_info[i].first << " wiggly: " << wiggly_ligand_info[i].second << std::endl;
    }
+#endif
 
    graphics_info_t g;
 
@@ -650,7 +662,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
    GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
    GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
    if (entry_1) {
-      const gchar *e1t = gtk_entry_get_text(GTK_ENTRY(entry_1));
+      const gchar *e1t = gtk_editable_get_text(GTK_EDITABLE(entry_1));
       if (e1t) {
 	 try {
 	    float f1 = coot::util::string_to_float(e1t);
@@ -662,7 +674,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
       }
    }
    if (entry_2) {
-      const gchar *e2t = gtk_entry_get_text(GTK_ENTRY(entry_2));
+      const gchar *e2t = gtk_editable_get_text(GTK_EDITABLE(entry_2));
       if (e2t) {
 	 try {
 	    float f2 = coot::util::string_to_float(e2t);
@@ -862,7 +874,7 @@ int execute_get_mols_ligand_search_old(GtkWidget *button) {
    GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
    GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
    if (entry_1) {
-      const gchar *e1t = gtk_entry_get_text(GTK_ENTRY(entry_1));
+      const gchar *e1t = gtk_editable_get_text(GTK_EDITABLE(entry_1));
       if (e1t) {
 	 try {
 	    float f1 = coot::util::string_to_float(e1t);
@@ -874,7 +886,7 @@ int execute_get_mols_ligand_search_old(GtkWidget *button) {
       }
    }
    if (entry_2) {
-      const gchar *e2t = gtk_entry_get_text(GTK_ENTRY(entry_2));
+      const gchar *e2t = gtk_editable_get_text(GTK_EDITABLE(entry_2));
       if (e2t) {
 	 try {
 	    float f2 = coot::util::string_to_float(e2t);
@@ -937,7 +949,7 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
 
    // GtkWidget *entry = lookup_widget(button, "ligand_n_samples_entry");
    GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (text) {
       int isample = atoi(text);
       if ((isample > 0) && (isample < 1000000))
@@ -945,7 +957,7 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
    }
    // entry = lookup_widget(button, "ligand_n_top_ligands_entry");
    entry = widget_from_builder("ligand_n_top_ligands_entry");
-   text = gtk_entry_get_text(GTK_ENTRY(entry));
+   text = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (text) {
       int itop = atoi(text);
       if ((itop > 0) && (itop < 1000000))
@@ -994,7 +1006,7 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
    short int setit = 0;
 
    if (entry) {
-      const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+      const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
       if (text) {
 	 float f = atof(text);
 	 if (f > 0.0 && f < 1000.0) {
@@ -1016,8 +1028,8 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 // arguments.
 //
 void
-start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
-				  gpointer         user_data) {
+start_ligand_builder_gui_internal(GMenuItem     *menuitem,
+				  gpointer       user_data) {
 
       start_ligand_builder_gui();
 }
@@ -1424,16 +1436,18 @@ setup_ligands_progress_bar() {
 
    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
    GtkWidget *progress_bar = gtk_progress_bar_new();
-   GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+   GtkWidget *window = gtk_window_new();
    GtkWidget *label = gtk_label_new("  Installing Ligand Conformers  ");
 
    gtk_window_set_title(GTK_WINDOW (window), "Fitting Ligands");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220602-PE FIXME border width
 #else
    gtk_container_set_border_width(GTK_CONTAINER (window), 0);
    gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
 #endif
-   gtk_container_add(GTK_CONTAINER (window), vbox);
+
+   gtk_window_set_child(GTK_WINDOW(window), vbox);
 
    graphics_info_t g;
    GtkWidget *main_window = g.get_main_window();
@@ -1446,6 +1460,8 @@ setup_ligands_progress_bar() {
    gtk_widget_show(window);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    // 20220528-PE FIXME box packing
+   gtk_box_append(GTK_BOX(vbox), progress_bar);
+   gtk_box_append(GTK_BOX(vbox), label);
 #else
    gtk_box_pack_start(GTK_BOX(vbox), progress_bar, FALSE, FALSE, 5);
    gtk_box_pack_start(GTK_BOX(vbox), label,        FALSE, FALSE, 5);
@@ -1498,7 +1514,7 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
       if (ldp->finish) {
 	 status = 0;
 	 execute_ligand_search_internal(ldp->wlig);
-	 gtk_widget_destroy(ldp->progress_bar_window);
+	 gtk_widget_hide(ldp->progress_bar_window);
       } else {
 	 // continue one more round
 	 gtk_label_set_text(GTK_LABEL(ldp->progress_bar_label), "Searching density clusters");

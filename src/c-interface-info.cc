@@ -1622,7 +1622,7 @@ int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
 
       success = g.try_centre_from_new_go_to_atom();
       if (success)
-         update_things_on_move_and_redraw();
+         g.update_things_on_move_and_redraw();
    }
    return success;
 }
@@ -2426,11 +2426,11 @@ void fill_environment_widget(GtkWidget *widget) {
 
    entry = widget_from_builder("environment_distance_min_entry");
    snprintf(text, 99, "%-5.1f", g.environment_min_distance);
-   gtk_entry_set_text(GTK_ENTRY(entry), text);
+   gtk_editable_set_text(GTK_EDITABLE(entry), text);
 
    entry = widget_from_builder("environment_distance_max_entry");
    snprintf(text, 99, "%-5.1f" ,g.environment_max_distance);
-   gtk_entry_set_text(GTK_ENTRY(entry), text);
+   gtk_editable_set_text(GTK_EDITABLE(entry), text);
    free(text);
 
    GtkWidget *toggle_button;
@@ -2468,7 +2468,7 @@ void execute_environment_settings(GtkWidget *widget) {
    graphics_info_t g;
 
    entry = widget_from_builder("environment_distance_min_entry");
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    val = atof(text);
    if (val < 0 || val > 1000) {
       g.environment_min_distance = 2.2;
@@ -2479,7 +2479,7 @@ void execute_environment_settings(GtkWidget *widget) {
    }
 
    entry = widget_from_builder("environment_distance_max_entry");
-   text = gtk_entry_get_text(GTK_ENTRY(entry));
+   text = gtk_editable_get_text(GTK_EDITABLE(entry));
    val = atof(text);
    if (val < 0 || val > 1000) {
       g.environment_max_distance = 3.2;

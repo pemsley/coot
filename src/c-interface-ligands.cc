@@ -1470,8 +1470,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       GtkWidget *label  = gtk_label_new(l.c_str());
 
       // GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
-      GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-      gtk_container_add(GTK_CONTAINER(button), button_hbox);
+      GtkWidget *hbox_in_button = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+      gtk_button_set_child(GTK_BUTTON(button), hbox_in_button);
 
       int imol = 0; // dummy
       GtkWidget *wp = 0; // = get_image_widget_for_comp_id(v[i].first, imol);
@@ -1494,7 +1494,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
 #endif
       gtk_widget_show(label);
-      gtk_widget_show(button_hbox);
+      gtk_widget_show(hbox_in_button);
 
       std::string button_name = "monomer_button_";
       // gets embedded as user data (hmm).

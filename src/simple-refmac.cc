@@ -3,8 +3,10 @@
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include "globjects.h" //includes gtk/gtk.h
-#include "interface.h"
+// #include "globjects.h" //includes gtk/gtk.h // 20220602-PE nothing of interest lies therein
+
+// #include "interface.h" // 20220602-PE we surely don't use this now - delete
+
 #include "graphics-info.h"
 #include "c-interface.h" // for is_valid_model_molecule()
 #include "cc-interface.hh"
