@@ -311,7 +311,7 @@ GtkWidget *symmetry_molecule_controller_dialog();
 /* used by destroy callback, needed because there should only be one of these. */
 void set_symmetry_controller_dialog_widget(GtkWidget *w);
 
-void save_symmetry_coords_from_fileselection(GtkWidget *fileselection);
+void save_symmetry_coords_from_filechooser(GtkWidget *fileselection);
 
 void set_directory_for_fileselection(GtkWidget *coords_fileselection1);
 void save_directory_from_fileselection(const GtkWidget *fileselection);

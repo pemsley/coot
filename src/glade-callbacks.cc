@@ -6087,7 +6087,7 @@ on_save_symmetry_coords_fileselection_ok_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("save_symmetry_coords_fileselection");
-  save_symmetry_coords_from_fileselection(w);
+  save_symmetry_coords_from_filechooser(w);
   gtk_widget_hide(w);
 }
 
@@ -9533,7 +9533,7 @@ on_save_symmetry_coords_filechooserdialog1_response(GtkDialog * dialog,
                                                     gpointer user_data) {
    if (response_id == GTK_RESPONSE_OK) {
       GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooserdialog1");
-      save_symmetry_coords_from_fileselection(w);
+      save_symmetry_coords_from_filechooser(w);
       gtk_widget_hide(w);
    } else {
       GtkWidget *coords_fileselection1 = widget_from_builder("save_symmetry_coords_filechooserdialog1");

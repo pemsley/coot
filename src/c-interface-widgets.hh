@@ -50,8 +50,8 @@ p  So we need to have this function external for c++ linking.
 
 // void add_ligand_builder_menu_item_maybe();
 
-void start_ligand_builder_gui_XXX(GtkMenuItem     *menuitem,
-				  gpointer         user_data);
+void start_ligand_builder_gui_XXX(GMenuItem     *menuitem,
+				  gpointer       user_data);
 
 
 /* ------------------------------------------------------------------------- */
